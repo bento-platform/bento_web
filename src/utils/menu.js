@@ -6,6 +6,9 @@ import "antd/es/menu/style/css";
 
 // Custom menu renderer
 export const renderMenuItem = i => {
+    const display = i.displayed === undefined ? true : !!i.displayed;
+    if (!display) return null;
+
     if (i.hasOwnProperty("children")) {
         return <Menu.SubMenu style={i.style || {}} title={
             <span className="submenu-title-wrapper">

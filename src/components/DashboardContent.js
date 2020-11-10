@@ -16,6 +16,7 @@ import ServiceList from "./ServiceList";
 import {SITE_NAME} from "../constants";
 import {nodeInfoDataPropTypesShape, projectPropTypesShape} from "../propTypes";
 import {EM_DASH} from "../constants";
+import {FEDERATION_MODE} from "../settings";
 
 
 class DashboardContent extends Component {
@@ -55,15 +56,17 @@ class DashboardContent extends Component {
                             </Spin>
                         </Col>
                         {/* TODO: Tables */}
-                        <Col md={12} lg={8} xl={3}>
-                            <Spin spinning={this.props.isFetchingPeers}>
-                                {/* Exclude self */}
-                                <Statistic title="Network Size"
-                                           value={this.props.isFetchingPeers
-                                               ? EM_DASH
-                                               : this.props.peers.length} />
-                            </Spin>
-                        </Col>
+                        {FEDERATION_MODE ? (
+                            <Col md={12} lg={8} xl={3}>
+                                <Spin spinning={this.props.isFetchingPeers}>
+                                    {/* Exclude self */}
+                                    <Statistic title="Network Size"
+                                               value={this.props.isFetchingPeers
+                                                   ? EM_DASH
+                                                   : this.props.peers.length} />
+                                </Spin>
+                            </Col>
+                        ) : null}
                     </Row>
                     <Typography.Title level={3}>Services</Typography.Title>
                     <ServiceList />

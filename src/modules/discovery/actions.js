@@ -1,6 +1,7 @@
 import {conditionsToQuery, extractQueriesFromDataTypeForms, extractQueryConditionsFromFormValues} from "../../utils/search";
 import {createNetworkActionTypes, networkAction} from "../../utils/actions";
 import {jsonRequest} from "../../utils/requests";
+import {FEDERATION_MODE} from "../../settings";
 
 
 export const PERFORM_SEARCH = createNetworkActionTypes("DISCOVERY.PERFORM_SEARCH");
@@ -33,6 +34,14 @@ const performSearch = networkAction((dataTypeQueries, joinQuery=null) => (dispat
 
 
 export const performFullSearchIfPossible = () => (dispatch, getState) => {
+    if (!FEDERATION_MODE) {
+        // Don't attempt to perform a federated search if federation mode is
+        // off. This likely won't be called anyway, since the pages that would
+        // utilize it are disabled.
+        console.warn("Cannot perform a federated search with FEDERATION_MODE=false");
+        return;
+    }
+
     if (getState().discovery.isFetching) return;
 
     // TODO: Map keys to avoid issues!!! Otherwise "deleted" conditions show up

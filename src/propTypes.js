@@ -136,9 +136,12 @@ export const summaryPropTypesShape = PropTypes.shape({
 
 // Prop types object shape for a single user object.
 export const userPropTypesShape = PropTypes.shape({
-    // TODO: More
+    // TODO: More?
     chord_user_role: PropTypes.string.isRequired,
+    email: PropTypes.string,
     email_verified: PropTypes.bool,
+    locale: PropTypes.string,
+    name: PropTypes.string,
     preferred_username: PropTypes.string,
     sub: PropTypes.string.isRequired,
 });

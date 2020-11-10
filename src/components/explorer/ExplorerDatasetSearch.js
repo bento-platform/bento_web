@@ -86,12 +86,12 @@ class ExplorerDatasetSearch extends Component {
                                    removeDataTypeQueryForm={this.props.removeDataTypeQueryForm} />
             {this.props.searchResults ? <>
                 <Typography.Title level={4}>
-                    <div>
+                    <span>
                         Showing results {(this.state.currentPage * this.state.pageSize) - this.state.pageSize + 1}-{
                         (this.state.currentPage * this.state.pageSize) < this.props.searchResults.searchFormattedResults.length 
                             ? (this.state.currentPage * this.state.pageSize) 
                             : this.props.searchResults.searchFormattedResults.length} of {this.props.searchResults.searchFormattedResults.length}
-                    </div>
+                    </span>
                     <div style={{float: "right", verticalAlign: "top"}}>
                         <Button icon="profile"
                                 style={{marginRight: "8px"}}

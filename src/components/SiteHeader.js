@@ -13,6 +13,7 @@ import "antd/es/menu/style/css";
 import {showNotificationDrawer} from "../modules/notifications/actions";
 
 import {SIGN_OUT_URL, SITE_NAME} from "../constants";
+import {FEDERATION_MODE} from "../settings";
 import {matchingMenuKeys, renderMenuItem} from "../utils/menu";
 import {BASE_PATH, signInURLWithRedirect, withBasePath} from "../utils/url";
 import {nodeInfoDataPropTypesShape, notificationPropTypesShape, userPropTypesShape} from "../propTypes";
@@ -30,6 +31,7 @@ class SiteHeader extends Component {
                 url: withBasePath("data/discovery"),
                 icon: <Icon type="file-search" />,
                 text: <span className="nav-text">Data Discovery</span>,
+                displayed: FEDERATION_MODE,
             },
             {
                 url: withBasePath("data/explorer"),
@@ -47,12 +49,15 @@ class SiteHeader extends Component {
                 url: withBasePath("peers"),
                 icon: <Icon type="apartment" />,
                 text: <span className="nav-text">Peers</span>,
+                displayed: FEDERATION_MODE,
             },
             ...(this.props.user ? [{
                 key: "user-menu",
                 style: {float: "right"},
                 icon: <Icon type="user" />,
-                text: this.props.user.preferred_username,
+                text: this.props.user.name
+                    || this.props.user.preferred_username
+                    || (this.props.user.email ? this.props.user.email.split(" ")[0] : ""),
                 children: [{
                     key: "sign-out-link",
                     onClick: () => window.location.href = withBasePath(SIGN_OUT_URL),

@@ -35,6 +35,8 @@ const DataManagerContent = lazy(() => import("./DataManagerContent"));
 const PeersContent = lazy(() => import("./PeersContent"));
 const NotificationsContent = lazy(() => import("./notifications/NotificationsContent"));
 
+const PING_INTERVAL = 30000;
+
 class App extends Component {
     constructor(props) {
         super(props);
@@ -100,14 +102,13 @@ class App extends Component {
 
     createEventRelayConnectionIfNecessary() {
         this.eventRelayConnection = (() => {
-            if (this.eventRelayConnection) {
-                return this.eventRelayConnection;
-            }
+            // Return an existing connection if it exists
+            if (this.eventRelayConnection) return this.eventRelayConnection;
 
             // Don't bother trying to create the event relay connection if the user isn't authenticated
             if (!this.props.user) return null;
 
-            const url = (this.props.eventRelay || {url: null}).url || null;
+            const url = (this.props.eventRelay || {}).url || null;
             return url ? (() => io(BASE_PATH, {
                 path: `${urlPath(url)}/private/socket.io`,
                 reconnection: !!this.props.user  // Only try to reconnect if we're authenticated
@@ -144,7 +145,7 @@ class App extends Component {
 
             // TODO: Refresh other data
             // TODO: Variable rate
-            this.pingInterval = setInterval(this.refreshUserAndDependentData, 30000);
+            this.pingInterval = setInterval(this.refreshUserAndDependentData, PING_INTERVAL);
             window.addEventListener("focus", () => this.refreshUserAndDependentData());
         })();
     }

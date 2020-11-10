@@ -1,3 +1,4 @@
+// TODO: This should be an environment variable setting
 export const SITE_NAME = "Bento";
 
 export const SIGN_IN_URL = "api/auth/sign-in";
