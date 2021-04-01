@@ -70,6 +70,7 @@ module.exports = {
         "eol-last": ["error", "always"],
         "no-restricted-globals": ["error", "event"],
         "brace-style": ["error", "1tbs"],
+        "camelcase": ["error", {"properties": "never"}],
     },
     "settings": {
         "react": {

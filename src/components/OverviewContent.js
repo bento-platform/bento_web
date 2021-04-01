@@ -145,23 +145,22 @@ class OverviewContent extends Component {
     }
 
     stringToDateYearAsXJSON(birthdayStr) {
-        // curtosity of : https://stackoverflow.com/questions/10008050/get-age-from-birthdate
-        const today_date = new Date();
-        const today_year = today_date.getFullYear();
-        const today_month = today_date.getMonth();
-        const today_day = today_date.getDate();
+        // courtesy of : https://stackoverflow.com/questions/10008050/get-age-from-birthdate
+        const todayDate = new Date();
+        const todayYear = todayDate.getFullYear();
+        const todayMonth = todayDate.getMonth();
+        const todayDay = todayDate.getDate();
 
         const birthday = new Date(birthdayStr);
-        const birth_year =  birthday.getFullYear();
-        const birth_month =  birthday.getMonth();
-        const birth_date =  birthday.getDate();
+        const birthYear =  birthday.getFullYear();
+        const birthMonth =  birthday.getMonth();
+        const birthDate =  birthday.getDate();
 
-        let age = today_year - birth_year;
+        let age = todayYear - birthYear;
 
-        if ( today_month < (birth_month - 1)) {
+        if ( todayMonth < (birthMonth - 1)) {
             age--;
-        }
-        if (((birth_month - 1) === today_month) && (today_day < birth_date)) {
+        } else if (((birthMonth - 1) === todayMonth) && (todayDay < birthDate)) {
             age--;
         }
 

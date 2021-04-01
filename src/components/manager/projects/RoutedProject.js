@@ -114,7 +114,8 @@ class RoutedProject extends Component {
 
             const tableList = projectTableRecords
                 .filter(tableOwnership =>
-                    ((tables[tableOwnership.service_id] || {}).tablesByID || {}).hasOwnProperty(tableOwnership.table_id))
+                    ((tables[tableOwnership.service_id] || {}).tablesByID || {})
+                        .hasOwnProperty(tableOwnership.table_id))
                 .map(tableOwnership => ({
                     ...tableOwnership,
                     ...tables[tableOwnership.service_id].tablesByID[tableOwnership.table_id],
