@@ -23,6 +23,8 @@ import {nop} from "../utils/misc";
 import {BASE_PATH, signInURLWithRedirect, urlPath, withBasePath} from "../utils/url";
 import {serviceInfoPropTypesShape, userPropTypesShape} from "../propTypes";
 
+import SessionWorker from "../session.worker";
+
 // Lazy-load notification drawer
 const NotificationDrawer = lazy(() => import("./notifications/NotificationDrawer"));
 
@@ -46,6 +48,11 @@ class App extends Component {
         this.state = {
             signedOutModal: false
         };
+
+        this.sessionWorker = new SessionWorker();
+        this.sessionWorker.addEventListener("message", data => {
+            console.log(data);
+        });
 
         this.createEventRelayConnectionIfNecessary = this.createEventRelayConnectionIfNecessary.bind(this);
         this.refreshUserAndDependentData = this.refreshUserAndDependentData.bind(this);
