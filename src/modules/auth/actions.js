@@ -31,52 +31,46 @@ export const fetchUser = networkAction(() => ({
     url: withBasePath("api/auth/user")
 }));
 
-const fetchAndReturnUser = () => async (dispatch, getState) => {
-    await dispatch(fetchUser());
-    return getState().auth.user;
-};
-
-const setUser = user => ({
+export const setUser = user => ({
     type: SET_USER,
     data: user,
 });
 
-export const setAndReturnUser = user => (dispatch, getState) => {
-    dispatch(setUser(user));
-    return getState().auth.user;
-};
-
 export const fetchDependentData = () => dispatch => Promise.all([
-    dispatch(fetchDropBoxTreeOrFail()),
-    dispatch(fetchServiceLogsIfPossible()),
-    dispatch(fetchSystemLogsIfPossible()),
-    dispatch(fetchRuns()),
-    dispatch(fetchNotifications()),
-    dispatch(fetchOverviewSummary()),
-    dispatch(fetchExperiments()),
-    dispatch(fetchVariantTableSummaries())
-]);
+    fetchDropBoxTreeOrFail,
+    fetchServiceLogsIfPossible,
+    fetchSystemLogsIfPossible,
+    fetchRuns,
+    fetchNotifications,
+    fetchOverviewSummary,
+    fetchExperiments,
+    fetchVariantTableSummaries,
+].map(a => dispatch(a())));
 
 // TODO: Rename this (also fetches node info)
 export const fetchUserAndDependentData = servicesCb => dispatch =>
-    dispatch(fetchDependentDataWithProvidedUser(servicesCb, fetchAndReturnUser()));
+    dispatch(fetchDependentDataWithProvidedUser(servicesCb, fetchUser()));
 
 // TODO: Rename this (also fetches node info)
-export const fetchDependentDataWithProvidedUser = (servicesCb, boundAction) => async (dispatch, getState) => {
-    const oldState = getState().auth.user;
+export const fetchDependentDataWithProvidedUser = (servicesCb, boundUserGetAction) => async (dispatch, getState) => {
+    const oldUserState = getState().auth.user || {};
     const hasAttempted = getState().auth.hasAttempted;
 
     if (!hasAttempted) {
         dispatch(beginFlow(FETCHING_USER_DEPENDENT_DATA));
 
-        // Fetch node info if it's the first time this has been run; node info doesn't really change.
-        // The reason this flow is only triggered the first time it is called is because we want to silently check the
-        // user / auth status without any loading indicators afterwards.
+        // Fetch node info if it's the first time this has been run; node info
+        // doesn't really change.
+        // The reason this flow is only triggered the first time it is called
+        // is because we want to silently check the user / auth status without
+        // any loading indicators afterwards.
         await dispatch(fetchNodeInfo());
     }
 
-    // Parameterize the getUser action so it can either return existing data or fetch it from the API.
-    const newState = await dispatch(boundAction);
+    // Parameterize the (bound) action which sets the new user state, so it
+    // can either set already fetched data or fetch it from the API itself.
+    await dispatch(boundUserGetAction);
+    const newUserState = getState().auth.user || {};
 
     if (!hasAttempted) {
         await dispatch(fetchServicesWithMetadataAndDataTypesAndTablesIfNeeded());
@@ -84,9 +78,9 @@ export const fetchDependentDataWithProvidedUser = (servicesCb, boundAction) => a
         await dispatch(fetchProjectsWithDatasetsAndTables());  // TODO: If needed, remove if !hasAttempted
     }
 
-    if (newState === null
-        || (oldState || {}).chord_user_role === newState.chord_user_role
-        || newState.chord_user_role !== "owner") {
+    if (newUserState === null
+        || oldUserState.chord_user_role === newUserState.chord_user_role
+        || newUserState.chord_user_role !== "owner") {
         if (!hasAttempted) dispatch(endFlow(FETCHING_USER_DEPENDENT_DATA));
         return;
     }

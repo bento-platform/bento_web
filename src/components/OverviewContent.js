@@ -219,7 +219,7 @@ class OverviewContent extends Component {
         });
 
         const overviewSummaryFetching = (this.props.overviewSummary || {isFetching: true}).isFetching;
-        const experimentsFetching = (this.props.experiments || {isFetching: false}).isFetching;
+        const experimentsFetching = (this.props.experiments || {isFetching: true}).isFetching;
 
         return <>
             <SitePageHeader title="Overview" subTitle="" />

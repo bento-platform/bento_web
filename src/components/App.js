@@ -15,7 +15,7 @@ import SiteHeader from "./SiteHeader";
 import SiteFooter from "./SiteFooter";
 import SitePageLoading from "./SitePageLoading";
 
-import {fetchDependentDataWithProvidedUser, fetchUserAndDependentData, setAndReturnUser} from "../modules/auth/actions";
+import {fetchDependentDataWithProvidedUser, fetchUserAndDependentData, setUser} from "../modules/auth/actions";
 import {fetchPeersOrError} from "../modules/peers/actions";
 
 import eventHandler from "../events";
@@ -49,9 +49,13 @@ class App extends Component {
             signedOutModal: false
         };
 
+        // Initialize a web worker which pings the user endpoint on a set
+        // interval. This lets the application accept Set-Cookie headers which
+        // keep the session ID up to date and prevent invalidating the session
+        // incorrectly / early.
         this.sessionWorker = new SessionWorker();
         this.sessionWorker.addEventListener("message", async msg => {
-            await this.props.fetchDependentDataWithProvidedUser(nop, setAndReturnUser(msg.data.user));
+            await this.props.fetchDependentDataWithProvidedUser(nop, setUser(msg.data.user));
             this.handleUserChange();
         });
 
