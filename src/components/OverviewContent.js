@@ -37,7 +37,6 @@ import {
     fetchPhenopackets,
     fetchExperiments,
     fetchVariantTableSummaries,
-    fetchOverviewSummary
 } from "../modules/metadata/actions";
 import { setAutoQueryPageTransition } from "../modules/explorer/actions";
 
@@ -779,7 +778,6 @@ OverviewContent.propTypes = {
         isFetching: PropTypes.bool,
         data: overviewSummaryPropTypesShape
     }),
-    fetchOverviewSummary: PropTypes.func,
 
     tableSummaries : PropTypes.shape({
         isFetching: PropTypes.bool,
@@ -812,6 +810,5 @@ export default connect(mapStateToProps, {
     fetchPhenopackets,
     fetchExperiments,
     fetchVariantTableSummaries,
-    fetchOverviewSummary,
     setAutoQueryPageTransition
 })(OverviewContent);
