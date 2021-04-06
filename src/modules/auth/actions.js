@@ -92,7 +92,7 @@ export const fetchDependentDataWithProvidedUser = (servicesCb, boundAction) => a
     }
 
     // Otherwise, we're newly authenticated as an owner, so run all actions that need authentication.
-    await fetchDependentData();
+    await dispatch(fetchDependentData());
 
     if (!hasAttempted) dispatch(endFlow(FETCHING_USER_DEPENDENT_DATA));
 };
