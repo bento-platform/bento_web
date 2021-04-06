@@ -219,6 +219,7 @@ class OverviewContent extends Component {
         });
 
         const overviewSummaryFetching = (this.props.overviewSummary || {isFetching: true}).isFetching;
+        const experimentsFetching = (this.props.experiments || {isFetching: false}).isFetching;
 
         return <>
             <SitePageHeader title="Overview" subTitle="" />
@@ -248,7 +249,7 @@ class OverviewContent extends Component {
                                 </Spin>
                             </Col>
                             <Col xl={2} lg={3} md={5} sm={6} xs={10}>
-                                <Spin spinning={overviewSummaryFetching}>
+                                <Spin spinning={experimentsFetching}>
                                     <Statistic title="Experiments" value={experiments.length} />
                                 </Spin>
                             </Col>
