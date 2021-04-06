@@ -15,7 +15,7 @@ import SiteHeader from "./SiteHeader";
 import SiteFooter from "./SiteFooter";
 import SitePageLoading from "./SitePageLoading";
 
-import {fetchUserAndDependentData} from "../modules/auth/actions";
+import {fetchDependentDataWithProvidedUser, fetchUserAndDependentData, setAndReturnUser} from "../modules/auth/actions";
 import {fetchPeersOrError} from "../modules/peers/actions";
 
 import eventHandler from "../events";
@@ -50,8 +50,9 @@ class App extends Component {
         };
 
         this.sessionWorker = new SessionWorker();
-        this.sessionWorker.addEventListener("message", data => {
-            console.log(data);
+        this.sessionWorker.addEventListener("message", async msg => {
+            await this.props.fetchDependentDataWithProvidedUser(nop, setAndReturnUser(msg.data.user));
+            this.handleUserChange();
         });
 
         this.createEventRelayConnectionIfNecessary = this.createEventRelayConnectionIfNecessary.bind(this);
@@ -119,7 +120,11 @@ class App extends Component {
     // TODO: Don't execute on focus if it's been checked recently
     async refreshUserAndDependentData() {
         await this.props.fetchUserAndDependentData(nop);
-        if (this.lastUser !== null && this.props.user === null) {
+        this.handleUserChange();
+    }
+
+    handleUserChange() {
+        if (this.lastUser && this.props.user === null) {
             // We got de-authenticated, so show a prompt...
             this.setState({signedOutModal: true});
             // ... and disable constant websocket pinging if necessary by removing existing connections
@@ -127,13 +132,13 @@ class App extends Component {
                 this.eventRelayConnection.close();
                 this.eventRelayConnection = null;
             }
-        } else if (this.lastUser === null && this.props.user) {
+        } else if (!this.lastUser && this.props.user) {
             // We got authenticated, so re-enable reconnection on the websocket..
             this.createEventRelayConnectionIfNecessary();
             // ... and minimize the sign-in prompt modal if necessary
             this.setState({signedOutModal: false});
         }
-        this.lastUser = this.props.user;
+        this.lastUser = !!this.props.user;
     }
 
     componentDidMount() {
@@ -145,13 +150,14 @@ class App extends Component {
 
             // TODO: Refresh other data
             // TODO: Variable rate
-            this.pingInterval = setInterval(this.refreshUserAndDependentData, 30000);
+            // this.pingInterval = setInterval(this.refreshUserAndDependentData, 30000);
             window.addEventListener("focus", () => this.refreshUserAndDependentData());
         })();
     }
 
     componentWillUnmount() {
-        this.clearPingInterval();
+        // TODO: DO WE NEED THIS FOR THE WORKER?
+        // this.clearPingInterval();
     }
 }
 
@@ -162,6 +168,7 @@ App.propTypes = {
 
     fetchUserAndDependentData: PropTypes.func,
     fetchPeersOrError: PropTypes.func,
+    fetchDependentDataWithProvidedUser: PropTypes.func,
 };
 
 const mapStateToProps = state => ({
@@ -171,6 +178,7 @@ const mapStateToProps = state => ({
 });
 
 export default withRouter(connect(mapStateToProps, {
+    fetchDependentDataWithProvidedUser,
     fetchUserAndDependentData,
     fetchPeersOrError,
 })(App));
