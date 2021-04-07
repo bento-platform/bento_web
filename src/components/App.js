@@ -36,7 +36,7 @@ const DataExplorerContent = lazy(() => import("./DataExplorerContent"));
 const AdminContent = lazy(() => import("./AdminContent"));
 const NotificationsContent = lazy(() => import("./notifications/NotificationsContent"));
 
-const SIGN_IN_WINDOW_FEATURES = "scrollbars=no, toolbar=no, menubar=no, width=640, height=480";
+const SIGN_IN_WINDOW_FEATURES = "scrollbars=no, toolbar=no, menubar=no, width=800, height=600";
 
 class App extends Component {
     constructor(props) {
@@ -79,8 +79,8 @@ class App extends Component {
             `${this.props.nodeInfo.CHORD_URL}${POPUP_AUTH_CALLBACK_URL}`);
         if (!this.signInWindow || this.signInWindow.closed) {
             // TODO: Redirect to page which closes automatically:
-            const popupTop = window.top.outerHeight / 2 + window.top.screenY - 240;
-            const popupLeft = window.top.outerWidth / 2 + window.top.screenX - 320;
+            const popupTop = window.top.outerHeight / 2 + window.top.screenY - 300;
+            const popupLeft = window.top.outerWidth / 2 + window.top.screenX - 400;
             this.signInWindow = window.open(
                 signInURL,
                 "Bento Sign In",
@@ -91,7 +91,8 @@ class App extends Component {
 
         this.signInWindow.addEventListener("message", event => {
             // TODO: Handle sign in finishing
-            console.log(event.origin);  // TODO: Return if bad origin
+            if (event.origin !== window.location.origin) return;  // Not coming from our site, escape!
+            console.log(event);
 
             // TODO: Handle data from popup? Set-Cookie? Will that be handled automatically?
         });
