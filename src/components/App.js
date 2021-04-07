@@ -134,7 +134,7 @@ class App extends Component {
             // Don't bother trying to create the event relay connection if the user isn't authenticated
             if (!this.props.user) return null;
 
-            const url = (this.props.eventRelay || {url: null}).url || null;
+            const url = this.props.eventRelay?.url ?? null;
             return url ? (() => io(BASE_PATH, {
                 path: `${urlPath(url)}/private/socket.io`,
                 reconnection: !!this.props.user  // Only try to reconnect if we're authenticated

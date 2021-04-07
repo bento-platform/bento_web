@@ -53,7 +53,7 @@ export const fetchUserAndDependentData = servicesCb => dispatch =>
 
 // TODO: Rename this (also fetches node info)
 export const fetchDependentDataWithProvidedUser = (servicesCb, boundUserGetAction) => async (dispatch, getState) => {
-    const oldUserState = getState().auth.user || {};
+    const oldUserState = getState().auth.user;
     const hasAttempted = getState().auth.hasAttempted;
 
     if (!hasAttempted) {
@@ -70,7 +70,7 @@ export const fetchDependentDataWithProvidedUser = (servicesCb, boundUserGetActio
     // Parameterize the (bound) action which sets the new user state, so it
     // can either set already fetched data or fetch it from the API itself.
     await dispatch(boundUserGetAction);
-    const newUserState = getState().auth.user || {};
+    const newUserState = getState().auth.user;
 
     if (!hasAttempted) {
         await dispatch(fetchServicesWithMetadataAndDataTypesAndTablesIfNeeded());
@@ -78,9 +78,11 @@ export const fetchDependentDataWithProvidedUser = (servicesCb, boundUserGetActio
         await dispatch(fetchProjectsWithDatasetsAndTables());  // TODO: If needed, remove if !hasAttempted
     }
 
-    if (newUserState === null
-        || oldUserState.chord_user_role === newUserState.chord_user_role
-        || newUserState.chord_user_role !== "owner") {
+    if (newUserState?.chord_user_role !== "owner"
+        || oldUserState?.chord_user_role === newUserState?.chord_user_role) {
+        // We either didn't change state (in which case we've handled stuff before) or are not an owner, and so
+        // should not try to fetch authenticated data.
+        // TODO: Actual roles for access
         if (!hasAttempted) dispatch(endFlow(FETCHING_USER_DEPENDENT_DATA));
         return;
     }
