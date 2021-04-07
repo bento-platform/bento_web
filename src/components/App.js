@@ -21,9 +21,10 @@ import {fetchPeersOrError} from "../modules/peers/actions";
 import eventHandler from "../events";
 import {nop} from "../utils/misc";
 import {BASE_PATH, signInURLWithCustomRedirect, urlPath, withBasePath} from "../utils/url";
-import {serviceInfoPropTypesShape, userPropTypesShape} from "../propTypes";
+import {nodeInfoDataPropTypesShape, serviceInfoPropTypesShape, userPropTypesShape} from "../propTypes";
 
 import SessionWorker from "../session.worker";
+import {POPUP_AUTH_CALLBACK_URL} from "../constants";
 
 // Lazy-load notification drawer
 const NotificationDrawer = lazy(() => import("./notifications/NotificationDrawer"));
@@ -35,7 +36,7 @@ const DataExplorerContent = lazy(() => import("./DataExplorerContent"));
 const AdminContent = lazy(() => import("./AdminContent"));
 const NotificationsContent = lazy(() => import("./notifications/NotificationsContent"));
 
-const SIGN_IN_WINDOW_FEATURES = "toolbar=no, menubar=no, width=640, height=480";
+const SIGN_IN_WINDOW_FEATURES = "scrollbars=no, toolbar=no, menubar=no, width=640, height=480";
 
 class App extends Component {
     constructor(props) {
@@ -74,10 +75,16 @@ class App extends Component {
     }
 
     openSignInWindow() {
-        const signInURL = signInURLWithCustomRedirect("TODO");
+        const signInURL = signInURLWithCustomRedirect(
+            `${this.props.nodeInfo.CHORD_URL}${POPUP_AUTH_CALLBACK_URL}`);
         if (!this.signInWindow || this.signInWindow.closed) {
             // TODO: Redirect to page which closes automatically:
-            this.signInWindow = window.open(signInURL, "Bento Sign In", SIGN_IN_WINDOW_FEATURES);
+            const popupTop = window.top.outerHeight / 2 + window.top.screenY - 240;
+            const popupLeft = window.top.outerWidth / 2 + window.top.screenX - 320;
+            this.signInWindow = window.open(
+                signInURL,
+                "Bento Sign In",
+                `${SIGN_IN_WINDOW_FEATURES}, top=${popupTop}, left=${popupLeft}`);
         } else {
             this.signInWindow.focus();
         }
@@ -187,6 +194,7 @@ class App extends Component {
 
 App.propTypes = {
     isFetchingNodeInfo: PropTypes.bool,
+    nodeInfo: nodeInfoDataPropTypesShape,
     eventRelay: serviceInfoPropTypesShape,
     user: userPropTypesShape,
 
@@ -197,6 +205,7 @@ App.propTypes = {
 
 const mapStateToProps = state => ({
     isFetchingNodeInfo: state.nodeInfo.isFetching,
+    nodeInfo: state.nodeInfo.data,
     eventRelay: state.services.eventRelay,
     user: state.auth.user
 });
