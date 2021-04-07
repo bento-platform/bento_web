@@ -5,7 +5,7 @@ import PropTypes from "prop-types";
 
 import io from "socket.io-client";
 
-import {Layout, Modal} from "antd";
+import {Button, Layout, Modal} from "antd";
 import "antd/es/layout/style/css";
 import "antd/es/modal/style/css";
 
@@ -109,6 +109,7 @@ class App extends Component {
                 </Suspense>
                 <SiteHeader />
                 <Layout.Content style={{margin: "50px"}}>
+                    <Button onClick={() => this.openSignInWindow()}>Test Sign in Popup</Button>
                     <Suspense fallback={<SitePageLoading />}>
                         <Switch>
                             <OwnerRoute path={withBasePath("overview")} component={OverviewContent} />
