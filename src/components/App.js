@@ -95,7 +95,7 @@ class App extends Component {
             console.log(event);
 
             // TODO: Handle data from popup? Set-Cookie? Will that be handled automatically?
-        });
+        }, false);
     }
 
     render() {

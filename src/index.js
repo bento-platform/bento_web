@@ -24,8 +24,9 @@ document.addEventListener("DOMContentLoaded", () => {
         // We're inside a popup window which has (presumably) successfully
         // re-authenticated the user, meaning we need to close ourself to return
         // focus to the original window.
-        window.opener.postMessage("done");  // TODO: Do we need to pass the Set-Cookie header here?
-        window.close();
+        window.opener.postMessage("done", (new URL(process.env.CHORD_URL)).origin);
+        // TODO: Do we need to pass the Set-Cookie header here?
+        // window.close();
     } else {
         render(
             <Provider store={store}>
