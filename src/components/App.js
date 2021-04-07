@@ -77,6 +77,7 @@ class App extends Component {
     openSignInWindow() {
         const signInURL = signInURLWithCustomRedirect(
             `${this.props.nodeInfo.CHORD_URL}${POPUP_AUTH_CALLBACK_URL}`);
+        console.log(this.signInWindow);
         if (!this.signInWindow || this.signInWindow.closed) {
             // TODO: Redirect to page which closes automatically:
             const popupTop = window.top.outerHeight / 2 + window.top.screenY - 300;
