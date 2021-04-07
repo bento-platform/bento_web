@@ -77,9 +77,7 @@ class App extends Component {
     openSignInWindow() {
         const signInURL = signInURLWithCustomRedirect(
             `${this.props.nodeInfo.CHORD_URL}${POPUP_AUTH_CALLBACK_URL}`);
-        console.log(this.signInWindow);
         if (!this.signInWindow || this.signInWindow.closed) {
-            // TODO: Redirect to page which closes automatically:
             const popupTop = window.top.outerHeight / 2 + window.top.screenY - 300;
             const popupLeft = window.top.outerWidth / 2 + window.top.screenX - 400;
             this.signInWindow = window.open(
@@ -89,14 +87,6 @@ class App extends Component {
         } else {
             this.signInWindow.focus();
         }
-
-        this.signInWindow.addEventListener("message", event => {
-            // TODO: Handle sign in finishing
-            if (event.origin !== window.location.origin) return;  // Not coming from our site, escape!
-            console.log(event);
-
-            // TODO: Handle data from popup? Set-Cookie? Will that be handled automatically?
-        }, false);
     }
 
     render() {
@@ -110,7 +100,7 @@ class App extends Component {
                        // TODO: Set a new interval at a slower rate
                    }}
                    visible={this.state.signedOutModal}>
-                Please <a href={() => this.openSignInWindow()}>sign in</a> (uses a popup window) to continue working.
+                Please <a onClick={() => this.openSignInWindow()}>sign in</a> (uses a popup window) to continue working.
             </Modal>
             <Layout style={{minHeight: "100vh"}}>
                 <Suspense fallback={<div />}>
