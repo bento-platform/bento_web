@@ -20,7 +20,7 @@ import {fetchPeersOrError} from "../modules/peers/actions";
 
 import eventHandler from "../events";
 import {nop} from "../utils/misc";
-import {BASE_PATH, signInURLWithRedirect, urlPath, withBasePath} from "../utils/url";
+import {BASE_PATH, signInURLWithCustomRedirect, urlPath, withBasePath} from "../utils/url";
 import {serviceInfoPropTypesShape, userPropTypesShape} from "../propTypes";
 
 import SessionWorker from "../session.worker";
@@ -35,6 +35,8 @@ const DataExplorerContent = lazy(() => import("./DataExplorerContent"));
 const AdminContent = lazy(() => import("./AdminContent"));
 const NotificationsContent = lazy(() => import("./notifications/NotificationsContent"));
 
+const SIGN_IN_WINDOW_FEATURES = "toolbar=no, menubar=no, width=640, height=480";
+
 class App extends Component {
     constructor(props) {
         super(props);
@@ -48,6 +50,8 @@ class App extends Component {
         this.state = {
             signedOutModal: false
         };
+
+        this.signInWindow = null;
 
         // Initialize a web worker which pings the user endpoint on a set
         // interval. This lets the application accept Set-Cookie headers which
@@ -69,18 +73,35 @@ class App extends Component {
         this.pingInterval = null;
     }
 
+    openSignInWindow() {
+        const signInURL = signInURLWithCustomRedirect("TODO");
+        if (!this.signInWindow || this.signInWindow.closed) {
+            // TODO: Redirect to page which closes automatically:
+            this.signInWindow = window.open(signInURL, "Bento Sign In", SIGN_IN_WINDOW_FEATURES);
+        } else {
+            this.signInWindow.focus();
+        }
+
+        this.signInWindow.addEventListener("message", event => {
+            // TODO: Handle sign in finishing
+            console.log(event.origin);  // TODO: Return if bad origin
+
+            // TODO: Handle data from popup? Set-Cookie? Will that be handled automatically?
+        });
+    }
+
     render() {
         // noinspection HtmlUnknownTarget
         return <>
             <Modal title="You have been signed out"
-                   onOk={() => window.location.href = signInURLWithRedirect()}
+                   onOk={() => this.openSignInWindow()}
                    onCancel={() => {
                        this.clearPingInterval();  // Stop pinging until the user decides to sign in again
                        this.setState({signedOutModal: false});  // Close the modal
                        // TODO: Set a new interval at a slower rate
                    }}
                    visible={this.state.signedOutModal}>
-                Please <a href={signInURLWithRedirect()}>sign in</a> again to continue working.
+                Please <a href={() => this.openSignInWindow()}>sign in</a> (uses a popup window) to continue working.
             </Modal>
             <Layout style={{minHeight: "100vh"}}>
                 <Suspense fallback={<div />}>
@@ -132,10 +153,8 @@ class App extends Component {
             // We got de-authenticated, so show a prompt...
             this.setState({signedOutModal: true});
             // ... and disable constant websocket pinging if necessary by removing existing connections
-            if (this.eventRelayConnection) {
-                this.eventRelayConnection.close();
-                this.eventRelayConnection = null;
-            }
+            this.eventRelayConnection?.close();
+            this.eventRelayConnection = null;
         } else if (!this.lastUser && this.props.user) {
             // We got authenticated, so re-enable reconnection on the websocket..
             this.createEventRelayConnectionIfNecessary();
