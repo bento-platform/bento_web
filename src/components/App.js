@@ -46,7 +46,7 @@ class App extends Component {
         this.eventRelayConnection = null;
 
         this.pingInterval = null;
-        this.lastUser = null;
+        this.lastUser = false;
 
         this.state = {
             signedOutModal: false
@@ -58,6 +58,8 @@ class App extends Component {
         // interval. This lets the application accept Set-Cookie headers which
         // keep the session ID up to date and prevent invalidating the session
         // incorrectly / early.
+        // TODO: Refresh other data
+        // TODO: Variable rate
         this.sessionWorker = new SessionWorker();
         this.sessionWorker.addEventListener("message", async msg => {
             await this.props.fetchDependentDataWithProvidedUser(nop, setUser(msg.data.user));
@@ -78,7 +80,7 @@ class App extends Component {
         const signInURL = signInURLWithCustomRedirect(
             `${this.props.nodeInfo.CHORD_URL}${POPUP_AUTH_CALLBACK_URL}`);
         if (!this.signInWindow || this.signInWindow.closed) {
-            const popupTop = window.top.outerHeight / 2 + window.top.screenY - 300;
+            const popupTop = window.top.outerHeight / 2 + window.top.screenY - 350;
             const popupLeft = window.top.outerWidth / 2 + window.top.screenX - 400;
             this.signInWindow = window.open(
                 signInURL,
@@ -155,7 +157,7 @@ class App extends Component {
             // ... and disable constant websocket pinging if necessary by removing existing connections
             this.eventRelayConnection?.close();
             this.eventRelayConnection = null;
-        } else if (!this.lastUser && this.props.user) {
+        } else if ((!this.lastUser || this.state.signedOutModal) && this.props.user) {
             // We got authenticated, so re-enable reconnection on the websocket..
             this.createEventRelayConnectionIfNecessary();
             // ... and minimize the sign-in prompt modal if necessary
