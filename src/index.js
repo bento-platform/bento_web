@@ -22,7 +22,7 @@ document.addEventListener("DOMContentLoaded", () => {
     const root = document.getElementById("root");
 
     // Handle auth popup callback
-    if (window.location.href === `${process.env.CHORD_URL}${POPUP_AUTH_CALLBACK_URL}` && window.opener) {
+    if (window.location.href.startsWith(`${process.env.CHORD_URL}${POPUP_AUTH_CALLBACK_URL}`) && window.opener) {
         render(<div>Loading...</div>, root);
 
         // We're inside a popup window which has (presumably) successfully
