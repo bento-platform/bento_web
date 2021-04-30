@@ -21,8 +21,14 @@ export const store = createStore(rootReducer, composeEnhancers(applyMiddleware(t
 document.addEventListener("DOMContentLoaded", () => {
     const root = document.getElementById("root");
 
+    // Fall back to checking path name if the front-end was built without CHORD_URL set
+    // TODO: Use url.js base path for this? Do we care about the host?
+    const isPopupAuthCallback = process.env.CHORD_URL
+        ? window.location.href.startsWith(`${process.env.CHORD_URL}${POPUP_AUTH_CALLBACK_URL}`)
+        : window.location.pathname.includes(`/${POPUP_AUTH_CALLBACK_URL}`);  // TODO: Can we only use the fallback?
+
     // Handle auth popup callback
-    if (window.location.href.startsWith(`${process.env.CHORD_URL}${POPUP_AUTH_CALLBACK_URL}`) && window.opener) {
+    if (isPopupAuthCallback && window.opener) {
         render(<div>Loading...</div>, root);
 
         // We're inside a popup window which has (presumably) successfully
