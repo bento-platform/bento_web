@@ -3,7 +3,7 @@ import {connect} from "react-redux";
 import {withRouter, Redirect, Route, Switch} from "react-router-dom";
 import PropTypes from "prop-types";
 
-import io from "socket.io-client";
+import {io} from "socket.io-client";
 
 import {Button, Layout, Modal} from "antd";
 import "antd/es/layout/style/css";
@@ -42,7 +42,7 @@ class App extends Component {
     constructor(props) {
         super(props);
 
-        /** @type {null|io.Manager} */
+        /** @type {null|io.Socket} */
         this.eventRelayConnection = null;
 
         this.pingInterval = null;
@@ -137,7 +137,7 @@ class App extends Component {
             if (!this.props.user) return null;
 
             const url = this.props.eventRelay?.url ?? null;
-            return url ? (() => io(BASE_PATH, {
+            return url ? (() => io("/", {  // Connect to the main socket.io namespace on the server side
                 path: `${urlPath(url)}/private/socket.io`,
                 reconnection: !!this.props.user  // Only try to reconnect if we're authenticated
             }).on("events", message => eventHandler(message, this.props.history)))() : null;
