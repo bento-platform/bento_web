@@ -499,7 +499,7 @@ class CustomPieChart extends React.Component {
 
         return (
           <PieChart width={chartWidthHeight} height={chartWidthHeight/2}>
-              <Pie data={data}
+               <Pie data={data.filter(e => e.value != 0)}
                    dataKey="value"
                    cx="50%"
                    cy="50%"
@@ -517,13 +517,22 @@ class CustomPieChart extends React.Component {
               >
                 {
                   data.map((entry, index) =>
-                  <Cell key={index} fill={COLORS[index % COLORS.length]}/>)
+                  <Cell key={index} fill={data.length % COLORS.length == 1 ? this.segmentColorNoMatches(index) : this.segmentColor(index)}/>)
                 }
               </Pie>
           </PieChart>
         );
     }
 
+    segmentColor(index) {
+        return COLORS[index % COLORS.length]
+    }
+
+    // for case where standard colouring gives adjacent segments the same colour
+    segmentColorNoMatches(index){
+        return COLORS.slice(0, COLORS.length-1)[index % (COLORS.length-1)]
+    }
+    
     renderLabel(state, params) {
         const {
             cx,
