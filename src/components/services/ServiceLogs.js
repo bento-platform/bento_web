@@ -4,10 +4,6 @@ import {connect} from "react-redux";
 import PropTypes from "prop-types";
 
 import {Empty, Layout, Menu, Skeleton} from "antd";
-import "antd/es/empty/style/css";
-import "antd/es/layout/style/css";
-import "antd/es/menu/style/css";
-import "antd/es/skeleton/style/css";
 
 import ServiceLog from "./ServiceLog";
 

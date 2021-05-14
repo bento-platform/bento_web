@@ -4,8 +4,6 @@ import PropTypes from "prop-types";
 
 import {Table, Typography} from "antd";
 
-import "antd/es/table/style/css";
-import "antd/es/typography/style/css";
 
 import {fetchAllRunDetailsIfNeeded} from "../../../modules/wes/actions";
 

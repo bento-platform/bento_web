@@ -2,7 +2,6 @@ import React, {Component} from "react";
 import PropTypes from "prop-types";
 
 import {PageHeader} from "antd";
-import "antd/es/page-header/style/css";
 
 const PAGE_HEADER_STYLE = {
     borderBottom: "1px solid rgb(232, 232, 232)",

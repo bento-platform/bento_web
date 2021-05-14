@@ -6,6 +6,13 @@
       {
         "loose": true
       }
+    ],
+    [
+      "import",
+      {
+        "libraryName": "antd",
+        "style": true
+      }
     ]
   ]
 }

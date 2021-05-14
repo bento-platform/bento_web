@@ -6,12 +6,6 @@ import PropTypes from "prop-types";
 
 import {Button, Empty, Layout, Menu, Typography} from "antd";
 
-import "antd/es/button/style/css";
-import "antd/es/empty/style/css";
-import "antd/es/layout/style/css";
-import "antd/es/menu/style/css";
-import "antd/es/typography/style/css";
-
 import ProjectCreationModal from "./ProjectCreationModal";
 import ProjectSkeleton from "./ProjectSkeleton";
 import RoutedProject from "./RoutedProject";

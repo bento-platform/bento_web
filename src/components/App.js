@@ -6,8 +6,6 @@ import PropTypes from "prop-types";
 import io from "socket.io-client";
 
 import {Layout, Modal} from "antd";
-import "antd/es/layout/style/css";
-import "antd/es/modal/style/css";
 
 import OwnerRoute from "./OwnerRoute";
 

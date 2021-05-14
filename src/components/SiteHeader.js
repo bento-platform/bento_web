@@ -5,10 +5,6 @@ import PropTypes from "prop-types";
 
 import {Badge, Icon, Layout, Menu} from "antd";
 
-import "antd/es/badge/style/css";
-import "antd/es/icon/style/css";
-import "antd/es/layout/style/css";
-import "antd/es/menu/style/css";
 
 import {showNotificationDrawer} from "../modules/notifications/actions";
 

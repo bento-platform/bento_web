@@ -5,11 +5,6 @@ import {bindActionCreators} from "redux";
 import {connect} from "react-redux";
 
 import {Button, Col, Row, Table, Typography} from "antd";
-import "antd/es/button/style/css";
-import "antd/es/col/style/css";
-import "antd/es/row/style/css";
-import "antd/es/table/style/css";
-import "antd/es/typography/style/css";
 
 import TableAdditionModal from "./table/TableAdditionModal";
 import TableDeletionModal from "./table/TableDeletionModal";

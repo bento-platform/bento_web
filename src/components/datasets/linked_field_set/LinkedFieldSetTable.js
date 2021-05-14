@@ -2,7 +2,6 @@ import React, {Component} from "react";
 import PropTypes from "prop-types";
 
 import {Table} from "antd";
-import "antd/es/table/style/css";
 
 import {linkedFieldSetPropTypesShape} from "../../../propTypes";
 

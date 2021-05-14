@@ -26,15 +26,6 @@ const LANGUAGE_HIGHLIGHTERS = {
 
 import {Button, Dropdown, Empty, Icon, Layout, Menu, Modal, Spin, Tree} from "antd";
 
-import "antd/es/button/style/css";
-import "antd/es/dropdown/style/css";
-import "antd/es/empty/style/css";
-import "antd/es/icon/style/css";
-import "antd/es/layout/style/css";
-import "antd/es/menu/style/css";
-import "antd/es/modal/style/css";
-import "antd/es/spin/style/css";
-import "antd/es/tree/style/css";
 
 
 import {LAYOUT_CONTENT_STYLE} from "../../styles/layoutContent";

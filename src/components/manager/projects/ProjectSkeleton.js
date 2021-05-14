@@ -1,6 +1,5 @@
 import React from "react";
 import {Skeleton} from "antd";
-import "antd/es/skeleton/style/css";
 
 export default () =>
     <Skeleton title={{width: 300}}

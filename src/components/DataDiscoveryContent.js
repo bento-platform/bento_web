@@ -2,11 +2,7 @@ import React, {Component, Suspense, lazy} from "react";
 import {Redirect, Route, Switch, withRouter} from "react-router-dom";
 
 import {Card, Layout, Skeleton} from "antd";
-import "antd/es/card/style/css";
-import "antd/es/layout/style/css";
-import "antd/es/skeleton/style/css";
 
-import {SITE_NAME} from "../constants";
 import {withBasePath} from "../utils/url";
 
 import SitePageHeader from "./SitePageHeader";

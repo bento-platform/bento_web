@@ -3,9 +3,6 @@ import {connect} from "react-redux";
 import PropTypes from "prop-types";
 
 import {Spin, Tag, TreeSelect} from "antd";
-import "antd/es/spin/style/css";
-import "antd/es/tag/style/css";
-import "antd/es/tree-select/style/css";
 
 import {nop} from "../../utils/misc";
 

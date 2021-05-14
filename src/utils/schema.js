@@ -1,8 +1,6 @@
 import React from "react";
 
 import {Button, Popover, Typography} from "antd";
-import "antd/es/popover/style/css";
-import "antd/es/typography/style/css";
 
 
 export const ROOT_SCHEMA_ID = "[dataset item]";

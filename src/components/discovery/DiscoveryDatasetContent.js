@@ -4,7 +4,6 @@ import {connect} from "react-redux";
 import PropTypes from "prop-types";
 
 import {Skeleton} from "antd";
-import "antd/es/skeleton/style/css";
 
 import Dataset from "../datasets/Dataset";
 import {projectPropTypesShape} from "../../propTypes";

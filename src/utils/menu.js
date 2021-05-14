@@ -2,7 +2,6 @@ import React from "react";
 import {Link} from "react-router-dom";
 
 import {Menu} from "antd";
-import "antd/es/menu/style/css";
 
 // Custom menu renderer
 export const renderMenuItem = i => {

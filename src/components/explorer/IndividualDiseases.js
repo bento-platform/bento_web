@@ -1,6 +1,5 @@
 import React from "react";
 
-import "antd/es/table/style/css";
 import {Table} from "antd";
 
 

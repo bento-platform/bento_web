@@ -3,15 +3,6 @@ import {connect} from "react-redux";
 import PropTypes from "prop-types";
 
 import {Button, Card, Dropdown, Empty, Icon, Menu, Modal, Tabs, Typography} from "antd";
-import "antd/es/button/style/css";
-import "antd/es/card/style/css";
-import "antd/es/dropdown/style/css";
-import "antd/es/empty/style/css";
-import "antd/es/icon/style/css";
-import "antd/es/menu/style/css";
-import "antd/es/modal/style/css";
-import "antd/es/tabs/style/css";
-import "antd/es/typography/style/css";
 
 import DataTypeExplorationModal from "./DataTypeExplorationModal";
 import DiscoverySearchForm from "./DiscoverySearchForm";
