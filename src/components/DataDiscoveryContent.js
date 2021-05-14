@@ -3,6 +3,7 @@ import {Redirect, Route, Switch, withRouter} from "react-router-dom";
 
 import {Card, Layout, Skeleton} from "antd";
 
+import {SITE_NAME} from "../constants";
 import {withBasePath} from "../utils/url";
 
 import SitePageHeader from "./SitePageHeader";
