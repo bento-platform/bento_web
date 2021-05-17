@@ -1,11 +1,6 @@
 import React from "react";
 
 import {Col, Divider, Row, Statistic, Typography} from "antd";
-import "antd/es/col/style/css";
-import "antd/es/icon/style/css";
-import "antd/es/row/style/css";
-import "antd/es/statistic/style/css";
-import "antd/es/typography/style/css";
 
 import {VictoryLabel, VictoryPie} from "victory";
 import VictoryPieWrapSVG from "../../../VictoryPieWrapSVG";

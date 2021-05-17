@@ -2,12 +2,6 @@ import React, {Component} from "react";
 
 import {Col, List, Icon, Row, Tag, Typography, Popover} from "antd";
 
-import "antd/es/col/style/css";
-import "antd/es/icon/style/css";
-import "antd/es/row/style/css";
-import "antd/es/tag/style/css";
-import "antd/es/typography/style/css";
-
 import {
     DUO_NOT_FOR_PROFIT_USE_ONLY,
     DATA_USE_KEYS,

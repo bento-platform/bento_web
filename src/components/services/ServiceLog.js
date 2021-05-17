@@ -3,7 +3,6 @@ import {connect} from "react-redux";
 import fetch from "cross-fetch";
 
 import {Skeleton} from "antd";
-import "antd/es/skeleton/style/css";
 
 import {serviceLogsPropTypesShape} from "../../propTypes";
 

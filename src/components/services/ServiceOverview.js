@@ -3,8 +3,6 @@ import {connect} from "react-redux";
 import PropTypes from "prop-types";
 
 import {Layout, Skeleton, Typography} from "antd";
-import "antd/es/layout/style/css";
-import "antd/es/typography/style/css";
 
 import {LAYOUT_CONTENT_STYLE} from "../../styles/layoutContent";
 

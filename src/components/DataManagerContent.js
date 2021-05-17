@@ -2,8 +2,6 @@ import React, {Component, Suspense, lazy} from "react";
 import {Redirect, Route, Switch} from "react-router-dom";
 
 import {Menu, Skeleton} from "antd";
-import "antd/es/menu/style/css";
-import "antd/es/skeleton/style/css";
 
 import {SITE_NAME} from "../constants";
 import {matchingMenuKeys, renderMenuItem} from "../utils/menu";

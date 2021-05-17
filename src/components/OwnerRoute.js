@@ -4,10 +4,6 @@ import {Route} from "react-router-dom";
 import PropTypes from "prop-types";
 
 import {Button, Empty, Icon, Layout} from "antd";
-import "antd/es/button/style/css";
-import "antd/es/empty/style/css";
-import "antd/es/icon/style/css";
-import "antd/es/layout/style/css";
 
 import {ROLE_OWNER, SIGN_OUT_URL} from "../constants";
 import {signInURLWithRedirect, withBasePath} from "../utils/url";

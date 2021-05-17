@@ -2,7 +2,6 @@ import React, {Component} from "react";
 import PropTypes from "prop-types";
 
 import {Tree} from "antd";
-import "antd/es/tree/style/css";
 
 import {generateSchemaTreeData} from "../../utils/schema";
 

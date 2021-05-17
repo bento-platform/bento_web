@@ -4,10 +4,6 @@ import {Link, withRouter} from "react-router-dom";
 import PropTypes from "prop-types";
 
 import {Button, Table, Typography, Spin} from "antd";
-import "antd/es/button/style/css";
-import "antd/es/table/style/css";
-import "antd/es/typography/style/css";
-import "antd/es/spin/style/css";
 
 import "./explorer.css";
 

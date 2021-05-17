@@ -3,8 +3,6 @@ import {connect} from "react-redux";
 import PropTypes from "prop-types";
 
 import {Menu, Skeleton} from "antd";
-import "antd/es/layout/style/css";
-import "antd/es/skeleton/style/css";
 
 import SitePageHeader from "../SitePageHeader";
 import ServiceOverview from "./ServiceOverview";

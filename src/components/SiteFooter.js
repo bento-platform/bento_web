@@ -1,7 +1,6 @@
 import React, {Component} from "react";
 
 import {Layout} from "antd";
-import "antd/es/layout/style/css";
 
 import {withBasePath} from "../utils/url";
 

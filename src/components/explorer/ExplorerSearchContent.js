@@ -4,8 +4,6 @@ import {Redirect, Route, Switch} from "react-router-dom";
 import {PropTypes} from "prop-types";
 
 import {Layout, Menu, Skeleton} from "antd";
-import "antd/es/layout/style/css";
-import "antd/es/menu/style/css";
 
 import SitePageHeader from "../SitePageHeader";
 import {LAYOUT_CONTENT_STYLE} from "../../styles/layoutContent";

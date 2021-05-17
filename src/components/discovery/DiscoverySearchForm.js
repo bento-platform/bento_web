@@ -2,9 +2,6 @@ import React, {Component} from "react";
 import PropTypes from "prop-types";
 
 import {Button, Form, Icon} from "antd";
-import "antd/es/button/style/css";
-import "antd/es/form/style/css";
-import "antd/es/icon/style/css";
 
 import {getFieldSchema, getFields} from "../../utils/schema";
 import {DEFAULT_SEARCH_PARAMETERS, OP_EQUALS} from "../../utils/search";

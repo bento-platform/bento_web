@@ -3,11 +3,6 @@ import PropTypes from "prop-types";
 
 import {Button, Col, Empty, Row, Typography} from "antd";
 
-import "antd/es/button/style/css";
-import "antd/es/col/style/css";
-import "antd/es/empty/style/css";
-import "antd/es/row/style/css";
-import "antd/es/typography/style/css";
 
 import Dataset from "../../datasets/Dataset";
 import ProjectForm from "./ProjectForm";
