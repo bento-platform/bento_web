@@ -4,6 +4,7 @@
   "description": "Bento platform front-end",
   "main": "src/index.js",
   "dependencies": {
+    "@babel/plugin-proposal-class-properties": "^7.12.1",
     "antd": "^3.26.19",
     "cross-fetch": "^3.0.6",
     "file-saver": "^2.0.5",
@@ -26,6 +27,7 @@
   },
   "devDependencies": {
     "@babel/core": "^7.12.3",
+    "@babel/plugin-proposal-optional-chaining": "^7.14.2",
     "@babel/preset-env": "^7.12.1",
     "@babel/preset-react": "^7.12.1",
     "babel-eslint": "^10.1.0",
