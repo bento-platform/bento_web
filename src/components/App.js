@@ -110,7 +110,6 @@ class App extends Component {
                 </Suspense>
                 <SiteHeader />
                 <Layout.Content style={{margin: "50px"}}>
-                    <Button onClick={() => this.openSignInWindow()}>Test Sign in Popup</Button>
                     <Suspense fallback={<SitePageLoading />}>
                         <Switch>
                             <OwnerRoute path={withBasePath("overview")} component={OverviewContent} />
