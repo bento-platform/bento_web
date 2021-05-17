@@ -384,12 +384,7 @@ class OverviewContent extends Component {
     }
 }
 
-
-//
-
-
 export default connect(mapStateToProps, actionCreators)(OverviewContent);
-
 
 
 function mapNameValueFields(data, otherThreshold=0.04) {
