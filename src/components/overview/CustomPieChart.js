@@ -13,12 +13,6 @@ import { withBasePath } from "../../utils/url";
 
 const RADIAN = Math.PI / 180;
 
-/*
- * lastAngle is mutated by renderLabel() and renderActiveShape() to
- * indicate at which angle is the last shown label.
- */
-let lastAngle = 0;
-
 const textStyle = {
     fontSize: "11px",
     fill: "#333",
@@ -40,7 +34,6 @@ class CustomPieChart extends React.Component {
     state = {
         canUpdate: false,
         activeIndex: undefined,
-        //redirect: false,
         itemSelected: undefined,
         graphTerm: undefined,
         fieldLabel: undefined
@@ -167,12 +160,6 @@ class CustomPieChart extends React.Component {
             points: [startPoint, endPoint],
         };
 
-        if (lastAngle > midAngle)
-            lastAngle = 0;
-
-
-        lastAngle = midAngle;
-
         return (
         <g>
 
@@ -259,58 +246,56 @@ class CustomPieChart extends React.Component {
             points: [startPoint, endPoint],
         };
 
-        lastAngle = midAngle;
-
         return (
-        <g>
+            <g>
 
-          <Sector
-            cx={cx}
-            cy={cy}
-            startAngle={startAngle}
-            endAngle={endAngle}
-            innerRadius={innerRadius}
-            outerRadius={outerRadius}
-            fill={fill}
-          />
-
-          { payload.selected &&
             <Sector
-              cx={cx}
-              cy={cy}
-              startAngle={startAngle}
-              endAngle={endAngle}
-              innerRadius={outerRadius + 6}
-              outerRadius={outerRadius + 10}
-              fill={fill}
+                cx={cx}
+                cy={cy}
+                startAngle={startAngle}
+                endAngle={endAngle}
+                innerRadius={innerRadius}
+                outerRadius={outerRadius}
+                fill={fill}
             />
-          }
 
-          <Curve
-            { ...lineProps }
-            type='linear'
-            className='recharts-pie-label-line'
-          />
+            {payload.selected &&
+                <Sector
+                    cx={cx}
+                    cy={cy}
+                    startAngle={startAngle}
+                    endAngle={endAngle}
+                    innerRadius={outerRadius + 6}
+                    outerRadius={outerRadius + 10}
+                    fill={fill}
+                />
+            }
 
-          <path d={`M${sx},${sy}L${mx},${my}L${ex},${ey}`} stroke={fill} fill='none'/>
-          <circle cx={ex} cy={ey} r={2} fill={fill} stroke='none'/>
-          <text x={ex + (cos >= 0 ? 1 : -1) * 12} y={ey + 3}
+            <Curve
+                { ...lineProps }
+                type='linear'
+                className='recharts-pie-label-line'
+            />
+
+            <path d={`M${sx},${sy}L${mx},${my}L${ex},${ey}`} stroke={fill} fill='none'/>
+            <circle cx={ex} cy={ey} r={2} fill={fill} stroke='none'/>
+            <text x={ex + (cos >= 0 ? 1 : -1) * 12} y={ey + 3}
+                    textAnchor={textAnchor}
+                    style={currentTextStyle}
+            >
+                { name }
+            </text>
+            <text
+                x={ex + (cos >= 0 ? 1 : -1) * 12}
+                y={ey}
+                dy={14}
                 textAnchor={textAnchor}
-                style={currentTextStyle}
-          >
-            { name }
-          </text>
-          <text
-            x={ex + (cos >= 0 ? 1 : -1) * 12}
-            y={ey}
-            dy={14}
-            textAnchor={textAnchor}
-            style={countTextStyle}
-          >
-            {`(${ payload.value } donor${ payload.value > 1 ? "s" : "" })`}
-          </text>
+                style={countTextStyle}
+            >
+                {`(${ payload.value } donor${ payload.value > 1 ? "s" : "" })`}
+            </text>
 
-        </g>
+            </g>
         );
     }
 }

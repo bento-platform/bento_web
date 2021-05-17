@@ -101,15 +101,6 @@ class OverviewContent extends Component {
         };
     }
 
-    onPFSliderChange = value => {
-        if (isNaN(value)) {
-            return;
-        }
-        this.setState({
-            phenotypicFeaturesThresholdSliderValue: value,
-        });
-    };
-
     onPieEnter = (chartNum, data, index) => {
         // console.log(data)
         if (chartNum === 0) {
@@ -134,7 +125,6 @@ class OverviewContent extends Component {
         const numParticipants = data.data_type_specific?.individuals?.count;
         const numDiseases = data.data_type_specific?.diseases?.count;
         const numPhenotypicFeatures = overviewSummary.data?.data_type_specific?.phenotypic_features?.count;
-
 
         const biosampleLabels = mapNameValueFields(data.data_type_specific?.biosamples?.sampled_tissue);
         const numBiosamples = data.data_type_specific?.biosamples?.count;
@@ -170,7 +160,9 @@ class OverviewContent extends Component {
             <Layout>
                 <Layout.Content style={{background: "white", padding: "32px 24px 4px"}}>
                     <Row>
-                        <Typography.Title level={4}>Clinical/Phenotypical Data</Typography.Title>
+                        <Typography.Title level={4}>
+                            Clinical/Phenotypical Data
+                        </Typography.Title>
                         <Row style={{marginBottom: "24px"}} gutter={[0, 16]}>
                             <Col xl={2} lg={3} md={5} sm={6} xs={10}>
                                 <Spin spinning={isFetching}>
@@ -283,17 +275,8 @@ class OverviewContent extends Component {
                                 />
                             </Spin>
                         </Col>
-                        {/* TODO: Adjust threshold dynamically
-                        <Col>
-                            <InputNumber
-                                min={0}
-                                max={1}
-                                style={{ marginLeft: 16 }}
-                                value={this.state.phenotypicFeaturesThresholdSliderValue}
-                                onChange={this.onPFSliderChange}
-                            />
-                        </Col> */}
                     </Row>
+
                     <Divider />
                     <Typography.Title level={4}>Variants</Typography.Title>
                     <Row style={{marginBottom: "24px"}} gutter={[0, 16]}>
