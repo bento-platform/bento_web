@@ -1,4 +1,4 @@
-import {FETCH_USER, FETCHING_USER_DEPENDENT_DATA} from "./actions";
+import {FETCH_USER, FETCHING_USER_DEPENDENT_DATA, SET_USER} from "./actions";
 
 export const auth = (
     state = {
@@ -19,6 +19,9 @@ export const auth = (
             return {...state, user: null};
         case FETCH_USER.FINISH:
             return {...state, isFetching: false, hasAttempted: true};
+
+        case SET_USER:
+            return {...state, user: action.data};
 
         case FETCHING_USER_DEPENDENT_DATA.BEGIN:
             return {...state, isFetchingDependentData: true};
