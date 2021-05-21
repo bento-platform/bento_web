@@ -3,9 +3,6 @@ import {connect} from "react-redux";
 import PropTypes from "prop-types";
 
 import {Button, Modal, Typography} from "antd";
-import "antd/es/button/style/css";
-import "antd/es/modal/style/css";
-import "antd/es/typography/style/css";
 
 import {nop} from "../../../utils/misc";
 

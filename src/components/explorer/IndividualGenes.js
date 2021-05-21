@@ -1,7 +1,6 @@
 import React from "react";
 
 import {Table} from "antd";
-import "antd/es/table/style/css";
 
 import {individualPropTypesShape} from "../../propTypes";
 

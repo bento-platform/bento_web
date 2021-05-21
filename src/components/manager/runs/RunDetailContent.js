@@ -3,7 +3,6 @@ import {connect} from "react-redux";
 import PropTypes from "prop-types";
 
 import {Skeleton} from "antd";
-import "antd/es/skeleton/style/css";
 
 import Run from "./Run";
 import {withBasePath} from "../../../utils/url";

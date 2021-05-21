@@ -1,8 +1,6 @@
 import React, {Component} from "react";
 
 import {Layout, Typography} from "antd";
-import "antd/es/layout/style/css";
-import "antd/es/typography/style/css";
 
 import {LAYOUT_CONTENT_STYLE} from "../../styles/layoutContent";
 

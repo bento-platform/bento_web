@@ -2,10 +2,6 @@ import React, {Component} from "react";
 import PropTypes from "prop-types";
 
 import {Button, Form, Icon, Input} from "antd";
-import "antd/es/button/style/css";
-import "antd/es/form/style/css";
-import "antd/es/icon/style/css";
-import "antd/es/input/style/css";
 
 import SchemaTreeSelect from "../../schema_trees/SchemaTreeSelect";
 import {getFieldSchema} from "../../../utils/schema";

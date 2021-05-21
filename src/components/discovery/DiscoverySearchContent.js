@@ -3,7 +3,6 @@ import {connect} from "react-redux";
 import PropTypes from "prop-types";
 
 import {Typography} from "antd";
-import "antd/es/typography/style/css";
 
 import SearchList from "./SearchList";
 

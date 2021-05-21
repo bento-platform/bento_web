@@ -4,8 +4,6 @@ import PropTypes from "prop-types";
 
 import {Descriptions, Skeleton} from "antd";
 
-import "antd/es/descriptions/style/css";
-import "antd/es/skeleton/style/css";
 
 import {fetchRunLogStreamsIfPossibleAndNeeded} from "../../../modules/wes/actions";
 import {runPropTypesShape} from "../../../propTypes";

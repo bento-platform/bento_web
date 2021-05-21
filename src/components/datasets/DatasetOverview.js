@@ -2,12 +2,6 @@ import React, {Component, Fragment} from "react";
 import PropTypes from "prop-types";
 
 import {Col, Divider, Row, Spin, Statistic, Typography} from "antd";
-import "antd/es/col/style/css";
-import "antd/es/divider/style/css";
-import "antd/es/row/style/css";
-import "antd/es/spin/style/css";
-import "antd/es/statistic/style/css";
-import "antd/es/typography/style/css";
 
 import {datasetPropTypesShape, projectPropTypesShape} from "../../propTypes";
 

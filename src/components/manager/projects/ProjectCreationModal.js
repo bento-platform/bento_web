@@ -4,8 +4,6 @@ import {withRouter} from "react-router-dom";
 import PropTypes from "prop-types";
 
 import {Button, Modal} from "antd";
-import "antd/es/button/style/css";
-import "antd/es/modal/style/css";
 
 import ProjectForm from "./ProjectForm";
 

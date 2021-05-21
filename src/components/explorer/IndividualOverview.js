@@ -2,7 +2,6 @@ import React from "react";
 import ReactJson from "react-json-view";
 
 import {Descriptions} from "antd";
-import "antd/es/descriptions/style/css";
 
 import {EM_DASH} from "../../constants";
 import {renderOntologyTerm} from "./ontologies";

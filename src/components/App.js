@@ -5,9 +5,7 @@ import PropTypes from "prop-types";
 
 import io from "socket.io-client";
 
-import {Button, Layout, Modal} from "antd";
-import "antd/es/layout/style/css";
-import "antd/es/modal/style/css";
+import {Layout, Modal} from "antd";
 
 import OwnerRoute from "./OwnerRoute";
 

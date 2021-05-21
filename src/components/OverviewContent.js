@@ -4,12 +4,6 @@ import PropTypes from "prop-types";
 
 // TODO: implement  Slider, InputNumber
 import {Col, Layout, Row, Spin, Statistic, Typography, Icon, Divider} from "antd";
-import "antd/es/col/style/css";
-import "antd/es/layout/style/css";
-import "antd/es/row/style/css";
-import "antd/es/spin/style/css";
-import "antd/es/statistic/style/css";
-import "antd/es/typography/style/css";
 
 import SitePageHeader from "./SitePageHeader";
 

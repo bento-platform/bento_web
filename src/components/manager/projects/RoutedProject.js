@@ -3,7 +3,6 @@ import {connect} from "react-redux";
 import PropTypes from "prop-types";
 
 import {Modal} from "antd";
-import "antd/es/modal/style/css";
 
 import DatasetFormModal from "../../datasets/DatasetFormModal";
 import Project from "./Project";

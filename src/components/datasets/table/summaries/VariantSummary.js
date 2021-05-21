@@ -1,10 +1,6 @@
 import React from "react";
 
 import {Col, Icon, Row, Statistic} from "antd";
-import "antd/es/col/style/css";
-import "antd/es/icon/style/css";
-import "antd/es/row/style/css";
-import "antd/es/statistic/style/css";
 
 import {summaryPropTypesShape} from "../../../../propTypes";
 

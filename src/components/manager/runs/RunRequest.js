@@ -3,9 +3,6 @@ import {connect} from "react-redux";
 import PropTypes from "prop-types";
 
 import {Descriptions, List, Tag} from "antd";
-import "antd/es/descriptions/style/css";
-import "antd/es/list/style/css";
-import "antd/es/tag/style/css";
 
 import WorkflowListItem from "../WorkflowListItem";
 

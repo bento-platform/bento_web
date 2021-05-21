@@ -3,11 +3,6 @@ import {connect} from "react-redux";
 
 import {Layout, List, Skeleton, Spin, Typography} from "antd";
 
-import "antd/es/layout/style/css";
-import "antd/es/list/style/css";
-import "antd/es/skeleton/style/css";
-import "antd/es/spin/style/css";
-import "antd/es/typography/style/css";
 
 import WorkflowListItem from "./WorkflowListItem";
 
