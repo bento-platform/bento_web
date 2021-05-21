@@ -25,7 +25,7 @@ class SitePageHeader extends Component {
     render() {
         return <PageHeader {...this.props}
                            title={<div style={PAGE_HEADER_TITLE_STYLE}>{this.props.title || ""}</div>}
-                           subTitle={<span style={PAGE_HEADER_SUBTITLE_STYLE}>{this.props.subTitle || ""}</span>}
+                           subTitle={this.props.subTitle ? <span style={PAGE_HEADER_SUBTITLE_STYLE}>{this.props.subTitle}</span> : undefined}
                            style={{
                                ...PAGE_HEADER_STYLE,
                                ...(this.props.withTabBar ? TAB_BAR_HEADER_STYLING : {}),
