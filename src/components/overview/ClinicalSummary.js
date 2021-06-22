@@ -9,9 +9,9 @@ import {SITE_NAME} from "../../constants";
 import COLORS from "../../utils/colors";
 import { setAutoQueryPageTransition } from "../../modules/explorer/actions";
 import {
-    experimentPropTypesShape,
-    overviewSummaryPropTypesShape
-} from "../propTypes";
+  experimentPropTypesShape,
+  overviewSummaryPropTypesShape,
+} from "../../propTypes";
 
 const AGE_HISTOGRAM_BINS = [...Array(10).keys()].map(i => i * 10);
 
