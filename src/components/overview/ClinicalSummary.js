@@ -5,12 +5,11 @@ import {Col, Row, Spin, Statistic, Typography} from "antd";
 import {VictoryAxis, VictoryChart, VictoryHistogram} from "victory";
 
 import CustomPieChart from "./CustomPieChart";
-import {SITE_NAME} from "../../constants";
 import COLORS from "../../utils/colors";
 import { setAutoQueryPageTransition } from "../../modules/explorer/actions";
 import {
-  experimentPropTypesShape,
-  overviewSummaryPropTypesShape,
+    experimentPropTypesShape,
+    overviewSummaryPropTypesShape,
 } from "../../propTypes";
 
 const AGE_HISTOGRAM_BINS = [...Array(10).keys()].map(i => i * 10);
@@ -130,16 +129,16 @@ class ClinicalSummary extends Component {
                             <Spin spinning={isFetching}>
                                 <VictoryChart>
                                     <VictoryAxis tickValues={AGE_HISTOGRAM_BINS}
-                                                    label="Age (Years)"
-                                                    height={this.state.chartWidthHeight}
-                                                    style={{
-                                                        axisLabel: { padding: 30 },
-                                                    }} />
+                                                 label="Age (Years)"
+                                                 height={this.state.chartWidthHeight}
+                                                 style={{
+                                                     axisLabel: { padding: 30 },
+                                                 }} />
                                     <VictoryAxis dependentAxis={true}
-                                                    label="Count"
-                                                    style={{
-                                                        axisLabel: { padding: 30},
-                                                    }} />
+                                                 label="Count"
+                                                 style={{
+                                                     axisLabel: { padding: 30},
+                                                 }} />
                                     <VictoryHistogram
                                         data={participantDOB}
                                         bins={AGE_HISTOGRAM_BINS}

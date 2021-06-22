@@ -7,8 +7,6 @@ import ClinicalSummary from "./overview/ClinicalSummary";
 import VariantsSummary from "./overview/VariantsSummary";
 import { SITE_NAME } from "../constants";
 
-const mapStateToProps = state => ({});
-
 const actionCreators = {};
 
 class OverviewContent extends Component {
