@@ -280,8 +280,8 @@ class CustomPieChart extends React.Component {
             <path d={`M${sx},${sy}L${mx},${my}L${ex},${ey}`} stroke={fill} fill='none'/>
             <circle cx={ex} cy={ey} r={2} fill={fill} stroke='none'/>
             <text x={ex + (cos >= 0 ? 1 : -1) * 12} y={ey + 3}
-                    textAnchor={textAnchor}
-                    style={currentTextStyle}
+                  textAnchor={textAnchor}
+                  style={currentTextStyle}
             >
                 { name }
             </text>

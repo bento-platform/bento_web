@@ -28,4 +28,4 @@ class OverviewContent extends Component {
     }
 }
 
-export default connect(mapStateToProps, actionCreators)(OverviewContent);
+export default connect(actionCreators)(OverviewContent);

@@ -53,20 +53,20 @@ class VariantsSummary extends Component {
                 <Col xl={3} lg={4} md={5} sm={7}>
                     <Spin spinning={fetchingTableSummaries}>
                         <Statistic title="Variants"
-                                    value={numVariants} />
+                                   value={numVariants} />
                     </Spin>
                 </Col>
                 <Col xl={2} lg={3} md={4} sm={5} xs={6}>
                     <Spin spinning={fetchingTableSummaries}>
                         <Statistic title="Samples"
-                                    value={numSamples} />
+                                   value={numSamples} />
                     </Spin>
                 </Col>
                 <Col xl={2} lg={3} md={4} sm={5} xs={6}>
                     <Spin spinning={fetchingTableSummaries}>
                         <Statistic title="VCF Files"
-                                    prefix={<Icon type="file" />}
-                                    value={numVCFs} />
+                                   prefix={<Icon type="file" />}
+                                   value={numVCFs} />
                     </Spin>
                 </Col>
             </Row>
