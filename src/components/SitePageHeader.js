@@ -23,14 +23,20 @@ const TAB_BAR_HEADER_STYLING = {borderBottom: "none", paddingBottom: "0"};
 
 class SitePageHeader extends Component {
     render() {
-        return <PageHeader {...this.props}
-                           title={<div style={PAGE_HEADER_TITLE_STYLE}>{this.props.title || ""}</div>}
-                           subTitle={<span style={PAGE_HEADER_SUBTITLE_STYLE}>{this.props.subTitle || ""}</span>}
-                           style={{
-                               ...PAGE_HEADER_STYLE,
-                               ...(this.props.withTabBar ? TAB_BAR_HEADER_STYLING : {}),
-                               ...(this.props.style || {}),
-                           }} />;
+        return (
+          <PageHeader
+            {...this.props}
+            title={<div style={PAGE_HEADER_TITLE_STYLE}>{this.props.title || ""}</div>}
+            subTitle={
+              this.props.subTitle ? <span style={PAGE_HEADER_SUBTITLE_STYLE}>{this.props.subTitle}</span> : undefined
+            }
+            style={{
+                ...PAGE_HEADER_STYLE,
+                ...(this.props.withTabBar ? TAB_BAR_HEADER_STYLING : {}),
+                ...(this.props.style || {}),
+            }}
+          />
+        );
     }
 }
 
