@@ -9,7 +9,7 @@ import { SITE_NAME } from "../constants";
 
 const actionCreators = {};
 
-const mapStateToProps = state => ({});
+const mapStateToProps = _state => ({});
 
 class OverviewContent extends Component {
     componentDidMount() {
