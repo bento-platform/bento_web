@@ -9,6 +9,8 @@ import { SITE_NAME } from "../constants";
 
 const actionCreators = {};
 
+const mapStateToProps = state => ({});
+
 class OverviewContent extends Component {
     componentDidMount() {
         document.title = `${SITE_NAME} - Overview`;
@@ -28,4 +30,4 @@ class OverviewContent extends Component {
     }
 }
 
-export default connect(actionCreators)(OverviewContent);
+export default connect(mapStateToProps, actionCreators)(OverviewContent);
