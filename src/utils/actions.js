@@ -18,7 +18,7 @@ export const createFlowActionTypes = name => ({
 });
 
 
-const _unpaginatedNetworkFetch = async (url, req, parse) => {
+const _unpaginatedNetworkFetch = async (url, base_url, req, parse) => {
     const response = await fetch(url, req);
     if (!response.ok) {
         throw `${response.status} ${response.statusText}`;
@@ -26,7 +26,7 @@ const _unpaginatedNetworkFetch = async (url, req, parse) => {
     return response.status === 204 ? null : await parse(response);
 };
 
-const _paginatedNetworkFetch = async (url, req, parse) => {
+const _paginatedNetworkFetch = async (url, base_url, req, parse) => {
     const results = [];
     const _fetchNext = async (pageUrl) => {
         const response = await fetch(pageUrl, req);
@@ -37,7 +37,7 @@ const _paginatedNetworkFetch = async (url, req, parse) => {
         const data = await parse(response);
         if (!data.hasOwnProperty("results")) throw "Missing results set";
         const pageResults = data.results;
-        const nextUrl = data.next || null;
+        const nextUrl = data.next ? (base_url + data.next) : null;
         if (!(pageResults instanceof Array)) throw "Invalid results set";
         results.push(...pageResults);
         if (nextUrl) await _fetchNext(nextUrl);
@@ -54,13 +54,13 @@ const _networkAction = (fn, ...args) => async (dispatch, getState) => {
         fnResult = fnResult(dispatch, getState);
     }
 
-    const {types, params, url, req, err, onSuccess, paginated} = fnResult;
+    const {types, params, url, base_url, req, err, onSuccess, paginated} = fnResult;
     let {parse} = fnResult;
     if (!parse) parse = r => r.json();
 
     dispatch({type: types.REQUEST, ...params});
     try {
-        const data = await (paginated ? _paginatedNetworkFetch : _unpaginatedNetworkFetch)(url, req, parse);
+        const data = await (paginated ? _paginatedNetworkFetch : _unpaginatedNetworkFetch)(url, base_url, req, parse);
         dispatch({
             type: types.RECEIVE,
             ...params,
