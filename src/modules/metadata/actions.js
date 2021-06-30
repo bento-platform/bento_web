@@ -438,7 +438,7 @@ export const fetchPhenopackets = networkAction(() => (dispatch, getState) => ({
 export const fetchExperiments = networkAction(() => (dispatch, getState) => ({
     types: FETCH_EXPERIMENTS,
     url: `${getState().services.metadataService.url}/api/experiments`,
-    base_url: `${getState().services.metadataService.url}/`,
+    baseUrl: `${getState().services.metadataService.url}/`,
     err: "Error fetching experiments metadata",
     paginated: true
 }));
