@@ -8,7 +8,6 @@ import CustomPieChart from "./CustomPieChart";
 import COLORS from "../../utils/colors";
 import { setAutoQueryPageTransition } from "../../modules/explorer/actions";
 import {
-    experimentPropTypesShape,
     overviewSummaryPropTypesShape,
 } from "../../propTypes";
 
@@ -16,7 +15,6 @@ const AGE_HISTOGRAM_BINS = [...Array(10).keys()].map(i => i * 10);
 
 
 const mapStateToProps = state => ({
-    experiments: state.experiments,
     overviewSummary: state.overviewSummary
 });
 
@@ -27,10 +25,6 @@ const actionCreators = {
 class ClinicalSummary extends Component {
 
     static propTypes = {
-        experiments: PropTypes.shape({
-            isFetching: PropTypes.bool,
-            items: PropTypes.arrayOf(experimentPropTypesShape)
-        }),
         overviewSummary: PropTypes.shape({
             isFetching: PropTypes.bool,
             data: overviewSummaryPropTypesShape
@@ -56,6 +50,7 @@ class ClinicalSummary extends Component {
         const numParticipants = data.data_type_specific?.individuals?.count;
         const numDiseases = data.data_type_specific?.diseases?.count;
         const numPhenotypicFeatures = overviewSummary.data?.data_type_specific?.phenotypic_features?.count;
+        const numExperiments = overviewSummary.data?.data_type_specific?.experiments?.count;
 
         const biosampleLabels = mapNameValueFields(data.data_type_specific?.biosamples?.sampled_tissue);
         const numBiosamples = data.data_type_specific?.biosamples?.count;
@@ -70,13 +65,10 @@ class ClinicalSummary extends Component {
             data.data_type_specific?.phenotypic_features?.type,
             this.state.phenotypicFeaturesThresholdSliderValue);
 
-        const experiments = this.props.experiments?.items ?? [];
-
-
         return <>
             <Row>
                 <Typography.Title level={4}>
-                    Clinical/Phenotypical Data
+                    Clinical/Phenotypical Dat
                 </Typography.Title>
                 <Row style={{marginBottom: "24px"}} gutter={[0, 16]}>
                     <Col xl={2} lg={3} md={5} sm={6} xs={10}>
@@ -101,7 +93,7 @@ class ClinicalSummary extends Component {
                     </Col>
                     <Col xl={2} lg={3} md={5} sm={6} xs={10}>
                         <Spin spinning={isFetching}>
-                            <Statistic title="Experiments" value={experiments.length} />
+                            <Statistic title="Experiments" value={numExperiments} />
                         </Spin>
                     </Col>
                 </Row>
