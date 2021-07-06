@@ -68,7 +68,7 @@ class ClinicalSummary extends Component {
         return <>
             <Row>
                 <Typography.Title level={4}>
-                    Clinical/Phenotypical Dat
+                    Clinical/Phenotypical Data
                 </Typography.Title>
                 <Row style={{marginBottom: "24px"}} gutter={[0, 16]}>
                     <Col xl={2} lg={3} md={5} sm={6} xs={10}>
