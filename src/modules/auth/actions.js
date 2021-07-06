@@ -9,7 +9,6 @@ import {
 import {fetchServiceLogsIfPossible, fetchSystemLogsIfPossible} from "../logs/actions";
 import {fetchDropBoxTreeOrFail} from "../manager/actions";
 import {
-    fetchExperiments,
     fetchProjectsWithDatasetsAndTables,
     fetchVariantTableSummaries,
     fetchOverviewSummary
@@ -43,7 +42,6 @@ export const fetchDependentData = () => dispatch => Promise.all([
     fetchRuns,
     fetchNotifications,
     fetchOverviewSummary,
-    fetchExperiments,
     fetchVariantTableSummaries,
 ].map(a => dispatch(a())));
 
