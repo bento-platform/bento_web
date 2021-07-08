@@ -1,6 +1,6 @@
 import {simpleDeepCopy} from "./misc";
 
-export const OP_EQUALS = "eq";
+export const OP_EQUALS = "ico";
 export const OP_LESS_THAN = "lt";
 export const OP_LESS_THAN_OR_EQUAL = "le";
 export const OP_GREATER_THAN = "gt";
