@@ -85,7 +85,7 @@ class CustomPieChart extends React.Component {
 
         return (
           <PieChart width={chartWidthHeight} height={chartWidthHeight/2}>
-              <Pie data={data}
+              <Pie data={data.filter(e => e.value != 0)}
                    dataKey="value"
                    cx="50%"
                    cy="50%"
