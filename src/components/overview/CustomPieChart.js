@@ -57,10 +57,24 @@ class CustomPieChart extends React.Component {
         return this.props.data !== props.data;
     }
 
+    titleStyle = {
+        borderBottom: '1px solid black',
+        background: "#f6f6f7",
+        fontStyle: 'italic',
+        padding: "0",
+        margin: "0"
+    }   
+
+    style = {
+        border: '1px solid black',
+    }     
+
     render() {
-        const { data, chartWidthHeight } = this.props;
+        const { data, chartWidthHeight, title } = this.props;
 
         return (
+          <div style={this.style}>
+          <h2 style={this.titleStyle}>{title}</h2>
           <PieChart width={chartWidthHeight} height={chartWidthHeight/2}>
               <Pie data={data.filter(e => e.value != 0)}
                    dataKey="value"
@@ -86,6 +100,7 @@ class CustomPieChart extends React.Component {
                 allowEscapeViewBox={{x: true, y: true}}
               />
           </PieChart>
+          </div>
         );
     }
 

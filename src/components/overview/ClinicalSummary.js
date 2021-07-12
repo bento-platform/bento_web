@@ -100,9 +100,9 @@ class ClinicalSummary extends Component {
                 <Col lg={12} md={24}>
                     <Row style={{display: "flex", justifyContent: "center"}}>
                         <Col style={{textAlign: "center"}}>
-                            <h2>Sexes</h2>
                             <Spin spinning={isFetching}>
                                 <CustomPieChart
+                                    title="Sexes"
                                     style={{cursor: "pointer"}}
                                     data={sexLabels}
                                     chartWidthHeight={this.state.chartWidthHeight}
@@ -143,9 +143,9 @@ class ClinicalSummary extends Component {
                 <Col lg={12} md={24}>
                     <Row style={{display: "flex", justifyContent: "center"}}>
                         <Col style={{textAlign: "center"}}>
-                            <h2>Diseases</h2>
                             <Spin spinning={isFetching}>
                                 <CustomPieChart
+                                    title="Diseases"
                                     data={diseaseLabels}
                                     chartWidthHeight={this.state.chartWidthHeight}
                                     fieldLabel={"[dataset item].diseases.[item].term.label"}
@@ -157,9 +157,9 @@ class ClinicalSummary extends Component {
                     <Row style={{paddingTop: this.state.chartLabelPaddingTop+"rem",
                         display: "flex", justifyContent: "center"}}>
                         <Col style={{textAlign: "center"}}>
-                            <h2>Biosamples</h2>
                             <Spin spinning={isFetching}>
                             <CustomPieChart
+                                title="Biosamples"
                                 data={biosampleLabels}
                                 chartWidthHeight={this.state.chartWidthHeight}
                                 fieldLabel={"[dataset item].biosamples.[item].sampled_tissue.label"}
@@ -172,9 +172,9 @@ class ClinicalSummary extends Component {
             </Row>
             <Row style={{display: "flex", justifyContent: "center"}}>
                 <Col style={{textAlign: "center"}}>
-                    <h2>Phenotypic Features</h2>
                     <Spin spinning={isFetching}>
                         <CustomPieChart
+                            title="Phenotypic Features"
                             data={phenotypicFeatureLabels}
                             chartWidthHeight={this.state.chartWidthHeight}
                             fieldLabel={"[dataset item].phenotypic_features.[item].type.label"}
