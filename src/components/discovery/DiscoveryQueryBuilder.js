@@ -111,7 +111,7 @@ class DiscoveryQueryBuilder extends Component {
     }
 
     handleAddDataTypeQueryForm(e) {
-        var esplits=e.key.split(":");
+        let esplits=e.key.split(":");
         this.props.addDataTypeQueryForm(this.props.dataTypesByID[esplits[esplits.length-1]]);
     }
 
