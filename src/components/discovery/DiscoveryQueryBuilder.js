@@ -48,7 +48,7 @@ class DiscoveryQueryBuilder extends Component {
                     this.handleTabsEdit(value.id, "remove"));
 
                 // Set type of query
-                await this.handleAddDataTypeQueryForm({key: `:${this.props.autoQuery.autoQueryType}`});
+                await this.handleAddDataTypeQueryForm({key: this.props.autoQuery.autoQueryType});
 
                 // Set term
                 const dataType =this.props.dataTypesByID[this.props.autoQuery.autoQueryType];
@@ -111,7 +111,8 @@ class DiscoveryQueryBuilder extends Component {
     }
 
     handleAddDataTypeQueryForm(e) {
-        this.props.addDataTypeQueryForm(this.props.dataTypesByID[e.key.split(":")[1]]);
+        const esplits=e.key.split(":");
+        this.props.addDataTypeQueryForm(this.props.dataTypesByID[esplits[esplits.length-1]]);
     }
 
     handleTabsEdit(key, action) {
