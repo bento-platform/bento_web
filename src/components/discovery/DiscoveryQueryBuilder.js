@@ -48,7 +48,7 @@ class DiscoveryQueryBuilder extends Component {
                     this.handleTabsEdit(value.id, "remove"));
 
                 // Set type of query
-                await this.handleAddDataTypeQueryForm({key: `${this.props.autoQuery.autoQueryType}`});
+                await this.handleAddDataTypeQueryForm({key: this.props.autoQuery.autoQueryType});
 
                 // Set term
                 const dataType =this.props.dataTypesByID[this.props.autoQuery.autoQueryType];
