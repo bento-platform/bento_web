@@ -16,6 +16,7 @@ const REFERENCE_GENOME_LOOKUP = {
     "hg38": "hg38",
 };
 
+
 class GenomeBrowser extends Component {
     constructor(props) {
         super(props);
@@ -64,10 +65,12 @@ class GenomeBrowser extends Component {
         const variants = this.props.variants || [];
         console.log("variants", variants);
         return {
-            genome: REFERENCE_GENOME_LOOKUP[(variants[0] || {}).assembly_id] || "hg19",
-            locus: variants.length
-                ? GenomeBrowser.formatVariantLocation(variants[0])
-                : undefined,
+            // genome: REFERENCE_GENOME_LOOKUP[(variants[0] || {}).assembly_id] || "hg19",
+            genome: "hg19",
+            // locus: variants.length
+            //     ? GenomeBrowser.formatVariantLocation(variants[0])
+            //     : undefined,
+            locus: undefined,
             minimumBases: 40,
             tracks: [
                 {
