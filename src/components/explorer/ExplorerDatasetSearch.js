@@ -13,6 +13,7 @@ import "./explorer.css";
 
 import DiscoveryQueryBuilder from "../discovery/DiscoveryQueryBuilder";
 import SearchSummaryModal from "./SearchSummaryModal";
+import SearchAllRecords from "./SearchAllRecords";
 
 import {datasetPropTypesShape, serviceInfoPropTypesShape} from "../../propTypes";
 import {
@@ -104,6 +105,8 @@ class ExplorerDatasetSearch extends Component {
             ? (this.state.currentPage * this.state.pageSize) - this.state.pageSize + 1
             : 0;
 
+        console.log("search results: " + this.props.searchResults);
+
         return <>
             <Typography.Title level={4}>Explore Dataset {selectedDataset.title}</Typography.Title>
             <DiscoveryQueryBuilder isInternal={true}
@@ -113,6 +116,7 @@ class ExplorerDatasetSearch extends Component {
                                    addDataTypeQueryForm={this.props.addDataTypeQueryForm}
                                    updateDataTypeQueryForm={this.props.updateDataTypeQueryForm}
                                    removeDataTypeQueryForm={this.props.removeDataTypeQueryForm} />
+            <SearchAllRecords datasetID={this.props.match.params.dataset}/>
             {this.props.searchResults ? <>
                 <Typography.Title level={4}>
                     Showing results {showingResults}-{Math.min(this.state.currentPage * this.state.pageSize,
@@ -206,7 +210,7 @@ const mapStateToProps = (state, ownProps) => {
 
         dataTypeForms: state.explorer.dataTypeFormsByDatasetID[datasetID] || [],
         fetchingSearch: state.explorer.fetchingSearchByDatasetID[datasetID] || false,
-        searchResults: state.explorer.searchResultsByDatasetID[datasetID] || null,
+        searchResults: state.explorer.searchResultsByDatasetID[datasetID] || [], //state.searchAllRecords.searchResultsByDatasetID[datasetID] || null,
         selectedRows: state.explorer.selectedRowsByDatasetID[datasetID] || [],
 
         isFetchingDownload: state.explorer.isFetchingDownload || false,

@@ -47,6 +47,7 @@ export const FETCH_INDIVIDUAL = createNetworkActionTypes("FETCH_INDIVIDUAL");
 export const FETCH_PHENOPACKETS = createNetworkActionTypes("FETCH_PHENOPACKETS");
 export const FETCH_EXPERIMENTS = createNetworkActionTypes("FETCH_EXPERIMENTS");
 export const FETCH_OVERVIEW_SUMMARY = createNetworkActionTypes("FETCH_OVERVIEW_SUMMARY");
+export const FETCH_ALL_RECORDS = createNetworkActionTypes("FETCH_ALL_RECORDS");
 
 
 const endProjectTableAddition = (project, table) => ({type: PROJECT_TABLE_ADDITION.END, project, table});
@@ -447,3 +448,14 @@ export const fetchOverviewSummary = networkAction(() => (dispatch, getState) => 
     url: `${getState().services.metadataService.url}/api/overview`,
     err: "Error fetching overview summary metadata"
 }));
+
+const fetchSearchAllRecords = networkAction((datasetID, term) => (dispatch, getState) => ({
+    types: FETCH_ALL_RECORDS,
+    params: {datasetID},
+    url: `${getState().services.metadataService.url}/api/individuals`,
+    err: `Error searching in all records with term ${term}`,
+}));
+
+export const fetchSearchAllRecordsIfNecessary = (datasetID, term) => (dispatch, getState) => {
+    return dispatch(fetchSearchAllRecords(datasetID, term));
+};

@@ -20,7 +20,7 @@ import {
     NEUTRALIZE_AUTO_QUERY_PAGE_TRANSITION
 } from "./actions";
 
-const tableSearchResults = (searchResults) => {
+export const tableSearchResults = (searchResults) => {
     const results = (searchResults || {}).results || {};
     const tableResultSet = {};
 
