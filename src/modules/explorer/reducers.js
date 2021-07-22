@@ -24,6 +24,16 @@ const tableSearchResults = (searchResults) => {
     const results = (searchResults || {}).results || {};
     const tableResultSet = {};
 
+    const experimentsByBiosample = {};
+    (results.experiment ?? []).forEach(experiment => {
+        const biosampleID = experiment.biosample_id;
+        if (!experimentsByBiosample.hasOwnProperty(biosampleID)) {
+            experimentsByBiosample[biosampleID] = [];
+        }
+        experimentsByBiosample[biosampleID].push(experiment);
+    });
+
+    // First, collect different data from phenopackets and sort them into an object for an individual
     (results.phenopacket || []).forEach(p => {
         const individualID = p.subject.id;
         if (!tableResultSet.hasOwnProperty(individualID)) {
@@ -33,13 +43,17 @@ const tableSearchResults = (searchResults) => {
                 biosamples: {},  // Only includes biosamples from the phenopackets that matched the search query.
                 diseases: {},  // Only includes diseases from "
                 phenotypic_features: {},
-                experiments: [],  // TODO
+                experiments: {},  // Filled from all the experiments conducted on the biosamples
             };
         }
 
-        (p.biosamples || []).forEach(b => tableResultSet[individualID].biosamples[b.id] = b);
-        (p.diseases || []).forEach(d => tableResultSet[individualID].diseases[d.id] = d);
-        (p.phenotypic_features || []).forEach(pf => tableResultSet[individualID].phenotypic_features[pf.type.id] = pf);
+        (p.biosamples ?? []).forEach(b => {
+            tableResultSet[individualID].biosamples[b.id] = b;
+            (experimentsByBiosample[b.id] ?? []).forEach(e => tableResultSet[individualID].experiments[e.id] = e);
+        });
+
+        (p.diseases ?? []).forEach(d => tableResultSet[individualID].diseases[d.id] = d);
+        (p.phenotypic_features ?? []).forEach(pf => tableResultSet[individualID].phenotypic_features[pf.type.id] = pf);
     });
 
     return Object.values(tableResultSet).map(i => ({
@@ -48,7 +62,9 @@ const tableSearchResults = (searchResults) => {
         diseases: Object.values(i.diseases).sort(
             (d1, d2) => d1.id.toString().localeCompare(d2.id.toString())),
         phenotypic_features: Object.values(i.phenotypic_features).sort(
-            (pf1, pf2) => pf1.type.id.localeCompare(pf2.type.id))
+            (pf1, pf2) => pf1.type.id.localeCompare(pf2.type.id)),
+        experiments: Object.values(i.experiments).sort(
+            (e1, e2) => e1.id.toString().localeCompare(e2.id.toString())),
     }));
 };
 
