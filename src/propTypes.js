@@ -259,6 +259,27 @@ export const phenopacketPropTypesShape = PropTypes.shape({
 
 export const experimentPropTypesShape = PropTypes.shape({
     id: PropTypes.string.isRequired,
+    study_type: PropTypes.string,
+
+    experiment_type: PropTypes.string.isRequired,
+    experiment_ontology: PropTypes.arrayOf(PropTypes.object),  // TODO: Array of ontology terms
+
+    molecule: PropTypes.string,
+    molecule_ontology: PropTypes.arrayOf(PropTypes.object),  // TODO: Array of ontology terms
+
+    library_strategy: PropTypes.string,
+    library_source: PropTypes.string,
+    library_selection: PropTypes.string,
+    library_layout: PropTypes.string,
+
+    extraction_protocol: PropTypes.string,
+    reference_registry_id: PropTypes.string,
+
+    // TODO: FK / M2M Stuff
+
+    qc_flags: PropTypes.arrayOf(PropTypes.string),
+
+    extra_properties: PropTypes.object,  // Key-value object
     // subject: PropTypes.oneOfType([individualPropTypesShape, PropTypes.string]).isRequired,
     // biosamples: biosamplePropTypesShape.isRequired,
     // diseases: diseasePropTypesShape.isRequired,
@@ -287,16 +308,16 @@ export const overviewSummaryPropTypesShape = PropTypes.shape({
 export const explorerSearchResultsPropTypesShape = PropTypes.shape({
     results: PropTypes.shape({
         // TODO: Other data types
-        experiment: PropTypes.arrayOf(PropTypes.object),
+        experiment: PropTypes.arrayOf(experimentPropTypesShape),
         phenopacket: PropTypes.arrayOf(phenopacketPropTypesShape),
-        variant: PropTypes.arrayOf(PropTypes.object),
+        variant: PropTypes.arrayOf(PropTypes.object),  // TODO: Variant prop types shape
     }),
     searchFormattedResults: PropTypes.arrayOf(PropTypes.shape({
         key: PropTypes.string.isRequired,
         individual: individualPropTypesShape,
         biosamples: PropTypes.arrayOf(biosamplePropTypesShape),
         diseases: PropTypes.arrayOf(diseasePropTypesShape),
-        experiments: PropTypes.arrayOf(PropTypes.object),  // TODO
+        experiments: PropTypes.arrayOf(experimentPropTypesShape),  // TODO
     })),
 });
 
