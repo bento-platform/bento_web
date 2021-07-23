@@ -26,7 +26,7 @@ const tableSearchResults = (searchResults) => {
 
     const experimentsByBiosample = {};
     (results.experiment ?? []).forEach(experiment => {
-        const biosampleID = experiment.biosample_id;
+        const biosampleID = experiment.biosample;
         if (!experimentsByBiosample.hasOwnProperty(biosampleID)) {
             experimentsByBiosample[biosampleID] = [];
         }
