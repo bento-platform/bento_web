@@ -47,15 +47,22 @@ const tableSearchResults = (searchResults) => {
             };
         }
 
+        // Accumulate biosamples based on individual ID and experiments by that biosample
+        // ID, de-duplicating in the process to event overlap if multiple phenopackets
+        // have the same biosample(s) or something weird.
         (p.biosamples ?? []).forEach(b => {
             tableResultSet[individualID].biosamples[b.id] = b;
             (experimentsByBiosample[b.id] ?? []).forEach(e => tableResultSet[individualID].experiments[e.id] = e);
         });
 
+        // Accumulate diseases and phenotypic features in the same manner.
         (p.diseases ?? []).forEach(d => tableResultSet[individualID].diseases[d.id] = d);
         (p.phenotypic_features ?? []).forEach(pf => tableResultSet[individualID].phenotypic_features[pf.type.id] = pf);
     });
 
+    // Now that the biosamples/diseases/PFs/experiments are de-duplicated, turn
+    // them into arrays and sort them in a consistent manner. Also flatten the
+    // stuff-by-individual object into a sorted array.
     return Object.values(tableResultSet).map(i => ({
         ...i,
         biosamples: Object.values(i.biosamples).sort((b1, b2) => b1.id.localeCompare(b2.id)),
