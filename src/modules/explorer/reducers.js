@@ -72,7 +72,7 @@ const tableSearchResults = (searchResults) => {
             (pf1, pf2) => pf1.type.id.localeCompare(pf2.type.id)),
         experiments: Object.values(i.experiments).sort(
             (e1, e2) => e1.id.toString().localeCompare(e2.id.toString())),
-    }));
+    })).sort((i1, i2) => i1.key.localeCompare(i2.key));
 };
 
 // TODO: Could this somehow be combined with discovery?
