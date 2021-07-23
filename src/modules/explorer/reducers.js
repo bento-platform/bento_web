@@ -24,6 +24,9 @@ const tableSearchResults = (searchResults) => {
     const results = (searchResults || {}).results || {};
     const tableResultSet = {};
 
+    // Collect all experiments (which have a biosample, not necessarily unique
+    // - one can perform multiple experiments on the same biosample) in arrays
+    // by their biosample ID.
     const experimentsByBiosample = {};
     (results.experiment ?? []).forEach(experiment => {
         const biosampleID = experiment.biosample;
@@ -37,6 +40,9 @@ const tableSearchResults = (searchResults) => {
     (results.phenopacket || []).forEach(p => {
         const individualID = p.subject.id;
         if (!tableResultSet.hasOwnProperty(individualID)) {
+            // We DO NOT initialize diseases, PFs, experiments etc. here because we may have
+            // multiple phenopackets on the same individual, and we want to combine this
+            // into one record for the individual. It gets populated separately below.
             tableResultSet[individualID] = {
                 key: individualID,
                 individual: p.subject,
