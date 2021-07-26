@@ -11,6 +11,7 @@ import {
 
 class Histogram extends React.Component {
   static propTypes = {
+      title: PropTypes.string,
       data: PropTypes.array,
       fieldLabel: PropTypes.string,
       chartHeight: PropTypes.number,
@@ -30,32 +31,6 @@ class Histogram extends React.Component {
       padding: "0",
       margin: "0",
   };
-
-  onEnter = (_data, index) => {
-      this.setState({ activeIndex: index });
-  }
-
-  onHover = (_data, _index, e) => {
-      e.target.style.cursor = "pointer";
-  }
-
-  onLeave = () => {
-      this.setState({ activeIndex: undefined });
-  }
-
-  onClick = (data) => {
-      const { history, setAutoQueryPageTransition } = this.props;
-
-      setAutoQueryPageTransition(
-          window.location.href,
-          "phenopacket",
-          this.props.fieldLabel,
-          data.name
-      );
-
-      // Navigate to Explorer
-      history.push(withBasePath("/data/explorer/search"));
-  }
 
   shouldComponentUpdate(props, state) {
       if (this.state !== state && state.canUpdate) return true;

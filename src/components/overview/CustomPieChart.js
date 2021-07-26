@@ -25,11 +25,13 @@ const countTextStyle = {
 
 class CustomPieChart extends React.Component {
     static propTypes = {
+        title: PropTypes.string,
         data: PropTypes.array,
         fieldLabel: PropTypes.string,
         chartHeight: PropTypes.number,
         chartAspectRatio: PropTypes.number,
-        setAutoQueryPageTransition: PropTypes.func
+        setAutoQueryPageTransition: PropTypes.func,
+        autoQueryDataType: PropTypes.string,
     }
 
     state = {
@@ -94,10 +96,10 @@ class CustomPieChart extends React.Component {
     }
 
     labelShortName(name) {
-        if (name.length <= MAX_LABEL_CHARS){
-            return name
+        if (name.length <= MAX_LABEL_CHARS) {
+            return name;
         }
-        return name.substring(0, MAX_LABEL_CHARS) + "..."
+        return name.substring(0, MAX_LABEL_CHARS) + "...";
     }
 
     renderLabel(state, params) {
@@ -271,7 +273,7 @@ class CustomPieChart extends React.Component {
         <div style={this.style}>
         <h2 style={this.titleStyle}>{title}</h2>
           <PieChart height={chartHeight- titleHeaderHeight} width={(chartHeight-titleHeaderHeight) * chartAspectRatio}>
-              <Pie data={data.filter(e => e.value != 0)}
+              <Pie data={data.filter(e => e.value !== 0)}
                    dataKey="value"
                    cx="50%"
                    cy="50%"
@@ -305,6 +307,7 @@ class CustomPieChart extends React.Component {
 }
 
 const CustomTooltip = ({active, payload, totalCount }) => {
+
     if (!active) {
         return null;
     }
@@ -342,6 +345,12 @@ const CustomTooltip = ({active, payload, totalCount }) => {
         <p style={labelStyle}>{name}</p><p style={countStyle}> {value} ({percentage}%)</p>
 
     </div>;
+};
+
+CustomTooltip.propTypes = {
+    active: PropTypes.bool,
+    payload: PropTypes.object,
+    totalCount: PropTypes.number,
 };
 
 export default withRouter(CustomPieChart);

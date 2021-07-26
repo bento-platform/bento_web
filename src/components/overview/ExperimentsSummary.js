@@ -45,12 +45,15 @@ class ExperimentsSummary2 extends Component {
 
         // TODO: most of these have "other" categories, so counts here are ambiguous or simply incorrect
         const numExperiments = overviewSummary.data?.data_type_specific?.experiments?.count;
-        const numStudyTypes = Object.keys(overviewSummary.data?.data_type_specific?.experiments?.study_type|| {}).length;
-        const numExperimentTypes = Object.keys(overviewSummary.data?.data_type_specific?.experiments?.experiment_type || {}).length;
-        const numMoleculesUsed = Object.keys(overviewSummary.data?.data_type_specific?.experiments?.molecule|| {}).length;
-        const numLibrarySources = Object.keys(overviewSummary.data?.data_type_specific?.experiments?.library_source|| {}).length;
-        const numLibraryStrategies = Object.keys(overviewSummary.data?.data_type_specific?.experiments?.library_strategy|| {}).length;
-        const numLibrarySelections = Object.keys(overviewSummary.data?.data_type_specific?.experiments?.library_selection|| {}).length;
+        const numExperimentTypes = Object.keys(
+            overviewSummary.data?.data_type_specific?.experiments?.experiment_type || {}
+        ).length;
+        const numMoleculesUsed = Object.keys(
+            overviewSummary.data?.data_type_specific?.experiments?.molecule || {}
+        ).length;
+        const numLibraryStrategies = Object.keys(
+            overviewSummary.data?.data_type_specific?.experiments?.library_strategy || {}
+        ).length;
 
         // extract data in pie chart format
         const experimentTypeData = mapNameValueFields(data.data_type_specific?.experiments?.experiment_type);
@@ -58,8 +61,7 @@ class ExperimentsSummary2 extends Component {
         const moleculeData = mapNameValueFields(data.data_type_specific?.experiments?.molecule);
         const libraryStrategyData = mapNameValueFields(data.data_type_specific?.experiments?.library_strategy);
         const librarySelectionData = mapNameValueFields(data.data_type_specific?.experiments?.library_selection);
-        const biosamplesExperimentalData = mapNameValueFields(data.data_type_specific?.experiments?.biosamples);
-        const autoQueryDataType = "experiment"
+        const autoQueryDataType = "experiment";
 
         const pieRowStyle = {display: "flex", flexWrap: "wrap"};
 

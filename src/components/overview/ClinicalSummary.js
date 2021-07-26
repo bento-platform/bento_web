@@ -55,7 +55,7 @@ class ClinicalSummary extends Component {
         const phenotypicFeatureLabels = mapNameValueFields(
             data.data_type_specific?.phenotypic_features?.type,
             this.state.phenotypicFeaturesThresholdSliderValue);
-        const autoQueryDataType = "phenopacket"
+        const autoQueryDataType = "phenopacket";
 
         return <>
             <Row>
@@ -165,7 +165,7 @@ export default connect(mapStateToProps, actionCreators)(ClinicalSummary);
 // input is object: {age1: count1, age2: count2....}
 // outputs an array [{bin1: bin1count}, {bin2: bin2count}...]
 function binAges (ages) {
-    if (ages == null) {
+    if (!ages) {
         return null;
     }
     const ageBinCounts = {
