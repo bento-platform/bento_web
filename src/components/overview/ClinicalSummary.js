@@ -2,10 +2,7 @@ import React, {Component} from "react";
 import {connect} from "react-redux";
 import PropTypes from "prop-types";
 import {Col, Row, Spin, Statistic, Typography} from "antd";
-import {VictoryAxis, VictoryChart, VictoryHistogram} from "victory";
-
 import CustomPieChart from "./CustomPieChart";
-import COLORS from "../../utils/colors";
 import { setAutoQueryPageTransition } from "../../modules/explorer/actions";
 import {
     overviewSummaryPropTypesShape,
@@ -32,11 +29,9 @@ class ClinicalSummary extends Component {
     constructor(props) {
         super(props);
         this.state = {
-            phenotypicFeaturesThresholdSliderValue: 0.01,
             chartPadding:  "1rem",
-            chartWidthHeight: 500,
-            chartLabelPaddingTop: 3,
-            chartLabelPaddingLeft: 3,
+            chartHeight: 300,
+            chartAspectRatio: 1,
         };
     }
 
@@ -94,143 +89,69 @@ class ClinicalSummary extends Component {
                         </Spin>
                     </Col>
                 </Row>
-                <Col lg={12} md={24}>
-                    <Row style={{display: "flex", justifyContent: "center"}}>
-                        <Col style={{textAlign: "center"}}>
-                            <Spin spinning={isFetching}>
-                                <CustomPieChart
-                                    title="Sexes"
-                                    style={{cursor: "pointer"}}
-                                    data={sexLabels}
-                                    chartWidthHeight={this.state.chartWidthHeight}
-                                    fieldLabel={"[dataset item].subject.sex"}
-                                    setAutoQueryPageTransition={this.props.setAutoQueryPageTransition}
-                                />
-                            </Spin>
-                        </Col>
-                    </Row>
-                    <Row style={{paddingTop: this.state.chartLabelPaddingTop+"rem",
-                        paddingLeft: this.state.chartPadding,
-                        paddingRight: this.state.chartPadding,
-                        paddingBottom: 0}}>
-                        <Col style={{textAlign: "center"}}>
-                            <h2>Age</h2>
-                            <Spin spinning={isFetching}>
-                                <VictoryChart>
-                                    <VictoryAxis tickValues={AGE_HISTOGRAM_BINS}
-                                                 label="Age (Years)"
-                                                 height={this.state.chartWidthHeight}
-                                                 style={{
-                                                     axisLabel: { padding: 30 },
-                                                 }} />
-                                    <VictoryAxis dependentAxis={true}
-                                                 label="Count"
-                                                 style={{
-                                                     axisLabel: { padding: 30},
-                                                 }} />
-                                    <VictoryHistogram
-                                        data={participantDOB}
-                                        bins={AGE_HISTOGRAM_BINS}
-                                        style={{ data: { fill: COLORS[0] } }} />
-                                </VictoryChart>
-                            </Spin>
-                        </Col>
-                    </Row>
-                </Col>
-                <Col lg={12} md={24}>
-                    <Row style={{display: "flex", justifyContent: "center"}}>
-                        <Col style={{textAlign: "center"}}>
-                            <Spin spinning={isFetching}>
-                                <CustomPieChart
-                                    title="Diseases"
-                                    data={diseaseLabels}
-                                    chartWidthHeight={this.state.chartWidthHeight}
-                                    fieldLabel={"[dataset item].diseases.[item].term.label"}
-                                    setAutoQueryPageTransition={this.props.setAutoQueryPageTransition}
-                                />
-                            </Spin>
-                        </Col>
-                    </Row>
-                    <Row style={{paddingTop: this.state.chartLabelPaddingTop+"rem",
-                        display: "flex", justifyContent: "center"}}>
-                        <Col style={{textAlign: "center"}}>
-                            <Spin spinning={isFetching}>
-                            <CustomPieChart
-                                title="Biosamples"
-                                data={biosampleLabels}
-                                chartWidthHeight={this.state.chartWidthHeight}
-                                fieldLabel={"[dataset item].biosamples.[item].sampled_tissue.label"}
-                                setAutoQueryPageTransition={this.props.setAutoQueryPageTransition}
-                                />
-                            </Spin>
-                        </Col>
-                    </Row>
-                </Col>
-            </Row>
-            <Row style={{display: "flex", justifyContent: "center"}}>
-                <Col style={{textAlign: "center"}}>
-                    <Spin spinning={isFetching}>
-                        <CustomPieChart
-                            title="Phenotypic Features"
-                            data={phenotypicFeatureLabels}
-                            chartWidthHeight={this.state.chartWidthHeight}
-                            fieldLabel={"[dataset item].phenotypic_features.[item].type.label"}
-                            setAutoQueryPageTransition={this.props.setAutoQueryPageTransition}
-                        />
-                    </Spin>
-                </Col>
+                <Row style={{display: "flex", flexWrap: "wrap"}} >
+            <Col style={{ textAlign: "center" }}>
+              <Spin spinning={isFetching}>
+                <CustomPieChart
+                  title="Individuals"
+                  data={sexLabels}
+                  chartHeight={this.state.chartHeight}
+                  chartAspectRatio={this.state.chartAspectRatio}
+                  fieldLabel={"[dataset item].subject.sex"}
+                  setAutoQueryPageTransition={this.props.setAutoQueryPageTransition}
+                />
+              </Spin>
+            </Col>
+            <Col  style={{ textAlign: "center" }}>
+              <Spin spinning={isFetching}>
+                <CustomPieChart
+                  title="Diseases"
+                  data={diseaseLabels}
+                  chartHeight={this.state.chartHeight}
+                  chartAspectRatio={this.state.chartAspectRatio}
+                  fieldLabel={"[dataset item].diseases.[item].term.label"}
+                  setAutoQueryPageTransition={this.props.setAutoQueryPageTransition}
+                />
+              </Spin>
+            </Col>
+            <Col  style={{ textAlign: "center" }}>
+              <Spin spinning={isFetching}>
+                <Histogram
+                  title="Ages"
+                  data={binnedParticipantAges}
+                  chartAspectRatio={this.state.chartAspectRatio}
+                  chartHeight={this.state.chartHeight}
+                />
+              </Spin>
+            </Col>
+            <Col style={{ textAlign: "center" }}>
+              <Spin spinning={isFetching}>
+                <CustomPieChart
+                  title="Biosamples"
+                  data={biosampleLabels}
+                  chartHeight={this.state.chartHeight}
+                  chartAspectRatio={this.state.chartAspectRatio}
+                  fieldLabel={"[dataset item].biosamples.[item].sampled_tissue.label"}
+                  setAutoQueryPageTransition={this.props.setAutoQueryPageTransition}
+                />
+              </Spin>
+            </Col>
+            <Col  style={{ textAlign: "center" }}>
+              <Spin spinning={isFetching}>
+                <CustomPieChart
+                  title="Phenotypic Features"
+                  data={phenotypicFeatureLabels}
+                  chartHeight={this.state.chartHeight}
+                  chartAspectRatio={2.5}
+                  fieldLabel={"[dataset item].phenotypic_features.[item].type.label"}
+                  setAutoQueryPageTransition={this.props.setAutoQueryPageTransition}
+                />
+              </Spin>
+            </Col>
+          </Row>
+
             </Row>
         </>;
-    }
-
-    updateDimensions = () => {
-        if(window.innerWidth < 576) { //xs
-            this.setState({
-                chartPadding: "0rem",
-                chartWidthHeight: window.innerWidth,
-                chartLabelPaddingTop: 3,
-                chartLabelPaddingLeft: 3
-            });
-        } else if(window.innerWidth < 768) { // sm
-            this.setState({
-                chartPadding: "1rem",
-                chartWidthHeight: window.innerWidth,
-                chartLabelPaddingTop: 3,
-                chartLabelPaddingLeft: 6 });
-        } else if(window.innerWidth < 992) { // md
-            this.setState({
-                chartPadding: "2rem",
-                chartWidthHeight: window.innerWidth,
-                chartLabelPaddingTop: 3,
-                chartLabelPaddingLeft: 5 });
-        } else if(window.innerWidth < 1200) { // lg
-            this.setState({
-                chartPadding: "4rem",
-                chartWidthHeight: window.innerWidth / 2,
-                chartLabelPaddingTop: 3,
-                chartLabelPaddingLeft: 6 });
-        } else if(window.innerWidth < 1600) { // xl
-            this.setState({
-                chartPadding: "6rem",
-                chartWidthHeight: window.innerWidth / 2,
-                chartLabelPaddingTop: 3,
-                chartLabelPaddingLeft: 7 });
-        } else {
-            this.setState({
-                chartPadding: "10rem",
-                chartWidthHeight: window.innerWidth / 2,
-                chartLabelPaddingTop: 5,
-                chartLabelPaddingLeft: 7 }); // > xl
-        }
-    }
-
-    componentDidMount() {
-        this.updateDimensions();
-        window.addEventListener("resize", this.updateDimensions);
-    }
-
-    componentWillUnmount() {
-        window.removeEventListener("resize", this.updateDimensions);
     }
 }
 
