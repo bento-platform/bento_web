@@ -67,16 +67,6 @@ class CustomPieChart extends React.Component {
         history.push(withBasePath("/data/explorer/search"));
     }
 
-  // TODO: is this still needed? If yes, replace with fix
-    componentDidMount() {
-    /*
-     * This ugly hack prevents the Pie labels from not appearing
-     * when Pie props change before the end of the animation.
-     */
-        setTimeout(() => this.setState({ canUpdate: true }), 3000);
-    }
-  // code to fix ends here
-
     shouldComponentUpdate(props, state) {
         if (this.state !== state && state.canUpdate)
             return true;
