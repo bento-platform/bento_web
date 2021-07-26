@@ -74,7 +74,7 @@ class Histogram extends React.Component {
           width={(chartHeight- titleHeaderHeight) * chartAspectRatio}
           height={chartHeight - titleHeaderHeight}
           data={data}
-          margin={{ top: 50, right: 0, bottom: 30, left: 0 }}
+          margin={{ top: 50, right: 80, bottom: 30, left: 80 }}
         >
           <XAxis dataKey="ageBin" height={20}>
             <Label value="Subject age (yrs)" offset={-20} position="insideBottom" />

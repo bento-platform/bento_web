@@ -33,7 +33,7 @@ class ClinicalSummary extends Component {
         this.state = {
             chartPadding:  "1rem",
             chartHeight: 300,
-            chartAspectRatio: 1,
+            chartAspectRatio: 1.8,
         };
     }
 
