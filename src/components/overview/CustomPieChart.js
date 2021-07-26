@@ -11,6 +11,8 @@ import { polarToCartesian } from "recharts/es6/util/PolarUtils";
 import COLORS from "../../utils/colors";
 import { withBasePath } from "../../utils/url";
 
+
+const MAX_LABEL_CHARS = 18;
 const RADIAN = Math.PI / 180;
 
 const textStyle = {
@@ -93,6 +95,13 @@ class CustomPieChart extends React.Component {
         // margin: '0px 20px 0 0',
     }
 
+    labelShortName(name) {
+        if (name.length <= MAX_LABEL_CHARS){
+            return name
+        }
+        return name.substring(0, MAX_LABEL_CHARS) + "..."
+    }
+
     renderLabel(state, params) {
         const {
             cx,
@@ -153,7 +162,7 @@ class CustomPieChart extends React.Component {
                 textAnchor={textAnchor}
                 style={currentTextStyle}
           >
-            { name }
+            { this.labelShortName(name) }
           </text>
           <text
             x={ex + (cos >= 0 ? 1 : -1) * 12}
@@ -243,7 +252,7 @@ class CustomPieChart extends React.Component {
                   textAnchor={textAnchor}
                   style={currentTextStyle}
             >
-                { name }
+                { this.labelShortName(name) }
             </text>
             <text
                 x={ex + (cos >= 0 ? 1 : -1) * 12}
@@ -261,8 +270,8 @@ class CustomPieChart extends React.Component {
 
     render() {
         const { data, chartHeight, chartAspectRatio, title } = this.props;
-        console.log({chartHeight: chartHeight});
         const titleHeaderHeight = 31;
+        const totalCount = data.reduce((sum, e) => sum + e.value, 0);
 
         return (<>
         <div style={this.style}>
@@ -289,11 +298,11 @@ class CustomPieChart extends React.Component {
                   <Cell key={index} fill={COLORS[index % COLORS.length]}/>)
                 }
               </Pie>
-              {/* <Tooltip
-                content={<CustomTooltip/>}
+              <Tooltip
+                content={<CustomTooltip totalCount={totalCount}/>}
                 isAnimationActive={false}
                 allowEscapeViewBox={{x: true, y: true}}
-              /> */}
+              />
           </PieChart>
           </div>
         </>
@@ -301,13 +310,14 @@ class CustomPieChart extends React.Component {
     }
 }
 
-const CustomTooltip = ({active, payload, label }) => {
+const CustomTooltip = ({active, payload, totalCount }) => {
     if (!active) {
         return null;
     }
 
     const name = payload[0]?.name || "";
     const value = payload[0]?.value || 0;
+    const percentage = totalCount ? Math.round(value/totalCount * 100) : 0;
 
     // inline style for now
     const toolTipStyle = {
@@ -335,7 +345,7 @@ const CustomTooltip = ({active, payload, label }) => {
 
     return <div style={toolTipStyle}>
         {/* <p style={labelStyle}>{name}</p><p style={countStyle}>{value} {`donor${value ==1 ? "" : "s"}`}</p> */}
-        <p style={labelStyle}>{name}</p><p style={countStyle}>count: {value} </p>
+        <p style={labelStyle}>{name}</p><p style={countStyle}> {value} ({percentage}%)</p>
 
     </div>;
 };
