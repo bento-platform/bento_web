@@ -5,9 +5,9 @@ import PieChart from "recharts/es6/chart/PieChart";
 import Pie from "recharts/es6/polar/Pie";
 import Cell from "recharts/es6/component/Cell";
 import Curve from "recharts/es6/shape/Curve";
-import Tooltip from "recharts/es6/component/Tooltip"
-import Sector from 'recharts/es6/shape/Sector';
-import { polarToCartesian } from 'recharts/es6/util/PolarUtils';
+import Tooltip from "recharts/es6/component/Tooltip";
+import Sector from "recharts/es6/shape/Sector";
+import { polarToCartesian } from "recharts/es6/util/PolarUtils";
 import COLORS from "../../utils/colors";
 import { withBasePath } from "../../utils/url";
 
@@ -66,13 +66,13 @@ class CustomPieChart extends React.Component {
     }
 
   // TODO: is this still needed? If yes, replace with fix
-  componentDidMount() {
+    componentDidMount() {
     /*
      * This ugly hack prevents the Pie labels from not appearing
      * when Pie props change before the end of the animation.
      */
-    setTimeout(() => this.setState({ canUpdate: true }), 3000);
-  }
+        setTimeout(() => this.setState({ canUpdate: true }), 3000);
+    }
   // code to fix ends here
 
     shouldComponentUpdate(props, state) {
@@ -83,15 +83,15 @@ class CustomPieChart extends React.Component {
     }
 
     titleStyle = {
-        fontStyle: 'italic',
+        fontStyle: "italic",
         padding: "0",
         margin: "0"
-    }   
+    }
 
     style = {
         // backgroundColor: "lightgray"
         // margin: '0px 20px 0 0',
-    }                           
+    }
 
     renderLabel(state, params) {
         const {
@@ -183,8 +183,8 @@ class CustomPieChart extends React.Component {
 
         const name = payload.name === "null" ? "(Empty)" : payload.name;
 
-        console.log({customPayload: payload})
-        
+        console.log({customPayload: payload});
+
         const offsetRadius = 20;
         const sin = Math.sin(-RADIAN * midAngle);
         const cos = Math.cos(-RADIAN * midAngle);
@@ -261,8 +261,8 @@ class CustomPieChart extends React.Component {
 
     render() {
         const { data, chartHeight, chartAspectRatio, title } = this.props;
-        console.log({chartHeight: chartHeight})
-        const titleHeaderHeight = 31
+        console.log({chartHeight: chartHeight});
+        const titleHeaderHeight = 31;
 
         return (<>
         <div style={this.style}>
@@ -277,11 +277,11 @@ class CustomPieChart extends React.Component {
                    label={this.renderLabel.bind(this, this.state)}
                    labelLine={false}
                    isAnimationActive={false}
-                   onClick={this.onClick}   
+                   onClick={this.onClick}
                    onMouseEnter={this.onEnter}
                    onMouseLeave={this.onLeave}
                    onMouseOver={this.onHover}
-                   activeIndex={this.state.activeIndex} 
+                   activeIndex={this.state.activeIndex}
                    activeShape={this.renderActiveLabel.bind(this, this.state)}
               >
                 {
@@ -289,26 +289,26 @@ class CustomPieChart extends React.Component {
                   <Cell key={index} fill={COLORS[index % COLORS.length]}/>)
                 }
               </Pie>
-              {/* <Tooltip 
-                content={<CustomTooltip/>} 
+              {/* <Tooltip
+                content={<CustomTooltip/>}
                 isAnimationActive={false}
                 allowEscapeViewBox={{x: true, y: true}}
               /> */}
           </PieChart>
           </div>
-          </>
+        </>
         );
     }
 }
 
 const CustomTooltip = ({active, payload, label }) => {
-    if (!active){
-        return null
+    if (!active) {
+        return null;
     }
 
-    const name = payload[0]?.name || ""
-    const value = payload[0]?.value || 0
-    
+    const name = payload[0]?.name || "";
+    const value = payload[0]?.value || 0;
+
     // inline style for now
     const toolTipStyle = {
         backgroundColor: "rgba(255, 255, 255, 0.9)",
@@ -317,27 +317,27 @@ const CustomTooltip = ({active, payload, label }) => {
         boxShadow: "0px 0px 2px rgba(0, 0, 0, 0.9)",
         borderRadius: "2px",
         textAlign: "left"
-    }
+    };
 
-    const labelStyle = {        
+    const labelStyle = {
         fontWeight: "bold",
         fontSize: "12px",
         padding: "0",
         margin: "0",
-    }
+    };
 
     const countStyle = {
         fontWeight: "normal",
         fontSize: "11px",
         padding: "0",
         margin: "0",
-    }
+    };
 
     return <div style={toolTipStyle}>
         {/* <p style={labelStyle}>{name}</p><p style={countStyle}>{value} {`donor${value ==1 ? "" : "s"}`}</p> */}
         <p style={labelStyle}>{name}</p><p style={countStyle}>count: {value} </p>
 
-    </div>
-}
+    </div>;
+};
 
 export default withRouter(CustomPieChart);

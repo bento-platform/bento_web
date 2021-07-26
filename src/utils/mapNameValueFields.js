@@ -24,4 +24,4 @@ export const mapNameValueFields = (data, otherThreshold=0.04) => {
 
     // Sort by value
     return results.sort((a, b) => a.value - b.value);
-}
+};

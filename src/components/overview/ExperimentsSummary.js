@@ -7,7 +7,7 @@ import { setAutoQueryPageTransition } from "../../modules/explorer/actions";
 import {
     overviewSummaryPropTypesShape,
 } from "../../propTypes";
-import {mapNameValueFields} from "../../utils/mapNameValueFields"
+import {mapNameValueFields} from "../../utils/mapNameValueFields";
 
 const mapStateToProps = state => ({
     overviewSummary: state.overviewSummary
@@ -46,7 +46,7 @@ class ExperimentsSummary2 extends Component {
         // TODO: most of these have "other" categories, so counts here are ambiguous or simply incorrect
         const numExperiments = overviewSummary.data?.data_type_specific?.experiments?.count;
         const numStudyTypes = Object.keys(overviewSummary.data?.data_type_specific?.experiments?.study_type|| {}).length;
-        const numExperimentTypes = Object.keys(overviewSummary.data?.data_type_specific?.experiments?.experiment_type || {}).length 
+        const numExperimentTypes = Object.keys(overviewSummary.data?.data_type_specific?.experiments?.experiment_type || {}).length;
         const numMoleculesUsed = Object.keys(overviewSummary.data?.data_type_specific?.experiments?.molecule|| {}).length;
         const numLibrarySources = Object.keys(overviewSummary.data?.data_type_specific?.experiments?.library_source|| {}).length;
         const numLibraryStrategies = Object.keys(overviewSummary.data?.data_type_specific?.experiments?.library_strategy|| {}).length;
@@ -60,12 +60,12 @@ class ExperimentsSummary2 extends Component {
         const librarySelectionData = mapNameValueFields(data.data_type_specific?.experiments?.library_selection);
         const biosamplesExperimentalData = mapNameValueFields(data.data_type_specific?.experiments?.biosamples);
 
-        const pieRowStyle = {display: "flex", flexWrap: "wrap"}    
+        const pieRowStyle = {display: "flex", flexWrap: "wrap"};
 
         return <>
             <Row>
                 <Typography.Title level={4}>
-                    Experiments 
+                    Experiments
                 </Typography.Title>
                 <Row style={{marginBottom: "24px"}} gutter={[0, 16]}>
                     <Col xl={2} lg={3} md={5} sm={6} xs={10}>
@@ -73,7 +73,7 @@ class ExperimentsSummary2 extends Component {
                             <Statistic title="Experiments" value={numExperiments}/>
                         </Spin>
                     </Col>
-                    <Col xl={2} lg={3} md={5} sm={6} xs={10}>   
+                    <Col xl={2} lg={3} md={5} sm={6} xs={10}>
                         <Spin spinning={isFetching}>
                             <Statistic title="Experiment Types" value={numExperimentTypes} />
                         </Spin>
@@ -107,7 +107,7 @@ class ExperimentsSummary2 extends Component {
                     <Col style={{textAlign: "center"}}>
                             <Spin spinning={isFetching}>
                                 <CustomPieChart
-                                    title="Experiment Types"    
+                                    title="Experiment Types"
                                     style={{cursor: "pointer"}}
                                     data={experimentTypeData}
                                     chartHeight={this.state.chartHeight}
@@ -121,7 +121,7 @@ class ExperimentsSummary2 extends Component {
                     <Col style={{textAlign: "center"}}>
                             <Spin spinning={isFetching}>
                                 <CustomPieChart
-                                    title="Molecules Used"    
+                                    title="Molecules Used"
                                     style={{cursor: "pointer"}}
                                     data={moleculeData}
                                     chartHeight={this.state.chartHeight}
@@ -135,7 +135,7 @@ class ExperimentsSummary2 extends Component {
                     <Col style={{textAlign: "center"}}>
                             <Spin spinning={isFetching}>
                                 <CustomPieChart
-                                    title="Library Strategies"    
+                                    title="Library Strategies"
                                     style={{cursor: "pointer"}}
                                     data={libraryStrategyData}
                                     chartHeight={this.state.chartHeight}
@@ -149,7 +149,7 @@ class ExperimentsSummary2 extends Component {
                     <Col style={{textAlign: "center"}}>
                             <Spin spinning={isFetching}>
                                 <CustomPieChart
-                                    title="Library Selections"    
+                                    title="Library Selections"
                                     style={{cursor: "pointer"}}
                                     data={librarySelectionData}
                                     chartHeight={this.state.chartHeight}

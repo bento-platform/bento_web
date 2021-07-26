@@ -3,12 +3,12 @@ import {connect} from "react-redux";
 import PropTypes from "prop-types";
 import {Col, Row, Spin, Statistic, Typography} from "antd";
 import CustomPieChart from "./CustomPieChart";
-import Histogram from "./Histogram"
+import Histogram from "./Histogram";
 import { setAutoQueryPageTransition } from "../../modules/explorer/actions";
 import {
     overviewSummaryPropTypesShape,
 } from "../../propTypes";
-import {mapNameValueFields} from "../../utils/mapNameValueFields"
+import {mapNameValueFields} from "../../utils/mapNameValueFields";
 
 const mapStateToProps = state => ({
     overviewSummary: state.overviewSummary
@@ -170,7 +170,7 @@ function mapAgeXField(obj) {
 // input is object: {age1: count1, age2: count2....}
 // outputs an array [{bin1: bin1count}, {bin2: bin2count}...]
 function binAges (ages) {
-    if (ages == null){
+    if (ages == null) {
         return null;
     }
     const ageBinCounts = {
@@ -186,15 +186,15 @@ function binAges (ages) {
         90: 0,
         100: 0,
         110: 0,
+    };
+
+    for (const [age, count] of Object.entries(ages)) {
+        const ageBin = 10 * Math.floor(Number(age) / 10);
+        ageBinCounts[ageBin] += count;
     }
 
-    for (const [age, count] of Object.entries(ages)){
-        const ageBin = 10 * Math.floor(Number(age) / 10);
-        ageBinCounts[ageBin] += count
-    }
-    
-    // return histogram-friendly array 
+    // return histogram-friendly array
     return Object.keys(ageBinCounts).map(age => {
-        return {ageBin: age, count: ageBinCounts[age]}
-    })
+        return {ageBin: age, count: ageBinCounts[age]};
+    });
 }
