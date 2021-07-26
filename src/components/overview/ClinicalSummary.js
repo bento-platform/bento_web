@@ -141,7 +141,7 @@ class ClinicalSummary extends Component {
                   title="Phenotypic Features"
                   data={phenotypicFeatureLabels}
                   chartHeight={this.state.chartHeight}
-                  chartAspectRatio={2.5}
+                  chartAspectRatio={this.state.chartAspectRatio}
                   fieldLabel={"[dataset item].phenotypic_features.[item].type.label"}
                   setAutoQueryPageTransition={this.props.setAutoQueryPageTransition}
                 />
