@@ -156,16 +156,6 @@ class ClinicalSummary extends Component {
 
 export default connect(mapStateToProps, actionCreators)(ClinicalSummary);
 
-
-function mapAgeXField(obj) {
-    // Group the items in the array of objects denoted by
-    // an "x" parameter
-    return Object.entries(obj || {})
-        .filter(([_, v]) => v > 0)
-        .flatMap(([x, v]) => Array(v).fill({x}))
-        .sort((a, b) =>  a.x - b.x);  // Sort by x
-}
-
 // custom binning function
 // input is object: {age1: count1, age2: count2....}
 // outputs an array [{bin1: bin1count}, {bin2: bin2count}...]
