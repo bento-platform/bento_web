@@ -4,8 +4,8 @@ import {Layout, Divider} from "antd";
 
 import SitePageHeader from "./SitePageHeader";
 import ClinicalSummary from "./overview/ClinicalSummary";
-import VariantsSummary from "./overview/VariantsSummary";
 import { SITE_NAME } from "../constants";
+import ExperimentsSummary from "./overview/ExperimentsSummary";
 
 const actionCreators = {};
 
@@ -23,7 +23,7 @@ class OverviewContent extends Component {
                 <Layout.Content style={{background: "white", padding: "32px 24px 4px"}}>
                     <ClinicalSummary />
                     <Divider />
-                    <VariantsSummary />
+                    <ExperimentsSummary />
                 </Layout.Content>
             </Layout>
         </>;
