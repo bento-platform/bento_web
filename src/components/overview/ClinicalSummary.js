@@ -3,6 +3,7 @@ import {connect} from "react-redux";
 import PropTypes from "prop-types";
 import {Col, Row, Spin, Statistic, Typography} from "antd";
 import CustomPieChart from "./CustomPieChart";
+import Histogram from "./Histogram"
 import { setAutoQueryPageTransition } from "../../modules/explorer/actions";
 import {
     overviewSummaryPropTypesShape,
@@ -48,11 +49,8 @@ class ClinicalSummary extends Component {
         const numBiosamples = data.data_type_specific?.biosamples?.count;
 
         const sexLabels = mapNameValueFields(data.data_type_specific?.individuals?.sex, -1);
-
-        const participantDOB = mapAgeXField(data.data_type_specific?.individuals?.age);
-
+        const binnedParticipantAges = binAges(data.data_type_specific?.individuals?.age);
         const diseaseLabels = mapNameValueFields(data.data_type_specific?.diseases?.term);
-
         const phenotypicFeatureLabels = mapNameValueFields(
             data.data_type_specific?.phenotypic_features?.type,
             this.state.phenotypicFeaturesThresholdSliderValue);
