@@ -59,6 +59,7 @@ class ExperimentsSummary2 extends Component {
         const libraryStrategyData = mapNameValueFields(data.data_type_specific?.experiments?.library_strategy);
         const librarySelectionData = mapNameValueFields(data.data_type_specific?.experiments?.library_selection);
         const biosamplesExperimentalData = mapNameValueFields(data.data_type_specific?.experiments?.biosamples);
+        const autoQueryDataType = "experiment"
 
         const pieRowStyle = {display: "flex", flexWrap: "wrap"};
 
@@ -100,6 +101,7 @@ class ExperimentsSummary2 extends Component {
                                     chartAspectRatio={this.state.chartAspectRatio}
                                     fieldLabel={"[dataset item].study_type"}
                                     setAutoQueryPageTransition={this.props.setAutoQueryPageTransition}
+                                    autoQueryDataType={autoQueryDataType}
                                 />
                             </Spin>
                     </Col>
@@ -114,6 +116,7 @@ class ExperimentsSummary2 extends Component {
                                     chartAspectRatio={this.state.chartAspectRatio}
                                     fieldLabel={"[dataset item].experiment_type"}
                                     setAutoQueryPageTransition={this.props.setAutoQueryPageTransition}
+                                    autoQueryDataType={autoQueryDataType}
                                 />
                             </Spin>
                     </Col>
@@ -128,6 +131,7 @@ class ExperimentsSummary2 extends Component {
                                     chartAspectRatio={this.state.chartAspectRatio}
                                     fieldLabel={"[dataset item].molecule"}
                                     setAutoQueryPageTransition={this.props.setAutoQueryPageTransition}
+                                    autoQueryDataType={autoQueryDataType}
                                 />
                             </Spin>
                     </Col>
@@ -142,6 +146,7 @@ class ExperimentsSummary2 extends Component {
                                     chartAspectRatio={this.state.chartAspectRatio}
                                     fieldLabel={"[dataset item].library_strategy"}
                                     setAutoQueryPageTransition={this.props.setAutoQueryPageTransition}
+                                    autoQueryDataType={autoQueryDataType}
                                 />
                             </Spin>
                     </Col>
@@ -156,6 +161,7 @@ class ExperimentsSummary2 extends Component {
                                     chartAspectRatio={this.state.chartAspectRatio}
                                     fieldLabel={"[dataset item].library_selection"}
                                     setAutoQueryPageTransition={this.props.setAutoQueryPageTransition}
+                                    autoQueryDataType={autoQueryDataType}
                                 />
                             </Spin>
                     </Col>

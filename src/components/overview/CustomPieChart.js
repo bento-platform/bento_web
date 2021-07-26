@@ -11,7 +11,6 @@ import { polarToCartesian } from "recharts/es6/util/PolarUtils";
 import COLORS from "../../utils/colors";
 import { withBasePath } from "../../utils/url";
 
-
 const MAX_LABEL_CHARS = 18;
 const RADIAN = Math.PI / 180;
 
@@ -53,12 +52,11 @@ class CustomPieChart extends React.Component {
     }
 
     onClick = (data) => {
-        const { history, setAutoQueryPageTransition } = this.props;
+        const { history, setAutoQueryPageTransition, autoQueryDataType } = this.props;
 
-        // TODO: remove hardcoded phenopackets search, parameterize
         setAutoQueryPageTransition(
             window.location.href,
-            "phenopacket",
+            autoQueryDataType,
             this.props.fieldLabel,
             data.name
         );
@@ -112,7 +110,6 @@ class CustomPieChart extends React.Component {
             payload,
             index,
         } = params;
-
 
         // skip rendering this static label if the sector is selected.
         // this will let the 'renderActiveState' draw without overlapping
@@ -191,9 +188,6 @@ class CustomPieChart extends React.Component {
         } = params;
 
         const name = payload.name === "null" ? "(Empty)" : payload.name;
-
-        console.log({customPayload: payload});
-
         const offsetRadius = 20;
         const sin = Math.sin(-RADIAN * midAngle);
         const cos = Math.cos(-RADIAN * midAngle);

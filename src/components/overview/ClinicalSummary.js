@@ -55,6 +55,7 @@ class ClinicalSummary extends Component {
         const phenotypicFeatureLabels = mapNameValueFields(
             data.data_type_specific?.phenotypic_features?.type,
             this.state.phenotypicFeaturesThresholdSliderValue);
+        const autoQueryDataType = "phenopacket"
 
         return <>
             <Row>
@@ -98,6 +99,7 @@ class ClinicalSummary extends Component {
                   chartAspectRatio={this.state.chartAspectRatio}
                   fieldLabel={"[dataset item].subject.sex"}
                   setAutoQueryPageTransition={this.props.setAutoQueryPageTransition}
+                  autoQueryDataType={autoQueryDataType}
                 />
               </Spin>
             </Col>
@@ -110,6 +112,7 @@ class ClinicalSummary extends Component {
                   chartAspectRatio={this.state.chartAspectRatio}
                   fieldLabel={"[dataset item].diseases.[item].term.label"}
                   setAutoQueryPageTransition={this.props.setAutoQueryPageTransition}
+                  autoQueryDataType={autoQueryDataType}
                 />
               </Spin>
             </Col>
@@ -132,6 +135,7 @@ class ClinicalSummary extends Component {
                   chartAspectRatio={this.state.chartAspectRatio}
                   fieldLabel={"[dataset item].biosamples.[item].sampled_tissue.label"}
                   setAutoQueryPageTransition={this.props.setAutoQueryPageTransition}
+                  autoQueryDataType={autoQueryDataType}
                 />
               </Spin>
             </Col>
@@ -144,6 +148,7 @@ class ClinicalSummary extends Component {
                   chartAspectRatio={this.state.chartAspectRatio}
                   fieldLabel={"[dataset item].phenotypic_features.[item].type.label"}
                   setAutoQueryPageTransition={this.props.setAutoQueryPageTransition}
+                  autoQueryDataType={autoQueryDataType}
                 />
               </Spin>
             </Col>
