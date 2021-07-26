@@ -11,9 +11,6 @@ import {
     overviewSummaryPropTypesShape,
 } from "../../propTypes";
 
-const AGE_HISTOGRAM_BINS = [...Array(10).keys()].map(i => i * 10);
-
-
 const mapStateToProps = state => ({
     overviewSummary: state.overviewSummary
 });
@@ -275,4 +272,37 @@ function mapAgeXField(obj) {
         .filter(([_, v]) => v > 0)
         .flatMap(([x, v]) => Array(v).fill({x}))
         .sort((a, b) =>  a.x - b.x);  // Sort by x
+}
+
+// custom binning function
+// input is object: {age1: count1, age2: count2....}
+// outputs an array [{bin1: bin1count}, {bin2: bin2count}...]
+function binAges (ages) {
+    if (ages == null){
+        return null;
+    }
+    const ageBinCounts = {
+        0: 0,
+        10: 0,
+        20: 0,
+        30: 0,
+        40: 0,
+        50: 0,
+        60: 0,
+        70: 0,
+        80: 0,
+        90: 0,
+        100: 0,
+        110: 0,
+    }
+
+    for (const [age, count] of Object.entries(ages)){
+        const ageBin = 10 * Math.floor(Number(age) / 10);
+        ageBinCounts[ageBin] += count
+    }
+    
+    // return histogram-friendly array 
+    return Object.keys(ageBinCounts).map(age => {
+        return {ageBin: age, count: ageBinCounts[age]}
+    })
 }
