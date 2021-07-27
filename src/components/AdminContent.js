@@ -5,15 +5,8 @@ import {Redirect, Switch} from "react-router-dom";
 import {BASE_PATH, withBasePath} from "../utils/url";
 
 import {Layout} from "antd";
-import "antd/es/col/style/css";
-import "antd/es/layout/style/css";
-import "antd/es/row/style/css";
-import "antd/es/spin/style/css";
-import "antd/es/statistic/style/css";
-import "antd/es/typography/style/css";
 
 import OwnerRoute from "./OwnerRoute";
-
 import SitePageHeader from "./SitePageHeader";
 import ServiceContent from "./ServiceContent";
 import DataManagerContent from "./DataManagerContent";

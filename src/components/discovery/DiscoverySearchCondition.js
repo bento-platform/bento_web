@@ -3,9 +3,6 @@ import {connect} from "react-redux";
 import PropTypes from "prop-types";
 
 import {Button, Input, Select} from "antd";
-import "antd/es/button/style/css";
-import "antd/es/input/style/css";
-import "antd/es/select/style/css";
 
 import {DEFAULT_SEARCH_PARAMETERS, OP_EQUALS, OPERATION_TEXT} from "../../utils/search";
 

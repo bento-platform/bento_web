@@ -6,9 +6,6 @@ import PropTypes from "prop-types";
 import ReactRouterPropTypes from "react-router-prop-types";
 
 import {Layout, Menu, Skeleton} from "antd";
-import "antd/es/layout/style/css";
-import "antd/es/menu/style/css";
-import "antd/es/skeleton/style/css";
 
 import {fetchIndividualIfNecessary} from "../../modules/metadata/actions";
 import {individualPropTypesShape, nodeInfoDataPropTypesShape} from "../../propTypes";

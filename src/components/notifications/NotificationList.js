@@ -5,8 +5,6 @@ import {withRouter} from "react-router-dom";
 import PropTypes from "prop-types";
 
 import {Button, List} from "antd";
-import "antd/es/button/style/css";
-import "antd/es/list/style/css";
 
 import {markNotificationAsRead} from "../../modules/notifications/actions";
 

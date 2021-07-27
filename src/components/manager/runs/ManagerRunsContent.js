@@ -3,7 +3,6 @@ import React, {Component} from "react";
 import {Redirect, Route, Switch} from "react-router-dom";
 
 import {Layout} from "antd";
-import "antd/es/layout/style/css";
 
 import {LAYOUT_CONTENT_STYLE} from "../../../styles/layoutContent";
 

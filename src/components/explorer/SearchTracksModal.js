@@ -1,7 +1,6 @@
 import React from "react";
 
 import {Modal} from "antd";
-import "antd/es/modal/style/css";
 
 import {explorerSearchResultsPropTypesShape} from "../../propTypes";
 import GenomeBrowser from "./GenomeBrowser";

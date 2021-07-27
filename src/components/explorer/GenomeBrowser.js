@@ -2,8 +2,6 @@ import React, {Component, createRef} from "react";
 import PropTypes from "prop-types";
 
 import {Table, Divider} from "antd";
-import "antd/es/divider/style/css";
-import "antd/es/table/style/css";
 
 import igv from "igv/js";
 

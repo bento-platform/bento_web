@@ -5,9 +5,6 @@ import {connect} from "react-redux";
 
 import {Form, Input, Select} from "antd";
 
-import "antd/es/form/style/css";
-import "antd/es/input/style/css";
-import "antd/es/select/style/css";
 
 // TODO: Load available data types from store
 

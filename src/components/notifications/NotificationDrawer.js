@@ -4,9 +4,6 @@ import {withRouter} from "react-router-dom";
 import PropTypes from "prop-types";
 
 import {Button, Divider, Drawer} from "antd";
-import "antd/es/button/style/css";
-import "antd/es/divider/style/css";
-import "antd/es/drawer/style/css";
 
 import NotificationList from "./NotificationList";
 

@@ -5,10 +5,6 @@ import PropTypes from "prop-types";
 import {Link} from "react-router-dom";
 
 import {Table, Typography, Icon, Tag} from "antd";
-import "antd/es/table/style/css";
-import "antd/es/icon/style/css";
-import "antd/es/tag/style/css";
-import "antd/es/table/style/css.js";
 
 import {chordServicePropTypesMixin, serviceInfoPropTypesShape} from "../propTypes";
 import {ROLE_OWNER} from "../constants";

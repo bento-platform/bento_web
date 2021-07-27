@@ -3,8 +3,6 @@ import {connect} from "react-redux";
 import PropTypes from "prop-types";
 
 import {Layout, Typography} from "antd";
-import "antd/es/layout/style/css";
-import "antd/es/typography/style/css";
 
 import NotificationList from "./NotificationList";
 import SitePageHeader from "../SitePageHeader";

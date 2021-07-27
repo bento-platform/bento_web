@@ -2,8 +2,6 @@ import React, {Component} from "react";
 import PropTypes from "prop-types";
 
 import {Form, Modal} from "antd";
-import "antd/es/form/style/css";
-import "antd/es/modal/style/css";
 
 import TableTreeSelect from "./TableTreeSelect";
 

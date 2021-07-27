@@ -3,9 +3,6 @@ import {connect} from "react-redux";
 import PropTypes from "prop-types";
 
 import {Modal, Skeleton, Tag} from "antd";
-import "antd/es/modal/style/css";
-import "antd/es/skeleton/style/css";
-import "antd/es/tag/style/css";
 
 import {nop} from "../../../utils/misc";
 

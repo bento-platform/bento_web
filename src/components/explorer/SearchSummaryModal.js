@@ -3,11 +3,6 @@ import React from "react";
 import {parse, toSeconds} from "iso8601-duration";
 
 import {Col, Divider, Modal, Row, Statistic, Typography} from "antd";
-import "antd/es/col/style/css";
-import "antd/es/divider/style/css";
-import "antd/es/modal/style/css";
-import "antd/es/row/style/css";
-import "antd/es/statistic/style/css";
 
 import {VictoryAxis, VictoryBar, VictoryChart, VictoryHistogram, VictoryLabel, VictoryPie} from "victory";
 import VictoryPieWrapSVG from "../VictoryPieWrapSVG";

@@ -9,14 +9,18 @@ module.exports = {
     module: {
         rules: [
             {
+                test: /\.worker\.js$/,
+                use: ["worker-loader"],
+            },
+            {
                 test: /\.(js|jsx)$/,
                 exclude: /node_modules/,
-                use: ["babel-loader"]
+                use: ["babel-loader"],
             },
             {
                 test: /.css$/,
-                use: ["style-loader", "css-loader"]
-            }
+                use: ["style-loader", "css-loader"],
+            },
         ]
     },
     resolve: {

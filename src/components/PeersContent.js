@@ -1,11 +1,7 @@
 import React, {Component} from "react";
 import {connect} from "react-redux";
 import PropTypes from "prop-types";
-
 import {Icon, Layout, Table} from "antd";
-import "antd/es/icon/style/css";
-import "antd/es/layout/style/css";
-import "antd/es/table/style/css";
 
 import SitePageHeader from "./SitePageHeader";
 

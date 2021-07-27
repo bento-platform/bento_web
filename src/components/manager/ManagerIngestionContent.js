@@ -5,17 +5,6 @@ import PropTypes from "prop-types";
 
 import {Button, Empty, Form, Layout, List, Skeleton, Spin, Steps, Table, Tag} from "antd";
 
-import "antd/es/button/style/css";
-import "antd/es/empty/style/css";
-import "antd/es/form/style/css";
-import "antd/es/layout/style/css";
-import "antd/es/list/style/css";
-import "antd/es/skeleton/style/css";
-import "antd/es/spin/style/css";
-import "antd/es/steps/style/css";
-import "antd/es/table/style/css";
-import "antd/es/tag/style/css";
-
 import WorkflowListItem from "./WorkflowListItem";
 
 import {submitIngestionWorkflowRun} from "../../modules/wes/actions";
