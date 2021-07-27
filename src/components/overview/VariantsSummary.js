@@ -38,12 +38,8 @@ class VariantsSummary extends Component {
         const variantTableSummaries =
             this.props.tableSummaries?.summariesByServiceArtifactAndTableID?.variant;
 
-        let numVariants = 0;
-        let numSamples = 0;
         let numVCFs = 0;
         Object.values(variantTableSummaries || []).forEach(s => {
-            numVariants += s.count;
-            numSamples += s.data_type_specific.samples;
             numVCFs += s.data_type_specific.vcf_files;
         });
 
