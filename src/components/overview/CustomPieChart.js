@@ -71,17 +71,19 @@ class CustomPieChart extends React.Component {
     * This ugly hack prevents the Pie labels from not appearing
     * when Pie props change before the end of the animation.
     */
-    labelTimeout = () => {setTimeout(() => this.setState({ canUpdate: true }), 0)};
+    labelTimeout = () => {
+        setTimeout(() => this.setState({ canUpdate: true }), 0);
+    };
 
     componentDidMount() {
 
-      this.labelTimeout();
+        this.labelTimeout();
     }
 
     componentWillUnmount() {
         clearTimeout(this.labelTimeout);
     }
- 
+
     shouldComponentUpdate(props, state) {
         if (this.state !== state && state.canUpdate)
             return true;
@@ -212,15 +214,6 @@ class CustomPieChart extends React.Component {
             fontStyle: payload.name === "null" ? "italic" : "normal",
         };
 
-        const startPoint = polarToCartesian(params.cx, params.cy, params.outerRadius, midAngle);
-        const endPoint   = polarToCartesian(params.cx, params.cy, params.outerRadius + offsetRadius, midAngle);
-        const lineProps = {
-            ...params,
-            fill: "none",
-            stroke: fill,
-            points: [startPoint, endPoint],
-        };
-
         return (
           <g>
             <Sector
@@ -241,12 +234,6 @@ class CustomPieChart extends React.Component {
               outerRadius={outerRadius + 10}
               fill={fill}
             />
-                        {/* <Curve
-                { ...lineProps }
-                type='linear'
-                className='recharts-pie-label-line'
-            /> */}
-
             <path d={`M${sx},${sy}L${mx},${my}L${ex},${ey}`} stroke={fill} fill='none'/>
             <circle cx={ex} cy={ey} r={2} fill={fill} stroke='none'/>
             <text x={ex + (cos >= 0 ? 1 : -1) * 12} y={ey + 3}
