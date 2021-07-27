@@ -6,6 +6,7 @@ import SitePageHeader from "./SitePageHeader";
 import ClinicalSummary from "./overview/ClinicalSummary";
 import VariantsSummary from "./overview/VariantsSummary";
 import { SITE_NAME } from "../constants";
+import ExperimentsSummary from "./overview/ExperimentsSummary";
 
 const actionCreators = {};
 
@@ -22,6 +23,8 @@ class OverviewContent extends Component {
             <Layout>
                 <Layout.Content style={{background: "white", padding: "32px 24px 4px"}}>
                     <ClinicalSummary />
+                    <Divider />
+                    <ExperimentsSummary />
                     <Divider />
                     <VariantsSummary />
                 </Layout.Content>
