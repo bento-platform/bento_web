@@ -67,6 +67,21 @@ class CustomPieChart extends React.Component {
         history.push(withBasePath("/data/explorer/search"));
     }
 
+    /*
+    * This ugly hack prevents the Pie labels from not appearing
+    * when Pie props change before the end of the animation.
+    */
+    labelTimeout = () => {setTimeout(() => this.setState({ canUpdate: true }), 0)};
+
+    componentDidMount() {
+
+      this.labelTimeout();
+    }
+
+    componentWillUnmount() {
+        clearTimeout(this.labelTimeout);
+    }
+ 
     shouldComponentUpdate(props, state) {
         if (this.state !== state && state.canUpdate)
             return true;
