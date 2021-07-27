@@ -211,7 +211,7 @@ const mapStateToProps = (state, ownProps) => {
 
         dataTypeForms: state.explorer.dataTypeFormsByDatasetID[datasetID] || [],
         fetchingSearch: state.explorer.fetchingSearchByDatasetID[datasetID] || false,
-        searchResults: state.explorer.searchResultsByDatasetID[datasetID] || [], //state.searchAllRecords.searchResultsByDatasetID[datasetID] || null,
+        searchResults: state.explorer.searchResultsByDatasetID[datasetID] || null, 
         selectedRows: state.explorer.selectedRowsByDatasetID[datasetID] || [],
 
         isFetchingDownload: state.explorer.isFetchingDownload || false,
