@@ -4,6 +4,7 @@ import {Layout, Divider} from "antd";
 
 import SitePageHeader from "./SitePageHeader";
 import ClinicalSummary from "./overview/ClinicalSummary";
+import VariantsSummary from "./overview/VariantsSummary"
 import { SITE_NAME } from "../constants";
 import ExperimentsSummary from "./overview/ExperimentsSummary";
 
@@ -24,6 +25,8 @@ class OverviewContent extends Component {
                     <ClinicalSummary />
                     <Divider />
                     <ExperimentsSummary />
+                    <Divider />
+                    <VariantsSummary />
                 </Layout.Content>
             </Layout>
         </>;

@@ -50,18 +50,6 @@ class VariantsSummary extends Component {
         return <>
             <Typography.Title level={4}>Variants</Typography.Title>
             <Row style={{marginBottom: "24px"}} gutter={[0, 16]}>
-                <Col xl={3} lg={4} md={5} sm={7}>
-                    <Spin spinning={fetchingTableSummaries}>
-                        <Statistic title="Variants"
-                                   value={numVariants} />
-                    </Spin>
-                </Col>
-                <Col xl={2} lg={3} md={4} sm={5} xs={6}>
-                    <Spin spinning={fetchingTableSummaries}>
-                        <Statistic title="Samples"
-                                   value={numSamples} />
-                    </Spin>
-                </Col>
                 <Col xl={2} lg={3} md={4} sm={5} xs={6}>
                     <Spin spinning={fetchingTableSummaries}>
                         <Statistic title="VCF Files"
