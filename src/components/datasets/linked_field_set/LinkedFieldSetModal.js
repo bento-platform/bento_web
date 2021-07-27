@@ -27,13 +27,21 @@ class LinkedFieldSetModal extends Component {
         const mode = this.props.mode || FORM_MODE_ADD;
 
         this.form.validateFields(async (err, values) => {
-            if (err) return;
+            if (err) {
+                console.error("Encountered error validating fields", err);
+                return;
+            }
+
+            console.log("Field set form values", values);
+
             const newLinkedFieldSet = {
                 name: values.name,
                 fields: Object.fromEntries(values.fields.map(f => {
                     const parts = f.selected.split(".").slice(1);  // TODO: Condense this with filter (_, i)
-                    return [parts[0], parts.slice(2)];
-                }))
+                    const entry = [parts[0], parts.slice(2)];
+                    console.log("Linked field set entry", entry);
+                    return entry;
+                })),
             };
 
             const onSuccess = async () => {
@@ -50,11 +58,11 @@ class LinkedFieldSetModal extends Component {
     }
 
     render() {
-        const mode = this.props.mode || FORM_MODE_ADD;
+        const mode = this.props.mode ?? FORM_MODE_ADD;
 
         const modalTitle = mode === FORM_MODE_ADD
             ? `Add New Linked Field Set to Dataset "${this.props.dataset.title}"`
-            : `Edit Linked Field Set "${(this.props.linkedFieldSet || {}).name || ""}" on Dataset "${
+            : `Edit Linked Field Set "${this.props.linkedFieldSet?.name ?? ""}" on Dataset "${
                 this.props.dataset.title}"`;
 
         return (
@@ -63,9 +71,9 @@ class LinkedFieldSetModal extends Component {
                    confirmLoading={this.props.isSavingDataset}
                    width={768}
                    onOk={() => this.handleSubmit()}
-                   onCancel={() => (this.props.onCancel || nop)()}>
+                   onCancel={() => (this.props.onCancel ?? nop)()}>
                 <LinkedFieldSetForm dataTypes={this.props.dataTypes}
-                                    initialValue={this.props.linkedFieldSet || null}
+                                    initialValue={this.props.linkedFieldSet ?? null}
                                     mode={this.props.mode}
                                     ref={form => this.form = form} />
             </Modal>

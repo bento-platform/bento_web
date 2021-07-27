@@ -38,17 +38,17 @@ class LinkedFieldSetForm extends Component {
             }
         }
 
-        if (JSON.stringify(prevProps.initialValue || {}) !==
-                JSON.stringify(this.props.initialValue || {}) && this.props.mode === FORM_MODE_EDIT) {
-            const initialValueObj = this.props.initialValue || {};
-            fieldKey = Object.entries(initialValueObj.fields || {}).length;
+        if (JSON.stringify(prevProps.initialValue ?? {}) !==
+                JSON.stringify(this.props.initialValue ?? {}) && this.props.mode === FORM_MODE_EDIT) {
+            const initialValueObj = this.props.initialValue ?? {};
+            fieldKey = Object.entries(initialValueObj.fields ?? {}).length;
 
-            this.props.form.getFieldDecorator("name", {initialValue: initialValueObj.name || ""});
+            this.props.form.getFieldDecorator("name", {initialValue: initialValueObj.name ?? ""});
             this.props.form.setFieldsValue({[FIELD_KEYS]: [...(new Array(fieldKey)).keys()]});
 
             const rootSchema = this.rootSchema();
 
-            Object.entries(initialValueObj.fields || {})
+            Object.entries(initialValueObj.fields ?? {})
                 .sort((a, b) => a[0].localeCompare(b[0]))
                 .forEach(([dt, f], i) => {
                     const selected = `[dataset item].${dt}.[item].${f.join(".")}`;
@@ -69,7 +69,7 @@ class LinkedFieldSetForm extends Component {
         this.syncForm();
     }
 
-    componentDidUpdate(prevProps) {
+    componentDidUpdate(prevProps, _prevState, _snapshot) {
         this.syncForm(prevProps);
     }
 
@@ -105,7 +105,7 @@ class LinkedFieldSetForm extends Component {
         return <Form>
             <Form.Item label="Name">
                 {getFieldDecorator("name", {
-                    initialValue: (this.props.initialValue || {}).name || "",
+                    initialValue: this.props.initialValue?.name ?? "",
                     rules: [{required: true}, {min: 3}]
                 })(<Input placeholder="Sample IDs" />)}
             </Form.Item>
