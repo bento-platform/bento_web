@@ -28,6 +28,7 @@ const IndividualGenes = ({individual}) => {
                   dataSource={genesFlat}
         />;
 };
+
 IndividualGenes.propTypes = {
     individual: individualPropTypesShape
     //PropTypes.array,

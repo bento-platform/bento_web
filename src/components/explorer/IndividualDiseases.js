@@ -63,8 +63,6 @@ const IndividualDiseases = ({individual}) =>
            rowKey="id"
            dataSource={(individual || {}).phenopackets.flatMap(p => p.diseases)} />;
 
-
-
 IndividualDiseases.propTypes = {
     individual: diseasePropTypesShape,
 };

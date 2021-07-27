@@ -66,7 +66,6 @@ export const performIndividualsDownloadCSVIfPossible = (datasetId, individualIds
     };
 
 
-
 export const addDataTypeQueryForm = (datasetID, dataType) => ({
     type: ADD_DATA_TYPE_QUERY_FORM,
     datasetID,

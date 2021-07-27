@@ -26,8 +26,6 @@ const LANGUAGE_HIGHLIGHTERS = {
 
 import {Button, Dropdown, Empty, Icon, Layout, Menu, Modal, Spin, Tree} from "antd";
 
-
-
 import {LAYOUT_CONTENT_STYLE} from "../../styles/layoutContent";
 import TableSelectionModal from "./TableSelectionModal";
 

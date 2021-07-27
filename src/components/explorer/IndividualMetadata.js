@@ -59,8 +59,6 @@ const IndividualMetadata = ({individual}) =>
            rowKey="id"
            dataSource={(individual || {}).phenopackets.flatMap(p => (p.meta_data || {}).resources || [])} />;
 
-
-
 IndividualMetadata.propTypes = {
     individual: individualPropTypesShape,
 };

@@ -59,11 +59,11 @@ module.exports = {
         "linebreak-style": ["error", "unix"],
         "react/prop-types": ["error", {"ignore": ["form", "match", "history"]}],
         "quotes": ["error", "double"],
-        "semi": ["error", "always"],
-        "semi-spacing": ["error"],
-        "no-var": ["error"],
-        "prefer-const": ["error"],
-        "eqeqeq": ["error"],
+        "semi": ["error", "always"],  // Enforce semicolons for consistency I suppose
+        "semi-spacing": ["error"],  // Semicolons have to be pushed up against the line they are on
+        "no-var": ["error"],  // var should be swapped out for let or const
+        "prefer-const": ["error"],  // If a value never gets changed, it should be a const
+        "eqeqeq": ["error"],  // == in javascript is dangerous
         "max-len": ["error", {"code": 120}],
         "no-trailing-spaces": ["error"],
         "space-before-blocks": ["error", "always"],
@@ -71,6 +71,7 @@ module.exports = {
         "no-restricted-globals": ["error", "event"],
         "brace-style": ["error", "1tbs"],
         "camelcase": ["error", {"properties": "never"}],
+        "no-multiple-empty-lines": ["error", {"max": 2, "maxEOF": 0}],  // Don't allow a bunch of empty lines, 0 at end
     },
     "settings": {
         "react": {

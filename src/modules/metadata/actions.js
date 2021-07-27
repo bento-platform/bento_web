@@ -419,7 +419,6 @@ export const fetchIndividualIfNecessary = individualID => (dispatch, getState) =
 };
 
 
-
 export const fetchPhenopackets = networkAction(() => (dispatch, getState) => ({
     types: FETCH_PHENOPACKETS,
     url: `${getState().services.metadataService.url}/api/phenopackets`,
