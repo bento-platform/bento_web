@@ -341,7 +341,6 @@ export const overviewSummaryPropTypesShape = PropTypes.shape({
 });
 
 
-
 // Explorer search results format
 export const explorerSearchResultsPropTypesShape = PropTypes.shape({
     results: PropTypes.shape({
