@@ -59,7 +59,7 @@ const IndividualBiosamples = ({individual}) =>
            pagination={{pageSize: 25}}
            columns={BIOSAMPLE_COLUMNS}
            rowKey="id"
-           dataSource={(individual || {}).phenopackets.flatMap(p => p.biosamples)} />;
+           dataSource={(individual?.phenopackets ?? []).flatMap(p => p.biosamples)} />;
 
 IndividualBiosamples.propTypes = {
     individual: individualPropTypesShape,
