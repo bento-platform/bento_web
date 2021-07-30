@@ -83,13 +83,13 @@ export const services = (
                 itemsByID: Object.fromEntries(action.data.map(s => [s.id, s])),
                 itemsByArtifact,
 
-                dropBoxService: itemsByArtifact["drop-box"] || null,
-                eventRelay: itemsByArtifact["event-relay"] || null,
-                federationService: itemsByArtifact["federation"] || null,
-                logService: itemsByArtifact["log-service"] || null,
-                notificationService: itemsByArtifact["notification"] || null,
-                metadataService: itemsByArtifact["metadata"] || null,
-                wesService: itemsByArtifact["wes"] || null,
+                dropBoxService: itemsByArtifact["drop-box"] ?? null,
+                eventRelay: itemsByArtifact["event-relay"] ?? null,
+                federationService: itemsByArtifact["federation"] ?? null,
+                logService: itemsByArtifact["log-service"] ?? null,
+                notificationService: itemsByArtifact["notification"] ?? null,
+                metadataService: itemsByArtifact["metadata"] ?? null,
+                wesService: itemsByArtifact["wes"] ?? null,
 
                 lastUpdated: action.receivedAt
             };
@@ -109,7 +109,7 @@ export const serviceDataTypes = (
         isFetchingAll: false,
         itemsByID: {},
         dataTypesByServiceID: {},
-        dataTypesByServiceArtifact: {}
+        dataTypesByServiceArtifact: {},
     },
     action
 ) => {
@@ -127,14 +127,14 @@ export const serviceDataTypes = (
                 dataTypesByServiceID: {
                     ...state.dataTypesByServiceID,
                     [action.serviceInfo.id]: {
-                        ...(state.dataTypesByServiceID[action.serviceInfo.id] || {items: null, itemsByID: null}),
+                        ...(state.dataTypesByServiceID[action.serviceInfo.id] ?? {items: null, itemsByID: null}),
                         isFetching: true
                     }
                 },
                 dataTypesByServiceArtifact: {
                     ...state.dataTypesByServiceArtifact,
                     [action.chordService.type.artifact]: {
-                        ...(state.dataTypesByServiceArtifact[action.chordService.type.artifact] ||
+                        ...(state.dataTypesByServiceArtifact[action.chordService.type.artifact] ??
                             {items: null, itemsByID: null}),
                         isFetching: true
                     }
@@ -167,7 +167,7 @@ export const serviceDataTypes = (
                 dataTypesByServiceID: {
                     ...state.dataTypesByServiceID,
                     [action.serviceID]: {
-                        ...(state.dataTypesByServiceID[action.serviceInfo.id] || {items: null, itemsByID: null}),
+                        ...(state.dataTypesByServiceID[action.serviceInfo.id] ?? {items: null, itemsByID: null}),
                         isFetching: false
                     }
                 },
@@ -210,7 +210,7 @@ export const serviceTables = (
                 itemsByServiceID: {
                     ...state.itemsByServiceID,
                     [action.serviceInfo.id]: {
-                        ...(state.itemsByServiceID[action.serviceInfo.id] || {}),
+                        ...(state.itemsByServiceID[action.serviceInfo.id] ?? {}),
                         isFetching: true,
                     }
                 },
@@ -222,7 +222,7 @@ export const serviceTables = (
                 service_id: action.serviceInfo.id,
                 data_type: action.dataTypeID
             })).filter(t =>
-                !((state.itemsByServiceID[action.serviceInfo.id] || {}).tablesByID || {}).hasOwnProperty(t.id));
+                !(state.itemsByServiceID[action.serviceInfo.id]?.tablesByID ?? {}).hasOwnProperty(t.id));
 
             return {
                 ...state,
@@ -230,14 +230,14 @@ export const serviceTables = (
                 itemsByServiceID: {
                     ...state.itemsByServiceID,
                     [action.serviceInfo.id]: {
-                        ...(state.itemsByServiceID[action.serviceInfo.id] || {}),
+                        ...(state.itemsByServiceID[action.serviceInfo.id] ?? {}),
                         isFetching: false,
                         tables: [
-                            ...((state.itemsByServiceID[action.serviceInfo.id] || {}).tables || []),
+                            ...(state.itemsByServiceID[action.serviceInfo.id]?.tables ?? []),
                             ...action.data,
                         ],
                         tablesByID: {
-                            ...((state.itemsByServiceID[action.serviceInfo.id] || {}).tablesByID || {}),
+                            ...(state.itemsByServiceID[action.serviceInfo.id]?.tablesByID ?? {}),
                             ...Object.fromEntries(newTables.map(t => [t.id, t]))
                         },
                     }
@@ -251,7 +251,7 @@ export const serviceTables = (
                 itemsByServiceID: {
                     ...state.itemsByServiceID,
                     [action.serviceInfo.id]: {
-                        ...(state.itemsByServiceID[action.serviceInfo.id] || {}),
+                        ...(state.itemsByServiceID[action.serviceInfo.id] ?? {}),
                         isFetching: false,
                     }
                 },
@@ -266,10 +266,10 @@ export const serviceTables = (
                 itemsByServiceID: {
                     ...state.itemsByServiceID,
                     [action.serviceInfo.id]: {
-                        ...(state.itemsByServiceID[action.serviceInfo.id] || {}),
-                        tables: [...((state.itemsByServiceID[action.serviceInfo.id] || {}).tables || []), action.table],
+                        ...(state.itemsByServiceID[action.serviceInfo.id] ?? {}),
+                        tables: [...(state.itemsByServiceID[action.serviceInfo.id]?.tables ?? []), action.table],
                         tablesByID: {
-                            ...((state.itemsByServiceID[action.serviceInfo.id] || {}).tablesByID || {}),
+                            ...(state.itemsByServiceID[action.serviceInfo.id]?.tablesByID ?? {}),
                             [action.table.id]: action.table,
                         },
                     },
@@ -288,11 +288,11 @@ export const serviceTables = (
                 itemsByServiceID: {
                     ...state.itemsByServiceID,
                     [action.serviceInfo.id]: {
-                        ...(state.itemsByServiceID[action.serviceInfo.id] || {}),
-                        tables: ((state.itemsByServiceID[action.serviceInfo.id] || {}).tables || [])
+                        ...(state.itemsByServiceID[action.serviceInfo.id] ?? {}),
+                        tables: (state.itemsByServiceID[action.serviceInfo.id]?.tables ?? [])
                             .filter(t => t.id !== action.tableID),
                         tablesByID: objectWithoutProp(
-                            ((state.itemsByServiceID[action.serviceInfo.id] || {}).tablesByID || {}),
+                            (state.itemsByServiceID[action.serviceInfo.id]?.tablesByID ?? {}),
                             action.tableID
                         ),
                     },
@@ -329,7 +329,7 @@ export const serviceWorkflows = (
                     ...state.workflowsByServiceID,
                     [action.serviceInfo.id]: {
                         isFetching: true,
-                        ...(state.workflowsByServiceID[action.serviceInfo.id] || {workflows: null})
+                        ...(state.workflowsByServiceID[action.serviceInfo.id] ?? {workflows: null})
                     }
                 }
             };

@@ -10,14 +10,14 @@ const P_FEATURES_COLUMNS = [
         title: "Type",
         key: "type",
         render: (_, individual) => <span>
-            <strong>{((individual || {}).type || {}).label || EM_DASH} </strong>
-            {((individual || {}).type || {}).id || EM_DASH}
+            <strong>{individual?.type?.label ?? EM_DASH} </strong>
+            {individual?.type?.id ?? EM_DASH}
         </span>,
     },
     {
         title: "Negated",
         key: "negated",
-        render: (_, individual) => ((individual || {}).negated || "false").toString(),
+        render: (_, individual) => (individual?.negated ?? "false").toString(),
     },
     {
         title: "Extra Properties",
@@ -36,7 +36,7 @@ const IndividualPhenotypicFeatures = ({individual}) =>
            pagination={{pageSize: 25}}
            columns={P_FEATURES_COLUMNS}
            rowKey="id"
-           dataSource={(individual || {}).phenopackets.flatMap(p => (p.phenotypic_features || []))} />;
+           dataSource={individual?.phenopackets.flatMap(p => (p.phenotypic_features ?? []))} />;
 
 IndividualPhenotypicFeatures.propTypes = {
     individual: individualPropTypesShape,

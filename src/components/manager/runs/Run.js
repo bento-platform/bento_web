@@ -21,8 +21,8 @@ const TABS = {
 
 class Run extends Component {
     render() {
-        const run = this.props.run || {};
-        const tab = this.props.tab || "request";
+        const run = this.props.run ?? {};
+        const tab = this.props.tab ?? "request";
         const Content = TABS[tab];
         return <>
             <PageHeader title={<>Run <span style={{fontFamily: "monospace"}}>{run.run_id}</span></>}

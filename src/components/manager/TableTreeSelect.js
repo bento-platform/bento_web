@@ -31,9 +31,9 @@ class TableTreeSelect extends Component {
         // TODO: Handle table loading better
 
         const getTableName = (serviceID, tableID) =>
-            (((this.props.tablesByServiceID[serviceID] || {}).tablesByID || {})[tableID] || {}).name;
+            this.props.tablesByServiceID[serviceID]?.tablesByID?.[tableID]?.name;
 
-        const dataType = this.props.dataType || null;
+        const dataType = this.props.dataType ?? null;
 
         const selectTreeData = this.props.projects.map(p => ({
             title: p.title,
@@ -47,13 +47,13 @@ class TableTreeSelect extends Component {
                 key: `dataset:${d.identifier}`,
                 value: `dataset:${d.identifier}`,
                 data: d,
-                children: (this.props.projectTables[p.identifier] || [])
+                children: (this.props.projectTables[p.identifier] ?? [])
                     .filter(t => t.dataset === d.identifier &&
-                        (((this.props.tablesByServiceID || {})[t.service_id] || {}).tablesByID || {})
-                            .hasOwnProperty(t.table_id))
+                        ((this.props.tablesByServiceID?.[t.service_id]?.tablesByID ?? {})
+                            .hasOwnProperty(t.table_id)))
                     .map(t => ({
                         ...t,
-                        tableName: getTableName(t.service_id, t.table_id) || "",
+                        tableName: getTableName(t.service_id, t.table_id) ?? "",
                         dataType: this.props.tablesByServiceID[t.service_id].tablesByID[t.table_id].data_type,
                     }))
                     .map(t => ({
@@ -67,12 +67,12 @@ class TableTreeSelect extends Component {
                         key: `${p.identifier}:${t.dataType}:${t.table_id}`,
                         value: `${p.identifier}:${t.dataType}:${t.table_id}`,
                         data: t,
-                    }))
+                    })),
             }))
         }));
 
         return <Spin spinning={this.props.servicesLoading || this.props.projectsLoading}>
-            <TreeSelect style={this.props.style || {}}
+            <TreeSelect style={this.props.style ?? {}}
                         showSearch={true}
                         filterTreeNode={(v, n) => {
                             const filter = v.toLocaleLowerCase().trim();
@@ -81,7 +81,7 @@ class TableTreeSelect extends Component {
                                 || n.props.data.title.toLocaleLowerCase().includes(filter)
                                 || (n.props.data.dataType || "").toLocaleLowerCase().includes(filter);
                         }}
-                        onChange={this.props.onChange || nop}
+                        onChange={this.props.onChange ?? nop}
                         value={this.state.selected}
                         treeData={selectTreeData}
                         treeDefaultExpandAll={true} />
