@@ -150,7 +150,7 @@ class Dataset extends Component {
                             <Row gutter={[16, 24]}>
                                 {(this.state.linked_field_sets || []).map((fieldSet, i) => (
                                     <Col key={i} lg={24} xl={12}>
-                                        <Card title={`${i+1}. ${fieldSet.name}`} actions={isPrivate ? [
+                                        <Card title={`${i + 1}. ${fieldSet.name}`} actions={isPrivate ? [
                                             <span key="edit" onClick={() => this.setState({
                                                 fieldSetEditModalVisible: true,
                                                 selectedLinkedFieldSet: {

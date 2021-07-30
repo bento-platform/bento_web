@@ -1,4 +1,4 @@
-export const mapNameValueFields = (data, otherThreshold=0.04) => {
+export const mapNameValueFields = (data, otherThreshold = 0.04) => {
     if (!data)
         return [];
 

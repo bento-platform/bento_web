@@ -174,7 +174,7 @@ class DiscoverySearchForm extends Component {
                 lg: {span: 24},
                 xl: {span: 20},
                 xxl: {span: 18}
-            }} label={`Condition ${i+1}`} help={this.state.conditionsHelp[k] || undefined}>
+            }} label={`Condition ${i + 1}`} help={this.state.conditionsHelp[k] || undefined}>
                 {this.props.form.getFieldDecorator(`conditions[${k}]`, {
                     initialValue: this.initialValues[`conditions[${k}]`],
                     validateTrigger: false,  // only when called manually

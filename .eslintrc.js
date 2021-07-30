@@ -71,6 +71,7 @@ module.exports = {
         "no-restricted-globals": ["error", "event"],
         "brace-style": ["error", "1tbs"],
         "camelcase": ["error", {"properties": "never"}],
+        "space-infix-ops": ["error"],
     },
     "settings": {
         "react": {

@@ -30,7 +30,7 @@ class LinkedFieldSetForm extends Component {
         });
     }
 
-    syncForm(prevProps={}) {
+    syncForm(prevProps = {}) {
         if (!prevProps.mode && this.props.mode) {
             if (this.props.mode === FORM_MODE_ADD) {
                 this.addField();
@@ -92,7 +92,7 @@ class LinkedFieldSetForm extends Component {
         // Initialize fieldKeys if needed  TODO: do this once?
         getFieldDecorator("fieldKeys", {initialValue: []});
         const fieldItems = getFieldValue(FIELD_KEYS).map((k, i) => (
-            <Form.Item required={i < 2} key={k} label={`Field ${i+1}`}>
+            <Form.Item required={i < 2} key={k} label={`Field ${i + 1}`}>
                 <Input.Group compact={true}>
                     {getFieldDecorator(`fields[${k}]`, {
                         rules: [{required: true, message: "Please specify a field"}]

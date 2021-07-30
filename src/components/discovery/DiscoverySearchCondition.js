@@ -19,7 +19,7 @@ const OPERATION_WIDTH = 116;
 const CLOSE_WIDTH = 50;
 
 
-const getInputStyle = (valueWidth, div=1) => ({width: `calc(${100 / div}% - ${valueWidth / div}px)`});
+const getInputStyle = (valueWidth, div = 1) => ({width: `calc(${100 / div}% - ${valueWidth / div}px)`});
 
 const toStringOrNull = x => x === null ? null : x.toString();
 
@@ -73,7 +73,7 @@ class DiscoverySearchCondition extends Component {
         this.handleChange = this.handleChange.bind(this);
     }
 
-    handleField = (value, key="field", fieldSchemaKey="fieldSchema") => {
+    handleField = (value, key = "field", fieldSchemaKey = "fieldSchema") => {
         if (this.state[key] === value.selected) return;
         const fieldOperations = value.schema.search?.operations ?? [];
         const change = {
