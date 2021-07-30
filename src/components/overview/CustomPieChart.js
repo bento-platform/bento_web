@@ -264,7 +264,8 @@ class CustomPieChart extends React.Component {
         return (<>
         <div style={this.style}>
         <h2 style={this.titleStyle}>{title}</h2>
-          <PieChart height={chartHeight - titleHeaderHeight} width={(chartHeight - titleHeaderHeight) * chartAspectRatio}>
+          <PieChart height={chartHeight - titleHeaderHeight}
+                    width={(chartHeight - titleHeaderHeight) * chartAspectRatio}>
               <Pie data={data.filter(e => e.value !== 0)}
                    dataKey="value"
                    cx="50%"
