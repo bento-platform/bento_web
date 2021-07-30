@@ -42,32 +42,32 @@ export const getSchemaTypeTransformer = type => {
 class DiscoverySearchCondition extends Component {
     static getDerivedStateFromProps(nextProps) {
         return "value" in nextProps
-            ? {...(nextProps.value || {})}
+            ? {...(nextProps.value ?? {})}
             : null;
     }
 
     constructor(props) {
         super(props);
 
-        const value = this.props.value || {};
+        const value = this.props.value ?? {};
         this.state = {
-            field: value.field || undefined,
-            field2: value.field2 || undefined,
+            field: value.field ?? undefined,
+            field2: value.field2 ?? undefined,
 
-            fieldSchema: value.fieldSchema || {
+            fieldSchema: value.fieldSchema ?? {
                 search: {...DEFAULT_SEARCH_PARAMETERS}
             },
-            fieldSchema2: value.fieldSchema2 || {
+            fieldSchema2: value.fieldSchema2 ?? {
                 search: {...DEFAULT_SEARCH_PARAMETERS}
             },
 
-            negated: value.negated || false,
-            operation: value.operation || OP_EQUALS,
-            searchValue: value.searchValue || "",
+            negated: value.negated ?? false,
+            operation: value.operation ?? OP_EQUALS,
+            searchValue: value.searchValue ?? "",
 
             // Non-value props
-            dataType: props.dataType || null,
-            dataType2: props.dataType2 || null,
+            dataType: props.dataType ?? null,
+            dataType2: props.dataType2 ?? null,
         };
 
         this.handleChange = this.handleChange.bind(this);
@@ -83,7 +83,7 @@ class DiscoverySearchCondition extends Component {
             operation: fieldOperations.includes(this.state.operation) ? this.state.operation : fieldOperations[0]
         };
 
-        (this.props.onFieldChange || nop)(change);
+        (this.props.onFieldChange ?? nop)(change);
         this.handleChange(change);
     }
 
@@ -217,7 +217,7 @@ class DiscoverySearchCondition extends Component {
                         icon="close"
                         style={{width: `${CLOSE_WIDTH}px`}}
                         disabled={this.props.removeDisabled}
-                        onClick={this.props.onRemoveClick || nop} />
+                        onClick={this.props.onRemoveClick ?? nop} />
             ) : null}
         </Input.Group>;
     }

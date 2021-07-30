@@ -53,7 +53,7 @@ class DiscoverySearchForm extends Component {
 
         const requiredFields = this.props.dataType
             ? getFields(this.props.dataType.schema).filter(f =>
-                (getFieldSchema(this.props.dataType.schema, f).search || {required: false}).required || false)
+                getFieldSchema(this.props.dataType.schema, f).search?.required ?? false)
             : [];
 
         const stateUpdates = requiredFields.map(c => this.addCondition(c, undefined, true));
@@ -65,7 +65,7 @@ class DiscoverySearchForm extends Component {
 
         this.setState({
             ...stateUpdates.reduce((acc, v) => ({
-                ...acc, conditionsHelp: {...(acc.conditionsHelp || {}), ...(v.conditionsHelp || {})}
+                ...acc, conditionsHelp: {...(acc.conditionsHelp ?? {}), ...(v.conditionsHelp ?? {})}
             }), {})
         });
     }
@@ -74,7 +74,7 @@ class DiscoverySearchForm extends Component {
         this.setState({
             conditionsHelp: {
                 ...this.state.conditionsHelp,
-                [k]: change.fieldSchema.description || undefined,
+                [k]: change.fieldSchema.description ?? undefined,
             }
         });
     }
@@ -91,13 +91,13 @@ class DiscoverySearchForm extends Component {
             ...fs,
             search: {
                 ...DEFAULT_SEARCH_PARAMETERS,
-                ...(fs.search || {})
+                ...(fs.search ?? {})
             }
         };
     }
 
     addCondition(field = undefined, field2 = undefined, didMount = false) {
-        const conditionType = this.props.conditionType || "data-type";
+        const conditionType = this.props.conditionType ?? "data-type";
 
         const newKey = this.props.form.getFieldValue("keys").length;
 
@@ -110,7 +110,7 @@ class DiscoverySearchForm extends Component {
         const stateUpdate = {
             conditionsHelp: {
                 ...this.state.conditionsHelp,
-                [newKey]: fieldSchema.description || undefined
+                [newKey]: fieldSchema.description ?? undefined,
             }
         };
 
@@ -123,9 +123,9 @@ class DiscoverySearchForm extends Component {
                 ...(conditionType === "data-type" ? {} : {field2}),
                 fieldSchema,
                 negated: false,
-                operation: ((fieldSchema || {search: {}}).search.operations || [OP_EQUALS])[0] || OP_EQUALS,
+                operation: fieldSchema?.search.operations?.[0] ?? OP_EQUALS,
                 ...(conditionType === "data-type" ? {searchValue: ""} : {})
-            }
+            },
         };
 
 
@@ -146,7 +146,7 @@ class DiscoverySearchForm extends Component {
     cannotBeUsed(fieldString) {
         if (this.props.conditionType === "join") return;
         const fs = getFieldSchema(this.props.dataType.schema, fieldString);
-        return (fs.search || {}).type === "single";
+        return fs.search?.type === "single";
     }
 
     isNotPublic(fieldString) {
@@ -174,13 +174,13 @@ class DiscoverySearchForm extends Component {
                 lg: {span: 24},
                 xl: {span: 20},
                 xxl: {span: 18}
-            }} label={`Condition ${i + 1}`} help={this.state.conditionsHelp[k] || undefined}>
+            }} label={`Condition ${i + 1}`} help={this.state.conditionsHelp[k] ?? undefined}>
                 {this.props.form.getFieldDecorator(`conditions[${k}]`, {
                     initialValue: this.initialValues[`conditions[${k}]`],
                     validateTrigger: false,  // only when called manually
                     rules: CONDITION_RULES
                 })(
-                    <DiscoverySearchCondition conditionType={this.props.conditionType || "data-type"}
+                    <DiscoverySearchCondition conditionType={this.props.conditionType ?? "data-type"}
                                               dataType={this.props.dataType}
                                               isExcluded={f => existingUniqueFields.includes(f) ||
                                                   (!this.props.isInternal && this.isNotPublic(f))}
