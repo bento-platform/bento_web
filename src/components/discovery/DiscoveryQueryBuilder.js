@@ -30,19 +30,16 @@ class DiscoveryQueryBuilder extends Component {
         this.handleTabsEdit = this.handleTabsEdit.bind(this);
 
         this.forms = {};
-
     }
 
     componentDidMount() {
-        (this.props.requiredDataTypes || []).forEach(dt => this.props.addDataTypeQueryForm(dt));
+        (this.props.requiredDataTypes ?? []).forEach(dt => this.props.addDataTypeQueryForm(dt));
 
-        if ((this.props.autoQuery || {}).isAutoQuery) {
-
+        if (this.props.autoQuery?.isAutoQuery) {
             // Trigger a cascade of async functions
             // that involve waiting for redux actions to reduce (complete)
             // before triggering others
             (async () => {
-
                 // Clean old queries (if any)
                 Object.values(this.props.dataTypesByID).forEach(value =>
                     this.handleTabsEdit(value.id, "remove"));
@@ -51,7 +48,7 @@ class DiscoveryQueryBuilder extends Component {
                 await this.handleAddDataTypeQueryForm({key: this.props.autoQuery.autoQueryType});
 
                 // Set term
-                const dataType =this.props.dataTypesByID[this.props.autoQuery.autoQueryType];
+                const dataType = this.props.dataTypesByID[this.props.autoQuery.autoQueryType];
                 const fields = {
                     keys: {
                         value:[0]
@@ -67,23 +64,25 @@ class DiscoveryQueryBuilder extends Component {
                             operation: OP_EQUALS,
                             searchValue: this.props.autoQuery.autoQueryValue
                         },
-                    }]
+                    }],
                 };
 
                 // "Simulate" form data structure and trigger update
                 await this.handleFormChange(dataType, fields);
 
                 // Simulate form submission click
-                this.handleSubmit();
+                const s = this.handleSubmit();
 
                 // Clean up auto-query "paper trail" (that is, the state segment that
                 // was introduced in order to transfer intent from the OverviewContent page)
                 this.props.neutralizeAutoQueryPageTransition();
+
+                await s;
             })();
         }
     }
 
-    async handleSubmit() {
+    handleSubmit = async () => {
         try {
             await Promise.all(Object.entries(this.forms).filter(f => f[1]).map(([_dt, f]) =>
                 new Promise((resolve, reject) => {
@@ -96,7 +95,7 @@ class DiscoveryQueryBuilder extends Component {
                     });
                 })));
 
-            (this.props.onSubmit || nop)();
+            (this.props.onSubmit ?? nop)();
         } catch (err) {
             console.error(err);
         }
@@ -111,8 +110,8 @@ class DiscoveryQueryBuilder extends Component {
     }
 
     handleAddDataTypeQueryForm(e) {
-        const esplits=e.key.split(":");
-        this.props.addDataTypeQueryForm(this.props.dataTypesByID[esplits[esplits.length-1]]);
+        const keySplit = e.key.split(":");
+        this.props.addDataTypeQueryForm(this.props.dataTypesByID[keySplit[keySplit.length - 1]]);
     }
 
     handleTabsEdit(key, action) {
@@ -123,7 +122,7 @@ class DiscoveryQueryBuilder extends Component {
     render() {
         const dataTypeMenu = (
             <Menu onClick={this.handleAddDataTypeQueryForm}>
-                {this.props.servicesInfo.filter(s => (this.props.dataTypes[s.id] || {items: null}).items)
+                {this.props.servicesInfo.filter(s => this.props.dataTypes[s.id]?.items ?? [])
                     .flatMap(s => this.props.dataTypes[s.id].items.map(dt =>
                         <Menu.Item key={`${s.id}:${dt.id}`}>{dt.id}</Menu.Item>
                     ))

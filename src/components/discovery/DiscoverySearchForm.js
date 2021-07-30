@@ -152,7 +152,7 @@ class DiscoverySearchForm extends Component {
     isNotPublic(fieldString) {
         if (this.props.conditionType === "join") return;
         const fs = getFieldSchema(this.props.dataType.schema, fieldString);
-        return ["internal", "none"].includes((fs.search || {}).queryable);
+        return ["internal", "none"].includes(fs.search?.queryable);
     }
 
     render() {
@@ -196,7 +196,7 @@ class DiscoverySearchForm extends Component {
                                                   if (!conditionValue.field) return false;
 
                                                   return keys.map(getCondition)
-                                                      .filter(cv => ((cv.fieldSchema || {}).search || {}).required
+                                                      .filter(cv => cv.fieldSchema?.search?.required
                                                           && cv.field === conditionValue.field).length <= 1;
                                               })()} />
                 )}
@@ -227,7 +227,7 @@ DiscoverySearchForm.propTypes = {
 export default Form.create({
     mapPropsToFields: ({formValues}) => ({
         keys: Form.createFormField({...formValues.keys}),
-        ...Object.assign({}, ...(formValues["conditions"] || [])
+        ...Object.assign({}, ...(formValues["conditions"] ?? [])
             .filter(c => c !== null)  // TODO: Why does this happen?
             .map(c => ({[c.name]: Form.createFormField({...c})})))
     }),

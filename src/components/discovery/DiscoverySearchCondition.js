@@ -70,17 +70,12 @@ class DiscoverySearchCondition extends Component {
             dataType2: props.dataType2 || null,
         };
 
-        this.handleField = this.handleField.bind(this);
-        this.handleNegation = this.handleNegation.bind(this);
-        this.handleOperation = this.handleOperation.bind(this);
-        this.handleSearchValue = this.handleSearchValue.bind(this);
-        this.handleSearchSelectValue = this.handleSearchSelectValue.bind(this);
         this.handleChange = this.handleChange.bind(this);
     }
 
-    handleField(value, key="field", fieldSchemaKey="fieldSchema") {
+    handleField = (value, key="field", fieldSchemaKey="fieldSchema") => {
         if (this.state[key] === value.selected) return;
-        const fieldOperations = (value.schema.search || {}).operations || [];
+        const fieldOperations = value.schema.search?.operations ?? [];
         const change = {
             [key]: value.selected,
             [fieldSchemaKey]: value.schema,
@@ -92,27 +87,27 @@ class DiscoverySearchCondition extends Component {
         this.handleChange(change);
     }
 
-    handleNegation(value) {
+    handleNegation = (value) => {
         this.handleChange({negated: (value === true || value === "neg")});
     }
 
-    handleOperation(value) {
+    handleOperation = (value) => {
         this.handleChange({operation: value});
     }
 
-    handleSearchValue(e) {
+    handleSearchValue = (e) => {
         this.handleChange({
             searchValue: getSchemaTypeTransformer(this.state.fieldSchema.type)[0](e.target.value)
         });
     }
 
-    handleSearchSelectValue(searchValue) {
+    handleSearchSelectValue = (searchValue) => {
         this.handleChange({
             searchValue: getSchemaTypeTransformer(this.state.fieldSchema.type)[0](searchValue)
         });
     }
 
-    handleChange(change) {
+    handleChange = (change) => {
         if (!("value" in this.props)) this.setState(change);
         if (this.props.onChange) this.props.onChange({...this.state, ...change});
     }
@@ -151,7 +146,7 @@ class DiscoverySearchCondition extends Component {
     }
 
     render() {
-        const conditionType = this.props.conditionType || "data-type";
+        const conditionType = this.props.conditionType ?? "data-type";
 
         if (!this.state.fieldSchema) return <div />;
 
@@ -186,7 +181,7 @@ class DiscoverySearchCondition extends Component {
             {schemaTreeSelect(  // LHS TODO: Redo base level name
                 "field",
                 "fieldSchema",
-                conditionType === "join" ? this.props.joinedSchema : (this.state.dataType || {}).schema,
+                conditionType === "join" ? this.props.joinedSchema : this.state.dataType?.schema,
                 {
                     ...(conditionType === "join"
                         ? getInputStyle(valueWidth,2)
@@ -247,7 +242,7 @@ const mapStateToProps = state => ({
         properties: Object.fromEntries(Object.entries(state.serviceDataTypes.itemsByID).map(([k, v]) => [k, {
             type: "array",
             items: v.schema
-        }]))
+        }])),
     },
 });
 
