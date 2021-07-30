@@ -67,7 +67,7 @@ export const generateSchemaTreeData = (
     // children are not searchable.
     switch (node.type) {
         case "object":
-            children = Object.entries(node.properties || {})
+            children = Object.entries(node.properties ?? {})
                 .sort(sortSchemaEntries)
                 .flatMap(([name, node]) => searchFragment(node, name, `${key}.`, isExcluded));
             break;
@@ -119,7 +119,7 @@ export const generateSchemaTableData = treeData =>
                 ...Object.fromEntries(Object.entries(treeData).filter(p => p[0] !== "children")),
                 key: treeData.key.replace(`${ROOT_SCHEMA_ID}.`, "")
             }]),
-        ...(treeData.children || []).flatMap(c => generateSchemaTableData(c))
+        ...(treeData.children ?? []).flatMap(c => generateSchemaTableData(c))
     ].sort((a, b) => a.key.localeCompare(b.key));
 
 /**
