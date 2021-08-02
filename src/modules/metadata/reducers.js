@@ -1,7 +1,5 @@
 import {objectWithoutProp} from "../../utils/misc";
 
-import {tableSearchResults} from "../../modules/explorer/reducers";
-
 import {
     FETCH_PROJECTS,
     FETCH_PROJECT_TABLES,
@@ -451,44 +449,3 @@ export const overviewSummary = (
     }
 };
 
-export const searchAllRecords = (
-    state = {
-        data: {},
-        isFetching: true,
-        searchResultsByDatasetID: {}
-    },
-    action
-) => {
-    switch (action.type) {
-        case FETCH_ALL_RECORDS.REQUEST:
-            return {...state, data: {}, isFetching: true };
-        case FETCH_ALL_RECORDS.RECEIVE:
-            return {
-              ...state,
-               data: state.data,
-               searchResultsByDatasetID: {
-                   ...state.searchResultsByDatasetID,
-                   [action.datasetID]: {
-                       results: state.data,
-                       searchFormattedResults: tableSearchResults(state.data),
-                   },
-               }
-             };
-        case FETCH_ALL_RECORDS.FINISH:
-            return {
-                ...state,
-                searchResultsByDatasetID: {
-                    ...state.searchResultsByDatasetID,
-                    [action.datasetID]: {
-                        results: state.data.results,
-                        searchFormattedResults: tableSearchResults(state.data.results),
-                    },
-                },
-                data: state.data,
-                isFetching: false,
-            };
-
-        default:
-            return state;
-    }
-};

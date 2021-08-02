@@ -1,51 +1,20 @@
 import React, {Component} from "react";
 import {connect} from "react-redux";
 import PropTypes from "prop-types";
-
-import {Button, Card, Dropdown, Empty, Icon, Menu, Modal, Tabs, Typography, Input} from "antd";
-import "antd/es/button/style/css";
-import "antd/es/card/style/css";
-import "antd/es/dropdown/style/css";
-import "antd/es/empty/style/css";
-import "antd/es/icon/style/css";
-import "antd/es/menu/style/css";
-import "antd/es/modal/style/css";
-import "antd/es/tabs/style/css";
-import "antd/es/typography/style/css";
+import { Card, Typography, Input} from "antd";
 
 const { Search } = Input;
-
-import { searchAllRecordsPropTypesShape, individualPropTypesShape } from "../../propTypes";
-import { fetchSearchAllRecordsIfNecessary } from "../../modules/metadata/actions";
-import { searchAllRecords } from "../../modules/metadata/reducers";
+import { performFreeTextSearchIfPossible } from "../../modules/explorer/actions";
 
 class SearchAllRecords extends Component{
 
   constructor(props) {
       super(props);
-
-      this.state = {
-        searchLoading:false
-      }
-
       this.onSearch = this.onSearch.bind(this);
-
   }
 
-  async onSearch(text) {
-    this.setState({
-      searchLoading:true
-    });
-
-    await this.props.fetchSearchAllRecordsIfNecessary(this.props.datasetID, text);
-    console.log(this.props.searchAllRecords.data.results);
-
-    console.log(this.props.searchAllRecords.searchResultsByDatasetID);
-
-    this.setState({
-      searchLoading:this.props.searchAllRecords.isFetching
-    });
-
+  async onSearch(searchTerm) {
+    await this.props.performFreeTextSearchIfPossible(this.props.datasetID, searchTerm);
   }
 
   render(){
@@ -55,7 +24,6 @@ class SearchAllRecords extends Component{
         </Typography.Title>
         <Search
           placeholder="Search"
-          loading={this.state.searchLoading}
           onSearch={this.onSearch}
           style={{width: "40%"}}
           enterButton />
@@ -64,18 +32,13 @@ class SearchAllRecords extends Component{
 }
 
 SearchAllRecords.propTypes = {
-    searchAllRecords:PropTypes.shape({
-        isFetching: PropTypes.bool,
-        data: searchAllRecordsPropTypesShape
-    }),
-    fetchIndividualIfNecessary: PropTypes.func,
-    individuals: PropTypes.objectOf(individualPropTypesShape)
+    performFreeTextSearchIfPossible: PropTypes.func,
 };
 
 const mapStateToProps = state => ({
-    searchAllRecords: state.searchAllRecords
+    searchAllRecords: state.searchAllRecords,
 });
 
 export default connect(mapStateToProps, {
-   fetchSearchAllRecordsIfNecessary
+  performFreeTextSearchIfPossible
 })(SearchAllRecords);

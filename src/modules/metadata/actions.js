@@ -450,13 +450,3 @@ export const fetchOverviewSummary = networkAction(() => (dispatch, getState) => 
     err: "Error fetching overview summary metadata"
 }));
 
-const fetchSearchAllRecords = networkAction((datasetID, term) => (dispatch, getState) => ({
-    types: FETCH_ALL_RECORDS,
-    params: {datasetID},
-    url: `${getState().services.metadataService.url}/api/individuals`,
-    err: `Error searching in all records with term ${term}`,
-}));
-
-export const fetchSearchAllRecordsIfNecessary = (datasetID, term) => (dispatch, getState) => {
-    return dispatch(fetchSearchAllRecords(datasetID, term));
-};
