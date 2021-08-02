@@ -25,7 +25,6 @@ import {
     FETCH_EXPERIMENTS,
 
     FETCH_OVERVIEW_SUMMARY,
-    FETCH_ALL_RECORDS
 } from "./actions";
 
 

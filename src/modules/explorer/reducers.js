@@ -19,7 +19,7 @@ import {
     SET_AUTO_QUERY_PAGE_TRANSITION,
     NEUTRALIZE_AUTO_QUERY_PAGE_TRANSITION,
     FREE_TEXT_SEARCH
-    
+
 } from "./actions";
 
 // TODO: Could this somehow be combined with discovery?
@@ -159,7 +159,7 @@ export const explorer = (
             };
         //.. and end here.. ----
 
-        // free-text search 
+        // free-text search
         case FREE_TEXT_SEARCH.REQUEST:
             return {
                 ...state,
@@ -224,18 +224,18 @@ function tableSearchResults(searchResults) {
         phenotypic_features: Object.values(i.phenotypic_features).sort(
             (pf1, pf2) => pf1.type.id.localeCompare(pf2.type.id))
     }));
-};
+}
 
 
 // free-text search helpers
 
 // several components expect results in this format:
 // {results: {...}, searchFormattedResults: {...} }
-// but free-text results are not in the same format as regular queries, 
+// but free-text results are not in the same format as regular queries,
 // so need their own formatting functions
-function freeTextResults(searchResults) {
+function freeTextResults(_searchResults) {
 
-    // TODO: 
+    // TODO:
     // most information expected here is missing in free-text search response
     // can be added in a future katsu version
     // but all that information is ignored by bento_web except variants info, so just return that
@@ -244,14 +244,14 @@ function freeTextResults(searchResults) {
         results: {
             variant: []   //TODO
         }
-    }
+    };
 }
 
 // produces searchFormattedResults (input for results table and other components)
-// free-text equivalent to tableSearchResults() above 
+// free-text equivalent to tableSearchResults() above
 function freeTextSearchFormattedResults(searchResults) {
-    console.log({RESULTS_FORMATTED_RESULTS_FORMATTER: searchResults})
-    
+    console.log({RESULTS_FORMATTED_RESULTS_FORMATTER: searchResults});
+
     return searchResults.map( r => {
         return {
             key: r.id,
@@ -268,6 +268,6 @@ function freeTextSearchFormattedResults(searchResults) {
                 taxonomy: r.taxonomy,
                 upated: r.updated
             }
-        }
-    })
+        };
+    });
 }

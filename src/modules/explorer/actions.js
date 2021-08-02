@@ -120,6 +120,6 @@ const performFreeTextSearch = networkAction((datasetID, term) => (dispatch, getS
     err: `Error searching in all records with term ${term}`,
 }));
 
-export const performFreeTextSearchIfPossible = (datasetID, term) => (dispatch, getState) => {
+export const performFreeTextSearchIfPossible = (datasetID, term) => (dispatch, _getState) => {
     return dispatch(performFreeTextSearch(datasetID, term));
 };
