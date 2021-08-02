@@ -20,7 +20,7 @@ class SearchAllRecords extends Component {
         return (
       <Card style={{ marginBottom: "1.5em" }}>
         <Typography.Title level={3} style={{ marginBottom: "1.5rem" }}>
-          Search All Records
+          Search All Fields
         </Typography.Title>
         <Search placeholder="Search" onSearch={this.onSearch} style={{ width: "40%" }} enterButton />
       </Card>
