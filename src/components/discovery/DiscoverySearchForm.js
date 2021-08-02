@@ -123,7 +123,7 @@ class DiscoverySearchForm extends Component {
                 ...(conditionType === "data-type" ? {} : {field2}),
                 fieldSchema,
                 negated: false,
-                operation: fieldSchema?.search.operations?.[0] ?? OP_EQUALS,
+                operation: fieldSchema?.search?.operations?.[0] ?? OP_EQUALS,
                 ...(conditionType === "data-type" ? {searchValue: ""} : {})
             },
         };
