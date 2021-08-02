@@ -120,12 +120,15 @@ class DiscoveryQueryBuilder extends Component {
     }
 
     render() {
+        // Filter out services without data types and then flat-map the service's data types to make the dropdown.
         const dataTypeMenu = (
             <Menu onClick={this.handleAddDataTypeQueryForm}>
-                {this.props.servicesInfo.filter(s => this.props.dataTypes[s.id]?.items ?? [])
-                    .flatMap(s => this.props.dataTypes[s.id].items.map(dt =>
-                        <Menu.Item key={`${s.id}:${dt.id}`}>{dt.id}</Menu.Item>
-                    ))
+                {this.props.servicesInfo
+                    .filter(s => (this.props.dataTypes[s.id]?.items ?? []).length)
+                    .flatMap(s =>
+                        this.props.dataTypes[s.id].items.map(dt =>
+                            <Menu.Item key={`${s.id}:${dt.id}`}>{dt.id}</Menu.Item>
+                        ))
                 }
             </Menu>
         );
