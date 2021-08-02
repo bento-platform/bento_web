@@ -129,11 +129,7 @@ export const runPropTypesShape = PropTypes.shape({
 });
 
 // Prop types object shape for a single table summary object.
-export const summaryPropTypesShape = PropTypes.shape({
-    isFetching: PropTypes.bool,
-    count: PropTypes.number,
-    data_type_specific: PropTypes.object,  // TODO: Shape changes...
-});
+export const summaryPropTypesShape = PropTypes.object;
 
 // Prop types object shape for a single user object.
 export const userPropTypesShape = PropTypes.shape({
@@ -328,6 +324,19 @@ export const experimentPropTypesShape = PropTypes.shape({
 });
 
 export const overviewSummaryPropTypesShape = PropTypes.shape({
+    data: PropTypes.shape({
+        // TODO: more precision
+        phenopackets: PropTypes.number,
+        data_type_specific: PropTypes.shape({
+            biosamples: PropTypes.object,
+            diseases: PropTypes.object,
+            individuals: PropTypes.object,
+            phenotypic_features: PropTypes.object,
+        })
+    })
+});
+
+export const searchAllRecordsPropTypesShape = PropTypes.shape({
     data: PropTypes.shape({
         // TODO: more precision
         phenopackets: PropTypes.number,

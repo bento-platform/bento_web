@@ -24,7 +24,7 @@ import {
     FETCH_PHENOPACKETS,
     FETCH_EXPERIMENTS,
 
-    FETCH_OVERVIEW_SUMMARY
+    FETCH_OVERVIEW_SUMMARY,
 } from "./actions";
 
 
@@ -447,3 +447,4 @@ export const overviewSummary = (
             return state;
     }
 };
+
