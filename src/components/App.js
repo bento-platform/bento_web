@@ -172,7 +172,7 @@ class App extends Component {
 
             // TODO: Refresh other data
             // TODO: Variable rate
-            // this.pingInterval = setInterval(this.refreshUserAndDependentData, 300000);
+            // this.pingInterval = setInterval(this.refreshUserAndDependentData, 30000);
             window.addEventListener("focus", () => this.refreshUserAndDependentData());
         })();
     }
