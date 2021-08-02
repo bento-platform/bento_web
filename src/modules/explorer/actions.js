@@ -14,6 +14,7 @@ export const SET_SELECTED_ROWS = "EXPLORER.SET_SELECTED_ROWS";
 export const SET_AUTO_QUERY_PAGE_TRANSITION = "EXPLORER.SET_AUTO_QUERY_PAGE_TRANSITION";
 
 export const NEUTRALIZE_AUTO_QUERY_PAGE_TRANSITION = "EXPLORER.NEUTRALIZE_AUTO_QUERY_PAGE_TRANSITION";
+export const FREE_TEXT_SEARCH = createNetworkActionTypes("FREE_TEXT_SEARCH");
 
 const performSearch = networkAction((datasetID, dataTypeQueries) => (dispatch, getState) => ({
     types: PERFORM_SEARCH,
@@ -109,3 +110,16 @@ export const neutralizeAutoQueryPageTransition = () => ({
     autoQueryField: undefined,
     autoQueryValue: undefined,
 });
+
+// free-text search
+// search unpaginated for now, since that's how standard queries are currently handled
+const performFreeTextSearch = networkAction((datasetID, term) => (dispatch, getState) => ({
+    types: FREE_TEXT_SEARCH,
+    params: {datasetID},
+    url: `${getState().services.metadataService.url}/api/individuals?search=${term}&page_size=10000`,
+    err: `Error searching in all records with term ${term}`,
+}));
+
+export const performFreeTextSearchIfPossible = (datasetID, term) => (dispatch, _getState) => {
+    return dispatch(performFreeTextSearch(datasetID, term));
+};
