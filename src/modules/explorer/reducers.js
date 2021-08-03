@@ -250,23 +250,22 @@ function freeTextResults(_searchResults) {
 // produces searchFormattedResults (input for results table and other components)
 // free-text equivalent to tableSearchResults() above
 function freeTextSearchFormattedResults(searchResults) {
-    console.log({RESULTS_FORMATTED_RESULTS_FORMATTER: searchResults});
 
     return searchResults.map( r => {
         return {
             key: r.id,
-            biosamples: r.biosamples,
+            biosamples: r.biosamples || [],
             diseases: r.phenopackets[0].diseases,  //TO FIX, multiple phenopackets possible
             experiments: [], //TODO
-            phenotypic_features: r.phenopackets[0].phenotypic_features, //TO FIX, as above
+            phenotypic_features: r.phenopackets[0].phenotypic_features || [], //TO FIX, as above
             individual: {
                 age: r.age,
                 created: r.created,
                 date_of_birth: r.date_of_birth,
                 id: r.id,
-                karotypic_sex: r.karotypic_sex,
+                karyotypic_sex: r.karyotypic_sex,
                 taxonomy: r.taxonomy,
-                upated: r.updated
+                updated: r.updated
             }
         };
     });
