@@ -49,6 +49,20 @@ const BIOSAMPLE_COLUMNS = [
             (individual.hasOwnProperty("extra_properties") && Object.keys(individual.extra_properties).length)
                 ?  <div><pre>{JSON.stringify(individual.extra_properties, null, 2)}</pre></div>
                 : EM_DASH,
+    },
+    {
+        title: "Download",
+        key: "extra_properties",
+        render: (_, individual) =>
+            (individual.hasOwnProperty("experiments") && Object.keys(individual.experiments).length)
+                ? (individual.experiments).flatMap(exp => 
+                    (exp.hasOwnProperty("experiment_results") && Object.keys(exp.experiment_results).length) 
+                        ? (exp.experiment_results).flatMap(result => 
+                            (result.hasOwnProperty("filename") && Object.keys(result.filename).length) ? result.filename : EM_DASH)
+                        .filter(isKindOfVcf)
+                        .flatMap(fn => <div><a>{fn}</a></div>)
+                    : EM_DASH)
+                : EM_DASH,
     }
 
 ];
@@ -60,6 +74,11 @@ const IndividualBiosamples = ({individual}) =>
            columns={BIOSAMPLE_COLUMNS}
            rowKey="id"
            dataSource={(individual?.phenopackets ?? []).flatMap(p => p.biosamples)} />;
+
+
+function isKindOfVcf(filename) {
+    return filename.toLowerCase().includes(".vcf");
+  }
 
 IndividualBiosamples.propTypes = {
     individual: individualPropTypesShape,
