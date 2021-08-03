@@ -41,7 +41,7 @@ IndividualOverview.propTypes = {
 };
 
 function getAge(individual) {
-    if (!individual.age.age){
+    if (!individual?.age?.age){
         return "UNKNOWN_AGE"
     }
 
