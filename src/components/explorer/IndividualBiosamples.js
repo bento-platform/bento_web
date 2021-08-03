@@ -114,7 +114,7 @@ class IndividualBiosamples extends Component {
           <Descriptions.Item label="Experiment Type">{e?.experiment_type || EM_DASH}</Descriptions.Item>
           <Descriptions.Item label="Study Type">{e?.study_type || EM_DASH}</Descriptions.Item>
           <Descriptions.Item label="Library Layout">{e?.library_layout || EM_DASH}</Descriptions.Item>
-          <Descriptions.Item label="LIbrary Selection">{e?.library_selection || EM_DASH}</Descriptions.Item>
+          <Descriptions.Item label="Library Selection">{e?.library_selection || EM_DASH}</Descriptions.Item>
           <Descriptions.Item label="Library Source">{e?.library_source || EM_DASH}</Descriptions.Item>
           <Descriptions.Item label="Library Strategy">{e?.library_strategy || EM_DASH}</Descriptions.Item>
           <Descriptions.Item label="Molecule">{e?.molecule || EM_DASH}</Descriptions.Item>
@@ -147,7 +147,7 @@ class IndividualBiosamples extends Component {
                     <pre>
                           <ReactJson src={e.instrument}
                                      displayDataTypes={false}
-                                     name={"Properties"}
+                                     name={false}
                                      collapsed={1}
                                      enableClipboard={false}
                           />
@@ -181,7 +181,7 @@ class IndividualBiosamples extends Component {
                     <pre>
                           <ReactJson src={e.extra_properties}
                                      displayDataTypes={false}
-                                     name={"Properties"}
+                                     name={false}
                                      collapsed={1}
                                      enableClipboard={false}
                           />
