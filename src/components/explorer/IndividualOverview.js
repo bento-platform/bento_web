@@ -11,7 +11,7 @@ const IndividualOverview = ({individual}) => individual ?
     <Descriptions layout="vertical" bordered={true} size="middle">
         <Descriptions.Item label="Date of Birth">{individual.date_of_birth || EM_DASH}</Descriptions.Item>
         <Descriptions.Item label="Sex">{individual.sex || "UNKNOWN_SEX"}</Descriptions.Item>
-        <Descriptions.Item label="Age">{individual.age.age || "UNKNOWN_AGE"}</Descriptions.Item>
+        <Descriptions.Item label="Age">{getAge(individual) || "UNKNOWN_AGE"}</Descriptions.Item>
         <Descriptions.Item label="Ethnicity">{individual.ethnicity || "UNKNOWN_ETHNICITY"}</Descriptions.Item>
         <Descriptions.Item label="Karyotypic Sex">{individual.karyotypic_sex || "UNKNOWN_KARYOTYPE"}</Descriptions.Item>
         {/* TODO: Link to ontology term */}
@@ -39,5 +39,22 @@ const IndividualOverview = ({individual}) => individual ?
 IndividualOverview.propTypes = {
     individual: individualPropTypesShape,
 };
+
+function getAge(individual) {
+    if (!individual.age.age){
+        return "UNKNOWN_AGE"
+    }
+
+    const age = individual.age.age
+    
+    // standard age.age
+    if(typeof(age) === 'string'){
+        return age
+    }
+
+    // age.start + age.end, all other cases
+    return JSON.stringify(age)
+}
+
 
 export default IndividualOverview;
