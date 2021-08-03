@@ -92,6 +92,8 @@ class IndividualBiosamples extends Component {
             columns={this.BIOSAMPLE_COLUMNS}
             rowKey="id"
             dataSource={(this.props.individual?.phenopackets ?? []).flatMap(p => p.biosamples)} />
+        
+
     }
 }
 
