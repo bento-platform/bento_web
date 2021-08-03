@@ -41,19 +41,19 @@ IndividualOverview.propTypes = {
 };
 
 function getAge(individual) {
-    if (!individual.age.age){
-        return "UNKNOWN_AGE"
+    if (!individual.age.age) {
+        return "UNKNOWN_AGE";
     }
 
-    const age = individual.age.age
-    
+    const age = individual.age.age;
+
     // standard age.age
-    if(typeof(age) === 'string'){
-        return age
+    if(typeof(age) === "string") {
+        return age;
     }
 
     // age.start + age.end, all other cases
-    return JSON.stringify(age)
+    return JSON.stringify(age);
 }
 
 
