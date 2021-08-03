@@ -17,12 +17,18 @@ class SearchAllRecords extends Component {
     }
 
     render() {
+        const isFetching = this.props.searchAllRecords.fetchingSearchByDatasetID[this.props.datasetID];
         return (
       <Card style={{ marginBottom: "1.5em" }}>
         <Typography.Title level={3} style={{ marginBottom: "1.5rem" }}>
           Search All Fields
         </Typography.Title>
-        <Search placeholder="Search" onSearch={this.onSearch} style={{ width: "40%" }} enterButton />
+        <Search
+          placeholder="Search"
+          onSearch={this.onSearch}
+          style={{ width: "40%" }}
+          loading={isFetching}
+          enterButton />
       </Card>
         );
     }
@@ -31,10 +37,11 @@ class SearchAllRecords extends Component {
 SearchAllRecords.propTypes = {
     datasetID: PropTypes.string,
     performFreeTextSearchIfPossible: PropTypes.func,
+    searchAllRecords: PropTypes.object,
 };
 
 const mapStateToProps = (state) => ({
-    searchAllRecords: state.searchAllRecords,
+    searchAllRecords: state.explorer,
 });
 
 export default connect(mapStateToProps, {
