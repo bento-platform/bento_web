@@ -62,7 +62,7 @@ class IndividualBiosamples extends Component {
           title: "Extra Properties",
           key: "extra_properties",
           render: (_, individual) =>
-              individual.hasOwnProperty("extra_properties") && Object.keys(individual.extra_properties).length ? (
+              (individual ?? {}).hasOwnProperty("extra_properties") && Object.keys(individual.extra_properties).length ? (
           <div>
             <pre>{JSON.stringify(individual.extra_properties, null, 2)}</pre>
           </div>
@@ -74,12 +74,12 @@ class IndividualBiosamples extends Component {
           title: "Download",
           key: "extra_properties",
           render: (_, individual) =>
-              individual.hasOwnProperty("experiments") && Object.keys(individual.experiments).length
+              (individual ?? {}).hasOwnProperty("experiments") && Object.keys(individual.experiments).length
                   ? individual.experiments.flatMap((exp) =>
-                      exp.hasOwnProperty("experiment_results") && Object.keys(exp.experiment_results).length
+                      (exp ?? {}).hasOwnProperty("experiment_results") && Object.keys(exp.experiment_results).length
                           ? exp.experiment_results
                               .flatMap((result) =>
-                                  result.hasOwnProperty("filename") && Object.keys(result.filename).length
+                                  (result ?? {}).hasOwnProperty("filename") && Object.keys(result.filename).length
                                       ? result.filename
                                       : EM_DASH
                               )
@@ -119,7 +119,7 @@ class IndividualBiosamples extends Component {
           <Descriptions.Item label="Library Strategy">{e?.library_strategy || EM_DASH}</Descriptions.Item>
           <Descriptions.Item label="Molecule">{e?.molecule || EM_DASH}</Descriptions.Item>
           <Descriptions.Item label="Molecule Ontology">
-            {e.hasOwnProperty("molecule_ontology") && e.molecule_ontology.length ? (
+            {(e ?? {}).hasOwnProperty("molecule_ontology") && e.molecule_ontology.length ? (
               <div>
                 <pre>
                   {e.molecule_ontology.map((m) => (
@@ -142,7 +142,7 @@ class IndividualBiosamples extends Component {
             {e?.extraction_protocol || EM_DASH}
           </Descriptions.Item>
           <Descriptions.Item label="Instrument">{
-            (e.hasOwnProperty("instrument") && Object.keys(e.instrument).length)
+            ((e ?? {}).hasOwnProperty("instrument") && Object.keys(e.instrument).length)
                 ?  <div>
                     <pre>
                           <ReactJson src={e.instrument}
@@ -156,7 +156,7 @@ class IndividualBiosamples extends Component {
                 : EM_DASH
         }</Descriptions.Item>
           <Descriptions.Item label="Experiment Ontology">
-            {e.hasOwnProperty("experiment_ontology") && e.experiment_ontology.length ? (
+            {(e ?? {}).hasOwnProperty("experiment_ontology") && e.experiment_ontology.length ? (
               <div>
                 <pre>
                   {e.experiment_ontology.map((m) => (
@@ -176,7 +176,7 @@ class IndividualBiosamples extends Component {
             )}
           </Descriptions.Item>
           <Descriptions.Item label="Extra Properties">{
-            (e.hasOwnProperty("extra_properties") && Object.keys(e.extra_properties).length)
+            ((e ?? {}).hasOwnProperty("extra_properties") && Object.keys(e.extra_properties).length)
                 ?  <div>
                     <pre>
                           <ReactJson src={e.extra_properties}
@@ -190,7 +190,7 @@ class IndividualBiosamples extends Component {
                 : EM_DASH
         }</Descriptions.Item>
           <Descriptions.Item label="Experiment Results">
-            {e.hasOwnProperty("experiment_results") && e.experiment_results.length ? (
+            {(e ?? {}).hasOwnProperty("experiment_results") && e.experiment_results.length ? (
               <div>
                 <pre>
                   {e.experiment_results.map((m) => (
