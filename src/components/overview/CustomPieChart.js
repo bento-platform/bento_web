@@ -11,7 +11,7 @@ import { polarToCartesian } from "recharts/es6/util/PolarUtils";
 import COLORS from "../../utils/colors";
 import { withBasePath } from "../../utils/url";
 
-const MAX_LABEL_CHARS = 18;
+const MAX_LABEL_CHARS = 16;
 const RADIAN = Math.PI / 180;
 
 const textStyle = {
