@@ -106,7 +106,7 @@ class IndividualBiosamples extends Component {
 
   render() {
       const biosamplesData = (this.props.individual?.phenopackets ?? []).flatMap((p) => p.biosamples);
-      const experimentsData = biosamplesData.flatMap((b) => b?.experiments);
+      const experimentsData = biosamplesData.flatMap((b) => b?.experiments ? [b.experiments] : []);
 
       const experimentLayouts = (experimentsData ?? []).flatMap((e) => {
           return (

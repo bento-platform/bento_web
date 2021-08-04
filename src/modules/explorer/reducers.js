@@ -285,9 +285,7 @@ function freeTextSearchFormattedResults(searchResults) {
       biosamples: (r.phenopackets || []).flatMap((p) => p.biosamples),
       diseases: r.phenopackets[0].diseases, //TO FIX, multiple phenopackets possible
       experiments: (r.phenopackets || []).flatMap((p) =>
-        (p.biosamples || []).flatMap((b) => {
-          (b.experiments || []).flatMap((e) => e);
-        })
+        (p.biosamples || []).flatMap((b) => b?.experiments ? [b.experiments] : [])
       ),
       phenotypic_features: r.phenopackets[0].phenotypic_features || [], //TO FIX, as above
       individual: {
