@@ -33,7 +33,7 @@ class ExperimentsSummary2 extends Component {
             phenotypicFeaturesThresholdSliderValue: 0.01,
             chartPadding:  "1rem",
             chartHeight: 300,
-            chartAspectRatio: 1.6,
+            chartAspectRatio: 1.8,
             chartLabelPaddingTop: 3,
             chartLabelPaddingLeft: 3,
         };
