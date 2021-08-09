@@ -160,7 +160,7 @@ class DiscoveryQueryBuilder extends Component {
                                       onCancel={this.handleSchemasToggle} />
 
             <Typography.Title level={3} style={{marginBottom: "1.5rem"}}>
-                Advanced Search
+                Data Type Queries
                 {addConditionsOnDataType()}
                 <Button style={{float: "right", marginRight: "1em"}}
                         onClick={this.handleSchemasToggle}><Icon type="table" /> Explore Data Types</Button>
