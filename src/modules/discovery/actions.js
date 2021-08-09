@@ -24,7 +24,7 @@ export const selectSearch = searchIndex => ({
 });
 
 
-const performSearch = networkAction((dataTypeQueries, joinQuery=null) => (dispatch, getState) => ({
+const performSearch = networkAction((dataTypeQueries, joinQuery = null) => (dispatch, getState) => ({
     types: PERFORM_SEARCH,
     url: `${getState().services.federationService.url}/federated-dataset-search`,
     req: jsonRequest({

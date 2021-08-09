@@ -13,7 +13,7 @@ export const createURLSearchParams = obj => {
     return usp;
 };
 
-export const jsonRequest = (body, method="GET") => ({
+export const jsonRequest = (body, method = "GET") => ({
     method,
     headers: {"Content-Type": "application/json"},
     body: JSON.stringify(body),

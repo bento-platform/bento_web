@@ -16,7 +16,7 @@ export const serviceInfoPropTypesShape = PropTypes.shape({
         group: PropTypes.string.isRequired,
         artifact: PropTypes.string.isRequired,
         version: PropTypes.string.isRequired,
-    }).required,
+    }).isRequired,
     description: PropTypes.string,
     organization: PropTypes.shape({
         name: PropTypes.string.isRequired,
@@ -216,12 +216,20 @@ export const biosamplePropTypesShape = PropTypes.shape({
 // Prop types object shape for a single patient individual object from the metadata service.
 export const individualPropTypesShape = PropTypes.shape({
     id: PropTypes.string.isRequired,
+    alternate_ids: PropTypes.arrayOf(PropTypes.string),
+
     date_of_birth: PropTypes.string,
+    age: PropTypes.object,  // TODO: Shape
     sex: PropTypes.oneOf(SEX_VALUES),
     karyotypic_sex: PropTypes.oneOf(KARYOTYPIC_SEX_VALUES),
+    ethnicity: PropTypes.string,
     taxonomy: ontologyShape,
+
     phenopackets: PropTypes.arrayOf(PropTypes.object),  // TODO
     biosamples: PropTypes.arrayOf(biosamplePropTypesShape),
+
+    created: PropTypes.string,  // ISO datetime string
+    updated: PropTypes.string,  // ISO datetime string
 });
 
 // Prop types object shape for a single phenopacket disease object.
@@ -255,13 +263,64 @@ export const phenopacketPropTypesShape = PropTypes.shape({
 
 export const experimentPropTypesShape = PropTypes.shape({
     id: PropTypes.string.isRequired,
-    // subject: PropTypes.oneOfType([individualPropTypesShape, PropTypes.string]).isRequired,
-    // biosamples: biosamplePropTypesShape.isRequired,
-    // diseases: diseasePropTypesShape.isRequired,
-    // phenotypic_features: phenotypicFeaturePropTypesShape,
-    // meta_data: PropTypes.object.isRequired,  // TODO: Shape
-    // created: PropTypes.string,  // ISO datetime string
-    // updated: PropTypes.string,  // ISO datetime string
+    study_type: PropTypes.string,
+
+    experiment_type: PropTypes.string.isRequired,
+    experiment_ontology: PropTypes.arrayOf(PropTypes.object),  // TODO: Array of ontology terms
+
+    molecule: PropTypes.string,
+    molecule_ontology: PropTypes.arrayOf(PropTypes.object),  // TODO: Array of ontology terms
+
+    library_strategy: PropTypes.string,
+    library_source: PropTypes.string,
+    library_selection: PropTypes.string,
+    library_layout: PropTypes.string,
+
+    extraction_protocol: PropTypes.string,
+    reference_registry_id: PropTypes.string,
+
+    biosample: PropTypes.string,  // Biosample foreign key
+    instrument: PropTypes.shape({
+        identifier: PropTypes.string,
+        platform: PropTypes.string,
+        description: PropTypes.string,
+        model: PropTypes.string,
+    }),
+
+    experiment_results: PropTypes.arrayOf(PropTypes.shape({
+        identifier: PropTypes.string,
+        description: PropTypes.string,
+        filename: PropTypes.string,
+        file_format: PropTypes.oneOf([
+            "SAM",
+            "BAM",
+            "CRAM",
+            "BAI",
+            "CRAI",
+            "VCF",
+            "BCF",
+            "GVCF",
+            "BigWig",
+            "BigBed",
+            "FASTA",
+            "FASTQ",
+            "TAB",
+            "SRA",
+            "SRF",
+            "SFF",
+            "GFF",
+            "TABIX",
+            "UNKNOWN",
+            "OTHER",
+        ]),
+        data_output_type: PropTypes.oneOf(["Raw data", "Derived data"]),
+        usage: PropTypes.string,
+    })),
+
+    qc_flags: PropTypes.arrayOf(PropTypes.string),
+
+    created: PropTypes.string,  // ISO datetime string
+    updated: PropTypes.string,  // ISO datetime string
 });
 
 export const overviewSummaryPropTypesShape = PropTypes.shape({
@@ -296,16 +355,16 @@ export const searchAllRecordsPropTypesShape = PropTypes.shape({
 export const explorerSearchResultsPropTypesShape = PropTypes.shape({
     results: PropTypes.shape({
         // TODO: Other data types
-        experiment: PropTypes.arrayOf(PropTypes.object),
+        experiment: PropTypes.arrayOf(experimentPropTypesShape),
         phenopacket: PropTypes.arrayOf(phenopacketPropTypesShape),
-        variant: PropTypes.arrayOf(PropTypes.object),
+        variant: PropTypes.arrayOf(PropTypes.object),  // TODO: Variant prop types shape
     }),
     searchFormattedResults: PropTypes.arrayOf(PropTypes.shape({
         key: PropTypes.string.isRequired,
         individual: individualPropTypesShape,
         biosamples: PropTypes.arrayOf(biosamplePropTypesShape),
         diseases: PropTypes.arrayOf(diseasePropTypesShape),
-        experiments: PropTypes.arrayOf(PropTypes.object),  // TODO
+        experiments: PropTypes.arrayOf(experimentPropTypesShape),  // TODO
     })),
 });
 

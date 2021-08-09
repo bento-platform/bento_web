@@ -41,7 +41,7 @@ OwnerRoute.propTypes = {
 
 const mapStateToProps = state => ({
     isSignedIn: state.auth.user !== null,
-    shouldRedirect: state.auth.hasAttempted && (state.auth.user || {}).chord_user_role !== ROLE_OWNER
+    shouldRedirect: state.auth.hasAttempted && state.auth.user?.chord_user_role !== ROLE_OWNER,
 });
 
 export default connect(mapStateToProps)(OwnerRoute);

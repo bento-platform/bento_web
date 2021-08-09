@@ -8,17 +8,17 @@ import PropTypes from "prop-types";
 class SchemaTreeSelect extends Component {
     static getDerivedStateFromProps(nextProps) {
         if ("value" in nextProps) {
-            return {...(nextProps.value || {})};
+            return {...(nextProps.value ?? {})};
         }
         return null;
     }
 
     constructor(props) {
         super(props);
-        const value = props.value || {};
+        const value = props.value ?? {};
         this.state = {
-            selected: value.selected || undefined,
-            schema: value.schema || undefined
+            selected: value.selected ?? undefined,
+            schema: value.schema ?? undefined,
         };
     }
 
@@ -56,7 +56,7 @@ SchemaTreeSelect.propTypes = {
     schema: PropTypes.object,
     isExcluded: PropTypes.func,
     onChange: PropTypes.func,
-    value: PropTypes.object
+    value: PropTypes.object,
 };
 
 export default SchemaTreeSelect;

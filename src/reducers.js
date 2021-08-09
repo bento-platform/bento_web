@@ -1,6 +1,7 @@
 import {combineReducers} from "redux";
 
 import {auth} from "./modules/auth/reducers";
+import {drs} from "./modules/drs/reducers";
 import {discovery} from "./modules/discovery/reducers";
 import {explorer} from "./modules/explorer/reducers";
 import {logs} from "./modules/logs/reducers";
@@ -32,6 +33,9 @@ import {runs} from "./modules/wes/reducers";
 const rootReducer = combineReducers({
     // Auth module
     auth,
+
+    // DRS module
+    drs,
 
     // Discovery module
     discovery,

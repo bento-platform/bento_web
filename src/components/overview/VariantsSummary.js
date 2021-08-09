@@ -58,32 +58,32 @@ class VariantsSummary extends Component {
     }
 
     updateDimensions = () => {
-        if(window.innerWidth < 576) { //xs
+        if (window.innerWidth < 576) { //xs
             this.setState({
                 chartPadding: "0rem",
                 chartWidthHeight: window.innerWidth,
                 chartLabelPaddingTop: 3,
                 chartLabelPaddingLeft: 3
             });
-        } else if(window.innerWidth < 768) { // sm
+        } else if (window.innerWidth < 768) { // sm
             this.setState({
                 chartPadding: "1rem",
                 chartWidthHeight: window.innerWidth,
                 chartLabelPaddingTop: 3,
                 chartLabelPaddingLeft: 6 });
-        } else if(window.innerWidth < 992) { // md
+        } else if (window.innerWidth < 992) { // md
             this.setState({
                 chartPadding: "2rem",
                 chartWidthHeight: window.innerWidth,
                 chartLabelPaddingTop: 3,
                 chartLabelPaddingLeft: 5 });
-        } else if(window.innerWidth < 1200) { // lg
+        } else if (window.innerWidth < 1200) { // lg
             this.setState({
                 chartPadding: "4rem",
                 chartWidthHeight: window.innerWidth / 2,
                 chartLabelPaddingTop: 3,
                 chartLabelPaddingLeft: 6 });
-        } else if(window.innerWidth < 1600) { // xl
+        } else if (window.innerWidth < 1600) { // xl
             this.setState({
                 chartPadding: "6rem",
                 chartWidthHeight: window.innerWidth / 2,

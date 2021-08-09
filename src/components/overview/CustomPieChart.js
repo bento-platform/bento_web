@@ -11,7 +11,7 @@ import { polarToCartesian } from "recharts/es6/util/PolarUtils";
 import COLORS from "../../utils/colors";
 import { withBasePath } from "../../utils/url";
 
-const MAX_LABEL_CHARS = 18;
+const MAX_LABEL_CHARS = 16;
 const RADIAN = Math.PI / 180;
 
 const textStyle = {
@@ -264,7 +264,8 @@ class CustomPieChart extends React.Component {
         return (<>
         <div style={this.style}>
         <h2 style={this.titleStyle}>{title}</h2>
-          <PieChart height={chartHeight- titleHeaderHeight} width={(chartHeight-titleHeaderHeight) * chartAspectRatio}>
+          <PieChart height={chartHeight - titleHeaderHeight}
+                    width={(chartHeight - titleHeaderHeight) * chartAspectRatio}>
               <Pie data={data.filter(e => e.value !== 0)}
                    dataKey="value"
                    cx="50%"
@@ -306,7 +307,7 @@ const CustomTooltip = ({active, payload, totalCount }) => {
 
     const name = payload[0]?.name || "";
     const value = payload[0]?.value || 0;
-    const percentage = totalCount ? Math.round(value/totalCount * 100) : 0;
+    const percentage = totalCount ? Math.round(value / totalCount * 100) : 0;
 
     // inline style for now
     const toolTipStyle = {

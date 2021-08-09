@@ -1,7 +1,7 @@
 // noinspection JSUnusedGlobalSymbols
 export const VICTORY_PIE_PROPS = {
     standalone: false,
-    innerRadius: ({radius}) => radius * (7/10),
+    innerRadius: ({radius}) => radius * (7 / 10),
     // labelRadius: ({innerRadius, radius}) => innerRadius({radius}) + (radius - innerRadius({radius})) / 2,
     // style: {labels: {fill: "white", textAnchor: "middle"}},
     padding: {left: 120, right: 120, top: 40, bottom: 40},

@@ -31,7 +31,7 @@ const numObjectToVictoryArray = numObj => Object.entries(numObj)
 const AGE_HISTOGRAM_BINS = [...Array(10).keys()].map(i => i * 10);
 
 
-const ageAndDOBToApproxYears = (age, dob=null) => {
+const ageAndDOBToApproxYears = (age, dob = null) => {
     const parsedAge = parse(age);
     const parsedAgeSeconds = toSeconds(parsedAge, dob);
     // Convert # of seconds to "normalized" years TODO: Sketchy logic

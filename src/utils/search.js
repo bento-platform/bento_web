@@ -30,7 +30,7 @@ export const DEFAULT_SEARCH_PARAMETERS = {
 export const addDataTypeFormIfPossible = (dataTypeForms, dataType) =>
     (dataTypeForms.map(d => d.dataType.id).includes(dataType.id))
         ? dataTypeForms
-        : [...(dataTypeForms || []), {dataType, formValues: {}}];
+        : [...(dataTypeForms ?? []), {dataType, formValues: {}}];
 
 export const updateDataTypeFormIfPossible = (dataTypeForms, dataType, fields) =>
     dataTypeForms.map(d => d.dataType.id === dataType.id
@@ -41,8 +41,8 @@ export const removeDataTypeFormIfPossible = (dataTypeForms, dataType) =>
 
 
 export const extractQueryConditionsFromFormValues = formValues =>
-    (((formValues || {keys: {value: []}}).keys || {value: []}).value || [])
-        .map(k => ((formValues || {conditions: []}).conditions || [])[k] || null)
+    (formValues?.keys?.value ?? [])
+        .map(k => formValues?.conditions?.[k] ?? null)
         .filter(c => c !== null);
 
 export const conditionsToQuery = conditions => {

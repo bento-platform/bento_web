@@ -16,20 +16,22 @@ export const SET_AUTO_QUERY_PAGE_TRANSITION = "EXPLORER.SET_AUTO_QUERY_PAGE_TRAN
 export const NEUTRALIZE_AUTO_QUERY_PAGE_TRANSITION = "EXPLORER.NEUTRALIZE_AUTO_QUERY_PAGE_TRANSITION";
 export const FREE_TEXT_SEARCH = createNetworkActionTypes("FREE_TEXT_SEARCH");
 
-const performSearch = networkAction((datasetID, dataTypeQueries) => (dispatch, getState) => ({
-    types: PERFORM_SEARCH,
-    url: `${getState().services.federationService.url}/private/dataset-search/${datasetID}`,
-    params: {datasetID},
-    req: jsonRequest({
-        data_type_queries: dataTypeQueries,
-        join_query: null  // Will get auto-filled by the federation service
-    }, "POST"),
-    err: "Error performing search",
-}));
+const performSearch = networkAction((datasetID, dataTypeQueries, excludeFromAutoJoin = []) =>
+    (dispatch, getState) => ({
+        types: PERFORM_SEARCH,
+        url: `${getState().services.federationService.url}/private/dataset-search/${datasetID}`,
+        params: {datasetID},
+        req: jsonRequest({
+            data_type_queries: dataTypeQueries,
+            join_query: null,  // Will get auto-filled by the federation service,
+            exclude_from_auto_join: excludeFromAutoJoin,
+        }, "POST"),
+        err: "Error performing search",
+    }));
 
 const performIndividualCSVDownload = networkAction((individualsUrl) => () => ({
     types: PERFORM_INDIVIDUAL_CSV_DOWNLOAD,
-    url: `${individualsUrl}`,
+    url: individualsUrl,
     parse: r => r.blob(),  // Parse the CSV as a binary blob rather than e.g. a JSON file
     err: "Error performing individual csv download",
 }));
@@ -38,13 +40,22 @@ export const performSearchIfPossible = (datasetID) => (dispatch, getState) => {
     if (getState().explorer.fetchingSearchByDatasetID[datasetID]) return;
 
     const dataTypeQueries = extractQueriesFromDataTypeForms(getState().explorer.dataTypeFormsByDatasetID[datasetID]);
+    const excludeFromAutoJoin = [];
 
     // TODO: What to do if phenopacket data type not present?
-    // Must include phenopacket/experiment query so we can include the data in the results
+    // Must include phenopacket/experiment query so we can include the data in the results.
     if (!dataTypeQueries.hasOwnProperty("phenopacket")) dataTypeQueries["phenopacket"] = true;
-    if (!dataTypeQueries.hasOwnProperty("experiment")) dataTypeQueries["experiment"] = true;
+    if (!dataTypeQueries.hasOwnProperty("experiment")) {
+        // We want all phenopackets matching the actual search query to be
+        // included, even if 0 experiments are present – so if there aren't any
+        // specific queries on experiments themselves, we exclude them from
+        // filtering the phenopackets by way of the join query.
 
-    return dispatch(performSearch(datasetID, dataTypeQueries));
+        dataTypeQueries["experiment"] = true;
+        excludeFromAutoJoin.push("experiment");
+    }
+
+    return dispatch(performSearch(datasetID, dataTypeQueries, excludeFromAutoJoin));
 };
 
 export const performIndividualsDownloadCSVIfPossible = (datasetId, individualIds, allSearchResults) =>

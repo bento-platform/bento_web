@@ -22,20 +22,20 @@ const sortDUR = (a, b) => DATA_USE_KEYS.indexOf(a.code) - DATA_USE_KEYS.indexOf(
 class DataUseInput extends Component {
     static getDerivedStateFromProps(nextProps) {
         return "value" in nextProps
-            ? {...(nextProps.value || {})}
+            ? {...(nextProps.value ?? {})}
             : null;
     }
 
     constructor(props) {
         super(props);
 
-        const value = this.props.value || {};
+        const value = this.props.value ?? {};
         this.state = {
             consent_code: {
-                primary_category: (value.consent_code || {}).primary_category || null,
-                secondary_categories: [...((value.consent_code || {}).secondary_categories || [])]
+                primary_category: value.consent_code?.primary_category ?? null,
+                secondary_categories: [...(value.consent_code?.secondary_categories ?? [])]
             },
-            data_use_requirements: [...(value.data_use_requirements || [])]
+            data_use_requirements: [...(value.data_use_requirements ?? [])]
         };
 
         this.triggerChange = this.triggerChange.bind(this);
@@ -85,7 +85,7 @@ class DataUseInput extends Component {
 
                 <div style={{fontWeight: "bold", marginBottom: "4px"}}>Primary</div>
                 <Radio.Group name="primary_consent_code"
-                             value={(this.state.consent_code.primary_category || {code: null}).code}
+                             value={(this.state.consent_code.primary_category ?? {code: null}).code}
                              onChange={e => this.handlePCCChange(e.target.value)}>
                     <List itemLayout="horizontal" style={{maxWidth: "600px"}}>
                     {PRIMARY_CONSENT_CODE_KEYS.map(pcc =>
