@@ -1,4 +1,3 @@
-import {objectWithoutProp} from "../../utils/misc";
 import FileSaver from "file-saver";
 
 import {

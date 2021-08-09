@@ -62,13 +62,13 @@ class IndividualBiosamples extends Component {
           title: "Extra Properties",
           key: "extra_properties",
           render: (_, individual) =>
-              (individual ?? {}).hasOwnProperty("extra_properties") && Object.keys(individual.extra_properties).length ? (
-          <div>
-            <pre>{JSON.stringify(individual.extra_properties, null, 2)}</pre>
-          </div>
-              ) : (
-                  EM_DASH
-              ),
+              (individual ?? {}).hasOwnProperty("extra_properties") &&
+              Object.keys(individual.extra_properties).length
+                  ? (
+                      <div>
+                          <pre>{JSON.stringify(individual.extra_properties, null, 2)}</pre>
+                      </div>
+                  ) : EM_DASH,
       },
       {
           title: "Download",
@@ -239,12 +239,6 @@ IndividualBiosamples.propTypes = {
     performDownloadFromDrsIfPossible: PropTypes.func.isRequired,
 };
 
-const mapStateToProps = (state, ownProps) => {
-    return {};
-};
-
-const mapDispatchToProps = (dispatch, ownProps) => ({
-    performDownloadFromDrsIfPossible: (filename) => dispatch(performDownloadFromDrsIfPossible(filename)),
-});
-
-export default withRouter(connect(mapStateToProps, mapDispatchToProps)(IndividualBiosamples));
+export default withRouter(connect(null, {
+    performDownloadFromDrsIfPossible
+})(IndividualBiosamples));
