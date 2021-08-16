@@ -33,13 +33,15 @@ export const drs = (
                 isFuzzySearching: false
             };
 
+
         case PERFORM_OBJECT_DOWNLOAD.REQUEST:
             return {
                 ...state,
                 isFetchingObjectForDownload: true
             };
         case PERFORM_OBJECT_DOWNLOAD.RECEIVE:
-            FileSaver.saveAs(action.data, "data.vcf.gz"); //new Blob([data], {type: "application/octet-stream"})
+            FileSaver.saveAs(action.data, action.downloadedFilename);
+            //new Blob([data], {type: "application/octet-stream"})
 
             return {
                 ...state,

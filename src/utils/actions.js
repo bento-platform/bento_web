@@ -58,6 +58,9 @@ const _networkAction = (fn, ...args) => async (dispatch, getState) => {
     let {parse} = fnResult;
     if (!parse) parse = r => r.json();
 
+    let {downloadedFilename} = fnResult;
+    if (!downloadedFilename) downloadedFilename = "downloaded.file";
+
     dispatch({type: types.REQUEST, ...params});
     try {
         const data = await (paginated ? _paginatedNetworkFetch : _unpaginatedNetworkFetch)(url, baseUrl, req, parse);
@@ -65,6 +68,7 @@ const _networkAction = (fn, ...args) => async (dispatch, getState) => {
             type: types.RECEIVE,
             ...params,
             ...(data === null ? {} : {data}),
+            downloadedFilename : downloadedFilename,
             receivedAt: Date.now()
         });
         if (onSuccess) await onSuccess(data);
