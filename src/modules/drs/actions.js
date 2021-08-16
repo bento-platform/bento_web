@@ -3,6 +3,8 @@ import {
     networkAction,
 } from "../../utils/actions";
 
+import {message} from "antd";
+
 export const PERFORM_SEARCH_BY_FUZZYNAME = createNetworkActionTypes("PERFORM_SEARCH_BY_FUZZYNAME");
 export const PERFORM_OBJECT_DOWNLOAD = createNetworkActionTypes("PERFORM_OBJECT_DOWNLOAD");
 
@@ -21,7 +23,9 @@ export const performDownloadFromDrsIfPossible = (filename) => async (dispatch, g
     // determine drs download url
     const fuzzySearchObj = getState().drs?.fuzzySearchResponse;
     if (fuzzySearchObj === undefined) {
-        console.error(`Something went wrong when pinging ${fuzzySearchUrl} ; fuzzySearchResponse is undefined`);
+        const msg = `Something went wrong when pinging ${fuzzySearchUrl} ; fuzzySearchResponse is undefined`;
+        console.error(msg);
+        message.error(msg);
         return;
     }
 
@@ -29,7 +33,9 @@ export const performDownloadFromDrsIfPossible = (filename) => async (dispatch, g
 
     const objId = fuzzySearchObj.find(obj => obj.name === filename)?.id;
     if (objId === undefined) {
-        console.error("Something went wrong when obtaining objId ; objId is undefined");
+        const msg = "Something went wrong when obtaining objId ; objId is undefined";
+        console.error(msg);
+        message.error(msg);
         return;
     }
     console.log(`Retrieved objectid ${objId} for ${filename}`);
