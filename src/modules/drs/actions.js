@@ -9,16 +9,16 @@ export const PERFORM_OBJECT_DOWNLOAD = createNetworkActionTypes("PERFORM_OBJECT_
 export const performDownloadFromDrsIfPossible = (filename) => async (dispatch, getState) => {
     console.log("Initiating performIndividualsDownloadFromDrsIfPossible");
 
-        // determine drs search url
+    // determine drs search url
     const fuzzySearchUrl = `${getState().services.itemsByArtifact.drs.url}/search?fuzzy_name=${filename}`;
 
-        // call drs to get the download link
-        // - fuzzy_name search for filename
+    // call drs to get the download link
+    // - fuzzy_name search for filename
     await dispatch(performFuzzyNameSearch(fuzzySearchUrl));
 
     console.log(`Completed fuzzy search for ${filename}`);
 
-        // determine drs download url
+    // determine drs download url
     const fuzzySearchObj = getState().drs?.fuzzySearchResponse;
     if (fuzzySearchObj === undefined) {
         console.error(`Something went wrong when pinging ${fuzzySearchUrl} ; fuzzySearchResponse is undefined`);
@@ -37,7 +37,7 @@ export const performDownloadFromDrsIfPossible = (filename) => async (dispatch, g
         // - obtain object Id for the object with the same name
     const downloadUrl = `${getState().services.itemsByArtifact.drs.url}/objects/${objId}/download`;
     console.log(`Dispatching download from ${downloadUrl}`);
-    dispatch(performDownloadFromDrs(downloadUrl));
+    dispatch(performDownloadFromDrs(downloadUrl, filename));
 };
 
 const performFuzzyNameSearch = networkAction((fuzzySearchUrl) => () => ({
@@ -46,9 +46,10 @@ const performFuzzyNameSearch = networkAction((fuzzySearchUrl) => () => ({
     err: "Error performing fuzzy search on DRS",
 }));
 
-const performDownloadFromDrs = networkAction((downloadUrl) => () => ({
+const performDownloadFromDrs = networkAction((downloadUrl, filename) => () => ({
     types: PERFORM_OBJECT_DOWNLOAD,
     url: downloadUrl,
+    downloadedFilename: filename,
     parse: r => r.blob(),  // Parse the vcf as a binary blob rather than e.g. a JSON file
     err: "Error performing download from DRS",
 }));
