@@ -40,7 +40,8 @@ export const drs = (
                 isFetchingObjectForDownload: true
             };
         case PERFORM_OBJECT_DOWNLOAD.RECEIVE:
-            FileSaver.saveAs(action.data, action.downloadedFilename); //new Blob([data], {type: "application/octet-stream"})
+            FileSaver.saveAs(action.data, action.downloadedFilename);
+            //new Blob([data], {type: "application/octet-stream"})
 
             return {
                 ...state,
