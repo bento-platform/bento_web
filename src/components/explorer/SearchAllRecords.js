@@ -21,7 +21,7 @@ class SearchAllRecords extends Component {
         return (
       <Card style={{ marginBottom: "1.5em" }}>
         <Typography.Title level={3} style={{ marginBottom: "1.5rem" }}>
-          Search All Fields
+          Text Search
         </Typography.Title>
         <Search
           placeholder="Search"

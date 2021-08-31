@@ -110,6 +110,7 @@ class ExplorerDatasetSearch extends Component {
 
         return <>
             <Typography.Title level={4}>Explore Dataset {selectedDataset.title}</Typography.Title>
+            <SearchAllRecords datasetID={this.props.match.params.dataset}/>
             <DiscoveryQueryBuilder isInternal={true}
                                    dataTypeForms={this.props.dataTypeForms}
                                    onSubmit={this.resetPageNumber}
@@ -117,7 +118,6 @@ class ExplorerDatasetSearch extends Component {
                                    addDataTypeQueryForm={this.props.addDataTypeQueryForm}
                                    updateDataTypeQueryForm={this.props.updateDataTypeQueryForm}
                                    removeDataTypeQueryForm={this.props.removeDataTypeQueryForm} />
-            <SearchAllRecords datasetID={this.props.match.params.dataset}/>
             {this.props.searchResults ? <>
                 <Typography.Title level={4}>
                     Showing results {showingResults}-{Math.min(this.state.currentPage * this.state.pageSize,
