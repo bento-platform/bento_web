@@ -4,19 +4,18 @@ import { connect } from "react-redux";
 import { Table } from "antd";
 import { Descriptions } from "antd";
 import { withRouter } from "react-router-dom";
-import ReactJson from "react-json-view";
 import { EM_DASH } from "../../constants";
 import { renderOntologyTerm } from "./ontologies";
 import { individualPropTypesShape } from "../../propTypes";
-
 import { performDownloadFromDrsIfPossible } from "../../modules/drs/actions";
-
 import PropTypes from "prop-types";
+import JsonView from "./JsonView";
 
 // TODO: Only show biosamples from the relevant dataset, if specified;
 //  highlight those found in search results, if specified
 
 class IndividualBiosamples extends Component {
+
   BIOSAMPLE_COLUMNS = [
       {
           title: "ID",
@@ -63,12 +62,13 @@ class IndividualBiosamples extends Component {
           key: "extra_properties",
           render: (_, individual) =>
               (individual ?? {}).hasOwnProperty("extra_properties") &&
-              Object.keys(individual.extra_properties).length
-                  ? (
-                      <div>
-                          <pre>{JSON.stringify(individual.extra_properties, null, 2)}</pre>
-                      </div>
-                  ) : EM_DASH,
+        Object.keys(individual.extra_properties).length ? (
+          <div>
+            <JsonView inputJson={individual.extra_properties} />
+          </div>
+                  ) : (
+                      EM_DASH
+                  ),
       },
       {
           title: "Download",
@@ -121,18 +121,9 @@ class IndividualBiosamples extends Component {
           <Descriptions.Item label="Molecule Ontology">
             {(e ?? {}).hasOwnProperty("molecule_ontology") && e.molecule_ontology.length ? (
               <div>
-                <pre>
-                  {e.molecule_ontology.map((m) => (
-                    <ReactJson
-                      src={m}
-                      displayDataTypes={false}
-                      name={false}
-                      collapsed={1}
-                      enableClipboard={false}
-                      key={m.id}
-                    />
+                  {e.molecule_ontology.map((m, i) => (
+                    <JsonView inputJson={m} key={i} />
                   ))}
-                </pre>
               </div>
             ) : (
                 EM_DASH
@@ -141,69 +132,37 @@ class IndividualBiosamples extends Component {
           <Descriptions.Item label="Extration Protocol">
             {e?.extraction_protocol || EM_DASH}
           </Descriptions.Item>
-          <Descriptions.Item label="Instrument">{
-            ((e ?? {}).hasOwnProperty("instrument") && Object.keys(e.instrument).length)
-                ?  <div>
-                    <pre>
-                          <ReactJson src={e.instrument}
-                                     displayDataTypes={false}
-                                     name={false}
-                                     collapsed={1}
-                                     enableClipboard={false}
-                          />
-                    </pre>
-                   </div>
-                : EM_DASH
-        }</Descriptions.Item>
+          <Descriptions.Item label="Instrument">
+            {(e ?? {}).hasOwnProperty("instrument") && Object.keys(e.instrument).length ? (
+                  <JsonView inputJson={e.instrument} />
+            ) : (
+                EM_DASH
+            )}
+          </Descriptions.Item>
           <Descriptions.Item label="Experiment Ontology">
             {(e ?? {}).hasOwnProperty("experiment_ontology") && e.experiment_ontology.length ? (
               <div>
-                <pre>
-                  {e.experiment_ontology.map((m) => (
-                    <ReactJson
-                      src={m}
-                      displayDataTypes={false}
-                      name={false}
-                      collapsed={1}
-                      enableClipboard={false}
-                      key={m.id}
-                    />
+                  {e.experiment_ontology.map((m, i) => (
+                    <JsonView inputJson={m} key={i}/>
                   ))}
-                </pre>
               </div>
             ) : (
                 EM_DASH
             )}
           </Descriptions.Item>
-          <Descriptions.Item label="Extra Properties">{
-            ((e ?? {}).hasOwnProperty("extra_properties") && Object.keys(e.extra_properties).length)
-                ?  <div>
-                    <pre>
-                          <ReactJson src={e.extra_properties}
-                                     displayDataTypes={false}
-                                     name={false}
-                                     collapsed={1}
-                                     enableClipboard={false}
-                          />
-                    </pre>
-                   </div>
-                : EM_DASH
-        }</Descriptions.Item>
+          <Descriptions.Item label="Extra Properties">
+            {(e ?? {}).hasOwnProperty("extra_properties") && Object.keys(e.extra_properties).length ? (
+                <JsonView inputJson={e.extra_properties} />
+            ) : (
+                EM_DASH
+            )}
+          </Descriptions.Item>
           <Descriptions.Item label="Experiment Results">
             {(e ?? {}).hasOwnProperty("experiment_results") && e.experiment_results.length ? (
               <div>
-                <pre>
-                  {e.experiment_results.map((m) => (
-                    <ReactJson
-                      src={m}
-                      displayDataTypes={false}
-                      name={false}
-                      collapsed={1}
-                      enableClipboard={false}
-                      key={m.id}
-                    />
+                  {e.experiment_results.map((m, i) => (
+                    <JsonView inputJson={m} key={i}/>
                   ))}
-                </pre>
               </div>
             ) : (
                 EM_DASH
