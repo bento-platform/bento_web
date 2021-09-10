@@ -13,11 +13,7 @@ class IndividualBiosamples extends Component {
 
     constructor(props) {
         super(props);
-
         this.state = {};
-
-    // Ensure user is at the top of the page after transition
-        window.scrollTo(0, 0);
     }
 
     render() {
