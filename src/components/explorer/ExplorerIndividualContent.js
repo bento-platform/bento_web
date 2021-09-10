@@ -17,6 +17,7 @@ import SitePageHeader from "../SitePageHeader";
 import IndividualOverview from "./IndividualOverview";
 import IndividualPhenotypicFeatures from "./IndividualPhenotypicFeatures";
 import IndividualBiosamples from "./IndividualBiosamples";
+import IndividualExperiments from "./IndividualExperiments";
 import IndividualDiseases from "./IndividualDiseases";
 import IndividualMetadata from "./IndividualMetadata";
 import IndividualVariants from "./IndividualVariants";
@@ -73,6 +74,7 @@ class ExplorerIndividualContent extends Component {
         const overviewUrl = withURLPrefix(individualID, "overview");
         const pfeaturesUrl = withURLPrefix(individualID, "phenotypicfeatures");
         const biosamplesUrl = withURLPrefix(individualID, "biosamples");
+        const experimentsUrl = withURLPrefix(individualID, "experiments");
         const variantsUrl = withURLPrefix(individualID, "variants");
         const genesUrl = withURLPrefix(individualID, "genes");
         const diseasesUrl = withURLPrefix(individualID, "diseases");
@@ -80,7 +82,8 @@ class ExplorerIndividualContent extends Component {
         const individualMenu = [
             {url: overviewUrl, style: {marginLeft: "4px"}, text: "Overview",},
             {url: pfeaturesUrl, text: "Phenotypic Features",},
-            {url: biosamplesUrl, text: "Biosamples & Experiments",},
+            {url: biosamplesUrl, text: "Biosamples",},
+            {url: experimentsUrl, text: "Experiments",},
             {url: variantsUrl, text: "Variants",},
             {url: genesUrl, text: "Genes",},
             {url: diseasesUrl, text: "Diseases",},
@@ -112,6 +115,9 @@ class ExplorerIndividualContent extends Component {
                         </Route>
                         <Route path={biosamplesUrl.replace(":", "\\:")}>
                             <IndividualBiosamples individual={individual} />
+                        </Route>
+                        <Route path={experimentsUrl.replace(":", "\\:")}>
+                            <IndividualExperiments individual={individual} />
                         </Route>
                         <Route path={variantsUrl.replace(":", "\\:")}>
                             <IndividualVariants individual={individual} />
