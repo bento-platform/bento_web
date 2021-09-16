@@ -21,7 +21,7 @@ class IndividualBiosamples extends Component {
         const experimentsData = biosamplesData.flatMap((b) => b?.experiments ?? []);
 
         return (
-            <>
+            <div style={{display: "inline-block"}}>
         {biosamplesData.map((b) => (
           <Descriptions
             title={`Biosample ${b.id}`}
@@ -62,7 +62,7 @@ class IndividualBiosamples extends Component {
             <Descriptions.Item label="Available Experiments">experiments with links todo</Descriptions.Item>
           </Descriptions>
         ))}
-            </>
+            </div>
         );
     }
 }
