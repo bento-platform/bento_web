@@ -69,7 +69,6 @@ class IndividualBiosamples extends Component {
 
 IndividualBiosamples.propTypes = {
     individual: individualPropTypesShape,
-    performDownloadFromDrsIfPossible: PropTypes.func.isRequired,
 };
 
 export default IndividualBiosamples;

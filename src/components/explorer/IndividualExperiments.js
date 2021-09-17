@@ -1,9 +1,12 @@
 import React, { Component } from "react";
-import { Descriptions, Popover, Table, Typography } from "antd";
+import { Descriptions, Icon, Popover, Table, Typography } from "antd";
 import { BENTO_BLUE, EM_DASH } from "../../constants";
 import { individualPropTypesShape } from "../../propTypes";
 import { performDownloadFromDrsIfPossible } from "../../modules/drs/actions";
 import JsonView from "./JsonView";
+import { withRouter } from "react-router-dom";
+import {connect} from "react-redux";
+import PropTypes from "prop-types";
 
 class IndividualExperiments extends Component {
     constructor(props) {
@@ -41,10 +44,11 @@ class IndividualExperiments extends Component {
             {
                 title: "Download",
                 key: "download",
+                align: "center",
                 render: (_, result) =>
                     isDownloadable(result) ? (
             <div>
-              <a onClick={async () => performDownloadFromDrsIfPossible(result.filename)}>download</a>
+              <a onClick={async () => this.props.performDownloadFromDrsIfPossible(result.filename)}><Icon type={"cloud-download"} /></a>
             </div>
                     ) : (
                         EM_DASH
@@ -154,7 +158,7 @@ class IndividualExperiments extends Component {
                     </Descriptions>
                   </Descriptions.Item>
                 </Descriptions>
-                <Descriptions layout="vertical" bordered={true} column={1} size="small" key={e.id}>
+                <Descriptions layout="vertical" bordered={true} column={1} size="small" >
                   <Descriptions.Item>
                     <Descriptions layout="horizontal" bordered={true} column={1} size="small">
                       <Descriptions.Item label="Experiment Type">{e.experiment_type}</Descriptions.Item>
@@ -208,6 +212,10 @@ function isDownloadable(result) {
 
 IndividualExperiments.propTypes = {
     individual: individualPropTypesShape,
+    performDownloadFromDrsIfPossible: PropTypes.func.isRequired,
 };
 
-export default IndividualExperiments;
+export default withRouter(connect(null, {
+    performDownloadFromDrsIfPossible
+})(IndividualExperiments));
+
