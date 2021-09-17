@@ -130,7 +130,7 @@ class IndividualExperiments extends Component {
                     ))}
                   </Descriptions.Item>
                   <Descriptions.Item>
-                    {e.experiment_ontology.map((eo) => (
+                    {(e.experiment_ontology ?? []).map((eo) => (
                       <Descriptions
                         title="Experiment Ontology"
                         layout="horizontal"
