@@ -54,9 +54,36 @@ class IndividualExperiments extends Component {
                 title: "Other Details",
                 key: "other_details",
                 render: (_, result) => (
-          <Popover placement="leftTop" title={"content title"} content={"content content"} trigger="click">
-            Other Details
-          </Popover>
+              <Popover
+                placement="leftTop"
+                title={`Experiment Results: ${result.file_format}`}
+                content={
+                  <div className="other-details">
+                <Descriptions
+                  layout="horizontal"
+                  bordered={true}
+                  colon={false}
+                  column={1}
+                  size="small"
+                >
+                  <Descriptions.Item label="id">{result.id}</Descriptions.Item>
+                  <Descriptions.Item label="identifier">{result.identifier}</Descriptions.Item>
+                  <Descriptions.Item label="description">{result.description}</Descriptions.Item>
+                  <Descriptions.Item label="filename">{result.filename}</Descriptions.Item>
+                  <Descriptions.Item label="file format">{result.file_format}</Descriptions.Item>
+                  <Descriptions.Item label="data output type">{result.data_output_type}</Descriptions.Item>
+                  <Descriptions.Item label="usage">{result.usage}</Descriptions.Item>
+                  <Descriptions.Item label="creation date">{result.creation_date}</Descriptions.Item>
+                  <Descriptions.Item label="created by">{result.created_by}</Descriptions.Item>
+                  <Descriptions.Item label="created">{result.created}</Descriptions.Item>
+                  <Descriptions.Item label="updated">{result.updated}</Descriptions.Item>
+                  </Descriptions>
+                  </div>
+                  }
+                trigger="click"
+              >
+               <p className="other-details-click"> click here </p>
+              </Popover>
                 ),
             },
         ];

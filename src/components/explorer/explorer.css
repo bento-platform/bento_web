@@ -78,3 +78,11 @@
   color: #1990ff;
 }
 
+.other-details .ant-descriptions-item-label{
+  padding-right: 10px !important;
+}
+
+.other-details-click {
+  color: #1990ff;
+}
+
