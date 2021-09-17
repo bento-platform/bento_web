@@ -1,6 +1,6 @@
 import React, { Component } from "react";
 import { Descriptions, Popover, Table, Typography } from "antd";
-import { EM_DASH } from "../../constants";
+import { BENTO_BLUE, EM_DASH } from "../../constants";
 import { individualPropTypesShape } from "../../propTypes";
 import { performDownloadFromDrsIfPossible } from "../../modules/drs/actions";
 import JsonView from "./JsonView";
@@ -15,7 +15,7 @@ class IndividualExperiments extends Component {
         const biosamplesData = (this.props.individual?.phenopackets ?? []).flatMap((p) => p.biosamples);
         const experimentsData = biosamplesData.flatMap((b) => b?.experiments ?? []);
 
-        console.log({ experimentsData: experimentsData });
+        const titleStyle = { fontSize: "16px", fontWeight: "bold", color: BENTO_BLUE };
 
         const EXPERIMENT_RESULTS_COLUMNS = [
             {
@@ -65,11 +65,14 @@ class IndividualExperiments extends Component {
             <>
         {experimentsData.map((e) => (
           <div key={e.id}>
-            <Typography.Title level={4}>
+            <div className="experiment-titles">
+            <Typography.Text
+              style={titleStyle}
+            >
               {`${e.experiment_type} (Biosample ${e.biosample})`}{" "}
-            </Typography.Title>
-            <div style={{ display: "flex" }}>
-              <div>
+            </Typography.Text>
+            </div>
+            <div className="experimentSummary">
                 <Descriptions
                   layout="vertical"
                   bordered={true}
@@ -93,7 +96,6 @@ class IndividualExperiments extends Component {
                       </Descriptions>
                     ))}
                   </Descriptions.Item>
-
                   <Descriptions.Item>
                     {e.experiment_ontology.map((eo) => (
                       <Descriptions
@@ -125,40 +127,42 @@ class IndividualExperiments extends Component {
                     </Descriptions>
                   </Descriptions.Item>
                 </Descriptions>
-              </div>
-              <Descriptions layout="vertical" bordered={true} column={1} size="small" key={e.id}>
-                <Descriptions.Item>
-                  <Descriptions layout="horizontal" bordered={true} column={1} size="small">
-                    <Descriptions.Item label="Experiment Type">{e.experiment_type}</Descriptions.Item>
-                    <Descriptions.Item label="Study Type">{e.study_type}</Descriptions.Item>
-                    <Descriptions.Item label="Extraction Protocol">{e.extraction_protocol}</Descriptions.Item>
-                    <Descriptions.Item label="Library Layout">{e.library_layout}</Descriptions.Item>
-                    <Descriptions.Item label="Library Selection">{e.library_selection}</Descriptions.Item>
-                    <Descriptions.Item label="Library Source">{e.library_source}</Descriptions.Item>
-                    <Descriptions.Item label="Library Strategy">{e.library_strategy}</Descriptions.Item>
-                  </Descriptions>
-                </Descriptions.Item>
-
-                <Descriptions.Item>
-                  <Descriptions
-                    title="Extra Properties"
-                    layout="horizontal"
-                    bordered={true}
-                    column={1}
-                    size="small"
-                  >
-                    <Descriptions.Item>
-                      <JsonView inputJson={e.extra_properties} />
-                    </Descriptions.Item>
-                  </Descriptions>
-                </Descriptions.Item>
-              </Descriptions>
+                <Descriptions layout="vertical" bordered={true} column={1} size="small" key={e.id}>
+                  <Descriptions.Item>
+                    <Descriptions layout="horizontal" bordered={true} column={1} size="small">
+                      <Descriptions.Item label="Experiment Type">{e.experiment_type}</Descriptions.Item>
+                      <Descriptions.Item label="Study Type">{e.study_type}</Descriptions.Item>
+                      <Descriptions.Item label="Extraction Protocol">
+                        {e.extraction_protocol}
+                      </Descriptions.Item>
+                      <Descriptions.Item label="Library Layout">{e.library_layout}</Descriptions.Item>
+                      <Descriptions.Item label="Library Selection">{e.library_selection}</Descriptions.Item>
+                      <Descriptions.Item label="Library Source">{e.library_source}</Descriptions.Item>
+                      <Descriptions.Item label="Library Strategy">{e.library_strategy}</Descriptions.Item>
+                    </Descriptions>
+                  </Descriptions.Item>
+                  <Descriptions.Item>
+                    <Descriptions
+                      title="Extra Properties"
+                      layout="horizontal"
+                      bordered={true}
+                      column={1}
+                      size="small"
+                    >
+                      <Descriptions.Item>
+                        <JsonView inputJson={e.extra_properties} />
+                      </Descriptions.Item>
+                    </Descriptions>
+                  </Descriptions.Item>
+                </Descriptions>
             </div>
-            <Typography.Title level={4}>Results </Typography.Title>
+            <div className="experiment-titles">
+            <Typography.Text style={titleStyle} level={4}> { `${e.experiment_type} - Results` }</Typography.Text>
+            </div>
             <Table
               bordered
               size="small"
-              pagination={{ pageSize: 25 }}
+              pagination={false}
               columns={EXPERIMENT_RESULTS_COLUMNS}
               rowKey="filename"
               dataSource={e.experiment_results}

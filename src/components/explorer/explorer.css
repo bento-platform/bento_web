@@ -16,26 +16,65 @@
   display: none;
 }
 
-.ant-descriptions-item-label {
+.ant-descriptions-item-label.ant-descriptions-item-colon {
   width: 200px;
+  padding: 8px 16px !important;
+}
+
+.ant-descriptions-bordered.ant-descriptions-small .ant-descriptions-item-label, .ant-descriptions-bordered.ant-descriptions-small .ant-descriptions-item-content {
+  padding: 0;
+}
+
+/* selector for nested descriptions */
+.ant-descriptions-view .ant-descriptions-view .ant-descriptions-item-content {
+  padding: 8px 16px;
+} 
+
+.ant-descriptions-title {
+  margin: 0;
+  padding-left: 15px;
+  background-color: #fafafa;
+  font-size: 14px;
 }
 
 .ant-descriptions-title {
   margin: 0;
   padding-left: 15px;
   background-color: #fafafa;
+  font-size: 14px;
 }
 
 .ant-descriptions-view {
-  border-top-left-radius: 0px;
-  border-top-right-radius: 0px;
-  border-bottom-right-radius: 4px;
-  border-bottom-left-radius: 4px;
+  border-radius: 0;
+  margin-bottom: 5px;
 }
 
 .ant-descriptions-title {
   border: 1px solid #e8e8e8;
   border-bottom: 0;
-  border-top-left-radius: 4px;
-  border-top-right-radius: 4px;
+  border-radius: 0;
 }
+
+.experimentSummary {
+  display: flex;
+  margin-bottom: 15px;
+}
+
+/* collapse borders on adjacent items */
+/* needs a more permanent solution that doesn't rely on right child being smaller */
+.experimentSummary > :last-child * {
+  border-left: 0;
+}
+
+.experiment-titles {
+  padding: 0px 0px 8px 17px;
+} 
+
+.biosamples-descriptions {
+  display: inline-block;
+}
+
+.biosamples-descriptions .ant-descriptions-title {
+  color: #1990ff;
+}
+
