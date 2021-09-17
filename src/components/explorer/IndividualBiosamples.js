@@ -3,7 +3,6 @@ import { Descriptions } from "antd";
 import { EM_DASH } from "../../constants";
 import { renderOntologyTerm } from "./ontologies";
 import { individualPropTypesShape } from "../../propTypes";
-import PropTypes from "prop-types";
 import JsonView from "./JsonView";
 
 // TODO: Only show biosamples from the relevant dataset, if specified;
@@ -18,7 +17,7 @@ class IndividualBiosamples extends Component {
 
     render() {
         const biosamplesData = (this.props.individual?.phenopackets ?? []).flatMap((p) => p.biosamples);
-        const experimentsData = biosamplesData.flatMap((b) => b?.experiments ?? []);
+        // const experimentsData = biosamplesData.flatMap((b) => b?.experiments ?? []);
 
         return (
             <div className="biosamples-descriptions" style={{display: "inline-block"}}>
@@ -49,7 +48,8 @@ class IndividualBiosamples extends Component {
               {b.individual_age_at_collection
                   ? b.individual_age_at_collection.hasOwnProperty("age")
                       ? b.individual_age_at_collection.age
-                      : `Between ${b.individual_age_at_collection.start.age} and ${b.individual_age_at_collection.end.age}`
+                      : `Between ${b.individual_age_at_collection.start.age}` +
+                      `and ${b.individual_age_at_collection.end.age}`
                   : EM_DASH}
             </Descriptions.Item>
             <Descriptions.Item label="Extra Properties">

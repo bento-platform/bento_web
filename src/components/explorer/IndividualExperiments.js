@@ -48,7 +48,9 @@ class IndividualExperiments extends Component {
                 render: (_, result) =>
                     isDownloadable(result) ? (
             <div>
-              <a onClick={async () => this.props.performDownloadFromDrsIfPossible(result.filename)}><Icon type={"cloud-download"} /></a>
+              <a onClick={async () => this.props.performDownloadFromDrsIfPossible(result.filename)}>
+                <Icon type={"cloud-download"} />
+              </a>
             </div>
                     ) : (
                         EM_DASH
