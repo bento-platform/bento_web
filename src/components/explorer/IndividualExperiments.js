@@ -198,7 +198,7 @@ class IndividualExperiments extends Component {
               pagination={false}
               columns={EXPERIMENT_RESULTS_COLUMNS}
               rowKey="filename"
-              dataSource={e.experiment_results}
+              dataSource={e.experiment_results.sort((r1, r2) => (r1.file_format > r2.file_format ) ? 1 : -1)}
             />
           </div>
         ))}
