@@ -12,6 +12,18 @@
 
 /* styling for Biosamples and Experiments tabs */
 
+.biosamples-descriptions {
+  display: inline-block;
+}
+
+.biosamples-descriptions .ant-descriptions-title {
+  color: #1990ff;
+}
+
+.biosamples-descriptions .ant-descriptions-item-content {
+  padding: 8px 16px !important;
+}
+
 .ant-descriptions-item-no-label {
   display: none;
 }
@@ -21,14 +33,15 @@
   padding: 8px 16px !important;
 }
 
-.ant-descriptions-bordered.ant-descriptions-small .ant-descriptions-item-label, .ant-descriptions-bordered.ant-descriptions-small .ant-descriptions-item-content {
+.ant-descriptions-bordered.ant-descriptions-small .ant-descriptions-item-label,
+.ant-descriptions-bordered.ant-descriptions-small .ant-descriptions-item-content {
   padding: 0;
 }
 
 /* selector for nested descriptions */
 .ant-descriptions-view .ant-descriptions-view .ant-descriptions-item-content {
   padding: 8px 16px;
-} 
+}
 
 .ant-descriptions-title {
   margin: 0;
@@ -68,21 +81,12 @@
 
 .experiment-titles {
   padding: 0px 0px 8px 17px;
-} 
-
-.biosamples-descriptions {
-  display: inline-block;
 }
 
-.biosamples-descriptions .ant-descriptions-title {
-  color: #1990ff;
-}
-
-.other-details .ant-descriptions-item-label{
+.other-details .ant-descriptions-item-label {
   padding-right: 10px !important;
 }
 
 .other-details-click {
   color: #1990ff;
 }
-
