@@ -1,5 +1,5 @@
 import React, { Component } from "react";
-import { Descriptions, Icon, Popover, Table, Typography } from "antd";
+import { Button, Descriptions, Icon, Popover, Table, Typography } from "antd";
 import { BENTO_BLUE, EM_DASH } from "../../constants";
 import { individualPropTypesShape } from "../../propTypes";
 import { performDownloadFromDrsIfPossible } from "../../modules/drs/actions";
@@ -88,7 +88,7 @@ class IndividualExperiments extends Component {
                   }
                 trigger="click"
               >
-               <p className="other-details-click"> click here </p>
+               <Button> click here </Button>
               </Popover>
                 ),
             },
