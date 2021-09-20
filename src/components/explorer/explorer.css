@@ -49,9 +49,10 @@
 
 .ant-descriptions-title {
   margin: 0;
-  padding-left: 15px;
+  /* padding-left: 15px; */
   background-color: #fafafa;
   font-size: 14px;
+  padding: 8px 15px;
 }
 
 .ant-descriptions-title {
