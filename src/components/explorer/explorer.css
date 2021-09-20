@@ -99,3 +99,7 @@
 .other-details-click {
   color: #1990ff;
 }
+
+.experiment_and_results .ant-table-content {
+  display: inline-block;
+} 
