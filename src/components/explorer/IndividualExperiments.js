@@ -97,7 +97,7 @@ class IndividualExperiments extends Component {
         return (
             <>
         {experimentsData.map((e) => (
-          <div key={e.id}>
+          <div className="experiment_and_results" key={e.id}>
             <div className="experiment-titles">
             <Typography.Text
               style={titleStyle}
@@ -105,7 +105,7 @@ class IndividualExperiments extends Component {
               {`${e.experiment_type} (Biosample ${e.biosample})`}{" "}
             </Typography.Text>
             </div>
-            <div className="experimentSummary">
+            <div className="experiment_summary">
                 <Descriptions
                   layout="vertical"
                   bordered={true}
@@ -115,7 +115,7 @@ class IndividualExperiments extends Component {
                   key={e.id}
                 >
                   <Descriptions.Item>
-                    {e.molecule_ontology.map((mo) => (
+                    {(e.molecule_ontology ?? []).map((mo) => (
                       <Descriptions
                         title="Molecule Ontology"
                         layout="horizontal"
