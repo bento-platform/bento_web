@@ -12,6 +12,10 @@
 
 /* styling for Biosamples and Experiments tabs */
 
+.experiment_and_results {
+  margin-bottom: 25px;
+}
+
 .biosamples-descriptions {
   display: inline-block;
 }
@@ -59,7 +63,6 @@
 
 .ant-descriptions-view {
   border-radius: 0;
-  margin-bottom: 5px;
 }
 
 .ant-descriptions-title {
@@ -68,14 +71,14 @@
   border-radius: 0;
 }
 
-.experimentSummary {
+.experiment_summary {
   display: flex;
-  margin-bottom: 15px;
+  margin-bottom: 25px;
 }
 
 /* collapse borders on adjacent items */
 /* needs a more permanent solution that doesn't rely on right child being smaller */
-.experimentSummary > :last-child * {
+.experiment_summary > :last-child * {
   border-left: 0;
 }
 
