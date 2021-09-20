@@ -40,12 +40,25 @@
 .ant-descriptions-bordered.ant-descriptions-small .ant-descriptions-item-label,
 .ant-descriptions-bordered.ant-descriptions-small .ant-descriptions-item-content {
   padding: 0;
+  border-spacing: 0px;
+  /* border: 0;
+  box-shadow: 0 0 0 1px #e8e8e8; */
 }
 
 /* selector for nested descriptions */
+.ant-descriptions-view .ant-descriptions-view {
+  border: 0;
+  box-shadow: 0 0 0 1px #e8e8e8;
+}
+
 .ant-descriptions-view .ant-descriptions-view .ant-descriptions-item-content {
   padding: 8px 16px;
+  border-spacing: 0;
+  border: 0;
+  border-top: 0;
+  border-bottom: 0;
 }
+
 
 .ant-descriptions-title {
   margin: 0;
@@ -67,9 +80,17 @@
 }
 
 .ant-descriptions-title {
-  border: 1px solid #e8e8e8;
-  border-bottom: 0;
-  border-radius: 0;
+  border: 0;
+  box-shadow: 0 0 0 1px #e8e8e8;
+}
+
+.ant-descriptions-row {
+  border: 0;
+  box-shadow: 0 0 0 1px #e8e8e8;
+}
+
+div.ant-descriptions-view > table {
+  border-spacing:
 }
 
 .experiment_summary {
@@ -93,7 +114,11 @@
 }
 
 .other-details .ant-descriptions-item-label {
-  padding-right: 10px !important;
+  padding: 0px 10px !important;
+}
+
+.other-details .ant-descriptions-item-content {
+  padding: 0px 10px !important;
 }
 
 .other-details-click {

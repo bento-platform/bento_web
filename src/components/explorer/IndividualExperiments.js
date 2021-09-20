@@ -59,6 +59,7 @@ class IndividualExperiments extends Component {
             {
                 title: "Other Details",
                 key: "other_details",
+                align: "center",
                 render: (_, result) => (
               <Popover
                 placement="leftTop"
@@ -72,7 +73,6 @@ class IndividualExperiments extends Component {
                   column={1}
                   size="small"
                 >
-                  <Descriptions.Item label="id">{result.id}</Descriptions.Item>
                   <Descriptions.Item label="identifier">{result.identifier}</Descriptions.Item>
                   <Descriptions.Item label="description">{result.description}</Descriptions.Item>
                   <Descriptions.Item label="filename">{result.filename}</Descriptions.Item>
@@ -81,8 +81,6 @@ class IndividualExperiments extends Component {
                   <Descriptions.Item label="usage">{result.usage}</Descriptions.Item>
                   <Descriptions.Item label="creation date">{result.creation_date}</Descriptions.Item>
                   <Descriptions.Item label="created by">{result.created_by}</Descriptions.Item>
-                  <Descriptions.Item label="created">{result.created}</Descriptions.Item>
-                  <Descriptions.Item label="updated">{result.updated}</Descriptions.Item>
                   </Descriptions>
                   </div>
                   }
@@ -152,11 +150,8 @@ class IndividualExperiments extends Component {
                       column={1}
                       size="small"
                     >
-                      <Descriptions.Item label="id">{e.instrument.id}</Descriptions.Item>
-                      <Descriptions.Item label="identifier">{e.instrument.identifier}</Descriptions.Item>
                       <Descriptions.Item label="platform">{e.instrument.platform}</Descriptions.Item>
-                      <Descriptions.Item label="created">{e.instrument.created}</Descriptions.Item>
-                      <Descriptions.Item label="updated">{e.instrument.updated}</Descriptions.Item>
+                      <Descriptions.Item label="identifier">{e.instrument.identifier}</Descriptions.Item>
                     </Descriptions>
                   </Descriptions.Item>
                 </Descriptions>
