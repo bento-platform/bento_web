@@ -76,10 +76,15 @@
   margin-bottom: 25px;
 }
 
-/* collapse borders on adjacent items */
-/* needs a more permanent solution that doesn't rely on right child being smaller */
-.experiment_summary > :last-child * {
-  border-left: 0;
+/* box shadow instead of borders for automatic border collapse on adjacent items */
+.experiment_summary > :last-child > * {
+  border: 0;
+  box-shadow: 0 0 0 1px #e8e8e8;
+}
+
+.experiment_summary > :first-child > * {
+  border: 0;
+  box-shadow: 0 0 0 1px #e8e8e8;
 }
 
 .experiment-titles {
