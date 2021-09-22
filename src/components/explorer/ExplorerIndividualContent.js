@@ -117,7 +117,7 @@ class ExplorerIndividualContent extends Component {
                             <IndividualPhenotypicFeatures individual={individual} />
                         </Route>
                         <Route path={biosamplesUrl.replace(":", "\\:")}>
-                            <IndividualBiosamples individual={individual} />
+                            <IndividualBiosamples individual={individual} experimentsUrl={experimentsUrl} />
                         </Route>
                         <Route path={experimentsUrl.replace(":", "\\:")}>
                             <IndividualExperiments individual={individual} />

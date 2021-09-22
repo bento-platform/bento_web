@@ -1,9 +1,12 @@
 import React, { Component } from "react";
-import { Descriptions } from "antd";
+import { Button, Descriptions } from "antd";
 import { EM_DASH } from "../../constants";
 import { renderOntologyTerm } from "./ontologies";
 import { individualPropTypesShape } from "../../propTypes";
 import JsonView from "./JsonView";
+import { withRouter } from "react-router-dom";
+import PropTypes from "prop-types";
+
 
 // TODO: Only show biosamples from the relevant dataset, if specified;
 //  highlight those found in search results, if specified
@@ -15,12 +18,17 @@ class IndividualBiosamples extends Component {
         this.state = {};
     }
 
-    render() {
-        const biosamplesData = (this.props.individual?.phenopackets ?? []).flatMap((p) => p.biosamples);
-        // const experimentsData = biosamplesData.flatMap((b) => b?.experiments ?? []);
+    handleClick = () => {
+        this.props.history.push(this.props.experimentsUrl);
+    }
 
-        return (
-            <div className="biosamples-descriptions" style={{display: "inline-block"}}>
+    render() {
+      const biosamplesData = (this.props.individual?.phenopackets ?? []).flatMap((p) => p.biosamples);
+      const experimentsData = biosamplesData.flatMap((b) => b?.experiments ?? []);
+      const experimentType = experimentsData.flatMap((t) => t?.experiment_type ?? []);
+
+      return (
+      <div className="biosamples-descriptions" style={{ display: "inline-block" }}>
         {biosamplesData.map((b) => (
           <Descriptions
             title={`Biosample ${b.id}`}
@@ -49,7 +57,7 @@ class IndividualBiosamples extends Component {
                   ? b.individual_age_at_collection.hasOwnProperty("age")
                       ? b.individual_age_at_collection.age
                       : `Between ${b.individual_age_at_collection.start.age}` +
-                      `and ${b.individual_age_at_collection.end.age}`
+                    `and ${b.individual_age_at_collection.end.age}`
                   : EM_DASH}
             </Descriptions.Item>
             <Descriptions.Item label="Extra Properties">
@@ -59,16 +67,23 @@ class IndividualBiosamples extends Component {
                   EM_DASH
               )}
             </Descriptions.Item>
-            <Descriptions.Item label="Available Experiments">experiments with links todo</Descriptions.Item>
+            <Descriptions.Item label="Available Experiments">
+              {experimentType.map((t, i) => (
+                <Button key={i} onClick={this.handleClick}>
+                  {t}
+                </Button>
+              ))}
+            </Descriptions.Item>
           </Descriptions>
         ))}
-            </div>
-        );
+      </div>
+      );
     }
 }
 
 IndividualBiosamples.propTypes = {
     individual: individualPropTypesShape,
+    experimentsUrl: PropTypes.string
 };
 
-export default IndividualBiosamples;
+export default withRouter(IndividualBiosamples);
