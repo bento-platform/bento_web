@@ -24,7 +24,7 @@ const IndividualTracks = ({ individual }) => {
     const trackValid = (t) => drsUrls.hasOwnProperty(t);
 
     // temp, strip all but first vcf
-    const tracks = allTracks.slice(0,1)
+    const tracks = allTracks.slice(0,1);
 
   // retrieve urls on mount
     useEffect(() => {

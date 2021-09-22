@@ -23,11 +23,11 @@ class IndividualBiosamples extends Component {
     }
 
     render() {
-      const biosamplesData = (this.props.individual?.phenopackets ?? []).flatMap((p) => p.biosamples);
-      const experimentsData = biosamplesData.flatMap((b) => b?.experiments ?? []);
-      const experimentType = experimentsData.flatMap((t) => t?.experiment_type ?? []);
+        const biosamplesData = (this.props.individual?.phenopackets ?? []).flatMap((p) => p.biosamples);
+        const experimentsData = biosamplesData.flatMap((b) => b?.experiments ?? []);
+        const experimentType = experimentsData.flatMap((t) => t?.experiment_type ?? []);
 
-      return (
+        return (
       <div className="biosamples-descriptions" style={{ display: "inline-block" }}>
         {biosamplesData.map((b) => (
           <Descriptions
@@ -77,7 +77,7 @@ class IndividualBiosamples extends Component {
           </Descriptions>
         ))}
       </div>
-      );
+        );
     }
 }
 

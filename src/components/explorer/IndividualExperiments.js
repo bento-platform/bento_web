@@ -18,7 +18,7 @@ class IndividualExperiments extends Component {
         const biosamplesData = (this.props.individual?.phenopackets ?? []).flatMap((p) => p.biosamples);
         const experimentsData = biosamplesData.flatMap((b) => b?.experiments ?? []);
         const titleStyle = { fontSize: "16px", fontWeight: "bold", color: BENTO_BLUE };
-        const blankExperimentOntology = [{id: EM_DASH, label: EM_DASH}]
+        const blankExperimentOntology = [{id: EM_DASH, label: EM_DASH}];
 
         const EXPERIMENT_RESULTS_COLUMNS = [
             {
