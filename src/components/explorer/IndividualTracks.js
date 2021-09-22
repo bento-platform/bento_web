@@ -14,7 +14,7 @@ const IndividualTracks = ({ individual }) => {
     const biosamplesData = (individual?.phenopackets ?? []).flatMap((p) => p.biosamples);
     const experimentsData = biosamplesData.flatMap((b) => b?.experiments ?? []);
     const viewableResults = experimentsData.flatMap((e) => e?.experiment_results ?? []).filter(isViewable);
-    const tracks = viewableResults.map((r) => r.filename);
+    const allTracks = viewableResults.map((r) => r.filename);
     let igvTracks, igvOptions;
 
   // hardcode for hg19/GRCh37, fix requires updates elsewhere in Bento
@@ -22,6 +22,9 @@ const IndividualTracks = ({ individual }) => {
 
   // track valid if it has urls
     const trackValid = (t) => drsUrls.hasOwnProperty(t);
+
+    // temp, strip all but first vcf
+    const tracks = allTracks.slice(0,1)
 
   // retrieve urls on mount
     useEffect(() => {
@@ -41,7 +44,7 @@ const IndividualTracks = ({ individual }) => {
             console.log("useEffect: vcfs ready");
         }
 
-        if (!tracks.length || !trackValid(tracks[0]) || igvRendered.current) {
+        if (!tracks.length || !tracks.every(trackValid) || igvRendered.current) {
             console.log("vcf urls not ready");
             console.log({ drsUrls: drsUrls });
             console.log({ tracksValid: tracks.every(trackValid) });
