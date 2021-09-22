@@ -1,17 +1,14 @@
 import FileSaver from "file-saver";
 
-import {
-    PERFORM_SEARCH_BY_FUZZYNAME,
-    PERFORM_OBJECT_DOWNLOAD,
-} from "./actions";
-
-
+import { PERFORM_SEARCH_BY_FUZZYNAME, PERFORM_OBJECT_DOWNLOAD, RETRIEVE_DRS_VCF_URL} from "./actions";
 
 export const drs = (
     state = {
         isFuzzySearching: false,
         fuzzySearchResponse: {},
-        isFetchingObjectForDownload: false
+        isFetchingObjectForDownload: false,
+        vcfUrlsByFilename: {},
+        hasSetVcfUrls: false
     },
     action
 ) => {
@@ -19,29 +16,28 @@ export const drs = (
         case PERFORM_SEARCH_BY_FUZZYNAME.REQUEST:
             return {
                 ...state,
-                isFuzzySearching: true
+                isFuzzySearching: true,
             };
         case PERFORM_SEARCH_BY_FUZZYNAME.RECEIVE:
             return {
                 ...state,
                 isFuzzySearching: false,
-                fuzzySearchResponse: action.data
+                fuzzySearchResponse: action.data,
             };
         case PERFORM_SEARCH_BY_FUZZYNAME.FINISH:
             return {
                 ...state,
-                isFuzzySearching: false
+                isFuzzySearching: false,
             };
-
 
         case PERFORM_OBJECT_DOWNLOAD.REQUEST:
             return {
                 ...state,
-                isFetchingObjectForDownload: true
+                isFetchingObjectForDownload: true,
             };
         case PERFORM_OBJECT_DOWNLOAD.RECEIVE:
             FileSaver.saveAs(action.data, action.downloadedFilename);
-            //new Blob([data], {type: "application/octet-stream"})
+      //new Blob([data], {type: "application/octet-stream"})
 
             return {
                 ...state,
@@ -51,6 +47,16 @@ export const drs = (
             return {
                 ...state,
                 isFetchingObjectForDownload: false,
+            };
+
+        case RETRIEVE_DRS_VCF_URL.SET:
+            return {
+                ...state,
+                vcfUrlsByFilename: {
+                    ...state.vcfUrlsByFilename,
+                    [action.filename]: action.urls,
+                },
+                hasSetVcfUrls: true,
             };
 
         default:
