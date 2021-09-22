@@ -17,8 +17,8 @@ const IndividualTracks = ({ individual }) => {
     const tracks = viewableResults.map((r) => r.filename);
     let igvTracks, igvOptions;
 
-  // arbitrary zoom to chr1, nothing interesting shows if zoomed out all the way
-    const locus = ["chr1"];
+    // empty locus, zoomed out all the way 
+    const locus = [];
 
   // hardcode for hg19/GRCh37, fix requires updates elsewhere in Bento
     const genome = "hg19";
@@ -63,7 +63,7 @@ const IndividualTracks = ({ individual }) => {
             squishedCallHeight: 10,
             expandedCallHeight: 50,
             displayMode: "expanded",
-            visibilityWindow: 0,
+            visibilityWindow: 60000000,
         }));
 
         igvOptions = {
