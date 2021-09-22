@@ -17,9 +17,6 @@ const IndividualTracks = ({ individual }) => {
     const tracks = viewableResults.map((r) => r.filename);
     let igvTracks, igvOptions;
 
-    // empty locus, zoomed out all the way 
-    const locus = [];
-
   // hardcode for hg19/GRCh37, fix requires updates elsewhere in Bento
     const genome = "hg19";
 
@@ -44,7 +41,7 @@ const IndividualTracks = ({ individual }) => {
             console.log("useEffect: vcfs ready");
         }
 
-        if (!tracks.length || !tracks.every(trackValid) || igvRendered.current) {
+        if (!tracks.length || !trackValid(tracks[0]) || igvRendered.current) {
             console.log("vcf urls not ready");
             console.log({ drsUrls: drsUrls });
             console.log({ tracksValid: tracks.every(trackValid) });
@@ -68,7 +65,6 @@ const IndividualTracks = ({ individual }) => {
 
         igvOptions = {
             genome: genome,
-            locus: locus,
             tracks: igvTracks,
         };
 
