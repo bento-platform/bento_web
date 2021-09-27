@@ -31,6 +31,11 @@ const IndividualTracks = ({ individual }) => {
     // temp: assume at most one vcf
     // todo: change dispatch to handle array of tracks
         if (tracks[0]) {
+
+            // don't search if urls already known
+            if (tracks.every(trackValid)){
+                return
+            }
             dispatch(retrieveDrsUrlsForVcf(tracks[0]));
         }
     }, []);
@@ -77,7 +82,7 @@ const IndividualTracks = ({ individual }) => {
                 igvRendered.current = true;
             });
 
-    }, [hasSetVcfUrls]);
+    }, [drsUrls]);
 
     return <>{<div ref={igvRef} />}</>;
 };
