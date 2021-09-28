@@ -24,8 +24,6 @@ class IndividualBiosamples extends Component {
 
     render() {
         const biosamplesData = (this.props.individual?.phenopackets ?? []).flatMap((p) => p.biosamples);
-        const experimentsData = biosamplesData.flatMap((b) => b?.experiments ?? []);
-        const experimentType = experimentsData.flatMap((t) => t?.experiment_type ?? []);
 
         return (
       <div className="biosamples-descriptions" style={{ display: "inline-block" }}>
@@ -68,7 +66,7 @@ class IndividualBiosamples extends Component {
               )}
             </Descriptions.Item>
             <Descriptions.Item label="Available Experiments">
-              {experimentType.map((t, i) => (
+              {(b.experiments ?? []).flatMap((b) => b?.experiment_type ?? []).map((t, i) => (
                 <Button key={i} onClick={this.handleClick}>
                   {t}
                 </Button>
