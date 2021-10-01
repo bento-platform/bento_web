@@ -1,69 +1,71 @@
 import React, { useEffect, useRef } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { individualPropTypesShape } from "../../propTypes";
-import { retrieveDrsUrlsForVcf } from "../../modules/drs/actions";
+import { getIgvUrlsFromDrs } from "../../modules/drs/actions";
 import igv from "igv";
 
 const IndividualTracks = ({ individual }) => {
     const igvRef = useRef(null);
     const igvRendered = useRef(false);
-    const drsUrls = useSelector((state) => state.drs.vcfUrlsByFilename);
-    const hasSetVcfUrls = useSelector((state) => state.drs.hasSetVcfUrls);
+    const igvUrls = useSelector((state) => state.drs.igvUrlsByFilename);
+    const isFetchingIgvUrls = useSelector((state) => state.drs.isFetchingIgvUrls);
     const dispatch = useDispatch();
 
     const biosamplesData = (individual?.phenopackets ?? []).flatMap((p) => p.biosamples);
     const experimentsData = biosamplesData.flatMap((b) => b?.experiments ?? []);
     const viewableResults = experimentsData.flatMap((e) => e?.experiment_results ?? []).filter(isViewable);
-    const allTracks = viewableResults.map((r) => r.filename);
+    const tracks = viewableResults.map((r) => r.filename);
     let igvTracks, igvOptions;
 
   // hardcode for hg19/GRCh37, fix requires updates elsewhere in Bento
     const genome = "hg19";
 
-  // track valid if it has urls
-    const trackValid = (t) => drsUrls.hasOwnProperty(t);
-
-    // temp, strip all but first vcf
-    const tracks = allTracks.slice(0,1);
+  // verify all tracks have a url (may have stale urls from previous request)
+    const hasUrlsForAllFiles = (filenames, urls) => filenames.every(f => urls.hasOwnProperty(f));
 
   // retrieve urls on mount
     useEffect(() => {
-    // temp: assume at most one vcf
-    // todo: change dispatch to handle array of tracks
-        if (tracks[0]) {
+        if (tracks.length) {
 
-            // don't search if urls already known
-            if (tracks.every(trackValid)){
-                return
+      // don't search if all urls already known
+            if (hasUrlsForAllFiles(tracks, igvUrls)) {
+                return;
             }
-            dispatch(retrieveDrsUrlsForVcf(tracks[0]));
+
+            dispatch(getIgvUrlsFromDrs(tracks));
         }
+
+
     }, []);
+
 
   // render igv when track urls ready
     useEffect(() => {
-        if (!hasSetVcfUrls) {
-            console.log("useEffect: vcfs not ready");
+
+        if (isFetchingIgvUrls) {
+            console.log("useEffect: still fetching");
             return;
         } else {
-            console.log("useEffect: vcfs ready");
+            console.log("useEffect: not fetching");
         }
 
-        if (!tracks.length || !tracks.every(trackValid) || igvRendered.current) {
-            console.log("vcf urls not ready");
-            console.log({ drsUrls: drsUrls });
-            console.log({ tracksValid: tracks.every(trackValid) });
-            console.log({igvRendered: igvRendered.current});
+        if (!tracks.length || !hasUrlsForAllFiles(tracks, igvUrls) || igvRendered.current) {
+            console.log("urls not ready");
+            console.log({ igvUrls: igvUrls });
+            console.log({ tracksValid: hasUrlsForAllFiles(tracks, igvUrls) });
+            console.log({ igvRendered: igvRendered.current });
             return;
         }
 
         console.log("rendering igv");
 
+    // TODO: tracks config for unindexed files
+
         igvTracks = tracks.map((t) => ({
             type: "variant",
             format: "vcf",
-            url: drsUrls[t].dataUrl,
-            indexURL: drsUrls[t].indexUrl,
+            url: igvUrls[t].dataUrl,
+            indexURL: igvUrls[t].indexUrl,
             name: t,
             squishedCallHeight: 10,
             expandedCallHeight: 50,
@@ -76,13 +78,11 @@ const IndividualTracks = ({ individual }) => {
             tracks: igvTracks,
         };
 
-        igv.createBrowser(igvRef.current, igvOptions).
-            then(function (browser) {
-                igv.browser = browser;
-                igvRendered.current = true;
-            });
-
-    }, [drsUrls]);
+        igv.createBrowser(igvRef.current, igvOptions).then(function (browser) {
+            igv.browser = browser;
+            igvRendered.current = true;
+        });
+    }, [igvUrls]);
 
     return <>{<div ref={igvRef} />}</>;
 };
