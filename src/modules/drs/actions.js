@@ -105,7 +105,7 @@ export const performDownloadFromDrsIfPossible = (filename) => async (dispatch, _
         return;
     }
 
-    dispatch(performDownloadFromDrs(accessUrl, filename));
+    dispatch(performDownloadFromDrs(accessUrl[filename], filename));
 };
 
 
