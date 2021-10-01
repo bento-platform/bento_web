@@ -11,25 +11,27 @@ export const RETRIEVE_DRS_VCF_URL = {
     SET: "RETRIEVE_DRS_VCF_URL.SET",
 };
 
-export const performDownloadFromDrsIfPossible = (filename) => async (dispatch, getState) => {
-    console.log("Initiating performIndividualsDownloadFromDrsIfPossible");
+export const RETRIEVE_URLS_FOR_IGV = {
+    BEGIN: "RETRIEVE_URLS_FOR_IGV.BEGIN",
+    END: "RETRIEVE_URLS_FOR_IGV.END",
+    ERROR: "RETRIEVE_URLS_FOR_IGV.ERROR",
+};
 
-    // determine drs search url
+const getDrsUrl = (filename) => async (dispatch, getState) => {
+    console.log("Initiating getDrsUrl");
+
     const fuzzySearchUrl = `${getState().services.itemsByArtifact.drs.url}/search?fuzzy_name=${filename}`;
-
-    // call drs to get the download link
-    // - fuzzy_name search for filename
     await dispatch(performFuzzyNameSearch(fuzzySearchUrl));
 
     console.log(`Completed fuzzy search for ${filename}`);
 
-    // determine drs download url
+    // determine drs url
     const fuzzySearchObj = getState().drs?.fuzzySearchResponse;
     if (fuzzySearchObj === undefined) {
         const msg = `Something went wrong when pinging ${fuzzySearchUrl} ; fuzzySearchResponse is undefined`;
         console.error(msg);
         message.error(msg);
-        return;
+        return null;
     }
 
     console.log(`Retrieved object for ${filename}`);
@@ -39,26 +41,23 @@ export const performDownloadFromDrsIfPossible = (filename) => async (dispatch, g
         const msg = "Something went wrong when obtaining objId ; objId is undefined";
         console.error(msg);
         message.error(msg);
-        return;
+        return null;
     }
     console.log(`Retrieved objectid ${objId} for ${filename}`);
 
-        // - obtain object Id for the object with the same name
-    const downloadUrl = `${getState().services.itemsByArtifact.drs.url}/objects/${objId}/download`;
-    console.log(`Dispatching download from ${downloadUrl}`);
-    dispatch(performDownloadFromDrs(downloadUrl, filename));
+    const accessUrl = `${getState().services.itemsByArtifact.drs.url}/objects/${objId}/download`;
+
+    console.log(`retrieved url: ${accessUrl}`);
+
+    return {[filename]: accessUrl};
 };
 
-// single network call for file and index links
-// handles vcfs only, can be parameterized for other file types
-// todo, conslidate with above, remove code repitition
-export const retrieveDrsUrlsForVcf = (filename) => async (dispatch, getState) => {
-    console.log("initiating retrieveDrsUrlsForVcf");
+// for igv-viewable files, get data and index file urls in a single network call
+const getDrsDataAndIndexUrls = (filename) => async (dispatch, getState) => {
+    console.log("Initiating getDrsDataAndIndexUrls");
 
-    const indexSuffix = ".tbi";
-    const indexFilename = filename + indexSuffix;
+    const indexFilename = indexFileName(filename);
     const fuzzySearchUrl = `${getState().services.itemsByArtifact.drs.url}/search?fuzzy_name=${filename}`;
-
     await dispatch(performFuzzyNameSearch(fuzzySearchUrl));
     console.log(`Completed fuzzy search for ${filename}`);
 
@@ -70,7 +69,7 @@ export const retrieveDrsUrlsForVcf = (filename) => async (dispatch, getState) =>
         return;
     }
 
-    const dataFileId = fuzzySearchObj.find(obj => obj.name === filename)?.id;
+    const dataFileId = fuzzySearchObj.find((obj) => obj.name === filename)?.id;
     if (dataFileId === undefined) {
         const msg = "Something went wrong when obtaining dataFile id";
         console.error(msg);
@@ -78,7 +77,7 @@ export const retrieveDrsUrlsForVcf = (filename) => async (dispatch, getState) =>
         return;
     }
 
-    const indexFileId = fuzzySearchObj.find(obj => obj.name === indexFilename)?.id;
+    const indexFileId = fuzzySearchObj.find((obj) => obj.name === indexFilename)?.id;
     if (indexFileId === undefined) {
         const msg = "Something went wrong when obtaining index file id";
         console.error(msg);
@@ -86,18 +85,51 @@ export const retrieveDrsUrlsForVcf = (filename) => async (dispatch, getState) =>
         return;
     }
 
-    // construct correct urls
+  // construct correct urls
     const dataUrl = `${getState().services.itemsByArtifact.drs.url}/objects/${dataFileId}/download`;
     const indexUrl = `${getState().services.itemsByArtifact.drs.url}/objects/${indexFileId}/download`;
-    const urls = {dataUrl: dataUrl, indexUrl: indexUrl};
+    const urls = { [filename]: { dataUrl: dataUrl, indexUrl: indexUrl } };
 
-    console.log(`retrieved vcf urls: ${JSON.stringify(urls)}`);
+    console.log(`retrieved urls: ${JSON.stringify(urls)}`);
 
-    await dispatch({
-        type: RETRIEVE_DRS_VCF_URL.SET,
-        filename: filename,
-        urls: urls,
-    });
+    return urls;
+};
+
+export const performDownloadFromDrsIfPossible = (filename) => async (dispatch, _getState) => {
+    console.log("Initiating new performIndividualsDownloadFromDrsIfPossible");
+
+    const accessUrl = await(dispatch(getDrsUrl(filename)));
+    if (accessUrl === null) {
+        console.log(`error retrieving url for file ${filename}`);
+    // todo: dispatch error
+        return;
+    }
+
+    dispatch(performDownloadFromDrs(accessUrl, filename));
+};
+
+
+export const getIgvUrlsFromDrs = (filenames) => async (dispatch, _getState) => {
+    console.log("initiating getIgvUrlsFromDrs");
+    const searchesToDispatch = filenames.map((f) =>
+        isIndexedFileType(f) ? dispatch(getDrsDataAndIndexUrls(f)) : dispatch(getDrsUrl(f))
+    );
+
+    dispatch(beginIgvUrlSearch());
+
+    await Promise.all(searchesToDispatch)
+        .then((urls) => {
+      // reduce array to object that's addressable by filename
+            const urlsObj = urls.reduce((obj, item) => Object.assign(obj, item), {});
+
+            console.log(`received drs urls for igv: ${urlsObj}`);
+
+            dispatch(setDrsUrlsForIgv(urlsObj));
+        })
+        .catch((err) => {
+            console.log(err);
+            dispatch(errorIgvUrlSearch());
+        });
 };
 
 const performFuzzyNameSearch = networkAction((fuzzySearchUrl) => () => ({
@@ -114,3 +146,54 @@ const performDownloadFromDrs = networkAction((downloadUrl, filename) => () => ({
     err: "Error performing download from DRS",
 }));
 
+const beginIgvUrlSearch = () => ({
+    type: RETRIEVE_URLS_FOR_IGV.BEGIN,
+});
+
+const setDrsUrlsForIgv = (urls) => ({
+    type: RETRIEVE_URLS_FOR_IGV.END,
+    urls: urls
+});
+
+const errorIgvUrlSearch = () => ({
+    type: RETRIEVE_URLS_FOR_IGV.ERROR,
+  // err: 'error retrieving DRS urls for IGV'
+});
+
+
+// filename convention helpers
+// TODO: make DRS associate data files and index files, so we don't need filename conventions
+
+const isIndexedFileType = (filename) => hasIndex(guessFileType(filename));
+const indexFileName = (filename) => filename + indexSuffix[guessFileType(filename)];
+
+// expand here for more filetypes
+const guessFileType = (filename) => {
+    if (filename.toLowerCase().endsWith(".vcf.gz")) {
+        return ("vcf");
+    }
+    if (filename.toLowerCase().endsWith(".cram")) {
+        return ("cram");
+    }
+    if (filename.toLowerCase().endsWith(".bw") || filename.toLowerCase().endsWith(".bigwig")) {
+        return "bigWig";
+    }
+    return null;
+};
+
+const indexSuffix = {
+    "vcf": ".tbi",
+    "cram": ".crai"
+};
+
+const hasIndex = (fileType) => {
+    switch (fileType) {
+        case "vcf":
+        case "cram":
+            return true;
+
+        default:
+            return false
+            ;
+    }
+};

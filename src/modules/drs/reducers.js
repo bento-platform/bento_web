@@ -1,14 +1,14 @@
 import FileSaver from "file-saver";
 
-import { PERFORM_SEARCH_BY_FUZZYNAME, PERFORM_OBJECT_DOWNLOAD, RETRIEVE_DRS_VCF_URL} from "./actions";
+import { PERFORM_SEARCH_BY_FUZZYNAME, PERFORM_OBJECT_DOWNLOAD, RETRIEVE_URLS_FOR_IGV} from "./actions";
 
 export const drs = (
     state = {
         isFuzzySearching: false,
         fuzzySearchResponse: {},
         isFetchingObjectForDownload: false,
-        vcfUrlsByFilename: {},
-        hasSetVcfUrls: false
+        igvUrlsByFilename: {},
+        isFetchingIgvUrls: false,
     },
     action
 ) => {
@@ -37,7 +37,7 @@ export const drs = (
             };
         case PERFORM_OBJECT_DOWNLOAD.RECEIVE:
             FileSaver.saveAs(action.data, action.downloadedFilename);
-      //new Blob([data], {type: "application/octet-stream"})
+            //new Blob([data], {type: "application/octet-stream"})
 
             return {
                 ...state,
@@ -49,14 +49,23 @@ export const drs = (
                 isFetchingObjectForDownload: false,
             };
 
-        case RETRIEVE_DRS_VCF_URL.SET:
+        case RETRIEVE_URLS_FOR_IGV.BEGIN:
             return {
                 ...state,
-                vcfUrlsByFilename: {
-                    ...state.vcfUrlsByFilename,
-                    [action.filename]: action.urls,
-                },
-                hasSetVcfUrls: true,
+                isFetchingIgvUrls: true,
+            };
+
+        case RETRIEVE_URLS_FOR_IGV.END:
+            return {
+                ...state,
+                isFetchingIgvUrls: false,
+                igvUrlsByFilename: action.urls,
+            };
+
+        case RETRIEVE_URLS_FOR_IGV.ERROR:
+            return {
+                ...state,
+                isFetchingIgvUrls: false,
             };
 
         default:
