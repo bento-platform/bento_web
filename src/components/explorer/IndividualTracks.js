@@ -13,7 +13,8 @@ const IndividualTracks = ({ individual }) => {
 
     const biosamplesData = (individual?.phenopackets ?? []).flatMap((p) => p.biosamples);
     const experimentsData = biosamplesData.flatMap((b) => b?.experiments ?? []);
-    const viewableResults = experimentsData.flatMap((e) => e?.experiment_results ?? []).filter(isViewable);
+    let viewableResults = experimentsData.flatMap((e) => e?.experiment_results ?? []).filter(isViewable);
+    viewableResults = viewableResults.map(v => {return {...v, viewInIgv: "true"}})
     const tracks = viewableResults.map((r) => r.filename);
     let igvTracks, igvOptions;
 
