@@ -185,7 +185,12 @@ IndividualTracks.propTypes = {
 
 // expand here to include more file types
 function isViewable(file) {
-    return file.file_format?.toLowerCase() === "vcf" || file.filename?.toLowerCase().includes(".vcf");
+    if (file.file_format?.toLowerCase() === "vcf" || guessFileType(file.filename) === "vcf") {
+        return true;
+    }
+  // if(file.file_format?.toLowerCase() === "cram" || guessFileType(file.filename) === 'cram'){
+  //   return true
+  // }
 }
 
 export default IndividualTracks;
