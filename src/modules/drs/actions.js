@@ -2,7 +2,7 @@ import {
     createNetworkActionTypes,
     networkAction,
 } from "../../utils/actions";
-
+import { guessFileType } from "../../utils/guessFileType";
 import {message} from "antd";
 
 export const PERFORM_SEARCH_BY_FUZZYNAME = createNetworkActionTypes("PERFORM_SEARCH_BY_FUZZYNAME");
@@ -109,10 +109,11 @@ export const performDownloadFromDrsIfPossible = (filename) => async (dispatch, _
 };
 
 
-export const getIgvUrlsFromDrs = (filenames) => async (dispatch, _getState) => {
+export const getIgvUrlsFromDrs = (fileObjects) => async (dispatch, _getState) => {
     console.log("initiating getIgvUrlsFromDrs");
-    const searchesToDispatch = filenames.map((f) =>
-        isIndexedFileType(f) ? dispatch(getDrsDataAndIndexUrls(f)) : dispatch(getDrsUrl(f))
+
+    const searchesToDispatch = fileObjects.map((f) =>
+        isIndexedFileType(f) ? dispatch(getDrsDataAndIndexUrls(f.filename)) : dispatch(getDrsUrl(f.filename))
     );
 
     dispatch(beginIgvUrlSearch());
@@ -161,25 +162,8 @@ const errorIgvUrlSearch = () => ({
 });
 
 
-// filename convention helpers
-// TODO: make DRS associate data files and index files, so we don't need filename conventions
-
-const isIndexedFileType = (filename) => hasIndex(guessFileType(filename));
+const isIndexedFileType = (fileObj) => hasIndex(fileObj.file_format ?? guessFileType(fileObj.filename));
 const indexFileName = (filename) => filename + indexSuffix[guessFileType(filename)];
-
-// expand here for more filetypes
-const guessFileType = (filename) => {
-    if (filename.toLowerCase().endsWith(".vcf.gz")) {
-        return ("vcf");
-    }
-    if (filename.toLowerCase().endsWith(".cram")) {
-        return ("cram");
-    }
-    if (filename.toLowerCase().endsWith(".bw") || filename.toLowerCase().endsWith(".bigwig")) {
-        return "bigWig";
-    }
-    return null;
-};
 
 const indexSuffix = {
     "vcf": ".tbi",
@@ -187,7 +171,7 @@ const indexSuffix = {
 };
 
 const hasIndex = (fileType) => {
-    switch (fileType) {
+    switch (fileType.toLowerCase()) {
         case "vcf":
         case "cram":
             return true;
