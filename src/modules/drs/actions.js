@@ -31,7 +31,7 @@ const getDrsUrl = (filename) => async (dispatch, getState) => {
         const msg = `Something went wrong when pinging ${fuzzySearchUrl} ; fuzzySearchResponse is undefined`;
         console.error(msg);
         message.error(msg);
-        return null;
+        return {[filename]: null};
     }
 
     console.log(`Retrieved object for ${filename}`);
@@ -41,7 +41,7 @@ const getDrsUrl = (filename) => async (dispatch, getState) => {
         const msg = "Something went wrong when obtaining objId ; objId is undefined";
         console.error(msg);
         message.error(msg);
-        return null;
+        return {[filename]: null};
     }
     console.log(`Retrieved objectid ${objId} for ${filename}`);
 
@@ -66,7 +66,7 @@ const getDrsDataAndIndexUrls = (filename) => async (dispatch, getState) => {
         const msg = `Something went wrong when pinging ${fuzzySearchUrl} ; fuzzySearchResponse is undefined`;
         console.error(msg);
         message.error(msg);
-        return;
+        return { [filename]: { dataUrl: null, indexUrl: null } };
     }
 
     const dataFileId = fuzzySearchObj.find((obj) => obj.name === filename)?.id;
@@ -74,19 +74,19 @@ const getDrsDataAndIndexUrls = (filename) => async (dispatch, getState) => {
         const msg = "Something went wrong when obtaining dataFile id";
         console.error(msg);
         message.error(msg);
-        return;
+        return { [filename]: { dataUrl: null, indexUrl: null } };
     }
+
+    const dataUrl = `${getState().services.itemsByArtifact.drs.url}/objects/${dataFileId}/download`;
 
     const indexFileId = fuzzySearchObj.find((obj) => obj.name === indexFilename)?.id;
     if (indexFileId === undefined) {
         const msg = "Something went wrong when obtaining index file id";
         console.error(msg);
         message.error(msg);
-        return;
+        return { [filename]: { dataUrl: dataUrl, indexUrl: null } };
     }
 
-  // construct correct urls
-    const dataUrl = `${getState().services.itemsByArtifact.drs.url}/objects/${dataFileId}/download`;
     const indexUrl = `${getState().services.itemsByArtifact.drs.url}/objects/${indexFileId}/download`;
     const urls = { [filename]: { dataUrl: dataUrl, indexUrl: indexUrl } };
 
