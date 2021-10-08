@@ -76,24 +76,24 @@ const IndividualTracks = ({ individual }) => {
         }
     };
 
-  // hardcode for hg19/GRCh37, fix requires updates elsewhere in Bento
+    // hardcode for hg19/GRCh37, fix requires updates elsewhere in Bento
     const genome = "hg19";
 
-  // verify all tracks have a url (may have stale urls from previous request)
-    const hasUrlsForAllFiles = (files, urls) => files.every((f) => urls.hasOwnProperty(f.filename));
+    // verify url set is for this individual (may have stale urls from previous request)
+    const hasFreshUrls = (files, urls) => files.every((f) => urls.hasOwnProperty(f.filename));
 
-  // retrieve urls on mount
+    // retrieve urls on mount
     useEffect(() => {
         if (allTracks.length) {
       // don't search if all urls already known
-            if (hasUrlsForAllFiles(allTracks, igvUrls)) {
+            if (hasFreshUrls(allTracks, igvUrls)) {
                 return;
             }
             dispatch(getIgvUrlsFromDrs(allTracks));
         }
     }, []);
 
-  // render igv when track urls ready
+    // render igv when track urls ready
     useEffect(() => {
         if (isFetchingIgvUrls) {
             console.log("useEffect: still fetching");
@@ -102,19 +102,21 @@ const IndividualTracks = ({ individual }) => {
             console.log("useEffect: not fetching");
         }
 
-        if (!allTracks.length || !hasUrlsForAllFiles(allTracks, igvUrls) || igvRendered.current) {
+        if (!allTracks.length || !hasFreshUrls(allTracks, igvUrls) || igvRendered.current) {
             console.log("urls not ready");
             console.log({ igvUrls: igvUrls });
-            console.log({ tracksValid: hasUrlsForAllFiles(allTracks, igvUrls) });
+            console.log({ tracksValid: hasFreshUrls(allTracks, igvUrls) });
             console.log({ igvRendered: igvRendered.current });
             return;
         }
 
         console.log("rendering igv");
 
-    // TODO: tracks config for unindexed files
+        // TODO: tracks config for unindexed files
 
-        const currentTracks = allTracks.filter(t => t.viewInIgv);
+        const currentTracks = allTracks.filter(
+            (t) => t.viewInIgv && igvUrls[t.filename].dataUrl && igvUrls[t.filename].indexUrl
+        );
         const igvTracks = currentTracks.map((t) => ({
             format: t.file_format,
             url: igvUrls[t.filename].dataUrl,
@@ -154,7 +156,7 @@ const IndividualTracks = ({ individual }) => {
             align: "center",
             render: (_, track) => (
         <Button onClick={() => toggleView(track)} style={{ color: track.viewInIgv ? "blue" : "gray" }}>
-          {track.viewInIgv ? "view" : "hide"}
+          {track.viewInIgv ? "viewing" : "hidden"}
         </Button>
             ),
         },
