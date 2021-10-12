@@ -1,7 +1,7 @@
 import React, { useEffect, useRef, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { individualPropTypesShape } from "../../propTypes";
-import { Button, Divider, Table } from "antd";
+import { Button, Divider, Modal, Table } from "antd";
 import { getIgvUrlsFromDrs } from "../../modules/drs/actions";
 import { guessFileType } from "../../utils/guessFileType";
 import igv from "igv";
@@ -10,11 +10,6 @@ const SQUISHED_CALL_HEIGHT = 10;
 const EXPANDED_CALL_HEIGHT = 50;
 const DISPLAY_MODE = "expanded";
 const VISIBILITY_WINDOW = 60000000;
-
-// TODO
-
-// "cofigure tracks" popup or modal, or some sort of menu
-// has "boolean button" issue
 
 // IGV notes:
 
@@ -54,6 +49,8 @@ const IndividualTracks = ({ individual }) => {
     const [allTracks, setAllTracks] = useState(
         viewableResults.sort((r1, r2) => (r1.file_format > r2.file_format ? 1 : -1))
     );
+    
+    const [modalVisible, setModalVisible] = useState(false);
 
     const toggleView = (track) => {
         const wasViewing = track.viewInIgv;
@@ -162,11 +159,8 @@ const IndividualTracks = ({ individual }) => {
         },
     ];
 
-    return (
-        <>
-      <div ref={igvRef} />
-      <Divider />
-      <Table
+    const TrackControlModal = () => {
+        return <Table
         bordered
         size="small"
         pagination={false}
@@ -174,7 +168,23 @@ const IndividualTracks = ({ individual }) => {
         rowKey="filename"
         dataSource={allTracks}
         style={{ display: "inline-block" }}
-      />
+      />;
+    };
+
+    return (
+        <>
+        <Button
+          icon="profile"
+          style={{ marginRight: "8px" }}
+          onClick={() => setModalVisible(true)}
+        >
+          Configure Tracks
+        </Button>
+        <div ref={igvRef} />
+        <Divider />
+        <Modal visible={modalVisible} footer={null} onCancel={() => setModalVisible(false)}>
+          <TrackControlModal />
+        </Modal>
         </>
     );
 };
