@@ -1,7 +1,7 @@
 import React, { useEffect, useRef, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { individualPropTypesShape } from "../../propTypes";
-import { Button, Divider, Modal, Table } from "antd";
+import { Button, Divider, Modal, Switch, Table } from "antd";
 import { getIgvUrlsFromDrs } from "../../modules/drs/actions";
 import { guessFileType } from "../../utils/guessFileType";
 import igv from "igv";
@@ -49,7 +49,7 @@ const IndividualTracks = ({ individual }) => {
     const [allTracks, setAllTracks] = useState(
         viewableResults.sort((r1, r2) => (r1.file_format > r2.file_format ? 1 : -1))
     );
-    
+
     const [modalVisible, setModalVisible] = useState(false);
 
     const toggleView = (track) => {
@@ -148,14 +148,10 @@ const IndividualTracks = ({ individual }) => {
             render: (_, track) => track.description,
         },
         {
-            title: "View",
+            title: "View track",
             key: "view",
             align: "center",
-            render: (_, track) => (
-        <Button onClick={() => toggleView(track)} style={{ color: track.viewInIgv ? "blue" : "gray" }}>
-          {track.viewInIgv ? "viewing" : "hidden"}
-        </Button>
-            ),
+            render: (_, track) => <Switch checked={track.viewInIgv} onChange={() => toggleView(track)} />,
         },
     ];
 
@@ -174,7 +170,7 @@ const IndividualTracks = ({ individual }) => {
     return (
         <>
         <Button
-          icon="profile"
+          icon="setting"
           style={{ marginRight: "8px" }}
           onClick={() => setModalVisible(true)}
         >
@@ -182,7 +178,7 @@ const IndividualTracks = ({ individual }) => {
         </Button>
         <div ref={igvRef} />
         <Divider />
-        <Modal visible={modalVisible} footer={null} onCancel={() => setModalVisible(false)}>
+        <Modal visible={modalVisible} onOk={() => setModalVisible(false)} onCancel={() => setModalVisible(false)}>
           <TrackControlModal />
         </Modal>
         </>
