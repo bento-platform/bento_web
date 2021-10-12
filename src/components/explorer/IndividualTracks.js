@@ -164,13 +164,13 @@ const IndividualTracks = ({ individual }) => {
 
     return (
         <>
-        <Button
+        {!!allTracks.length && <Button
           icon="setting"
           style={{ marginRight: "8px" }}
           onClick={() => setModalVisible(true)}
         >
           Configure Tracks
-        </Button>
+        </Button>}
         <div ref={igvRef} />
         <Divider />
         <Modal visible={modalVisible} onOk={() => setModalVisible(false)} onCancel={() => setModalVisible(false)}>
