@@ -36,14 +36,9 @@ const IndividualTracks = ({ individual }) => {
     const experimentsData = biosamplesData.flatMap((b) => b?.experiments ?? []);
     let viewableResults = experimentsData.flatMap((e) => e?.experiment_results ?? []).filter(isViewable);
 
-  // add property for viewing / hiding tracks
+    // add properties for visibility and file type
     viewableResults = viewableResults.map((v) => {
-        return { ...v, viewInIgv: "true" };
-    });
-
-  // enforce having a file_format property
-    viewableResults = viewableResults.map((v) => {
-        return { ...v, file_format: v.file_format ?? guessFileType(v.filename) };
+        return { ...v, viewInIgv: "true", file_format: v.file_format ?? guessFileType(v.filename) };
     });
 
     const [allTracks, setAllTracks] = useState(
@@ -51,6 +46,12 @@ const IndividualTracks = ({ individual }) => {
     );
 
     const [modalVisible, setModalVisible] = useState(false);
+
+    // hardcode for hg19/GRCh37, fix requires updates elsewhere in Bento
+    const genome = "hg19";
+
+    // verify url set is for this individual (may have stale urls from previous request)
+    const hasFreshUrls = (files, urls) => files.every((f) => urls.hasOwnProperty(f.filename));
 
     const toggleView = (track) => {
         const wasViewing = track.viewInIgv;
@@ -72,12 +73,6 @@ const IndividualTracks = ({ individual }) => {
             });
         }
     };
-
-    // hardcode for hg19/GRCh37, fix requires updates elsewhere in Bento
-    const genome = "hg19";
-
-    // verify url set is for this individual (may have stale urls from previous request)
-    const hasFreshUrls = (files, urls) => files.every((f) => urls.hasOwnProperty(f.filename));
 
     // retrieve urls on mount
     useEffect(() => {
@@ -155,7 +150,7 @@ const IndividualTracks = ({ individual }) => {
         },
     ];
 
-    const TrackControlModal = () => {
+    const TrackControlTable = () => {
         return <Table
         bordered
         size="small"
@@ -179,7 +174,7 @@ const IndividualTracks = ({ individual }) => {
         <div ref={igvRef} />
         <Divider />
         <Modal visible={modalVisible} onOk={() => setModalVisible(false)} onCancel={() => setModalVisible(false)}>
-          <TrackControlModal />
+          <TrackControlTable />
         </Modal>
         </>
     );
