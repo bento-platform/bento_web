@@ -16,6 +16,11 @@
   margin-bottom: 25px;
 }
 
+.experiment_and_results .ant-divider{
+  margin-top: 50px;
+  margin-bottom: 50px;
+}
+
 .biosamples-descriptions {
   display: inline-block;
 }
@@ -89,9 +94,9 @@
   box-shadow: 0 0 0 1px #e8e8e8;
 }
 
-div.ant-descriptions-view > table {
+/* div.ant-descriptions-view > table {
   border-spacing:
-}
+} */
 
 .experiment_summary {
   display: flex;

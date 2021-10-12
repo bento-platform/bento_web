@@ -1,5 +1,5 @@
 import React, { Component } from "react";
-import { Button, Descriptions, Icon, Popover, Table, Typography } from "antd";
+import { Button, Descriptions, Divider, Icon, Popover, Table, Typography } from "antd";
 import { BENTO_BLUE, EM_DASH } from "../../constants";
 import { individualPropTypesShape } from "../../propTypes";
 import { performDownloadFromDrsIfPossible } from "../../modules/drs/actions";
@@ -94,7 +94,7 @@ class IndividualExperiments extends Component {
 
         return (
             <>
-        {experimentsData.map((e) => (
+        {experimentsData.map((e, i) => (
           <div className="experiment_and_results" key={e.id}>
             <div className="experiment-titles">
             <Typography.Text
@@ -195,6 +195,7 @@ class IndividualExperiments extends Component {
               rowKey="filename"
               dataSource={e.experiment_results.sort((r1, r2) => (r1.file_format > r2.file_format ) ? 1 : -1)}
             />
+            {i !== (experimentsData.length -1) && <Divider/>}
           </div>
         ))}
             </>

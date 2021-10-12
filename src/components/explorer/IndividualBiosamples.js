@@ -1,5 +1,5 @@
 import React, { Component } from "react";
-import { Button, Descriptions } from "antd";
+import { Button, Descriptions, Divider } from "antd";
 import { EM_DASH } from "../../constants";
 import { renderOntologyTerm } from "./ontologies";
 import { individualPropTypesShape } from "../../propTypes";
@@ -27,7 +27,8 @@ class IndividualBiosamples extends Component {
 
         return (
       <div className="biosamples-descriptions" style={{ display: "inline-block" }}>
-        {biosamplesData.map((b) => (
+        {biosamplesData.map((b, i) => (
+          <>
           <Descriptions
             title={`Biosample ${b.id}`}
             layout="horizontal"
@@ -73,6 +74,8 @@ class IndividualBiosamples extends Component {
               ))}
             </Descriptions.Item>
           </Descriptions>
+          {i !== (biosamplesData.length -1) && <Divider/>}
+          </>
         ))}
       </div>
         );
