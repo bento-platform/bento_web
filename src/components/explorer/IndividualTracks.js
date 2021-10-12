@@ -173,7 +173,7 @@ const IndividualTracks = ({ individual }) => {
         </Button>}
         <div ref={igvRef} />
         <Divider />
-        <Modal visible={modalVisible} onOk={() => setModalVisible(false)} onCancel={() => setModalVisible(false)}>
+        <Modal visible={modalVisible} onOk={() => setModalVisible(false)} onCancel={() => setModalVisible(false)} zIndex={5000}>
           <TrackControlTable />
         </Modal>
         </>
