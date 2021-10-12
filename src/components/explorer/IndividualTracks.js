@@ -139,7 +139,7 @@ const IndividualTracks = ({ individual }) => {
         },
         {
             title: "File type",
-            key: "creation_date",
+            key: "fileType",
             render: (_, track) => track.description,
         },
         {
