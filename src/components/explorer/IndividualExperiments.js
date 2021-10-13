@@ -14,6 +14,15 @@ class IndividualExperiments extends Component {
         this.state = {};
     }
 
+    // React Router can't handle hashlinks so force scroll if there is one
+    componentDidMount() {
+      const selected = this.props.history.location.hash
+      if(selected && selected.length > 0) {
+        const elem = document.querySelector(selected)
+        elem && elem.scrollIntoView()
+    }    
+  }
+
     render() {
         const biosamplesData = (this.props.individual?.phenopackets ?? []).flatMap((p) => p.biosamples);
         const experimentsData = biosamplesData.flatMap((b) => b?.experiments ?? []);
@@ -95,7 +104,7 @@ class IndividualExperiments extends Component {
         return (
             <>
         {experimentsData.map((e, i) => (
-          <div className="experiment_and_results" key={e.id}>
+          <div className="experiment_and_results" id={e.biosample} key={e.id}>
             <div className="experiment-titles">
             <Typography.Text
               style={titleStyle}

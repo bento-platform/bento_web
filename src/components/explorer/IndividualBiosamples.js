@@ -18,8 +18,9 @@ class IndividualBiosamples extends Component {
         this.state = {};
     }
 
-    handleClick = () => {
-        this.props.history.push(this.props.experimentsUrl);
+    handleClick = (b) => {
+        const hashLink = this.props.experimentsUrl + "#" + b.id
+        this.props.history.push(hashLink);
     }
 
     render() {
@@ -68,7 +69,7 @@ class IndividualBiosamples extends Component {
             </Descriptions.Item>
             <Descriptions.Item label="Available Experiments">
               {(b.experiments ?? []).flatMap((b) => b?.experiment_type ?? []).map((t, i) => (
-                <Button key={i} onClick={this.handleClick}>
+                <Button key={i} onClick={() => this.handleClick(b)}>
                   {t}
                 </Button>
               ))}
