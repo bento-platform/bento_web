@@ -214,7 +214,7 @@ class IndividualExperiments extends Component {
 
 // expand here accordingly
 function isDownloadable(result) {
-    return result.file_format.toLowerCase() === "vcf" || result.filename.toLowerCase().includes(".vcf");
+    return result.file_format?.toLowerCase() === "vcf" || result.filename.toLowerCase().includes(".vcf");
 }
 
 IndividualExperiments.propTypes = {
