@@ -41,7 +41,7 @@ const IndividualTracks = ({ individual }) => {
 
     // add properties for visibility and file type
     viewableResults = viewableResults.map((v) => {
-        return { ...v, viewInIgv: "true", file_format: v.file_format ?? guessFileType(v.filename) };
+        return { ...v, viewInIgv: true, file_format: v.file_format ?? guessFileType(v.filename) };
     });
 
     const [allTracks, setAllTracks] = useState(
