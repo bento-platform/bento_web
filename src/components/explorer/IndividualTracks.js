@@ -167,7 +167,7 @@ const IndividualTracks = ({ individual }) => {
 
     return (
         <>
-        {!!allTracks.length && (
+        {Boolean(allTracks.length) && (
           <Button icon="setting" style={{ marginRight: "8px" }} onClick={() => setModalVisible(true)}>
             Configure Tracks
           </Button>
