@@ -11,6 +11,9 @@ const EXPANDED_CALL_HEIGHT = 50;
 const DISPLAY_MODE = "expanded";
 const VISIBILITY_WINDOW = 60000000;
 
+// highest z-index in IGV is 4096, modal z-index needs to be higher
+const MODAL_Z_INDEX = 5000;
+
 // IGV notes:
 
 // minimal documentation here: https://github.com/igvteam/igv.js/wiki/Tracks-2.0
@@ -173,7 +176,7 @@ const IndividualTracks = ({ individual }) => {
         </Button>}
         <div ref={igvRef} />
         <Divider />
-        <Modal visible={modalVisible} onOk={() => setModalVisible(false)} onCancel={() => setModalVisible(false)} zIndex={5000}>
+        <Modal visible={modalVisible} onOk={() => setModalVisible(false)} onCancel={() => setModalVisible(false)} zIndex={MODAL_Z_INDEX}>
           <TrackControlTable />
         </Modal>
         </>
