@@ -167,16 +167,19 @@ const IndividualTracks = ({ individual }) => {
 
     return (
         <>
-        {!!allTracks.length && <Button
-          icon="setting"
-          style={{ marginRight: "8px" }}
-          onClick={() => setModalVisible(true)}
-        >
-          Configure Tracks
-        </Button>}
+        {!!allTracks.length && (
+          <Button icon="setting" style={{ marginRight: "8px" }} onClick={() => setModalVisible(true)}>
+            Configure Tracks
+          </Button>
+        )}
         <div ref={igvRef} />
         <Divider />
-        <Modal visible={modalVisible} onOk={() => setModalVisible(false)} onCancel={() => setModalVisible(false)} zIndex={MODAL_Z_INDEX}>
+        <Modal
+          visible={modalVisible}
+          onOk={() => setModalVisible(false)}
+          onCancel={() => setModalVisible(false)}
+          zIndex={MODAL_Z_INDEX}
+        >
           <TrackControlTable />
         </Modal>
         </>

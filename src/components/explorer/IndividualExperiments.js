@@ -16,12 +16,12 @@ class IndividualExperiments extends Component {
 
     // React Router can't handle hashlinks so force scroll if there is one
     componentDidMount() {
-      const selected = this.props.history.location.hash
-      if(selected && selected.length > 0) {
-        const elem = document.querySelector(selected)
-        elem && elem.scrollIntoView()
-    }    
-  }
+        const selected = this.props.history.location.hash;
+        if (selected && selected.length > 0) {
+            const elem = document.querySelector(selected);
+            elem && elem.scrollIntoView();
+        }
+    }
 
     render() {
         const biosamplesData = (this.props.individual?.phenopackets ?? []).flatMap((p) => p.biosamples);
@@ -204,7 +204,7 @@ class IndividualExperiments extends Component {
               rowKey="filename"
               dataSource={e.experiment_results.sort((r1, r2) => (r1.file_format > r2.file_format ) ? 1 : -1)}
             />
-            {i !== (experimentsData.length -1) && <Divider/>}
+            {i !== (experimentsData.length - 1) && <Divider/>}
           </div>
         ))}
             </>

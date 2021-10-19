@@ -19,7 +19,7 @@ class IndividualBiosamples extends Component {
     }
 
     handleClick = (b) => {
-        const hashLink = this.props.experimentsUrl + "#" + b.id
+        const hashLink = this.props.experimentsUrl + "#" + b.id;
         this.props.history.push(hashLink);
     }
 
@@ -29,7 +29,7 @@ class IndividualBiosamples extends Component {
         return (
       <div className="biosamples-descriptions" style={{ display: "inline-block" }}>
         {biosamplesData.map((b, i) => (
-          <>
+            <>
           <Descriptions
             title={`Biosample ${b.id}`}
             layout="horizontal"
@@ -75,8 +75,8 @@ class IndividualBiosamples extends Component {
               ))}
             </Descriptions.Item>
           </Descriptions>
-          {i !== (biosamplesData.length -1) && <Divider/>}
-          </>
+          {i !== (biosamplesData.length - 1) && <Divider/>}
+            </>
         ))}
       </div>
         );
