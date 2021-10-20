@@ -26,13 +26,13 @@ export const RETRIEVE_URLS_FOR_DOWNLOAD = {
 const getDrsUrl = (filename) => async (dispatch, getState) => {
     console.log("Initiating getDrsUrl");
 
-    const fuzzySearchUrl = `${getState().services.itemsByArtifact.drs.url}/search?fuzzy_name=${filename}`;
+    const fuzzySearchUrl = `${getState()?.services?.itemsByArtifact?.drs?.url}/search?fuzzy_name=${filename}`;
     await dispatch(performFuzzyNameSearch(fuzzySearchUrl));
 
     console.log(`Completed fuzzy search for ${filename}`);
 
     // determine drs url
-    const fuzzySearchObj = getState().drs?.fuzzySearchResponse;
+    const fuzzySearchObj = getState()?.drs?.fuzzySearchResponse;
     if (fuzzySearchObj === undefined) {
         const msg = `Something went wrong when pinging ${fuzzySearchUrl} ; fuzzySearchResponse is undefined`;
         console.error(msg);
@@ -60,11 +60,11 @@ const getDrsDataAndIndexUrls = (filename) => async (dispatch, getState) => {
     console.log("Initiating getDrsDataAndIndexUrls");
 
     const indexFilename = indexFileName(filename);
-    const fuzzySearchUrl = `${getState().services.itemsByArtifact.drs.url}/search?fuzzy_name=${filename}`;
+    const fuzzySearchUrl = `${getState()?.services?.itemsByArtifact?.drs?.url}/search?fuzzy_name=${filename}`;
     await dispatch(performFuzzyNameSearch(fuzzySearchUrl));
     console.log(`Completed fuzzy search for ${filename}`);
 
-    const fuzzySearchObj = getState().drs?.fuzzySearchResponse;
+    const fuzzySearchObj = getState()?.drs?.fuzzySearchResponse;
     if (fuzzySearchObj === undefined) {
         const msg = `Something went wrong when pinging ${fuzzySearchUrl} ; fuzzySearchResponse is undefined`;
         console.error(msg);
@@ -79,7 +79,7 @@ const getDrsDataAndIndexUrls = (filename) => async (dispatch, getState) => {
         return { [filename]: { dataUrl: null, indexUrl: null } };
     }
 
-    const dataUrl = `${getState().services.itemsByArtifact.drs.url}/objects/${dataFileId}/download`;
+    const dataUrl = `${getState()?.services?.itemsByArtifact?.drs?.url}/objects/${dataFileId}/download`;
 
     const indexFileId = fuzzySearchObj.find((obj) => obj.name === indexFilename)?.id;
     if (indexFileId === undefined) {
@@ -88,7 +88,7 @@ const getDrsDataAndIndexUrls = (filename) => async (dispatch, getState) => {
         return { [filename]: { dataUrl: dataUrl, indexUrl: null } };
     }
 
-    const indexUrl = `${getState().services.itemsByArtifact.drs.url}/objects/${indexFileId}/download`;
+    const indexUrl = `${getState()?.services?.itemsByArtifact?.drs?.url}/objects/${indexFileId}/download`;
     const urls = { [filename]: { dataUrl: dataUrl, indexUrl: indexUrl } };
 
     console.log(`retrieved urls: ${JSON.stringify(urls)}`);
