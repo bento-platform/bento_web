@@ -47,9 +47,9 @@ const IndividualTracks = ({ individual }) => {
     const [allTracks, setAllTracks] = useState(
         viewableResults.sort((r1, r2) => (r1.file_format > r2.file_format ? 1 : -1))
     );
-    
+
     const allFoundFiles = allTracks.filter(
-      (t) => (igvUrls[t.filename]?.dataUrl && igvUrls[t.filename]?.indexUrl) || igvUrls[t.filename]?.url)
+        (t) => (igvUrls[t.filename]?.dataUrl && igvUrls[t.filename]?.indexUrl) || igvUrls[t.filename]?.url);
 
     const [modalVisible, setModalVisible] = useState(false);
 
