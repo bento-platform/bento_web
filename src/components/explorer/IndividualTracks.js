@@ -154,20 +154,22 @@ const IndividualTracks = ({ individual }) => {
     ];
 
     const TrackControlTable = () => {
+        const allFoundFiles = allTracks.filter(t => igvUrls[t.filename].dataUrl && igvUrls[t.filename].indexUrl || igvUrls[t.filename].url)
+
         return <Table
         bordered
         size="small"
         pagination={false}
         columns={TRACK_TABLE_COLUMNS}
         rowKey="filename"
-        dataSource={allTracks}
+        dataSource={allFoundFiles}
         style={{ display: "inline-block" }}
       />;
     };
 
     return (
         <>
-        {Boolean(allTracks.length) && (
+        {Boolean(Object.keys(igvUrls).length) && (
           <Button icon="setting" style={{ marginRight: "8px" }} onClick={() => setModalVisible(true)}>
             Configure Tracks
           </Button>
