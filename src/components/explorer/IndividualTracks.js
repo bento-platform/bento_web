@@ -154,7 +154,9 @@ const IndividualTracks = ({ individual }) => {
     ];
 
     const TrackControlTable = () => {
-        const allFoundFiles = allTracks.filter(t => igvUrls[t.filename].dataUrl && igvUrls[t.filename].indexUrl || igvUrls[t.filename].url)
+        const allFoundFiles = allTracks.filter(
+            (t) => (igvUrls[t.filename].dataUrl && igvUrls[t.filename].indexUrl) || igvUrls[t.filename].url
+        );
 
         return <Table
         bordered
