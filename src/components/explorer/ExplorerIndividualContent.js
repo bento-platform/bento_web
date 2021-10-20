@@ -17,10 +17,12 @@ import SitePageHeader from "../SitePageHeader";
 import IndividualOverview from "./IndividualOverview";
 import IndividualPhenotypicFeatures from "./IndividualPhenotypicFeatures";
 import IndividualBiosamples from "./IndividualBiosamples";
+import IndividualExperiments from "./IndividualExperiments";
 import IndividualDiseases from "./IndividualDiseases";
 import IndividualMetadata from "./IndividualMetadata";
 import IndividualVariants from "./IndividualVariants";
 import IndividualGenes from "./IndividualGenes";
+import IndividualTracks from "./IndividualTracks";
 
 const withURLPrefix = (individual, page) => withBasePath(`data/explorer/individuals/${individual}/${page}`);
 
@@ -73,14 +75,18 @@ class ExplorerIndividualContent extends Component {
         const overviewUrl = withURLPrefix(individualID, "overview");
         const pfeaturesUrl = withURLPrefix(individualID, "phenotypicfeatures");
         const biosamplesUrl = withURLPrefix(individualID, "biosamples");
+        const experimentsUrl = withURLPrefix(individualID, "experiments");
         const variantsUrl = withURLPrefix(individualID, "variants");
         const genesUrl = withURLPrefix(individualID, "genes");
         const diseasesUrl = withURLPrefix(individualID, "diseases");
         const metadataUrl = withURLPrefix(individualID, "metadata");
+        const tracksUrl = withURLPrefix(individualID, "tracks");
         const individualMenu = [
             {url: overviewUrl, style: {marginLeft: "4px"}, text: "Overview",},
             {url: pfeaturesUrl, text: "Phenotypic Features",},
-            {url: biosamplesUrl, text: "Biosamples & Experiments",},
+            {url: biosamplesUrl, text: "Biosamples",},
+            {url: experimentsUrl, text: "Experiments",},
+            {url: tracksUrl, text: "Tracks",},
             {url: variantsUrl, text: "Variants",},
             {url: genesUrl, text: "Genes",},
             {url: diseasesUrl, text: "Diseases",},
@@ -111,7 +117,13 @@ class ExplorerIndividualContent extends Component {
                             <IndividualPhenotypicFeatures individual={individual} />
                         </Route>
                         <Route path={biosamplesUrl.replace(":", "\\:")}>
-                            <IndividualBiosamples individual={individual} />
+                            <IndividualBiosamples individual={individual} experimentsUrl={experimentsUrl} />
+                        </Route>
+                        <Route path={experimentsUrl.replace(":", "\\:")}>
+                            <IndividualExperiments individual={individual} />
+                        </Route>
+                        <Route path={tracksUrl.replace(":", "\\:")}>
+                            <IndividualTracks individual={individual} />
                         </Route>
                         <Route path={variantsUrl.replace(":", "\\:")}>
                             <IndividualVariants individual={individual} />

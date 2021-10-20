@@ -1,17 +1,13 @@
-import FileSaver from "file-saver";
-
-import {
-    PERFORM_SEARCH_BY_FUZZYNAME,
-    PERFORM_OBJECT_DOWNLOAD,
-} from "./actions";
-
-
+import { PERFORM_SEARCH_BY_FUZZYNAME, RETRIEVE_URLS_FOR_IGV, RETRIEVE_URLS_FOR_DOWNLOAD} from "./actions";
 
 export const drs = (
     state = {
         isFuzzySearching: false,
         fuzzySearchResponse: {},
-        isFetchingObjectForDownload: false
+        igvUrlsByFilename: {},
+        isFetchingIgvUrls: false,
+        downloadUrlsByFilename: {},
+        isFetchingDownloadUrls: false,
     },
     action
 ) => {
@@ -19,38 +15,56 @@ export const drs = (
         case PERFORM_SEARCH_BY_FUZZYNAME.REQUEST:
             return {
                 ...state,
-                isFuzzySearching: true
+                isFuzzySearching: true,
             };
         case PERFORM_SEARCH_BY_FUZZYNAME.RECEIVE:
             return {
                 ...state,
                 isFuzzySearching: false,
-                fuzzySearchResponse: action.data
+                fuzzySearchResponse: action.data,
             };
         case PERFORM_SEARCH_BY_FUZZYNAME.FINISH:
             return {
                 ...state,
-                isFuzzySearching: false
+                isFuzzySearching: false,
             };
 
-
-        case PERFORM_OBJECT_DOWNLOAD.REQUEST:
+        case RETRIEVE_URLS_FOR_IGV.BEGIN:
             return {
                 ...state,
-                isFetchingObjectForDownload: true
+                isFetchingIgvUrls: true,
             };
-        case PERFORM_OBJECT_DOWNLOAD.RECEIVE:
-            FileSaver.saveAs(action.data, action.downloadedFilename);
-            //new Blob([data], {type: "application/octet-stream"})
 
+        case RETRIEVE_URLS_FOR_IGV.END:
             return {
                 ...state,
-                isFetchingObjectForDownload: false,
+                isFetchingIgvUrls: false,
+                igvUrlsByFilename: action.urls,
             };
-        case PERFORM_OBJECT_DOWNLOAD.FINISH:
+
+        case RETRIEVE_URLS_FOR_IGV.ERROR:
             return {
                 ...state,
-                isFetchingObjectForDownload: false,
+                isFetchingIgvUrls: false,
+            };
+
+        case RETRIEVE_URLS_FOR_DOWNLOAD.BEGIN:
+            return {
+                ...state,
+                isFetchingDownloadUrls: true,
+            };
+
+        case RETRIEVE_URLS_FOR_DOWNLOAD.END:
+            return {
+                ...state,
+                isFetchingDownloadUrls: false,
+                downloadUrlsByFilename: action.urls,
+            };
+
+        case RETRIEVE_URLS_FOR_DOWNLOAD.ERROR:
+            return {
+                ...state,
+                isFetchingDownloadUrls: false,
             };
 
         default:

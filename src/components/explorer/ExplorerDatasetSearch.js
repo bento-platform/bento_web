@@ -127,7 +127,8 @@ class ExplorerDatasetSearch extends Component {
                     <div style={{float: "right", verticalAlign: "top"}}>
                         <Button icon="profile"
                                 style={{marginRight: "8px"}}
-                                onClick={() => this.setState({tracksModalVisible: true})}>
+                                onClick={() => this.setState({tracksModalVisible: true})}
+                                disabled={true}>
                             Visualize Tracks</Button>
                         <Button icon="bar-chart"
                                 style={{marginRight: "8px"}}
