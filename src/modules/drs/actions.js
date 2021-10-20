@@ -107,8 +107,10 @@ export const getIgvUrlsFromDrs = (fileObjects) => async (dispatch, _getState) =>
 
     await Promise.all(searchesToDispatch)
         .then((urls) => {
+            const nonNullUrls = urls.filter(u => Object.values(u).every(k => k.url || k.dataUrl && k.indexUrl))
+
             // reduce array to object that's addressable by filename
-            const urlsObj = urls.reduce((obj, item) => Object.assign(obj, item), {});
+            const urlsObj = nonNullUrls.reduce((obj, item) => Object.assign(obj, item), {});
 
             console.log(`received drs urls for igv: ${urlsObj}`);
 
