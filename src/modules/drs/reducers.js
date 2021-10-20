@@ -65,7 +65,7 @@ export const drs = (
             return {
                 ...state,
                 isFetchingDownloadUrls: false,
-            }
+            };
 
         default:
             return state;

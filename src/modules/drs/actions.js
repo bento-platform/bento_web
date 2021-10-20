@@ -41,7 +41,7 @@ const getDrsUrl = (filename) => async (dispatch, getState) => {
     }
 
     console.log(`Retrieved object for ${filename}`);
-    console.log({fuzzySearchObj: fuzzySearchObj})
+    console.log({fuzzySearchObj: fuzzySearchObj});
 
     const objId = fuzzySearchObj.find(obj => obj.name === filename)?.id;
     if (objId === undefined) {
@@ -123,8 +123,8 @@ export const getIgvUrlsFromDrs = (fileObjects) => async (dispatch, _getState) =>
 export const getFileDownloadUrlsFromDrs = (fileObjects) => async (dispatch, _getState) => {
     console.log("initiating getFileDownloadUrlsFromDrs");
 
-    const searchesToDispatch = fileObjects.map((f) => dispatch(getDrsUrl(f.filename)))
-    
+    const searchesToDispatch = fileObjects.map((f) => dispatch(getDrsUrl(f.filename)));
+
     dispatch(beginDownloadUrlsSearch());
 
     await Promise.all(searchesToDispatch)

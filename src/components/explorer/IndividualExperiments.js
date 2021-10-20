@@ -1,4 +1,4 @@
-import React, { Component, useEffect } from "react";
+import React, { useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useHistory } from "react-router-dom";
 import { Button, Descriptions, Divider, Icon, Popover, Table, Typography } from "antd";
@@ -10,81 +10,80 @@ import { getFileDownloadUrlsFromDrs } from "../../modules/drs/actions";
 import { guessFileType } from "../../utils/guessFileType";
 
 const IndividualExperiments = ({ individual }) => {
-  const titleStyle = { fontSize: "16px", fontWeight: "bold", color: BENTO_BLUE };
-  const blankExperimentOntology = [{id: EM_DASH, label: EM_DASH}];
+    const titleStyle = { fontSize: "16px", fontWeight: "bold", color: BENTO_BLUE };
+    const blankExperimentOntology = [{id: EM_DASH, label: EM_DASH}];
 
-  const downloadUrls = useSelector((state) => state.drs.downloadUrlsByFilename);
-  const isFetchingUrls = useSelector((state) => state.drs.isFetchingDownloadUrls)
-  const dispatch = useDispatch();
-  const history = useHistory();
+    const downloadUrls = useSelector((state) => state.drs.downloadUrlsByFilename);
+    const dispatch = useDispatch();
+    const history = useHistory();
 
-  const biosamplesData = (individual?.phenopackets ?? []).flatMap((p) => p.biosamples);
-  const experimentsData = biosamplesData.flatMap((b) => b?.experiments ?? []);
-  let results = experimentsData.flatMap((e) => e?.experiment_results ?? [])
-  
+    const biosamplesData = (individual?.phenopackets ?? []).flatMap((p) => p.biosamples);
+    const experimentsData = biosamplesData.flatMap((b) => b?.experiments ?? []);
+    let results = experimentsData.flatMap((e) => e?.experiment_results ?? []);
+
   // enforce file_format property
-  results = results.map((r) => {
-    return { ...r, file_format: r.file_format ?? guessFileType(r.filename) };
-  });
+    results = results.map((r) => {
+        return { ...r, file_format: r.file_format ?? guessFileType(r.filename) };
+    });
 
-  const downloadableFiles = results.filter(isDownloadable)
-  
-  useEffect(() => {
+    const downloadableFiles = results.filter(isDownloadable);
+
+    useEffect(() => {
     // retrieve any download urls on mount
-    dispatch(getFileDownloadUrlsFromDrs(downloadableFiles))
+        dispatch(getFileDownloadUrlsFromDrs(downloadableFiles));
 
     // React Router can't handle hashlinks so force scroll if there is one
-    const selected = history.location.hash;
-    if (selected && selected.length > 0) {
-        const elem = document.querySelector(selected);
-        elem && elem.scrollIntoView();
-    }
-  }, [])
+        const selected = history.location.hash;
+        if (selected && selected.length > 0) {
+            const elem = document.querySelector(selected);
+            elem && elem.scrollIntoView();
+        }
+    }, []);
 
-  const renderDownloadButton = (resultFile) => {
-    return downloadUrls[resultFile.filename]?.url ? (
+    const renderDownloadButton = (resultFile) => {
+        return downloadUrls[resultFile.filename]?.url ? (
       <div>
         <a onClick={async () => FileSaver.saveAs(downloadUrls[resultFile.filename].url, resultFile.filename)}>
           <Icon type={"cloud-download"} />
         </a>
       </div>
-    ) : (
-      EM_DASH
-    );
-  };
+        ) : (
+            EM_DASH
+        );
+    };
 
-  const EXPERIMENT_RESULTS_COLUMNS = [
-      {
-          title: "Result File",
-          key: "result_file",
-          render: (_, result) => result.file_format,
-      },
-      {
-          title: "Creation Date",
-          key: "creation_date",
-          render: (_, result) => result.creation_date,
-      },
-      {
-          title: "Description",
-          key: "description",
-          render: (_, result) => result.description,
-      },
-      {
-          title: "Filename",
-          key: "filename",
-          render: (_, result) => result.filename,
-      },
-      {
-          title: "Download",
-          key: "download",
-          align: "center",
-          render: (_, result) => renderDownloadButton(result)
-      },
-      {
-          title: "Other Details",
-          key: "other_details",
-          align: "center",
-          render: (_, result) => (
+    const EXPERIMENT_RESULTS_COLUMNS = [
+        {
+            title: "Result File",
+            key: "result_file",
+            render: (_, result) => result.file_format,
+        },
+        {
+            title: "Creation Date",
+            key: "creation_date",
+            render: (_, result) => result.creation_date,
+        },
+        {
+            title: "Description",
+            key: "description",
+            render: (_, result) => result.description,
+        },
+        {
+            title: "Filename",
+            key: "filename",
+            render: (_, result) => result.filename,
+        },
+        {
+            title: "Download",
+            key: "download",
+            align: "center",
+            render: (_, result) => renderDownloadButton(result)
+        },
+        {
+            title: "Other Details",
+            key: "other_details",
+            align: "center",
+            render: (_, result) => (
         <Popover
           placement="leftTop"
           title={`Experiment Results: ${result.file_format}`}
@@ -112,13 +111,13 @@ const IndividualExperiments = ({ individual }) => {
         >
          <Button> click here </Button>
         </Popover>
-          ),
-      },
-  ];
+            ),
+        },
+    ];
 
 
-  return (
-    <>
+    return (
+        <>
 {experimentsData.map((e, i) => (
   <div className="experiment_and_results" id={e.biosample} key={e.id}>
     <div className="experiment-titles">
@@ -223,13 +222,13 @@ const IndividualExperiments = ({ individual }) => {
     {i !== (experimentsData.length - 1) && <Divider/>}
   </div>
 ))}
-    </>
-);
-}
+        </>
+    );
+};
 
 // expand here accordingly
 function isDownloadable(result) {
-    return result.file_format?.toLowerCase() === "vcf" 
+    return result.file_format?.toLowerCase() === "vcf";
 }
 
 IndividualExperiments.propTypes = {
