@@ -47,6 +47,9 @@ const IndividualTracks = ({ individual }) => {
     const [allTracks, setAllTracks] = useState(
         viewableResults.sort((r1, r2) => (r1.file_format > r2.file_format ? 1 : -1))
     );
+    
+    const allFoundFiles = allTracks.filter(
+      (t) => (igvUrls[t.filename]?.dataUrl && igvUrls[t.filename]?.indexUrl) || igvUrls[t.filename]?.url)
 
     const [modalVisible, setModalVisible] = useState(false);
 
@@ -154,10 +157,6 @@ const IndividualTracks = ({ individual }) => {
     ];
 
     const TrackControlTable = () => {
-        const allFoundFiles = allTracks.filter(
-            (t) => (igvUrls[t.filename].dataUrl && igvUrls[t.filename].indexUrl) || igvUrls[t.filename].url
-        );
-
         return <Table
         bordered
         size="small"
@@ -171,7 +170,7 @@ const IndividualTracks = ({ individual }) => {
 
     return (
         <>
-        {Boolean(Object.keys(igvUrls).length) && (
+        {Boolean(allFoundFiles.length) && (
           <Button icon="setting" style={{ marginRight: "8px" }} onClick={() => setModalVisible(true)}>
             Configure Tracks
           </Button>
