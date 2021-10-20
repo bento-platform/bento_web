@@ -1,14 +1,13 @@
-import FileSaver from "file-saver";
-
-import { PERFORM_SEARCH_BY_FUZZYNAME, PERFORM_OBJECT_DOWNLOAD, RETRIEVE_URLS_FOR_IGV} from "./actions";
+import { PERFORM_SEARCH_BY_FUZZYNAME, RETRIEVE_URLS_FOR_IGV, RETRIEVE_URLS_FOR_DOWNLOAD} from "./actions";
 
 export const drs = (
     state = {
         isFuzzySearching: false,
         fuzzySearchResponse: {},
-        isFetchingObjectForDownload: false,
         igvUrlsByFilename: {},
         isFetchingIgvUrls: false,
+        downloadUrlsByFilename: {},
+        isFetchingDownloadUrls: false,
     },
     action
 ) => {
@@ -30,25 +29,6 @@ export const drs = (
                 isFuzzySearching: false,
             };
 
-        case PERFORM_OBJECT_DOWNLOAD.REQUEST:
-            return {
-                ...state,
-                isFetchingObjectForDownload: true,
-            };
-        case PERFORM_OBJECT_DOWNLOAD.RECEIVE:
-            FileSaver.saveAs(action.data, action.downloadedFilename);
-            //new Blob([data], {type: "application/octet-stream"})
-
-            return {
-                ...state,
-                isFetchingObjectForDownload: false,
-            };
-        case PERFORM_OBJECT_DOWNLOAD.FINISH:
-            return {
-                ...state,
-                isFetchingObjectForDownload: false,
-            };
-
         case RETRIEVE_URLS_FOR_IGV.BEGIN:
             return {
                 ...state,
@@ -67,6 +47,25 @@ export const drs = (
                 ...state,
                 isFetchingIgvUrls: false,
             };
+
+        case RETRIEVE_URLS_FOR_DOWNLOAD.BEGIN:
+            return {
+                ...state,
+                isFetchingDownloadUrls: true,
+            };
+
+        case RETRIEVE_URLS_FOR_DOWNLOAD.END:
+            return {
+                ...state,
+                isFetchingDownloadUrls: false,
+                downloadUrlsByFilename: action.urls,
+            };
+
+        case RETRIEVE_URLS_FOR_DOWNLOAD.ERROR:
+            return {
+                ...state,
+                isFetchingDownloadUrls: false,
+            }
 
         default:
             return state;
