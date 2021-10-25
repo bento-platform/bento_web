@@ -42,15 +42,14 @@ const SEARCH_RESULT_COLUMNS = [
             {samples.map(b => b.id).join(", ")}
         </>,
         sorter: (a, b) => a.biosamples.length - b.biosamples.length,
-        sortDirections: ['descend', 'ascend', 'descend'],
-    
+        sortDirections: ["descend", "ascend", "descend"],
     },
     {
         title: "Experiments",
         dataIndex: "experiments",
         render: experiments => <>{experiments.length} Experiment{experiments.length === 1 ? "" : "s"}</>,
         sorter: (a, b) => a.experiments.length - b.experiments.length,
-        sortDirections: ['descend', 'ascend', 'descend'],
+        sortDirections: ["descend", "ascend", "descend"],
     },
 ];
 
