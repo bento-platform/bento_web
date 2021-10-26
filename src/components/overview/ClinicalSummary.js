@@ -25,7 +25,8 @@ class ClinicalSummary extends Component {
             isFetching: PropTypes.bool,
             data: overviewSummaryPropTypesShape
         }).isRequired,
-        setAutoQueryPageTransition: PropTypes.func // temp
+        setAutoQueryPageTransition: PropTypes.func, // temp
+        otherThresholdPercentage: PropTypes.number
     };
 
     constructor(props) {
@@ -38,7 +39,7 @@ class ClinicalSummary extends Component {
     }
 
     render() {
-        const {overviewSummary, otherThreshold} = this.props;
+        const {overviewSummary, otherThresholdPercentage} = this.props;
         const {data, isFetching} = overviewSummary;
 
         const numParticipants = data.data_type_specific?.individuals?.count;
@@ -46,15 +47,21 @@ class ClinicalSummary extends Component {
         const numPhenotypicFeatures = overviewSummary.data?.data_type_specific?.phenotypic_features?.count;
         const numExperiments = overviewSummary.data?.data_type_specific?.experiments?.count;
 
-        const biosampleLabels = mapNameValueFields(data.data_type_specific?.biosamples?.sampled_tissue, otherThreshold);
+        const biosampleLabels = mapNameValueFields(
+            data.data_type_specific?.biosamples?.sampled_tissue,
+            otherThresholdPercentage / 100
+        );
         const numBiosamples = data.data_type_specific?.biosamples?.count;
 
         const sexLabels = mapNameValueFields(data.data_type_specific?.individuals?.sex, -1);
         const binnedParticipantAges = binAges(data.data_type_specific?.individuals?.age);
-        const diseaseLabels = mapNameValueFields(data.data_type_specific?.diseases?.term, otherThreshold);
+        const diseaseLabels = mapNameValueFields(
+            data.data_type_specific?.diseases?.term,
+            otherThresholdPercentage / 100
+        );
         const phenotypicFeatureLabels = mapNameValueFields(
             data.data_type_specific?.phenotypic_features?.type,
-            otherThreshold);
+            otherThresholdPercentage / 100);
         const autoQueryDataType = "phenopacket";
 
         return <>

@@ -5,66 +5,75 @@ import {Layout, Divider} from "antd";
 import SitePageHeader from "./SitePageHeader";
 import ClinicalSummary from "./overview/ClinicalSummary";
 import VariantsSummary from "./overview/VariantsSummary";
+import OverviewSettingsControl from "./overview/OverviewSettingsControl";
 import { SITE_NAME } from "../constants";
 import ExperimentsSummary from "./overview/ExperimentsSummary";
-import { InputNumber, Modal, Button } from "antd";
+import { Modal, Button } from "antd";
 
-const DEFAULT_OTHER_THRESHOLD = 0.04;
+const DEFAULT_OTHER_THRESHOLD_PERCENTAGE = 4;
 
 const actionCreators = {};
 
 const mapStateToProps = _state => ({});
 
 class OverviewContent extends Component {
-  constructor(props) {
-    super(props);
-    this.state = { otherThreshold: DEFAULT_OTHER_THRESHOLD, modalVisible: false };
-    this.thresholdChange = this.thresholdChange.bind(this);
-    this.toggleModal = this.toggleModal.bind(this)
-  }
+    constructor(props) {
+        super(props);
+        const startThreshold =
+          JSON.parse(localStorage.getItem("otherThresholdPercentage")) ?? DEFAULT_OTHER_THRESHOLD_PERCENTAGE;
+        this.state = { otherThresholdPercentage: startThreshold, modalVisible: false };
+        this.setOtherThresholdPercentage = this.setOtherThresholdPercentage.bind(this);
+        this.openModal = this.openModal.bind(this);
+        this.closeModal = this.closeModal.bind(this);
+    }
 
-  componentDidMount() {
-    document.title = `${SITE_NAME} - Overview`;
-  }
+    componentDidMount() {
+        document.title = `${SITE_NAME} - Overview`;
+    }
 
-  thresholdChange(value) {
-      this.setState({otherThreshold: value/100})  
-      console.log({otherThreshold: this.state.otherThreshold})
-  }
+    setOtherThresholdPercentage(value) {
+        this.setState({otherThresholdPercentage: value});
+    }
 
-  toggleModal() {
-    this.setState({modalVisible: !this.state.modalVisible})
-  }
+    openModal() {
+        this.setState({modalVisible: true});
+    }
 
-  otherText = () => <p>Other (%)</p>
+    closeModal() {
+        localStorage.setItem("otherThresholdPercentage", JSON.stringify(this.state.otherThresholdPercentage) );
+        this.setState({modalVisible: false});
+    }
 
-  render() {
-    return (
-      <>
-      <div style={{display: "flex", background: "white", borderBottom: "1px solid rgb(232, 232, 232)"}}>
-        <SitePageHeader title="Overview" style={{border: "none"}}    />         
-        <Button icon="setting" style={{}} onClick={this.toggleModal}/>
-        </div> 
-          <Modal
-          visible={this.state.modalVisible}
-          onOk={this.toggleModal}
-          onCancel={this.toggleModal}
-        >
-            <InputNumber min={0} max={100} onChange={this.thresholdChange.bind(this)} addonBefore={this.otherText} defaultValue={4} controls={true} bordered={true} />
-            <h3>Other (%)</h3>
+    render() {
+        return (
+            <>
+        <div style={{ display: "flex", background: "white", borderBottom: "1px solid rgb(232, 232, 232)" }}>
+          <SitePageHeader title="Overview" style={{ border: "none" }} />
+          <Button
+            icon="setting"
+            size={"small"}
+            style={{ alignSelf: "center", marginLeft: "-20px" }}
+            onClick={this.openModal}
+          />
+        </div>
+        <Modal visible={this.state.modalVisible} onOk={this.closeModal} onCancel={this.closeModal}>
+          <OverviewSettingsControl
+            otherThresholdPercentage={this.state.otherThresholdPercentage}
+            setOtherThresholdPercentage={this.setOtherThresholdPercentage}
+          />
         </Modal>
         <Layout>
           <Layout.Content style={{ background: "white", padding: "32px 24px 4px" }}>
-            <ClinicalSummary otherThreshold={this.state.otherThreshold} />
+            <ClinicalSummary otherThresholdPercentage={this.state.otherThresholdPercentage} />
             <Divider />
-            <ExperimentsSummary otherThreshold={this.state.otherThreshold}/>
+            <ExperimentsSummary otherThresholdPercentage={this.state.otherThresholdPercentage} />
             <Divider />
             <VariantsSummary />
           </Layout.Content>
         </Layout>
-      </>
-    );
-  }
+            </>
+        );
+    }
 }
 
 export default connect(mapStateToProps, actionCreators)(OverviewContent);
