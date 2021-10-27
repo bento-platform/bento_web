@@ -3,12 +3,17 @@ import { Col, InputNumber, Row, Slider } from "antd";
 import PropTypes from "prop-types";
 
 
-const OverviewSettingsControl = ({ otherThresholdPercentage, setOtherThresholdPercentage }) => {
+const OverviewSettingsControl = ({ otherThresholdPercentage, setOtherThresholdPercentage, setValueAndCloseModal }) => {
     const [inputValue, setInputValue] = useState(otherThresholdPercentage);
 
     const handleChange = (newValue) => {
         setInputValue(newValue);
         setOtherThresholdPercentage(newValue);
+    };
+
+    const handleEnter = (e) => {
+        e.preventDefault();
+        setValueAndCloseModal();
     };
 
     const toolTipFormatter = (value) => `${value}%`;
@@ -34,6 +39,7 @@ const OverviewSettingsControl = ({ otherThresholdPercentage, setOtherThresholdPe
           value={typeof inputValue === "number" ? inputValue : 0}
           extra={"Threshold for grouping categories into other"}
           onChange={handleChange}
+          onPressEnter={handleEnter}
         />
       </Col>
       Percentage threshold to group categories into &quot;Other&quot;
@@ -43,7 +49,8 @@ const OverviewSettingsControl = ({ otherThresholdPercentage, setOtherThresholdPe
 
 OverviewSettingsControl.propTypes = {
     otherThresholdPercentage: PropTypes.number,
-    setOtherThresholdPercentage: PropTypes.func
+    setOtherThresholdPercentage: PropTypes.func,
+    setValueAndCloseModal: PropTypes.func,
 };
 
 export default OverviewSettingsControl;
