@@ -186,30 +186,30 @@ class CustomPieChart extends React.Component {
     }
 
     renderActiveLabel(state, params) {
-      const { cx, cy, midAngle, innerRadius, outerRadius, startAngle, endAngle, fill, payload } = params;
+        const { cx, cy, midAngle, innerRadius, outerRadius, startAngle, endAngle, fill, payload } = params;
 
-      const name = payload.name === "null" ? "(Empty)" : payload.name;
-      const offsetRadius = 20;
-      const sin = Math.sin(-RADIAN * midAngle);
-      const cos = Math.cos(-RADIAN * midAngle);
-      const sx = cx + (outerRadius + 10) * cos;
-      const sy = cy + (outerRadius + 10) * sin;
-      const mx = cx + (outerRadius + offsetRadius) * cos;
-      const my = cy + (outerRadius + offsetRadius) * sin;
-      const ex = mx + (cos >= 0 ? 1 : -1) * 22;
-      const ey = my;
-      const textAnchor = cos >= 0 ? "start" : "end";
+        const name = payload.name === "null" ? "(Empty)" : payload.name;
+        const offsetRadius = 20;
+        const sin = Math.sin(-RADIAN * midAngle);
+        const cos = Math.cos(-RADIAN * midAngle);
+        const sx = cx + (outerRadius + 10) * cos;
+        const sy = cy + (outerRadius + 10) * sin;
+        const mx = cx + (outerRadius + offsetRadius) * cos;
+        const my = cy + (outerRadius + offsetRadius) * sin;
+        const ex = mx + (cos >= 0 ? 1 : -1) * 22;
+        const ey = my;
+        const textAnchor = cos >= 0 ? "start" : "end";
 
-      const currentTextStyle = {
-        ...textStyle,
-        fontWeight: "bold",
-        fontStyle: payload.name === "null" ? "italic" : "normal",
-      };
+        const currentTextStyle = {
+            ...textStyle,
+            fontWeight: "bold",
+            fontStyle: payload.name === "null" ? "italic" : "normal",
+        };
 
       // if segment too small, render coloured highlight curve but skip label
-      if (params.percent < LABEL_THRESHOLD) {
-        console.log("too small");
-        return (
+        if (params.percent < LABEL_THRESHOLD) {
+            console.log("too small");
+            return (
           <g>
             <Sector
               cx={cx}
@@ -230,10 +230,10 @@ class CustomPieChart extends React.Component {
               fill={fill}
             />
           </g>
-        );
-      }
+            );
+        }
 
-      return (
+        return (
         <g>
           <Sector
             cx={cx}
@@ -268,7 +268,7 @@ class CustomPieChart extends React.Component {
             {`(${payload.value})`}
           </text>
         </g>
-      );
+        );
     }
 
     render() {
