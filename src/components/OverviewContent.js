@@ -21,10 +21,15 @@ class OverviewContent extends Component {
         super(props);
         const startThreshold =
           JSON.parse(localStorage.getItem("otherThresholdPercentage")) ?? DEFAULT_OTHER_THRESHOLD_PERCENTAGE;
-        this.state = { otherThresholdPercentage: startThreshold, modalVisible: false };
+        this.state = {
+            otherThresholdPercentage: startThreshold,
+            previousThresholdPercentage: startThreshold,
+            modalVisible: false,
+        };
         this.setOtherThresholdPercentage = this.setOtherThresholdPercentage.bind(this);
         this.openModal = this.openModal.bind(this);
-        this.closeModal = this.closeModal.bind(this);
+        this.setValueAndCloseModal = this.setValueAndCloseModal.bind(this);
+        this.cancelModal = this.cancelModal.bind(this);
     }
 
     componentDidMount() {
@@ -37,40 +42,57 @@ class OverviewContent extends Component {
 
     openModal() {
         this.setState({modalVisible: true});
+        // save threshold in case user cancels
+        this.setState({previousThresholdPercentage: this.state.otherThresholdPercentage});
     }
 
-    closeModal() {
+    setValueAndCloseModal() {
         localStorage.setItem("otherThresholdPercentage", JSON.stringify(this.state.otherThresholdPercentage) );
         this.setState({modalVisible: false});
+    }
+
+    cancelModal() {
+        this.setState({modalVisible: false});
+        this.setState({otherThresholdPercentage: this.state.previousThresholdPercentage});
     }
 
     render() {
         return (
             <>
-        <div style={{ display: "flex", background: "white", borderBottom: "1px solid rgb(232, 232, 232)" }}>
-          <SitePageHeader title="Overview" style={{ border: "none" }} />
-          <Button
-            icon="setting"
-            size={"small"}
-            style={{ alignSelf: "center", marginLeft: "-20px" }}
-            onClick={this.openModal}
-          />
-        </div>
-        <Modal visible={this.state.modalVisible} onOk={this.closeModal} onCancel={this.closeModal}>
-          <OverviewSettingsControl
-            otherThresholdPercentage={this.state.otherThresholdPercentage}
-            setOtherThresholdPercentage={this.setOtherThresholdPercentage}
-          />
-        </Modal>
-        <Layout>
-          <Layout.Content style={{ background: "white", padding: "32px 24px 4px" }}>
-            <ClinicalSummary otherThresholdPercentage={this.state.otherThresholdPercentage} />
-            <Divider />
-            <ExperimentsSummary otherThresholdPercentage={this.state.otherThresholdPercentage} />
-            <Divider />
-            <VariantsSummary />
-          </Layout.Content>
-        </Layout>
+            <div
+              style={{ display: "flex", background: "white", borderBottom: "1px solid rgb(232, 232, 232)" }}
+            >
+              <SitePageHeader title="Overview" style={{ border: "none" }} />
+              <Button
+                type="button"
+                icon="setting"
+                size={"small"}
+                style={{ alignSelf: "center", marginLeft: "-20px" }}
+                onClick={this.openModal}
+              />
+            </div>
+            <Modal
+              visible={this.state.modalVisible}
+              closable={false}
+              destroyOnClose={true}
+              onOk={this.setValueAndCloseModal}
+              onCancel={this.cancelModal}
+            >
+              <OverviewSettingsControl
+                otherThresholdPercentage={this.state.otherThresholdPercentage}
+                setOtherThresholdPercentage={this.setOtherThresholdPercentage}
+                setValueAndCloseModal={this.setValueAndCloseModal}
+              />
+            </Modal>
+            <Layout>
+              <Layout.Content style={{ background: "white", padding: "32px 24px 4px" }}>
+                <ClinicalSummary otherThresholdPercentage={this.state.otherThresholdPercentage} />
+                <Divider />
+                <ExperimentsSummary otherThresholdPercentage={this.state.otherThresholdPercentage} />
+                <Divider />
+                <VariantsSummary />
+              </Layout.Content>
+            </Layout>
             </>
         );
     }
