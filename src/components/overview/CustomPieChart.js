@@ -13,6 +13,7 @@ import { withBasePath } from "../../utils/url";
 
 const MAX_LABEL_CHARS = 16;
 const RADIAN = Math.PI / 180;
+const LABEL_THRESHOLD = 0.03;
 
 const textStyle = {
     fontSize: "11px",
@@ -121,8 +122,9 @@ class CustomPieChart extends React.Component {
         } = params;
 
         // skip rendering this static label if the sector is selected.
-        // this will let the 'renderActiveState' draw without overlapping
-        if (index === state.activeIndex) {
+        // this will let the 'renderActiveState' draw without overlapping.
+        // also, skip rendering if segment is too small a percentage (avoids label clutter)
+        if (index === state.activeIndex || params.percent < LABEL_THRESHOLD ) {
             return;
         }
 
@@ -184,36 +186,29 @@ class CustomPieChart extends React.Component {
     }
 
     renderActiveLabel(state, params) {
-        const {
-            cx,
-            cy,
-            midAngle,
-            innerRadius,
-            outerRadius,
-            startAngle,
-            endAngle,
-            fill,
-            payload
-        } = params;
+      const { cx, cy, midAngle, innerRadius, outerRadius, startAngle, endAngle, fill, payload } = params;
 
-        const name = payload.name === "null" ? "(Empty)" : payload.name;
-        const offsetRadius = 20;
-        const sin = Math.sin(-RADIAN * midAngle);
-        const cos = Math.cos(-RADIAN * midAngle);
-        const sx = cx + (outerRadius + 10) * cos;
-        const sy = cy + (outerRadius + 10) * sin;
-        const mx = cx + (outerRadius + offsetRadius) * cos;
-        const my = cy + (outerRadius + offsetRadius) * sin;
-        const ex = mx + (cos >= 0 ? 1 : -1) * 22;
-        const ey = my;
-        const textAnchor = cos >= 0 ? "start" : "end";
+      const name = payload.name === "null" ? "(Empty)" : payload.name;
+      const offsetRadius = 20;
+      const sin = Math.sin(-RADIAN * midAngle);
+      const cos = Math.cos(-RADIAN * midAngle);
+      const sx = cx + (outerRadius + 10) * cos;
+      const sy = cy + (outerRadius + 10) * sin;
+      const mx = cx + (outerRadius + offsetRadius) * cos;
+      const my = cy + (outerRadius + offsetRadius) * sin;
+      const ex = mx + (cos >= 0 ? 1 : -1) * 22;
+      const ey = my;
+      const textAnchor = cos >= 0 ? "start" : "end";
 
-        const currentTextStyle = {
-            ...textStyle,
-            fontWeight: "bold",
-            fontStyle: payload.name === "null" ? "italic" : "normal",
-        };
+      const currentTextStyle = {
+        ...textStyle,
+        fontWeight: "bold",
+        fontStyle: payload.name === "null" ? "italic" : "normal",
+      };
 
+      // if segment too small, render coloured highlight curve but skip label
+      if (params.percent < LABEL_THRESHOLD) {
+        console.log("too small");
         return (
           <g>
             <Sector
@@ -234,27 +229,47 @@ class CustomPieChart extends React.Component {
               outerRadius={outerRadius + 10}
               fill={fill}
             />
-            <path d={`M${sx},${sy}L${mx},${my}L${ex},${ey}`} stroke={fill} fill='none'/>
-            <circle cx={ex} cy={ey} r={2} fill={fill} stroke='none'/>
-            <text x={ex + (cos >= 0 ? 1 : -1) * 12} y={ey + 3}
-                  textAnchor={textAnchor}
-                  style={currentTextStyle}
-            >
-                { this.labelShortName(name) }
-            </text>
-            <text
-                x={ex + (cos >= 0 ? 1 : -1) * 12}
-                y={ey}
-                dy={14}
-                textAnchor={textAnchor}
-                style={countTextStyle}
-            >
-                {`(${ payload.value })`}
-            </text>
           </g>
         );
-    }
+      }
 
+      return (
+        <g>
+          <Sector
+            cx={cx}
+            cy={cy}
+            startAngle={startAngle}
+            endAngle={endAngle}
+            innerRadius={innerRadius}
+            outerRadius={outerRadius}
+            fill={fill}
+          />
+          <Sector
+            cx={cx}
+            cy={cy}
+            startAngle={startAngle}
+            endAngle={endAngle}
+            innerRadius={outerRadius + 6}
+            outerRadius={outerRadius + 10}
+            fill={fill}
+          />
+          <path d={`M${sx},${sy}L${mx},${my}L${ex},${ey}`} stroke={fill} fill="none" />
+          <circle cx={ex} cy={ey} r={2} fill={fill} stroke="none" />
+          <text x={ex + (cos >= 0 ? 1 : -1) * 12} y={ey + 3} textAnchor={textAnchor} style={currentTextStyle}>
+            {this.labelShortName(name)}
+          </text>
+          <text
+            x={ex + (cos >= 0 ? 1 : -1) * 12}
+            y={ey}
+            dy={14}
+            textAnchor={textAnchor}
+            style={countTextStyle}
+          >
+            {`(${payload.value})`}
+          </text>
+        </g>
+      );
+    }
 
     render() {
         const { data, chartHeight, chartAspectRatio, title } = this.props;
