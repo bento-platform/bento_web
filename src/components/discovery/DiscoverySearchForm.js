@@ -7,7 +7,7 @@ import {getFieldSchema, getFields} from "../../utils/schema";
 import {DEFAULT_SEARCH_PARAMETERS, OP_EQUALS} from "../../utils/search";
 
 import DiscoverySearchCondition, {getSchemaTypeTransformer} from "./DiscoverySearchCondition";
-
+import VariantSearchHeader from "./VariantSearchHeader";
 
 // noinspection JSUnusedGlobalSymbols
 const CONDITION_RULES = [
@@ -204,6 +204,7 @@ class DiscoverySearchForm extends Component {
         ));
 
         return <Form onSubmit={this.onSubmit}>
+            {this.props.dataType.id==="variant" && <VariantSearchHeader/>}
             {formItems}
             <Form.Item wrapperCol={{
                 xl: {span: 24},
