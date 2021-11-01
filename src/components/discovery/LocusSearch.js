@@ -1,38 +1,48 @@
 import React, {useEffect, useState} from "react";
 import { AutoComplete, Form } from "antd";
 import { useDispatch, useSelector } from "react-redux";
+import { performGohanGeneSearchIfPossible } from "../../modules/discovery/actions";
+
+
+// TODOs: 
+// take assembly as required prop
+// style options
+// fill form data
+
 const { Option } = AutoComplete;
-
-// change to Form.item
-
-
 
 const LocusSearch = () => {
   const [input, setInput] = useState("");
-  // const geneSearchResults = useSelector((state) => state...... );
+  const [autoCompleteOptions, setAutoCompleteOptions] = useState([])
+  const geneSearchResults = useSelector((state) => state.discovery.geneNameSearchResponse);
   const dispatch = useDispatch();
 
-  const handleSearch = (value) => {
+  const handleChange = (value) => {
+
     setInput(value)
-    // dispatch search
-    console.log(`handleSearch value: ${value}`)
+    if (!value.length){
+      return
+    }
+    dispatch(performGohanGeneSearchIfPossible(value))
   } 
 
   const handleSelect = (value, option) => {
     console.log(`handleSelect, value: ${value}, option: ${option}`)
   } 
   
-  // useEffect(() => {
+  useEffect(() => {
+    setAutoCompleteOptions((geneSearchResults ?? []).sort((a, b) => (a.name > b.name) ? 1 : -1))
 
-  // }, [geneSearchResults])
+    console.log({geneSearchResultsFromComponent: geneSearchResults})
+  }, [geneSearchResults])
 
   return <AutoComplete
-    // options={geneSearchResults}
-    onSearch={handleSearch}
+    options={autoCompleteOptions}
+    onChange={handleChange}
     onSelect={handleSelect}
-    />
+    >
+      {autoCompleteOptions.map((r, i) => <Option key={r.name+r.assemblyId} value={r.name+r.assemblyId}>{`${r.name} chromosome: ${r.chrom} start: ${r.start} end: ${r.end}`}</Option>)}
+      </AutoComplete>
 };
-
-
 
 export default LocusSearch;

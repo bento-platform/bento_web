@@ -30,7 +30,7 @@ export const discovery = (
         searches: [],
         selectedSearch: null,
 
-        geneNameSearchResponse: {},
+        geneNameSearchResponse: [],
     },
     action
 ) => {
