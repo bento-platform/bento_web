@@ -10,6 +10,8 @@ import {
     REMOVE_ALL_DATA_TYPE_QUERY_FORMS,
 
     UPDATE_JOIN_QUERY_FORM,
+
+    PERFORM_GOHAN_GENE_SEARCH,
 } from "./actions";
 
 import {
@@ -27,6 +29,8 @@ export const discovery = (
 
         searches: [],
         selectedSearch: null,
+
+        geneNameSearchResponse: {},
     },
     action
 ) => {
@@ -62,6 +66,12 @@ export const discovery = (
                 ...state,
                 joinFormValues: simpleDeepCopy(action.fields)  // TODO: Hack-y deep clone
             };
+
+        case PERFORM_GOHAN_GENE_SEARCH.RECEIVE:
+            return {
+                ...state,
+                geneNameSearchResponse: action.data.results
+            }
 
         default:
             return state;
