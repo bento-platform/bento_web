@@ -5,35 +5,50 @@ import { performGohanGeneSearchIfPossible } from "../../modules/discovery/action
 
 
 // TODOs: 
-// take assembly as required prop
 // style options
-// fill form data
+// tabbing away should select ?
+
 
 const { Option } = AutoComplete;
 
-const LocusSearch = () => {
-  const [input, setInput] = useState("");
+const LocusSearch = ({assemblyId, setVariantSearchValues}) => {
+  // const [input, setInput] = useState(""); //needed?
   const [autoCompleteOptions, setAutoCompleteOptions] = useState([])
   const geneSearchResults = useSelector((state) => state.discovery.geneNameSearchResponse);
   const dispatch = useDispatch();
 
+  const showAutoCompleteOptions = assemblyId==="GRCh37" || assemblyId==="GRCh38"
+
   const handleChange = (value) => {
 
-    setInput(value)
-    if (!value.length){
+    // setInput(value)
+    if (!value.length || !showAutoCompleteOptions){
       return
     }
-    dispatch(performGohanGeneSearchIfPossible(value))
+
+    // handle position notation
+    if(value.includes(':')){
+      parsePosition(value)
+      return
+    }
+
+    dispatch(performGohanGeneSearchIfPossible(value, assemblyId))
   } 
 
-  const handleSelect = (value, option) => {
-    console.log(`handleSelect, value: ${value}, option: ${option}`)
+  const handleSelect = (value, options) => {
+    const locus = options.props?.locus
+    
+    // todo: "locus" may be array of multiple items if users tabs away 
+
+    // may not need error checking here, since this is user selection, not user input
+    if (!locus){
+      return
+    }
+    setVariantSearchValues(locus)
   } 
-  
+
   useEffect(() => {
     setAutoCompleteOptions((geneSearchResults ?? []).sort((a, b) => (a.name > b.name) ? 1 : -1))
-
-    console.log({geneSearchResultsFromComponent: geneSearchResults})
   }, [geneSearchResults])
 
   return <AutoComplete
@@ -41,8 +56,14 @@ const LocusSearch = () => {
     onChange={handleChange}
     onSelect={handleSelect}
     >
-      {autoCompleteOptions.map((r, i) => <Option key={r.name+r.assemblyId} value={r.name+r.assemblyId}>{`${r.name} chromosome: ${r.chrom} start: ${r.start} end: ${r.end}`}</Option>)}
+      {showAutoCompleteOptions && autoCompleteOptions.map((r, i) => <Option key={r.name} value={r.name} locus={r} >{`${r.name} chromosome: ${r.chrom} start: ${r.start} end: ${r.end}`}</Option>)}
       </AutoComplete>
 };
 
 export default LocusSearch;
+
+function parsePosition(value) {
+
+  // todo
+  // parse "chr:start-end" notation and call setVariantSearchValues()
+}
