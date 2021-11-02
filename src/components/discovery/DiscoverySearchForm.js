@@ -38,13 +38,14 @@ class DiscoverySearchForm extends Component {
     constructor(props) {
         super(props);
 
-        this.state = {conditionsHelp: {}, fieldSchemas: {}};
+        this.state = {conditionsHelp: {}, fieldSchemas: {}, variantSearchValues: {}};
         this.initialValues = {};
 
         this.handleFieldChange = this.handleFieldChange.bind(this);
         this.getDataTypeFieldSchema = this.getDataTypeFieldSchema.bind(this);
         this.addCondition = this.addCondition.bind(this);
         this.removeCondition = this.removeCondition.bind(this);
+        this.setVariantSearchValues = this.setVariantSearchValues.bind(this)
     }
 
     componentDidMount() {
@@ -155,6 +156,12 @@ class DiscoverySearchForm extends Component {
         return ["internal", "none"].includes(fs.search?.queryable);
     }
 
+    // user-friendly variant search 
+    setVariantSearchValues(value) {
+        console.log({settingVariantSearchValues: value})
+        this.setState({variantSearchValues: value})
+    }
+    
     render() {
         const getCondition = ck => this.props.form.getFieldValue(`conditions[${ck}]`);
 
@@ -204,7 +211,12 @@ class DiscoverySearchForm extends Component {
         ));
 
         return <Form onSubmit={this.onSubmit}>
-            {this.props.dataType.id==="variant" && <VariantSearchHeader/>}
+            {this.props.dataType.id === "variant" && (
+              <VariantSearchHeader
+                setVariantSearchValues={this.setVariantSearchValues}
+                dataType={this.props.dataType}
+              />
+            )}
             {formItems}
             <Form.Item wrapperCol={{
                 xl: {span: 24},
