@@ -11,7 +11,7 @@ import { performGohanGeneSearchIfPossible } from "../../modules/discovery/action
 
 const { Option } = AutoComplete;
 
-const LocusSearch = ({assemblyId, setVariantSearchValues}) => {
+const LocusSearch = ({assemblyId, addVariantSearchValues}) => {
   // const [input, setInput] = useState(""); //needed?
   const [autoCompleteOptions, setAutoCompleteOptions] = useState([])
   const geneSearchResults = useSelector((state) => state.discovery.geneNameSearchResponse);
@@ -44,7 +44,7 @@ const LocusSearch = ({assemblyId, setVariantSearchValues}) => {
     if (!locus){
       return
     }
-    setVariantSearchValues(locus)
+    addVariantSearchValues({...locus})
   } 
 
   useEffect(() => {

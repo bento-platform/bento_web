@@ -4,11 +4,11 @@ import { Input, Form, Select } from "antd";
 import DiscoverySearchCondition from "./DiscoverySearchCondition";
 import LocusSearch from "./LocusSearch";
 
-const VariantSearchHeader = ({dataType, setVariantSearchValues}) => {
-
+const VariantSearchHeader = ({dataType, addVariantSearchValues}) => {
 
   // or default to GRCh37?
   const [assemblyId, setAssemblyId] = useState(null)
+  const [variantGenotype, setVariantGenotype] = useState(null)
 
   const assemblySchema = dataType.schema?.properties?.assembly_id
   const genotypeSchema = dataType.schema?.properties?.calls?.items?.properties?.genotype_type
@@ -23,16 +23,17 @@ const VariantSearchHeader = ({dataType, setVariantSearchValues}) => {
     if (value==="Other"){
       value = "GRCh37"
     }
-
     setAssemblyId(value)
-    console.log(`assembly change: ${value}`)
+  }
+
+  const handleGenotypeChange = (value) => {
+    addVariantSearchValues({genotype_type: value})
   }
 
 // Select needs
 // style
 // onChange
 // getSearchValue ??
-
 
   return (<>
     <Form.Item
@@ -53,7 +54,7 @@ const VariantSearchHeader = ({dataType, setVariantSearchValues}) => {
         label={"Locus"}
         help={`Enter gene name (eg "BRCA1") or position ("chr17:41195311-41278381")`}
     >
-      <LocusSearch assemblyId={assemblyId} setVariantSearchValues={setVariantSearchValues} />
+      <LocusSearch assemblyId={assemblyId} addVariantSearchValues={addVariantSearchValues} />
     </Form.Item>
     <Form.Item
       labelCol={labelCol}
@@ -61,7 +62,9 @@ const VariantSearchHeader = ({dataType, setVariantSearchValues}) => {
       label={"Genotype"}
       help={genotypeSchema.description}
     >
-      <Select>
+      <Select
+        onChange={handleGenotypeChange}
+      >
        {genotypeSchema.enum.map(v => <Select.Option key={v} value={v}>{v}</Select.Option>)}
       </Select>
     </Form.Item>
