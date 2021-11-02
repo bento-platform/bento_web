@@ -7,17 +7,15 @@ import LocusSearch from "./LocusSearch";
 const VariantSearchHeader = ({dataType, setVariantSearchValues}) => {
 
 
-  // default to GRCh37
-  const [assemblyId, setAssemblyId] = useState("GRCh37")
+  // or default to GRCh37?
+  const [assemblyId, setAssemblyId] = useState(null)
 
   const assemblySchema = dataType.schema?.properties?.assembly_id
   const genotypeSchema = dataType.schema?.properties?.calls?.items?.properties?.genotype_type
-  console.log({assemblySchema:assemblySchema, genotypeSchema: genotypeSchema})
 
   // hardcoded style from DiscoverySearchForm, change to params
   const labelCol = {lg: { span: 24 }, xl: { span: 4 }, xxl: { span: 3 }}
   const wrapperCol = {lg: { span: 24 }, xl: { span: 20 }, xxl: { span: 18 }}
-
 
   const handleAssemblyIdChange = (value) => {
     // temp: treat "Other" as equivalent to GRCh37
@@ -55,7 +53,7 @@ const VariantSearchHeader = ({dataType, setVariantSearchValues}) => {
         label={"Locus"}
         help={`Enter gene name (eg "BRCA1") or position ("chr17:41195311-41278381")`}
     >
-      <LocusSearch assemblyId={assemblyId}/>
+      <LocusSearch assemblyId={assemblyId} setVariantSearchValues={setVariantSearchValues} />
     </Form.Item>
     <Form.Item
       labelCol={labelCol}
