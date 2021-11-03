@@ -38,7 +38,7 @@ class DiscoverySearchForm extends Component {
     constructor(props) {
         super(props);
 
-        this.state = {conditionsHelp: {}, fieldSchemas: {}, variantSearchValues: {}};
+        this.state = {conditionsHelp: {}, fieldSchemas: {}, variantSearchValues: {}, isVariantSearch: props.dataType.id === "variant"};
         this.initialValues = {};
 
         this.handleFieldChange = this.handleFieldChange.bind(this);
@@ -63,13 +63,18 @@ class DiscoverySearchForm extends Component {
             // 2: "[dataset item].start"
             // 3: "[dataset item].calls.[item].genotype_type"
 
-        console.log("MOUNT")
-        console.log({requiredFields: requiredFields})    
+        // hardcode fields for user-friendly variant search 
+        const variantSearchFields = [
+            "[dataset item].assembly_id",
+            "[dataset item].chromosome",
+            "[dataset item].start",
+            "[dataset item].end",
+            "[dataset item].calls.[item].genotype_type",
+        ]        
 
-        // filter out required variant fields
-        // replace with custom variant search fields
-
-        const stateUpdates = requiredFields.map(c => this.addCondition(c, undefined, true));
+        const stateUpdates = this.state.isVariantSearch
+          ? variantSearchFields.map((c) => this.addCondition(c, undefined, true))
+          : requiredFields.map((c) => this.addCondition(c, undefined, true));
 
         // Add a single default condition if necessary
         if (requiredFields.length === 0 && this.props.conditionType !== "join") {
@@ -172,6 +177,31 @@ class DiscoverySearchForm extends Component {
         this.setState({variantSearchValues: {...this.state.variantSearchValues, ...values}})
     }
     
+    // hide first five variant search fields
+    // these appear in the submitted form but not in the UI
+    // their values are controlled by VariantSearchHeader
+    hideField = (fieldNum) => {
+        return this.state.isVariantSearch && fieldNum < 5
+    }
+
+    getLabel = (i) => {
+        if (!this.state.isVariantSearch){
+            return `Condition ${i + 1}`
+        }
+
+        // hidden variant form items
+        if (i < 5) {
+            return ""
+        }
+
+        // labels for any user-added variant conditions
+        return `Condition ${i - 1}`
+    }
+
+    getHelpText = (key) => {
+        return this.state.isVariantSearch ? "" : this.state.conditionsHelp[key] ?? undefined
+    }
+
     render() {
         const getCondition = ck => this.props.form.getFieldValue(`conditions[${ck}]`);
 
@@ -191,7 +221,7 @@ class DiscoverySearchForm extends Component {
                 lg: {span: 24},
                 xl: {span: 20},
                 xxl: {span: 18}
-            }} label={`Condition ${i + 1}`} help={this.state.conditionsHelp[k] ?? undefined}>
+            }} label={this.getLabel(i)} help={this.getHelpText(k)}>
                 {this.props.form.getFieldDecorator(`conditions[${k}]`, {
                     initialValue: this.initialValues[`conditions[${k}]`],
                     validateTrigger: false,  // only when called manually
@@ -199,7 +229,7 @@ class DiscoverySearchForm extends Component {
                 })(
                     <DiscoverySearchCondition conditionType={this.props.conditionType ?? "data-type"}
                                               dataType={this.props.dataType}
-                                              hidden={false}
+                                              hidden={this.hideField(k)}
                                               isExcluded={f => existingUniqueFields.includes(f) ||
                                                   (!this.props.isInternal && this.isNotPublic(f))}
                                               onFieldChange={change => this.handleFieldChange(k, change)}
