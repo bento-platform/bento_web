@@ -57,6 +57,18 @@ class DiscoverySearchForm extends Component {
                 getFieldSchema(this.props.dataType.schema, f).search?.required ?? false)
             : [];
 
+            //this adds an array of four strings:
+            // 0: "[dataset item].assembly_id"
+            // 1: "[dataset item].chromosome"
+            // 2: "[dataset item].start"
+            // 3: "[dataset item].calls.[item].genotype_type"
+
+        console.log("MOUNT")
+        console.log({requiredFields: requiredFields})    
+
+        // filter out required variant fields
+        // replace with custom variant search fields
+
         const stateUpdates = requiredFields.map(c => this.addCondition(c, undefined, true));
 
         // Add a single default condition if necessary
@@ -187,6 +199,7 @@ class DiscoverySearchForm extends Component {
                 })(
                     <DiscoverySearchCondition conditionType={this.props.conditionType ?? "data-type"}
                                               dataType={this.props.dataType}
+                                              hidden={false}
                                               isExcluded={f => existingUniqueFields.includes(f) ||
                                                   (!this.props.isInternal && this.isNotPublic(f))}
                                               onFieldChange={change => this.handleFieldChange(k, change)}
