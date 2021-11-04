@@ -137,12 +137,11 @@ class DiscoverySearchCondition extends Component {
                    placeholder="value"
                    onChange={this.handleSearchValue}
                    value={this.getSearchValue()}
-                   hidden={this.props.hidden}
                    />    
         );
     }
 
-    getInputStyle = (valueWidth, div = 1) => ({width: `calc(${100 / div}% - ${valueWidth / div}px)`, display: this.props.hidden? "none" : "inline-block"});
+    getInputStyle = (valueWidth, div = 1) => ({width: `calc(${100 / div}% - ${valueWidth / div}px)`});
 
     render() {
         const conditionType = this.props.conditionType ?? "data-type";
@@ -163,7 +162,7 @@ class DiscoverySearchCondition extends Component {
 
         const schemaTreeSelect = (fieldKey, fieldSchemaKey, schema, style) => (
             <SchemaTreeSelect
-                style={{float: "left", ...style, display: this.props.hidden? "none" : "inline-block"}}
+                style={{float: "left", ...style}}
                 disabled={!canRemove}
                 schema={schema}
                 isExcluded={this.props.isExcluded}
@@ -190,7 +189,7 @@ class DiscoverySearchCondition extends Component {
                 }
             )}
             {canNegate ? (  // Negation
-                <Select style={{width: `${NEGATION_WIDTH}px`, float: "left", display: this.props.hidden? "none" : "inline-block"}}
+                <Select style={{width: `${NEGATION_WIDTH}px`, float: "left"}}
                         value={this.state.negated ? "neg" : "pos"}
                         onChange={this.handleNegation}
                         >
@@ -199,10 +198,9 @@ class DiscoverySearchCondition extends Component {
                 </Select>
             ) : null}
             {this.equalsOnly() ? null : (  // Operation select
-                <Select style={{width: `${OPERATION_WIDTH}px`, float: "left", display: this.props.hidden? "none" : "inline-block" }}
+                <Select style={{width: `${OPERATION_WIDTH}px`, float: "left"}}
                         value={this.state.operation}
                         onChange={this.handleOperation}
-                        hidden={this.props.hidden}
                         >
                     {operationOptions}
                 </Select>
@@ -220,7 +218,6 @@ class DiscoverySearchCondition extends Component {
                         style={{width: `${CLOSE_WIDTH}px`}}
                         disabled={this.props.removeDisabled}
                         onClick={this.props.onRemoveClick ?? nop} 
-                        hidden={this.props.hidden}
                         />
             ) : null}
         </Input.Group>;
