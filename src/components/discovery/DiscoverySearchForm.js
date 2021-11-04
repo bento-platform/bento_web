@@ -9,6 +9,8 @@ import {DEFAULT_SEARCH_PARAMETERS, OP_EQUALS} from "../../utils/search";
 import DiscoverySearchCondition, {getSchemaTypeTransformer} from "./DiscoverySearchCondition";
 import VariantSearchHeader from "./VariantSearchHeader";
 
+const NUM_HIDDEN_VARIANT_FORM_ITEMS = 5
+
 // noinspection JSUnusedGlobalSymbols
 const CONDITION_RULES = [
     {
@@ -57,23 +59,8 @@ class DiscoverySearchForm extends Component {
                 getFieldSchema(this.props.dataType.schema, f).search?.required ?? false)
             : [];
 
-            //this adds an array of four strings:
-            // 0: "[dataset item].assembly_id"
-            // 1: "[dataset item].chromosome"
-            // 2: "[dataset item].start"
-            // 3: "[dataset item].calls.[item].genotype_type"
-
-        // hardcode fields for user-friendly variant search 
-        const variantSearchFields = [
-            "[dataset item].assembly_id",
-            "[dataset item].chromosome",
-            "[dataset item].start",
-            "[dataset item].end",
-            "[dataset item].calls.[item].genotype_type",
-        ]        
-
         const stateUpdates = this.state.isVariantSearch
-          ? variantSearchFields.map((c) => this.addCondition(c, undefined, true))
+          ? this.hiddenVariantSearchFields().map((c) => this.addCondition(c, undefined, true))
           : requiredFields.map((c) => this.addCondition(c, undefined, true));
 
         // Add a single default condition if necessary
@@ -173,6 +160,16 @@ class DiscoverySearchForm extends Component {
         return ["internal", "none"].includes(fs.search?.queryable);
     }
 
+    // methods for user-friendly variant search
+
+    hiddenVariantSearchFields = () =>  [
+        "[dataset item].assembly_id",
+        "[dataset item].chromosome",
+        "[dataset item].start",
+        "[dataset item].end",
+        "[dataset item].calls.[item].genotype_type",
+    ]    
+
     addVariantSearchValues(values) {
         this.setState({variantSearchValues: {...this.state.variantSearchValues, ...values}})
     }
@@ -181,25 +178,20 @@ class DiscoverySearchForm extends Component {
     // these appear in the submitted form but not in the UI
     // their values are controlled by VariantSearchHeader
     hideField = (fieldNum) => {
-        return this.state.isVariantSearch && fieldNum < 5
+        return this.state.isVariantSearch && fieldNum < NUM_HIDDEN_VARIANT_FORM_ITEMS
     }
 
+    // don't count hidden variant fields
     getLabel = (i) => {
-        if (!this.state.isVariantSearch){
-            return `Condition ${i + 1}`
-        }
-
-        // hidden variant form items
-        if (i < 5) {
-            return ""
-        }
-
-        // labels for any user-added variant conditions
-        return `Condition ${i - 1}`
+        return this.state.isVariantSearch? `Condition ${i - 1}` : `Condition ${i + 1}`
     }
 
     getHelpText = (key) => {
         return this.state.isVariantSearch ? "" : this.state.conditionsHelp[key] ?? undefined
+    }
+
+    getInitialValues = (key) => {
+        // replace code below
     }
 
     render() {
@@ -229,7 +221,6 @@ class DiscoverySearchForm extends Component {
                 })(
                     <DiscoverySearchCondition conditionType={this.props.conditionType ?? "data-type"}
                                               dataType={this.props.dataType}
-                                              hidden={this.hideField(k)}
                                               isExcluded={f => existingUniqueFields.includes(f) ||
                                                   (!this.props.isInternal && this.isNotPublic(f))}
                                               onFieldChange={change => this.handleFieldChange(k, change)}
@@ -251,6 +242,9 @@ class DiscoverySearchForm extends Component {
             </Form.Item>
         ));
 
+        //for variants, only standard search fields shown should be the user-added ones
+        const nonHiddenFields = formItems.slice(NUM_HIDDEN_VARIANT_FORM_ITEMS)                            
+
         return <Form onSubmit={this.onSubmit}>
             {this.props.dataType.id === "variant" && (
               <VariantSearchHeader
@@ -258,7 +252,7 @@ class DiscoverySearchForm extends Component {
                 dataType={this.props.dataType}
               />
             )}
-            {formItems}
+            {this.state.isVariantSearch? nonHiddenFields : formItems}
             <Form.Item wrapperCol={{
                 xl: {span: 24},
                 xxl: {offset: 3, span: 18}
