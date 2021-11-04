@@ -4,7 +4,7 @@ import PropTypes from "prop-types";
 import {Button, Form, Icon} from "antd";
 
 import {getFieldSchema, getFields} from "../../utils/schema";
-import {DEFAULT_SEARCH_PARAMETERS, OP_EQUALS} from "../../utils/search";
+import {DEFAULT_SEARCH_PARAMETERS, OP_EQUALS, OP_LESS_THAN_OR_EQUAL, OP_GREATER_THAN_OR_EQUAL} from "../../utils/search";
 
 import DiscoverySearchCondition, {getSchemaTypeTransformer} from "./DiscoverySearchCondition";
 import VariantSearchHeader from "./VariantSearchHeader";
@@ -128,11 +128,10 @@ class DiscoverySearchForm extends Component {
                 ...(conditionType === "data-type" ? {} : {field2}),
                 fieldSchema,
                 negated: false,
-                operation: fieldSchema?.search?.operations?.[0] ?? OP_EQUALS,
+                operation:  this.getInitialOperator(field, fieldSchema),
                 ...(conditionType === "data-type" ? {searchValue: ""} : {})
             },
         };
-
 
         // Initialize new condition, otherwise the state won't get it
         this.props.form.getFieldDecorator(`conditions[${newKey}]`, {
@@ -190,8 +189,22 @@ class DiscoverySearchForm extends Component {
         return this.state.isVariantSearch ? "" : this.state.conditionsHelp[key] ?? undefined
     }
 
-    getInitialValues = (key) => {
-        // replace code below
+    getInitialOperator = (field, fieldSchema) => {
+        if (!this.state.isVariantSearch) {
+            return fieldSchema?.search?.operations?.[0] ?? OP_EQUALS
+        }
+
+        switch (field) {
+          case "[dataset item].start":
+            return OP_GREATER_THAN_OR_EQUAL;
+
+          case "[dataset item].end":
+            return OP_LESS_THAN_OR_EQUAL;
+
+          // assemblyID, chromosome, genotype 
+          default:
+            return OP_EQUALS;
+        }        
     }
 
     render() {
