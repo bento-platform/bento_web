@@ -173,13 +173,6 @@ class DiscoverySearchForm extends Component {
         this.setState({variantSearchValues: {...this.state.variantSearchValues, ...values}})
     }
     
-    // hide first five variant search fields
-    // these appear in the submitted form but not in the UI
-    // their values are controlled by VariantSearchHeader
-    hideField = (fieldNum) => {
-        return this.state.isVariantSearch && fieldNum < NUM_HIDDEN_VARIANT_FORM_ITEMS
-    }
-
     // don't count hidden variant fields
     getLabel = (i) => {
         return this.state.isVariantSearch? `Condition ${i - 1}` : `Condition ${i + 1}`
