@@ -7,9 +7,27 @@ import { performGohanGeneSearchIfPossible } from "../../modules/discovery/action
 // TODOs: 
 // style options
 // tabbing away should select ?
-
+// stop showing options on position notation
 
 const { Option } = AutoComplete;
+
+const optionStyle = {
+  backgroundColor: "hotpink"
+}
+
+// const GeneDropdownOption = ({gene}) => {
+
+//   const {assemblyId, name, chrom, start, end} = gene;
+//   console.log({assemblyId: assemblyId, name: name, chrom: chrom, start: start, end: end})
+
+//   return <p>{gene.name}</p>
+// }
+
+const geneOptionText = (gene) => {
+  const {assemblyId, name, chrom, start, end} = gene;
+  return `${gene.name} chromosome: ${gene.chrom} start: ${gene.start} end: ${gene.end}`
+}
+
 
 const LocusSearch = ({assemblyId, addVariantSearchValues}) => {
   // const [input, setInput] = useState(""); //needed?
@@ -29,6 +47,9 @@ const LocusSearch = ({assemblyId, addVariantSearchValues}) => {
     // handle position notation
     if(value.includes(':')){
       parsePosition(value)
+
+      // also stop showing dropdown
+
       return
     }
 
@@ -39,11 +60,13 @@ const LocusSearch = ({assemblyId, addVariantSearchValues}) => {
     const locus = options.props?.locus
     
     // todo: "locus" may be array of multiple items if users tabs away 
+    console.log({selectValue: value, selectOptions: options})
 
     // may not need error checking here, since this is user selection, not user input
     if (!locus){
       return
     }
+
     addVariantSearchValues({...locus})
   } 
 
@@ -51,13 +74,28 @@ const LocusSearch = ({assemblyId, addVariantSearchValues}) => {
     setAutoCompleteOptions((geneSearchResults ?? []).sort((a, b) => (a.name > b.name) ? 1 : -1))
   }, [geneSearchResults])
 
-  return <AutoComplete
-    options={autoCompleteOptions}
-    onChange={handleChange}
-    onSelect={handleSelect}
+  console.log({autoCompleteOptions: autoCompleteOptions})
+  
+  return (
+    <AutoComplete
+      options={autoCompleteOptions}
+      onChange={handleChange}
+      onSelect={handleSelect}
+      // dropdownMenuStyle={}
+      // backfill={true}
     >
-      {showAutoCompleteOptions && autoCompleteOptions.map((r, i) => <Option key={r.name} value={r.name} locus={r} >{`${r.name} chromosome: ${r.chrom} start: ${r.start} end: ${r.end}`}</Option>)}
-      </AutoComplete>
+      {showAutoCompleteOptions &&
+        autoCompleteOptions.map((g, i) => (
+          <Option
+            key={`${g.name}_${g.assemblyId}`}
+            value={g.name}
+            label={`${g.name} chrom: ${g.chrom}`}
+            locus={g}
+            // style={optionStyle}
+          >{geneOptionText(g)}</Option>
+        ))}
+    </AutoComplete>
+  );
 };
 
 export default LocusSearch;
