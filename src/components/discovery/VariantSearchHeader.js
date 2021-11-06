@@ -21,14 +21,14 @@ const VariantSearchHeader = ({dataType, addVariantSearchValues}) => {
     // so if assembly is "Other", pass that value to the form, but use
     // "GRCh37" as the reference for gene lookup in Gohan
 
-    let geneLookupValue = value
+    let geneLookupAssembly = value
 
     if (value==="Other"){
-      geneLookupValue = "GRCh37"
+      geneLookupAssembly = "GRCh37"
     }
 
     addVariantSearchValues({assemblyId: value})
-    setAssemblyId(geneLookupValue) 
+    setAssemblyId(geneLookupAssembly) 
   }
 
   const handleGenotypeChange = (value) => {
