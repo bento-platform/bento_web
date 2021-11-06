@@ -1,15 +1,11 @@
-import React, { useEffect, useState } from "react";
-import { useDispatch, useSelector } from "react-redux";
-import { Input, Form, Select } from "antd";
-import DiscoverySearchCondition from "./DiscoverySearchCondition";
+import React, { useState } from "react";
+import { Form, Select } from "antd";
 import LocusSearch from "./LocusSearch";
 
 const VariantSearchHeader = ({dataType, addVariantSearchValues}) => {
 
   // or default to GRCh37?
   const [assemblyId, setAssemblyId] = useState(null)
-  const [variantGenotype, setVariantGenotype] = useState(null)
-
   const assemblySchema = dataType.schema?.properties?.assembly_id
   const genotypeSchema = dataType.schema?.properties?.calls?.items?.properties?.genotype_type
 
@@ -18,12 +14,21 @@ const VariantSearchHeader = ({dataType, addVariantSearchValues}) => {
   const wrapperCol = {lg: { span: 24 }, xl: { span: 20 }, xxl: { span: 18 }}
 
   const handleAssemblyIdChange = (value) => {
-    // temp: treat "Other" as equivalent to GRCh37
-    // requires fixes elsewhere in Bento
+
+    // temp workaround for bug in Bento back end:
+    // files ingested with GRCh37 reference need to be searched using assemblyId "Other"
+
+    // so if assembly is "Other", pass that value to the form, but use
+    // "GRCh37" as the reference for gene lookup in Gohan
+
+    let geneLookupValue = value
+
     if (value==="Other"){
-      value = "GRCh37"
+      geneLookupValue = "GRCh37"
     }
-    setAssemblyId(value)
+
+    addVariantSearchValues({assemblyId: value})
+    setAssemblyId(geneLookupValue) 
   }
 
   const handleGenotypeChange = (value) => {
@@ -32,7 +37,6 @@ const VariantSearchHeader = ({dataType, addVariantSearchValues}) => {
 
 // Select needs
 // style
-// onChange
 // getSearchValue ??
 
   return (<>
