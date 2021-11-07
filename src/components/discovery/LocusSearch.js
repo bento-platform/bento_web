@@ -15,22 +15,12 @@ const optionStyle = {
   backgroundColor: "hotpink"
 }
 
-// const GeneDropdownOption = ({gene}) => {
-
-//   const {assemblyId, name, chrom, start, end} = gene;
-//   console.log({assemblyId: assemblyId, name: name, chrom: chrom, start: start, end: end})
-
-//   return <p>{gene.name}</p>
-// }
-
 const geneDropdownText = (g) => {
   return `${g.name} chromosome: ${g.chrom} start: ${g.start} end: ${g.end}`
 }
 
-
-
 const LocusSearch = ({assemblyId, addVariantSearchValues}) => {
-  // const [input, setInput] = useState(""); //needed?
+  const [input, setInput] = useState(""); 
   const [autoCompleteOptions, setAutoCompleteOptions] = useState([])
   const geneSearchResults = useSelector((state) => state.discovery.geneNameSearchResponse);
   const dispatch = useDispatch();
@@ -39,17 +29,17 @@ const LocusSearch = ({assemblyId, addVariantSearchValues}) => {
 
   const handleChange = (value) => {
 
-    // setInput(value)
-    if (!value.length || !showAutoCompleteOptions){
-      return
-    }
+    console.log(`got input ${value}`)
+    setInput(value)
 
     // handle position notation
     if(value.includes(':')){
       parsePosition(value)
+      setAutoCompleteOptions([])
+      return
+    }
 
-      // also stop showing dropdown
-
+    if (!value.length || !showAutoCompleteOptions){
       return
     }
 
@@ -57,11 +47,12 @@ const LocusSearch = ({assemblyId, addVariantSearchValues}) => {
   } 
 
   const handleSelect = (value, options) => {
-    const locus = options.props?.locus
-    
+
     // todo: "locus" may be array of multiple items if users tabs away 
     console.log({selectValue: value, selectOptions: options})
 
+    const locus = options.props?.locus
+    
     // may not need error checking here, since this is user selection, not user input
     if (!locus){
       return
@@ -69,6 +60,11 @@ const LocusSearch = ({assemblyId, addVariantSearchValues}) => {
 
     addVariantSearchValues({...locus})
   } 
+
+  const handleSearch = (value) => {
+    console.log(`handleSearch: ${value}`)
+  }
+
 
   useEffect(() => {
     setAutoCompleteOptions((geneSearchResults ?? []).sort((a, b) => (a.name > b.name) ? 1 : -1))
@@ -79,6 +75,8 @@ const LocusSearch = ({assemblyId, addVariantSearchValues}) => {
       options={autoCompleteOptions}
       onChange={handleChange}
       onSelect={handleSelect}
+      onSearch={handleSearch}
+
       // dropdownMenuStyle={}
       // backfill={true}
     >
@@ -102,4 +100,25 @@ function parsePosition(value) {
 
   // todo
   // parse "chr:start-end" notation and call setVariantSearchValues()
+
+
+  const parse = /(?:CHR|chr)([0-9]{1,2}|X|x|Y|y|M|m):(\d+)-(\d+)/
+
+  const result = parse.exec(value)
+
+
+  // quit if null
+
+  const chrom = result[1]
+  const start = result[2]
+  const end = result[3]
+
+  // do some basic error checking before adding
+
+
+
+  addVariantSearchValues({chrom: chrom, start: start, end: end})
+
+
+  
 }
