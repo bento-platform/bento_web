@@ -23,10 +23,10 @@ const optionStyle = {
 //   return <p>{gene.name}</p>
 // }
 
-const geneOptionText = (gene) => {
-  const {assemblyId, name, chrom, start, end} = gene;
-  return `${gene.name} chromosome: ${gene.chrom} start: ${gene.start} end: ${gene.end}`
+const geneDropdownText = (g) => {
+  return `${g.name} chromosome: ${g.chrom} start: ${g.start} end: ${g.end}`
 }
+
 
 
 const LocusSearch = ({assemblyId, addVariantSearchValues}) => {
@@ -73,8 +73,6 @@ const LocusSearch = ({assemblyId, addVariantSearchValues}) => {
   useEffect(() => {
     setAutoCompleteOptions((geneSearchResults ?? []).sort((a, b) => (a.name > b.name) ? 1 : -1))
   }, [geneSearchResults])
-
-  console.log({autoCompleteOptions: autoCompleteOptions})
   
   return (
     <AutoComplete
@@ -92,7 +90,7 @@ const LocusSearch = ({assemblyId, addVariantSearchValues}) => {
             label={`${g.name} chrom: ${g.chrom}`}
             locus={g}
             // style={optionStyle}
-          >{geneOptionText(g)}</Option>
+          >{geneDropdownText(g)}</Option>
         ))}
     </AutoComplete>
   );

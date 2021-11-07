@@ -5,7 +5,7 @@ import LocusSearch from "./LocusSearch";
 const VariantSearchHeader = ({dataType, addVariantSearchValues}) => {
 
   // or default to GRCh37?
-  const [assemblyId, setAssemblyId] = useState(null)
+  const [lookupAssemblyId, setLookupAssemblyId] = useState(null)
   const assemblySchema = dataType.schema?.properties?.assembly_id
   const genotypeSchema = dataType.schema?.properties?.calls?.items?.properties?.genotype_type
 
@@ -15,20 +15,19 @@ const VariantSearchHeader = ({dataType, addVariantSearchValues}) => {
 
   const handleAssemblyIdChange = (value) => {
 
+    addVariantSearchValues({assemblyId: value})
+
     // temp workaround for bug in Bento back end:
     // files ingested with GRCh37 reference need to be searched using assemblyId "Other"
 
     // so if assembly is "Other", pass that value to the form, but use
     // "GRCh37" as the reference for gene lookup in Gohan
-
-    let geneLookupAssembly = value
-
     if (value==="Other"){
-      geneLookupAssembly = "GRCh37"
+      setLookupAssemblyId("GRCh37") 
+      return
     }
 
-    addVariantSearchValues({assemblyId: value})
-    setAssemblyId(geneLookupAssembly) 
+    setLookupAssemblyId(value) 
   }
 
   const handleGenotypeChange = (value) => {
@@ -58,7 +57,7 @@ const VariantSearchHeader = ({dataType, addVariantSearchValues}) => {
         label={"Locus"}
         help={`Enter gene name (eg "BRCA1") or position ("chr17:41195311-41278381")`}
     >
-      <LocusSearch assemblyId={assemblyId} addVariantSearchValues={addVariantSearchValues} />
+      <LocusSearch assemblyId={lookupAssemblyId} addVariantSearchValues={addVariantSearchValues} />
     </Form.Item>
     <Form.Item
       labelCol={labelCol}

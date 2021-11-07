@@ -177,7 +177,8 @@ class DiscoverySearchForm extends Component {
         return toReturn
     }
 
-    addVariantSearchValues = async (values) => {
+    // fill hidden variant forms according to input in user-friendly variant search
+    addVariantSearchValues = (values) => {
         this.setState({variantSearchValues: {...this.state.variantSearchValues, ...values}})
 
         const {assemblyId, name, chrom, start, end, genotype_type } = values;
@@ -186,19 +187,28 @@ class DiscoverySearchForm extends Component {
         const fields = this.props.formValues
         console.log({fields: fields})
 
-        console.log(`previous assembly ID was ${fields.conditions[0].value.searchValue}`)
+       let updatedConditionsArray = fields.conditions
 
-        if (values.assemblyId) {
-          const updatedConditionsArray = this.updateConditions(fields.conditions, "[dataset item].assembly_id", assemblyId);
-
-          const updatedFields = {
-            keys: fields.keys,
-            conditions: updatedConditionsArray,
-          };
-
-        //   await?
-        this.props.handleVariantHiddenFieldChange(updatedFields);
+        if (assemblyId){
+            updatedConditionsArray = this.updateConditions(updatedConditionsArray, "[dataset item].assembly_id", assemblyId);
         }
+
+        if (genotype_type){
+            updatedConditionsArray = this.updateConditions(updatedConditionsArray, "[dataset item].calls.[item].genotype_type", genotype_type);
+        }
+
+        if (chrom && start && end) {
+            updatedConditionsArray = this.updateConditions(updatedConditionsArray, "[dataset item].chromosome", chrom);
+            updatedConditionsArray = this.updateConditions(updatedConditionsArray, "[dataset item].start", start);
+            updatedConditionsArray = this.updateConditions(updatedConditionsArray, "[dataset item].end", end);
+        }
+
+        const updatedFields = {
+          keys: fields.keys,
+          conditions: updatedConditionsArray,
+        };
+
+        this.props.handleVariantHiddenFieldChange(updatedFields);
 
 
         // values to change are:
@@ -304,7 +314,7 @@ class DiscoverySearchForm extends Component {
             </Form.Item>
         ));
 
-        //for variants, only standard search fields shown should be the user-added ones
+        //for variant search, only show user-added fields, hide everything else
         const nonHiddenFields = formItems.slice(NUM_HIDDEN_VARIANT_FORM_ITEMS)                            
 
         return <Form onSubmit={this.onSubmit}>
