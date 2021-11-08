@@ -30,14 +30,14 @@ const MODAL_Z_INDEX = 5000;
 
 
 const IndividualTracks = ({individual}) => {
-  const igvRef = useRef(null);
-    const igvRendered = useRef(false);  
+    const igvRef = useRef(null);
+    const igvRendered = useRef(false);
     const igvUrls = useSelector((state) => state.drs.igvUrlsByFilename);
     const isFetchingIgvUrls = useSelector((state) => state.drs.isFetchingIgvUrls);
     const dispatch = useDispatch();
     const history = useHistory();
 
-    const locus = history.location?.state?.locus
+    const locus = history.location?.state?.locus;
     const biosamplesData = (individual?.phenopackets ?? []).flatMap((p) => p.biosamples);
     const experimentsData = biosamplesData.flatMap((b) => b?.experiments ?? []);
     let viewableResults = experimentsData.flatMap((e) => e?.experiment_results ?? []).filter(isViewable);

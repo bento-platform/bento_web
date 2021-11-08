@@ -12,7 +12,7 @@ const IndividualGenes = ({individual, tracksUrl}) => {
     const genesFlat = genes.flatMap(g => ({symbol: g.symbol}));
 
 
-    console.log({genesFlat: genesFlat})
+    console.log({genesFlat: genesFlat});
 
     const igvLink = (symbol) => (
       <Link
