@@ -17,12 +17,26 @@ export const REMOVE_ALL_DATA_TYPE_QUERY_FORMS = "DISCOVERY.REMOVE_ALL_DATA_TYPE_
 
 export const UPDATE_JOIN_QUERY_FORM = "DISCOVERY.UPDATE_JOIN_QUERY_FORM";
 
+export const PERFORM_GOHAN_GENE_SEARCH = createNetworkActionTypes("GOHAN_GENE_SEARCH");
+
+export const performGohanGeneSearchIfPossible = (searchTerm, assemblyId) => (dispatch, getState) => {
+    const gohanUrl = getState()?.services?.gohan?.url;
+    const bentoBaseUrl = `${getState().nodeInfo.data.CHORD_URL}`;
+    const queryString = `/genes/search?term=${searchTerm}&assemblyId=${assemblyId}`;
+    const searchUrl = gohanUrl ? `${gohanUrl}${queryString}` : `${bentoBaseUrl}api/gohan${queryString}`;
+    dispatch(performGohanGeneSearch(searchUrl));
+};
+
+const performGohanGeneSearch = networkAction((searchUrl) => () => ({
+    types: PERFORM_GOHAN_GENE_SEARCH,
+    url: searchUrl,
+    err: "error performing Gohan gene search",
+}));
 
 export const selectSearch = searchIndex => ({
     type: SELECT_SEARCH,
     searchIndex,
 });
-
 
 const performSearch = networkAction((dataTypeQueries, joinQuery = null) => (dispatch, getState) => ({
     types: PERFORM_SEARCH,
