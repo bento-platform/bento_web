@@ -54,7 +54,7 @@ const VariantSearchHeader = ({dataType, addVariantSearchValues}) => {
     <Form.Item
         labelCol={labelCol}
         wrapperCol={wrapperCol}
-        label={"Locus"}
+        label={"Gene / position"}
         help={`Enter gene name (eg "BRCA1") or position ("chr17:41195311-41278381")`}
     >
       <LocusSearch assemblyId={lookupAssemblyId} addVariantSearchValues={addVariantSearchValues} />
