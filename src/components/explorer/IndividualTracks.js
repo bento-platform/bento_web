@@ -128,12 +128,18 @@ const IndividualTracks = ({ individual, igvLocus, setIgvLocus }) => {
 
         const igvOptions = {
             genome: genome,
+            locus: igvLocus, //zooms out if null
             tracks: igvTracks,
         };
 
-        igv.createBrowser(igvRef.current, igvOptions).then(function (browser) {
+        igv.createBrowser(igvRef.current, igvOptions).then( (browser) => {
             igv.browser = browser;
             igvRendered.current = true;
+
+            // code for monitoring user IGV changes, TODO
+            // igv.browser.on('locuschange', (referenceFrame) => {
+            //     console.log({referenceFrame: referenceFrame});
+            // });
         });
     }, [igvUrls]);
 
