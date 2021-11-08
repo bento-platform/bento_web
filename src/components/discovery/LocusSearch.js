@@ -1,19 +1,12 @@
 import React, {useEffect, useState} from "react";
-import { AutoComplete, Form } from "antd";
+import { AutoComplete } from "antd";
 import { useDispatch, useSelector } from "react-redux";
 import { performGohanGeneSearchIfPossible } from "../../modules/discovery/actions";
 
-
 // TODOs: 
 // style options
-// tabbing away should select ?
-// stop showing options on position notation
 
 const { Option } = AutoComplete;
-
-const optionStyle = {
-  backgroundColor: "hotpink"
-}
 
 const geneDropdownText = (g) => {
   return `${g.name} chromosome: ${g.chrom} start: ${g.start} end: ${g.end}`
@@ -26,6 +19,21 @@ const LocusSearch = ({assemblyId, addVariantSearchValues}) => {
   const dispatch = useDispatch();
 
   const showAutoCompleteOptions = assemblyId==="GRCh37" || assemblyId==="GRCh38"
+
+  const parsePosition = (value) => {
+    const parse = /(?:CHR|chr)([0-9]{1,2}|X|x|Y|y|M|m):(\d+)-(\d+)/
+    const result = parse.exec(value)
+  
+    if (!result){
+      return
+    }
+    
+    let chrom = result[1].toUpperCase() //for eg 'x', has no effect on numbers
+    const start = Number(result[2])
+    const end = Number(result[3])
+    
+    addVariantSearchValues({chrom: chrom, start: start, end: end})
+  }
 
   const handleChange = (value) => {
 
@@ -47,10 +55,6 @@ const LocusSearch = ({assemblyId, addVariantSearchValues}) => {
   } 
 
   const handleSelect = (value, options) => {
-
-    // todo: "locus" may be array of multiple items if users tabs away 
-    console.log({selectValue: value, selectOptions: options})
-
     const locus = options.props?.locus
     
     // may not need error checking here, since this is user selection, not user input
@@ -65,7 +69,6 @@ const LocusSearch = ({assemblyId, addVariantSearchValues}) => {
     console.log(`handleSearch: ${value}`)
   }
 
-
   useEffect(() => {
     setAutoCompleteOptions((geneSearchResults ?? []).sort((a, b) => (a.name > b.name) ? 1 : -1))
   }, [geneSearchResults])
@@ -76,7 +79,6 @@ const LocusSearch = ({assemblyId, addVariantSearchValues}) => {
       onChange={handleChange}
       onSelect={handleSelect}
       onSearch={handleSearch}
-
       // dropdownMenuStyle={}
       // backfill={true}
     >
@@ -95,30 +97,3 @@ const LocusSearch = ({assemblyId, addVariantSearchValues}) => {
 };
 
 export default LocusSearch;
-
-function parsePosition(value) {
-
-  // todo
-  // parse "chr:start-end" notation and call setVariantSearchValues()
-
-
-  const parse = /(?:CHR|chr)([0-9]{1,2}|X|x|Y|y|M|m):(\d+)-(\d+)/
-
-  const result = parse.exec(value)
-
-
-  // quit if null
-
-  const chrom = result[1]
-  const start = result[2]
-  const end = result[3]
-
-  // do some basic error checking before adding
-
-
-
-  addVariantSearchValues({chrom: chrom, start: start, end: end})
-
-
-  
-}
