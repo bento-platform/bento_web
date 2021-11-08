@@ -182,12 +182,8 @@ class DiscoverySearchForm extends Component {
         this.setState({variantSearchValues: {...this.state.variantSearchValues, ...values}})
 
         const {assemblyId, name, chrom, start, end, genotype_type } = values;
-        console.log({gotValues: values})
-
         const fields = this.props.formValues
-        console.log({fields: fields})
-
-       let updatedConditionsArray = fields.conditions
+        let updatedConditionsArray = fields.conditions
 
         if (assemblyId){
             updatedConditionsArray = this.updateConditions(updatedConditionsArray, "[dataset item].assembly_id", assemblyId);
@@ -209,34 +205,6 @@ class DiscoverySearchForm extends Component {
         };
 
         this.props.handleVariantHiddenFieldChange(updatedFields);
-
-
-        // values to change are:
-        // value.field === '[dataset item].assembly_id'
-        // change value.searchValue = new assembly ID
-
-        // 1: value.field = "[dataset item].chromosome"
-        // set value.searchValue to chrom
-
-        // 2: value.field = "[dataset item].start"
-        // set value.searchValue to start
-
-        // 3: value.field = "[dataset item].end"
-        // set value.searchValue to end
-
-        // 4: value.field = "[dataset item].calls.[item].genotype_type"
-        // set searchValue to genotype
-
-
-
-        
-        // this.props.form.validateFields((err, vvv) => {
-        //     if (!err) {
-        //       console.log("Received values of form");
-        //       console.log({vvv: vvv})
-        //     }
-        //   });
-
     }
     
     // don't count hidden variant fields

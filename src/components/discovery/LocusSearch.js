@@ -37,7 +37,6 @@ const LocusSearch = ({assemblyId, addVariantSearchValues}) => {
 
   const handleChange = (value) => {
 
-    console.log(`got input ${value}`)
     setInput(value)
 
     // handle position notation
@@ -67,10 +66,6 @@ const LocusSearch = ({assemblyId, addVariantSearchValues}) => {
     addVariantSearchValues({chrom: chrom, start: start, end: end})
   } 
 
-  const handleSearch = (value) => {
-    console.log(`handleSearch: ${value}`)
-  }
-
   useEffect(() => {
     setAutoCompleteOptions((geneSearchResults ?? []).sort((a, b) => (a.name > b.name) ? 1 : -1))
   }, [geneSearchResults])
@@ -80,7 +75,6 @@ const LocusSearch = ({assemblyId, addVariantSearchValues}) => {
       options={autoCompleteOptions}
       onChange={handleChange}
       onSelect={handleSelect}
-      onSearch={handleSearch}
       // dropdownMenuStyle={}
       // backfill={true}
     >
