@@ -62,7 +62,9 @@ const LocusSearch = ({assemblyId, addVariantSearchValues}) => {
       return
     }
 
-    addVariantSearchValues({...locus})
+    // don't use locus.assemblyId, since this is the lookup value 
+    const {chrom, start, end} = locus
+    addVariantSearchValues({chrom: chrom, start: start, end: end})
   } 
 
   const handleSearch = (value) => {
