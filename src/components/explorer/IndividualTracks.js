@@ -28,7 +28,7 @@ const MODAL_Z_INDEX = 5000;
 // reduce VISIBILITY_WINDOW above for better performance
 
 
-const IndividualTracks = ({ individual }) => {
+const IndividualTracks = ({ individual, igvLocus, setIgvLocus }) => {
     const igvRef = useRef(null);
     const igvRendered = useRef(false);
     const igvUrls = useSelector((state) => state.drs.igvUrlsByFilename);

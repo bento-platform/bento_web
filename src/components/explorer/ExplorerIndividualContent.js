@@ -42,6 +42,7 @@ class ExplorerIndividualContent extends Component {
         this.state = {
             backUrl: null,
             selectedTab: "overview",
+            igvLocus: null
         };
     }
 
@@ -63,6 +64,10 @@ class ExplorerIndividualContent extends Component {
         const backUrl = (this.props.location.state || {}).backUrl;
         if (backUrl) this.setState({backUrl});
         this.fetchIndividualData();
+    }
+
+    setIgvLocus(locus) {
+        this.setState({igvLocus: locus})
     }
 
     render() {
@@ -123,7 +128,7 @@ class ExplorerIndividualContent extends Component {
                             <IndividualExperiments individual={individual} />
                         </Route>
                         <Route path={tracksUrl.replace(":", "\\:")}>
-                            <IndividualTracks individual={individual} />
+                            <IndividualTracks individual={individual} igvLocus={this.state.igvLocus} setIgvLocus={this.setIgvLocus} />
                         </Route>
                         <Route path={variantsUrl.replace(":", "\\:")}>
                             <IndividualVariants individual={individual} />
