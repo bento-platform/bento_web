@@ -4,6 +4,7 @@ import { individualPropTypesShape } from "../../propTypes";
 import { Button, Divider, Modal, Switch, Table } from "antd";
 import { getIgvUrlsFromDrs } from "../../modules/drs/actions";
 import { guessFileType } from "../../utils/guessFileType";
+import { useHistory } from "react-router-dom";
 import igv from "igv";
 
 const SQUISHED_CALL_HEIGHT = 10;
@@ -28,13 +29,15 @@ const MODAL_Z_INDEX = 5000;
 // reduce VISIBILITY_WINDOW above for better performance
 
 
-const IndividualTracks = ({ individual, igvLocus, setIgvLocus }) => {
-    const igvRef = useRef(null);
-    const igvRendered = useRef(false);
+const IndividualTracks = ({individual}) => {
+  const igvRef = useRef(null);
+    const igvRendered = useRef(false);  
     const igvUrls = useSelector((state) => state.drs.igvUrlsByFilename);
     const isFetchingIgvUrls = useSelector((state) => state.drs.isFetchingIgvUrls);
     const dispatch = useDispatch();
+    const history = useHistory();
 
+    const locus = history.location?.state?.locus
     const biosamplesData = (individual?.phenopackets ?? []).flatMap((p) => p.biosamples);
     const experimentsData = biosamplesData.flatMap((b) => b?.experiments ?? []);
     let viewableResults = experimentsData.flatMap((e) => e?.experiment_results ?? []).filter(isViewable);
@@ -128,7 +131,7 @@ const IndividualTracks = ({ individual, igvLocus, setIgvLocus }) => {
 
         const igvOptions = {
             genome: genome,
-            locus: igvLocus, //zooms out if null
+            locus: locus, //zooms out if null or undefined
             tracks: igvTracks,
         };
 
