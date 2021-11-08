@@ -128,13 +128,13 @@ class ExplorerIndividualContent extends Component {
                             <IndividualExperiments individual={individual} />
                         </Route>
                         <Route path={tracksUrl.replace(":", "\\:")}>
-                            <IndividualTracks individual={individual} igvLocus={this.state.igvLocus} setIgvLocus={this.setIgvLocus} />
+                            <IndividualTracks individual={individual} />
                         </Route>
                         <Route path={variantsUrl.replace(":", "\\:")}>
                             <IndividualVariants individual={individual} />
                         </Route>
                         <Route path={genesUrl.replace(":", "\\:")}>
-                            <IndividualGenes individual={individual} />
+                            <IndividualGenes individual={individual} tracksUrl={tracksUrl} />
                         </Route>
                         <Route path={diseasesUrl.replace(":", "\\:")}>
                             <IndividualDiseases individual={individual} />
