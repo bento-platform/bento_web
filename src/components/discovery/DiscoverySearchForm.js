@@ -4,12 +4,17 @@ import PropTypes from "prop-types";
 import {Button, Form, Icon} from "antd";
 
 import {getFieldSchema, getFields} from "../../utils/schema";
-import {DEFAULT_SEARCH_PARAMETERS, OP_EQUALS, OP_LESS_THAN_OR_EQUAL, OP_GREATER_THAN_OR_EQUAL} from "../../utils/search";
+import {
+    DEFAULT_SEARCH_PARAMETERS,
+    OP_EQUALS,
+    OP_LESS_THAN_OR_EQUAL,
+    OP_GREATER_THAN_OR_EQUAL,
+} from "../../utils/search";
 
 import DiscoverySearchCondition, {getSchemaTypeTransformer} from "./DiscoverySearchCondition";
 import VariantSearchHeader from "./VariantSearchHeader";
 
-const NUM_HIDDEN_VARIANT_FORM_ITEMS = 5
+const NUM_HIDDEN_VARIANT_FORM_ITEMS = 5;
 
 // noinspection JSUnusedGlobalSymbols
 const CONDITION_RULES = [
@@ -40,14 +45,19 @@ class DiscoverySearchForm extends Component {
     constructor(props) {
         super(props);
 
-        this.state = {conditionsHelp: {}, fieldSchemas: {}, variantSearchValues: {}, isVariantSearch: props.dataType.id === "variant"};
+        this.state = {
+            conditionsHelp: {},
+            fieldSchemas: {},
+            variantSearchValues: {},
+            isVariantSearch: props.dataType.id === "variant",
+        };
         this.initialValues = {};
 
         this.handleFieldChange = this.handleFieldChange.bind(this);
         this.getDataTypeFieldSchema = this.getDataTypeFieldSchema.bind(this);
         this.addCondition = this.addCondition.bind(this);
         this.removeCondition = this.removeCondition.bind(this);
-        this.addVariantSearchValues = this.addVariantSearchValues.bind(this)
+        this.addVariantSearchValues = this.addVariantSearchValues.bind(this);
     }
 
     componentDidMount() {
@@ -60,8 +70,8 @@ class DiscoverySearchForm extends Component {
             : [];
 
         const stateUpdates = this.state.isVariantSearch
-          ? this.hiddenVariantSearchFields().map((c) => this.addCondition(c, undefined, true))
-          : requiredFields.map((c) => this.addCondition(c, undefined, true));
+            ? this.hiddenVariantSearchFields().map((c) => this.addCondition(c, undefined, true))
+            : requiredFields.map((c) => this.addCondition(c, undefined, true));
 
         // Add a single default condition if necessary
         if (requiredFields.length === 0 && this.props.conditionType !== "join") {
@@ -167,30 +177,40 @@ class DiscoverySearchForm extends Component {
         "[dataset item].start",
         "[dataset item].end",
         "[dataset item].calls.[item].genotype_type",
-    ]    
+    ]
 
     updateConditions = (conditions, fieldName, newValue) => {
-        console.log({CONDITIONSIN: conditions})
-        const toReturn = conditions.map(c => c.value.field === fieldName ? ({...c,  value: {...c.value, searchValue: newValue }})  : c)
-        console.log({CONDITIONSOUT: toReturn})
+        console.log({CONDITIONSIN: conditions});
+        const toReturn = conditions.map((c) =>
+            c.value.field === fieldName ? { ...c, value: { ...c.value, searchValue: newValue } } : c
+        );
+        console.log({CONDITIONSOUT: toReturn});
 
-        return toReturn
+        return toReturn;
     }
 
     // fill hidden variant forms according to input in user-friendly variant search
     addVariantSearchValues = (values) => {
-        this.setState({variantSearchValues: {...this.state.variantSearchValues, ...values}})
+        this.setState({variantSearchValues: {...this.state.variantSearchValues, ...values}});
 
-        const {assemblyId, name, chrom, start, end, genotype_type } = values;
-        const fields = this.props.formValues
-        let updatedConditionsArray = fields.conditions
+        const {assemblyId, chrom, start, end, genotypeType } = values;
+        const fields = this.props.formValues;
+        let updatedConditionsArray = fields.conditions;
 
-        if (assemblyId){
-            updatedConditionsArray = this.updateConditions(updatedConditionsArray, "[dataset item].assembly_id", assemblyId);
+        if (assemblyId) {
+            updatedConditionsArray = this.updateConditions(
+                updatedConditionsArray,
+                "[dataset item].assembly_id",
+                assemblyId
+            );
         }
 
-        if (genotype_type){
-            updatedConditionsArray = this.updateConditions(updatedConditionsArray, "[dataset item].calls.[item].genotype_type", genotype_type);
+        if (genotypeType) {
+            updatedConditionsArray = this.updateConditions(
+                updatedConditionsArray,
+                "[dataset item].calls.[item].genotype_type",
+                genotypeType
+            );
         }
 
         if (chrom && start && end) {
@@ -200,38 +220,38 @@ class DiscoverySearchForm extends Component {
         }
 
         const updatedFields = {
-          keys: fields.keys,
-          conditions: updatedConditionsArray,
+            keys: fields.keys,
+            conditions: updatedConditionsArray,
         };
 
         this.props.handleVariantHiddenFieldChange(updatedFields);
     }
-    
+
     // don't count hidden variant fields
     getLabel = (i) => {
-        return this.state.isVariantSearch? `Condition ${i - 1}` : `Condition ${i + 1}`
+        return this.state.isVariantSearch ? `Condition ${i - 1}` : `Condition ${i + 1}`;
     }
 
     getHelpText = (key) => {
-        return this.state.isVariantSearch ? "" : this.state.conditionsHelp[key] ?? undefined
+        return this.state.isVariantSearch ? "" : this.state.conditionsHelp[key] ?? undefined;
     }
 
     getInitialOperator = (field, fieldSchema) => {
         if (!this.state.isVariantSearch) {
-            return fieldSchema?.search?.operations?.[0] ?? OP_EQUALS
+            return fieldSchema?.search?.operations?.[0] ?? OP_EQUALS;
         }
 
         switch (field) {
-          case "[dataset item].start":
-            return OP_GREATER_THAN_OR_EQUAL;
+            case "[dataset item].start":
+                return OP_GREATER_THAN_OR_EQUAL;
 
-          case "[dataset item].end":
-            return OP_LESS_THAN_OR_EQUAL;
+            case "[dataset item].end":
+                return OP_LESS_THAN_OR_EQUAL;
 
-          // assemblyID, chromosome, genotype 
-          default:
-            return OP_EQUALS;
-        }        
+          // assemblyID, chromosome, genotype
+            default:
+                return OP_EQUALS;
+        }
     }
 
     render() {
@@ -283,16 +303,16 @@ class DiscoverySearchForm extends Component {
         ));
 
         //for variant search, only show user-added fields, hide everything else
-        const nonHiddenFields = formItems.slice(NUM_HIDDEN_VARIANT_FORM_ITEMS)                            
+        const nonHiddenFields = formItems.slice(NUM_HIDDEN_VARIANT_FORM_ITEMS);
 
         return <Form onSubmit={this.onSubmit}>
             {this.props.dataType.id === "variant" && (
               <VariantSearchHeader
               addVariantSearchValues={this.addVariantSearchValues}
-                dataType={this.props.dataType}
+              dataType={this.props.dataType}
               />
             )}
-            {this.state.isVariantSearch? nonHiddenFields : formItems}
+            {this.state.isVariantSearch ? nonHiddenFields : formItems}
             <Form.Item wrapperCol={{
                 xl: {span: 24},
                 xxl: {offset: 3, span: 18}
@@ -309,7 +329,8 @@ DiscoverySearchForm.propTypes = {
     conditionType: PropTypes.oneOf(["data-type", "join"]),
     dataType: PropTypes.object,  // TODO: Shape?
     isInternal: PropTypes.bool,
-    // TODO
+    formValues: PropTypes.object,
+    handleVariantHiddenFieldChange: PropTypes.func,
 };
 
 export default Form.create({

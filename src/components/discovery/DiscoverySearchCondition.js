@@ -123,9 +123,9 @@ class DiscoverySearchCondition extends Component {
             // Prefix select keys in case there's a "blank" item in the enum, which throws an error
             return (
                  <Select style={this.getInputStyle(valueWidth)} onChange={this.handleSearchSelectValue}
-                        value={this.getSearchValue()} showSearch
-                        filterOption={(i, o) =>
-                            o.props.children.toLocaleLowerCase().includes(i.toLocaleLowerCase())}>
+                         value={this.getSearchValue()} showSearch
+                         filterOption={(i, o) =>
+                             o.props.children.toLocaleLowerCase().includes(i.toLocaleLowerCase())}>
                     {(this.state.fieldSchema.type === "boolean" ? BOOLEAN_OPTIONS : this.state.fieldSchema.enum)
                         .map(v => <Select.Option key={`_${v}`} value={v}>{v}</Select.Option>)}
                 </Select>
@@ -137,7 +137,7 @@ class DiscoverySearchCondition extends Component {
                    placeholder="value"
                    onChange={this.handleSearchValue}
                    value={this.getSearchValue()}
-                   />    
+                   />
         );
     }
 
@@ -217,7 +217,7 @@ class DiscoverySearchCondition extends Component {
                         icon="close"
                         style={{width: `${CLOSE_WIDTH}px`}}
                         disabled={this.props.removeDisabled}
-                        onClick={this.props.onRemoveClick ?? nop} 
+                        onClick={this.props.onRemoveClick ?? nop}
                         />
             ) : null}
         </Input.Group>;

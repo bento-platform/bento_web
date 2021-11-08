@@ -28,7 +28,7 @@ class DiscoveryQueryBuilder extends Component {
 
         this.handleAddDataTypeQueryForm = this.handleAddDataTypeQueryForm.bind(this);
         this.handleTabsEdit = this.handleTabsEdit.bind(this);
-        this.handleVariantHiddenFieldChange = this.handleVariantHiddenFieldChange.bind(this)
+        this.handleVariantHiddenFieldChange = this.handleVariantHiddenFieldChange.bind(this);
 
         this.forms = {};
     }
@@ -148,7 +148,7 @@ class DiscoveryQueryBuilder extends Component {
                                      formValues={d.formValues}
                                      loading={this.props.searchLoading}
                                      wrappedComponentRef={form => this.forms[d.dataType.id] = form}
-                                     onChange={fields => this.handleFormChange(d.dataType, fields)} 
+                                     onChange={fields => this.handleFormChange(d.dataType, fields)}
                                      handleVariantHiddenFieldChange={this.handleVariantHiddenFieldChange}
                                      />
             </Tabs.TabPane>

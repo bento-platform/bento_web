@@ -71,7 +71,7 @@ export const discovery = (
             return {
                 ...state,
                 geneNameSearchResponse: action.data.results
-            }
+            };
 
         default:
             return state;
