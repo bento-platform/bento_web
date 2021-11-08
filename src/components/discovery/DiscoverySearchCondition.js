@@ -11,15 +11,10 @@ import {constFn, id, nop} from "../../utils/misc";
 
 
 const BOOLEAN_OPTIONS = ["true", "false"];
-
-
 const DATA_TYPE_FIELD_WIDTH = 224;
 const NEGATION_WIDTH = 88;
 const OPERATION_WIDTH = 116;
 const CLOSE_WIDTH = 50;
-
-
-const getInputStyle = (valueWidth, div = 1) => ({width: `calc(${100 / div}% - ${valueWidth / div}px)`});
 
 const toStringOrNull = x => x === null ? null : x.toString();
 
@@ -127,10 +122,10 @@ class DiscoverySearchCondition extends Component {
         if (this.state.fieldSchema.hasOwnProperty("enum") || this.state.fieldSchema.type === "boolean") {
             // Prefix select keys in case there's a "blank" item in the enum, which throws an error
             return (
-                <Select style={getInputStyle(valueWidth)} onChange={this.handleSearchSelectValue}
-                        value={this.getSearchValue()} showSearch
-                        filterOption={(i, o) =>
-                            o.props.children.toLocaleLowerCase().includes(i.toLocaleLowerCase())}>
+                 <Select style={this.getInputStyle(valueWidth)} onChange={this.handleSearchSelectValue}
+                         value={this.getSearchValue()} showSearch
+                         filterOption={(i, o) =>
+                             o.props.children.toLocaleLowerCase().includes(i.toLocaleLowerCase())}>
                     {(this.state.fieldSchema.type === "boolean" ? BOOLEAN_OPTIONS : this.state.fieldSchema.enum)
                         .map(v => <Select.Option key={`_${v}`} value={v}>{v}</Select.Option>)}
                 </Select>
@@ -138,12 +133,15 @@ class DiscoverySearchCondition extends Component {
         }
 
         return (
-            <Input style={getInputStyle(valueWidth)}
+            <Input style={this.getInputStyle(valueWidth)}
                    placeholder="value"
                    onChange={this.handleSearchValue}
-                   value={this.getSearchValue()} />
+                   value={this.getSearchValue()}
+                   />
         );
     }
+
+    getInputStyle = (valueWidth, div = 1) => ({width: `calc(${100 / div}% - ${valueWidth / div}px)`});
 
     render() {
         const conditionType = this.props.conditionType ?? "data-type";
@@ -184,7 +182,7 @@ class DiscoverySearchCondition extends Component {
                 conditionType === "join" ? this.props.joinedSchema : this.state.dataType?.schema,
                 {
                     ...(conditionType === "join"
-                        ? getInputStyle(valueWidth,2)
+                        ? this.getInputStyle(valueWidth,2)
                         : {width: `${DATA_TYPE_FIELD_WIDTH}px`}),
                     borderTopRightRadius: "0",
                     borderBottomRightRadius: "0"
@@ -193,7 +191,8 @@ class DiscoverySearchCondition extends Component {
             {canNegate ? (  // Negation
                 <Select style={{width: `${NEGATION_WIDTH}px`, float: "left"}}
                         value={this.state.negated ? "neg" : "pos"}
-                        onChange={this.handleNegation}>
+                        onChange={this.handleNegation}
+                        >
                     <Select.Option key="pos">is</Select.Option>
                     <Select.Option key="neg">is not</Select.Option>
                 </Select>
@@ -201,7 +200,8 @@ class DiscoverySearchCondition extends Component {
             {this.equalsOnly() ? null : (  // Operation select
                 <Select style={{width: `${OPERATION_WIDTH}px`, float: "left"}}
                         value={this.state.operation}
-                        onChange={this.handleOperation}>
+                        onChange={this.handleOperation}
+                        >
                     {operationOptions}
                 </Select>
             )}
@@ -210,14 +210,15 @@ class DiscoverySearchCondition extends Component {
                     "field2",
                     "fieldSchema2",
                     this.props.joinedSchema,
-                    {...getInputStyle(valueWidth, 2), borderRadius: "0"}
+                    {...this.getInputStyle(valueWidth, 2), borderRadius: "0"}
                 ) : this.getRHSInput(valueWidth)}
             {canRemove ? (  // Condition removal button
                 <Button type="danger"
                         icon="close"
                         style={{width: `${CLOSE_WIDTH}px`}}
                         disabled={this.props.removeDisabled}
-                        onClick={this.props.onRemoveClick ?? nop} />
+                        onClick={this.props.onRemoveClick ?? nop}
+                        />
             ) : null}
         </Input.Group>;
     }
