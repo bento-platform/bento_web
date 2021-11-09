@@ -1,6 +1,6 @@
 import React from "react";
-
-import {Table} from "antd";
+import {Link} from "react-router-dom";
+import {Button, Descriptions} from "antd";
 
 import {individualPropTypesShape} from "../../propTypes";
 import "./explorer.css";
@@ -8,7 +8,10 @@ import "./explorer.css";
 // TODO: Only show variants from the relevant dataset, if specified;
 //  highlight those found in search results, if specified
 
-const IndividualVariants = ({individual}) => {
+const sampleStyle = {display: "flex", flexDirection: "column", flexWrap: "nowrap"}
+const variantStyle = {margin: "5px"}
+
+const IndividualVariants = ({individual, tracksUrl}) => {
     const biosamples = (individual || {}).phenopackets.flatMap(p => p.biosamples);
 
     const variantsMapped = {};
@@ -35,13 +38,36 @@ const IndividualVariants = ({individual}) => {
         })
     );
 
-    return <Table bordered
-                  size="middle"
-                  pagination={{pageSize: 25}}
-                  columns={ids}
-                  rowKey="id"
-                  dataSource={[variantsMapped]}
-        />;
+    const VariantDetails =({v}) => {
+      return  <div style={variantStyle}>
+      <span style={{display: "inline", marginRight: "15px"} }>{`id: ${v.id} hgvs: ${v.hgvs}`}</span>
+      {v.gene_context && (
+        <>gene_context: <Link
+          to={{
+            pathname: tracksUrl,
+            state: { locus: v.gene_context },
+          }}
+        >
+          <Button>{v.gene_context}</Button>
+        </Link></>
+      )}
+    </div>
+    }     
+
+    const SampleVariants = ({id}) => {
+      return <div style={sampleStyle}>{variantsMapped[id].map((v) => <VariantDetails v={v} />)}</div>
+    } 
+
+    return  <Descriptions
+            layout="horizontal"
+            bordered={true}
+            column={1}
+            size="small"
+          >
+              {ids.map( i => <Descriptions.Item label={i.title}>
+                  <SampleVariants id={i.key} />
+              </Descriptions.Item>)}
+          </Descriptions>
 };
 
 
