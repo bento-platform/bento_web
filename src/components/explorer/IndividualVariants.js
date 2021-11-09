@@ -42,7 +42,7 @@ const IndividualVariants = ({individual, tracksUrl}) => {
       return  <div style={variantStyle}>
       <span style={{display: "inline", marginRight: "15px"} }>{`id: ${v.id} hgvs: ${v.hgvs}`}</span>
       {v.gene_context && (
-        <>gene_context: <Link
+        <>gene context: <Link
           to={{
             pathname: tracksUrl,
             state: { locus: v.gene_context },
