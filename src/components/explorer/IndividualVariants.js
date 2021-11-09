@@ -58,7 +58,7 @@ const IndividualVariants = ({individual, tracksUrl}) => {
       return <div style={sampleStyle}>{variantsMapped[id].map((v) => <VariantDetails v={v} />)}</div>
     } 
 
-    return  <Descriptions
+    return <div class="variantDescriptions"> <Descriptions
             layout="horizontal"
             bordered={true}
             column={1}
@@ -67,9 +67,8 @@ const IndividualVariants = ({individual, tracksUrl}) => {
               {ids.map( i => <Descriptions.Item label={i.title}>
                   <SampleVariants id={i.key} />
               </Descriptions.Item>)}
-          </Descriptions>
+          </Descriptions></div >
 };
-
 
 IndividualVariants.propTypes = {
     individual: individualPropTypesShape

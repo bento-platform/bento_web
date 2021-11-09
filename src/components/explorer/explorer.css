@@ -10,7 +10,13 @@
   vertical-align: top !important;
 }
 
-/* styling for Biosamples and Experiments tabs */
+/* Variants tab */
+
+.variantDescriptions .ant-descriptions-item-label{
+  vertical-align: top;
+}
+
+/* Biosamples and Experiments tabs */
 
 .experiment_and_results {
   margin-bottom: 25px;
