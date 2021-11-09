@@ -12,8 +12,16 @@ const IndividualVariants = ({individual}) => {
     const biosamples = (individual || {}).phenopackets.flatMap(p => p.biosamples);
 
     const variantsMapped = {};
-    biosamples.forEach(bs => {
-        variantsMapped[bs.id] = ((bs || {}).variants || []).map(v => (v || {}).hgvsAllele);
+
+    biosamples.forEach((bs) => {
+      const allvariants = (bs || {}).variants;
+
+      const variantsObject = (allvariants || []).map((v) => ({
+        id: v.hgvsAllele?.id,
+        hgvs: v.hgvsAllele?.hgvs,
+        gene_context: v.extra_properties?.gene_context ?? "",
+      }));
+      variantsMapped[bs.id] = variantsObject;
     });
 
     const ids = (biosamples || []).map(b =>
