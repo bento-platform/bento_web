@@ -1,15 +1,15 @@
 import React from "react";
 import {Link} from "react-router-dom";
 import {Button, Descriptions} from "antd";
-
+import PropTypes from "prop-types";
 import {individualPropTypesShape} from "../../propTypes";
 import "./explorer.css";
 
 // TODO: Only show variants from the relevant dataset, if specified;
 //  highlight those found in search results, if specified
 
-const sampleStyle = {display: "flex", flexDirection: "column", flexWrap: "nowrap"}
-const variantStyle = {margin: "5px"}
+const sampleStyle = {display: "flex", flexDirection: "column", flexWrap: "nowrap"};
+const variantStyle = {margin: "5px"};
 
 const IndividualVariants = ({individual, tracksUrl}) => {
     const biosamples = (individual || {}).phenopackets.flatMap(p => p.biosamples);
@@ -17,14 +17,14 @@ const IndividualVariants = ({individual, tracksUrl}) => {
     const variantsMapped = {};
 
     biosamples.forEach((bs) => {
-      const allvariants = (bs || {}).variants;
+        const allvariants = (bs || {}).variants;
 
-      const variantsObject = (allvariants || []).map((v) => ({
-        id: v.hgvsAllele?.id,
-        hgvs: v.hgvsAllele?.hgvs,
-        gene_context: v.extra_properties?.gene_context ?? "",
-      }));
-      variantsMapped[bs.id] = variantsObject;
+        const variantsObject = (allvariants || []).map((v) => ({
+            id: v.hgvsAllele?.id,
+            hgvs: v.hgvsAllele?.hgvs,
+            gene_context: v.extra_properties?.gene_context ?? "",
+        }));
+        variantsMapped[bs.id] = variantsObject;
     });
 
     const ids = (biosamples || []).map(b =>
@@ -38,41 +38,52 @@ const IndividualVariants = ({individual, tracksUrl}) => {
         })
     );
 
-    const VariantDetails =({v}) => {
-      return  <div style={variantStyle}>
-      <span style={{display: "inline", marginRight: "15px"} }>{`id: ${v.id} hgvs: ${v.hgvs}`}</span>
-      {v.gene_context && (
-        <>gene context: <Link
+    const VariantDetails = ({variant}) => {
+        return  <div style={variantStyle}>
+      <span style={{display: "inline", marginRight: "15px"} }>{`id: ${variant.id} hgvs: ${variant.hgvs}`}</span>
+      {variant.gene_context && (
+          <>gene context: <Link
           to={{
-            pathname: tracksUrl,
-            state: { locus: v.gene_context },
+              pathname: tracksUrl,
+              state: { locus: variant.gene_context },
           }}
         >
-          <Button>{v.gene_context}</Button>
+          <Button>{variant.gene_context}</Button>
         </Link></>
       )}
-    </div>
-    }     
+    </div>;
+    };
 
     const SampleVariants = ({id}) => {
-      return <div style={sampleStyle}>{variantsMapped[id].map((v) => <VariantDetails v={v} />)}</div>
-    } 
+        console.log({id: id});
+        return (
+          <div style={sampleStyle}>
+            {variantsMapped[id].map((v) => (
+              <VariantDetails key={v.id} variant={v} />
+            ))}
+          </div>
+        );
+    };
 
-    return <div class="variantDescriptions"> <Descriptions
-            layout="horizontal"
-            bordered={true}
-            column={1}
-            size="small"
-          >
-              {ids.map( i => <Descriptions.Item label={i.title}>
-                  <SampleVariants id={i.key} />
-              </Descriptions.Item>)}
-          </Descriptions></div >
+    return (
+      <div className="variantDescriptions">
+        {" "}
+        <Descriptions layout="horizontal" bordered={true} column={1} size="small">
+          {ids.map((i) => (
+            <Descriptions.Item key={i.key} label={i.title}>
+              <SampleVariants id={i.key} />
+            </Descriptions.Item>
+          ))}
+        </Descriptions>
+      </div>
+    );
 };
 
 IndividualVariants.propTypes = {
-    individual: individualPropTypesShape
-    //PropTypes.array,
+    id: PropTypes.string,
+    individual: individualPropTypesShape,
+    variant: PropTypes.object,
+    tracksUrl: PropTypes.string,
 };
 
 export default IndividualVariants;
