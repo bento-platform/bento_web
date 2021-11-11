@@ -146,7 +146,6 @@ export const getFileDownloadUrlsFromDrs = (fileObjects) => async (dispatch, _get
 const performFuzzyNameSearch = networkAction((fuzzySearchUrl) => () => ({
     types: PERFORM_SEARCH_BY_FUZZYNAME,
     url: fuzzySearchUrl,
-    err: "Error performing fuzzy search on DRS",
 }));
 
 const beginIgvUrlSearch = () => ({

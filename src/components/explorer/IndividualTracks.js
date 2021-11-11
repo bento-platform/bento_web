@@ -4,6 +4,7 @@ import { individualPropTypesShape } from "../../propTypes";
 import { Button, Divider, Modal, Switch, Table } from "antd";
 import { getIgvUrlsFromDrs } from "../../modules/drs/actions";
 import { guessFileType } from "../../utils/guessFileType";
+import { useHistory } from "react-router-dom";
 import igv from "igv";
 
 const SQUISHED_CALL_HEIGHT = 10;
@@ -28,13 +29,15 @@ const MODAL_Z_INDEX = 5000;
 // reduce VISIBILITY_WINDOW above for better performance
 
 
-const IndividualTracks = ({ individual }) => {
+const IndividualTracks = ({individual}) => {
     const igvRef = useRef(null);
     const igvRendered = useRef(false);
     const igvUrls = useSelector((state) => state.drs.igvUrlsByFilename);
     const isFetchingIgvUrls = useSelector((state) => state.drs.isFetchingIgvUrls);
     const dispatch = useDispatch();
+    const history = useHistory();
 
+    const locus = history.location?.state?.locus;
     const biosamplesData = (individual?.phenopackets ?? []).flatMap((p) => p.biosamples);
     const experimentsData = biosamplesData.flatMap((b) => b?.experiments ?? []);
     let viewableResults = experimentsData.flatMap((e) => e?.experiment_results ?? []).filter(isViewable);
@@ -128,12 +131,18 @@ const IndividualTracks = ({ individual }) => {
 
         const igvOptions = {
             genome: genome,
+            locus: locus, //zooms out if null or undefined
             tracks: igvTracks,
         };
 
-        igv.createBrowser(igvRef.current, igvOptions).then(function (browser) {
+        igv.createBrowser(igvRef.current, igvOptions).then( (browser) => {
             igv.browser = browser;
             igvRendered.current = true;
+
+            // code for monitoring user IGV changes, TODO
+            // igv.browser.on('locuschange', (referenceFrame) => {
+            //     console.log({referenceFrame: referenceFrame});
+            // });
         });
     }, [igvUrls]);
 

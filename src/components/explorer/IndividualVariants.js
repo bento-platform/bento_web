@@ -1,19 +1,30 @@
 import React from "react";
-
-import {Table} from "antd";
-
+import {Link} from "react-router-dom";
+import {Button, Descriptions} from "antd";
+import PropTypes from "prop-types";
 import {individualPropTypesShape} from "../../propTypes";
 import "./explorer.css";
 
 // TODO: Only show variants from the relevant dataset, if specified;
 //  highlight those found in search results, if specified
 
-const IndividualVariants = ({individual}) => {
+const sampleStyle = {display: "flex", flexDirection: "column", flexWrap: "nowrap"};
+const variantStyle = {margin: "5px"};
+
+const IndividualVariants = ({individual, tracksUrl}) => {
     const biosamples = (individual || {}).phenopackets.flatMap(p => p.biosamples);
 
     const variantsMapped = {};
-    biosamples.forEach(bs => {
-        variantsMapped[bs.id] = ((bs || {}).variants || []).map(v => (v || {}).hgvsAllele);
+
+    biosamples.forEach((bs) => {
+        const allvariants = (bs || {}).variants;
+
+        const variantsObject = (allvariants || []).map((v) => ({
+            id: v.hgvsAllele?.id,
+            hgvs: v.hgvsAllele?.hgvs,
+            gene_context: v.extra_properties?.gene_context ?? "",
+        }));
+        variantsMapped[bs.id] = variantsObject;
     });
 
     const ids = (biosamples || []).map(b =>
@@ -27,19 +38,52 @@ const IndividualVariants = ({individual}) => {
         })
     );
 
-    return <Table bordered
-                  size="middle"
-                  pagination={{pageSize: 25}}
-                  columns={ids}
-                  rowKey="id"
-                  dataSource={[variantsMapped]}
-        />;
+    const VariantDetails = ({variant}) => {
+        return  <div style={variantStyle}>
+      <span style={{display: "inline", marginRight: "15px"} }>{`id: ${variant.id} hgvs: ${variant.hgvs}`}</span>
+      {variant.gene_context && (
+          <>gene context: <Link
+          to={{
+              pathname: tracksUrl,
+              state: { locus: variant.gene_context },
+          }}
+        >
+          <Button>{variant.gene_context}</Button>
+        </Link></>
+      )}
+    </div>;
+    };
+
+    const SampleVariants = ({id}) => {
+        console.log({id: id});
+        return (
+          <div style={sampleStyle}>
+            {variantsMapped[id].map((v) => (
+              <VariantDetails key={v.id} variant={v} />
+            ))}
+          </div>
+        );
+    };
+
+    return (
+      <div className="variantDescriptions">
+        {" "}
+        <Descriptions layout="horizontal" bordered={true} column={1} size="small">
+          {ids.map((i) => (
+            <Descriptions.Item key={i.key} label={i.title}>
+              <SampleVariants id={i.key} />
+            </Descriptions.Item>
+          ))}
+        </Descriptions>
+      </div>
+    );
 };
 
-
 IndividualVariants.propTypes = {
-    individual: individualPropTypesShape
-    //PropTypes.array,
+    id: PropTypes.string,
+    individual: individualPropTypesShape,
+    variant: PropTypes.object,
+    tracksUrl: PropTypes.string,
 };
 
 export default IndividualVariants;

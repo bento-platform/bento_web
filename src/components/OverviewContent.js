@@ -60,14 +60,19 @@ class OverviewContent extends Component {
         return (
             <>
             <div
-              style={{ display: "flex", background: "white", borderBottom: "1px solid rgb(232, 232, 232)" }}
+              style={{
+                  display: "flex",
+                  justifyContent: "space-between",
+                  background: "white",
+                  borderBottom: "1px solid rgb(232, 232, 232)",
+              }}
             >
               <SitePageHeader title="Overview" style={{ border: "none" }} />
               <Button
                 type="button"
                 icon="setting"
                 size={"small"}
-                style={{ alignSelf: "center", marginLeft: "-20px" }}
+                style={{ alignSelf: "center", marginRight: "25px" }}
                 onClick={this.openModal}
               />
             </div>

@@ -129,7 +129,7 @@ class ExplorerIndividualContent extends Component {
                             <IndividualVariants individual={individual} />
                         </Route>
                         <Route path={genesUrl.replace(":", "\\:")}>
-                            <IndividualGenes individual={individual} />
+                            <IndividualGenes individual={individual} tracksUrl={tracksUrl} />
                         </Route>
                         <Route path={diseasesUrl.replace(":", "\\:")}>
                             <IndividualDiseases individual={individual} />
