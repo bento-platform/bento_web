@@ -228,7 +228,7 @@ const IndividualExperiments = ({ individual }) => {
 
 // expand here accordingly
 function isDownloadable(result) {
-    return result.file_format?.toLowerCase() === "vcf";
+    return result.file_format?.toLowerCase() === "vcf" || result.file_format?.toLowerCase() === "cram";
 }
 
 IndividualExperiments.propTypes = {
