@@ -12,6 +12,10 @@ import {withBasePath} from "../utils/url";
 
 const ARTIFACT_STYLING = {fontFamily: "monospace"};
 
+// biggest reasonable size limit before rolling over 
+// currently 11 services including gohan
+const MAX_TABLE_PAGE_SIZE = 12;
+
 const serviceColumns = isOwner => [
     {
         title: "Artifact",
@@ -79,6 +83,7 @@ const mapStateToProps = state => ({
     bordered: true,
     loading: state.chordServices.isFetching || state.services.isFetching,
     size: "middle",
+    pagination: {"defaultPageSize": MAX_TABLE_PAGE_SIZE},
 });
 
 export default connect(mapStateToProps)(ServiceList);
