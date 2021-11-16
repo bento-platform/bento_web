@@ -55,7 +55,6 @@ const rootReducer = combineReducers({
     phenopackets,
     experiments,
     overviewSummary,
-    searchAllRecords,
 
     // Manager module
     manager,
