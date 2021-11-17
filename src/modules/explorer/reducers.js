@@ -1,6 +1,3 @@
-// Credits:
-// https://stackoverflow.com/questions/40377541/react-redux-download-file#42245216
-
 import "file-saver"; // https://github.com/eligrey/FileSaver.js/
 import FileSaver from "file-saver";
 import {
