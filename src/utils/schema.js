@@ -14,7 +14,7 @@ const getFalse = () => false;
  * @param {object} node - The schema node to check.
  * @param {string} name - The node's ID (key fragment).
  * @param {string} prefix - The node's key prefix.
- * @param {function} isExcluded - An function determining if a key is disabled.
+ * @param {function} isExcluded - A function determining if a key is disabled.
  * @returns {object[]} - An array with a tree node element for use in Ant Design components, or an empty array.
  */
 const searchFragment = (node, name, prefix = "", isExcluded = getFalse) => {
@@ -43,7 +43,7 @@ const sortSchemaEntries = (a, b) => {
  * @param {object} node - Current schema node.
  * @param {string} name - The node's ID (key fragment).
  * @param {string} prefix - The node's key prefix.
- * @param {function} isExcluded - An function determining if a key is disabled.
+ * @param {function} isExcluded - A function determining if a key is disabled.
  * @returns {{children, selectable, disabled, titleSelected, title, value, key}} - Ant tree node for the schema node.
  */
 export const generateSchemaTreeData = (
