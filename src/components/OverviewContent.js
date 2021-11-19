@@ -1,5 +1,4 @@
 import React, {Component} from "react";
-import {connect} from "react-redux";
 import {Layout, Divider} from "antd";
 
 import SitePageHeader from "./SitePageHeader";
@@ -11,10 +10,6 @@ import ExperimentsSummary from "./overview/ExperimentsSummary";
 import { Modal, Button } from "antd";
 
 const DEFAULT_OTHER_THRESHOLD_PERCENTAGE = 4;
-
-const actionCreators = {};
-
-const mapStateToProps = _state => ({});
 
 class OverviewContent extends Component {
     constructor(props) {
@@ -103,4 +98,4 @@ class OverviewContent extends Component {
     }
 }
 
-export default connect(mapStateToProps, actionCreators)(OverviewContent);
+export default OverviewContent;
