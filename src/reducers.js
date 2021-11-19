@@ -14,7 +14,6 @@ import {
     phenopackets,
     experiments,
     overviewSummary,
-    searchAllRecords
 } from "./modules/metadata/reducers";
 import {manager, dropBox} from "./modules/manager/reducers";
 import {nodeInfo} from "./modules/node/reducers";
