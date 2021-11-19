@@ -357,7 +357,7 @@ const CustomTooltip = ({active, payload, totalCount }) => {
 
 CustomTooltip.propTypes = {
     active: PropTypes.bool,
-    payload: PropTypes.object,
+    payload: PropTypes.array,
     totalCount: PropTypes.number,
 };
 
