@@ -19,7 +19,7 @@ class DataTypeExplorationModal extends Component {
     constructor(props) {
         super(props);
         this.state = {
-            view: "tree",
+            view: "table",
             filter: ""
         };
 
