@@ -14,7 +14,7 @@ export const OPERATION_TEXT = {
     [OP_LESS_THAN_OR_EQUAL]: "\u2264",
     [OP_GREATER_THAN]: ">",
     [OP_GREATER_THAN_OR_EQUAL]: "\u2265",
-    [OP_CONTAINING]: "containing",
+    [OP_CONTAINING]: "containing (case-sensitive)",
     [OP_CASE_INSENSITIVE_CONTAINING]: "containing"
 };
 
