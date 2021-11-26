@@ -81,7 +81,7 @@ export const searchUiMappings = {
             },
             "taxonomy": {
                 "path": "subject.taxonomy.label",
-                "ui_name": "Taxonomy"
+                "ui_name": "Subject Taxonomy"
             }
         },
         "phenotypic_features": {
@@ -153,7 +153,7 @@ export const searchUiMappings = {
         "variants": {
             "zygosity": {
                 "path": "variants.[item].zygosity.label",
-                "ui_name": "Zygosity"
+                "ui_name": "Variant Zygosity"
             }
         },
         "diseases": {
