@@ -12,7 +12,7 @@ import {withBasePath} from "../utils/url";
 
 const ARTIFACT_STYLING = {fontFamily: "monospace"};
 
-// biggest reasonable size limit before rolling over 
+// biggest reasonable size limit before rolling over
 // currently 11 services including gohan
 const MAX_TABLE_PAGE_SIZE = 12;
 
