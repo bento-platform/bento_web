@@ -132,7 +132,7 @@ export const searchUiMappings = {
                 "ui_name": "Tumor grade"
             },
             "diagnostic_markers": {
-                "path": "phenotypic_features.[item].diagnostic_markers.[item].label",
+                "path": "biosamples.[item].diagnostic_markers.[item].label",
                 "ui_name": "Diagnostic markers"
             },
             "procedure": {
