@@ -351,19 +351,7 @@ class DiscoverySearchForm extends Component {
                                                   (!this.props.isInternal && this.isNotPublic(f))}
                                               onFieldChange={change => this.handleFieldChange(k, change)}
                                               onRemoveClick={() => this.removeCondition(k)}
-                                              removeDisabled={(() => {
-                                                  if (this.props.conditionType === "join") return false;
-                                                  if (keys.length <= 1) return true;
-
-                                                  const conditionValue = getCondition(k);
-
-                                                  // If no field has been selected, it's removable
-                                                  if (!conditionValue.field) return false;
-
-                                                  return keys.map(getCondition)
-                                                      .filter(cv => cv.fieldSchema?.search?.required
-                                                          && cv.field === conditionValue.field).length <= 1;
-                                              })()} />
+                                              removeDisabled={false} />
                 )}
             </Form.Item>
         ));
