@@ -265,6 +265,7 @@ class DiscoverySearchForm extends Component {
         const biosamplesOptions = Object.values(phenopacketSearchOptions.biosamples);
         const genesOptions = Object.values(phenopacketSearchOptions.genes);
         const variantsOptions = Object.values(phenopacketSearchOptions.variants);
+        const diseasesOptions = Object.values(phenopacketSearchOptions.diseases);
 
         const DropdownOption = ({ option }) => {
             const schema = this.getDataTypeFieldSchema("[dataset item]." + option.path);
@@ -275,19 +276,20 @@ class DiscoverySearchForm extends Component {
             );
         };
 
-        // unstructured list style
+        // // unstructured list style
         // const pulldownOptions = subjectOptions.concat(
         //     phenotypicFeaturesOptions,
         //     biosamplesOptions,
         //     genesOptions,
-        //     variantsOptions
+        //     variantsOptions,
+        //     diseasesOptions
         // );
 
         // return (
         //   <Menu onClick={this.addConditionFromPulldown}>
         //     {pulldownOptions.map((o) => (
         //       <Menu.Item key={o.path}>
-        //         <Tooltip title={this.phenopacketTooltipText}> {o.ui_name} </Tooltip>
+        //         <DropdownOption option={o}/>
         //       </Menu.Item>
         //     ))}
         //   </Menu>
@@ -296,21 +298,24 @@ class DiscoverySearchForm extends Component {
 
         // submenu style
         return (
-            <Menu style={{maxWidth: "60%" }} onClick={this.addConditionFromPulldown}>
-                <Menu.SubMenu title="Subject">
+            <Menu style={{maxWidth: "75%" }} onClick={this.addConditionFromPulldown}>
+                <Menu.SubMenu title={<span>Subject</span>}>
                 {subjectOptions.map(o => <Menu.Item key={o.path}><DropdownOption option={o}/></Menu.Item>)}
                 </Menu.SubMenu>
-                <Menu.SubMenu title="Phenotypic Features">
+                <Menu.SubMenu title={<span>Phenotypic Features</span>}>
                 {phenotypicFeaturesOptions.map(o => <Menu.Item key={o.path}><DropdownOption option={o}/></Menu.Item>)}
                 </Menu.SubMenu>
-                <Menu.SubMenu title="Biosamples">
+                <Menu.SubMenu title={<span>Biosamples</span>}>
                 {biosamplesOptions.map(o => <Menu.Item key={o.path}><DropdownOption option={o}/></Menu.Item>)}
                 </Menu.SubMenu>
-                <Menu.SubMenu title="Genes">
+                <Menu.SubMenu title={<span>Genes</span>}>
                 {genesOptions.map(o => <Menu.Item key={o.path}><DropdownOption option={o}/></Menu.Item>)}
                 </Menu.SubMenu>
-                <Menu.SubMenu title="Annotated variants">
+                <Menu.SubMenu title={<span>Annotated variants</span>}>
                 {variantsOptions.map(o => <Menu.Item key={o.path}><DropdownOption option={o}/></Menu.Item>)}
+                </Menu.SubMenu>
+                <Menu.SubMenu title={<span>Diseases</span>}>
+                {diseasesOptions.map(o => <Menu.Item key={o.path}><DropdownOption option={o}/></Menu.Item>)}
                 </Menu.SubMenu>
             </Menu>
         );
