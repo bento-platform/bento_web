@@ -1,20 +1,20 @@
 import React, {Component} from "react";
 import PropTypes from "prop-types";
-
-import {Button, Form, Icon} from "antd";
-
+import {Button, Dropdown, Form, Icon, Menu, Tooltip} from "antd";
 import {getFieldSchema, getFields} from "../../utils/schema";
 import {
     DEFAULT_SEARCH_PARAMETERS,
     OP_EQUALS,
     OP_LESS_THAN_OR_EQUAL,
     OP_GREATER_THAN_OR_EQUAL,
+    searchUiMappings,
 } from "../../utils/search";
 
 import DiscoverySearchCondition, {getSchemaTypeTransformer} from "./DiscoverySearchCondition";
 import VariantSearchHeader from "./VariantSearchHeader";
 
 const NUM_HIDDEN_VARIANT_FORM_ITEMS = 5;
+const TOOLTIP_DELAY_SECONDS = 0.8;
 
 // noinspection JSUnusedGlobalSymbols
 const CONDITION_RULES = [
@@ -50,6 +50,7 @@ class DiscoverySearchForm extends Component {
             fieldSchemas: {},
             variantSearchValues: {},
             isVariantSearch: props.dataType.id === "variant",
+            isPhenopacketSearch: props.dataType.id === "phenopacket",
         };
         this.initialValues = {};
 
@@ -74,9 +75,9 @@ class DiscoverySearchForm extends Component {
             : requiredFields.map((c) => this.addCondition(c, undefined, true));
 
         // Add a single default condition if necessary
-        if (requiredFields.length === 0 && this.props.conditionType !== "join") {
-            stateUpdates.push(this.addCondition(undefined, undefined, true));
-        }
+        // if (requiredFields.length === 0 && this.props.conditionType !== "join") {
+        //     stateUpdates.push(this.addCondition(undefined, undefined, true));
+        // }
 
         this.setState({
             ...stateUpdates.reduce((acc, v) => ({
@@ -254,6 +255,68 @@ class DiscoverySearchForm extends Component {
         }
     }
 
+    phenopacketsSearchOptions = () => {
+        const phenopacketSearchOptions = searchUiMappings.phenopacket;
+        const subjectOptions = Object.values(phenopacketSearchOptions.subject);
+        const phenotypicFeaturesOptions = Object.values(phenopacketSearchOptions.phenotypic_features);
+        const biosamplesOptions = Object.values(phenopacketSearchOptions.biosamples);
+        const genesOptions = Object.values(phenopacketSearchOptions.genes);
+        const variantsOptions = Object.values(phenopacketSearchOptions.variants);
+
+        const DropdownOption = ({ option }) => {
+            const schema = this.getDataTypeFieldSchema("[dataset item]." + option.path);
+            return (
+            <Tooltip title={schema.description} mouseEnterDelay={TOOLTIP_DELAY_SECONDS}>
+              {option.ui_name}
+            </Tooltip>
+            );
+        };
+
+        // unstructured list style
+        // const pulldownOptions = subjectOptions.concat(
+        //     phenotypicFeaturesOptions,
+        //     biosamplesOptions,
+        //     genesOptions,
+        //     variantsOptions
+        // );
+
+        // return (
+        //   <Menu onClick={this.addConditionFromPulldown}>
+        //     {pulldownOptions.map((o) => (
+        //       <Menu.Item key={o.path}>
+        //         <Tooltip title={this.phenopacketTooltipText}> {o.ui_name} </Tooltip>
+        //       </Menu.Item>
+        //     ))}
+        //   </Menu>
+        // );
+
+
+        // submenu style
+        return (
+            <Menu style={{maxWidth: "60%" }} onClick={this.addConditionFromPulldown}>
+                <Menu.SubMenu title="Subject">
+                {subjectOptions.map(o => <Menu.Item key={o.path}><DropdownOption option={o}/></Menu.Item>)}
+                </Menu.SubMenu>
+                <Menu.SubMenu title="Phenotypic Features">
+                {phenotypicFeaturesOptions.map(o => <Menu.Item key={o.path}><DropdownOption option={o}/></Menu.Item>)}
+                </Menu.SubMenu>
+                <Menu.SubMenu title="Biosamples">
+                {biosamplesOptions.map(o => <Menu.Item key={o.path}><DropdownOption option={o}/></Menu.Item>)}
+                </Menu.SubMenu>
+                <Menu.SubMenu title="Genes">
+                {genesOptions.map(o => <Menu.Item key={o.path}><DropdownOption option={o}/></Menu.Item>)}
+                </Menu.SubMenu>
+                <Menu.SubMenu title="Annotated variants">
+                {variantsOptions.map(o => <Menu.Item key={o.path}><DropdownOption option={o}/></Menu.Item>)}
+                </Menu.SubMenu>
+            </Menu>
+        );
+    }
+
+    addConditionFromPulldown = ({key}) => {
+        this.addCondition("[dataset item]." + key);
+    }
+
     render() {
         const getCondition = ck => this.props.form.getFieldValue(`conditions[${ck}]`);
 
@@ -305,23 +368,35 @@ class DiscoverySearchForm extends Component {
         //for variant search, only show user-added fields, hide everything else
         const nonHiddenFields = formItems.slice(NUM_HIDDEN_VARIANT_FORM_ITEMS);
 
-        return <Form onSubmit={this.onSubmit}>
+        return (
+          <Form onSubmit={this.onSubmit}>
             {this.props.dataType.id === "variant" && (
               <VariantSearchHeader
-              addVariantSearchValues={this.addVariantSearchValues}
-              dataType={this.props.dataType}
+                addVariantSearchValues={this.addVariantSearchValues}
+                dataType={this.props.dataType}
               />
             )}
             {this.state.isVariantSearch ? nonHiddenFields : formItems}
-            <Form.Item wrapperCol={{
-                xl: {span: 24},
-                xxl: {offset: 3, span: 18}
-            }}>
-                <Button type="dashed" onClick={() => this.addCondition()} style={{width: "100%"}}>
+            <Form.Item
+              wrapperCol={{
+                  xl: { span: 24 },
+                  xxl: { offset: 3, span: 18 },
+              }}
+            >
+              {this.state.isPhenopacketSearch ? (
+                <Dropdown overlay={this.phenopacketsSearchOptions} placement="bottomCenter" >
+                  <Button type="dashed" style={{ width: "100%" }}>
                     <Icon type="plus" /> Add condition
+                  </Button>
+                </Dropdown>
+              ) : (
+                <Button type="dashed" onClick={() => this.addCondition()} style={{ width: "100%" }}>
+                  <Icon type="plus" /> Add condition
                 </Button>
+              )}
             </Form.Item>
-        </Form>;
+          </Form>
+        );
     }
 }
 
