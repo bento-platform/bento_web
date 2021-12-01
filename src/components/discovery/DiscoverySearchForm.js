@@ -7,6 +7,7 @@ import {
     OP_EQUALS,
     OP_LESS_THAN_OR_EQUAL,
     OP_GREATER_THAN_OR_EQUAL,
+    OP_CASE_INSENSITIVE_CONTAINING,
     searchUiMappings,
 } from "../../utils/search";
 
@@ -239,7 +240,9 @@ class DiscoverySearchForm extends Component {
 
     getInitialOperator = (field, fieldSchema) => {
         if (!this.state.isVariantSearch) {
-            return fieldSchema?.search?.operations?.[0] ?? OP_EQUALS;
+            return fieldSchema?.search?.operations?.includes(OP_CASE_INSENSITIVE_CONTAINING)
+                ? OP_CASE_INSENSITIVE_CONTAINING
+                : OP_EQUALS;
         }
 
         switch (field) {
