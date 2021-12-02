@@ -380,7 +380,7 @@ class DiscoverySearchForm extends Component {
               }}
             >
               {this.state.isPhenopacketSearch ? (
-                <Dropdown overlay={this.phenopacketsSearchOptions} placement="bottomCenter" >
+                <Dropdown overlay={this.phenopacketsSearchOptions} placement="bottomCenter" trigger={["click"]} >
                   <Button type="dashed" style={{ width: "100%" }}>
                     <Icon type="plus" /> Add condition
                   </Button>
