@@ -297,12 +297,13 @@ class DiscoverySearchForm extends Component {
 
 
         // submenu style
+        // pad longest title with marginRight
         return (
-            <Menu style={{maxWidth: "75%" }} onClick={this.addConditionFromPulldown}>
+            <Menu style={{display: "inline-block" }} onClick={this.addConditionFromPulldown}>
                 <Menu.SubMenu title={<span>Subject</span>}>
                 {subjectOptions.map(o => <Menu.Item key={o.path}><DropdownOption option={o}/></Menu.Item>)}
                 </Menu.SubMenu>
-                <Menu.SubMenu title={<span>Phenotypic Features</span>}>
+                <Menu.SubMenu title={<span style={{marginRight: "10px"}}>Phenotypic Features </span>}>
                 {phenotypicFeaturesOptions.map(o => <Menu.Item key={o.path}><DropdownOption option={o}/></Menu.Item>)}
                 </Menu.SubMenu>
                 <Menu.SubMenu title={<span>Biosamples</span>}>
