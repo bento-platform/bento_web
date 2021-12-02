@@ -276,28 +276,7 @@ class DiscoverySearchForm extends Component {
             );
         };
 
-        // // unstructured list style
-        // const pulldownOptions = subjectOptions.concat(
-        //     phenotypicFeaturesOptions,
-        //     biosamplesOptions,
-        //     genesOptions,
-        //     variantsOptions,
-        //     diseasesOptions
-        // );
-
-        // return (
-        //   <Menu onClick={this.addConditionFromPulldown}>
-        //     {pulldownOptions.map((o) => (
-        //       <Menu.Item key={o.path}>
-        //         <DropdownOption option={o}/>
-        //       </Menu.Item>
-        //     ))}
-        //   </Menu>
-        // );
-
-
-        // submenu style
-        // pad longest title with marginRight
+        // longest title padded with marginRight
         return (
             <Menu style={{display: "inline-block" }} onClick={this.addConditionFromPulldown}>
                 <Menu.SubMenu title={<span>Subject</span>}>
