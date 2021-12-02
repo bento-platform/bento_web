@@ -208,7 +208,6 @@ class CustomPieChart extends React.Component {
 
       // if segment too small, render coloured highlight curve but skip label
         if (params.percent < LABEL_THRESHOLD) {
-            console.log("too small");
             return (
           <g>
             <Sector
@@ -357,7 +356,7 @@ const CustomTooltip = ({active, payload, totalCount }) => {
 
 CustomTooltip.propTypes = {
     active: PropTypes.bool,
-    payload: PropTypes.object,
+    payload: PropTypes.array,
     totalCount: PropTypes.number,
 };
 

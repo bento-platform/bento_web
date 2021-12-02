@@ -1,5 +1,5 @@
 // Functional utilities
-export const id = x => x;  // id is a function that returns it's first passed parameter
+export const id = x => x;  // id is a function that returns its first passed parameter
 export const nop = () => {};
 export const constFn = x => () => x;  // constFn(null) creates a function that always returns null
 
