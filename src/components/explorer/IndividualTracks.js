@@ -207,9 +207,10 @@ function isViewable(file) {
     if (file.file_format?.toLowerCase() === "vcf" || guessFileType(file.filename) === "vcf") {
         return true;
     }
-  // if(file.file_format?.toLowerCase() === "cram" || guessFileType(file.filename) === 'cram'){
-  //   return true
-  // }
+    if (file.file_format?.toLowerCase() === "cram" || guessFileType(file.filename) === "cram") {
+        return true;
+    }
+    return false;
 }
 
 export default IndividualTracks;
