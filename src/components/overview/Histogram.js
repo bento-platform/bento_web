@@ -22,8 +22,12 @@ class Histogram extends React.Component {
     titleStyle = {
         fontStyle: "italic",
         padding: "0",
-        margin: "0",
+        marginBottom: "-15px",
     };
+
+    style = {
+        marginBottom: "20px"
+    }
 
     shouldComponentUpdate(props, state) {
         if (this.state !== state && state.canUpdate) return true;
@@ -36,7 +40,7 @@ class Histogram extends React.Component {
         const titleHeaderHeight = 31;
 
         return (
-            <div>
+            <div style={this.style}>
                 <h2 style={this.titleStyle}>{title}</h2>
                 <BarChart
                     width={(chartHeight - titleHeaderHeight) * chartAspectRatio}

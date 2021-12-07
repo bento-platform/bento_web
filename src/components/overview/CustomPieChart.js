@@ -95,12 +95,11 @@ class CustomPieChart extends React.Component {
     titleStyle = {
         fontStyle: "italic",
         padding: "0",
-        margin: "0"
+        marginBottom: "-15px",
     }
 
     style = {
-        // backgroundColor: "lightgray"
-        // margin: '0px 20px 0 0',
+        marginBottom: "20px"
     }
 
     labelShortName(name) {
