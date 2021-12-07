@@ -195,6 +195,11 @@ function binAges (ages) {
         ageBinCounts[ageBin] += count;
     }
 
+    // only show ages 110+ if present
+    if (!ageBinCounts[110]) {
+        delete ageBinCounts[110];
+    }
+
     // return histogram-friendly array
     return Object.keys(ageBinCounts).map(age => {
         return {ageBin: age, count: ageBinCounts[age]};
