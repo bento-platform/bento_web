@@ -146,7 +146,7 @@ class ClinicalSummary extends Component {
                 />
               </Spin>
             </Col>
-            <Col  style={{ textAlign: "center" }}>
+            {Boolean(phenotypicFeatureLabels.length) && <Col  style={{ textAlign: "center" }}>
               <Spin spinning={isFetching}>
                 <CustomPieChart
                   title="Phenotypic Features"
@@ -158,7 +158,7 @@ class ClinicalSummary extends Component {
                   autoQueryDataType={autoQueryDataType}
                 />
               </Spin>
-            </Col>
+            </Col>}
           </Row>
 
             </Row>
