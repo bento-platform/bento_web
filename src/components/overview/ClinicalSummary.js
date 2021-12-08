@@ -146,7 +146,7 @@ class ClinicalSummary extends Component {
                 />
               </Spin>
             </Col>
-            <Col  style={{ textAlign: "center" }}>
+            {Boolean(phenotypicFeatureLabels.length) && <Col  style={{ textAlign: "center" }}>
               <Spin spinning={isFetching}>
                 <CustomPieChart
                   title="Phenotypic Features"
@@ -158,7 +158,7 @@ class ClinicalSummary extends Component {
                   autoQueryDataType={autoQueryDataType}
                 />
               </Spin>
-            </Col>
+            </Col>}
           </Row>
 
             </Row>
@@ -193,6 +193,11 @@ function binAges (ages) {
     for (const [age, count] of Object.entries(ages)) {
         const ageBin = 10 * Math.floor(Number(age) / 10);
         ageBinCounts[ageBin] += count;
+    }
+
+    // only show ages 110+ if present
+    if (!ageBinCounts[110]) {
+        delete ageBinCounts[110];
     }
 
     // return histogram-friendly array
