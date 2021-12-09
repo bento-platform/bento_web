@@ -10,7 +10,7 @@ import igv from "igv";
 const SQUISHED_CALL_HEIGHT = 10;
 const EXPANDED_CALL_HEIGHT = 50;
 const DISPLAY_MODE = "expanded";
-const VISIBILITY_WINDOW = 60000000;
+const VISIBILITY_WINDOW = 600000;
 
 // highest z-index in IGV is 4096, modal z-index needs to be higher
 const MODAL_Z_INDEX = 5000;
@@ -45,6 +45,11 @@ const IndividualTracks = ({individual}) => {
     // add properties for visibility and file type
     viewableResults = viewableResults.map((v) => {
         return { ...v, viewInIgv: true, file_format: v.file_format ?? guessFileType(v.filename) };
+    });
+
+    // by default, don't view crams (user can turn them on in track controls)
+    viewableResults = viewableResults.map((v) => {
+        return v.file_format.toLowerCase() === "cram" ? {...v, viewInIgv: false} : v;
     });
 
     const [allTracks, setAllTracks] = useState(
