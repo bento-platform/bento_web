@@ -44,7 +44,7 @@ const IndividualTracks = ({individual}) => {
 
     // add properties for visibility and file type
     viewableResults = viewableResults.map((v) => {
-        return { ...v, viewInIgv: true, file_format: v.file_format ?? guessFileType(v.filename) };
+        return { ...v, viewInIgv: true, file_format: v.file_format?.toLowerCase() ?? guessFileType(v.filename) };
     });
 
     // by default, don't view crams (user can turn them on in track controls)
@@ -102,10 +102,7 @@ const IndividualTracks = ({individual}) => {
     // render igv when track urls ready
     useEffect(() => {
         if (isFetchingIgvUrls) {
-            console.log("useEffect: still fetching");
             return;
-        } else {
-            console.log("useEffect: not fetching");
         }
 
         if (!allTracks.length || !hasFreshUrls(allTracks, igvUrls) || igvRendered.current) {
@@ -116,14 +113,15 @@ const IndividualTracks = ({individual}) => {
             return;
         }
 
-        console.log("rendering igv");
-
-        // TODO: tracks config for unindexed files
-
-        const currentTracks = allTracks.filter(
+        const indexedTracks = allTracks.filter(
             (t) => t.viewInIgv && igvUrls[t.filename].dataUrl && igvUrls[t.filename].indexUrl
         );
-        const igvTracks = currentTracks.map((t) => ({
+
+        const unindexedTracks = allTracks.filter(
+            (t) => t.viewInIgv && igvUrls[t.filename].url
+        );
+
+        const igvIndexedTracks = indexedTracks.map((t) => ({
             format: t.file_format,
             url: igvUrls[t.filename].dataUrl,
             indexURL: igvUrls[t.filename].indexUrl,
@@ -133,6 +131,18 @@ const IndividualTracks = ({individual}) => {
             displayMode: DISPLAY_MODE,
             visibilityWindow: VISIBILITY_WINDOW,
         }));
+
+        const igvUnindexedTracks = unindexedTracks.map((t) => ({
+            format: t.file_format,
+            url: igvUrls[t.filename].url,
+            name: t.filename,
+            squishedCallHeight: SQUISHED_CALL_HEIGHT,
+            expandedCallHeight: EXPANDED_CALL_HEIGHT,
+            displayMode: DISPLAY_MODE,
+            visibilityWindow: VISIBILITY_WINDOW,
+        }));
+
+        const igvTracks = igvUnindexedTracks.concat(igvIndexedTracks);
 
         const igvOptions = {
             genome: genome,
@@ -207,12 +217,9 @@ IndividualTracks.propTypes = {
     individual: individualPropTypesShape,
 };
 
-// expand here to include more file types
 function isViewable(file) {
-    if (file.file_format?.toLowerCase() === "vcf" || guessFileType(file.filename) === "vcf") {
-        return true;
-    }
-    if (file.file_format?.toLowerCase() === "cram" || guessFileType(file.filename) === "cram") {
+    const viewable = ["vcf", "cram", "bigwig", "bw"];
+    if (viewable.includes(file.file_format?.toLowerCase()) || viewable.includes(guessFileType(file.filename))) {
         return true;
     }
     return false;
