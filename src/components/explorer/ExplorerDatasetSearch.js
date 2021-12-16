@@ -129,11 +129,12 @@ class ExplorerDatasetSearch extends Component {
                     <Spin style={{marginLeft: "35px"}} spinning={this.props.fetchingSearch}>
                     </Spin>
                     <div style={{float: "right", verticalAlign: "top"}}>
-                        <Button icon="profile"
+                        {/* TODO: new "visualize tracks" functionality */}
+                        {/* <Button icon="profile"
                                 style={{marginRight: "8px"}}
                                 onClick={() => this.setState({tracksModalVisible: true})}
                                 disabled={true}>
-                            Visualize Tracks</Button>
+                            Visualize Tracks</Button> */}
                         <Button icon="bar-chart"
                                 style={{marginRight: "8px"}}
                                 onClick={() => this.setState({summaryModalVisible: true})}>View Summary</Button>
