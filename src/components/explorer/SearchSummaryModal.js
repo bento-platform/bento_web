@@ -1,42 +1,10 @@
 import React from "react";
-
-import {parse, toSeconds} from "iso8601-duration";
-
+import {parse} from "iso8601-duration";
 import {Col, Divider, Modal, Row, Statistic, Typography} from "antd";
-
-import {VictoryAxis, VictoryBar, VictoryChart, VictoryHistogram, VictoryLabel, VictoryPie} from "victory";
-import VictoryPieWrapSVG from "../VictoryPieWrapSVG";
-
+import CustomPieChart from "../overview/CustomPieChart";
+import Histogram from "../overview/Histogram";
 import {KARYOTYPIC_SEX_VALUES, SEX_VALUES} from "../../dataTypes/phenopacket";
-import {
-    VICTORY_BAR_CONTAINER_PROPS,
-    VICTORY_BAR_PROPS,
-    VICTORY_BAR_TITLE_PROPS,
-    VICTORY_BAR_X_AXIS_PROPS,
-    VICTORY_HIST_CONTAINER_PROPS,
-    VICTORY_HIST_PROPS,
-    VICTORY_PIE_LABEL_PROPS,
-    VICTORY_PIE_PROPS,
-} from "../../styles/victory";
 import {explorerSearchResultsPropTypesShape} from "../../propTypes";
-
-
-const numObjectToVictoryArray = numObj => Object.entries(numObj)
-    .filter(e => e[1] > 0)
-    .map(([x, y]) => ({x, y}));
-
-
-// Bins of 10 years
-// TODO: Deal with start/end - for now, weight based on bin overlap?
-const AGE_HISTOGRAM_BINS = [...Array(10).keys()].map(i => i * 10);
-
-
-const ageAndDOBToApproxYears = (age, dob = null) => {
-    const parsedAge = parse(age);
-    const parsedAgeSeconds = toSeconds(parsedAge, dob);
-    // Convert # of seconds to "normalized" years TODO: Sketchy logic
-    return parsedAgeSeconds / (60 * 60 * 24 * 365.2422);
-};
 
 
 const SearchSummaryModal = ({searchResults, ...props}) => {
