@@ -17,7 +17,28 @@ const SearchSummaryModal = ({searchResults, ...props}) => {
 
     const pieChartFormat = (obj) => {
         return Object.keys(obj).map(k => ({"name": k, "value": obj[k]}));
-    }
+    };
+
+    const histogramFormat = (ages) => {
+        return Object.keys(ages).map(age => {
+            return {ageBin: age, count: ageBinCounts[age]};
+        });
+    };
+
+    const ageBinCounts = {
+        0: 0,
+        10: 0,
+        20: 0,
+        30: 0,
+        40: 0,
+        50: 0,
+        60: 0,
+        70: 0,
+        80: 0,
+        90: 0,
+        100: 0,
+        110: 0,
+    };
 
     // Individuals summary
     const numIndividualsBySex = Object.fromEntries(SEX_VALUES.map(v => [v, 0]));
@@ -41,6 +62,14 @@ const SearchSummaryModal = ({searchResults, ...props}) => {
             numIndividualsBySex[r.individual.sex]++;
         }
 
+        if (r.individual.age) {
+            const {age, start, end} = r.individual.age;
+            if (age) {
+                const ageBin = 10 * Math.floor(parse(age).years / 10);
+                ageBinCounts[ageBin] += 1;
+            }
+        }
+
         (r.phenotypic_features || []).forEach(pf => {
             // TODO: Better ontology awareness - label vs id, translation, etc.
             numPhenoFeatsByType[pf.type.label] = (numPhenoFeatsByType[pf.type.label] || 0) + 1;
@@ -58,9 +87,9 @@ const SearchSummaryModal = ({searchResults, ...props}) => {
             numSamplesByHistologicalDiagnosis[histDiagKey] = (numSamplesByHistologicalDiagnosis[histDiagKey] || 0) + 1;
         });
     });
-q
 
-    const sexPieChart = pieChartFormat(numIndividualsBySex)
+    const sexPieChartData = pieChartFormat(numIndividualsBySex);
+    const ageHistogramData = histogramFormat(ageBinCounts);
 
     return searchResults ? <Modal title="Search Results" {...props} width={960} footer={null}>
         <Row gutter={16}>
@@ -87,14 +116,22 @@ q
                 />
         <Divider />
 
-        {(sexPieChart.length > 0) ? <>
+        {(sexPieChartData.length > 0) ? <>
 
             <Typography.Title level={4}>Overview: Individuals</Typography.Title>
             <Row gutter={16}>
                 <Col span={12} style={{ textAlign: "center" }} >
                 <CustomPieChart
                   title="Sex"
-                  data={sexPieChart}
+                  data={sexPieChartData}
+                  chartHeight={CHART_HEIGHT}
+                  chartAspectRatio={CHART_ASPECT_RATIO}
+                />
+                </Col>
+                <Col span={12} style={{ textAlign: "center" }} >
+                <Histogram
+                  title="Ages"
+                  data={ageHistogramData}
                   chartHeight={CHART_HEIGHT}
                   chartAspectRatio={CHART_ASPECT_RATIO}
                 />
