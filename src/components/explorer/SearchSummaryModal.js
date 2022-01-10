@@ -1,23 +1,21 @@
 import React from "react";
+import { useSelector } from "react-redux";
 import {parse} from "iso8601-duration";
 import {Col, Divider, Modal, Row, Statistic, Typography} from "antd";
 import CustomPieChart from "../overview/CustomPieChart";
 import Histogram from "../overview/Histogram";
 import {KARYOTYPIC_SEX_VALUES, SEX_VALUES} from "../../dataTypes/phenopacket";
 import {explorerSearchResultsPropTypesShape} from "../../propTypes";
-
+import {mapNameValueFields} from "../../utils/mapNameValueFields"
+import {DEFAULT_OTHER_THRESHOLD_PERCENTAGE} from "../../constants"
 
 const CHART_HEIGHT = 300;
 const CHART_ASPECT_RATIO = 1.8;
 
 const SearchSummaryModal = ({searchResults, ...props}) => {
-
+    const otherThresholdPercentage = JSON.parse(localStorage.getItem("otherThresholdPercentage")) ?? DEFAULT_OTHER_THRESHOLD_PERCENTAGE;    
     const searchFormattedResults = searchResults.searchFormattedResults || [];
     const experiments = searchResults?.results?.results?.experiment || [];
-
-    const pieChartFormat = (obj) => {
-        return Object.keys(obj).map(k => ({"name": k, "value": obj[k]}));
-    };
 
     const histogramFormat = (ageCounts) => {
 
@@ -68,8 +66,9 @@ const SearchSummaryModal = ({searchResults, ...props}) => {
             numIndividualsBySex[r.individual.sex]++;
         }
 
+        // handles age.age only, age.start and age.end are ignored
         if (r.individual.age) {
-            const {age, start, end} = r.individual.age;
+            const {age} = r.individual.age;
             if (age) {
                 const ageBin = 10 * Math.floor(parse(age).years / 10);
                 ageBinCounts[ageBin] += 1;
@@ -94,8 +93,10 @@ const SearchSummaryModal = ({searchResults, ...props}) => {
         });
     });
 
-    const sexPieChartData = pieChartFormat(numIndividualsBySex);
+    const sexPieChartData = mapNameValueFields(numIndividualsBySex, otherThresholdPercentage / 100);
     const ageHistogramData = histogramFormat(ageBinCounts);
+    const phenotypicFeaturesData = mapNameValueFields(numPhenoFeatsByType, otherThresholdPercentage / 100);
+    const diseasesData = mapNameValueFields(numDiseasesByTerm, otherThresholdPercentage / 100);
 
     return searchResults ? <Modal title="Search Results" {...props} width={960} footer={null}>
         <Row gutter={16}>
@@ -111,16 +112,8 @@ const SearchSummaryModal = ({searchResults, ...props}) => {
             <Col span={7}>
             <Statistic title="Experiments" value={experiments.length} />
             </Col>
-
         </Row>
-        <Divider />
-        <CustomPieChart
-                  title="Diseases"
-                  data={[]}
-                  chartHeight={50}
-                  chartAspectRatio={4}
-                />
-        <Divider />
+        <Divider/>
 
         {(sexPieChartData.length > 0) ? <>
 
@@ -134,6 +127,22 @@ const SearchSummaryModal = ({searchResults, ...props}) => {
                   chartAspectRatio={CHART_ASPECT_RATIO}
                 />
                 </Col>
+                {Boolean(diseasesData.length) && <Col span={12} style={{ textAlign: "center" }} >
+                <CustomPieChart
+                  title="Diseases"
+                  data={diseasesData}
+                  chartHeight={CHART_HEIGHT}
+                  chartAspectRatio={CHART_ASPECT_RATIO}
+                />
+                </Col>}
+                {Boolean(phenotypicFeaturesData.length) && <Col span={12} style={{ textAlign: "center" }} >
+                <CustomPieChart
+                  title="Phenotypic Features"
+                  data={phenotypicFeaturesData}
+                  chartHeight={CHART_HEIGHT}
+                  chartAspectRatio={CHART_ASPECT_RATIO}
+                />
+                </Col>}
                 <Col span={12} style={{ textAlign: "center" }} >
                 <Histogram
                   title="Ages"
