@@ -8,8 +8,7 @@ import OverviewSettingsControl from "./overview/OverviewSettingsControl";
 import { SITE_NAME } from "../constants";
 import ExperimentsSummary from "./overview/ExperimentsSummary";
 import { Modal, Button } from "antd";
-
-const DEFAULT_OTHER_THRESHOLD_PERCENTAGE = 4;
+import { DEFAULT_OTHER_THRESHOLD_PERCENTAGE } from "../constants";
 
 class OverviewContent extends Component {
     constructor(props) {
