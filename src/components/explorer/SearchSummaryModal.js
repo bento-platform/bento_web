@@ -19,9 +19,15 @@ const SearchSummaryModal = ({searchResults, ...props}) => {
         return Object.keys(obj).map(k => ({"name": k, "value": obj[k]}));
     };
 
-    const histogramFormat = (ages) => {
-        return Object.keys(ages).map(age => {
-            return {ageBin: age, count: ageBinCounts[age]};
+    const histogramFormat = (ageCounts) => {
+
+        // only show age 110+ if present
+        if (!ageCounts[110]) {
+            delete ageCounts[110];
+        }
+
+        return Object.keys(ageCounts).map(age => {
+            return {ageBin: age, count: ageCounts[age]};
         });
     };
 
