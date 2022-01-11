@@ -13,9 +13,15 @@ const CHART_HEIGHT = 300;
 const CHART_ASPECT_RATIO = 1.8;
 
 const SearchSummaryModal = ({searchResults, ...props}) => {
-    const otherThresholdPercentage = JSON.parse(localStorage.getItem("otherThresholdPercentage")) ?? DEFAULT_OTHER_THRESHOLD_PERCENTAGE;    
+    const otherThresholdPercentage = JSON.parse(localStorage.getItem("otherThresholdPercentage")) ?? DEFAULT_OTHER_THRESHOLD_PERCENTAGE; 
+    const thresholdProportion = otherThresholdPercentage/100
     const searchFormattedResults = searchResults.searchFormattedResults || [];
-    const experiments = searchResults?.results?.results?.experiment || [];
+
+    // this doesn't work, many searches incorrectly return all experiments instead of a subset
+    // const experiments = searchResults?.results?.results?.experiment || [];
+
+
+     const experiments = []
 
     const histogramFormat = (ageCounts) => {
 
@@ -97,68 +103,103 @@ const SearchSummaryModal = ({searchResults, ...props}) => {
         });
     });
 
-    const sexPieChartData = mapNameValueFields(numIndividualsBySex, otherThresholdPercentage / 100);
+    const sexPieChartData = mapNameValueFields(numIndividualsBySex, thresholdProportion);
     const ageHistogramData = histogramFormat(ageBinCounts);
-    const phenotypicFeaturesData = mapNameValueFields(numPhenoFeatsByType, otherThresholdPercentage / 100);
-    const diseasesData = mapNameValueFields(numDiseasesByTerm, otherThresholdPercentage / 100);
+    const phenotypicFeaturesData = mapNameValueFields(numPhenoFeatsByType, thresholdProportion);
+    const diseasesData = mapNameValueFields(numDiseasesByTerm, thresholdProportion);
 
-    return searchResults ? <Modal title="Search Results" {...props} width={960} footer={null}>
+    const biosamplesByTissueData = mapNameValueFields(numSamplesByTissue, thresholdProportion);
+    const biosamplesByHistologicalDiagnosisData = mapNameValueFields(numSamplesByHistologicalDiagnosis, thresholdProportion);
+
+    return searchResults ? (
+      <Modal title="Search Results" {...props} width={960} footer={null}>
         <Row gutter={16}>
-            <Col span={7}>
-                <Statistic title="Individuals" value={searchFormattedResults.length} />
-            </Col>
-            <Col span={7}>
-                <Statistic title="Biosamples"
-                           value={searchFormattedResults
-                               .map(i => (i.biosamples || []).length)
-                               .reduce((s, v) => s + v, 0)} />
-            </Col>
-            <Col span={7}>
+          <Col span={7}>
+            <Statistic title="Individuals" value={searchFormattedResults.length} />
+          </Col>
+          <Col span={7}>
+            <Statistic
+              title="Biosamples"
+              value={searchFormattedResults
+                .map((i) => (i.biosamples || []).length)
+                .reduce((s, v) => s + v, 0)}
+            />
+          </Col>
+          <Col span={7}>
             <Statistic title="Experiments" value={experiments.length} />
-            </Col>
+          </Col>
         </Row>
-        <Divider/>
+        <Divider />
 
-        {(sexPieChartData.length > 0) ? <>
-
-            <Typography.Title level={4}>Overview: Individuals</Typography.Title>
+        {sexPieChartData.length > 0 ? (
+          <>
+            <Typography.Title level={4}>Individuals</Typography.Title>
             <Row gutter={16}>
-                <Col span={12} style={{ textAlign: "center" }} >
+              <Col span={12} style={{ textAlign: "center" }}>
                 <CustomPieChart
                   title="Sex"
                   data={sexPieChartData}
                   chartHeight={CHART_HEIGHT}
                   chartAspectRatio={CHART_ASPECT_RATIO}
                 />
+              </Col>
+              {Boolean(diseasesData.length) && (
+                <Col span={12} style={{ textAlign: "center" }}>
+                  <CustomPieChart
+                    title="Diseases"
+                    data={diseasesData}
+                    chartHeight={CHART_HEIGHT}
+                    chartAspectRatio={CHART_ASPECT_RATIO}
+                  />
                 </Col>
-                {Boolean(diseasesData.length) && <Col span={12} style={{ textAlign: "center" }} >
-                <CustomPieChart
-                  title="Diseases"
-                  data={diseasesData}
-                  chartHeight={CHART_HEIGHT}
-                  chartAspectRatio={CHART_ASPECT_RATIO}
-                />
-                </Col>}
-                {Boolean(phenotypicFeaturesData.length) && <Col span={12} style={{ textAlign: "center" }} >
-                <CustomPieChart
-                  title="Phenotypic Features"
-                  data={phenotypicFeaturesData}
-                  chartHeight={CHART_HEIGHT}
-                  chartAspectRatio={CHART_ASPECT_RATIO}
-                />
-                </Col>}
-                <Col span={12} style={{ textAlign: "center" }} >
+              )}
+              {Boolean(phenotypicFeaturesData.length) && (
+                <Col span={12} style={{ textAlign: "center" }}>
+                  <CustomPieChart
+                    title="Phenotypic Features"
+                    data={phenotypicFeaturesData}
+                    chartHeight={CHART_HEIGHT}
+                    chartAspectRatio={CHART_ASPECT_RATIO}
+                  />
+                </Col>
+              )}
+              <Col span={12} style={{ textAlign: "center" }}>
                 <Histogram
                   title="Ages"
                   data={ageHistogramData}
                   chartHeight={CHART_HEIGHT}
                   chartAspectRatio={CHART_ASPECT_RATIO}
                 />
-                </Col>
+              </Col>
             </Row>
-        </> : null}
-
-    </Modal> : null;
+            <Divider />
+            <Typography.Title level={4}>Biosamples</Typography.Title>
+            <Row gutter={16}>
+              {Boolean(biosamplesByTissueData.length) && (
+                <Col span={12} style={{ textAlign: "center" }}>
+                  <CustomPieChart
+                    title="Biosamples by Tissue"
+                    data={biosamplesByTissueData}
+                    chartHeight={CHART_HEIGHT}
+                    chartAspectRatio={CHART_ASPECT_RATIO}
+                  />
+                </Col>
+              )}
+              {Boolean(biosamplesByHistologicalDiagnosisData.length) && (
+                <Col span={12} style={{ textAlign: "center" }}>
+                  <CustomPieChart
+                    title="Biosamples by Diagnosis"
+                    data={biosamplesByHistologicalDiagnosisData}
+                    chartHeight={CHART_HEIGHT}
+                    chartAspectRatio={CHART_ASPECT_RATIO}
+                  />
+                </Col>
+              )}
+            </Row>
+          </>
+        ) : null}
+      </Modal>
+    ) : null;
 };
 
 SearchSummaryModal.propTypes = {
