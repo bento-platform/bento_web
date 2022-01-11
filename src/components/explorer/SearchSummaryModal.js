@@ -71,7 +71,11 @@ const SearchSummaryModal = ({searchResults, ...props}) => {
             const {age} = r.individual.age;
             if (age) {
                 const ageBin = 10 * Math.floor(parse(age).years / 10);
-                ageBinCounts[ageBin] += 1;
+                if (ageBin < 0 || ageBin > 110) {
+                    console.error(`age out of range: ${age}`);
+                } else {
+                    ageBinCounts[ageBin] += 1;
+                }
             }
         }
 
