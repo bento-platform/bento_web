@@ -108,6 +108,7 @@ const SearchSummaryModal = ({searchResults, ...props}) => {
 
     const sexPieChartData = mapNameValueFields(numIndividualsBySex, thresholdProportion);
     const ageHistogramData = histogramFormat(ageBinCounts);
+    const histogramHasData = ageHistogramData.some(a => a.count > 0);
     const phenotypicFeaturesData = mapNameValueFields(numPhenoFeatsByType, thresholdProportion);
     const diseasesData = mapNameValueFields(numDiseasesByTerm, thresholdProportion);
     const biosamplesByTissueData = mapNameValueFields(numSamplesByTissue, thresholdProportion);
@@ -166,14 +167,14 @@ const SearchSummaryModal = ({searchResults, ...props}) => {
                   />
                 </Col>
               )}
-              <Col span={12} style={{ textAlign: "center" }}>
+              {histogramHasData && <Col span={12} style={{ textAlign: "center" }}>
                 <Histogram
                   title="Ages"
                   data={ageHistogramData}
                   chartHeight={CHART_HEIGHT}
                   chartAspectRatio={CHART_ASPECT_RATIO}
                 />
-              </Col>
+              </Col>}
             </Row>
             <Divider />
             <Typography.Title level={4}>Biosamples</Typography.Title>
