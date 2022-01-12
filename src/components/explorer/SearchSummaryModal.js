@@ -107,6 +107,7 @@ const SearchSummaryModal = ({searchResults, ...props}) => {
     });
 
     const sexPieChartData = mapNameValueFields(numIndividualsBySex, thresholdProportion);
+    const sexDataNonEmpty = sexPieChartData.some(s => s.value > 0);
     const ageHistogramData = histogramFormat(ageBinCounts);
     const histogramHasData = ageHistogramData.some(a => a.count > 0);
     const phenotypicFeaturesData = mapNameValueFields(numPhenoFeatsByType, thresholdProportion);
@@ -134,19 +135,17 @@ const SearchSummaryModal = ({searchResults, ...props}) => {
           </Col>
         </Row>
         <Divider />
-
-        {sexPieChartData.length > 0 ? (
           <>
             <Typography.Title level={4}>Individuals</Typography.Title>
             <Row gutter={16}>
-              <Col span={12} style={{ textAlign: "center" }}>
+              {sexDataNonEmpty && <Col span={12} style={{ textAlign: "center" }}>
                 <CustomPieChart
                   title="Sex"
                   data={sexPieChartData}
                   chartHeight={CHART_HEIGHT}
                   chartAspectRatio={CHART_ASPECT_RATIO}
                 />
-              </Col>
+              </Col>}
               {Boolean(diseasesData.length) && (
                 <Col span={12} style={{ textAlign: "center" }}>
                   <CustomPieChart
@@ -215,7 +214,6 @@ const SearchSummaryModal = ({searchResults, ...props}) => {
               )}
                 </Row>
           </>
-        ) : null}
       </Modal>
     ) : null;
 };
