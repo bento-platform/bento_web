@@ -1,27 +1,27 @@
 import React from "react";
-import { useSelector } from "react-redux";
 import {parse} from "iso8601-duration";
 import {Col, Divider, Modal, Row, Statistic, Typography} from "antd";
 import CustomPieChart from "../overview/CustomPieChart";
 import Histogram from "../overview/Histogram";
-import {KARYOTYPIC_SEX_VALUES, SEX_VALUES} from "../../dataTypes/phenopacket";
+import {SEX_VALUES} from "../../dataTypes/phenopacket";
 import {explorerSearchResultsPropTypesShape} from "../../propTypes";
-import {mapNameValueFields} from "../../utils/mapNameValueFields"
-import {DEFAULT_OTHER_THRESHOLD_PERCENTAGE} from "../../constants"
+import {mapNameValueFields} from "../../utils/mapNameValueFields";
+import {DEFAULT_OTHER_THRESHOLD_PERCENTAGE} from "../../constants";
 
 const CHART_HEIGHT = 300;
 const CHART_ASPECT_RATIO = 1.8;
 
 const SearchSummaryModal = ({searchResults, ...props}) => {
-    const otherThresholdPercentage = JSON.parse(localStorage.getItem("otherThresholdPercentage")) ?? DEFAULT_OTHER_THRESHOLD_PERCENTAGE; 
-    const thresholdProportion = otherThresholdPercentage/100
+    const otherThresholdPercentage =
+      JSON.parse(localStorage.getItem("otherThresholdPercentage")) ?? DEFAULT_OTHER_THRESHOLD_PERCENTAGE;
+    const thresholdProportion = otherThresholdPercentage / 100;
     const searchFormattedResults = searchResults.searchFormattedResults || [];
 
     // this doesn't work, many searches incorrectly return all experiments instead of a subset
     // const experiments = searchResults?.results?.results?.experiment || [];
 
     // instead pull experiments from phenopackets
-    const experiments = searchFormattedResults.flatMap(r => r.experiments)
+    const experiments = searchFormattedResults.flatMap(r => r.experiments);
 
     const histogramFormat = (ageCounts) => {
         // only show age 110+ if present
@@ -63,8 +63,8 @@ const SearchSummaryModal = ({searchResults, ...props}) => {
     const numSamplesByTissue = {};
     const numSamplesByHistologicalDiagnosis = {};
 
-    // Experiments summary 
-    const numExperimentsByType = {}
+    // Experiments summary
+    const numExperimentsByType = {};
 
     searchFormattedResults.forEach(r => {
         if (r.individual) {
@@ -113,8 +113,11 @@ const SearchSummaryModal = ({searchResults, ...props}) => {
     const phenotypicFeaturesData = mapNameValueFields(numPhenoFeatsByType, thresholdProportion);
     const diseasesData = mapNameValueFields(numDiseasesByTerm, thresholdProportion);
     const biosamplesByTissueData = mapNameValueFields(numSamplesByTissue, thresholdProportion);
-    const biosamplesByHistologicalDiagnosisData = mapNameValueFields(numSamplesByHistologicalDiagnosis, thresholdProportion);
-    const experimentsByTypeData = mapNameValueFields(numExperimentsByType, thresholdProportion)
+    const biosamplesByHistologicalDiagnosisData = mapNameValueFields(
+        numSamplesByHistologicalDiagnosis,
+        thresholdProportion
+    );
+    const experimentsByTypeData = mapNameValueFields(numExperimentsByType, thresholdProportion);
 
     return searchResults ? (
       <Modal title="Search Results" {...props} width={960} footer={null}>
@@ -126,8 +129,8 @@ const SearchSummaryModal = ({searchResults, ...props}) => {
             <Statistic
               title="Biosamples"
               value={searchFormattedResults
-                .map((i) => (i.biosamples || []).length)
-                .reduce((s, v) => s + v, 0)}
+                  .map((i) => (i.biosamples || []).length)
+                  .reduce((s, v) => s + v, 0)}
             />
           </Col>
           <Col span={7}>
@@ -211,7 +214,7 @@ const SearchSummaryModal = ({searchResults, ...props}) => {
                     chartAspectRatio={CHART_ASPECT_RATIO}
                   />
                 </Col>
-              )}
+                )}
                 </Row>
           </>
       </Modal>

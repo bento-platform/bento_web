@@ -146,7 +146,8 @@ class ExplorerDatasetSearch extends Component {
                         </Spin>
                     </div>
                 </Typography.Title>
-                {this.state.summaryModalVisible && <SearchSummaryModal searchResults={this.props.searchResults}
+                {this.state.summaryModalVisible &&
+                <SearchSummaryModal searchResults={this.props.searchResults}
                                     visible={this.state.summaryModalVisible}
                                     onCancel={() => this.setState({summaryModalVisible: false})} />}
                 <SearchTracksModal searchResults={this.props.searchResults}
