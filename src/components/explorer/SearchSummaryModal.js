@@ -20,16 +20,14 @@ const SearchSummaryModal = ({searchResults, ...props}) => {
     // this doesn't work, many searches incorrectly return all experiments instead of a subset
     // const experiments = searchResults?.results?.results?.experiment || [];
 
-
-     const experiments = []
+    // instead pull experiments from phenopackets
+    const experiments = searchFormattedResults.flatMap(r => r.experiments)
 
     const histogramFormat = (ageCounts) => {
-
         // only show age 110+ if present
         if (!ageCounts[110]) {
             delete ageCounts[110];
         }
-
         return Object.keys(ageCounts).map(age => {
             return {ageBin: age, count: ageCounts[age]};
         });
@@ -65,7 +63,8 @@ const SearchSummaryModal = ({searchResults, ...props}) => {
     const numSamplesByTissue = {};
     const numSamplesByHistologicalDiagnosis = {};
 
-    const ageAtCollectionHistogram = [];
+    // Experiments summary 
+    const numExperimentsByType = {}
 
     searchFormattedResults.forEach(r => {
         if (r.individual) {
@@ -101,15 +100,19 @@ const SearchSummaryModal = ({searchResults, ...props}) => {
             numSamplesByTissue[tissueKey] = (numSamplesByTissue[tissueKey] || 0) + 1;
             numSamplesByHistologicalDiagnosis[histDiagKey] = (numSamplesByHistologicalDiagnosis[histDiagKey] || 0) + 1;
         });
+
+        (r.experiments || []).forEach(e => {
+            numExperimentsByType[e.experiment_type] = (numExperimentsByType[e.experiment_type] || 0) + 1;
+        });
     });
 
     const sexPieChartData = mapNameValueFields(numIndividualsBySex, thresholdProportion);
     const ageHistogramData = histogramFormat(ageBinCounts);
     const phenotypicFeaturesData = mapNameValueFields(numPhenoFeatsByType, thresholdProportion);
     const diseasesData = mapNameValueFields(numDiseasesByTerm, thresholdProportion);
-
     const biosamplesByTissueData = mapNameValueFields(numSamplesByTissue, thresholdProportion);
     const biosamplesByHistologicalDiagnosisData = mapNameValueFields(numSamplesByHistologicalDiagnosis, thresholdProportion);
+    const experimentsByTypeData = mapNameValueFields(numExperimentsByType, thresholdProportion)
 
     return searchResults ? (
       <Modal title="Search Results" {...props} width={960} footer={null}>
@@ -196,6 +199,20 @@ const SearchSummaryModal = ({searchResults, ...props}) => {
                 </Col>
               )}
             </Row>
+                <Divider />
+                <Typography.Title level={4}>Experiments</Typography.Title>
+                <Row gutter={16}>
+                {Boolean(experimentsByTypeData.length) && (
+                <Col span={12} style={{ textAlign: "center" }}>
+                  <CustomPieChart
+                    title="Study Types"
+                    data={experimentsByTypeData}
+                    chartHeight={CHART_HEIGHT}
+                    chartAspectRatio={CHART_ASPECT_RATIO}
+                  />
+                </Col>
+              )}
+                </Row>
           </>
         ) : null}
       </Modal>
