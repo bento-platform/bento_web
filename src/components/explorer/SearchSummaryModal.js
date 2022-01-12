@@ -10,6 +10,7 @@ import {DEFAULT_OTHER_THRESHOLD_PERCENTAGE} from "../../constants";
 
 const CHART_HEIGHT = 300;
 const CHART_ASPECT_RATIO = 1.8;
+const MODAL_WIDTH = 1000;
 
 const SearchSummaryModal = ({searchResults, ...props}) => {
     const otherThresholdPercentage =
@@ -120,8 +121,8 @@ const SearchSummaryModal = ({searchResults, ...props}) => {
     const experimentsByTypeData = mapNameValueFields(numExperimentsByType, thresholdProportion);
 
     return searchResults ? (
-      <Modal title="Search Results" {...props} width={960} footer={null}>
-        <Row gutter={16}>
+      <Modal title="Search Results" {...props} width={MODAL_WIDTH} footer={null} style={{padding: "10px"}}>
+        <Row gutter={16} style={{display: "flex", flexWrap: "wrap"}}>
           <Col span={7}>
             <Statistic title="Individuals" value={searchFormattedResults.length} />
           </Col>
@@ -140,7 +141,7 @@ const SearchSummaryModal = ({searchResults, ...props}) => {
         <Divider />
           <>
             <Typography.Title level={4}>Individuals</Typography.Title>
-            <Row gutter={16}>
+            <Row gutter={[0, 16]}>
               {sexDataNonEmpty && <Col span={12} style={{ textAlign: "center" }}>
                 <CustomPieChart
                   title="Sex"
@@ -180,7 +181,7 @@ const SearchSummaryModal = ({searchResults, ...props}) => {
             </Row>
             <Divider />
             <Typography.Title level={4}>Biosamples</Typography.Title>
-            <Row gutter={16}>
+            <Row gutter={[0, 16]}>
               {Boolean(biosamplesByTissueData.length) && (
                 <Col span={12} style={{ textAlign: "center" }}>
                   <CustomPieChart
@@ -204,7 +205,7 @@ const SearchSummaryModal = ({searchResults, ...props}) => {
             </Row>
                 <Divider />
                 <Typography.Title level={4}>Experiments</Typography.Title>
-                <Row gutter={16}>
+                <Row gutter={[0, 16]}>
                 {Boolean(experimentsByTypeData.length) && (
                 <Col span={12} style={{ textAlign: "center" }}>
                   <CustomPieChart
