@@ -1,53 +1,56 @@
 import React from "react";
-
-import {parse, toSeconds} from "iso8601-duration";
-
+import {parse} from "iso8601-duration";
 import {Col, Divider, Modal, Row, Statistic, Typography} from "antd";
-
-import {VictoryAxis, VictoryBar, VictoryChart, VictoryHistogram, VictoryLabel, VictoryPie} from "victory";
-import VictoryPieWrapSVG from "../VictoryPieWrapSVG";
-
-import {KARYOTYPIC_SEX_VALUES, SEX_VALUES} from "../../dataTypes/phenopacket";
-import {
-    VICTORY_BAR_CONTAINER_PROPS,
-    VICTORY_BAR_PROPS,
-    VICTORY_BAR_TITLE_PROPS,
-    VICTORY_BAR_X_AXIS_PROPS,
-    VICTORY_HIST_CONTAINER_PROPS,
-    VICTORY_HIST_PROPS,
-    VICTORY_PIE_LABEL_PROPS,
-    VICTORY_PIE_PROPS,
-} from "../../styles/victory";
+import CustomPieChart from "../overview/CustomPieChart";
+import Histogram from "../overview/Histogram";
+import {SEX_VALUES} from "../../dataTypes/phenopacket";
 import {explorerSearchResultsPropTypesShape} from "../../propTypes";
+import {mapNameValueFields} from "../../utils/mapNameValueFields";
+import {DEFAULT_OTHER_THRESHOLD_PERCENTAGE} from "../../constants";
 
-
-const numObjectToVictoryArray = numObj => Object.entries(numObj)
-    .filter(e => e[1] > 0)
-    .map(([x, y]) => ({x, y}));
-
-
-// Bins of 10 years
-// TODO: Deal with start/end - for now, weight based on bin overlap?
-const AGE_HISTOGRAM_BINS = [...Array(10).keys()].map(i => i * 10);
-
-
-const ageAndDOBToApproxYears = (age, dob = null) => {
-    const parsedAge = parse(age);
-    const parsedAgeSeconds = toSeconds(parsedAge, dob);
-    // Convert # of seconds to "normalized" years TODO: Sketchy logic
-    return parsedAgeSeconds / (60 * 60 * 24 * 365.2422);
-};
-
+const CHART_HEIGHT = 300;
+const CHART_ASPECT_RATIO = 1.8;
+const MODAL_WIDTH = 1000;
 
 const SearchSummaryModal = ({searchResults, ...props}) => {
+    const otherThresholdPercentage =
+      JSON.parse(localStorage.getItem("otherThresholdPercentage")) ?? DEFAULT_OTHER_THRESHOLD_PERCENTAGE;
+    const thresholdProportion = otherThresholdPercentage / 100;
     const searchFormattedResults = searchResults.searchFormattedResults || [];
 
-    console.log(searchFormattedResults);
+    // this doesn't work, many searches incorrectly return all experiments instead of a subset
+    // const experiments = searchResults?.results?.results?.experiment || [];
+
+    // instead pull experiments from phenopackets
+    const experiments = searchFormattedResults.flatMap(r => r.experiments);
+
+    const histogramFormat = (ageCounts) => {
+        // only show age 110+ if present
+        if (!ageCounts[110]) {
+            delete ageCounts[110];
+        }
+        return Object.keys(ageCounts).map(age => {
+            return {ageBin: age, count: ageCounts[age]};
+        });
+    };
+
+    const ageBinCounts = {
+        0: 0,
+        10: 0,
+        20: 0,
+        30: 0,
+        40: 0,
+        50: 0,
+        60: 0,
+        70: 0,
+        80: 0,
+        90: 0,
+        100: 0,
+        110: 0,
+    };
 
     // Individuals summary
-
     const numIndividualsBySex = Object.fromEntries(SEX_VALUES.map(v => [v, 0]));
-    const numIndividualsByKaryotype = Object.fromEntries(KARYOTYPIC_SEX_VALUES.map(v => [v, 0]));
 
     // - Phenotypic features summary
     const numPhenoFeatsByType = {};
@@ -59,15 +62,27 @@ const SearchSummaryModal = ({searchResults, ...props}) => {
     // TODO: More ontology aware
 
     const numSamplesByTissue = {};
-    const numSamplesByTaxonomy = {};
     const numSamplesByHistologicalDiagnosis = {};
 
-    const ageAtCollectionHistogram = [];
+    // Experiments summary
+    const numExperimentsByType = {};
 
     searchFormattedResults.forEach(r => {
         if (r.individual) {
             numIndividualsBySex[r.individual.sex]++;
-            numIndividualsByKaryotype[r.individual.karyotypic_sex]++;
+        }
+
+        // handles age.age only, age.start and age.end are ignored
+        if (r.individual.age) {
+            const {age} = r.individual.age;
+            if (age) {
+                const ageBin = 10 * Math.floor(parse(age).years / 10);
+                if (ageBin < 0 || ageBin > 110) {
+                    console.error(`age out of range: ${age}`);
+                } else {
+                    ageBinCounts[ageBin] += 1;
+                }
+            }
         }
 
         (r.phenotypic_features || []).forEach(pf => {
@@ -82,133 +97,129 @@ const SearchSummaryModal = ({searchResults, ...props}) => {
 
         (r.biosamples || []).forEach(b => {
             const tissueKey = (b.sampled_tissue || {}).label || "N/A";
-            const taxonomyKey = (b.taxonomy || {}).label || "N/A";
             const histDiagKey = (b.histological_diagnosis || {}).label || "N/A";
             numSamplesByTissue[tissueKey] = (numSamplesByTissue[tissueKey] || 0) + 1;
-            numSamplesByTaxonomy[taxonomyKey] = (numSamplesByTaxonomy[taxonomyKey] || 0) + 1;
             numSamplesByHistologicalDiagnosis[histDiagKey] = (numSamplesByHistologicalDiagnosis[histDiagKey] || 0) + 1;
+        });
 
-            if (b.individual_age_at_collection) {
-                let individualBirth = (r.individual || {}).date_of_birth;
-                if (individualBirth) {
-                    individualBirth = new Date(Date.parse(individualBirth));
-                }
-
-                const {age, start, end} = b.individual_age_at_collection;
-                if (age) {
-                    ageAtCollectionHistogram.push({x: ageAndDOBToApproxYears(age, individualBirth)});
-                } else if (start.age && end.age) {
-                    const startYears = ageAndDOBToApproxYears(start.age, individualBirth);
-                    const endYears = ageAndDOBToApproxYears(end.age, individualBirth);
-
-                    // Push average of years TODO: Better bin calculation?
-                    ageAtCollectionHistogram.push({x: (startYears + endYears) / 2});
-                }
-            }
+        (r.experiments || []).forEach(e => {
+            numExperimentsByType[e.experiment_type] = (numExperimentsByType[e.experiment_type] || 0) + 1;
         });
     });
 
-    const individualsBySex = numObjectToVictoryArray(numIndividualsBySex);
-    const individualsByKaryotype = numObjectToVictoryArray(numIndividualsByKaryotype);
-    const phenoFeatsByType = numObjectToVictoryArray(numPhenoFeatsByType);
-    const diseasesByTerm = numObjectToVictoryArray(numDiseasesByTerm);
-    const samplesByTissue = numObjectToVictoryArray(numSamplesByTissue);
-    const samplesByTaxonomy = numObjectToVictoryArray(numSamplesByTaxonomy);
+    const sexPieChartData = mapNameValueFields(numIndividualsBySex, thresholdProportion);
+    const sexDataNonEmpty = sexPieChartData.some(s => s.value > 0);
+    const ageHistogramData = histogramFormat(ageBinCounts);
+    const histogramHasData = ageHistogramData.some(a => a.count > 0);
+    const phenotypicFeaturesData = mapNameValueFields(numPhenoFeatsByType, thresholdProportion);
+    const diseasesData = mapNameValueFields(numDiseasesByTerm, thresholdProportion);
+    const biosamplesByTissueData = mapNameValueFields(numSamplesByTissue, thresholdProportion);
+    const biosamplesByHistologicalDiagnosisData = mapNameValueFields(
+        numSamplesByHistologicalDiagnosis,
+        thresholdProportion
+    );
+    const experimentsByTypeData = mapNameValueFields(numExperimentsByType, thresholdProportion);
 
-    // TODO: Procedures: account for both code and (if specified) body_site
-    //  e.g. "Biopsy" or "Biopsy on X body site" - maybe stacked bar or grouped bar chart?
-
-    return searchResults ? <Modal title="Search Results" {...props} width={960} footer={null}>
-        <Row gutter={16}>
-            <Col span={12}>
-                <Statistic title="Individuals" value={searchFormattedResults.length} />
-            </Col>
-            <Col span={12}>
-                <Statistic title="Biosamples"
-                           value={searchFormattedResults
-                               .map(i => (i.biosamples || []).length)
-                               .reduce((s, v) => s + v, 0)} />
-            </Col>
+    return searchResults ? (
+      <Modal title="Search Results" {...props} width={MODAL_WIDTH} footer={null} style={{padding: "10px"}}>
+        <Row gutter={16} style={{display: "flex", flexWrap: "wrap"}}>
+          <Col span={7}>
+            <Statistic title="Individuals" value={searchFormattedResults.length} />
+          </Col>
+          <Col span={7}>
+            <Statistic
+              title="Biosamples"
+              value={searchFormattedResults
+                  .map((i) => (i.biosamples || []).length)
+                  .reduce((s, v) => s + v, 0)}
+            />
+          </Col>
+          <Col span={7}>
+            <Statistic title="Experiments" value={experiments.length} />
+          </Col>
         </Row>
-        {(individualsBySex.length > 0 && individualsByKaryotype.length > 0) ? <>
-            {/* TODO: Deduplicate with phenopacket summary */}
+        <Divider />
+          <>
+            <Typography.Title level={4}>Individuals</Typography.Title>
+            <Row gutter={[0, 16]}>
+              {sexDataNonEmpty && <Col span={12} style={{ textAlign: "center" }}>
+                <CustomPieChart
+                  title="Sex"
+                  data={sexPieChartData}
+                  chartHeight={CHART_HEIGHT}
+                  chartAspectRatio={CHART_ASPECT_RATIO}
+                />
+              </Col>}
+              {Boolean(diseasesData.length) && (
+                <Col span={12} style={{ textAlign: "center" }}>
+                  <CustomPieChart
+                    title="Diseases"
+                    data={diseasesData}
+                    chartHeight={CHART_HEIGHT}
+                    chartAspectRatio={CHART_ASPECT_RATIO}
+                  />
+                </Col>
+              )}
+              {Boolean(phenotypicFeaturesData.length) && (
+                <Col span={12} style={{ textAlign: "center" }}>
+                  <CustomPieChart
+                    title="Phenotypic Features"
+                    data={phenotypicFeaturesData}
+                    chartHeight={CHART_HEIGHT}
+                    chartAspectRatio={CHART_ASPECT_RATIO}
+                  />
+                </Col>
+              )}
+              {histogramHasData && <Col span={12} style={{ textAlign: "center" }}>
+                <Histogram
+                  title="Ages"
+                  data={ageHistogramData}
+                  chartHeight={CHART_HEIGHT}
+                  chartAspectRatio={CHART_ASPECT_RATIO}
+                />
+              </Col>}
+            </Row>
             <Divider />
-            <Typography.Title level={4}>Overview: Individuals</Typography.Title>
-            <Row gutter={16}>
-                <Col span={12}>
-                    <VictoryPieWrapSVG>
-                        <VictoryPie data={individualsBySex} {...VICTORY_PIE_PROPS} />
-                        <VictoryLabel text="SEX" {...VICTORY_PIE_LABEL_PROPS} />
-                    </VictoryPieWrapSVG>
+            <Typography.Title level={4}>Biosamples</Typography.Title>
+            <Row gutter={[0, 16]}>
+              {Boolean(biosamplesByTissueData.length) && (
+                <Col span={12} style={{ textAlign: "center" }}>
+                  <CustomPieChart
+                    title="Biosamples by Tissue"
+                    data={biosamplesByTissueData}
+                    chartHeight={CHART_HEIGHT}
+                    chartAspectRatio={CHART_ASPECT_RATIO}
+                  />
                 </Col>
-                <Col span={12}>
-                    <VictoryPieWrapSVG>
-                        <VictoryPie data={individualsByKaryotype} {...VICTORY_PIE_PROPS} />
-                        <VictoryLabel text="KARYOTYPE" {...VICTORY_PIE_LABEL_PROPS} />
-                    </VictoryPieWrapSVG>
+              )}
+              {Boolean(biosamplesByHistologicalDiagnosisData.length) && (
+                <Col span={12} style={{ textAlign: "center" }}>
+                  <CustomPieChart
+                    title="Biosamples by Diagnosis"
+                    data={biosamplesByHistologicalDiagnosisData}
+                    chartHeight={CHART_HEIGHT}
+                    chartAspectRatio={CHART_ASPECT_RATIO}
+                  />
                 </Col>
-                <Col span={12}>
-                    <VictoryChart {...VICTORY_BAR_CONTAINER_PROPS}>
-                        <VictoryAxis {...VICTORY_BAR_X_AXIS_PROPS} />
-                        <VictoryBar data={diseasesByTerm} {...VICTORY_BAR_PROPS} />
-                        <VictoryLabel text="DISEASE" {...VICTORY_BAR_TITLE_PROPS} />
-                    </VictoryChart>
-                </Col>
-                <Col span={12}>
-                    <VictoryChart {...VICTORY_BAR_CONTAINER_PROPS}>
-                        <VictoryAxis {...VICTORY_BAR_X_AXIS_PROPS} />
-                        <VictoryBar data={phenoFeatsByType} {...VICTORY_BAR_PROPS} />
-                        <VictoryLabel text="PHENOTYPIC FEATURE" {...VICTORY_BAR_TITLE_PROPS} />
-                    </VictoryChart>
-                </Col>
+              )}
             </Row>
-        </> : null}
-        {samplesByTissue.length > 0 ? <>
-            {/* TODO: Deduplicate with phenopacket summary */}
-            <Divider />
-            <Typography.Title level={4}>Overview: Biosamples</Typography.Title>
-            <Row gutter={16}>
-                <Col span={12}>
-                    <VictoryPieWrapSVG>
-                        <VictoryPie data={samplesByTissue} {...VICTORY_PIE_PROPS} />
-                        <VictoryLabel text="TISSUE" {...VICTORY_PIE_LABEL_PROPS} />
-                    </VictoryPieWrapSVG>
+                <Divider />
+                <Typography.Title level={4}>Experiments</Typography.Title>
+                <Row gutter={[0, 16]}>
+                {Boolean(experimentsByTypeData.length) && (
+                <Col span={12} style={{ textAlign: "center" }}>
+                  <CustomPieChart
+                    title="Study Types"
+                    data={experimentsByTypeData}
+                    chartHeight={CHART_HEIGHT}
+                    chartAspectRatio={CHART_ASPECT_RATIO}
+                  />
                 </Col>
-                <Col span={12}>
-                    <VictoryPieWrapSVG>
-                        <VictoryPie data={samplesByTaxonomy} {...VICTORY_PIE_PROPS} />
-                        <VictoryLabel text="TAXONOMY" {...VICTORY_PIE_LABEL_PROPS} />
-                    </VictoryPieWrapSVG>
-                </Col>
-            </Row>
-            <Row gutter={16}>
-                <Col span={12}>
-                    <VictoryChart {...VICTORY_HIST_CONTAINER_PROPS}>
-                        <VictoryAxis tickValues={AGE_HISTOGRAM_BINS}
-                                     label="Age (Years)"
-                                     height={200}
-                                     style={{
-                                         axisLabel: {fontFamily: "monospace"},
-                                         tickLabels: {fontFamily: "monospace"}
-                                     }} />
-                        <VictoryAxis dependentAxis={true}
-                                     label="Count"
-                                     style={{
-                                         axisLabel: {fontFamily: "monospace"},
-                                         tickLabels: {fontFamily: "monospace"}
-                                     }} />
-                        <VictoryHistogram data={ageAtCollectionHistogram}
-                                          bins={AGE_HISTOGRAM_BINS}
-                                          {...VICTORY_HIST_PROPS} />
-                        <VictoryLabel text="AGE AT COLLECTION" {...VICTORY_BAR_TITLE_PROPS} />
-                    </VictoryChart>
-                </Col>
-                <Col span={12}>
-                    {/* TODO: histological_diagnosis pie chart */}
-                </Col>
-            </Row>
-        </> : null}
-    </Modal> : null;
+                )}
+                </Row>
+          </>
+      </Modal>
+    ) : null;
 };
 
 SearchSummaryModal.propTypes = {
