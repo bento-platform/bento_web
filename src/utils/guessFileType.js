@@ -7,7 +7,7 @@ export const guessFileType = (filename) => {
         return ("cram");
     }
     if (filename.toLowerCase().endsWith(".bw") || filename.toLowerCase().endsWith(".bigwig")) {
-        return "bigWig";
+        return "bigwig";
     }
 
     // expand here accordingly

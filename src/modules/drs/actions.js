@@ -110,7 +110,7 @@ export const getIgvUrlsFromDrs = (fileObjects) => async (dispatch, _getState) =>
             // reduce array to object that's addressable by filename
             const urlsObj = urls.reduce((obj, item) => Object.assign(obj, item), {});
 
-            console.log(`received drs urls for igv: ${urlsObj}`);
+            console.log(`received drs urls for igv: ${JSON.stringify(urlsObj)}`);
 
             dispatch(setDrsUrlsForIgv(urlsObj));
         })
@@ -191,7 +191,6 @@ const hasIndex = (fileType) => {
             return true;
 
         default:
-            return false
-            ;
+            return false;
     }
 };
