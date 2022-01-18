@@ -122,7 +122,7 @@ class ExplorerDatasetSearch extends Component {
                                    addDataTypeQueryForm={this.props.addDataTypeQueryForm}
                                    updateDataTypeQueryForm={this.props.updateDataTypeQueryForm}
                                    removeDataTypeQueryForm={this.props.removeDataTypeQueryForm} />
-            {this.props.searchResults ? <>
+            {this.props.searchResults && !this.props.fetchingSearch ? <>
                 <Typography.Title level={4}>
                     Showing results {showingResults}-{Math.min(this.state.currentPage * this.state.pageSize,
                     numResults)} of {numResults}
