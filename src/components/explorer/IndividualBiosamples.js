@@ -52,6 +52,9 @@ class IndividualBiosamples extends Component {
                 ) : null}
               </div>
             </Descriptions.Item>
+            <Descriptions.Item label="Histological Diagnosis">
+              {renderOntologyTerm(b.histological_diagnosis)}
+            </Descriptions.Item>
             <Descriptions.Item label="Ind. Age At Collection">
               {b.individual_age_at_collection
                   ? b.individual_age_at_collection.hasOwnProperty("age")
