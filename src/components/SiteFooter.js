@@ -1,12 +1,9 @@
 import React, {Component} from "react";
-
 import {Layout} from "antd";
-
 import {withBasePath} from "../utils/url";
-
-// import {nothing} from "../images/Test"
-
 import BentoLogo from "../images/Bento_final.svg";
+
+const BENTO_LOGO_WIDTH = "200px"
 
 class SiteFooter extends Component {
     render() {
@@ -25,7 +22,7 @@ class SiteFooter extends Component {
                   <h2 style={{margin: "0"}}>Powered by</h2>
                 </div>
 
-                <div style={{ width: "200px", margin: "0 10px 0 10px" }}>
+                <div style={{ width: BENTO_LOGO_WIDTH, marginLeft: "10px" }}>
                   <img src={BentoLogo} alt="Bento logo" />
                 </div>
               </div>
