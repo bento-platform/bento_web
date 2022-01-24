@@ -3,7 +3,7 @@ import {Layout} from "antd";
 import {withBasePath} from "../utils/url";
 import BentoLogo from "../images/Bento_final.svg";
 
-const BENTO_LOGO_WIDTH = "125px"
+const BENTO_LOGO_WIDTH = "125px";
 
 class SiteFooter extends Component {
     render() {
@@ -17,12 +17,12 @@ class SiteFooter extends Component {
                   alignItems: "center",
               }}
             >
-              <div style={{ display: "flex", alignItems: "center" }}>
+              <div >
                 <div>
-                  <h3 style={{margin: "0"}}>Powered by</h3>
+                  <p style={{margin: "0"}}>Powered by</p>
                 </div>
 
-                <div style={{ width: BENTO_LOGO_WIDTH, marginLeft: "10px" }}>
+                <div style={{ width: BENTO_LOGO_WIDTH}}>
                   <img src={BentoLogo} alt="Bento logo" />
                 </div>
               </div>
