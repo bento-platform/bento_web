@@ -49,6 +49,7 @@ module.exports = {
         }),
         new webpack.EnvironmentPlugin({
             CHORD_URL: null,
+            CUSTOM_HEADER: process.env.CUSTOM_HEADER,
         })
     ]
 };

@@ -14,6 +14,7 @@ import {BASE_PATH, signInURLWithRedirect, withBasePath} from "../utils/url";
 import {nodeInfoDataPropTypesShape, notificationPropTypesShape, userPropTypesShape} from "../propTypes";
 import logo from "../images/logo.png";
 
+const customHeader = process.env.CUSTOM_HEADER ?? "";
 class SiteHeader extends Component {
     constructor() {
         super();
@@ -100,22 +101,33 @@ class SiteHeader extends Component {
             }
         ];
 
-        return <Layout.Header>
+        return (
+          <Layout.Header>
             <Link to={BASE_PATH}>
-                <div style={{
+              <div
+                style={{
                     margin: "0 15px 0 0",
                     float: "left",
-                }}><img style={{height: "35px"}} src={logo} alt="logo"/></div>
+                }}
+              >
+                <img style={{ height: "35px" }} src={logo} alt="logo" />
+              </div>
             </Link>
-            <Menu theme="dark"
-                  mode="horizontal"
-                  selectedKeys={matchingMenuKeys(menuItems)}
-                  style={{lineHeight: "64px"}}>
-
-                {menuItems.map(i => renderMenuItem(i))}
-
+            {customHeader && (
+              <h3 style={{ color: "rgba(255, 255, 255, 0.95)", float: "left", margin: "0 10px 0 0" }}>
+                {customHeader}
+              </h3>
+            )}
+            <Menu
+              theme="dark"
+              mode="horizontal"
+              selectedKeys={matchingMenuKeys(menuItems)}
+              style={{ lineHeight: "64px" }}
+            >
+              {menuItems.map((i) => renderMenuItem(i))}
             </Menu>
-        </Layout.Header>;
+          </Layout.Header>
+        );
     }
 }
 
