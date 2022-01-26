@@ -15,6 +15,7 @@ import {nodeInfoDataPropTypesShape, notificationPropTypesShape, userPropTypesSha
 import logo from "../images/logo.png";
 
 const customHeader = process.env.CUSTOM_HEADER ?? "";
+
 class SiteHeader extends Component {
     constructor() {
         super();
@@ -114,7 +115,7 @@ class SiteHeader extends Component {
               </div>
             </Link>
             {customHeader && (
-              <h3 style={{ color: "rgba(255, 255, 255, 0.95)", float: "left", margin: "0 10px 0 0" }}>
+              <h3 style={{ color: "rgba(255, 255, 255, 0.95)", float: "left", margin: "0 10px 0 -10px" }}>
                 {customHeader}
               </h3>
             )}
