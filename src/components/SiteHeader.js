@@ -8,11 +8,13 @@ import {Badge, Icon, Layout, Menu} from "antd";
 
 import {showNotificationDrawer} from "../modules/notifications/actions";
 
-import {SIGN_OUT_URL, SITE_NAME} from "../constants";
+import {SIGN_OUT_URL} from "../constants";
 import {matchingMenuKeys, renderMenuItem} from "../utils/menu";
 import {BASE_PATH, signInURLWithRedirect, withBasePath} from "../utils/url";
 import {nodeInfoDataPropTypesShape, notificationPropTypesShape, userPropTypesShape} from "../propTypes";
+import logo from "../images/logo.png";
 
+const customHeader = process.env.CUSTOM_HEADER ?? "";
 
 class SiteHeader extends Component {
     constructor() {
@@ -100,22 +102,33 @@ class SiteHeader extends Component {
             }
         ];
 
-        return <Layout.Header>
-            <Link to={BASE_PATH}><h1 style={{
-                display: "inlineBlock",
-                color: "rgba(255, 255, 255, 0.95)",
-                margin: "0 30px 0 0",
-                float: "left"
-            }}>{SITE_NAME}</h1></Link>
-            <Menu theme="dark"
-                  mode="horizontal"
-                  selectedKeys={matchingMenuKeys(menuItems)}
-                  style={{lineHeight: "64px"}}>
-
-                {menuItems.map(i => renderMenuItem(i))}
-
+        return (
+          <Layout.Header>
+            <Link to={BASE_PATH}>
+              <div
+                style={{
+                    margin: "0 15px 0 0",
+                    float: "left",
+                }}
+              >
+                <img style={{ height: "35px" }} src={logo} alt="logo" />
+              </div>
+            </Link>
+            {customHeader && (
+              <h3 style={{ color: "rgba(255, 255, 255, 0.95)", float: "left", margin: "0 10px 0 -10px" }}>
+                {customHeader}
+              </h3>
+            )}
+            <Menu
+              theme="dark"
+              mode="horizontal"
+              selectedKeys={matchingMenuKeys(menuItems)}
+              style={{ lineHeight: "64px" }}
+            >
+              {menuItems.map((i) => renderMenuItem(i))}
             </Menu>
-        </Layout.Header>;
+          </Layout.Header>
+        );
     }
 }
 
