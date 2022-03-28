@@ -15,7 +15,7 @@ export const mapNameValueFields = (data, otherThreshold = 0.04) => {
             if (otherIndex > -1) {
                 results[otherIndex].value += val; // Accumulate
             } else {
-                results.push({name: "Other", value: val}); // Create a new  element in the array
+                results.push({name: "Other", value: val, skipAutoquery: true}); // Create a new  element in the array
             }
         } else { // Treat items
             results.push({name: key, value: val});

@@ -57,7 +57,7 @@ class CustomPieChart extends React.Component {
     onClick = (data) => {
         const { history, setAutoQueryPageTransition, autoQueryDataType } = this.props;
 
-        if (!setAutoQueryPageTransition) {
+        if (!setAutoQueryPageTransition || data.skipAutoquery) {
             return;
         }
 
