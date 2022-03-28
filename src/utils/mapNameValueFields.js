@@ -4,13 +4,14 @@ export const mapNameValueFields = (data, otherThreshold = 0.04) => {
 
     // Accumulate all values to compute on them later
     const sumOfAllValues = Object.values(data).reduce((acc, v) => acc + v, 0);
+    const numCategories = Object.keys(data).length;
 
     // Group the items in the array of objects denoted by
     // a "name" and "value" parameter
     const results = [];
     Object.entries(data).forEach(([key, val]) => {
         // Group all elements with a small enough value together under an "Other"
-        if (val > 0 && (val / sumOfAllValues) < otherThreshold) {
+        if (numCategories > 2 && val > 0 && (val / sumOfAllValues) < otherThreshold) {
             const otherIndex = results.findIndex(ob => ob.name === "Other");
             if (otherIndex > -1) {
                 results[otherIndex].value += val; // Accumulate
