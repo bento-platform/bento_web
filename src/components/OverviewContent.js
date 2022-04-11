@@ -6,7 +6,6 @@ import ClinicalSummary from "./overview/ClinicalSummary";
 import VariantsSummary from "./overview/VariantsSummary";
 import { SITE_NAME } from "../constants";
 import ExperimentsSummary from "./overview/ExperimentsSummary";
-import { Button } from "antd";
 import { DEFAULT_OTHER_THRESHOLD_PERCENTAGE } from "../constants";
 
 class OverviewContent extends Component {
@@ -35,13 +34,6 @@ class OverviewContent extends Component {
           }}
         >
           <SitePageHeader title="Overview" style={{ border: "none" }} />
-          <Button
-            type="button"
-            icon="setting"
-            size={"small"}
-            style={{ alignSelf: "center", marginRight: "25px" }}
-            onClick={this.openModal}
-          />
         </div>
         <Layout>
           <Layout.Content style={{ background: "white", padding: "32px 24px 4px" }}>
