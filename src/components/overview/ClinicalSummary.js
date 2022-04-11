@@ -11,7 +11,8 @@ import {
 import {mapNameValueFields} from "../../utils/mapNameValueFields";
 
 const mapStateToProps = state => ({
-    overviewSummary: state.overviewSummary
+    overviewSummary: state.overviewSummary,
+    otherThresholdPercentage: state.explorer.otherThresholdPercentage
 });
 
 const actionCreators = {

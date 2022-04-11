@@ -6,6 +6,8 @@ import {
     updateDataTypeFormIfPossible
 } from "../../utils/search";
 
+import DEFAULT_OTHER_THRESHOLD_PERCENTAGE from "../../constants";
+
 import {
     PERFORM_SEARCH,
     PERFORM_INDIVIDUAL_CSV_DOWNLOAD,
@@ -16,6 +18,7 @@ import {
     SET_AUTO_QUERY_PAGE_TRANSITION,
     NEUTRALIZE_AUTO_QUERY_PAGE_TRANSITION,
     FREE_TEXT_SEARCH,
+    SET_OTHER_THRESHOLD_PERCENTAGE
 } from "./actions";
 
 // TODO: Could this somehow be combined with discovery?
@@ -28,8 +31,10 @@ export const explorer = (
         isFetchingDownload: false,
 
         autoQuery: {
-            isAutoQuery: false
-        }
+            isAutoQuery: false,
+        },
+        otherThresholdPercentage:
+      JSON.parse(localStorage.getItem("otherThresholdPercentage")) ?? DEFAULT_OTHER_THRESHOLD_PERCENTAGE,
     },
     action
 ) => {
@@ -83,7 +88,7 @@ export const explorer = (
                 ...state,
                 isFetchingDownload: false,
             };
-        // ---
+    // ---
 
         case ADD_DATA_TYPE_QUERY_FORM:
             return {
@@ -92,7 +97,7 @@ export const explorer = (
                     ...state.dataTypeFormsByDatasetID,
                     [action.datasetID]: addDataTypeFormIfPossible(
                         state.dataTypeFormsByDatasetID[action.datasetID] || [],
-                        action.dataType,
+                        action.dataType
                     ),
                 },
             };
@@ -104,7 +109,7 @@ export const explorer = (
                     [action.datasetID]: updateDataTypeFormIfPossible(
                         state.dataTypeFormsByDatasetID[action.datasetID] || [],
                         action.dataType,
-                        action.fields,
+                        action.fields
                     ),
                 },
             };
@@ -115,7 +120,7 @@ export const explorer = (
                     ...state.dataTypeFormsByDatasetID,
                     [action.datasetID]: removeDataTypeFormIfPossible(
                         state.dataTypeFormsByDatasetID[action.datasetID] || [],
-                        action.dataType,
+                        action.dataType
                     ),
                 },
             };
@@ -129,7 +134,7 @@ export const explorer = (
                 },
             };
 
-        // Auto-Queries start here ----
+    // Auto-Queries start here ----
         case SET_AUTO_QUERY_PAGE_TRANSITION:
             return {
                 ...state,
@@ -139,7 +144,7 @@ export const explorer = (
                     autoQueryType: action.autoQueryType,
                     autoQueryField: action.autoQueryField,
                     autoQueryValue: action.autoQueryValue,
-                }
+                },
             };
 
         case NEUTRALIZE_AUTO_QUERY_PAGE_TRANSITION:
@@ -151,11 +156,11 @@ export const explorer = (
                     autoQueryType: undefined,
                     autoQueryField: undefined,
                     autoQueryValue: undefined,
-                }
+                },
             };
-        //.. and end here.. ----
+    //.. and end here.. ----
 
-        // free-text search
+    // free-text search
         case FREE_TEXT_SEARCH.REQUEST:
             return {
                 ...state,
@@ -182,6 +187,11 @@ export const explorer = (
                     ...state.fetchingSearchByDatasetID,
                     [action.datasetID]: false,
                 },
+            };
+        case SET_OTHER_THRESHOLD_PERCENTAGE:
+            return {
+                ...state,
+                otherThresholdPercentage: action.otherThresholdPercentage,
             };
 
         default:

@@ -37,9 +37,9 @@ class OverviewContent extends Component {
         </div>
         <Layout>
           <Layout.Content style={{ background: "white", padding: "32px 24px 4px" }}>
-            <ClinicalSummary otherThresholdPercentage={this.state.otherThresholdPercentage} />
+            <ClinicalSummary  />
             <Divider />
-            <ExperimentsSummary otherThresholdPercentage={this.state.otherThresholdPercentage} />
+            <ExperimentsSummary />
             <Divider />
             <VariantsSummary />
           </Layout.Content>

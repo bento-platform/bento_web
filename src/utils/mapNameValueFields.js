@@ -1,4 +1,6 @@
-export const mapNameValueFields = (data, otherThreshold = 0.04) => {
+import { DEFAULT_OTHER_THRESHOLD_PERCENTAGE } from "../constants";
+
+export const mapNameValueFields = (data, otherThreshold = DEFAULT_OTHER_THRESHOLD_PERCENTAGE) => {
     if (!data)
         return [];
 

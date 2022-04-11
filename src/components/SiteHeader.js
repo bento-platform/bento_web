@@ -2,7 +2,7 @@ import React, { Component } from "react";
 import { connect } from "react-redux";
 import { Link, withRouter } from "react-router-dom";
 import PropTypes from "prop-types";
-import { Badge, Icon, Layout, Menu, Modal } from "antd";
+import { Badge, Icon, Layout, Menu } from "antd";
 
 import { showNotificationDrawer } from "../modules/notifications/actions";
 import { SIGN_OUT_URL } from "../constants";
@@ -11,45 +11,23 @@ import { BASE_PATH, signInURLWithRedirect, withBasePath } from "../utils/url";
 import { nodeInfoDataPropTypesShape, notificationPropTypesShape, userPropTypesShape } from "../propTypes";
 import logo from "../images/logo.png";
 import OverviewSettingsControl from "./overview/OverviewSettingsControl";
-import { DEFAULT_OTHER_THRESHOLD_PERCENTAGE } from "../constants";
 
 const customHeader = process.env.CUSTOM_HEADER ?? "";
 
 class SiteHeader extends Component {
     constructor() {
         super();
-        const startThreshold =
-      JSON.parse(localStorage.getItem("otherThresholdPercentage")) ?? DEFAULT_OTHER_THRESHOLD_PERCENTAGE;
+
         this.state = {
-            current: "mail",
-            otherThresholdPercentage: startThreshold,
-            previousThresholdPercentage: startThreshold,
-            modalVisible: false,
+            modalVisible: false
         };
-        this.setOtherThresholdPercentage = this.setOtherThresholdPercentage.bind(this);
-        this.openModal = this.openModal.bind(this);
-        this.setValueAndCloseModal = this.setValueAndCloseModal.bind(this);
-        this.cancelModal = this.cancelModal.bind(this);
+        this.toggleModalVisibility = this.toggleModalVisibility.bind(this);
     }
 
-    setOtherThresholdPercentage(value) {
-        this.setState({ otherThresholdPercentage: value });
-    }
-
-    openModal() {
-        this.setState({ modalVisible: true });
-    // save threshold in case user cancels
-        this.setState({ previousThresholdPercentage: this.state.otherThresholdPercentage });
-    }
-
-    setValueAndCloseModal() {
-        localStorage.setItem("otherThresholdPercentage", JSON.stringify(this.state.otherThresholdPercentage));
-        this.setState({ modalVisible: false });
-    }
-
-    cancelModal() {
-        this.setState({ modalVisible: false });
-        this.setState({ otherThresholdPercentage: this.state.previousThresholdPercentage });
+    toggleModalVisibility() {
+        this.setState({
+            modalVisible: !this.state.modalVisible
+        });
     }
 
     render() {
@@ -154,51 +132,42 @@ class SiteHeader extends Component {
                 style: { float: "right" },
                 icon: <Icon type="setting" />,
                 text: <span className="nav-text">Settings</span>,
-                onClick: this.openModal,
+                onClick: this.toggleModalVisibility,                //xxxxxxxxx
                 key: "settings",
             },
         ];
 
         return (
             <>
-        <Layout.Header>
-          <Link to={BASE_PATH}>
-            <div
-              style={{
-                  margin: "0 15px 0 0",
-                  float: "left",
-              }}
-            >
-              <img style={{ height: "35px" }} src={logo} alt="logo" />
-            </div>
-          </Link>
-          {customHeader && (
-            <h3 style={{ color: "rgba(255, 255, 255, 0.95)", float: "left", margin: "0 10px 0 -10px" }}>
-              {customHeader}
-            </h3>
-          )}
-          <Menu
-            theme="dark"
-            mode="horizontal"
-            selectedKeys={matchingMenuKeys(menuItems)}
-            style={{ lineHeight: "64px" }}
-          >
-            {menuItems.map((i) => renderMenuItem(i))}
-          </Menu>
-        </Layout.Header>
-        <Modal
-          visible={this.state.modalVisible}
-          closable={false}
-          destroyOnClose={true}
-          onOk={this.setValueAndCloseModal}
-          onCancel={this.cancelModal}
-        >
-          <OverviewSettingsControl
-            otherThresholdPercentage={this.state.otherThresholdPercentage}
-            setOtherThresholdPercentage={this.setOtherThresholdPercentage}
-            setValueAndCloseModal={this.setValueAndCloseModal}
-          />
-        </Modal>
+            <Layout.Header>
+              <Link to={BASE_PATH}>
+                <div
+                  style={{
+                      margin: "0 15px 0 0",
+                      float: "left",
+                  }}
+                >
+                  <img style={{ height: "35px" }} src={logo} alt="logo" />
+                </div>
+              </Link>
+              {customHeader && (
+                <h3 style={{ color: "rgba(255, 255, 255, 0.95)", float: "left", margin: "0 10px 0 -10px" }}>
+                  {customHeader}
+                </h3>
+              )}
+              <Menu
+                theme="dark"
+                mode="horizontal"
+                selectedKeys={matchingMenuKeys(menuItems)}
+                style={{ lineHeight: "64px" }}
+              >
+                {menuItems.map((i) => renderMenuItem(i))}
+              </Menu>
+            </Layout.Header>
+            <OverviewSettingsControl
+              modalVisible={this.state.modalVisible}
+              toggleModalVisibility={this.toggleModalVisibility}
+            />
             </>
         );
     }
@@ -221,4 +190,4 @@ const mapStateToProps = (state) => ({
     isOwner: (state.auth.user || {}).chord_user_role === "owner",
 });
 
-export default withRouter(connect(mapStateToProps, { showNotificationDrawer })(SiteHeader));
+export default withRouter(connect(mapStateToProps, { showNotificationDrawer, })(SiteHeader));
