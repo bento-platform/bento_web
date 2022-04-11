@@ -217,7 +217,7 @@ const IndividualExperiments = ({ individual }) => {
       pagination={false}
       columns={EXPERIMENT_RESULTS_COLUMNS}
       rowKey="filename"
-      dataSource={e.experiment_results.sort((r1, r2) => (r1.file_format > r2.file_format ) ? 1 : -1)}
+      dataSource={(e.experiment_results || []).sort((r1, r2) => (r1.file_format > r2.file_format ) ? 1 : -1)}
     />
     {i !== (experimentsData.length - 1) && <Divider/>}
   </div>
