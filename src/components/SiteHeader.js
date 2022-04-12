@@ -3,7 +3,6 @@ import { connect } from "react-redux";
 import { Link, withRouter } from "react-router-dom";
 import PropTypes from "prop-types";
 import { Badge, Icon, Layout, Menu } from "antd";
-
 import { showNotificationDrawer } from "../modules/notifications/actions";
 import { SIGN_OUT_URL } from "../constants";
 import { matchingMenuKeys, renderMenuItem } from "../utils/menu";
@@ -132,7 +131,7 @@ class SiteHeader extends Component {
                 style: { float: "right" },
                 icon: <Icon type="setting" />,
                 text: <span className="nav-text">Settings</span>,
-                onClick: this.toggleModalVisibility,                //xxxxxxxxx
+                onClick: this.toggleModalVisibility,
                 key: "settings",
             },
         ];

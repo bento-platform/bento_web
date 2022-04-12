@@ -14,7 +14,7 @@ export const mapNameValueFields = (data, otherThreshold = DEFAULT_OTHER_THRESHOL
     // a "name" and "value" parameter
     const results = [];
     Object.entries(data).forEach(([key, val]) => {
-        // Group all elements with a small enough value together under an "Other", as long as there's more than one
+        // Group all categories with value below the threshold into "Other", as long as there's more than one
         if (numCategoriesBelowThreshold > 1 && val > 0 && (val / sumOfAllValues) < otherThreshold) {
             const otherIndex = results.findIndex(ob => ob.name === "Other");
             if (otherIndex > -1) {

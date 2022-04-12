@@ -6,16 +6,10 @@ import ClinicalSummary from "./overview/ClinicalSummary";
 import VariantsSummary from "./overview/VariantsSummary";
 import { SITE_NAME } from "../constants";
 import ExperimentsSummary from "./overview/ExperimentsSummary";
-import { DEFAULT_OTHER_THRESHOLD_PERCENTAGE } from "../constants";
 
 class OverviewContent extends Component {
     constructor(props) {
         super(props);
-        const threshold =
-      JSON.parse(localStorage.getItem("otherThresholdPercentage")) ?? DEFAULT_OTHER_THRESHOLD_PERCENTAGE;
-        this.state = {
-            otherThresholdPercentage: threshold,
-        };
     }
 
     componentDidMount() {
