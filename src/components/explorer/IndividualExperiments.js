@@ -115,7 +115,7 @@ const IndividualExperiments = ({ individual }) => {
         <div className="experiment_and_results" id={e.biosample} key={e.id}>
           <div className="experiment-titles">
             <Typography.Text style={titleStyle}>
-              {`${e.experiment_type} (Biosample ${e.biosample})`}{" "}
+              {`${e.experiment_type} (Biosample ${e.biosample})`}
             </Typography.Text>
           </div>
           <div className="experiment_summary">
@@ -186,7 +186,6 @@ const IndividualExperiments = ({ individual }) => {
           </div>
           <div className="experiment-titles">
             <Typography.Text style={titleStyle} level={4}>
-              {" "}
               {`${e.experiment_type} - Results`}
             </Typography.Text>
           </div>
