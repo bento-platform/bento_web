@@ -278,12 +278,14 @@ class CustomPieChart extends React.Component {
         const titleHeaderHeight = 31;
         const totalCount = data.reduce((sum, e) => sum + e.value, 0);
 
+        console.log({piedata: data});
+
         return (<>
         <div style={this.style}>
         <h2 style={this.titleStyle}>{title}</h2>
           <PieChart height={chartHeight - titleHeaderHeight}
                     width={(chartHeight - titleHeaderHeight) * chartAspectRatio}>
-              <Pie data={data.filter(e => e.value !== 0)}
+              <Pie data={data}
                    dataKey="value"
                    cx="50%"
                    cy="50%"

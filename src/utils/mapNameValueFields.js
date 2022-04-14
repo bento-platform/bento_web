@@ -1,32 +1,32 @@
-import { DEFAULT_OTHER_THRESHOLD_PERCENTAGE } from "../constants";
-
-export const mapNameValueFields = (data, otherThreshold = DEFAULT_OTHER_THRESHOLD_PERCENTAGE) => {
-    if (!data)
+export const mapNameValueFields = (data, otherThreshold) => {
+    if (!data) {
         return [];
+    }
 
-    // Accumulate all values to compute on them later
     const sumOfAllValues = Object.values(data).reduce((acc, v) => acc + v, 0);
-    const numCategoriesBelowThreshold = Object.values(data).filter(
-        (val) => val / sumOfAllValues < otherThreshold
-    ).length;
 
-    // Group the items in the array of objects denoted by
-    // a "name" and "value" parameter
+  // no point using an "other" category if only one category below threshold
+    const multipleCategoriesBelowThreshold =
+    Object.values(data).filter((val) => (val > 0) && (val / sumOfAllValues < otherThreshold)).length > 1;
+
     const results = [];
+    const other = { name: "Other", value: 0, skipAutoquery: true };
+
     Object.entries(data).forEach(([key, val]) => {
-        // Group all categories with value below the threshold into "Other", as long as there's more than one
-        if (numCategoriesBelowThreshold > 1 && val > 0 && (val / sumOfAllValues) < otherThreshold) {
-            const otherIndex = results.findIndex(ob => ob.name === "Other");
-            if (otherIndex > -1) {
-                results[otherIndex].value += val; // Accumulate
-            } else {
-                results.push({name: "Other", value: val, skipAutoquery: true}); // Create a new  element in the array
+        const categoryNotEmpty = val > 0;
+        const categoryBelowThreshold = val / sumOfAllValues < otherThreshold;
+        if (multipleCategoriesBelowThreshold && categoryNotEmpty && categoryBelowThreshold) {
+            other.value += val;
+        } else {
+            if (categoryNotEmpty) {
+                results.push({ name: key, value: val });
             }
-        } else { // Treat items
-            results.push({name: key, value: val});
         }
     });
 
-    // Sort by value
+    if (other["value"] > 0) {
+        results.push(other);
+    }
+
     return results.sort((a, b) => a.value - b.value);
 };
