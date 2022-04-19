@@ -1,4 +1,4 @@
-import "file-saver"; // https://github.com/eligrey/FileSaver.js/
+// https://github.com/eligrey/FileSaver.js/
 import FileSaver from "file-saver";
 
 import {
