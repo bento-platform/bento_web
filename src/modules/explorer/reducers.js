@@ -1,12 +1,15 @@
 import "file-saver"; // https://github.com/eligrey/FileSaver.js/
 import FileSaver from "file-saver";
+
 import {
     addDataTypeFormIfPossible,
     removeDataTypeFormIfPossible,
     updateDataTypeFormIfPossible
 } from "../../utils/search";
 
-import DEFAULT_OTHER_THRESHOLD_PERCENTAGE from "../../constants";
+import { readFromLocalStorage } from "../../utils/localStorageUtils";
+
+import { DEFAULT_OTHER_THRESHOLD_PERCENTAGE } from "../../constants";
 
 import {
     PERFORM_SEARCH,
@@ -33,8 +36,7 @@ export const explorer = (
         autoQuery: {
             isAutoQuery: false,
         },
-        otherThresholdPercentage:
-      JSON.parse(localStorage.getItem("otherThresholdPercentage")) ?? DEFAULT_OTHER_THRESHOLD_PERCENTAGE,
+        otherThresholdPercentage: readFromLocalStorage("otherThresholdPercentage") ?? DEFAULT_OTHER_THRESHOLD_PERCENTAGE
     },
     action
 ) => {
