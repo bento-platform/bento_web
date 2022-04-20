@@ -13,14 +13,14 @@ export const mapNameValueFields = (data, otherThreshold) => {
     const other = { name: "Other", value: 0, skipAutoquery: true };
 
     Object.entries(data).forEach(([key, val]) => {
-        const categoryNotEmpty = val > 0;
+        if (val === 0) {
+            return;   //continue
+        }
         const categoryBelowThreshold = val / sumOfAllValues < otherThreshold;
-        if (multipleCategoriesBelowThreshold && categoryNotEmpty && categoryBelowThreshold) {
+        if (multipleCategoriesBelowThreshold && categoryBelowThreshold) {
             other.value += val;
         } else {
-            if (categoryNotEmpty) {
-                results.push({ name: key, value: val });
-            }
+            results.push({ name: key, value: val });
         }
     });
 
