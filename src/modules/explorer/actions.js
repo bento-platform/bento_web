@@ -4,17 +4,14 @@ import {extractQueriesFromDataTypeForms} from "../../utils/search";
 
 export const PERFORM_SEARCH = createNetworkActionTypes("EXPLORER.PERFORM_SEARCH");
 export const PERFORM_INDIVIDUAL_CSV_DOWNLOAD = createNetworkActionTypes("EXPLORER.PERFORM_INDIVIDUAL_CSV_DOWNLOAD");
-
 export const ADD_DATA_TYPE_QUERY_FORM = "EXPLORER.ADD_DATA_TYPE_QUERY_FORM";
 export const UPDATE_DATA_TYPE_QUERY_FORM = "EXPLORER.UPDATE_DATA_TYPE_QUERY_FORM";
 export const REMOVE_DATA_TYPE_QUERY_FORM = "EXPLORER.REMOVE_DATA_TYPE_QUERY_FORM";
-
 export const SET_SELECTED_ROWS = "EXPLORER.SET_SELECTED_ROWS";
-
 export const SET_AUTO_QUERY_PAGE_TRANSITION = "EXPLORER.SET_AUTO_QUERY_PAGE_TRANSITION";
-
 export const NEUTRALIZE_AUTO_QUERY_PAGE_TRANSITION = "EXPLORER.NEUTRALIZE_AUTO_QUERY_PAGE_TRANSITION";
 export const FREE_TEXT_SEARCH = createNetworkActionTypes("FREE_TEXT_SEARCH");
+export const SET_OTHER_THRESHOLD_PERCENTAGE = "EXPLORER.SET_OTHER_THRESHOLD_PERCENTAGE";
 
 const performSearch = networkAction((datasetID, dataTypeQueries, excludeFromAutoJoin = []) =>
     (dispatch, getState) => ({
@@ -134,3 +131,8 @@ const performFreeTextSearch = networkAction((datasetID, term) => (dispatch, getS
 export const performFreeTextSearchIfPossible = (datasetID, term) => (dispatch, _getState) => {
     return dispatch(performFreeTextSearch(datasetID, term));
 };
+
+export const setOtherThresholdPercentage = (threshold) => ({
+    type: SET_OTHER_THRESHOLD_PERCENTAGE,
+    otherThresholdPercentage: threshold
+});

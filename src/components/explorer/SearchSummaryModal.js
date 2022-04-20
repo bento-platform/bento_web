@@ -6,15 +6,15 @@ import Histogram from "../overview/Histogram";
 import {SEX_VALUES} from "../../dataTypes/phenopacket";
 import {explorerSearchResultsPropTypesShape} from "../../propTypes";
 import {mapNameValueFields} from "../../utils/mapNameValueFields";
-import {DEFAULT_OTHER_THRESHOLD_PERCENTAGE} from "../../constants";
+import { useSelector } from "react-redux";
 
 const CHART_HEIGHT = 300;
 const CHART_ASPECT_RATIO = 1.8;
 const MODAL_WIDTH = 1000;
 
 const SearchSummaryModal = ({searchResults, ...props}) => {
-    const otherThresholdPercentage =
-      JSON.parse(localStorage.getItem("otherThresholdPercentage")) ?? DEFAULT_OTHER_THRESHOLD_PERCENTAGE;
+
+    const otherThresholdPercentage = useSelector((state) => state.explorer.otherThresholdPercentage);
     const thresholdProportion = otherThresholdPercentage / 100;
     const searchFormattedResults = searchResults.searchFormattedResults || [];
 

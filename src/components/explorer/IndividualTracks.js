@@ -105,7 +105,7 @@ const IndividualTracks = ({individual}) => {
             return;
         }
 
-        if (!allTracks.length || !hasFreshUrls(allTracks, igvUrls) || igvRendered.current) {
+        if (!allFoundFiles.length || !hasFreshUrls(allTracks, igvUrls) || igvRendered.current) {
             console.log("urls not ready");
             console.log({ igvUrls: igvUrls });
             console.log({ tracksValid: hasFreshUrls(allTracks, igvUrls) });
@@ -113,11 +113,11 @@ const IndividualTracks = ({individual}) => {
             return;
         }
 
-        const indexedTracks = allTracks.filter(
+        const indexedTracks = allFoundFiles.filter(
             (t) => t.viewInIgv && igvUrls[t.filename].dataUrl && igvUrls[t.filename].indexUrl
         );
 
-        const unindexedTracks = allTracks.filter(
+        const unindexedTracks = allFoundFiles.filter(
             (t) => t.viewInIgv && igvUrls[t.filename].url
         );
 

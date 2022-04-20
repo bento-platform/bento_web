@@ -57,7 +57,7 @@ class CustomPieChart extends React.Component {
     onClick = (data) => {
         const { history, setAutoQueryPageTransition, autoQueryDataType } = this.props;
 
-        if (!setAutoQueryPageTransition) {
+        if (!setAutoQueryPageTransition || data.skipAutoquery) {
             return;
         }
 
@@ -283,7 +283,7 @@ class CustomPieChart extends React.Component {
         <h2 style={this.titleStyle}>{title}</h2>
           <PieChart height={chartHeight - titleHeaderHeight}
                     width={(chartHeight - titleHeaderHeight) * chartAspectRatio}>
-              <Pie data={data.filter(e => e.value !== 0)}
+              <Pie data={data}
                    dataKey="value"
                    cx="50%"
                    cy="50%"
