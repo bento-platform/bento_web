@@ -23,14 +23,21 @@ import {
 import {withBasePath} from "../../utils/url";
 import SearchTracksModal from "./SearchTracksModal";
 
+
+const individualRender = (individual) => {
+    const alternateIds = individual.alternate_ids ?? [];
+    const listRender = alternateIds.length ? " (" + alternateIds.join(", ") + ")" : "";
+    return <><Link to={location => ({
+        pathname: withBasePath(`data/explorer/individuals/${individual.id}/overview`),
+        state: {backUrl: location.pathname},
+    })}>{individual.id}</Link> {listRender}</>;
+};
+
 const SEARCH_RESULT_COLUMNS = [
     {
         title: "Individual",
         dataIndex: "individual",
-        render: individual => <Link to={location => ({
-            pathname: withBasePath(`data/explorer/individuals/${individual.id}/overview`),
-            state: {backUrl: location.pathname},
-        })}>{individual.id}</Link>,
+        render: individual => individualRender(individual),
         sorter: (a, b) => a.individual.id.localeCompare(b.individual.id),
         defaultSortOrder: "ascend",
     },
