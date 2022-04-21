@@ -209,6 +209,9 @@ class Dataset extends Component {
                   onTabChange={t => this.setState({selectedTab: t})}
                   extra={
                       isPrivate ? <>
+                          <Button icon="export"
+                                  onClick={() => (this.props.onDatasetExport || nop)()}
+                                  style={{marginRight: "8px"}}>Export</Button>
                           <Button icon="edit"
                                   style={{marginRight: "8px"}}
                                   onClick={() => (this.props.onEdit || nop)()}>Edit</Button>
@@ -250,6 +253,7 @@ Dataset.propTypes = {
 
     onEdit: PropTypes.func,
     onTableIngest: PropTypes.func,
+    onDatasetExport: PropTypes.func,
 
     deleteProjectDataset: PropTypes.func,
     deleteLinkedFieldSet: PropTypes.func,
