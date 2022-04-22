@@ -48,7 +48,7 @@ class RoutedProject extends Component {
     exportDataset(dataset) {
         this.props.history.push(
             withBasePath("admin/data/manager/export"),
-            {selectedDataset: dataset.identifier}
+            {selectedDataset: `dataset:${dataset.identifier}`}
         );
     }
 
