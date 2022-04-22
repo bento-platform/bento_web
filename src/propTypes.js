@@ -1,5 +1,5 @@
 import PropTypes from "prop-types";
-import {FORM_MODE_ADD, FORM_MODE_EDIT} from "./constants";
+import {FORM_MODE_ADD, FORM_MODE_EDIT, WORKFLOW_ACTION} from "./constants";
 import {KARYOTYPIC_SEX_VALUES, SEX_VALUES} from "./dataTypes/phenopacket";
 
 export const propTypesFormMode = PropTypes.oneOf([FORM_MODE_ADD, FORM_MODE_EDIT]);
@@ -144,11 +144,16 @@ export const userPropTypesShape = PropTypes.shape({
 export const workflowsStateToPropsMixin = state => ({
     workflows: Object.entries(state.serviceWorkflows.workflowsByServiceID)
         .filter(([_, s]) => !s.isFetching)
-        .flatMap(([serviceID, s]) => Object.entries(s.workflows.ingestion).map(([k, v]) => ({
-            ...v,
-            id: k,
-            serviceID
-        }))),
+        .flatMap(([serviceID, s]) => Object.entries(s.workflows)
+            .flatMap(([action, workflowsByAction]) => Object.entries(workflowsByAction)
+                .map(([id, v]) => ({
+                    ...v,
+                    id,     // e.g. phenopacket_json, vcf_gz
+                    serviceID,
+                    action,
+                }))
+            )
+        ),
     workflowsLoading: state.services.isFetchingAll || state.serviceWorkflows.isFetchingAll
 });
 
@@ -156,6 +161,11 @@ export const workflowsStateToPropsMixin = state => ({
 export const workflowPropTypesShape = PropTypes.shape({
     id: PropTypes.string,
     serviceID: PropTypes.string,
+    action: PropTypes.oneOf([
+        WORKFLOW_ACTION.INGESTION,
+        WORKFLOW_ACTION.ANALYSIS,
+        WORKFLOW_ACTION.EXPORT,
+    ]),
 
     // "Real" properties
     name: PropTypes.string,

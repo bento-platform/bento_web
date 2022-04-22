@@ -22,7 +22,7 @@ import {
 import IngestionInputForm from "./IngestionInputForm";
 import TableTreeSelect from "./TableTreeSelect";
 
-import {EM_DASH} from "../../constants";
+import {EM_DASH, WORKFLOW_ACTION} from "../../constants";
 import {LAYOUT_CONTENT_STYLE} from "../../styles/layoutContent";
 import {simpleDeepCopy} from "../../utils/misc";
 import {withBasePath} from "../../utils/url";
@@ -107,8 +107,11 @@ class ManagerIngestionContent extends Component {
         switch (this.state.step) {
             case STEP_WORKFLOW_SELECTION: {
                 const workflows = this.props.workflows
-                    .filter(w => w.data_type === (this.state.selectedTable
-                        ? this.state.selectedTable.split(":")[1] : null))
+                    .filter(w => w.action === WORKFLOW_ACTION.INGESTION
+                        && w.data_type === (this.state.selectedTable
+                            ? this.state.selectedTable.split(":")[1]
+                            : null)
+                    )
                     .map(w => <WorkflowListItem key={w.id}
                                                 workflow={w}
                                                 selectable={true}

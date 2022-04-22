@@ -39,6 +39,7 @@ import {
     workflowsStateToPropsMixin,
     workflowsStateToPropsMixinPropTypes
 } from "../../propTypes";
+import { WORKFLOW_ACTION } from "../../constants";
 
 
 const sortByName = (a, b) => a.name.localeCompare(b.name);
@@ -182,17 +183,20 @@ class ManagerFilesContent extends Component {
         const workflowsSupported = [];
         const workflowMenu = (
             <Menu>
-                {this.props.workflows.map(w => {
-                    const workflowSupported = this.getWorkflowFit(w)[0];
-                    if (workflowSupported) workflowsSupported.push(w);
-                    return (
-                        <Menu.Item key={w.id}
-                                   disabled={!workflowSupported}
-                                   onClick={() => this.showTableSelectionModal(w)}>
-                            Ingest with Workflow &ldquo;{w.name}&rdquo;
-                        </Menu.Item>
-                    );
-                })}
+                {this.props.workflows
+                    .filter(w => w.action === WORKFLOW_ACTION.INGESTION)
+                    .map(w => {
+                        const workflowSupported = this.getWorkflowFit(w)[0];
+                        if (workflowSupported) workflowsSupported.push(w);
+                        return (
+                            <Menu.Item key={w.id}
+                                    disabled={!workflowSupported}
+                                    onClick={() => this.showTableSelectionModal(w)}>
+                                Ingest with Workflow &ldquo;{w.name}&rdquo;
+                            </Menu.Item>
+                        );
+                    })
+                }
             </Menu>
         );
 
