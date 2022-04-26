@@ -206,6 +206,7 @@ const IndividualTracks = ({individual}) => {
           onOk={() => setModalVisible(false)}
           onCancel={() => setModalVisible(false)}
           zIndex={MODAL_Z_INDEX}
+          width={600}
         >
           <TrackControlTable />
         </Modal>
