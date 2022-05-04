@@ -1,6 +1,5 @@
 import React, { useEffect } from "react";
 import { connect } from "react-redux";
-import PropTypes from "prop-types";
 import { Redirect, Switch } from "react-router-dom";
 import { BASE_PATH, withBasePath } from "../utils/url";
 
@@ -14,10 +13,6 @@ import PeersContent from "./PeersContent";
 import ServiceDetail from "./services/ServiceDetail";
 
 import { SITE_NAME } from "../constants";
-import {
-    nodeInfoDataPropTypesShape,
-    projectPropTypesShape,
-} from "../propTypes";
 
 const AdminContent = () => {
     useEffect(() => {
@@ -58,17 +53,6 @@ const AdminContent = () => {
             </Layout>
         </>
     );
-};
-
-AdminContent.propTypes = {
-    nodeInfo: nodeInfoDataPropTypesShape,
-    isFetchingNodeInfo: PropTypes.bool,
-
-    projects: PropTypes.arrayOf(projectPropTypesShape),
-    isFetchingProjects: PropTypes.bool,
-
-    peers: PropTypes.arrayOf(PropTypes.string),
-    isFetchingPeers: PropTypes.bool,
 };
 
 const mapStateToProps = (state) => ({
