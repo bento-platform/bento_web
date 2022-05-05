@@ -447,12 +447,12 @@ class App extends Component {
             const url = this.props.eventRelay?.url ?? null;
             return url
                 ? (() =>
-                      io(BASE_PATH, {
-                          path: `${urlPath(url)}/private/socket.io`,
-                          reconnection: !!this.props.user, // Only try to reconnect if we're authenticated
-                      }).on("events", (message) =>
-                          eventHandler(message, this.props.history)
-                      ))()
+                    io(BASE_PATH, {
+                        path: `${urlPath(url)}/private/socket.io`,
+                        reconnection: !!this.props.user, // Only try to reconnect if we're authenticated
+                    }).on("events", (message) =>
+                        eventHandler(message, this.props.history)
+                    ))()
                 : null;
         })();
     }
