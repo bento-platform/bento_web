@@ -1,54 +1,63 @@
-import React, {Component} from "react";
+import React, { useState } from "react";
 
-import {TreeSelect} from "antd";
+import { TreeSelect } from "antd";
 
-import {ROOT_SCHEMA_ID, generateSchemaTreeData, getFieldSchema} from "../../utils/schema";
+import {
+    ROOT_SCHEMA_ID,
+    generateSchemaTreeData,
+    getFieldSchema,
+} from "../../utils/schema";
 import PropTypes from "prop-types";
 
-class SchemaTreeSelect extends Component {
-    static getDerivedStateFromProps(nextProps) {
-        if ("value" in nextProps) {
-            return {...(nextProps.value ?? {})};
-        }
-        return null;
-    }
+const SchemaTreeSelect = ({
+    style,
+    disabled,
+    schema,
+    isExcluded,
+    onChange,
+    value,
+}) => {
+    const [selected, setSelected] = useState(
+        value.schema.selected ?? undefined
+    );
 
-    constructor(props) {
-        super(props);
-        const value = props.value ?? {};
-        this.state = {
-            selected: value.selected ?? undefined,
-            schema: value.schema ?? undefined,
-        };
-    }
-
-    onChange(selected) {
+    const onChangeLocal = (sel) => {
         // Set the state directly unless value is bound
-        if (!("value" in this.props)) {
-            this.setState({selected, schema: getFieldSchema(this.props.schema, selected)});
+        if (!value) {
+            setSelected(sel);
         }
 
         // Update the change handler bound to the component
-        if (this.props.onChange) {
-            this.props.onChange({...this.state, selected, schema: getFieldSchema(this.props.schema, selected)});
+        if (onChange) {
+            onChange({ selected: sel, schema: getFieldSchema(schema, sel) });
         }
-    }
+    };
 
-    render() {
-        return (
-            <TreeSelect style={this.props.style}
-                        disabled={this.props.disabled}
-                        placeholder="field"
-                        showSearch={true}
-                        treeDefaultExpandedKeys={this.props.schema ? [`${ROOT_SCHEMA_ID}`] : []}
-                        treeData={this.props.schema ? [generateSchemaTreeData(this.props.schema, ROOT_SCHEMA_ID,
-                            "", this.props.isExcluded)] : []}
-                        value={this.state.selected}
-                        onChange={this.onChange.bind(this)}
-                        treeNodeLabelProp="titleSelected" />
-        );
-    }
-}
+    return (
+        <TreeSelect
+            style={style}
+            disabled={disabled}
+            placeholder="field"
+            showSearch={true}
+            treeDefaultExpandedKeys={schema ? [`${ROOT_SCHEMA_ID}`] : []}
+            treeData={
+                schema
+                    ? [
+                        generateSchemaTreeData(
+                            schema,
+                            ROOT_SCHEMA_ID,
+                            "",
+                            isExcluded
+                        ),
+                    ]
+                    : []
+            }
+            value={selected}
+            onChange={onChangeLocal}
+            treeNodeLabelProp="titleSelected"
+        />
+    );
+};
 
 SchemaTreeSelect.propTypes = {
     style: PropTypes.object,
