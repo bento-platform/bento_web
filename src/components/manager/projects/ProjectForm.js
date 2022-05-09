@@ -1,33 +1,35 @@
-import React, {Component} from "react";
+import React from "react";
 import PropTypes from "prop-types";
 
-import {Input, Form} from "antd";
+import { Input, Form } from "antd";
 
-class ProjectForm extends Component {
+const ProjectForm = ({ style, initialValue, form }) => {
     // TODO: Unique name check
-    render() {
-        return <Form style={this.props.style || {}}>
+
+    return (
+        <Form style={style || {}}>
             <Form.Item label="Title">
-                {this.props.form.getFieldDecorator("title", {
-                    initialValue: (this.props.initialValue || {title: ""}).title || "",
-                    rules: [{required: true}, {min: 3}]
+                {form.getFieldDecorator("title", {
+                    initialValue: (initialValue || { title: "" }).title || "",
+                    rules: [{ required: true }, { min: 3 }],
                 })(<Input placeholder="My Health Data Project" size="large" />)}
             </Form.Item>
             <Form.Item label="Description">
-                {this.props.form.getFieldDecorator("description", {
-                    initialValue: (this.props.initialValue || {description: ""}).description || ""
+                {form.getFieldDecorator("description", {
+                    initialValue:
+                        (initialValue || { description: "" }).description || "",
                 })(<Input.TextArea placeholder="Description" rows={3} />)}
             </Form.Item>
-        </Form>;
-    }
-}
+        </Form>
+    );
+};
 
 ProjectForm.propTypes = {
     style: PropTypes.object,
     initialValue: PropTypes.shape({
         title: PropTypes.string,
         description: PropTypes.string,
-    })
+    }),
 };
 
-export default Form.create({name: "project_form"})(ProjectForm);
+export default Form.create({ name: "project_form" })(ProjectForm);
