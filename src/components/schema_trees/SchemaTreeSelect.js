@@ -17,9 +17,7 @@ const SchemaTreeSelect = ({
     onChange,
     value,
 }) => {
-    const [selected, setSelected] = useState(
-        value.schema.selected ?? undefined
-    );
+    const [selected, setSelected] = useState(value?.schema.selected);
 
     const onChangeLocal = (sel) => {
         // Set the state directly unless value is bound
