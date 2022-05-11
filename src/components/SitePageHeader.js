@@ -21,9 +21,9 @@ const PAGE_HEADER_SUBTITLE_STYLE = {
 
 const TAB_BAR_HEADER_STYLING = { borderBottom: "none", paddingBottom: "0" };
 
-const SitePageHeader = ({ title, subTitle, withTabBar, style }) => (
+const SitePageHeader = ({ title, subTitle, withTabBar, style, ...props }) => (
     <PageHeader
-        {...{ title, subTitle, withTabBar, style }}
+        {...{ title, subTitle, withTabBar, style, ...props }}
         title={<div style={PAGE_HEADER_TITLE_STYLE}>{title || ""}</div>}
         subTitle={
             subTitle ? (
