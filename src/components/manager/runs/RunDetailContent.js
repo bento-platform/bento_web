@@ -1,34 +1,50 @@
-import React, {Component} from "react";
-import {connect} from "react-redux";
+import React from "react";
+import { connect } from "react-redux";
 import PropTypes from "prop-types";
+import { useHistory } from "react-router-dom";
 
-import {Skeleton} from "antd";
+import { Skeleton } from "antd";
 
 import Run from "./Run";
-import {withBasePath} from "../../../utils/url";
-import {runPropTypesShape} from "../../../propTypes";
+import { withBasePath } from "../../../utils/url";
+import { runPropTypesShape } from "../../../propTypes";
 
-class RunDetailContent extends Component {
-    render() {
-        // TODO: 404
-        const run = this.props.runsByID[this.props.match.params.id] || null;
-        const loading = (run || {details: null}).details === null;
-        return loading
-            ? <div style={{marginTop: "12px", marginLeft: "24px", marginRight: "24px"}}><Skeleton /></div>
-            : <Run run={run}
-                   tab={this.props.match.params.tab}
-                   onChangeTab={key =>
-                       this.props.history.push(withBasePath(`admin/data/manager/runs/${run.run_id}/${key}`))}
-                   onBack={() => this.props.history.push(withBasePath("admin/data/manager/runs"))} />;
-    }
-}
+const RunDetailContent = ({ runsByID, match }) => {
+    // TODO: 404
+    const history = useHistory();
 
-RunDetailContent.propTypes = {
-    runsByID: PropTypes.objectOf(runPropTypesShape),  // TODO: Shape (shared)
+    const run = runsByID[match.params.id] || null;
+    const loading = (run || { details: null }).details === null;
+    return loading ? (
+        <div
+            style={{
+                marginTop: "12px",
+                marginLeft: "24px",
+                marginRight: "24px",
+            }}
+        >
+            <Skeleton />
+        </div>
+    ) : (
+        <Run
+            run={run}
+            tab={match.params.tab}
+            onChangeTab={(key) =>
+                history.push(
+                    withBasePath(`admin/data/manager/runs/${run.run_id}/${key}`)
+                )
+            }
+            onBack={() => history.push(withBasePath("admin/data/manager/runs"))}
+        />
+    );
 };
 
-const mapStateToProps = state => ({
-    runsByID: state.runs.itemsByID
+RunDetailContent.propTypes = {
+    runsByID: PropTypes.objectOf(runPropTypesShape), // TODO: Shape (shared)
+};
+
+const mapStateToProps = (state) => ({
+    runsByID: state.runs.itemsByID,
 });
 
 export default connect(mapStateToProps)(RunDetailContent);
