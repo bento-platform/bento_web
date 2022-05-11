@@ -57,7 +57,7 @@ const mapStateToProps = state => ({
         const runDetails = (state.runs.itemsByID[r.run_id] || {details: null}).details;
         return {
             ...r,
-            purpose: "Ingestion",  // TODO: Not hard-coded, Ingestion or Analysis
+            purpose: runDetails?.request.tags.workflow_metadata.action ?? "Ingestion",
             name: (runDetails || {run_log: {name: ""}}).run_log.name || "",
             start_time: (runDetails || {run_log: {start_time: ""}}).run_log.start_time || "",
             end_time: (runDetails || {run_log: {end_time: ""}}).run_log.end_time || ""
