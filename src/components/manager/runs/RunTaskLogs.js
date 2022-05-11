@@ -1,10 +1,8 @@
-import React, {Component} from "react";
+import React from "react";
 
-class RunTaskLogs extends Component {
-    render() {
-        // const details = this.props.details || {};
-        return <div>TODO</div>;
-    }
-}
+const RunTaskLogs = () => {
+    // const details = this.props.details || {};
+    return <div>TODO</div>;
+};
 
 export default RunTaskLogs;
