@@ -69,12 +69,21 @@ class ManagerExportContent extends Component {
     }
 
     handleWorkflowClick(workflow) {
+        const hiddenInputs = {
+            ...Object.fromEntries(
+                workflow.inputs
+                    .filter(value => value?.hidden)
+                    .map(i => [i.id, i.value])
+            )
+        }
+
         this.setState({
             step: STEP_CONFIRM,
             selectedWorkflow: workflow,
             initialInputValues: {},
             inputFormFields: {},
             inputs: {
+                ...hiddenInputs,
                 dataset_id: this.state.selectedDataset.split(":")[1]
             }
         });
@@ -165,7 +174,7 @@ class ManagerExportContent extends Component {
                                     style={{marginTop: "16px", float: "right"}}
                                     loading={this.props.isSubmittingIngestionRun}
                                     onClick={() => this.handleRunIngestion(this.props.history)}>
-                                Run Ingestion
+                                Run Export
                             </Button>
                         </Form.Item>
                     </Form>
