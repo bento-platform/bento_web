@@ -1,14 +1,13 @@
-import React, {Component} from "react";
-import {connect} from "react-redux";
+import React from "react";
+import { connect } from "react-redux";
 import PropTypes from "prop-types";
 
-import {Typography} from "antd";
+import { Typography } from "antd";
 
 import SearchList from "./SearchList";
 
 import {
     performFullSearchIfPossible,
-
     addDataTypeQueryForm,
     updateDataTypeQueryForm,
     removeDataTypeQueryForm,
@@ -17,22 +16,30 @@ import {
 } from "../../modules/discovery/actions";
 import DiscoveryQueryBuilder from "./DiscoveryQueryBuilder";
 
-
-class DiscoverySearchContent extends Component {
-    render() {
-        return <>
-            <DiscoveryQueryBuilder isInternal={false}
-                                   dataTypeForms={this.props.dataTypeForms}
-                                   addDataTypeQueryForm={this.props.addDataTypeQueryForm}
-                                   updateDataTypeQueryForm={this.props.updateDataTypeQueryForm}
-                                   removeDataTypeQueryForm={this.props.removeDataTypeQueryForm}
-                                   searchLoading={this.props.searchLoading}
-                                   onSubmit={this.props.performFullSearchIfPossible} />
+const DiscoverySearchContent = ({
+    searchLoading,
+    dataTypeForms,
+    performFullSearchIfPossible,
+    addDataTypeQueryForm,
+    updateDataTypeQueryForm,
+    removeDataTypeQueryForm,
+}) => {
+    return (
+        <>
+            <DiscoveryQueryBuilder
+                isInternal={false}
+                dataTypeForms={dataTypeForms}
+                addDataTypeQueryForm={addDataTypeQueryForm}
+                updateDataTypeQueryForm={updateDataTypeQueryForm}
+                removeDataTypeQueryForm={removeDataTypeQueryForm}
+                searchLoading={searchLoading}
+                onSubmit={performFullSearchIfPossible}
+            />
             <Typography.Title level={3}>Results</Typography.Title>
             <SearchList />
-        </>;
-    }
-}
+        </>
+    );
+};
 
 DiscoverySearchContent.propTypes = {
     searchLoading: PropTypes.bool,
@@ -48,7 +55,7 @@ DiscoverySearchContent.propTypes = {
     // updateJoinForm: PropTypes.func,
 };
 
-const mapStateToProps = state => ({
+const mapStateToProps = (state) => ({
     searchLoading: state.discovery.isFetching,
     dataTypeForms: state.discovery.dataTypeForms,
     // joinFormValues: state.discovery.joinFormValues,
