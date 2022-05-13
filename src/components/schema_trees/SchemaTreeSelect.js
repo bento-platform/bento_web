@@ -17,13 +17,12 @@ const SchemaTreeSelect = ({
     onChange,
     value,
 }) => {
-    const [selected, setSelected] = useState(value?.schema.selected);
+    const [selected, setSelected] = useState(value?.selected);
 
     const onChangeLocal = (sel) => {
         // Set the state directly unless value is bound
-        if (!value) {
-            setSelected(sel);
-        }
+
+        setSelected(sel);
 
         // Update the change handler bound to the component
         if (onChange) {
@@ -41,13 +40,13 @@ const SchemaTreeSelect = ({
             treeData={
                 schema
                     ? [
-                        generateSchemaTreeData(
-                            schema,
-                            ROOT_SCHEMA_ID,
-                            "",
-                            isExcluded
-                        ),
-                    ]
+                          generateSchemaTreeData(
+                              schema,
+                              ROOT_SCHEMA_ID,
+                              "",
+                              isExcluded
+                          ),
+                      ]
                     : []
             }
             value={selected}
