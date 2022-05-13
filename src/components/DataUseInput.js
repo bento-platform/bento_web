@@ -69,11 +69,11 @@ const DataUseInput = ({ value, onChange }) => {
                 ...consentCode,
                 secondary_categories: event.target.checked
                     ? [...consentCode.secondary_categories, { code }].sort(
-                          sortSCC
-                      )
+                        sortSCC
+                    )
                     : consentCode.secondary_categories.filter(
-                          (c) => c.code !== code
-                      ),
+                        (c) => c.code !== code
+                    ),
             },
         });
     };

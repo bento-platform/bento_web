@@ -40,13 +40,13 @@ const SchemaTreeSelect = ({
             treeData={
                 schema
                     ? [
-                          generateSchemaTreeData(
-                              schema,
-                              ROOT_SCHEMA_ID,
-                              "",
-                              isExcluded
-                          ),
-                      ]
+                        generateSchemaTreeData(
+                            schema,
+                            ROOT_SCHEMA_ID,
+                            "",
+                            isExcluded
+                        ),
+                    ]
                     : []
             }
             value={selected}
