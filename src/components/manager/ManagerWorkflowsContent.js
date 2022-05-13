@@ -11,7 +11,7 @@ import {
     workflowsStateToPropsMixinPropTypes,
 } from "../../propTypes";
 
-const ManagerWorkflowsContent = (workflows, workflowsLoading) => {
+const ManagerWorkflowsContent = ({ workflows, workflowsLoading }) => {
     // TODO: real key
     workflows = workflows.map((w) => (
         <WorkflowListItem key={w.name} workflow={w} />
