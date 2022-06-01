@@ -17,7 +17,7 @@ import { SITE_NAME } from "../constants";
 const AdminContent = () => {
     useEffect(() => {
         document.title = `${SITE_NAME} - Admin`;
-    });
+    }, []);
 
     return (
         <>

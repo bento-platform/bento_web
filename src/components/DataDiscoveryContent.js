@@ -18,7 +18,7 @@ const DiscoveryDatasetContent = lazy(() =>
 const DataDiscoveryContent = () => {
     useEffect(() => {
         document.title = `${SITE_NAME} - Discover Data`;
-    });
+    }, []);
 
     return (
         <>

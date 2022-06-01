@@ -10,7 +10,7 @@ import { SITE_NAME } from "../constants";
 const PeersContent = ({ nodeInfo, peers, isFetchingPeers }) => {
     useEffect(() => {
         document.title = `${SITE_NAME} - Peers`;
-    });
+    }, []);
 
     const peerColumns = [
         {

@@ -33,7 +33,7 @@ const RunListContent = ({
         return () => {
             if (runRefreshTimeout) clearTimeout(runRefreshTimeout);
         };
-    });
+    }, []);
 
     // TODO: Loading for individual rows
 

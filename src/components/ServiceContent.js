@@ -24,7 +24,7 @@ const ServiceContent = ({
 }) => {
     useEffect(() => {
         document.title = `${SITE_NAME} - Dashboard`;
-    });
+    }, []);
 
     return (
         <>

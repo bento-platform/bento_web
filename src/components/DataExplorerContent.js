@@ -14,7 +14,7 @@ import { nodeInfoDataPropTypesShape } from "../propTypes";
 const DataExplorerContent = ({ nodeInfo }) => {
     useEffect(() => {
         document.title = `${SITE_NAME} - Explore Your Data`;
-    });
+    }, []);
 
     if (!nodeInfo.CHORD_URL) return null;
     return (

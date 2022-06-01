@@ -48,7 +48,7 @@ const MENU_STYLE = {
 const DataManagerContent = () => {
     useEffect(() => {
         document.title = `${SITE_NAME} - Manage Your Data`;
-    });
+    }, []);
 
     const selectedKeys = matchingMenuKeys(PAGE_MENU);
     return (

@@ -57,7 +57,7 @@ const ExplorerIndividualContent = ({
         const backUrl = (location.state || {}).backUrl;
         if (backUrl) setBackUrl(backUrl);
         fetchIndividualData();
-    });
+    }, [metadataService, match.params.individual]);
 
     // TODO: Disease content - highlight what was found in search results?
 

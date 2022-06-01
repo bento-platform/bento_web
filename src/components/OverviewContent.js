@@ -11,7 +11,7 @@ import { SITE_NAME } from "../constants";
 const OverviewContent = () => {
     useEffect(() => {
         document.title = `${SITE_NAME} - Overview`;
-    });
+    }, []);
 
     return (
         <>

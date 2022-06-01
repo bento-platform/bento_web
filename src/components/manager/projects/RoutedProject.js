@@ -52,7 +52,7 @@ const RoutedProject = ({
         if (!projectsByID[match.params.project] && !loadingProjects) {
             history.push(withBasePath("admin/data/manager/projects/"));
         }
-    });
+    }, [match.params.propTypes, loadingProjects]);
 
     const ingestIntoTable = (p, t) => {
         history.push(withBasePath("admin/data/manager/ingestion"), {
