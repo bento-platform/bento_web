@@ -996,5 +996,5 @@ export default Form.create({
 //     },
 // })(DiscoverySearchForm);
 
-// onSubmit is never Declared
-// option is missing proptypes
+// // onSubmit is never Declared
+// // option is missing proptypes
