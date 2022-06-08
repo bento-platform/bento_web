@@ -1,12 +1,12 @@
-import React, {Component} from "react";
-import {withRouter} from "react-router-dom";
-import {connect} from "react-redux";
+import React, { Component } from "react";
+import { withRouter } from "react-router-dom";
+import { connect } from "react-redux";
 import PropTypes from "prop-types";
 
-import {Skeleton} from "antd";
+import { Skeleton } from "antd";
 
 import Dataset from "../datasets/Dataset";
-import {projectPropTypesShape} from "../../propTypes";
+import { projectPropTypesShape } from "../../propTypes";
 
 class DiscoveryDatasetContent extends Component {
     render() {
@@ -16,24 +16,32 @@ class DiscoveryDatasetContent extends Component {
             return <Skeleton />;
         }
 
-        const project = this.props.projects.find(p => p.datasets.find(d => d.identifier === datasetId));
-        if (!project) return null;  // TODO: 404 or error
+        const project = this.props.projects.find((p) =>
+            p.datasets.find((d) => d.identifier === datasetId)
+        );
+        if (!project) return null; // TODO: 404 or error
 
         // TODO: Deduplicate with RoutedProject
         const tables = this.props.serviceTablesByServiceID;
-        const projectTableOwnershipRecords = this.props.projectTablesByProjectID[project.identifier] || [];
+        const projectTableOwnershipRecords =
+            this.props.projectTablesByProjectID[project.identifier] || [];
 
         const tableList = projectTableOwnershipRecords
-            .filter(tableOwnership =>
-                (tables[tableOwnership.service_id] || {}).tablesByID.hasOwnProperty(tableOwnership.table_id))
-            .map(tableOwnership => ({
+            .filter((tableOwnership) =>
+                (
+                    tables[tableOwnership.service_id] || {}
+                ).tablesByID.hasOwnProperty(tableOwnership.table_id)
+            )
+            .map((tableOwnership) => ({
                 ...tableOwnership,
-                ...tables[tableOwnership.service_id].tablesByID[tableOwnership.table_id],
+                ...tables[tableOwnership.service_id].tablesByID[
+                    tableOwnership.table_id
+                ],
             }));
 
         const dataset = {
-            ...project.datasets.find(d => d.identifier === datasetId),
-            tables: tableList.filter(t => t.dataset === datasetId),  // TODO: Filter how?
+            ...project.datasets.find((d) => d.identifier === datasetId),
+            tables: tableList.filter((t) => t.dataset === datasetId), // TODO: Filter how?
         };
 
         return <Dataset mode="public" value={dataset} project={project} />;
@@ -42,12 +50,12 @@ class DiscoveryDatasetContent extends Component {
 
 DiscoveryDatasetContent.propTypes = {
     projects: PropTypes.arrayOf(projectPropTypesShape),
-    projectTablesByProjectID: PropTypes.object,  // TODO: Shape
-    serviceTablesByServiceID: PropTypes.object,  // TODO: Shape
+    projectTablesByProjectID: PropTypes.object, // TODO: Shape
+    serviceTablesByServiceID: PropTypes.object, // TODO: Shape
     isFetchingUserDependentData: PropTypes.bool,
 };
 
-const mapStateToProps = state => ({
+const mapStateToProps = (state) => ({
     projects: state.projects.items,
     projectTablesByProjectID: state.projectTables.itemsByProjectID,
     serviceTablesByServiceID: state.serviceTables.itemsByServiceID,

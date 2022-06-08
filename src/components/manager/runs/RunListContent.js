@@ -1,14 +1,12 @@
-import React, {Component} from "react";
-import {connect} from "react-redux";
+import React, { Component } from "react";
+import { connect } from "react-redux";
 import PropTypes from "prop-types";
 
-import {Table, Typography} from "antd";
+import { Table, Typography } from "antd";
 
+import { fetchAllRunDetailsIfNeeded } from "../../../modules/wes/actions";
 
-import {fetchAllRunDetailsIfNeeded} from "../../../modules/wes/actions";
-
-import {RUN_REFRESH_TIMEOUT, RUN_TABLE_COLUMNS} from "./utils";
-
+import { RUN_REFRESH_TIMEOUT, RUN_TABLE_COLUMNS } from "./utils";
 
 class RunListContent extends Component {
     constructor(props) {
@@ -18,7 +16,10 @@ class RunListContent extends Component {
     }
 
     componentDidMount() {
-        this.runRefreshTimeout = setTimeout(() => this.refreshRuns(), RUN_REFRESH_TIMEOUT);
+        this.runRefreshTimeout = setTimeout(
+            () => this.refreshRuns(),
+            RUN_REFRESH_TIMEOUT
+        );
     }
 
     componentWillUnmount() {
@@ -27,24 +28,33 @@ class RunListContent extends Component {
 
     async refreshRuns() {
         await this.props.fetchAllRunDetailsIfNeeded();
-        this.runRefreshTimeout = setTimeout(() => this.refreshRuns(), RUN_REFRESH_TIMEOUT);
+        this.runRefreshTimeout = setTimeout(
+            () => this.refreshRuns(),
+            RUN_REFRESH_TIMEOUT
+        );
     }
 
     // TODO: Loading for individual rows
     render() {
-        return <>
-            <Typography.Title level={2}>Workflow Runs</Typography.Title>
-            <Table bordered={true}
-                   columns={RUN_TABLE_COLUMNS}
-                   dataSource={this.props.runs}
-                   loading={this.props.servicesFetching || this.props.runsFetching}
-                   rowKey="run_id" />
-        </>;
+        return (
+            <>
+                <Typography.Title level={2}>Workflow Runs</Typography.Title>
+                <Table
+                    bordered={true}
+                    columns={RUN_TABLE_COLUMNS}
+                    dataSource={this.props.runs}
+                    loading={
+                        this.props.servicesFetching || this.props.runsFetching
+                    }
+                    rowKey="run_id"
+                />
+            </>
+        );
     }
 }
 
 RunListContent.propTypes = {
-    runs: PropTypes.arrayOf(PropTypes.object),  // TODO: shape, incorporating additional props included below
+    runs: PropTypes.arrayOf(PropTypes.object), // TODO: shape, incorporating additional props included below
 
     servicesFetching: PropTypes.bool,
     runsFetching: PropTypes.bool,
@@ -52,15 +62,20 @@ RunListContent.propTypes = {
     fetchAllRunDetailsIfNeeded: PropTypes.func,
 };
 
-const mapStateToProps = state => ({
-    runs: state.runs.items.map(r => {
-        const runDetails = (state.runs.itemsByID[r.run_id] || {details: null}).details;
+const mapStateToProps = (state) => ({
+    runs: state.runs.items.map((r) => {
+        const runDetails = (state.runs.itemsByID[r.run_id] || { details: null })
+            .details;
         return {
             ...r,
-            purpose: "Ingestion",  // TODO: Not hard-coded, Ingestion or Analysis
-            name: (runDetails || {run_log: {name: ""}}).run_log.name || "",
-            start_time: (runDetails || {run_log: {start_time: ""}}).run_log.start_time || "",
-            end_time: (runDetails || {run_log: {end_time: ""}}).run_log.end_time || ""
+            purpose: "Ingestion", // TODO: Not hard-coded, Ingestion or Analysis
+            name: (runDetails || { run_log: { name: "" } }).run_log.name || "",
+            start_time:
+                (runDetails || { run_log: { start_time: "" } }).run_log
+                    .start_time || "",
+            end_time:
+                (runDetails || { run_log: { end_time: "" } }).run_log
+                    .end_time || "",
         };
     }),
     servicesFetching: state.services.isFetchingAll,

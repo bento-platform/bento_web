@@ -1,15 +1,14 @@
-import React, {Component} from "react";
-import {connect} from "react-redux";
-import {withRouter} from "react-router-dom";
+import React, { Component } from "react";
+import { connect } from "react-redux";
+import { withRouter } from "react-router-dom";
 import PropTypes from "prop-types";
 
-import {Button, Modal} from "antd";
+import { Button, Modal } from "antd";
 
 import ProjectForm from "./ProjectForm";
 
-import {toggleProjectCreationModal} from "../../../modules/manager/actions";
-import {createProjectIfPossible} from "../../../modules/metadata/actions";
-
+import { toggleProjectCreationModal } from "../../../modules/manager/actions";
+import { createProjectIfPossible } from "../../../modules/metadata/actions";
 
 class ProjectCreationModal extends Component {
     componentDidMount() {
@@ -28,7 +27,10 @@ class ProjectCreationModal extends Component {
                 return;
             }
 
-            await this.props.createProjectIfPossible(values, this.props.history);
+            await this.props.createProjectIfPossible(
+                values,
+                this.props.history
+            );
 
             // TODO: Only clear values and close modal if submission was a success
             this.form.resetFields();
@@ -37,14 +39,30 @@ class ProjectCreationModal extends Component {
     }
 
     render() {
-        return <Modal visible={this.props.showCreationModal} title="Create Project" width={600} footer={[
-            <Button key="cancel" onClick={this.handleCreateCancel}>Cancel</Button>,
-            <Button key="create"
-                    icon="plus"
-                    type="primary"
-                    onClick={this.handleCreateSubmit}
-                    loading={this.props.isCreatingProject}>Create</Button>
-        ]} onCancel={this.handleCreateCancel}><ProjectForm ref={form => this.form = form} /></Modal>;
+        return (
+            <Modal
+                visible={this.props.showCreationModal}
+                title="Create Project"
+                width={600}
+                footer={[
+                    <Button key="cancel" onClick={this.handleCreateCancel}>
+                        Cancel
+                    </Button>,
+                    <Button
+                        key="create"
+                        icon="plus"
+                        type="primary"
+                        onClick={this.handleCreateSubmit}
+                        loading={this.props.isCreatingProject}
+                    >
+                        Create
+                    </Button>,
+                ]}
+                onCancel={this.handleCreateCancel}
+            >
+                <ProjectForm ref={(form) => (this.form = form)} />
+            </Modal>
+        );
     }
 }
 
@@ -56,12 +74,14 @@ ProjectCreationModal.propTypes = {
     createProjectIfPossible: PropTypes.func,
 };
 
-const mapStateToProps = state => ({
+const mapStateToProps = (state) => ({
     showCreationModal: state.manager.projectCreationModal,
     isCreatingProject: state.projects.isCreating,
 });
 
-export default withRouter(connect(mapStateToProps, {
-    toggleProjectCreationModal,
-    createProjectIfPossible,
-})(ProjectCreationModal));
+export default withRouter(
+    connect(mapStateToProps, {
+        toggleProjectCreationModal,
+        createProjectIfPossible,
+    })(ProjectCreationModal)
+);

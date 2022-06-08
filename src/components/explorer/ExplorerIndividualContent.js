@@ -1,17 +1,20 @@
-import React, {Component} from "react";
-import {connect} from "react-redux";
-import {Redirect, Route, Switch} from "react-router-dom";
+import React, { Component } from "react";
+import { connect } from "react-redux";
+import { Redirect, Route, Switch } from "react-router-dom";
 
 import PropTypes from "prop-types";
 import ReactRouterPropTypes from "react-router-prop-types";
 
-import {Layout, Menu, Skeleton} from "antd";
+import { Layout, Menu, Skeleton } from "antd";
 
-import {fetchIndividualIfNecessary} from "../../modules/metadata/actions";
-import {individualPropTypesShape, nodeInfoDataPropTypesShape} from "../../propTypes";
-import {LAYOUT_CONTENT_STYLE} from "../../styles/layoutContent";
-import {matchingMenuKeys, renderMenuItem} from "../../utils/menu";
-import {urlPath, withBasePath} from "../../utils/url";
+import { fetchIndividualIfNecessary } from "../../modules/metadata/actions";
+import {
+    individualPropTypesShape,
+    nodeInfoDataPropTypesShape,
+} from "../../propTypes";
+import { LAYOUT_CONTENT_STYLE } from "../../styles/layoutContent";
+import { matchingMenuKeys, renderMenuItem } from "../../utils/menu";
+import { urlPath, withBasePath } from "../../utils/url";
 
 import SitePageHeader from "../SitePageHeader";
 import IndividualOverview from "./IndividualOverview";
@@ -24,14 +27,14 @@ import IndividualVariants from "./IndividualVariants";
 import IndividualGenes from "./IndividualGenes";
 import IndividualTracks from "./IndividualTracks";
 
-const withURLPrefix = (individual, page) => withBasePath(`data/explorer/individuals/${individual}/${page}`);
+const withURLPrefix = (individual, page) =>
+    withBasePath(`data/explorer/individuals/${individual}/${page}`);
 
 const MENU_STYLE = {
     marginLeft: "-24px",
     marginRight: "-24px",
-    marginTop: "-12px"
+    marginTop: "-12px",
 };
-
 
 class ExplorerIndividualContent extends Component {
     constructor(props) {
@@ -61,7 +64,7 @@ class ExplorerIndividualContent extends Component {
 
     componentDidMount() {
         const backUrl = (this.props.location.state || {}).backUrl;
-        if (backUrl) this.setState({backUrl});
+        if (backUrl) this.setState({ backUrl });
         this.fetchIndividualData();
     }
 
@@ -82,72 +85,117 @@ class ExplorerIndividualContent extends Component {
         const metadataUrl = withURLPrefix(individualID, "metadata");
         const tracksUrl = withURLPrefix(individualID, "tracks");
         const individualMenu = [
-            {url: overviewUrl, style: {marginLeft: "4px"}, text: "Overview",},
-            {url: pfeaturesUrl, text: "Phenotypic Features",},
-            {url: biosamplesUrl, text: "Biosamples",},
-            {url: experimentsUrl, text: "Experiments",},
-            {url: tracksUrl, text: "Tracks",},
-            {url: variantsUrl, text: "Variants",},
-            {url: genesUrl, text: "Genes",},
-            {url: diseasesUrl, text: "Diseases",},
-            {url: metadataUrl, text: "Metadata",},
+            {
+                url: overviewUrl,
+                style: { marginLeft: "4px" },
+                text: "Overview",
+            },
+            { url: pfeaturesUrl, text: "Phenotypic Features" },
+            { url: biosamplesUrl, text: "Biosamples" },
+            { url: experimentsUrl, text: "Experiments" },
+            { url: tracksUrl, text: "Tracks" },
+            { url: variantsUrl, text: "Variants" },
+            { url: genesUrl, text: "Genes" },
+            { url: diseasesUrl, text: "Diseases" },
+            { url: metadataUrl, text: "Metadata" },
         ];
 
         const selectedKeys = this.props.nodeInfo
-            ? matchingMenuKeys(individualMenu, urlPath(this.props.nodeInfo.CHORD_URL))
+            ? matchingMenuKeys(
+                individualMenu,
+                urlPath(this.props.nodeInfo.CHORD_URL)
+            )
             : [];
 
-        return <>
-            <SitePageHeader title={(individual || {}).id || "Loading..."}
-                            withTabBar={true}
-                            onBack={this.state.backUrl
-                                ? (() => this.props.history.push(this.state.backUrl)) : undefined}
-                            footer={
-                                <Menu mode="horizontal" style={MENU_STYLE} selectedKeys={selectedKeys}>
-                                    {individualMenu.map(renderMenuItem)}
-                                </Menu>
-                            } />
-            <Layout>
-                <Layout.Content style={LAYOUT_CONTENT_STYLE}>
-                    {(individual && !individualInfo.isFetching) ? <Switch>
-                        <Route path={overviewUrl.replace(":", "\\:")}>
-                            <IndividualOverview individual={individual} />
-                        </Route>
-                        <Route path={pfeaturesUrl.replace(":", "\\:")}>
-                            <IndividualPhenotypicFeatures individual={individual} />
-                        </Route>
-                        <Route path={biosamplesUrl.replace(":", "\\:")}>
-                            <IndividualBiosamples individual={individual} experimentsUrl={experimentsUrl} />
-                        </Route>
-                        <Route path={experimentsUrl.replace(":", "\\:")}>
-                            <IndividualExperiments individual={individual} />
-                        </Route>
-                        <Route path={tracksUrl.replace(":", "\\:")}>
-                            <IndividualTracks individual={individual} />
-                        </Route>
-                        <Route path={variantsUrl.replace(":", "\\:")}>
-                            <IndividualVariants individual={individual} tracksUrl={tracksUrl}/>
-                        </Route>
-                        <Route path={genesUrl.replace(":", "\\:")}>
-                            <IndividualGenes individual={individual} tracksUrl={tracksUrl} />
-                        </Route>
-                        <Route path={diseasesUrl.replace(":", "\\:")}>
-                            <IndividualDiseases individual={individual} />
-                        </Route>
-                        <Route path={metadataUrl.replace(":", "\\:")}>
-                            <IndividualMetadata individual={individual} />
-                        </Route>
-                        <Redirect to={overviewUrl.replace(":", "\\:")} />
-                    </Switch> : <Skeleton />}
-                </Layout.Content>
-            </Layout>
-        </>;
+        return (
+            <>
+                <SitePageHeader
+                    title={(individual || {}).id || "Loading..."}
+                    withTabBar={true}
+                    onBack={
+                        this.state.backUrl
+                            ? () => this.props.history.push(this.state.backUrl)
+                            : undefined
+                    }
+                    footer={
+                        <Menu
+                            mode="horizontal"
+                            style={MENU_STYLE}
+                            selectedKeys={selectedKeys}
+                        >
+                            {individualMenu.map(renderMenuItem)}
+                        </Menu>
+                    }
+                />
+                <Layout>
+                    <Layout.Content style={LAYOUT_CONTENT_STYLE}>
+                        {individual && !individualInfo.isFetching ? (
+                            <Switch>
+                                <Route path={overviewUrl.replace(":", "\\:")}>
+                                    <IndividualOverview
+                                        individual={individual}
+                                    />
+                                </Route>
+                                <Route path={pfeaturesUrl.replace(":", "\\:")}>
+                                    <IndividualPhenotypicFeatures
+                                        individual={individual}
+                                    />
+                                </Route>
+                                <Route path={biosamplesUrl.replace(":", "\\:")}>
+                                    <IndividualBiosamples
+                                        individual={individual}
+                                        experimentsUrl={experimentsUrl}
+                                    />
+                                </Route>
+                                <Route
+                                    path={experimentsUrl.replace(":", "\\:")}
+                                >
+                                    <IndividualExperiments
+                                        individual={individual}
+                                    />
+                                </Route>
+                                <Route path={tracksUrl.replace(":", "\\:")}>
+                                    <IndividualTracks individual={individual} />
+                                </Route>
+                                <Route path={variantsUrl.replace(":", "\\:")}>
+                                    <IndividualVariants
+                                        individual={individual}
+                                        tracksUrl={tracksUrl}
+                                    />
+                                </Route>
+                                <Route path={genesUrl.replace(":", "\\:")}>
+                                    <IndividualGenes
+                                        individual={individual}
+                                        tracksUrl={tracksUrl}
+                                    />
+                                </Route>
+                                <Route path={diseasesUrl.replace(":", "\\:")}>
+                                    <IndividualDiseases
+                                        individual={individual}
+                                    />
+                                </Route>
+                                <Route path={metadataUrl.replace(":", "\\:")}>
+                                    <IndividualMetadata
+                                        individual={individual}
+                                    />
+                                </Route>
+                                <Redirect
+                                    to={overviewUrl.replace(":", "\\:")}
+                                />
+                            </Switch>
+                        ) : (
+                            <Skeleton />
+                        )}
+                    </Layout.Content>
+                </Layout>
+            </>
+        );
     }
 }
 
 ExplorerIndividualContent.propTypes = {
     nodeInfo: nodeInfoDataPropTypesShape,
-    metadataService: PropTypes.object,  // TODO
+    metadataService: PropTypes.object, // TODO
     individuals: PropTypes.objectOf(individualPropTypesShape),
 
     fetchIndividualIfNecessary: PropTypes.func,
@@ -156,10 +204,12 @@ ExplorerIndividualContent.propTypes = {
     match: ReactRouterPropTypes.match.isRequired,
 };
 
-const mapStateToProps = state => ({
+const mapStateToProps = (state) => ({
     nodeInfo: state.nodeInfo.data,
     metadataService: state.services.metadataService,
     individuals: state.individuals.itemsByID,
 });
 
-export default connect(mapStateToProps, {fetchIndividualIfNecessary})(ExplorerIndividualContent);
+export default connect(mapStateToProps, { fetchIndividualIfNecessary })(
+    ExplorerIndividualContent
+);

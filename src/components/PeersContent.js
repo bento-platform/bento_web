@@ -1,11 +1,11 @@
-import React, {Component} from "react";
-import {connect} from "react-redux";
+import React, { Component } from "react";
+import { connect } from "react-redux";
 import PropTypes from "prop-types";
-import {Icon, Layout, Table} from "antd";
+import { Icon, Layout, Table } from "antd";
 
 import SitePageHeader from "./SitePageHeader";
 
-import {SITE_NAME} from "../constants";
+import { SITE_NAME } from "../constants";
 
 class PeersContent extends Component {
     constructor(props) {
@@ -15,21 +15,36 @@ class PeersContent extends Component {
                 title: "",
                 key: "icon",
                 width: 75,
-                render: (_, peer) => <div style={{width: "100%", textAlign: "center"}}>
-                    <Icon type={this.props.nodeInfo.CHORD_URL === peer.url ? "home" : "global"} />
-                </div>,
+                render: (_, peer) => (
+                    <div style={{ width: "100%", textAlign: "center" }}>
+                        <Icon
+                            type={
+                                this.props.nodeInfo.CHORD_URL === peer.url
+                                    ? "home"
+                                    : "global"
+                            }
+                        />
+                    </div>
+                ),
             },
             {
                 title: "Peer",
                 dataIndex: "url",
-                render: url => <>
-                    <a href={url} target="_blank" rel="noreferrer noopener">{url}</a>
-                    {this.props.nodeInfo.CHORD_URL === url ? <span style={{marginLeft: "0.5em"}}>(current node)</span>
-                        : null}
-                </>,
+                render: (url) => (
+                    <>
+                        <a href={url} target="_blank" rel="noreferrer noopener">
+                            {url}
+                        </a>
+                        {this.props.nodeInfo.CHORD_URL === url ? (
+                            <span style={{ marginLeft: "0.5em" }}>
+                                (current node)
+                            </span>
+                        ) : null}
+                    </>
+                ),
                 sorter: (a, b) => a.url.localeCompare(b.url),
-                defaultSortOrder: "ascend"
-            }
+                defaultSortOrder: "ascend",
+            },
         ];
     }
 
@@ -38,19 +53,31 @@ class PeersContent extends Component {
     }
 
     render() {
-        return <>
-            <SitePageHeader title="Peers" subTitle="Other Bento nodes connected to this one" />
-            <Layout>
-                <Layout.Content style={{background: "white", padding: "32px 24px 4px"}}>
-                    <Table dataSource={this.props.peers}
-                           columns={this.peerColumns}
-                           loading={this.props.isFetchingPeers}
-                           rowKey="url"
-                           bordered={true}
-                           size="middle" />
-                </Layout.Content>
-            </Layout>
-        </>;
+        return (
+            <>
+                <SitePageHeader
+                    title="Peers"
+                    subTitle="Other Bento nodes connected to this one"
+                />
+                <Layout>
+                    <Layout.Content
+                        style={{
+                            background: "white",
+                            padding: "32px 24px 4px",
+                        }}
+                    >
+                        <Table
+                            dataSource={this.props.peers}
+                            columns={this.peerColumns}
+                            loading={this.props.isFetchingPeers}
+                            rowKey="url"
+                            bordered={true}
+                            size="middle"
+                        />
+                    </Layout.Content>
+                </Layout>
+            </>
+        );
     }
 }
 
@@ -62,9 +89,9 @@ PeersContent.propTypes = {
     isFetchingPeers: PropTypes.bool,
 };
 
-const mapStateToProps = state => ({
+const mapStateToProps = (state) => ({
     nodeInfo: state.nodeInfo.data,
-    peers: state.peers.items.map(p => ({url: p})),
+    peers: state.peers.items.map((p) => ({ url: p })),
     isFetchingPeers: state.services.isFetchingAll || state.peers.isFetching,
 });
 

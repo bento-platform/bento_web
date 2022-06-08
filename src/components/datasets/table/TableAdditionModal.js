@@ -1,16 +1,20 @@
-import React, {Component} from "react";
-import {connect} from "react-redux";
+import React, { Component } from "react";
+import { connect } from "react-redux";
 import PropTypes from "prop-types";
-import {Button, Modal} from "antd";
+import { Button, Modal } from "antd";
 
 import TableForm from "./TableForm";
 
-import {nop} from "../../../utils/misc";
-import {datasetPropTypesShape, projectPropTypesShape} from "../../../propTypes";
-
+import { nop } from "../../../utils/misc";
+import {
+    datasetPropTypesShape,
+    projectPropTypesShape,
+} from "../../../propTypes";
 
 const modalTitle = (dataset, project) =>
-    `Add Table to Dataset "${(dataset || {}).title || ""}" (Project "${(project || {}).title || ""}")`;
+    `Add Table to Dataset "${(dataset || {}).title || ""}" (Project "${
+        (project || {}).title || ""
+    }")`;
 
 class TableAdditionModal extends Component {
     componentDidMount() {
@@ -31,21 +35,30 @@ class TableAdditionModal extends Component {
 
     render() {
         return (
-            <Modal visible={this.props.visible}
-                   title={modalTitle(this.props.dataset, this.props.project)}
-                   footer={[
-                       <Button key="cancel" onClick={this.handleCancel}>Cancel</Button>,
-                       <Button key="add"
-                               icon="plus"
-                               type="primary"
-                               onClick={() => this.handleSubmit()}
-                               loading={this.props.projectsFetchingWithTables ||
-                                   this.props.projectTablesAdding || this.props.projectTablesFetching}>
-                           Add
-                       </Button>
-                   ]}
-                   onCancel={() => (this.props.onCancel || nop)()}>
-                <TableForm ref={form => this.form = form} />
+            <Modal
+                visible={this.props.visible}
+                title={modalTitle(this.props.dataset, this.props.project)}
+                footer={[
+                    <Button key="cancel" onClick={this.handleCancel}>
+                        Cancel
+                    </Button>,
+                    <Button
+                        key="add"
+                        icon="plus"
+                        type="primary"
+                        onClick={() => this.handleSubmit()}
+                        loading={
+                            this.props.projectsFetchingWithTables ||
+                            this.props.projectTablesAdding ||
+                            this.props.projectTablesFetching
+                        }
+                    >
+                        Add
+                    </Button>,
+                ]}
+                onCancel={() => (this.props.onCancel || nop)()}
+            >
+                <TableForm ref={(form) => (this.form = form)} />
             </Modal>
         );
     }
@@ -61,14 +74,13 @@ TableAdditionModal.propTypes = {
     dataset: datasetPropTypesShape,
 
     onCancel: PropTypes.func,
-    onSubmit: PropTypes.func
+    onSubmit: PropTypes.func,
 };
 
-const mapStateToProps = state => ({
+const mapStateToProps = (state) => ({
     projectTablesAdding: state.projectTables.isAdding,
     projectTablesFetching: state.projectTables.isFetching,
     projectsFetchingWithTables: state.projects.projectsFetchingWithTables,
 });
-
 
 export default connect(mapStateToProps)(TableAdditionModal);

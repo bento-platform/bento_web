@@ -1,4 +1,4 @@
-import React, {useEffect, useState} from "react";
+import React, { useEffect, useState } from "react";
 import { AutoComplete } from "antd";
 import { useDispatch, useSelector } from "react-redux";
 import PropTypes from "prop-types";
@@ -13,12 +13,15 @@ const geneDropdownText = (g) => {
     return `${g.name} chromosome: ${g.chrom} start: ${g.start} end: ${g.end}`;
 };
 
-const LocusSearch = ({assemblyId, addVariantSearchValues}) => {
+const LocusSearch = ({ assemblyId, addVariantSearchValues }) => {
     const [autoCompleteOptions, setAutoCompleteOptions] = useState([]);
-    const geneSearchResults = useSelector((state) => state.discovery.geneNameSearchResponse);
+    const geneSearchResults = useSelector(
+        (state) => state.discovery.geneNameSearchResponse
+    );
     const dispatch = useDispatch();
 
-    const showAutoCompleteOptions = assemblyId === "GRCh37" || assemblyId === "GRCh38";
+    const showAutoCompleteOptions =
+        assemblyId === "GRCh37" || assemblyId === "GRCh38";
 
     const parsePosition = (value) => {
         const parse = /(?:CHR|chr)([0-9]{1,2}|X|x|Y|y|M|m):(\d+)-(\d+)/;
@@ -32,12 +35,11 @@ const LocusSearch = ({assemblyId, addVariantSearchValues}) => {
         const start = Number(result[2]);
         const end = Number(result[3]);
 
-        addVariantSearchValues({chrom: chrom, start: start, end: end});
+        addVariantSearchValues({ chrom: chrom, start: start, end: end });
     };
 
     const handleChange = (value) => {
-
-    // handle position notation
+        // handle position notation
         if (value.includes(":")) {
             parsePosition(value);
             setAutoCompleteOptions([]);
@@ -54,39 +56,43 @@ const LocusSearch = ({assemblyId, addVariantSearchValues}) => {
     const handleSelect = (value, options) => {
         const locus = options.props?.locus;
 
-    // may not need error checking here, since this is user selection, not user input
+        // may not need error checking here, since this is user selection, not user input
         if (!locus) {
             return;
         }
 
-    // don't use locus.assemblyId, since this is the lookup value
-        const {chrom, start, end} = locus;
-        addVariantSearchValues({chrom: chrom, start: start, end: end});
+        // don't use locus.assemblyId, since this is the lookup value
+        const { chrom, start, end } = locus;
+        addVariantSearchValues({ chrom: chrom, start: start, end: end });
     };
 
     useEffect(() => {
-        setAutoCompleteOptions((geneSearchResults ?? []).sort((a, b) => (a.name > b.name) ? 1 : -1));
+        setAutoCompleteOptions(
+            (geneSearchResults ?? []).sort((a, b) => (a.name > b.name ? 1 : -1))
+        );
     }, [geneSearchResults]);
 
     return (
-    <AutoComplete
-      options={autoCompleteOptions}
-      onChange={handleChange}
-      onSelect={handleSelect}
-      // dropdownMenuStyle={}
-      // backfill={true}
-    >
-      {showAutoCompleteOptions &&
-        autoCompleteOptions.map((g) => (
-          <Option
-            key={`${g.name}_${g.assemblyId}`}
-            value={g.name}
-            label={`${g.name} chrom: ${g.chrom}`}
-            locus={g}
-            // style={optionStyle}
-          >{geneDropdownText(g)}</Option>
-        ))}
-    </AutoComplete>
+        <AutoComplete
+            options={autoCompleteOptions}
+            onChange={handleChange}
+            onSelect={handleSelect}
+            // dropdownMenuStyle={}
+            // backfill={true}
+        >
+            {showAutoCompleteOptions &&
+                autoCompleteOptions.map((g) => (
+                    <Option
+                        key={`${g.name}_${g.assemblyId}`}
+                        value={g.name}
+                        label={`${g.name} chrom: ${g.chrom}`}
+                        locus={g}
+                        // style={optionStyle}
+                    >
+                        {geneDropdownText(g)}
+                    </Option>
+                ))}
+        </AutoComplete>
     );
 };
 
@@ -94,6 +100,5 @@ LocusSearch.propTypes = {
     assemblyId: PropTypes.string,
     addVariantSearchValues: PropTypes.func,
 };
-
 
 export default LocusSearch;

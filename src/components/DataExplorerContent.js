@@ -1,16 +1,15 @@
-import React, {Component} from "react";
-import {connect} from "react-redux";
+import React, { Component } from "react";
+import { connect } from "react-redux";
 
-import {Redirect, Route, Switch} from "react-router-dom";
+import { Redirect, Route, Switch } from "react-router-dom";
 
 import ExplorerGenomeBrowserContent from "./explorer/ExplorerGenomeBrowserContent";
 import ExplorerIndividualContent from "./explorer/ExplorerIndividualContent";
 import ExplorerSearchContent from "./explorer/ExplorerSearchContent";
 
-import {SITE_NAME} from "../constants";
-import {withBasePath} from "../utils/url";
-import {nodeInfoDataPropTypesShape} from "../propTypes";
-
+import { SITE_NAME } from "../constants";
+import { withBasePath } from "../utils/url";
+import { nodeInfoDataPropTypesShape } from "../propTypes";
 
 class DataExplorerContent extends Component {
     componentDidMount() {
@@ -19,16 +18,26 @@ class DataExplorerContent extends Component {
 
     render() {
         if (!this.props.nodeInfo.CHORD_URL) return null;
-        return <Switch>
-            <Route path={withBasePath("data/explorer/search")}
-                   component={ExplorerSearchContent} />
-            <Route path={withBasePath("data/explorer/individuals/:individual")}
-                   component={ExplorerIndividualContent} />
-            <Route path={withBasePath("data/explorer/genome")}
-                   component={ExplorerGenomeBrowserContent} />
-            <Redirect from={withBasePath("data/explorer")}
-                      to={withBasePath("data/explorer/search")} />
-        </Switch>;
+        return (
+            <Switch>
+                <Route
+                    path={withBasePath("data/explorer/search")}
+                    component={ExplorerSearchContent}
+                />
+                <Route
+                    path={withBasePath("data/explorer/individuals/:individual")}
+                    component={ExplorerIndividualContent}
+                />
+                <Route
+                    path={withBasePath("data/explorer/genome")}
+                    component={ExplorerGenomeBrowserContent}
+                />
+                <Redirect
+                    from={withBasePath("data/explorer")}
+                    to={withBasePath("data/explorer/search")}
+                />
+            </Switch>
+        );
     }
 }
 
@@ -36,7 +45,7 @@ DataExplorerContent.propTypes = {
     nodeInfo: nodeInfoDataPropTypesShape,
 };
 
-const mapStateToProps = state => ({
+const mapStateToProps = (state) => ({
     nodeInfo: state.nodeInfo.data,
 });
 

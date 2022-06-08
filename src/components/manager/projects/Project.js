@@ -1,16 +1,14 @@
-import React, {Component} from "react";
+import React, { Component } from "react";
 import PropTypes from "prop-types";
 
-import {Button, Col, Empty, Row, Typography} from "antd";
-
+import { Button, Col, Empty, Row, Typography } from "antd";
 
 import Dataset from "../../datasets/Dataset";
 import ProjectForm from "./ProjectForm";
 
-import {INITIAL_DATA_USE_VALUE} from "../../../duo";
-import {nop, simpleDeepCopy} from "../../../utils/misc";
-import {projectPropTypesShape} from "../../../propTypes";
-
+import { INITIAL_DATA_USE_VALUE } from "../../../duo";
+import { nop, simpleDeepCopy } from "../../../utils/misc";
+import { projectPropTypesShape } from "../../../propTypes";
 
 class Project extends Component {
     static getDerivedStateFromProps(nextProps) {
@@ -18,7 +16,9 @@ class Project extends Component {
         if ("value" in nextProps) {
             return {
                 ...(nextProps.value || {}),
-                data_use: simpleDeepCopy((nextProps.value || {}).data_use || INITIAL_DATA_USE_VALUE)
+                data_use: simpleDeepCopy(
+                    (nextProps.value || {}).data_use || INITIAL_DATA_USE_VALUE
+                ),
             };
         }
         return null;
@@ -60,91 +60,143 @@ class Project extends Component {
                 identifier: this.state.identifier,
                 title: values.title || this.state.title,
                 description: values.description || this.state.description,
-                data_use: values.data_use || this.state.data_use
+                data_use: values.data_use || this.state.data_use,
             });
         });
     }
 
     render() {
-        return <div>
-            <div style={{position: "absolute", top: "24px", right: "24px"}}>
-                {this.props.editing ? (
-                    <>
-                        <Button type="primary"
+        return (
+            <div>
+                <div
+                    style={{ position: "absolute", top: "24px", right: "24px" }}
+                >
+                    {this.props.editing ? (
+                        <>
+                            <Button
+                                type="primary"
                                 icon="check"
                                 loading={this.props.saving}
-                                onClick={() => this.handleSave()}>Save</Button>
-                        <Button icon="close"
-                                style={{marginLeft: "10px"}}
+                                onClick={() => this.handleSave()}
+                            >
+                                Save
+                            </Button>
+                            <Button
+                                icon="close"
+                                style={{ marginLeft: "10px" }}
                                 disabled={this.props.saving}
-                                onClick={() => this.handleCancelEdit()}>Cancel</Button>
-                    </>
+                                onClick={() => this.handleCancelEdit()}
+                            >
+                                Cancel
+                            </Button>
+                        </>
+                    ) : (
+                        <>
+                            <Button
+                                icon="edit"
+                                onClick={() => (this.props.onEdit || nop)()}
+                            >
+                                Edit
+                            </Button>
+                            <Button
+                                type="danger"
+                                icon="delete"
+                                style={{ marginLeft: "10px" }}
+                                onClick={() => (this.props.onDelete || nop)()}
+                            >
+                                Delete
+                            </Button>
+                        </>
+                    )}
+                </div>
+                {this.props.editing ? (
+                    <ProjectForm
+                        style={{ maxWidth: "600px" }}
+                        initialValue={{
+                            title: this.state.title,
+                            description: this.state.description,
+                            data_use: this.state.data_use,
+                        }}
+                        ref={(form) => (this.editingForm = form)}
+                    />
                 ) : (
                     <>
-                        <Button icon="edit" onClick={() => (this.props.onEdit || nop)()}>Edit</Button>
-                        <Button type="danger" icon="delete"
-                                style={{marginLeft: "10px"}}
-                                onClick={() => (this.props.onDelete || nop)()}>Delete</Button>
+                        <Typography.Title level={2}>
+                            {this.state.title}
+                        </Typography.Title>
+                        {this.state.description.split("\n").map((p, i) => (
+                            <Typography.Paragraph
+                                key={i}
+                                style={{ maxWidth: "600px" }}
+                            >
+                                {p}
+                            </Typography.Paragraph>
+                        ))}
                     </>
                 )}
-            </div>
-            {this.props.editing ? (
-                <ProjectForm style={{maxWidth: "600px"}}
-                             initialValue={{
-                                 title: this.state.title,
-                                 description: this.state.description,
-                                 data_use: this.state.data_use
-                             }}
-                             ref={form => this.editingForm = form} />
-            ) : (
-                <>
-                    <Typography.Title level={2}>
-                        {this.state.title}
-                    </Typography.Title>
-                    {this.state.description.split("\n").map((p, i) =>
-                        <Typography.Paragraph key={i} style={{maxWidth: "600px"}}>{p}</Typography.Paragraph>)}
-                </>
-            )}
 
-            <Typography.Title level={3} style={{marginTop: "1.2em"}}>
-                Datasets
-                <div style={{float: "right"}}>
-                    <Button icon="plus"
-                            style={{verticalAlign: "top"}}
-                            onClick={() => (this.props.onAddDataset || nop)()}>
-                        Add Dataset
-                    </Button>
-                </div>
-            </Typography.Title>
-            {(this.state.datasets || []).length > 0
-                ? this.state.datasets.sort((d1, d2) => d1.title.localeCompare(d2.title)).map(d =>
-                    <Row gutter={[0, 16]} key={d.identifier}>
-                        <Col span={24}>
-                            <Dataset key={d.identifier}
-                                     mode="private"
-                                     project={this.props.value}
-                                     value={{
-                                         ...d,
-                                         tables: this.props.tables.filter(t => t.dataset === d.identifier),
-                                     }}
-                                     strayTables={this.props.strayTables}
-                                     onEdit={() => (this.props.onEditDataset || nop)(d)}
-                                     onTableIngest={this.props.onTableIngest || nop}  />
-                        </Col>
-                    </Row>
+                <Typography.Title level={3} style={{ marginTop: "1.2em" }}>
+                    Datasets
+                    <div style={{ float: "right" }}>
+                        <Button
+                            icon="plus"
+                            style={{ verticalAlign: "top" }}
+                            onClick={() => (this.props.onAddDataset || nop)()}
+                        >
+                            Add Dataset
+                        </Button>
+                    </div>
+                </Typography.Title>
+                {(this.state.datasets || []).length > 0 ? (
+                    this.state.datasets
+                        .sort((d1, d2) => d1.title.localeCompare(d2.title))
+                        .map((d) => (
+                            <Row gutter={[0, 16]} key={d.identifier}>
+                                <Col span={24}>
+                                    <Dataset
+                                        key={d.identifier}
+                                        mode="private"
+                                        project={this.props.value}
+                                        value={{
+                                            ...d,
+                                            tables: this.props.tables.filter(
+                                                (t) =>
+                                                    t.dataset === d.identifier
+                                            ),
+                                        }}
+                                        strayTables={this.props.strayTables}
+                                        onEdit={() =>
+                                            (this.props.onEditDataset || nop)(d)
+                                        }
+                                        onTableIngest={
+                                            this.props.onTableIngest || nop
+                                        }
+                                    />
+                                </Col>
+                            </Row>
+                        ))
                 ) : (
-                    <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} description="No Datasets">
-                        <Button icon="plus" onClick={() => (this.props.onAddDataset || nop)()}>Add Dataset</Button>
+                    <Empty
+                        image={Empty.PRESENTED_IMAGE_SIMPLE}
+                        description="No Datasets"
+                    >
+                        <Button
+                            icon="plus"
+                            onClick={() => (this.props.onAddDataset || nop)()}
+                        >
+                            Add Dataset
+                        </Button>
                     </Empty>
                 )}
-        </div>;
+            </div>
+        );
     }
 }
 
 Project.propTypes = {
     value: projectPropTypesShape,
-    tables: PropTypes.arrayOf(PropTypes.object),  // TODO: shape
-    strayTables: PropTypes.arrayOf(PropTypes.object),  // TODO: shape (this is currently heterogeneous)
+    tables: PropTypes.arrayOf(PropTypes.object), // TODO: shape
+    strayTables: PropTypes.arrayOf(PropTypes.object), // TODO: shape (this is currently heterogeneous)
 
     editing: PropTypes.bool,
     saving: PropTypes.bool,
@@ -156,7 +208,7 @@ Project.propTypes = {
     onAddDataset: PropTypes.func,
     onEditDataset: PropTypes.func,
 
-    onTableIngest: PropTypes.func
+    onTableIngest: PropTypes.func,
 };
 
 export default Project;

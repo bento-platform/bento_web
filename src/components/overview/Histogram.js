@@ -26,8 +26,8 @@ class Histogram extends React.Component {
     };
 
     style = {
-        marginBottom: "20px"
-    }
+        marginBottom: "20px",
+    };
 
     shouldComponentUpdate(props, state) {
         if (this.state !== state && state.canUpdate) return true;
@@ -49,13 +49,26 @@ class Histogram extends React.Component {
                     margin={{ top: 50, right: 80, bottom: 30, left: 80 }}
                 >
                     <XAxis dataKey="ageBin" height={20}>
-                        <Label value="Subject age (yrs)" offset={-20} position="insideBottom" />
+                        <Label
+                            value="Subject age (yrs)"
+                            offset={-20}
+                            position="insideBottom"
+                        />
                     </XAxis>
                     <YAxis>
-                        <Label value="Count" offset={-10} position="left" angle={270} />
+                        <Label
+                            value="Count"
+                            offset={-10}
+                            position="left"
+                            angle={270}
+                        />
                     </YAxis>
                     <Tooltip />
-                    <Bar dataKey="count" fill="#ff0000" isAnimationActive={false} />
+                    <Bar
+                        dataKey="count"
+                        fill="#ff0000"
+                        isAnimationActive={false}
+                    />
                 </BarChart>
             </div>
         );

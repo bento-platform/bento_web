@@ -1,32 +1,40 @@
-import React, {Component} from "react";
+import React, { Component } from "react";
 import PropTypes from "prop-types";
 
-import {Form, Modal} from "antd";
+import { Form, Modal } from "antd";
 
 import TableTreeSelect from "./TableTreeSelect";
 
-import {nop} from "../../utils/misc";
+import { nop } from "../../utils/misc";
 
 class TableSelectionModal extends Component {
     constructor(props) {
         super(props);
-        this.state = {selected: undefined};
+        this.state = { selected: undefined };
     }
 
     render() {
-        return <Modal title={this.props.title || "Select a Table"}
-                      visible={this.props.visible || false}
-                      onCancel={() => (this.props.onCancel || nop)()}
-                      onOk={() => (this.props.onOk || nop)(this.state.selected)}>
-            <Form>
-                <Form.Item label="Table">
-                    <TableTreeSelect style={{width: "100%"}}
-                                     value={this.state.selected}
-                                     dataType={this.props.dataType || null}
-                                     onChange={table => this.setState({selected: table})} />
-                </Form.Item>
-            </Form>
-        </Modal>;
+        return (
+            <Modal
+                title={this.props.title || "Select a Table"}
+                visible={this.props.visible || false}
+                onCancel={() => (this.props.onCancel || nop)()}
+                onOk={() => (this.props.onOk || nop)(this.state.selected)}
+            >
+                <Form>
+                    <Form.Item label="Table">
+                        <TableTreeSelect
+                            style={{ width: "100%" }}
+                            value={this.state.selected}
+                            dataType={this.props.dataType || null}
+                            onChange={(table) =>
+                                this.setState({ selected: table })
+                            }
+                        />
+                    </Form.Item>
+                </Form>
+            </Modal>
+        );
     }
 }
 

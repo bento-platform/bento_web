@@ -1,16 +1,15 @@
-import React, {Component} from "react";
-import {connect} from "react-redux";
-import {withRouter} from "react-router-dom";
+import React, { Component } from "react";
+import { connect } from "react-redux";
+import { withRouter } from "react-router-dom";
 import PropTypes from "prop-types";
 
-import {Button, Divider, Drawer} from "antd";
+import { Button, Divider, Drawer } from "antd";
 
 import NotificationList from "./NotificationList";
 
-import {hideNotificationDrawer} from "../../modules/notifications/actions";
-import {withBasePath} from "../../utils/url";
-import {notificationPropTypesShape} from "../../propTypes";
-
+import { hideNotificationDrawer } from "../../modules/notifications/actions";
+import { withBasePath } from "../../utils/url";
+import { notificationPropTypesShape } from "../../propTypes";
 
 class NotificationDrawer extends Component {
     constructor(props) {
@@ -24,15 +23,29 @@ class NotificationDrawer extends Component {
     }
 
     render() {
-        return <Drawer title={"Notifications"}
-                       visible={this.props.notificationDrawerVisible}
-                       width="auto"
-                       onClose={() => this.props.hideNotificationDrawer()}>
-            <NotificationList small={true} notifications={this.props.notifications.filter(n => !n.read)} />
-              <Divider />
-              <Button type="link" style={{width: "100%"}} onClick={this.seeAllNotifications}>
-                  See Read Notifications</Button>
-        </Drawer>;
+        return (
+            <Drawer
+                title={"Notifications"}
+                visible={this.props.notificationDrawerVisible}
+                width="auto"
+                onClose={() => this.props.hideNotificationDrawer()}
+            >
+                <NotificationList
+                    small={true}
+                    notifications={this.props.notifications.filter(
+                        (n) => !n.read
+                    )}
+                />
+                <Divider />
+                <Button
+                    type="link"
+                    style={{ width: "100%" }}
+                    onClick={this.seeAllNotifications}
+                >
+                    See Read Notifications
+                </Button>
+            </Drawer>
+        );
     }
 }
 
@@ -43,9 +56,11 @@ NotificationDrawer.propTypes = {
     hideNotificationDrawer: PropTypes.func,
 };
 
-const mapStateToProps = state => ({
+const mapStateToProps = (state) => ({
     notificationDrawerVisible: state.notifications.drawerVisible,
     notifications: state.notifications.items,
 });
 
-export default withRouter(connect(mapStateToProps, {hideNotificationDrawer})(NotificationDrawer));
+export default withRouter(
+    connect(mapStateToProps, { hideNotificationDrawer })(NotificationDrawer)
+);

@@ -43,17 +43,17 @@ const theme = {
 
 const JsonView = ({ inputJson }) => {
     return (
-    <ReactJson
-      src={inputJson}
-      displayDataTypes={false}
-      displayObjectSize={true}
-      enableClipboard={false}
-      indentWidth={2}
-      name={false}
-      collapsed={1}
-      quotesOnKeys={false}
-      theme={theme}
-    />
+        <ReactJson
+            src={inputJson}
+            displayDataTypes={false}
+            displayObjectSize={true}
+            enableClipboard={false}
+            indentWidth={2}
+            name={false}
+            collapsed={1}
+            quotesOnKeys={false}
+            theme={theme}
+        />
     );
 };
 

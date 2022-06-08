@@ -19,25 +19,33 @@ class OverviewContent extends Component {
     render() {
         return (
             <>
-        <div
-          style={{
-              display: "flex",
-              justifyContent: "space-between",
-              background: "white",
-              borderBottom: "1px solid rgb(232, 232, 232)",
-          }}
-        >
-          <SitePageHeader title="Overview" style={{ border: "none" }} />
-        </div>
-        <Layout>
-          <Layout.Content style={{ background: "white", padding: "32px 24px 4px" }}>
-            <ClinicalSummary  />
-            <Divider />
-            <ExperimentsSummary />
-            <Divider />
-            <VariantsSummary />
-          </Layout.Content>
-        </Layout>
+                <div
+                    style={{
+                        display: "flex",
+                        justifyContent: "space-between",
+                        background: "white",
+                        borderBottom: "1px solid rgb(232, 232, 232)",
+                    }}
+                >
+                    <SitePageHeader
+                        title="Overview"
+                        style={{ border: "none" }}
+                    />
+                </div>
+                <Layout>
+                    <Layout.Content
+                        style={{
+                            background: "white",
+                            padding: "32px 24px 4px",
+                        }}
+                    >
+                        <ClinicalSummary />
+                        <Divider />
+                        <ExperimentsSummary />
+                        <Divider />
+                        <VariantsSummary />
+                    </Layout.Content>
+                </Layout>
             </>
         );
     }

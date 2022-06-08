@@ -13,23 +13,30 @@ class SearchAllRecords extends Component {
     }
 
     async onSearch(searchTerm) {
-        await this.props.performFreeTextSearchIfPossible(this.props.datasetID, searchTerm);
+        await this.props.performFreeTextSearchIfPossible(
+            this.props.datasetID,
+            searchTerm
+        );
     }
 
     render() {
-        const isFetching = this.props.searchAllRecords.fetchingSearchByDatasetID[this.props.datasetID];
+        const isFetching =
+            this.props.searchAllRecords.fetchingSearchByDatasetID[
+                this.props.datasetID
+            ];
         return (
-      <Card style={{ marginBottom: "1.5em" }}>
-        <Typography.Title level={3} style={{ marginBottom: "1.5rem" }}>
-          Text Search
-        </Typography.Title>
-        <Search
-          placeholder="Search"
-          onSearch={this.onSearch}
-          style={{ width: "40%" }}
-          loading={isFetching}
-          enterButton />
-      </Card>
+            <Card style={{ marginBottom: "1.5em" }}>
+                <Typography.Title level={3} style={{ marginBottom: "1.5rem" }}>
+                    Text Search
+                </Typography.Title>
+                <Search
+                    placeholder="Search"
+                    onSearch={this.onSearch}
+                    style={{ width: "40%" }}
+                    loading={isFetching}
+                    enterButton
+                />
+            </Card>
         );
     }
 }

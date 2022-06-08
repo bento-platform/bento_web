@@ -7,7 +7,11 @@ import { showNotificationDrawer } from "../modules/notifications/actions";
 import { SIGN_OUT_URL } from "../constants";
 import { matchingMenuKeys, renderMenuItem } from "../utils/menu";
 import { BASE_PATH, signInURLWithRedirect, withBasePath } from "../utils/url";
-import { nodeInfoDataPropTypesShape, notificationPropTypesShape, userPropTypesShape } from "../propTypes";
+import {
+    nodeInfoDataPropTypesShape,
+    notificationPropTypesShape,
+    userPropTypesShape,
+} from "../propTypes";
 import logo from "../images/logo.png";
 import OverviewSettingsControl from "./overview/OverviewSettingsControl";
 
@@ -18,14 +22,14 @@ class SiteHeader extends Component {
         super();
 
         this.state = {
-            modalVisible: false
+            modalVisible: false,
         };
         this.toggleModalVisibility = this.toggleModalVisibility.bind(this);
     }
 
     toggleModalVisibility() {
         this.setState({
-            modalVisible: !this.state.modalVisible
+            modalVisible: !this.state.modalVisible,
         });
     }
 
@@ -89,9 +93,13 @@ class SiteHeader extends Component {
                         children: [
                             {
                                 key: "sign-out-link",
-                                onClick: () => (window.location.href = withBasePath(SIGN_OUT_URL)),
+                                onClick: () =>
+                                    (window.location.href =
+                                          withBasePath(SIGN_OUT_URL)),
                                 icon: <Icon type="logout" />,
-                                text: <span className="nav-text">Sign Out</span>,
+                                text: (
+                                      <span className="nav-text">Sign Out</span>
+                                ),
                             },
                         ],
                     },
@@ -102,9 +110,14 @@ class SiteHeader extends Component {
                         style: { float: "right" },
                         icon: <Icon type="login" />,
                         text: (
-                <span className="nav-text">{this.props.authHasAttempted ? "Sign In" : "Loading..."}</span>
+                              <span className="nav-text">
+                                  {this.props.authHasAttempted
+                                      ? "Sign In"
+                                      : "Loading..."}
+                              </span>
                         ),
-                        onClick: () => (window.location.href = signInURLWithRedirect()),
+                        onClick: () =>
+                            (window.location.href = signInURLWithRedirect()),
                     },
                 ]),
             {
@@ -112,17 +125,20 @@ class SiteHeader extends Component {
                 style: { float: "right" },
                 disabled: !this.props.isOwner,
                 icon: (
-          <Badge dot count={this.props.unreadNotifications.length}>
-            <Icon type="bell" style={{ marginRight: "0" }} />
-          </Badge>
+                    <Badge dot count={this.props.unreadNotifications.length}>
+                        <Icon type="bell" style={{ marginRight: "0" }} />
+                    </Badge>
                 ),
                 text: (
-          <span className="nav-text" style={{ marginLeft: "10px" }}>
-            Notifications
-            {this.props.unreadNotifications.length > 0 ? (
-              <span> ({this.props.unreadNotifications.length})</span>
-            ) : null}
-          </span>
+                    <span className="nav-text" style={{ marginLeft: "10px" }}>
+                        Notifications
+                        {this.props.unreadNotifications.length > 0 ? (
+                            <span>
+                                {" "}
+                                ({this.props.unreadNotifications.length})
+                            </span>
+                        ) : null}
+                    </span>
                 ),
                 onClick: () => this.props.showNotificationDrawer(),
                 key: "notifications",
@@ -138,35 +154,45 @@ class SiteHeader extends Component {
 
         return (
             <>
-            <Layout.Header>
-              <Link to={BASE_PATH}>
-                <div
-                  style={{
-                      margin: "0 15px 0 0",
-                      float: "left",
-                  }}
-                >
-                  <img style={{ height: "35px" }} src={logo} alt="logo" />
-                </div>
-              </Link>
-              {customHeader && (
-                <h3 style={{ color: "rgba(255, 255, 255, 0.95)", float: "left", margin: "0 10px 0 -10px" }}>
-                  {customHeader}
-                </h3>
-              )}
-              <Menu
-                theme="dark"
-                mode="horizontal"
-                selectedKeys={matchingMenuKeys(menuItems)}
-                style={{ lineHeight: "64px" }}
-              >
-                {menuItems.map((i) => renderMenuItem(i))}
-              </Menu>
-            </Layout.Header>
-            <OverviewSettingsControl
-              modalVisible={this.state.modalVisible}
-              toggleModalVisibility={this.toggleModalVisibility}
-            />
+                <Layout.Header>
+                    <Link to={BASE_PATH}>
+                        <div
+                            style={{
+                                margin: "0 15px 0 0",
+                                float: "left",
+                            }}
+                        >
+                            <img
+                                style={{ height: "35px" }}
+                                src={logo}
+                                alt="logo"
+                            />
+                        </div>
+                    </Link>
+                    {customHeader && (
+                        <h3
+                            style={{
+                                color: "rgba(255, 255, 255, 0.95)",
+                                float: "left",
+                                margin: "0 10px 0 -10px",
+                            }}
+                        >
+                            {customHeader}
+                        </h3>
+                    )}
+                    <Menu
+                        theme="dark"
+                        mode="horizontal"
+                        selectedKeys={matchingMenuKeys(menuItems)}
+                        style={{ lineHeight: "64px" }}
+                    >
+                        {menuItems.map((i) => renderMenuItem(i))}
+                    </Menu>
+                </Layout.Header>
+                <OverviewSettingsControl
+                    modalVisible={this.state.modalVisible}
+                    toggleModalVisibility={this.toggleModalVisibility}
+                />
             </>
         );
     }
@@ -189,4 +215,6 @@ const mapStateToProps = (state) => ({
     isOwner: (state.auth.user || {}).chord_user_role === "owner",
 });
 
-export default withRouter(connect(mapStateToProps, { showNotificationDrawer, })(SiteHeader));
+export default withRouter(
+    connect(mapStateToProps, { showNotificationDrawer })(SiteHeader)
+);
