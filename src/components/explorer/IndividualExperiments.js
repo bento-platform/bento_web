@@ -12,7 +12,6 @@ import { guessFileType } from "../../utils/guessFileType";
 const { Panel } = Collapse;
 
 const IndividualExperiments = ({ individual }) => {
-    const titleStyle = { fontSize: "16px", fontWeight: "bold", color: BENTO_BLUE };
     const blankExperimentOntology = [{ id: EM_DASH, label: EM_DASH }];
 
     const downloadUrls = useSelector(
@@ -40,14 +39,11 @@ const IndividualExperiments = ({ individual }) => {
     useEffect(() => {
         // retrieve any download urls on mount
         dispatch(getFileDownloadUrlsFromDrs(downloadableFiles));
-
-    // React Router can't handle hashlinks so force scroll if there is one
-        const selected = history.location.hash;
-        if (selected && selected.length > 0) {
-            const elem = document.querySelector(selected);
-            elem && elem.scrollIntoView();
-        }
     }, []);
+
+    const selected = history.location.hash.slice(1);
+    const opened = [];
+    if (selected && selected.length > 1) opened.push(selected);
 
     const renderDownloadButton = (resultFile) => {
         return downloadUrls[resultFile.filename]?.url ? (
