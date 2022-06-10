@@ -11,7 +11,6 @@ import {workflowsStateToPropsMixin, workflowsStateToPropsMixinPropTypes} from ".
 
 class ManagerWorkflowsContent extends Component {
     render() {
-        // TODO: real key
         // Create a map of workflows list items keyed by action type (e.g. "ingestion", "export"...)
         const workflows = {};
         this.props.workflows.forEach(w => {
