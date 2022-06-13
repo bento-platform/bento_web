@@ -67,8 +67,8 @@ class IndividualBiosamples extends Component {
                             <Descriptions.Item label="Ind. Age At Collection">
                                 {b.individual_age_at_collection
                                     ? b.individual_age_at_collection.hasOwnProperty(
-                                          "age"
-                                      )
+                                        "age"
+                                    )
                                         ? b.individual_age_at_collection.age
                                         : `Between ${b.individual_age_at_collection.start.age}` +
                                           `and ${b.individual_age_at_collection.end.age}`
@@ -78,9 +78,9 @@ class IndividualBiosamples extends Component {
                                 {b.hasOwnProperty("extra_properties") &&
                                 Object.keys(b.extra_properties).length ? (
                                     <JsonView inputJson={b.extra_properties} />
-                                ) : (
-                                    EM_DASH
-                                )}
+                                    ) : (
+                                        EM_DASH
+                                    )}
                             </Descriptions.Item>
                             <Descriptions.Item label="Available Experiments">
                                 {(b.experiments ?? [])
