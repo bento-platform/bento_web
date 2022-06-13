@@ -30,6 +30,7 @@ class RoutedProject extends Component {
         this.hideDatasetEditModal = this.hideDatasetEditModal.bind(this);
         this.ingestIntoTable = this.ingestIntoTable.bind(this);
         this.exportDataset = this.exportDataset.bind(this);
+        this.analyzeDataset = this.analyzeDataset.bind(this);
         this.handleDeleteProject = this.handleDeleteProject.bind(this);
     }
 
@@ -48,6 +49,13 @@ class RoutedProject extends Component {
     exportDataset(dataset) {
         this.props.history.push(
             withBasePath("admin/data/manager/export"),
+            {selectedDataset: `dataset:${dataset.identifier}`}
+        );
+    }
+
+    analyzeDataset(dataset) {
+        this.props.history.push(
+            withBasePath("admin/data/manager/analyze"),
             {selectedDataset: `dataset:${dataset.identifier}`}
         );
     }
@@ -167,6 +175,7 @@ class RoutedProject extends Component {
                              datasetEditModal: true
                          })}
                          onDatasetExport={dataset => this.exportDataset(dataset)}
+                         onDatasetAnalyze={dataset => this.analyzeDataset(dataset)}
                          onTableIngest={(p, t) => this.ingestIntoTable(p, t)} />
             </>;
         }
@@ -195,7 +204,7 @@ RoutedProject.propTypes = {
     projectsByID: PropTypes.objectOf(projectPropTypesShape),
 
     projectTables: PropTypes.arrayOf(PropTypes.object),  // TODO: Shape
-    projectTablesByProjectID: PropTypes.objectOf(PropTypes.object),  // TODO: Shape
+    projectTablesByProjectID: PropTypes.objectOf(PropTypes.array),  // TODO: Shape
 
     loadingProjects: PropTypes.bool,
 
