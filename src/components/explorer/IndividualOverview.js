@@ -2,6 +2,7 @@ import React from "react";
 import ReactJson from "react-json-view";
 
 import { Descriptions } from "antd";
+const { Item } = Descriptions;
 
 import { EM_DASH } from "../../constants";
 import { renderOntologyTerm } from "./ontologies";
@@ -10,33 +11,29 @@ import { individualPropTypesShape } from "../../propTypes";
 const IndividualOverview = ({ individual }) =>
     individual ? (
         <Descriptions layout="vertical" bordered={true} size="middle">
-            <Descriptions.Item label="Date of Birth">
+            <Item label="Date of Birth">
                 {individual.date_of_birth || EM_DASH}
-            </Descriptions.Item>
-            <Descriptions.Item label="Sex">
-                {individual.sex || "UNKNOWN_SEX"}
-            </Descriptions.Item>
-            <Descriptions.Item label="Age">
-                {getAge(individual)}
-            </Descriptions.Item>
-            <Descriptions.Item label="Ethnicity">
+            </Item>
+            <Item label="Sex">{individual.sex || "UNKNOWN_SEX"}</Item>
+            <Item label="Age">{getAge(individual)}</Item>
+            <Item label="Ethnicity">
                 {individual.ethnicity || "UNKNOWN_ETHNICITY"}
-            </Descriptions.Item>
-            <Descriptions.Item label="Karyotypic Sex">
+            </Item>
+            <Item label="Karyotypic Sex">
                 {individual.karyotypic_sex || "UNKNOWN_KARYOTYPE"}
-            </Descriptions.Item>
+            </Item>
             {/* TODO: Link to ontology term */}
-            <Descriptions.Item label="Taxonomy">
+            <Item label="Taxonomy">
                 {renderOntologyTerm(
                     individual.taxonomy
                         ? {
-                            ...individual.taxonomy,
-                            label: <em>{individual.taxonomy.label}</em>,
-                        }
+                              ...individual.taxonomy,
+                              label: <em>{individual.taxonomy.label}</em>,
+                          }
                         : null
                 )}
-            </Descriptions.Item>
-            <Descriptions.Item label="Extra Properties">
+            </Item>
+            <Item label="Extra Properties">
                 {individual.hasOwnProperty("extra_properties") &&
                 Object.keys(individual.extra_properties).length ? (
                     <div>
@@ -50,10 +47,10 @@ const IndividualOverview = ({ individual }) =>
                             />
                         </pre>
                     </div>
-                    ) : (
-                        EM_DASH
-                    )}
-            </Descriptions.Item>
+                ) : (
+                    EM_DASH
+                )}
+            </Item>
         </Descriptions>
     ) : (
         <div />
