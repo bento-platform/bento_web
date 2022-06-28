@@ -1,4 +1,4 @@
-import React, { useState, memo } from "react";
+import React, { useState } from "react";
 import PropTypes from "prop-types";
 
 import { Checkbox, List, Icon, Radio, Typography } from "antd";
@@ -63,11 +63,11 @@ const DataUseInput = ({ value, onChange }) => {
                 ...consentCode,
                 secondary_categories: event.target.checked
                     ? [...consentCode.secondary_categories, { code }].sort(
-                        sortSCC
-                    )
+                          sortSCC
+                      )
                     : consentCode.secondary_categories.filter(
-                        (c) => c.code !== code
-                    ),
+                          (c) => c.code !== code
+                      ),
             },
         });
     };
@@ -226,4 +226,4 @@ DataUseInput.propTypes = {
     onChange: PropTypes.func,
 };
 
-export default memo(DataUseInput);
+export default DataUseInput;
