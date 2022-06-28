@@ -18,7 +18,6 @@ const TableTreeSelect = ({
     const [selected, setSelected] = useState(value || undefined);
 
     const onChangeLocal = (selectedNew) => {
-        // Set the state directly unless value is bound
         setSelected(selectedNew);
 
         // Update the change handler bound to the component
