@@ -12,7 +12,6 @@ import { matchingMenuKeys, renderMenuItem } from "../../utils/menu";
 import { withBasePath } from "../../utils/url";
 import {
     projectPropTypesShape,
-    serviceInfoPropTypesShape,
 } from "../../propTypes";
 
 const ExplorerSearchContent = ({ projects, isFetchingDependentData }) => {
@@ -83,16 +82,13 @@ const ExplorerSearchContent = ({ projects, isFetchingDependentData }) => {
 };
 
 ExplorerSearchContent.propTypes = {
-    federationServiceInfo: serviceInfoPropTypesShape,
     projects: PropTypes.arrayOf(projectPropTypesShape),
     isFetchingDependentData: PropTypes.bool,
 };
 
 const mapStateToProps = (state) => ({
-    federationServiceInfo: state.services.federationService,
     projects: state.projects.items,
     isFetchingDependentData: state.auth.isFetchingDependentData,
-    autoQuery: state.explorer.autoQuery,
 });
 
 export default connect(mapStateToProps)(ExplorerSearchContent);
