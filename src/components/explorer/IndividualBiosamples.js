@@ -4,7 +4,7 @@ import { EM_DASH } from "../../constants";
 import { renderOntologyTerm } from "./ontologies";
 import { individualPropTypesShape } from "../../propTypes";
 import JsonView from "./JsonView";
-import { useHistory, withRouter } from "react-router-dom";
+import { useHistory } from "react-router-dom";
 import PropTypes from "prop-types";
 
 // TODO: Only show biosamples from the relevant dataset, if specified;
@@ -101,4 +101,4 @@ IndividualBiosamples.propTypes = {
     experimentsUrl: PropTypes.string,
 };
 
-export default withRouter(IndividualBiosamples);
+export default IndividualBiosamples;
