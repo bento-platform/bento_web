@@ -55,16 +55,4 @@ const AdminContent = () => {
     );
 };
 
-const mapStateToProps = (state) => ({
-    nodeInfo: state.nodeInfo.data,
-    isFetchingNodeInfo: state.nodeInfo.isFetching,
-
-    projects: state.projects.items,
-    isFetchingProjects:
-        state.auth.isFetchingDependentData || state.projects.isFetching,
-
-    peers: state.peers.items,
-    isFetchingPeers: state.auth.isFetchingDependentData,
-});
-
 export default connect(mapStateToProps)(AdminContent);
