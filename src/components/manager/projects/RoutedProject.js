@@ -249,7 +249,6 @@ const mapStateToProps = (state) => ({
     serviceTables: state.serviceTables.items,
     serviceTablesByServiceID: state.serviceTables.itemsByServiceID,
 
-    projects: state.projects.items,
     projectsByID: state.projects.itemsByID,
 
     projectTables: state.projectTables.items,
