@@ -1,6 +1,6 @@
 import React, { memo, useState } from "react";
 import PropTypes from "prop-types";
-import { withRouter } from "react-router-dom";
+import { useHistory } from "react-router-dom";
 import PieChart from "recharts/es6/chart/PieChart";
 import Pie from "recharts/es6/polar/Pie";
 import Cell from "recharts/es6/component/Cell";
@@ -33,6 +33,8 @@ const CustomPieChart = ({
     setAutoQueryPageTransition,
     autoQueryDataType,
 }) => {
+    const history = useHistory();
+
     const [activeIndex, setActiveIndex] = useState(undefined);
 
     const onEnter = (_data, index) => {
@@ -374,4 +376,4 @@ CustomTooltip.propTypes = {
     totalCount: PropTypes.number,
 };
 
-export default withRouter(memo(CustomPieChart));
+export default memo(CustomPieChart);
