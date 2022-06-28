@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { connect } from "react-redux";
-import { Redirect, Route, Switch, useHistory } from "react-router-dom";
+import { Redirect, Route, Switch } from "react-router-dom";
 
 import PropTypes from "prop-types";
 import ReactRouterPropTypes from "react-router-prop-types";
@@ -43,9 +43,9 @@ const ExplorerIndividualContent = ({
     fetchIndividualIfNecessary,
     location,
     match,
+    history
 }) => {
     const [backUrl, setBackUrl] = useState(null);
-    const history = useHistory();
 
     const fetchIndividualData = () => {
         const individualID = match.params.individual || null;
