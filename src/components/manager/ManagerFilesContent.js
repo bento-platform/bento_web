@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { connect } from "react-redux";
-import { withRouter, useHistory } from "react-router-dom";
+import { useHistory } from "react-router-dom";
 import PropTypes from "prop-types";
 
 import fetch from "cross-fetch";
@@ -320,4 +320,4 @@ const mapStateToProps = (state) => ({
     ...workflowsStateToPropsMixin(state),
 });
 
-export default withRouter(connect(mapStateToProps)(ManagerFilesContent));
+export default connect(mapStateToProps)(ManagerFilesContent);
