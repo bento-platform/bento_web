@@ -1,6 +1,6 @@
 import React from "react";
 import { connect } from "react-redux";
-import { withRouter } from "react-router-dom";
+import { useHistory } from "react-router-dom";
 import PropTypes from "prop-types";
 
 import { Button, Divider, Drawer } from "antd";
@@ -16,6 +16,8 @@ const NotificationDrawer = ({
     notifications,
     hideNotificationDrawer,
 }) => {
+    const history = useHistory();
+
     const seeAllNotifications = () => {
         hideNotificationDrawer();
         history.push(withBasePath("notifications"));
@@ -56,6 +58,6 @@ const mapStateToProps = (state) => ({
     notifications: state.notifications.items,
 });
 
-export default withRouter(
-    connect(mapStateToProps, { hideNotificationDrawer })(NotificationDrawer)
+export default connect(mapStateToProps, { hideNotificationDrawer })(
+    NotificationDrawer
 );
