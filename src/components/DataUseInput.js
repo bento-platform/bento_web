@@ -33,24 +33,18 @@ const DataUseInput = ({ value, onChange }) => {
     ]);
 
     const triggerChange = (change) => {
-        const hack = {
+        const newState = {
             ...{
                 consent_code: consentCode,
                 data_use_requirements: dataUseRequirements,
             },
             ...change,
         };
-        setConsentCode(hack.consent_code);
-        setDataUseRequirements(hack.data_use_requirements);
+        setConsentCode(newState.consent_code);
+        setDataUseRequirements(newState.data_use_requirements);
 
         if (onChange) {
-            onChange({
-                ...{
-                    consent_code: consentCode,
-                    data_use_requirements: dataUseRequirements,
-                },
-                ...change,
-            });
+            onChange(newState);
         }
     };
 
