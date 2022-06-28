@@ -300,7 +300,6 @@ const mapStateToProps = (state, ownProps) => {
 
         isFetchingDownload: state.explorer.isFetchingDownload || false,
 
-        federationServiceInfo: state.services.federationService,
         datasetsByID: Object.fromEntries(
             state.projects.items.flatMap((p) =>
                 p.datasets.map((d) => [
