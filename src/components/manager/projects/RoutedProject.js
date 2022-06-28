@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { connect } from "react-redux";
 import PropTypes from "prop-types";
-import { useHistory } from "react-router-dom";
 
 import { Modal } from "antd";
 
@@ -41,12 +40,11 @@ const RoutedProject = ({
     saveProjectIfPossible,
     deleteProjectIfPossible,
     match,
+    history
 }) => {
     const [datasetAdditionModal, setDatasetAdditionModal] = useState(false);
     const [datasetEditModal, setDatasetEditModal] = useState(false);
     const [selectedDataset, setSelectedDataset] = useState(null);
-
-    const history = useHistory();
 
     useEffect(() => {
         if (!projectsByID[match.params.project] && !loadingProjects) {
