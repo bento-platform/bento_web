@@ -65,30 +65,25 @@ class IndividualBiosamples extends Component {
                             </Descriptions.Item>
                             <Descriptions.Item label="Ind. Age At Collection">
                                 {biosample.individual_age_at_collection
-                                    ? biosample.individual_age_at_collection.hasOwnProperty(
-                                          "age"
-                                      )
-                                        ? biosample.individual_age_at_collection.age
-                                        : `Between ${biosample.individual_age_at_collection.start.age}` +
-                                          `and ${biosample.individual_age_at_collection.end.age}`
+                                    ? biosample.individual_age_at_collection.age ??
+                                        `Between ${biosample.individual_age_at_collection.start.age}` +
+                                            `and ${biosample.individual_age_at_collection.end.age}`
                                     : EM_DASH}
                             </Descriptions.Item>
                             <Descriptions.Item label="Extra Properties">
                                 {biosample.hasOwnProperty("extra_properties") &&
                                 Object.keys(biosample.extra_properties).length ? (
                                     <JsonView inputJson={biosample.extra_properties} />
-                                ) : (
-                                    EM_DASH
-                                )}
+                                    ) : (
+                                        EM_DASH
+                                    )}
                             </Descriptions.Item>
                             <Descriptions.Item label="Available Experiments">
                                 {(biosample.experiments ?? [])
                                     .map((e, i) => (
                                         <Button
                                             key={i}
-                                            onClick={() =>
-                                                this.handleClick(e.id)
-                                            }
+                                            onClick={() => this.handleClick(e.id)}
                                         >
                                             {e.experiment_type}
                                         </Button>
