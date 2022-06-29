@@ -25,80 +25,72 @@ class IndividualBiosamples extends Component {
         const biosamplesData = (
             this.props.individual?.phenopackets ?? []
         ).flatMap((p) => p.biosamples);
-
         return (
             <div
                 className="biosamples-descriptions"
                 style={{ display: "inline-block" }}
             >
-                {biosamplesData.map((b, i) => (
+                {biosamplesData.map((biosample, i) => (
                     <>
                         <Descriptions
-                            title={`Biosample ${b.id}`}
+                            title={`Biosample ${biosample.id}`}
                             layout="horizontal"
                             bordered={true}
                             column={1}
                             size="small"
-                            key={b.id}
+                            key={biosample.id}
                         >
                             <Descriptions.Item label="ID">
-                                {b.id}
+                                {biosample.id}
                             </Descriptions.Item>
                             <Descriptions.Item label="Sampled Tissue">
-                                {renderOntologyTerm(b.sampled_tissue)}
+                                {renderOntologyTerm(biosample.sampled_tissue)}
                             </Descriptions.Item>
                             <Descriptions.Item label="Procedure">
                                 <div>
                                     <strong>Code:</strong>{" "}
-                                    {renderOntologyTerm(b.procedure.code)}
-                                    {b.procedure.body_site ? (
+                                    {renderOntologyTerm(biosample.procedure.code)}
+                                    {biosample.procedure.body_site ? (
                                         <div>
                                             <strong>Body Site:</strong>{" "}
                                             {renderOntologyTerm(
-                                                b.procedure.body_site
+                                                biosample.procedure.body_site
                                             )}
                                         </div>
                                     ) : null}
                                 </div>
                             </Descriptions.Item>
                             <Descriptions.Item label="Histological Diagnosis">
-                                {renderOntologyTerm(b.histological_diagnosis)}
+                                {renderOntologyTerm(biosample.histological_diagnosis)}
                             </Descriptions.Item>
                             <Descriptions.Item label="Ind. Age At Collection">
-                                {b.individual_age_at_collection
-                                    ? b.individual_age_at_collection.hasOwnProperty(
-                                        "age"
-                                    )
-                                        ? b.individual_age_at_collection.age
-                                        : `Between ${b.individual_age_at_collection.start.age}` +
-                                          `and ${b.individual_age_at_collection.end.age}`
+                                {biosample.individual_age_at_collection
+                                    ? biosample.individual_age_at_collection.hasOwnProperty(
+                                          "age"
+                                      )
+                                        ? biosample.individual_age_at_collection.age
+                                        : `Between ${biosample.individual_age_at_collection.start.age}` +
+                                          `and ${biosample.individual_age_at_collection.end.age}`
                                     : EM_DASH}
                             </Descriptions.Item>
                             <Descriptions.Item label="Extra Properties">
-                                {b.hasOwnProperty("extra_properties") &&
-                                Object.keys(b.extra_properties).length ? (
-                                    <JsonView inputJson={b.extra_properties} />
-                                    ) : (
-                                        EM_DASH
-                                    )}
+                                {biosample.hasOwnProperty("extra_properties") &&
+                                Object.keys(biosample.extra_properties).length ? (
+                                    <JsonView inputJson={biosample.extra_properties} />
+                                ) : (
+                                    EM_DASH
+                                )}
                             </Descriptions.Item>
                             <Descriptions.Item label="Available Experiments">
-                                {(b.experiments ?? [])
-                                    .flatMap((b) => b?.experiment_type ?? [])
-                                    .map((t, i) => (
+                                {(biosample.experiments ?? [])
+                                    .map((e, i) => (
                                         <Button
                                             key={i}
                                             onClick={() =>
-                                                this.handleClick(
-                                                    b.experiments.find(
-                                                        (e) =>
-                                                            e.experiment_type ===
-                                                            t
-                                                    ).id
-                                                )
+                                                this.handleClick(e.id)
                                             }
                                         >
-                                            {t}
+                                            {e.experiment_type}
                                         </Button>
                                     ))}
                             </Descriptions.Item>
