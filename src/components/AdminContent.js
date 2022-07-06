@@ -1,5 +1,4 @@
 import React, { useEffect } from "react";
-import { connect } from "react-redux";
 import { Redirect, Switch } from "react-router-dom";
 import { BASE_PATH, withBasePath } from "../utils/url";
 
@@ -55,4 +54,4 @@ const AdminContent = () => {
     );
 };
 
-export default connect(mapStateToProps)(AdminContent);
+export default AdminContent;
