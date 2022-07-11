@@ -1,4 +1,4 @@
-import React, { memo, useState } from "react";
+import React, { useState } from "react";
 import PropTypes from "prop-types";
 import { useHistory } from "react-router-dom";
 import PieChart from "recharts/es6/chart/PieChart";
@@ -376,4 +376,4 @@ CustomTooltip.propTypes = {
     totalCount: PropTypes.number,
 };
 
-export default memo(CustomPieChart);
+export default CustomPieChart;
