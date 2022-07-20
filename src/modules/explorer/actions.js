@@ -67,10 +67,10 @@ export const performIndividualsDownloadCSVIfPossible = (datasetId, individualIds
         });
 
         const requestOptions = {
-            method: 'POST',
+            method: "POST",
             headers: myHeaders,
             body: raw,
-            redirect: 'follow'
+            redirect: "follow"
         };
 
         fetch(`${getState().services.itemsByArtifact.metadata.url}/api/individualsgetcsv`, requestOptions)
@@ -78,7 +78,7 @@ export const performIndividualsDownloadCSVIfPossible = (datasetId, individualIds
             .then(result => {
                 FileSaver.saveAs(result, "data.csv");
             })
-            .catch(error => console.log('error', error));
+            .catch(error => console.log("error", error));
     };
 
 
