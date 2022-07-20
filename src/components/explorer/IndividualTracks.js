@@ -1,7 +1,7 @@
 import React, { useEffect, useRef, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { individualPropTypesShape } from "../../propTypes";
-import { Button, Divider, Modal, Switch, Table } from "antd";
+import { Button, Divider, Modal, Switch, Table, Empty } from "antd";
 import { getIgvUrlsFromDrs } from "../../modules/drs/actions";
 import { guessFileType } from "../../utils/guessFileType";
 import { useHistory } from "react-router-dom";
@@ -194,11 +194,11 @@ const IndividualTracks = ({individual}) => {
 
     return (
         <>
-        {Boolean(allFoundFiles.length) && (
+        {Boolean(allFoundFiles.length) ? (
           <Button icon="setting" style={{ marginRight: "8px" }} onClick={() => setModalVisible(true)}>
             Configure Tracks
           </Button>
-        )}
+        ) : <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} />}
         <div ref={igvRef} />
         <Divider />
         <Modal
