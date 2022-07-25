@@ -3,7 +3,7 @@ import { useSelector } from "react-redux";
 
 import { Link } from "react-router-dom";
 
-import { Table, Typography, Icon, Tag } from "antd";
+import { Table, Typography, Tag } from "antd";
 
 import { ROLE_OWNER } from "../constants";
 import { withBasePath } from "../utils/url";
@@ -13,10 +13,6 @@ const ARTIFACT_STYLING = { fontFamily: "monospace" };
 // biggest reasonable size limit before rolling over
 // currently 11 services including gohan
 const MAX_TABLE_PAGE_SIZE = 12;
-
-const iconStyle = {
-    fontSize: "20px",
-};
 
 const serviceColumns = (isOwner) => [
     {
@@ -50,23 +46,22 @@ const serviceColumns = (isOwner) => [
         render: (url) => <a href={url}>{url}</a>,
     },
     {
-        title: "Data Service?",
-        dataIndex: "data_service",
-        render: (dataService) =>
-            dataService ? (
-                <Icon type="check-circle" theme="twoTone" twoToneColor="#52c41a" style={iconStyle} />
-            ) : (
-                <Icon type="close-circle" theme="twoTone" twoToneColor="#f55353" style={iconStyle} />
-            ),
-    },
-    {
         title: "Status",
         dataIndex: "status",
-        render: (status, service) =>
+        render: ({ status, dataService }, service) =>
             service.loading ? (
                 <Tag>LOADING</Tag>
             ) : (
-                <Tag color={status ? "green" : "red"}>{status ? "HEALTHY" : "ERROR"}</Tag>
+                [
+                    <Tag key="1" color={status ? "green" : "red"}>
+                        {status ? "HEALTHY" : "ERROR"}
+                    </Tag>,
+                    dataService ? (
+                        <Tag key="2" color="blue">
+                            DATA SERVICE
+                        </Tag>
+                    ) : null,
+                ]
             ),
     },
 ];
@@ -77,10 +72,14 @@ const ServiceList = () => {
             ...service,
             key: `${service.type.organization}:${service.type.artifact}`,
             serviceInfo: state.services.itemsByArtifact[service.type.artifact] || null,
-            status: state.services.itemsByArtifact.hasOwnProperty(service.type.artifact),
+            status: {
+                status: state.services.itemsByArtifact.hasOwnProperty(service.type.artifact),
+                dataService: service.data_service,
+            },
             loading: state.services.isFetching,
         }))
     );
+
     const columns = serviceColumns(
         useSelector((state) => state.auth.hasAttempted && (state.auth.user || {}).chord_user_role === ROLE_OWNER)
     );
