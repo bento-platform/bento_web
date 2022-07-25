@@ -27,9 +27,7 @@ const serviceColumns = (isOwner) => [
                 ) : (
                     <span style={ARTIFACT_STYLING}>{artifact}</span>
                 )
-            ) : (
-                ""
-            ),
+            ) : null,
     },
     {
         title: "Name",
