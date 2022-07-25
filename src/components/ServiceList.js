@@ -14,6 +14,7 @@ const ARTIFACT_STYLING = { fontFamily: "monospace" };
 // currently 11 services including gohan
 const MAX_TABLE_PAGE_SIZE = 12;
 
+/* eslint-disable react/prop-types */
 const serviceColumns = (isOwner) => [
     {
         title: "Artifact",
@@ -63,6 +64,7 @@ const serviceColumns = (isOwner) => [
             ),
     },
 ];
+/* eslint-enable react/prop-types */
 
 const ServiceList = () => {
     const dataSource = useSelector((state) =>
