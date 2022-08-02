@@ -52,12 +52,8 @@ export const performSearchIfPossible = (datasetID) => (dispatch, getState) => {
 
 export const performIndividualsDownloadCSVIfPossible = (datasetId, individualIds, allSearchResults) =>
     (dispatch, getState) => {
-        let ids;
-        if (individualIds.length > 0) { // Get only selected results
-            ids = individualIds;
-        } else { // Get all search results
-            ids = allSearchResults.map(sr => sr.key);
-        }
+
+        const ids = individualIds.length ? individualIds : allSearchResults.map(sr => sr.key);
 
         const myHeaders = new Headers();
         myHeaders.append("Content-Type", "application/json");
@@ -73,7 +69,7 @@ export const performIndividualsDownloadCSVIfPossible = (datasetId, individualIds
             redirect: "follow"
         };
 
-        fetch(`${getState().services.itemsByArtifact.metadata.url}/api/individualsgetcsv`, requestOptions)
+        fetch(`${getState().services.itemsByArtifact.metadata.url}/api/batch/individuals`, requestOptions)
             .then(response => response.blob())
             .then(result => {
                 FileSaver.saveAs(result, "data.csv");
