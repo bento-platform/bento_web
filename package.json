@@ -62,5 +62,11 @@
   "bugs": {
     "url": "https://github.com/c3g/chord_web/issues"
   },
-  "homepage": "https://github.com/c3g/chord_web#readme"
+  "homepage": "https://github.com/c3g/chord_web#readme",
+  "prettier": {
+    "trailingComma": "es5",
+    "tabWidth": 4,
+    "semi": true,
+    "singleQuote": false
+  }
 }

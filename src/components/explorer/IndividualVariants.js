@@ -1,6 +1,6 @@
 import React from "react";
 import {Link} from "react-router-dom";
-import {Button, Descriptions} from "antd";
+import {Button, Descriptions, Empty} from "antd";
 import PropTypes from "prop-types";
 import {individualPropTypesShape} from "../../propTypes";
 import "./explorer.css";
@@ -55,26 +55,25 @@ const IndividualVariants = ({individual, tracksUrl}) => {
     };
 
     const SampleVariants = ({id}) => {
-        console.log({id: id});
-        return (
+
+        return variantsMapped[id].length ? (
           <div style={sampleStyle}>
             {variantsMapped[id].map((v) => (
               <VariantDetails key={v.id} variant={v} />
             ))}
           </div>
-        );
+        ) : <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} />;
     };
 
     return (
       <div className="variantDescriptions">
-        {" "}
-        <Descriptions layout="horizontal" bordered={true} column={1} size="small">
-          {ids.map((i) => (
-            <Descriptions.Item key={i.key} label={i.title}>
-              <SampleVariants id={i.key} />
-            </Descriptions.Item>
-          ))}
-        </Descriptions>
+          {ids.length ? <Descriptions layout="horizontal" bordered={true} column={1} size="small">
+              {ids.map((i) => (
+                  <Descriptions.Item key={i.key} label={i.title}>
+                      <SampleVariants id={i.key}/>
+                  </Descriptions.Item>
+              ))}
+          </Descriptions> : <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} />}
       </div>
     );
 };
