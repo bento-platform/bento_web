@@ -76,7 +76,7 @@ const DatasetTables = ({ isPrivate, project, dataset, onTableIngest, isFetchingT
                         {tableID}
                     </a>
                 ) : (
-                    <span style={{ fontFamily: "monospace" }}>tableID</span>
+                    <span style={{ fontFamily: "monospace" }}>{tableID}</span>
                 ),
         },
         {
