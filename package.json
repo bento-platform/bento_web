@@ -6,7 +6,7 @@
   "dependencies": {
     "@babel/plugin-proposal-class-properties": "^7.12.1",
     "antd": "^3.26.19",
-    "cross-fetch": "^3.0.6",
+    "cross-fetch": "^3.1.5",
     "file-saver": "^2.0.5",
     "igv": "^2.10.1",
     "iso8601-duration": "^1.2.0",
