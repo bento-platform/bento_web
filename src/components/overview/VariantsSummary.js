@@ -1,12 +1,12 @@
 import React from "react";
-import { connect } from "react-redux";
-import PropTypes from "prop-types";
+import { useSelector } from "react-redux";
 import { Col, Row, Spin, Statistic, Typography, Icon } from "antd";
 
-const VariantsSummary = ({ tableSummaries }) => {
-    const fetchingTableSummaries = tableSummaries?.isFetching;
+const VariantsSummary = ( ) => {
 
-    const numVCFs = 0;
+    const fetchingTableSummaries = useSelector(state => state.tableSummaries?.isFetching);
+    const numVCFs =
+        useSelector((state) => state.overviewSummary.data?.data_type_specific?.experiment_results.file_format.VCF) || 0;
 
     return (
         <>
@@ -14,11 +14,7 @@ const VariantsSummary = ({ tableSummaries }) => {
             <Row style={{ marginBottom: "24px" }} gutter={[0, 16]}>
                 <Col xl={2} lg={3} md={4} sm={5} xs={6}>
                     <Spin spinning={fetchingTableSummaries}>
-                        <Statistic
-                            title="VCF Files"
-                            prefix={<Icon type="file" />}
-                            value={numVCFs}
-                        />
+                        <Statistic title="VCF Files" prefix={<Icon type="file" />} value={numVCFs} />
                     </Spin>
                 </Col>
             </Row>
@@ -26,17 +22,4 @@ const VariantsSummary = ({ tableSummaries }) => {
     );
 };
 
-VariantsSummary.propTypes = {
-    tableSummaries: PropTypes.shape({
-        isFetching: PropTypes.bool,
-        summariesByServiceArtifactAndTableID: PropTypes.object,
-    }),
-};
-
-const mapStateToProps = (state) => ({
-    tableSummaries: state.tableSummaries,
-});
-
-const actionCreators = {};
-
-export default connect(mapStateToProps, actionCreators)(VariantsSummary);
+export default VariantsSummary;
