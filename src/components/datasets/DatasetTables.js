@@ -89,11 +89,11 @@ const DatasetTables = ({ isPrivate, project, dataset, onTableIngest, isFetchingT
         { title: "Data Type", dataIndex: "data_type" },
         ...(isPrivate
             ? [
-                  {
-                      title: "Actions",
-                      key: "actions",
-                      width: 230 /*330,*/,
-                      render: (t) => (
+                {
+                    title: "Actions",
+                    key: "actions",
+                    width: 230 /*330,*/,
+                    render: (t) => (
                           <Row gutter={10}>
                               <Col span={12}>
                                   <Button
@@ -119,9 +119,9 @@ const DatasetTables = ({ isPrivate, project, dataset, onTableIngest, isFetchingT
                                   </Col>
                               ) : null}
                           </Row>
-                      ),
-                  },
-              ]
+                    ),
+                },
+            ]
             : []),
     ];
 
