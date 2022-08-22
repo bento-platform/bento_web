@@ -59,7 +59,8 @@ export const performIndividualsDownloadCSVIfPossible = (datasetId, individualIds
         myHeaders.append("Content-Type", "application/json");
 
         const raw = JSON.stringify({
-            "id": ids
+            "id": ids,
+            "format": "csv"
         });
 
         const requestOptions = {
