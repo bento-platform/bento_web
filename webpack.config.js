@@ -6,6 +6,7 @@ const BASE_PATH = process.env.CHORD_URL ? (new URL(process.env.CHORD_URL)).pathn
 
 module.exports = {
     entry: ["babel-polyfill", path.resolve(__dirname, "./src/index.js")],
+    devtool: "inline-source-map",
     module: {
         rules: [
             {
