@@ -42,7 +42,7 @@ const serviceColumns = (isOwner) => [
     {
         title: "URL",
         dataIndex: "serviceInfo.url",
-        render: (url) => <a href={`${url}/service-info`}>{`${url}/service-info`}</a>,
+        render: (url) => url ? <a href={`${url}/service-info`}>{`${url}/service-info`}</a> : "N/A",
     },
     {
         title: "Status",
