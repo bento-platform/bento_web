@@ -4,9 +4,8 @@ const HtmlWebpackPlugin = require("html-webpack-plugin");
 
 const BASE_PATH = process.env.CHORD_URL ? (new URL(process.env.CHORD_URL)).pathname : "/";
 
-module.exports = {
+const config = {
     entry: ["babel-polyfill", path.resolve(__dirname, "./src/index.js")],
-    devtool: "inline-source-map",
     module: {
         rules: [
             {
@@ -53,4 +52,11 @@ module.exports = {
             CUSTOM_HEADER: process.env.CUSTOM_HEADER,
         })
     ]
+};
+
+module.exports = (_env, argv) => {
+    if (argv.mode === 'development') {
+        config.devtool = 'inline-source-map';
+    }
+    return config;
 };
