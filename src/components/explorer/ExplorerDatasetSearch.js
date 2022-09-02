@@ -46,7 +46,7 @@ const SEARCH_RESULT_COLUMNS = [
         dataIndex: "biosamples",
         render: samples => <>
             {samples.length} Sample{samples.length === 1 ? "" : "s"}{samples.length ? ": " : ""}
-            {samples.map(b => b.id).join(", ")}
+            {samples.join(", ")}
         </>,
         sorter: (a, b) => a.biosamples.length - b.biosamples.length,
         sortDirections: ["descend", "ascend", "descend"],
@@ -54,8 +54,8 @@ const SEARCH_RESULT_COLUMNS = [
     {
         title: "Experiments",
         dataIndex: "experiments",
-        render: experiments => <>{experiments.length} Experiment{experiments.length === 1 ? "" : "s"}</>,
-        sorter: (a, b) => a.experiments.length - b.experiments.length,
+        render: experiments => <>{experiments} Experiment{experiments === 1 ? "" : "s"}</>,
+        sorter: (a, b) => a.experiments - b.experiments,
         sortDirections: ["descend", "ascend", "descend"],
     },
 ];
