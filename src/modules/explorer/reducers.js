@@ -246,21 +246,12 @@ function freeTextSearchFormattedResults(searchResults) {
     return searchResults.map(r => {
         return {
             key: r.id,
-            biosamples: (r.phenopackets || []).flatMap((p) => p.biosamples),
-            diseases: r.phenopackets[0].diseases, //TO FIX, multiple phenopackets possible
-            experiments: (r.phenopackets || []).flatMap((p) =>
-                (p.biosamples || []).flatMap((b) => b?.experiments ? [b.experiments] : [])
-            ),
-            phenotypic_features: r.phenopackets[0].phenotypic_features || [], //TO FIX, as above
             individual: {
-                age: r.age,
-                created: r.created,
-                date_of_birth: r.date_of_birth,
                 id: r.id,
-                karyotypic_sex: r.karyotypic_sex,
-                taxonomy: r.taxonomy,
-                updated: r.updated,
+                alternate_ids: r.alternate_ids
             },
+            biosamples: r.biosamples,
+            experiments: r.num_experiments
         };
     });
 }
