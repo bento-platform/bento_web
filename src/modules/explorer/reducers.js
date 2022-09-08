@@ -178,7 +178,7 @@ export const explorer = (
                     ...state.searchResultsByDatasetID,
                     [action.datasetID]: {
                         results: freeTextResults(action.data),
-                        searchFormattedResults: freeTextSearchFormattedResults(action.data.results),
+                        searchFormattedResults: tableSearchResults(action.data),
                     },
                 },
             };
@@ -238,20 +238,4 @@ function freeTextResults(_searchResults) {
             variant: []   //TODO
         }
     };
-}
-
-// produces searchFormattedResults (input for results table and other components)
-// free-text equivalent to tableSearchResults() above
-function freeTextSearchFormattedResults(searchResults) {
-    return searchResults.map(r => {
-        return {
-            key: r.id,
-            individual: {
-                id: r.id,
-                alternate_ids: r.alternate_ids
-            },
-            biosamples: r.biosamples,
-            experiments: r.num_experiments
-        };
-    });
 }
