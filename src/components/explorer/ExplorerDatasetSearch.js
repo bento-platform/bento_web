@@ -117,7 +117,7 @@ class ExplorerDatasetSearch extends Component {
             ? (this.state.currentPage * this.state.pageSize) - this.state.pageSize + 1
             : 0;
 
-        console.log("search results: " + this.props.searchResults);
+        console.log("search results: ", this.props.searchResults);
 
         return <>
             <Typography.Title level={4}>Explore Dataset {selectedDataset.title}</Typography.Title>
