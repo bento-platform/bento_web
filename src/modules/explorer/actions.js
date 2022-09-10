@@ -2,6 +2,8 @@ import {createNetworkActionTypes, networkAction} from "../../utils/actions";
 import {jsonRequest} from "../../utils/requests";
 import {extractQueriesFromDataTypeForms} from "../../utils/search";
 
+import FileSaver from "file-saver";
+
 export const PERFORM_SEARCH = createNetworkActionTypes("EXPLORER.PERFORM_SEARCH");
 export const PERFORM_INDIVIDUAL_CSV_DOWNLOAD = createNetworkActionTypes("EXPLORER.PERFORM_INDIVIDUAL_CSV_DOWNLOAD");
 export const ADD_DATA_TYPE_QUERY_FORM = "EXPLORER.ADD_DATA_TYPE_QUERY_FORM";
@@ -25,13 +27,6 @@ const performSearch = networkAction((datasetID, dataTypeQueries, excludeFromAuto
         }, "POST"),
         err: "Error performing search",
     }));
-
-const performIndividualCSVDownload = networkAction((individualsUrl) => () => ({
-    types: PERFORM_INDIVIDUAL_CSV_DOWNLOAD,
-    url: individualsUrl,
-    parse: r => r.blob(),  // Parse the CSV as a binary blob rather than e.g. a JSON file
-    err: "Error performing individual csv download",
-}));
 
 export const performSearchIfPossible = (datasetID) => (dispatch, getState) => {
     if (getState().explorer.fetchingSearchByDatasetID[datasetID]) return;
@@ -57,21 +52,30 @@ export const performSearchIfPossible = (datasetID) => (dispatch, getState) => {
 
 export const performIndividualsDownloadCSVIfPossible = (datasetId, individualIds, allSearchResults) =>
     (dispatch, getState) => {
-        console.log("Initiating PerformIndividualsDownloadCSVIfPossible");
 
-        let dataUrl = `${getState().services.itemsByArtifact.metadata.url}/api/individuals?format=csv`;
+        const ids = individualIds.length ? individualIds : allSearchResults.map(sr => sr.key);
 
-        // build query string
-        // TODO: This should use the actual JS API for URL construction
-        if (individualIds.length > 0) { // Get only selected results
-            dataUrl += ("&page_size=" + individualIds.length);
-            individualIds.forEach(id => dataUrl += `&id=${id}`);
-        } else { // Get all search results
-            dataUrl += ("&page_size=" + allSearchResults.length);
-            allSearchResults.forEach(sr => dataUrl += `&id=${sr.key}`);
-        }
+        const myHeaders = new Headers();
+        myHeaders.append("Content-Type", "application/json");
 
-        return dispatch(performIndividualCSVDownload(dataUrl));
+        const raw = JSON.stringify({
+            "id": ids,
+            "format": "csv"
+        });
+
+        const requestOptions = {
+            method: "POST",
+            headers: myHeaders,
+            body: raw,
+            redirect: "follow"
+        };
+
+        fetch(`${getState().services.itemsByArtifact.metadata.url}/api/batch/individuals`, requestOptions)
+            .then(response => response.blob())
+            .then(result => {
+                FileSaver.saveAs(result, "data.csv");
+            })
+            .catch(error => console.log("error", error));
     };
 
 
@@ -124,7 +128,8 @@ export const neutralizeAutoQueryPageTransition = () => ({
 const performFreeTextSearch = networkAction((datasetID, term) => (dispatch, getState) => ({
     types: FREE_TEXT_SEARCH,
     params: {datasetID},
-    url: `${getState().services.metadataService.url}/api/individuals?search=${term}&page_size=10000`,
+    url: `${getState().services.metadataService.url}/api/individuals?search=${term}&page_size=10000` +
+        "&format=bento_search_result",
     err: `Error searching in all records with term ${term}`,
 }));
 

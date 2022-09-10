@@ -6,7 +6,7 @@
   "dependencies": {
     "@babel/plugin-proposal-class-properties": "^7.12.1",
     "antd": "^3.26.19",
-    "cross-fetch": "^3.0.6",
+    "cross-fetch": "^3.1.5",
     "file-saver": "^2.0.5",
     "igv": "^2.10.1",
     "iso8601-duration": "^1.2.0",
@@ -40,6 +40,7 @@
     "eslint-plugin-react": "^7.21.5",
     "file-loader": "^6.2.0",
     "html-webpack-plugin": "^4.5.0",
+    "prettier": "^2.7.1",
     "style-loader": "^2.0.0",
     "webpack": "^4.44.2",
     "webpack-cli": "^4.1.0",
@@ -67,6 +68,7 @@
     "trailingComma": "es5",
     "tabWidth": 4,
     "semi": true,
-    "singleQuote": false
+    "singleQuote": false,
+    "printWidth": 120
   }
 }
