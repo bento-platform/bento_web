@@ -46,7 +46,7 @@ const SEARCH_RESULT_COLUMNS = [
         dataIndex: "biosamples",
         render: samples => <>
             {samples.length} Sample{samples.length === 1 ? "" : "s"}{samples.length ? ": " : ""}
-            {samples.map(b => b.id).join(", ")}
+            {samples.join(", ")}
         </>,
         sorter: (a, b) => a.biosamples.length - b.biosamples.length,
         sortDirections: ["descend", "ascend", "descend"],
@@ -54,8 +54,8 @@ const SEARCH_RESULT_COLUMNS = [
     {
         title: "Experiments",
         dataIndex: "experiments",
-        render: experiments => <>{experiments.length} Experiment{experiments.length === 1 ? "" : "s"}</>,
-        sorter: (a, b) => a.experiments.length - b.experiments.length,
+        render: experiments => <>{experiments} Experiment{experiments === 1 ? "" : "s"}</>,
+        sorter: (a, b) => a.experiments - b.experiments,
         sortDirections: ["descend", "ascend", "descend"],
     },
 ];
@@ -117,7 +117,7 @@ class ExplorerDatasetSearch extends Component {
             ? (this.state.currentPage * this.state.pageSize) - this.state.pageSize + 1
             : 0;
 
-        console.log("search results: " + this.props.searchResults);
+        console.log("search results: ", this.props.searchResults);
 
         return <>
             <Typography.Title level={4}>Explore Dataset {selectedDataset.title}</Typography.Title>
@@ -142,9 +142,9 @@ class ExplorerDatasetSearch extends Component {
                                 onClick={() => this.setState({tracksModalVisible: true})}
                                 disabled={true}>
                             Visualize Tracks</Button> */}
-                        <Button icon="bar-chart"
+                        {/* <Button icon="bar-chart"
                                 style={{marginRight: "8px"}}
-                                onClick={() => this.setState({summaryModalVisible: true})}>View Summary</Button>
+                        onClick={() => this.setState({summaryModalVisible: true})}>View Summary</Button> */}
                         <Spin spinning={this.props.isFetchingDownload} style={{display: "inline-block !important"}}>
                             <Button icon="export" style={{marginRight: "8px"}}
                                     disabled={this.props.isFetchingDownload}

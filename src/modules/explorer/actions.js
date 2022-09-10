@@ -128,7 +128,8 @@ export const neutralizeAutoQueryPageTransition = () => ({
 const performFreeTextSearch = networkAction((datasetID, term) => (dispatch, getState) => ({
     types: FREE_TEXT_SEARCH,
     params: {datasetID},
-    url: `${getState().services.metadataService.url}/api/individuals?search=${term}&page_size=10000`,
+    url: `${getState().services.metadataService.url}/api/individuals?search=${term}&page_size=10000` +
+        "&format=bento_search_result",
     err: `Error searching in all records with term ${term}`,
 }));
 
