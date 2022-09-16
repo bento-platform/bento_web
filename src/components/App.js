@@ -1,7 +1,6 @@
 import React, { useState, Suspense, lazy, useEffect } from "react";
-import { connect, useSelector, useDispatch } from "react-redux";
-import { withRouter, Redirect, Route, Switch, useHistory } from "react-router-dom";
-import PropTypes from "prop-types";
+import { useSelector, useDispatch } from "react-redux";
+import { Redirect, Route, Switch, useHistory } from "react-router-dom";
 
 import io from "socket.io-client";
 
@@ -51,10 +50,8 @@ const App = ({}) => {
     let lastUser = false;
     let signInWindow = null;
 
-    // Initialize a web worker which pings the user endpoint on a set
-    // interval. This lets the application accept Set-Cookie headers which
-    // keep the session ID up to date and prevent invalidating the session
-    // incorrectly / early.
+    // Initialize a web worker which pings the user endpoint on a set interval. This lets the application accept
+    // Set-Cookie headers which keep the session ID up to date and prevent invalidating the session incorrectly / early.
     // TODO: Refresh other data
     // TODO: Variable rate
     const sessionWorker = new SessionWorker();
@@ -75,9 +72,7 @@ const App = ({}) => {
                 "Bento Sign In",
                 `${SIGN_IN_WINDOW_FEATURES}, top=${popupTop}, left=${popupLeft}`
             );
-        } else {
-            signInWindow.focus();
-        }
+        } else signInWindow.focus();
     };
 
     const createEventRelayConnectionIfNecessary = () => {
@@ -123,11 +118,12 @@ const App = ({}) => {
     };
 
     useEffect(() => {
-
-        dispatch(fetchUserAndDependentData(() => {
-            dispatch(fetchPeersOrError());
-            createEventRelayConnectionIfNecessary();
-        }));
+        dispatch(
+            fetchUserAndDependentData(() => {
+                dispatch(fetchPeersOrError());
+                createEventRelayConnectionIfNecessary();
+            })
+        );
 
         // TODO: Refresh other data
         // TODO: Variable rate
@@ -176,21 +172,6 @@ const App = ({}) => {
             </Layout>
         </>
     );
-
-    // componentWillUnmount() {
-    //     // TODO: DO WE NEED THIS FOR THE WORKER?
-    //     // this.clearPingInterval();
-    // }
 };
 
-App.propTypes = {
-};
-
-const mapStateToProps = (state) => ({
-
-});
-
-export default withRouter(
-    connect(mapStateToProps, {
-    })(App)
-);
+export default App;
