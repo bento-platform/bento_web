@@ -15,6 +15,22 @@ const ARTIFACT_STYLING = { fontFamily: "monospace" };
 // currently 11 services including gohan
 const MAX_TABLE_PAGE_SIZE = 12;
 
+const renderGitInfo = (version, record) => {
+    return (
+       <Typography.Text>
+            <>{version ? version : "-"}</>
+            <Tag color="blue" style={{marginLeft: "5px"}}>{record.serviceInfo.environment}</Tag>
+            <Tag> <TagOutlined /> {"chord_" + record.repository.split("@")[1]}</Tag>
+            {record.serviceInfo.git_tag ? (<Tag>
+                <GithubOutlined /> {record.serviceInfo.git_tag}
+            </Tag>) : null}
+            {record.serviceInfo.git_branch ? (<Tag>
+                <BranchesOutlined /> {record.serviceInfo.git_branch}
+            </Tag>) : null}
+       </Typography.Text>
+    );
+};
+
 /* eslint-disable react/prop-types */
 const serviceColumns = (isOwner) => [
     {
@@ -38,23 +54,10 @@ const serviceColumns = (isOwner) => [
     {
         title: "Version",
         dataIndex: "serviceInfo.version",
-        render: (version, record)=>{
+        render: (version, record) => {
             if ( record.serviceInfo ) {
-                if (record.serviceInfo.environment === "development") {
-                    return <Typography.Text>
-                    {version || "-" }
-                    <Tag color="blue" style={{marginLeft: "5px"}}>dev</Tag>
-                    {<Tag> <TagOutlined /> {"chord_" + record.repository.split("@")[1]}</Tag>}
-                    {record.serviceInfo.git_tag ? (<Tag>
-                        <GithubOutlined style={{marginRight: "5px"}}/>
-                        {record.serviceInfo.git_tag}
-                    </Tag>) : null}
-                    {record.serviceInfo.git_branch ?
-                        (<Tag>
-                        <BranchesOutlined style={{marginRight: "5px"}}/>
-                        {record.serviceInfo.git_branch}
-                    </Tag>) : null}
-                    </Typography.Text>;
+                if (record.serviceInfo.environment === "dev") {
+                    return renderGitInfo(version, record);
                 } else {
                     return <Typography.Text>
                     {version || "-" }
