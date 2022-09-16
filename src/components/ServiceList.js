@@ -7,6 +7,7 @@ import { Table, Typography, Tag } from "antd";
 
 import { ROLE_OWNER } from "../constants";
 import { withBasePath } from "../utils/url";
+import { BranchesOutlined, GithubOutlined, TagOutlined} from "@ant-design/icons";
 
 const ARTIFACT_STYLING = { fontFamily: "monospace" };
 
@@ -37,7 +38,30 @@ const serviceColumns = (isOwner) => [
     {
         title: "Version",
         dataIndex: "serviceInfo.version",
-        render: (version) => <Typography.Text>{version || "-"}</Typography.Text>,
+        render: (version, record)=>{
+            if ( record.serviceInfo ) {
+                if (record.serviceInfo.environment === "development") {
+                    return <Typography.Text>
+                    {version || "-" }
+                    <Tag color="blue" style={{marginLeft: "5px"}}>dev</Tag>
+                    {<Tag> <TagOutlined /> {"chord_" + record.repository.split("@")[1]}</Tag>}
+                    {record.serviceInfo.git_tag ? (<Tag>
+                        <GithubOutlined style={{marginRight: "5px"}}/>
+                        {record.serviceInfo.git_tag}
+                    </Tag>) : null}
+                    {record.serviceInfo.git_branch ?
+                        (<Tag>
+                        <BranchesOutlined style={{marginRight: "5px"}}/>
+                        {record.serviceInfo.git_branch}
+                    </Tag>) : null}
+                    </Typography.Text>;
+                } else {
+                    return <Typography.Text>
+                    {version || "-" }
+                    </Typography.Text>;
+                }
+            }
+        }
     },
     {
         title: "URL",
