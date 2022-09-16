@@ -16,7 +16,7 @@ const validateJson = (rule, value, callback) => {
     } catch (e) {
         callback("Please enter valid JSON");
     }
-}
+};
 
 const DatasetForm = ({ style, initialValue, form }) => {
     return (
@@ -75,6 +75,7 @@ DatasetForm.propTypes = {
         description: PropTypes.string,
         contact_info: PropTypes.string,
         data_use: DATA_USE_PROP_TYPE_SHAPE, // TODO: Shared shape for data use
+        dats_file: PropTypes.object,
     }),
 };
 
