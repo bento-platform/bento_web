@@ -3,7 +3,7 @@ import { useSelector } from "react-redux";
 
 import { Link } from "react-router-dom";
 
-import { Table, Typography, Tag } from "antd";
+import { Table, Typography, Tag} from "antd";
 
 import { ROLE_OWNER } from "../constants";
 import { withBasePath } from "../utils/url";
@@ -15,21 +15,15 @@ const ARTIFACT_STYLING = { fontFamily: "monospace" };
 // currently 11 services including gohan
 const MAX_TABLE_PAGE_SIZE = 12;
 
-const renderGitInfo = (version, record) => {
-    return (
-       <Typography.Text>
-            <>{version ? version : "-"}</>
-            <Tag color="blue" style={{marginLeft: "5px"}}>{record.serviceInfo.environment}</Tag>
-            <Tag> <TagOutlined /> {"chord_" + record.repository.split("@")[1]}</Tag>
-            {record.serviceInfo.git_tag ? (<Tag>
-                <GithubOutlined /> {record.serviceInfo.git_tag}
-            </Tag>) : null}
-            {record.serviceInfo.git_branch ? (<Tag>
-                <BranchesOutlined /> {record.serviceInfo.git_branch}
-            </Tag>) : null}
-       </Typography.Text>
-    );
-};
+const data = [
+    {color: "blue", logo: null, value: ({serviceInfo}) => serviceInfo.environment},
+    {color: null, logo: <TagOutlined/>, value: ({repository}) => `chord_${repository.split("@")[1]}`},
+    {color: null, logo: <GithubOutlined/>, value: ({serviceInfo}) => serviceInfo.git_tag},
+    {color: null, logo: <BranchesOutlined/>, value: ({serviceInfo}) => serviceInfo.git_branch}
+];
+
+const renderGitInfo = (tag, record) => <Tag color={tag.color}>{tag.logo} {tag.value(record)}</Tag>;
+
 
 /* eslint-disable react/prop-types */
 const serviceColumns = (isOwner) => [
@@ -54,17 +48,13 @@ const serviceColumns = (isOwner) => [
     {
         title: "Version",
         dataIndex: "serviceInfo.version",
-        render: (version, record) => {
-            if ( record.serviceInfo ) {
-                if (record.serviceInfo.environment === "dev") {
-                    return renderGitInfo(version, record);
-                } else {
-                    return <Typography.Text>
-                    {version || "-" }
-                    </Typography.Text>;
-                }
-            }
-        }
+        render: (version, record) =>
+            record.serviceInfo ? (
+                <>
+                <Typography.Text>{version || "-"}</Typography.Text>
+                {"  "}
+                {record.serviceInfo.environment === "dev" && data.map((tag) => renderGitInfo(tag, record))}</>) : (
+                null),
     },
     {
         title: "URL",
