@@ -29,7 +29,7 @@ import { EM_DASH, WORKFLOW_ACTION } from "../../constants";
 import { withBasePath } from "../../utils/url";
 import StepsTemplate from "./StepsTemplate";
 
-const ManagerAnalyzeContent = () => {
+const ManagerWorkflowInterfaceContent = () => {
     const dispatch = useDispatch();
     const history = useHistory();
 
@@ -73,10 +73,10 @@ const ManagerAnalyzeContent = () => {
         STEP_WORKFLOW_SELECTION
     );
     const [selectedDataset, setSelectedDataset] = useState(
-         null
+        null
     );
     const [selectedWorkflow, setSelectedWorkflow] = useState(
-         null
+        null
     );
     const [inputs, setInputs] = useState({});
 
@@ -227,9 +227,9 @@ const ManagerAnalyzeContent = () => {
                             dataSource={
                                 selectedWorkflow
                                     ? selectedWorkflow.inputs.map((i) => ({
-                                          id: i.id,
-                                          value: inputs[i.id],
-                                      }))
+                                        id: i.id,
+                                        value: inputs[i.id],
+                                    }))
                                     : []
                             }
                         />
@@ -257,4 +257,4 @@ const ManagerAnalyzeContent = () => {
     return <StepsTemplate steps={steps} step={step} setStep={setStep} />;
 };
 
-export default ManagerAnalyzeContent;
+export default ManagerWorkflowInterfaceContent;

@@ -3,7 +3,7 @@ import {Redirect, Route, Switch} from "react-router-dom";
 
 import {Menu, Skeleton} from "antd";
 
-import {SITE_NAME} from "../constants";
+import {SITE_NAME, WORKFLOW_ACTION} from "../constants";
 import {matchingMenuKeys, renderMenuItem} from "../utils/menu";
 import {withBasePath} from "../utils/url";
 
@@ -14,10 +14,11 @@ const ManagerAccessContent = lazy(() => import("./manager/ManagerAccessContent")
 const ManagerFilesContent = lazy(() => import("./manager/ManagerFilesContent"));
 const ManagerIngestionContent = lazy(() => import("./manager/ManagerIngestionContent"));
 const ManagerExportContent = lazy(() => import("./manager/ManagerExportContent"));
-const ManagerAnalyzeContent = lazy(() => import("./manager/ManagerAnalyzeContent"));
+// const ManagerAnalyzeContent = lazy(() => import("./manager/ManagerAnalyzeContent"));
+const ManagerAnalyzeContent = lazy(() => import("./manager/ManagerWorkflowInterfaceContent"));
 const ManagerWorkflowsContent = lazy(() => import("./manager/ManagerWorkflowsContent"));
 const ManagerRunsContent = lazy(() => import("./manager/runs/ManagerRunsContent"));
-
+// import ManagerWorkflowInterfaceContent from "./manager/ManagerWorkflowInterfaceContent";
 
 const PAGE_MENU = [
     {url: withBasePath("admin/data/manager/projects"), style: {marginLeft: "4px"}, text: "Projects and Datasets"},
@@ -35,7 +36,9 @@ const MENU_STYLE = {
     marginRight: "-24px",
     marginTop: "-12px"
 };
-
+//
+// const ManagerAnalyzeContent = () => <ManagerWorkflowInterfaceContent managerType={WORKFLOW_ACTION.ANALYSIS}/>
+// const ManagerExportContent = () => <ManagerWorkflowInterfaceContent managerType={WORKFLOW_ACTION.EXPORT} />
 
 class DataManagerContent extends Component {
     componentDidMount() {
