@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { useHistory } from "react-router-dom";
+import {useHistory, useLocation} from "react-router-dom";
 
 import {
     Empty,
@@ -36,6 +36,7 @@ import WorkflowConfirmationForm, {
 const ManagerIngestionContent = ({}) => {
     const dispatch = useDispatch();
     const history = useHistory();
+    const location = useLocation();
 
     const tree = useSelector((state) => state.dropBox.tree);
     const servicesByID = useSelector((state) => state.services.itemsByID);
@@ -69,7 +70,7 @@ const ManagerIngestionContent = ({}) => {
     );
 
     const [step, setStep] = useState(STEP_WORKFLOW_SELECTION);
-    const [selectedTable, setSelectedTable] = useState("");
+    const [selectedTable, setSelectedTable] = useState(location.state?.selectedTable ?? "");
     const [selectedWorkflow, setSelectedWorkflow] = useState(null);
     const [initialInputValues, setInitialInputValues] = useState({});
     const [inputFormFields, setInputFormFields] = useState({});
