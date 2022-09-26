@@ -10,7 +10,9 @@ import { filterWorkflows } from "../../utils/workflow";
 
 const ManagerWorkflowsContent = () => {
     const workflows = useSelector((state) => filterWorkflows(state.serviceWorkflows.workflowsByServiceID));
-    const workflowsLoading = useSelector((state) => state.serviceWorkflows.isFetchingAll || state.services.isFetchingAll);
+    const workflowsLoading = useSelector(
+        (state) => state.serviceWorkflows.isFetchingAll || state.services.isFetchingAll
+    );
 
     // Create a map of workflows list items keyed by action type (e.g. "ingestion", "export"...)
     workflows.forEach((w) => {

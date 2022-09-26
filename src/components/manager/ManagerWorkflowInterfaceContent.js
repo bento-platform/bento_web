@@ -145,9 +145,9 @@ const ManagerWorkflowInterfaceContent = ({ managerType }) => {
                                 data: {
                                     dataSource: selectedWorkflow
                                         ? selectedWorkflow.inputs.map((i) => ({
-                                              id: i.id,
-                                              value: inputs[i.id],
-                                          }))
+                                            id: i.id,
+                                            value: inputs[i.id],
+                                        }))
                                         : [],
                                 },
                             },
