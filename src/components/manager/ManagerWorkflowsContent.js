@@ -1,31 +1,48 @@
-import React, {Component} from "react";
-import {connect} from "react-redux";
+import React, { Component } from "react";
+import { connect } from "react-redux";
 
-import {Layout, List, Skeleton, Spin, Typography} from "antd";
-
+import { Layout, List, Skeleton, Spin, Typography } from "antd";
 
 import WorkflowListItem from "./WorkflowListItem";
 
-import {LAYOUT_CONTENT_STYLE} from "../../styles/layoutContent";
-import {workflowsStateToPropsMixin, workflowsStateToPropsMixinPropTypes} from "../../propTypes";
+import { LAYOUT_CONTENT_STYLE } from "../../styles/layoutContent";
+import { workflowsStateToPropsMixin, workflowsStateToPropsMixinPropTypes } from "../../propTypes";
 
 class ManagerWorkflowsContent extends Component {
     render() {
-        // TODO: real key
-        const workflows = this.props.workflows.map(w => <WorkflowListItem key={w.name} workflow={w} />);
-        return <Layout>
-            <Layout.Content style={LAYOUT_CONTENT_STYLE}>
-                <Typography.Title level={2}>Ingestion Workflows</Typography.Title>
-                <Spin spinning={this.props.workflowsLoading}>
-                    {this.props.workflowsLoading ? <Skeleton /> : <List itemLayout="vertical">{workflows}</List>}
-                </Spin>
-            </Layout.Content>
-        </Layout>;
+        // Create a map of workflows list items keyed by action type (e.g. "ingestion", "export"...)
+        const workflows = {};
+        this.props.workflows.forEach((w) => {
+            if (!workflows[w.action]) workflows[w.action] = []; // new list
+
+            workflows[w.action].push(<WorkflowListItem key={w.name} workflow={w} />);
+        });
+
+        return (
+            <>
+                {Object.entries(workflows).map(([action, workflowsByAction], key) => (
+                    <Layout key={key}>
+                        <Layout.Content style={LAYOUT_CONTENT_STYLE}>
+                            <Typography.Title level={2} style={{ textTransform: "capitalize" }}>
+                                {action} Workflows
+                            </Typography.Title>
+                            <Spin spinning={this.props.workflowsLoading}>
+                                {this.props.workflowsLoading ? (
+                                    <Skeleton />
+                                ) : (
+                                    <List itemLayout="vertical">{workflowsByAction}</List>
+                                )}
+                            </Spin>
+                        </Layout.Content>
+                    </Layout>
+                ))}
+            </>
+        );
     }
 }
 
 ManagerWorkflowsContent.propTypes = workflowsStateToPropsMixinPropTypes;
 
-const mapStateToProps = state => ({...workflowsStateToPropsMixin(state)});
+const mapStateToProps = (state) => ({ ...workflowsStateToPropsMixin(state) });
 
 export default connect(mapStateToProps)(ManagerWorkflowsContent);

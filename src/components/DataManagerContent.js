@@ -9,33 +9,17 @@ import { withBasePath } from "../utils/url";
 
 import SitePageHeader from "./SitePageHeader";
 
-const ManagerProjectDatasetContent = lazy(() =>
-    import("./manager/projects/ManagerProjectDatasetContent")
-);
-const ManagerAccessContent = lazy(() =>
-    import("./manager/ManagerAccessContent")
-);
+const ManagerProjectDatasetContent = lazy(() => import("./manager/projects/ManagerProjectDatasetContent"));
+const ManagerAccessContent = lazy(() => import("./manager/ManagerAccessContent"));
 const ManagerFilesContent = lazy(() => import("./manager/ManagerFilesContent"));
-const ManagerIngestionContent = lazy(() =>
-    import("./manager/ManagerIngestionContent")
-);
-const ManagerWorkflowInterfaceContent = lazy(() =>
-    import("./manager/ManagerWorkflowInterfaceContent")
-);
-const ManagerWorkflowsContent = lazy(() =>
-    import("./manager/ManagerWorkflowsContent")
-);
-const ManagerRunsContent = lazy(() =>
-    import("./manager/runs/ManagerRunsContent")
-);
+const ManagerIngestionContent = lazy(() => import("./manager/ManagerIngestionContent"));
+const ManagerWorkflowInterfaceContent = lazy(() => import("./manager/ManagerWorkflowInterfaceContent"));
+const ManagerWorkflowsContent = lazy(() => import("./manager/ManagerWorkflowsContent"));
+const ManagerRunsContent = lazy(() => import("./manager/runs/ManagerRunsContent"));
 
-const ManagerAnalyzeContent = () => (
-    <ManagerWorkflowInterfaceContent managerType={WORKFLOW_ACTION.ANALYSIS} />
-);
+const ManagerAnalyzeContent = () => <ManagerWorkflowInterfaceContent managerType={WORKFLOW_ACTION.ANALYSIS} />;
 
-const ManagerExportContent = () => (
-    <ManagerWorkflowInterfaceContent managerType={WORKFLOW_ACTION.EXPORT} />
-);
+const ManagerExportContent = () => <ManagerWorkflowInterfaceContent managerType={WORKFLOW_ACTION.EXPORT} />;
 
 const PAGE_MENU = [
     {
@@ -74,11 +58,7 @@ class DataManagerContent extends Component {
                     title="Data Manager"
                     withTabBar={true}
                     footer={
-                        <Menu
-                            mode="horizontal"
-                            style={MENU_STYLE}
-                            selectedKeys={selectedKeys}
-                        >
+                        <Menu mode="horizontal" style={MENU_STYLE} selectedKeys={selectedKeys}>
                             {PAGE_MENU.map(renderMenuItem)}
                         </Menu>
                     }
@@ -105,11 +85,7 @@ class DataManagerContent extends Component {
                             path={withBasePath("admin/data/manager/access")}
                             component={ManagerAccessContent}
                         />
-                        <Route
-                            exact
-                            path={withBasePath("admin/data/manager/files")}
-                            component={ManagerFilesContent}
-                        />
+                        <Route exact path={withBasePath("admin/data/manager/files")} component={ManagerFilesContent} />
                         <Route
                             exact
                             path={withBasePath("admin/data/manager/ingestion")}
@@ -130,10 +106,7 @@ class DataManagerContent extends Component {
                             path={withBasePath("admin/data/manager/workflows")}
                             component={ManagerWorkflowsContent}
                         />
-                        <Route
-                            path={withBasePath("admin/data/manager/runs")}
-                            component={ManagerRunsContent}
-                        />
+                        <Route path={withBasePath("admin/data/manager/runs")} component={ManagerRunsContent} />
                         <Redirect
                             from={withBasePath("admin/data/manager")}
                             to={withBasePath("admin/data/manager/projects")}
