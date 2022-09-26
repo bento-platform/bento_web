@@ -26,7 +26,7 @@ class ManagerWorkflowsContent extends Component {
             { Object.entries(workflows).map(([action, workflowsByAction]) => (
                 <Layout>
                     <Layout.Content style={LAYOUT_CONTENT_STYLE}>
-                        <Typography.Title level={2} style={{'text-transform': 'capitalize'}}>{action} Workflows</Typography.Title>
+                        <Typography.Title level={2} style={{textTransform: 'capitalize'}}>{action} Workflows</Typography.Title>
                         <Spin spinning={this.props.workflowsLoading}>
                             {this.props.workflowsLoading ? <Skeleton /> : <List itemLayout="vertical">{workflowsByAction}</List>}
                         </Spin>
