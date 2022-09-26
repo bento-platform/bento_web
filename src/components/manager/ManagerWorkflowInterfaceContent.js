@@ -22,7 +22,6 @@ const ManagerWorkflowInterfaceContent = ({ managerType }) => {
     const dispatch = useDispatch();
     const history = useHistory();
     const location = useLocation();
-    console.log("location", location);
 
     const servicesByID = useSelector((state) => state.services.itemsByID);
     const datasetsByID = useSelector((state) =>
