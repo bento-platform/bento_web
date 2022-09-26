@@ -1,4 +1,5 @@
 import React from "react";
+import PropTypes from "prop-types";
 import { Form, Layout, Steps } from "antd";
 const { Step } = Steps;
 
@@ -23,6 +24,12 @@ const StepsTemplate = ({ steps, step, setStep }) => {
             </Layout.Content>
         </Layout>
     );
+};
+
+StepsTemplate.propTypes = {
+    steps: PropTypes.array.isRequired,
+    step: PropTypes.number.isRequired,
+    setStep: PropTypes.func.isRequired,
 };
 
 export default StepsTemplate;

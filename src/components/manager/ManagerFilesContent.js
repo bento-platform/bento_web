@@ -190,8 +190,8 @@ class ManagerFilesContent extends Component {
                         if (workflowSupported) workflowsSupported.push(w);
                         return (
                             <Menu.Item key={w.id}
-                                    disabled={!workflowSupported}
-                                    onClick={() => this.showTableSelectionModal(w)}>
+                                       disabled={!workflowSupported}
+                                       onClick={() => this.showTableSelectionModal(w)}>
                                 Ingest with Workflow &ldquo;{w.name}&rdquo;
                             </Menu.Item>
                         );

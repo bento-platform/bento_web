@@ -11,10 +11,10 @@ export const FORM_MODE_ADD = "add";
 export const FORM_MODE_EDIT = "edit";
 
 export const WORKFLOW_ACTION = {
-    INGESTION: 'ingestion',
-    ANALYSIS: 'analysis',
-    EXPORT: 'export',
-}
+    INGESTION: "ingestion",
+    ANALYSIS: "analysis",
+    EXPORT: "export",
+};
 
 export const EM_DASH = "—";
 

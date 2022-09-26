@@ -21,7 +21,7 @@ import WorkflowConfirmationForm, { FIELD_OPTIONS } from "./WorkflowConfirmationF
 
 // TODO: when redirected to this page from a Project/Dataset page,  doesn't defaults to selected Project/Dataset,
 // fix: Have the select box input the value and pass that along
-const ManagerIngestionContent = ({}) => {
+const ManagerIngestionContent = () => {
     const dispatch = useDispatch();
     const history = useHistory();
     const location = useLocation();
@@ -189,9 +189,9 @@ const ManagerIngestionContent = ({}) => {
                             data: {
                                 dataSource: selectedWorkflow
                                     ? selectedWorkflow.inputs.map((i) => ({
-                                          id: i.id,
-                                          value: inputs[i.id],
-                                      }))
+                                        id: i.id,
+                                        value: inputs[i.id],
+                                    }))
                                     : [],
                             },
                         },

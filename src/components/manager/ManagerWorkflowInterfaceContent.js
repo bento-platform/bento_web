@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { useSelector, useDispatch } from "react-redux";
 import { useHistory, useLocation } from "react-router-dom";
+import PropTypes from "prop-types";
 
 import { Empty, Form, List, Skeleton, Spin } from "antd";
 const { Item } = Form;
@@ -62,12 +63,12 @@ const ManagerWorkflowInterfaceContent = ({ managerType }) => {
         const hiddenInputs = Object.fromEntries(
             workflow.inputs.filter((value) => value?.hidden).map((i) => [i.id, i.value])
         );
-        const dataset_id = getId();
-        const dataset_name = datasetsByID[dataset_id]?.title ?? dataset_id;
+        const datasetId = getId();
+        const datasetName = datasetsByID[datasetId]?.title ?? datasetId;
 
         setStep(STEP_CONFIRM);
         setSelectedWorkflow(workflow);
-        setInputs({ ...hiddenInputs, dataset_id, dataset_name });
+        setInputs({ ...hiddenInputs, dataset_id: datasetId, dataset_name: datasetName });
     };
 
     const handleRunIngestion = () => {
@@ -159,9 +160,9 @@ const ManagerWorkflowInterfaceContent = ({ managerType }) => {
                                 data: {
                                     dataSource: selectedWorkflow
                                         ? selectedWorkflow.inputs.map((i) => ({
-                                              id: i.id,
-                                              value: inputs[i.id],
-                                          }))
+                                            id: i.id,
+                                            value: inputs[i.id],
+                                        }))
                                         : [],
                                 },
                             },
@@ -183,6 +184,10 @@ const ManagerWorkflowInterfaceContent = ({ managerType }) => {
     ];
 
     return <StepsTemplate steps={steps} step={step} setStep={setStep} />;
+};
+
+ManagerWorkflowInterfaceContent.propTypes = {
+    managerType: PropTypes.string.isRequired,
 };
 
 export default ManagerWorkflowInterfaceContent;

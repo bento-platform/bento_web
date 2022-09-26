@@ -1,4 +1,5 @@
 import React from "react";
+import PropTypes from "prop-types";
 import { Button, Form, List, Table, Tag } from "antd";
 import WorkflowListItem from "./WorkflowListItem";
 import { FORM_BUTTON_COL } from "./ingestion";
@@ -84,6 +85,16 @@ const WorkflowConfirmationForm = ({ fields }) => {
             )}
         </>
     );
+};
+
+WorkflowConfirmationForm.propTypes = {
+    fields: PropTypes.arrayOf(
+        PropTypes.shape({
+            type: PropTypes.oneOf(Object.values(FIELD_OPTIONS)),
+            title: PropTypes.string,
+            data: PropTypes.object,
+        })
+    ).isRequired,
 };
 
 export default WorkflowConfirmationForm;
