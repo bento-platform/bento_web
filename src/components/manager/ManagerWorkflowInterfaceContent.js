@@ -2,34 +2,22 @@ import React, { useState } from "react";
 import { useSelector, useDispatch } from "react-redux";
 import { useHistory } from "react-router-dom";
 
-import {
-    Button,
-    Empty,
-    Form,
-    List,
-    Skeleton,
-    Spin,
-    Table,
-} from "antd";
+import { Button, Empty, Form, List, Skeleton, Spin, Table } from "antd";
 const { Item } = Form;
 
 import WorkflowListItem from "./WorkflowListItem";
 
 import { submitIngestionWorkflowRun } from "../../modules/wes/actions";
 
-import {
-    FORM_BUTTON_COL,
-    STEP_WORKFLOW_SELECTION,
-    STEP_CONFIRM,
-} from "./ingestion";
+import { FORM_BUTTON_COL } from "./ingestion";
 
 import DatasetTreeSelect from "./DatasetTreeSelect";
 
-import { EM_DASH, WORKFLOW_ACTION } from "../../constants";
+import { EM_DASH } from "../../constants";
 import { withBasePath } from "../../utils/url";
 import StepsTemplate from "./StepsTemplate";
 
-const ManagerWorkflowInterfaceContent = ({managerType}) => {
+const ManagerWorkflowInterfaceContent = ({ managerType }) => {
     const dispatch = useDispatch();
     const history = useHistory();
 
@@ -67,15 +55,9 @@ const ManagerWorkflowInterfaceContent = ({managerType}) => {
     );
 
     // TODO: Move selectedDataset to redux?
-    const [step, setStep] = useState(
-        STEP_WORKFLOW_SELECTION
-    );
-    const [selectedDataset, setSelectedDataset] = useState(
-        null
-    );
-    const [selectedWorkflow, setSelectedWorkflow] = useState(
-        null
-    );
+    const [step, setStep] = useState(STEP_WORKFLOW_SELECTION);
+    const [selectedDataset, setSelectedDataset] = useState(null);
+    const [selectedWorkflow, setSelectedWorkflow] = useState(null);
     const [inputs, setInputs] = useState({});
 
     const getId = () => selectedDataset && selectedDataset.split(":")[1];
@@ -225,9 +207,9 @@ const ManagerWorkflowInterfaceContent = ({managerType}) => {
                             dataSource={
                                 selectedWorkflow
                                     ? selectedWorkflow.inputs.map((i) => ({
-                                        id: i.id,
-                                        value: inputs[i.id],
-                                    }))
+                                          id: i.id,
+                                          value: inputs[i.id],
+                                      }))
                                     : []
                             }
                         />
@@ -247,8 +229,7 @@ const ManagerWorkflowInterfaceContent = ({managerType}) => {
                     </Item>
                 </>
             ),
-            disabled:
-                step < STEP_CONFIRM && Object.keys(inputs).length === 0,
+            disabled: step < STEP_CONFIRM && Object.keys(inputs).length === 0,
         },
     ];
 
@@ -256,3 +237,5 @@ const ManagerWorkflowInterfaceContent = ({managerType}) => {
 };
 
 export default ManagerWorkflowInterfaceContent;
+
+export const [STEP_WORKFLOW_SELECTION, STEP_CONFIRM] = [0, 1];
