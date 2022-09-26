@@ -18,6 +18,9 @@ import WorkflowConfirmationForm, {
     FIELD_OPTIONS,
 } from "./WorkflowConfirmationForm";
 
+
+// TODO: when redirected to this page from a Project/Dataset page,  doesn't defaults to selected Project/Dataset,
+// fix: Have the select box input the value and pass that along
 const ManagerWorkflowInterfaceContent = ({ managerType }) => {
     const dispatch = useDispatch();
     const history = useHistory();
@@ -149,7 +152,7 @@ const ManagerWorkflowInterfaceContent = ({ managerType }) => {
         // STEP_CONFIRM
         {
             title: "Run",
-            description: "Choose a dataset and analysis workflow.",
+            description: "Confirm details and run the workflow.",
             stepComponent: (
                 <>
                     <WorkflowConfirmationForm
