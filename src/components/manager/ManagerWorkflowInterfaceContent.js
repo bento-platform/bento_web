@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { useSelector, useDispatch } from "react-redux";
-import { useHistory } from "react-router-dom";
+import {useHistory, useLocation} from "react-router-dom";
 
 import { Empty, Form, List, Skeleton, Spin } from "antd";
 const { Item } = Form;
@@ -24,6 +24,8 @@ import WorkflowConfirmationForm, {
 const ManagerWorkflowInterfaceContent = ({ managerType }) => {
     const dispatch = useDispatch();
     const history = useHistory();
+    const location = useLocation();
+    console.log("location", location);
 
     const servicesByID = useSelector((state) => state.services.itemsByID);
     const datasetsByID = useSelector((state) =>
@@ -60,7 +62,7 @@ const ManagerWorkflowInterfaceContent = ({ managerType }) => {
 
     // TODO: Move selectedDataset to redux?
     const [step, setStep] = useState(STEP_WORKFLOW_SELECTION);
-    const [selectedDataset, setSelectedDataset] = useState(null);
+    const [selectedDataset, setSelectedDataset] = useState(location.state?.selectedDataset ?? null);
     const [selectedWorkflow, setSelectedWorkflow] = useState(null);
     const [inputs, setInputs] = useState({});
 
