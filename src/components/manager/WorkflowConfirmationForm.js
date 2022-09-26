@@ -52,9 +52,7 @@ const WorkflowConfirmationForm = ({ fields }) => {
                             ) : value instanceof Array ? (
                                 <ul>
                                     {value.map((v) => (
-                                        <li key={v.toString()}>
-                                            {v.toString()}
-                                        </li>
+                                        <li key={v.toString()}>{v.toString()}</li>
                                     ))}
                                 </ul>
                             ) : (
@@ -67,12 +65,7 @@ const WorkflowConfirmationForm = ({ fields }) => {
             />
         ),
         [FIELD_OPTIONS.SUBMIT]: ({ loading, onClick, text }) => (
-            <Button
-                type="primary"
-                style={{ marginTop: "16px", float: "right" }}
-                loading={loading}
-                onClick={onClick}
-            >
+            <Button type="primary" style={{ marginTop: "16px", float: "right" }} loading={loading} onClick={onClick}>
                 <span style={{ textTransform: "capitalize" }}>{text}</span>
             </Button>
         ),
@@ -86,9 +79,7 @@ const WorkflowConfirmationForm = ({ fields }) => {
                         {fieldTypes[field.type](field.data)}
                     </Item>
                 ) : (
-                    <Item label={field.title}>
-                        {fieldTypes[field.type](field.data)}
-                    </Item>
+                    <Item label={field.title}>{fieldTypes[field.type](field.data)}</Item>
                 )
             )}
         </>

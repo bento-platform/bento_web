@@ -12,19 +12,11 @@ const StepsTemplate = ({ steps, step, setStep }) => {
             <Layout.Content style={LAYOUT_CONTENT_STYLE}>
                 <Steps current={step} onChange={setStep}>
                     {steps.map((e, i) => (
-                        <Step
-                            title={e.title}
-                            description={e.description}
-                            disabled={e?.disabled}
-                            key={i}
-                        />
+                        <Step title={e.title} description={e.description} disabled={e?.disabled} key={i} />
                     ))}
                 </Steps>
                 <div style={{ marginTop: "16px" }}>
-                    <Form
-                        labelCol={FORM_LABEL_COL}
-                        wrapperCol={FORM_WRAPPER_COL}
-                    >
+                    <Form labelCol={FORM_LABEL_COL} wrapperCol={FORM_WRAPPER_COL}>
                         {steps[step].stepComponent}
                     </Form>
                 </div>

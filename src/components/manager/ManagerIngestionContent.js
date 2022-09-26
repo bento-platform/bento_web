@@ -1,35 +1,23 @@
 import React, { useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import {useHistory, useLocation} from "react-router-dom";
+import { useHistory, useLocation } from "react-router-dom";
 
-import {
-    Empty,
-    Form,
-    List,
-    Skeleton,
-    Spin,
-} from "antd";
+import { Empty, Form, List, Skeleton, Spin } from "antd";
 const { Item } = Form;
 
 import WorkflowListItem from "./WorkflowListItem";
 
 import { submitIngestionWorkflowRun } from "../../modules/wes/actions";
 
-import {
-    STEP_WORKFLOW_SELECTION,
-    STEP_INPUT,
-    STEP_CONFIRM,
-} from "./ingestion";
+import { STEP_WORKFLOW_SELECTION, STEP_INPUT, STEP_CONFIRM } from "./ingestion";
 
 import IngestionInputForm from "./IngestionInputForm";
 import TableTreeSelect from "./TableTreeSelect";
 
-import {  WORKFLOW_ACTION } from "../../constants";
+import { WORKFLOW_ACTION } from "../../constants";
 import { withBasePath } from "../../utils/url";
 import StepsTemplate from "./StepsTemplate";
-import WorkflowConfirmationForm, {
-    FIELD_OPTIONS,
-} from "./WorkflowConfirmationForm";
+import WorkflowConfirmationForm, { FIELD_OPTIONS } from "./WorkflowConfirmationForm";
 
 // TODO: when redirected to this page from a Project/Dataset page,  doesn't defaults to selected Project/Dataset,
 // fix: Have the select box input the value and pass that along
@@ -41,32 +29,26 @@ const ManagerIngestionContent = ({}) => {
     const tree = useSelector((state) => state.dropBox.tree);
     const servicesByID = useSelector((state) => state.services.itemsByID);
     const projectsByID = useSelector((state) => state.projects.itemsByID);
-    const tablesByServiceID = useSelector(
-        (state) => state.serviceTables.itemsByServiceID
-    );
-    const isSubmittingIngestionRun = useSelector(
-        (state) => state.runs.isSubmittingIngestionRun
-    );
+    const tablesByServiceID = useSelector((state) => state.serviceTables.itemsByServiceID);
+    const isSubmittingIngestionRun = useSelector((state) => state.runs.isSubmittingIngestionRun);
 
     const workflows = useSelector((state) =>
         Object.entries(state.serviceWorkflows.workflowsByServiceID)
             .filter(([_, s]) => !s.isFetching)
             .flatMap(([serviceID, s]) =>
-                Object.entries(s.workflows).flatMap(
-                    ([action, workflowsByAction]) =>
-                        Object.entries(workflowsByAction).map(([id, v]) => ({
-                            ...v,
-                            id, // e.g. phenopacket_json, vcf_gz
-                            serviceID,
-                            action,
-                        }))
+                Object.entries(s.workflows).flatMap(([action, workflowsByAction]) =>
+                    Object.entries(workflowsByAction).map(([id, v]) => ({
+                        ...v,
+                        id, // e.g. phenopacket_json, vcf_gz
+                        serviceID,
+                        action,
+                    }))
                 )
             )
     );
 
     const workflowsLoading = useSelector(
-        (state) =>
-            state.services.isFetchingAll || state.serviceWorkflows.isFetchingAll
+        (state) => state.services.isFetchingAll || state.serviceWorkflows.isFetchingAll
     );
 
     const [step, setStep] = useState(STEP_WORKFLOW_SELECTION);
@@ -108,11 +90,8 @@ const ManagerIngestionContent = ({}) => {
         );
     };
 
-
-    const formatWithNameIfPossible = (name, id) =>
-        name ? `${name} (${id})` : id;
-    const [projectID, dataType, tableID] =
-        selectedTable ?? selectedTable.split(":");
+    const formatWithNameIfPossible = (name, id) => (name ? `${name} (${id})` : id);
+    const [projectID, dataType, tableID] = selectedTable ?? selectedTable.split(":");
     const projectTitle = projectsByID[projectID]?.title;
     const tableName = tablesByServiceID[selectedWorkflow?.serviceID]?.tablesByID[tableID]?.name;
 
@@ -123,10 +102,7 @@ const ManagerIngestionContent = ({}) => {
             stepComponent: (
                 <>
                     <Item label="Table">
-                        <TableTreeSelect
-                            onChange={setSelectedTable}
-                            value={selectedTable}
-                        />
+                        <TableTreeSelect onChange={setSelectedTable} value={selectedTable} />
                     </Item>
                     <Item label="Workflows">
                         {selectedTable ? (
@@ -138,23 +114,15 @@ const ManagerIngestionContent = ({}) => {
                                         {workflows
                                             .filter(
                                                 (w) =>
-                                                    w.action ===
-                                                        WORKFLOW_ACTION.INGESTION &&
-                                                    w.data_type ===
-                                                        (selectedTable
-                                                            ? selectedTable.split(
-                                                                  ":"
-                                                              )[1]
-                                                            : null)
+                                                    w.action === WORKFLOW_ACTION.INGESTION &&
+                                                    w.data_type === (selectedTable ? selectedTable.split(":")[1] : null)
                                             )
                                             .map((w) => (
                                                 <WorkflowListItem
                                                     key={w.id}
                                                     workflow={w}
                                                     selectable={true}
-                                                    onClick={() =>
-                                                        handleWorkflowClick(w)
-                                                    }
+                                                    onClick={() => handleWorkflowClick(w)}
                                                 />
                                             ))}
                                     </List>
@@ -195,10 +163,7 @@ const ManagerIngestionContent = ({}) => {
                             title: "Project",
                             type: FIELD_OPTIONS.TEXT,
                             data: {
-                                text: formatWithNameIfPossible(
-                                    projectTitle,
-                                    projectID
-                                ),
+                                text: formatWithNameIfPossible(projectTitle, projectID),
                             },
                         },
                         {
@@ -210,10 +175,7 @@ const ManagerIngestionContent = ({}) => {
                             title: "Table",
                             type: FIELD_OPTIONS.TEXT,
                             data: {
-                                text: formatWithNameIfPossible(
-                                    tableName,
-                                    tableID
-                                ),
+                                text: formatWithNameIfPossible(tableName, tableID),
                             },
                         },
                         {
@@ -225,12 +187,12 @@ const ManagerIngestionContent = ({}) => {
                             title: "Inputs",
                             type: FIELD_OPTIONS.INPUTS,
                             data: {
-                                dataSource: selectedWorkflow ? selectedWorkflow.inputs.map(
-                                    (i) => ({
-                                        id: i.id,
-                                        value: inputs[i.id],
-                                    })
-                                ):[],
+                                dataSource: selectedWorkflow
+                                    ? selectedWorkflow.inputs.map((i) => ({
+                                          id: i.id,
+                                          value: inputs[i.id],
+                                      }))
+                                    : [],
                             },
                         },
                         {

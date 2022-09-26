@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { useSelector, useDispatch } from "react-redux";
-import {useHistory, useLocation} from "react-router-dom";
+import { useHistory, useLocation } from "react-router-dom";
 
 import { Empty, Form, List, Skeleton, Spin } from "antd";
 const { Item } = Form;
@@ -9,15 +9,11 @@ import WorkflowListItem from "./WorkflowListItem";
 
 import { submitIngestionWorkflowRun } from "../../modules/wes/actions";
 
-
 import DatasetTreeSelect from "./DatasetTreeSelect";
 
 import { withBasePath } from "../../utils/url";
 import StepsTemplate from "./StepsTemplate";
-import WorkflowConfirmationForm, {
-    FIELD_OPTIONS,
-} from "./WorkflowConfirmationForm";
-
+import WorkflowConfirmationForm, { FIELD_OPTIONS } from "./WorkflowConfirmationForm";
 
 // TODO: when redirected to this page from a Project/Dataset page,  doesn't defaults to selected Project/Dataset,
 // fix: Have the select box input the value and pass that along
@@ -30,34 +26,28 @@ const ManagerWorkflowInterfaceContent = ({ managerType }) => {
     const servicesByID = useSelector((state) => state.services.itemsByID);
     const datasetsByID = useSelector((state) =>
         Object.fromEntries(
-            Object.values(state.projects.itemsByID).flatMap((p) =>
-                p.datasets.map((d) => [d.identifier, d])
-            )
+            Object.values(state.projects.itemsByID).flatMap((p) => p.datasets.map((d) => [d.identifier, d]))
         )
     );
-    const isSubmittingIngestionRun = useSelector(
-        (state) => state.runs.isSubmittingIngestionRun
-    );
+    const isSubmittingIngestionRun = useSelector((state) => state.runs.isSubmittingIngestionRun);
 
     const workflows = useSelector((state) =>
         Object.entries(state.serviceWorkflows.workflowsByServiceID)
             .filter(([_, s]) => !s.isFetching)
             .flatMap(([serviceID, s]) =>
-                Object.entries(s.workflows).flatMap(
-                    ([action, workflowsByAction]) =>
-                        Object.entries(workflowsByAction).map(([id, v]) => ({
-                            ...v,
-                            id, // e.g. phenopacket_json, vcf_gz
-                            serviceID,
-                            action,
-                        }))
+                Object.entries(s.workflows).flatMap(([action, workflowsByAction]) =>
+                    Object.entries(workflowsByAction).map(([id, v]) => ({
+                        ...v,
+                        id, // e.g. phenopacket_json, vcf_gz
+                        serviceID,
+                        action,
+                    }))
                 )
             )
     );
 
     const workflowsLoading = useSelector(
-        (state) =>
-            state.services.isFetchingAll || state.serviceWorkflows.isFetchingAll
+        (state) => state.services.isFetchingAll || state.serviceWorkflows.isFetchingAll
     );
 
     // TODO: Move selectedDataset to redux?
@@ -70,9 +60,7 @@ const ManagerWorkflowInterfaceContent = ({ managerType }) => {
 
     const handleWorkflowClick = (workflow) => {
         const hiddenInputs = Object.fromEntries(
-            workflow.inputs
-                .filter((value) => value?.hidden)
-                .map((i) => [i.id, i.value])
+            workflow.inputs.filter((value) => value?.hidden).map((i) => [i.id, i.value])
         );
         const dataset_id = getId();
         const dataset_name = datasetsByID[dataset_id]?.title ?? dataset_id;
@@ -125,17 +113,13 @@ const ManagerWorkflowInterfaceContent = ({ managerType }) => {
                                 ) : (
                                     <List itemLayout="vertical">
                                         {workflows
-                                            .filter(
-                                                (w) => w.action === managerType
-                                            )
+                                            .filter((w) => w.action === managerType)
                                             .map((w) => (
                                                 <WorkflowListItem
                                                     key={w.id}
                                                     workflow={w}
                                                     selectable={true}
-                                                    onClick={() =>
-                                                        handleWorkflowClick(w)
-                                                    }
+                                                    onClick={() => handleWorkflowClick(w)}
                                                 />
                                             ))}
                                     </List>

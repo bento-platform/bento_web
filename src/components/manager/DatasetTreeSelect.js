@@ -4,7 +4,7 @@ import PropTypes from "prop-types";
 
 import { Spin, TreeSelect } from "antd";
 
-const DatasetTreeSelect = ({value, onChange}) => {
+const DatasetTreeSelect = ({ value, onChange }) => {
     const projects = useSelector((state) => state.projects.items);
     const projectTables = useSelector((state) => state.projectTables.itemsByProjectID);
     const servicesLoading = useSelector((state) => state.services.isFetchingAll);
