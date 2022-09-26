@@ -3,7 +3,7 @@ import {connect} from "react-redux";
 import {withRouter} from "react-router-dom";
 import PropTypes from "prop-types";
 
-import {Button, Empty, Form, Layout, List, Skeleton, Spin, Steps, Table, Tag} from "antd";
+import {Button, Empty, Form, Layout, List, Skeleton, Spin, Steps, Table} from "antd";
 
 import WorkflowListItem from "./WorkflowListItem";
 
@@ -103,9 +103,6 @@ class ManagerExportContent extends Component {
     }
 
     getStepContents() {
-        const getTableName = (serviceID, tableID) =>
-            (((this.props.tablesByServiceID[serviceID] || {}).tablesByID || {})[tableID] || {}).name;
-
         const formatWithNameIfPossible = (name, id) => name ? `${name} (${id})` : id;
 
         switch (this.state.step) {
