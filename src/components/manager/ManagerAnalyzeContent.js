@@ -1,232 +1,261 @@
-import React, {Component} from "react";
-import {connect} from "react-redux";
-import {withRouter} from "react-router-dom";
-import PropTypes from "prop-types";
+import React, { useState } from "react";
+import { useSelector, useDispatch } from "react-redux";
+import { useHistory, useLocation } from "react-router-dom";
 
-import {Button, Empty, Form, Layout, List, Skeleton, Spin, Steps, Table} from "antd";
+import {
+    Button,
+    Empty,
+    Form,
+    List,
+    Skeleton,
+    Spin,
+    Table,
+} from "antd";
+const { Item } = Form;
 
 import WorkflowListItem from "./WorkflowListItem";
 
-import {submitIngestionWorkflowRun} from "../../modules/wes/actions";
+import { submitIngestionWorkflowRun } from "../../modules/wes/actions";
 
 import {
-    FORM_LABEL_COL,
-    FORM_WRAPPER_COL,
     FORM_BUTTON_COL,
-
     STEP_WORKFLOW_SELECTION,
     STEP_CONFIRM,
 } from "./ingestion";
 
 import DatasetTreeSelect from "./DatasetTreeSelect";
 
-import {EM_DASH, WORKFLOW_ACTION} from "../../constants";
-import {LAYOUT_CONTENT_STYLE} from "../../styles/layoutContent";
-import {simpleDeepCopy} from "../../utils/misc";
-import {withBasePath} from "../../utils/url";
-import {
-    workflowsStateToPropsMixin,
-    workflowsStateToPropsMixinPropTypes
-} from "../../propTypes";
+import { EM_DASH, WORKFLOW_ACTION } from "../../constants";
+import { withBasePath } from "../../utils/url";
+import StepsTemplate from "./StepsTemplate";
 
-class ManagerAnalyzeContent extends Component {
-    managerType = WORKFLOW_ACTION.ANALYSIS
+const ManagerAnalyzeContent = () => {
+    const dispatch = useDispatch();
+    const history = useHistory();
+    const locationState = useLocation()?.state;
 
-    constructor(props) {
-        super(props);
+    const managerType = WORKFLOW_ACTION.ANALYSIS;
 
-        this.initialState = {
-            step: STEP_WORKFLOW_SELECTION,
-            selectedDataset: null,
-            selectedWorkflow: null,
-            initialInputValues: {},
-            inputFormFields: {},
-            inputs: {}
-        };
-
-        // TODO: Move selectedDataset to redux?
-
-        this.state = {
-            ...simpleDeepCopy(this.initialState),
-            step: (this.props.location.state || {}).step || this.initialState.step,
-            selectedDataset: (this.props.location.state || {}).selectedDataset || this.initialState.selectedDataset,
-            selectedWorkflow: (this.props.location.state || {}).selectedWorkflow || this.initialState.selectedWorkflow,
-            initialInputValues: (this.props.location.state || {}).initialInputValues
-                || this.initialState.initialInputValues
-        };
-
-        this.handleStepChange = this.handleStepChange.bind(this);
-        this.handleDatasetChange = this.handleDatasetChange.bind(this);
-        this.handleWorkflowClick = this.handleWorkflowClick.bind(this);
-        this.handleRunIngestion = this.handleRunIngestion.bind(this);
-        this.getStepContents = this.getStepContents.bind(this);
-    }
-
-    handleStepChange(step) {
-        this.setState({step});
-    }
-
-    handleDatasetChange(dataset) {
-        this.setState({selectedDataset: dataset});
-    }
-
-    handleWorkflowClick(workflow) {
-        const hiddenInputs = {
-            ...Object.fromEntries(
-                workflow.inputs
-                    .filter(value => value?.hidden)
-                    .map(i => [i.id, i.value])
+    const servicesByID = useSelector((state) => state.services.itemsByID);
+    const datasetsByID = useSelector((state) =>
+        Object.fromEntries(
+            Object.values(state.projects.itemsByID).flatMap((p) =>
+                p.datasets.map((d) => [d.identifier, d])
             )
-        }
-        const [db_object_type, dataset_id] = this.state.selectedDataset.split(":")
-        const dataset_name = this.props.datasetsByID[dataset_id]?.title ?? dataset_id
+        )
+    );
+    const isSubmittingIngestionRun = useSelector(
+        (state) => state.runs.isSubmittingIngestionRun
+    );
 
-        this.setState({
-            step: STEP_CONFIRM,
-            selectedWorkflow: workflow,
-            initialInputValues: {},
-            inputFormFields: {},
-            inputs: {
-                ...hiddenInputs,
-                dataset_id,
-                dataset_name,
-            }
-        });
-    }
+    const workflows = useSelector((state) =>
+        Object.entries(state.serviceWorkflows.workflowsByServiceID)
+            .filter(([_, s]) => !s.isFetching)
+            .flatMap(([serviceID, s]) =>
+                Object.entries(s.workflows).flatMap(
+                    ([action, workflowsByAction]) =>
+                        Object.entries(workflowsByAction).map(([id, v]) => ({
+                            ...v,
+                            id, // e.g. phenopacket_json, vcf_gz
+                            serviceID,
+                            action,
+                        }))
+                )
+            )
+    );
 
-    handleRunIngestion(history) {
-        if (!this.state.selectedDataset || !this.state.selectedWorkflow) {
-            // TODO: GUI error message
-            return;
-        }
+    const workflowsLoading = useSelector(
+        (state) =>
+            state.services.isFetchingAll || state.serviceWorkflows.isFetchingAll
+    );
 
-        const serviceInfo = this.props.servicesByID[this.state.selectedWorkflow.serviceID];
-        const datasetID = this.state.selectedDataset.split(":")[2];
+    // TODO: Move selectedDataset to redux?
+    const [step, setStep] = useState(
+        locationState?.step || STEP_WORKFLOW_SELECTION
+    );
+    const [selectedDataset, setSelectedDataset] = useState(
+        locationState?.selectedDataset || null
+    );
+    const [selectedWorkflow, setSelectedWorkflow] = useState(
+        locationState?.selectedWorkflow || null
+    );
+    const [inputs, setInputs] = useState({});
 
-        this.props.submitIngestionWorkflowRun(serviceInfo, datasetID, this.state.selectedWorkflow,
-            this.state.inputs, withBasePath("admin/data/manager/runs"), history);
-    }
+    const getId = () => selectedDataset && selectedDataset.split(":")[1];
 
-    getStepContents() {
-        const formatWithNameIfPossible = (name, id) => name ? `${name} (${id})` : id;
+    const handleWorkflowClick = (workflow) => {
+        const hiddenInputs = Object.fromEntries(
+            workflow.inputs
+                .filter((value) => value?.hidden)
+                .map((i) => [i.id, i.value])
+        );
+        const dataset_id = getId();
+        const dataset_name = datasetsByID[dataset_id]?.title ?? dataset_id;
 
-        switch (this.state.step) {
-            case STEP_WORKFLOW_SELECTION: {
-                const workflows = this.props.workflows
-                    .filter(w => w.action === this.managerType)
-                    .map(w => <WorkflowListItem key={w.id}
-                                                workflow={w}
-                                                selectable={true}
-                                                onClick={() => this.handleWorkflowClick(w)} />);
+        setStep(STEP_CONFIRM);
+        setSelectedWorkflow(workflow);
+        setInputs({ ...hiddenInputs, dataset_id, dataset_name });
+    };
 
-                return <Form labelCol={FORM_LABEL_COL} wrapperCol={FORM_WRAPPER_COL}>
-                    <Form.Item label="Dataset">
-                        <DatasetTreeSelect onChange={dataset => this.handleDatasetChange(dataset)}
-                                         value={this.state.selectedDataset}/>
-                    </Form.Item>
-                    <Form.Item label="Workflows">
-                        {this.state.selectedDataset
-                            ? <Spin spinning={this.props.workflowsLoading}>
-                                {this.props.workflowsLoading
-                                    ? <Skeleton/>
-                                    : <List itemLayout="vertical">{workflows}</List>}
+    const handleRunIngestion = () => {
+        // TODO: GUI error message
+        if (!selectedDataset || !selectedWorkflow) return;
+
+        const serviceInfo = servicesByID[selectedWorkflow.serviceID];
+        const datasetID = getId();
+
+        dispatch(
+            submitIngestionWorkflowRun(
+                serviceInfo,
+                datasetID,
+                selectedWorkflow,
+                inputs,
+                withBasePath("admin/data/manager/runs"),
+                history
+            )
+        );
+    };
+
+    const getDatasetDisplayTitle = () => {
+        const datasetId = getId();
+        const title = datasetsByID[datasetId]?.title;
+        return title ? `${title} (${datasetId})` : datasetId;
+    };
+
+    const steps = [
+        // STEP_WORKFLOW_SELECTION
+        {
+            title: "Dataset & Workflow",
+            description: "Choose a dataset and analysis workflow.",
+            stepComponent: (
+                <>
+                    <Item label="Dataset">
+                        <DatasetTreeSelect
+                            onChange={setSelectedDataset}
+                            value={selectedDataset}
+                        />
+                    </Item>
+                    <Item label="Workflows">
+                        {selectedDataset ? (
+                            <Spin spinning={workflowsLoading}>
+                                {workflowsLoading ? (
+                                    <Skeleton />
+                                ) : (
+                                    <List itemLayout="vertical">
+                                        {workflows
+                                            .filter(
+                                                (w) => w.action === managerType
+                                            )
+                                            .map((w) => (
+                                                <WorkflowListItem
+                                                    key={w.id}
+                                                    workflow={w}
+                                                    selectable={true}
+                                                    onClick={() =>
+                                                        handleWorkflowClick(w)
+                                                    }
+                                                />
+                                            ))}
+                                    </List>
+                                )}
                             </Spin>
-                            : <Empty image={Empty.PRESENTED_IMAGE_SIMPLE}
-                                     description="Select a dataset to see available workflows"/>
-                        }
-                    </Form.Item>
-                </Form>;
-            }
-
-            case STEP_CONFIRM: {
-                const [object_type, dataset_id] = this.state.selectedDataset.split(":");
-                const datasetTitle = this.props.datasetsByID[dataset_id]?.title ?? null;
-
-                return (
-                    <Form labelCol={FORM_LABEL_COL} wrapperCol={FORM_WRAPPER_COL}>
-                        <Form.Item label="Dataset">
-                            {formatWithNameIfPossible(datasetTitle, dataset_id)}
-                        </Form.Item>
-                        <Form.Item label="Workflow">
-                            <List itemLayout="vertical" style={{marginBottom: "14px"}}>
-                                <WorkflowListItem workflow={this.state.selectedWorkflow}/>
-                            </List>
-                        </Form.Item>
-                        <Form.Item label="Inputs">
-                            <Table size="small" bordered={true} showHeader={false} pagination={false} columns={[
+                        ) : (
+                            <Empty
+                                image={Empty.PRESENTED_IMAGE_SIMPLE}
+                                description="Select a dataset to see available workflows"
+                            />
+                        )}
+                    </Item>
+                </>
+            ),
+        },
+        // STEP_CONFIRM
+        {
+            title: "Run",
+            description: "Choose a dataset and analysis workflow.",
+            stepComponent: (
+                <>
+                    <Item label="Dataset">{getDatasetDisplayTitle()}</Item>
+                    <Item label="Workflow">
+                        <List
+                            itemLayout="vertical"
+                            style={{ marginBottom: "14px" }}
+                        >
+                            <WorkflowListItem workflow={selectedWorkflow} />
+                        </List>
+                    </Item>
+                    <Item label="Inputs">
+                        <Table
+                            size="small"
+                            bordered={true}
+                            showHeader={false}
+                            pagination={false}
+                            columns={[
                                 {
-                                    title: "ID", dataIndex: "id", render: iID =>
-                                        <span style={{fontWeight: "bold", marginRight: "0.5em"}}>{iID}</span>
+                                    title: "ID",
+                                    dataIndex: "id",
+                                    render: (iID) => (
+                                        <span
+                                            style={{
+                                                fontWeight: "bold",
+                                                marginRight: "0.5em",
+                                            }}
+                                        >
+                                            {iID}
+                                        </span>
+                                    ),
                                 },
                                 {
-                                    title: "Value", dataIndex: "value", render: value =>
-                                        value === undefined
-                                            ? EM_DASH
-                                            : (value instanceof Array
-                                                ? <ul>{value.map(v => <li key={v.toString()}>{v.toString()}</li>)}</ul>
-                                                : value.toString()
-                                            )
-                                }
-                            ]} rowKey="id" dataSource={this.state.selectedWorkflow.inputs.map(i =>
-                                ({id: i.id, value: this.state.inputs[i.id]}))}/>
-                        </Form.Item>
-                        <Form.Item wrapperCol={FORM_BUTTON_COL}>
-                            {/* TODO: Back button like the last one */}
-                            <Button type="primary"
-                                    style={{marginTop: "16px", float: "right"}}
-                                    loading={this.props.isSubmittingIngestionRun}
-                                    onClick={() => this.handleRunIngestion(this.props.history)}>
-                                <span style={{textTransform: "capitalize"}}>Run {this.managerType}</span>
-                            </Button>
-                        </Form.Item>
-                    </Form>
-                );
-            }
-        }
-    }
+                                    title: "Value",
+                                    dataIndex: "value",
+                                    render: (value) =>
+                                        value === undefined ? (
+                                            EM_DASH
+                                        ) : value instanceof Array ? (
+                                            <ul>
+                                                {value.map((v) => (
+                                                    <li key={v.toString()}>
+                                                        {v.toString()}
+                                                    </li>
+                                                ))}
+                                            </ul>
+                                        ) : (
+                                            value.toString()
+                                        ),
+                                },
+                            ]}
+                            rowKey="id"
+                            dataSource={
+                                selectedWorkflow
+                                    ? selectedWorkflow.inputs.map((i) => ({
+                                          id: i.id,
+                                          value: inputs[i.id],
+                                      }))
+                                    : []
+                            }
+                        />
+                    </Item>
+                    <Item wrapperCol={FORM_BUTTON_COL}>
+                        {/* TODO: Back button like the last one */}
+                        <Button
+                            type="primary"
+                            style={{ marginTop: "16px", float: "right" }}
+                            loading={isSubmittingIngestionRun}
+                            onClick={handleRunIngestion}
+                        >
+                            <span style={{ textTransform: "capitalize" }}>
+                                Run {managerType}
+                            </span>
+                        </Button>
+                    </Item>
+                </>
+            ),
+            disabled:
+                step < STEP_CONFIRM && Object.keys(inputs).length === 0,
+        },
+    ];
 
-    render() {
-        return <Layout>
-            <Layout.Content style={LAYOUT_CONTENT_STYLE}>
-                <Steps current={this.state.step} onChange={this.handleStepChange}>
-                    <Steps.Step title="Dataset & Workflow"
-                                description={<span style={{letterSpacing: "-0.1px"}}>
-                                    Choose a dataset and analysis workflow.
-                                </span>}>
-
-                    </Steps.Step>
-                    <Steps.Step title="Run" description="Confirm details and run the workflow."
-                                disabled={this.state.step < STEP_CONFIRM && (this.state.selectedWorkflow === null ||
-                                    Object.keys(this.state.inputs).length === 0)} />
-                </Steps>
-                <div style={{marginTop: "16px"}}>{this.getStepContents()}</div>
-            </Layout.Content>
-        </Layout>;
-    }
-}
-
-ManagerAnalyzeContent.propTypes = {
-    ...workflowsStateToPropsMixinPropTypes,
-    servicesByID: PropTypes.object, // TODO: Shape
-    projectsByID: PropTypes.object,  // TODO: Shape
-    tablesByServiceID: PropTypes.object,  // TODO: Shape
-    isSubmittingIngestionRun: PropTypes.bool,
+    return <StepsTemplate steps={steps} step={step} setStep={setStep} />;
 };
 
-const mapStateToProps = state => ({
-    ...workflowsStateToPropsMixin(state),
-    servicesByID: state.services.itemsByID,
-    projectsByID: state.projects.itemsByID,
-    datasetsByID: Object.fromEntries(
-        Object.entries(state.projects.itemsByID).flatMap(([key, p]) => (
-                p.datasets.map(d => [d.identifier, d])
-             )
-        )
-    ),
-    tablesByServiceID: state.serviceTables.itemsByServiceID,
-    isSubmittingIngestionRun: state.runs.isSubmittingIngestionRun,
-});
-
-export default withRouter(connect(mapStateToProps, {
-    submitIngestionWorkflowRun,
-})(ManagerAnalyzeContent));
+export default ManagerAnalyzeContent;
