@@ -13,6 +13,7 @@ const ManagerProjectDatasetContent = lazy(() => import("./manager/projects/Manag
 const ManagerAccessContent = lazy(() => import("./manager/ManagerAccessContent"));
 const ManagerFilesContent = lazy(() => import("./manager/ManagerFilesContent"));
 const ManagerIngestionContent = lazy(() => import("./manager/ManagerIngestionContent"));
+const ManagerExportContent = lazy(() => import("./manager/ManagerExportContent"));
 const ManagerWorkflowsContent = lazy(() => import("./manager/ManagerWorkflowsContent"));
 const ManagerRunsContent = lazy(() => import("./manager/runs/ManagerRunsContent"));
 
@@ -22,6 +23,7 @@ const PAGE_MENU = [
     // {url: "/data/manager/access", text: "Access Management"},  // TODO: Re-enable for v0.2
     {url: withBasePath("admin/data/manager/files"), text: "Files"},
     {url: withBasePath("admin/data/manager/ingestion"), text: "Ingestion"},
+    {url: withBasePath("admin/data/manager/export"), text: "Export"},
     {url: withBasePath("admin/data/manager/workflows"), text: "Workflows"},
     {url: withBasePath("admin/data/manager/runs"), text: "Workflow Runs"},
 ];
@@ -56,6 +58,8 @@ class DataManagerContent extends Component {
                     <Route exact path={withBasePath("admin/data/manager/files")} component={ManagerFilesContent} />
                     <Route exact path={withBasePath("admin/data/manager/ingestion")}
                            component={ManagerIngestionContent} />
+                    <Route exact path={withBasePath("admin/data/manager/export")}
+                           component={ManagerExportContent} />
                     <Route exact path={withBasePath("admin/data/manager/workflows")}
                            component={ManagerWorkflowsContent} />
                     <Route path={withBasePath("admin/data/manager/runs")} component={ManagerRunsContent} />
