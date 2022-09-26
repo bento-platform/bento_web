@@ -171,7 +171,7 @@ const ManagerWorkflowInterfaceContent = ({ managerType }) => {
                             pagination={false}
                             columns={[
                                 {
-                                    title: "ID",
+                                     title: "ID",
                                     dataIndex: "id",
                                     render: (iID) => (
                                         <span
