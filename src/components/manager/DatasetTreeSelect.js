@@ -33,6 +33,7 @@ const DatasetTreeSelect = ({ value, onChange }) => {
                 showSearch={true}
                 filterTreeNode={(v, n) => {
                     const filter = v.toLocaleLowerCase().trim();
+                    if (filter === "") return true; // removing this would make page crash (in 10s)
                     return (
                         n.key.toLocaleLowerCase().includes(filter) ||
                         n.props.data.title.toLocaleLowerCase().includes(filter) ||

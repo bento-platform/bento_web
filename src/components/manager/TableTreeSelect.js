@@ -59,7 +59,7 @@ const TableTreeSelect = ({ value, onChange }) => {
                 showSearch
                 filterTreeNode={(v, n) => {
                     const filter = v.toLocaleLowerCase().trim();
-                    if (filter === "") return true;
+                    if (filter === "") return true; // removing this would make page crash (in 10s)
                     return (
                         n.key.toLocaleLowerCase().includes(filter) ||
                         n.props.data.title.toLocaleLowerCase().includes(filter) ||
