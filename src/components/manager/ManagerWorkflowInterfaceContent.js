@@ -2,20 +2,21 @@ import React, { useState } from "react";
 import { useSelector, useDispatch } from "react-redux";
 import { useHistory } from "react-router-dom";
 
-import { Button, Empty, Form, List, Skeleton, Spin, Table } from "antd";
+import { Empty, Form, List, Skeleton, Spin } from "antd";
 const { Item } = Form;
 
 import WorkflowListItem from "./WorkflowListItem";
 
 import { submitIngestionWorkflowRun } from "../../modules/wes/actions";
 
-import { FORM_BUTTON_COL } from "./ingestion";
 
 import DatasetTreeSelect from "./DatasetTreeSelect";
 
-import { EM_DASH } from "../../constants";
 import { withBasePath } from "../../utils/url";
 import StepsTemplate from "./StepsTemplate";
+import WorkflowConfirmationForm, {
+    FIELD_OPTIONS,
+} from "./WorkflowConfirmationForm";
 
 const ManagerWorkflowInterfaceContent = ({ managerType }) => {
     const dispatch = useDispatch();
@@ -109,10 +110,7 @@ const ManagerWorkflowInterfaceContent = ({ managerType }) => {
             stepComponent: (
                 <>
                     <Item label="Dataset">
-                        <DatasetTreeSelect
-                            onChange={setSelectedDataset}
-                            value={selectedDataset}
-                        />
+                        <DatasetTreeSelect onChange={setSelectedDataset} />
                     </Item>
                     <Item label="Workflows">
                         {selectedDataset ? (
@@ -154,79 +152,41 @@ const ManagerWorkflowInterfaceContent = ({ managerType }) => {
             description: "Choose a dataset and analysis workflow.",
             stepComponent: (
                 <>
-                    <Item label="Dataset">{getDatasetDisplayTitle()}</Item>
-                    <Item label="Workflow">
-                        <List
-                            itemLayout="vertical"
-                            style={{ marginBottom: "14px" }}
-                        >
-                            <WorkflowListItem workflow={selectedWorkflow} />
-                        </List>
-                    </Item>
-                    <Item label="Inputs">
-                        <Table
-                            size="small"
-                            bordered={true}
-                            showHeader={false}
-                            pagination={false}
-                            columns={[
-                                {
-                                     title: "ID",
-                                    dataIndex: "id",
-                                    render: (iID) => (
-                                        <span
-                                            style={{
-                                                fontWeight: "bold",
-                                                marginRight: "0.5em",
-                                            }}
-                                        >
-                                            {iID}
-                                        </span>
-                                    ),
+                    <WorkflowConfirmationForm
+                        fields={[
+                            {
+                                title: "Dataset",
+                                type: FIELD_OPTIONS.TEXT,
+                                data: { text: getDatasetDisplayTitle() },
+                            },
+                            {
+                                title: "Workflow",
+                                type: FIELD_OPTIONS.WORKFLOW,
+                                data: { selectedWorkflow },
+                            },
+                            {
+                                title: "Inputs",
+                                type: FIELD_OPTIONS.INPUTS,
+                                data: {
+                                    dataSource: selectedWorkflow
+                                        ? selectedWorkflow.inputs.map((i) => ({
+                                              id: i.id,
+                                              value: inputs[i.id],
+                                          }))
+                                        : [],
                                 },
-                                {
-                                    title: "Value",
-                                    dataIndex: "value",
-                                    render: (value) =>
-                                        value === undefined ? (
-                                            EM_DASH
-                                        ) : value instanceof Array ? (
-                                            <ul>
-                                                {value.map((v) => (
-                                                    <li key={v.toString()}>
-                                                        {v.toString()}
-                                                    </li>
-                                                ))}
-                                            </ul>
-                                        ) : (
-                                            value.toString()
-                                        ),
+                            },
+                            {
+                                title: null,
+                                type: FIELD_OPTIONS.SUBMIT,
+                                data: {
+                                    loading: isSubmittingIngestionRun,
+                                    onClick: handleRunIngestion,
+                                    text: `Run ${managerType}`,
                                 },
-                            ]}
-                            rowKey="id"
-                            dataSource={
-                                selectedWorkflow
-                                    ? selectedWorkflow.inputs.map((i) => ({
-                                          id: i.id,
-                                          value: inputs[i.id],
-                                      }))
-                                    : []
-                            }
-                        />
-                    </Item>
-                    <Item wrapperCol={FORM_BUTTON_COL}>
-                        {/* TODO: Back button like the last one */}
-                        <Button
-                            type="primary"
-                            style={{ marginTop: "16px", float: "right" }}
-                            loading={isSubmittingIngestionRun}
-                            onClick={handleRunIngestion}
-                        >
-                            <span style={{ textTransform: "capitalize" }}>
-                                Run {managerType}
-                            </span>
-                        </Button>
-                    </Item>
+                            },
+                        ]}
+                    />
                 </>
             ),
             disabled: step < STEP_CONFIRM && Object.keys(inputs).length === 0,
