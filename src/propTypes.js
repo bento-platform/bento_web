@@ -12,11 +12,7 @@ export const nodeInfoDataPropTypesShape = PropTypes.shape({
 export const serviceInfoPropTypesShape = PropTypes.shape({
     id: PropTypes.string.isRequired,
     name: PropTypes.string.isRequired,
-    type: PropTypes.shape({
-        group: PropTypes.string.isRequired,
-        artifact: PropTypes.string.isRequired,
-        version: PropTypes.string.isRequired,
-    }).isRequired,
+    type: PropTypes.string.isRequired,
     description: PropTypes.string,
     organization: PropTypes.shape({
         name: PropTypes.string.isRequired,
