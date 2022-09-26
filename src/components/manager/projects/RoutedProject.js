@@ -29,6 +29,7 @@ class RoutedProject extends Component {
         this.hideDatasetAdditionModal = this.hideDatasetAdditionModal.bind(this);
         this.hideDatasetEditModal = this.hideDatasetEditModal.bind(this);
         this.ingestIntoTable = this.ingestIntoTable.bind(this);
+        this.exportDataset = this.exportDataset.bind(this);
         this.handleDeleteProject = this.handleDeleteProject.bind(this);
     }
 
@@ -42,6 +43,13 @@ class RoutedProject extends Component {
     ingestIntoTable(p, t) {
         this.props.history.push(withBasePath("admin/data/manager/ingestion"),
             {selectedTable: `${p.identifier}:${t.data_type}:${t.id}`});
+    }
+
+    exportDataset(dataset) {
+        this.props.history.push(
+            withBasePath("admin/data/manager/export"),
+            {selectedDataset: dataset.identifier}
+        );
     }
 
     handleProjectSave(project) {
@@ -158,6 +166,7 @@ class RoutedProject extends Component {
                              selectedDataset: dataset,
                              datasetEditModal: true
                          })}
+                         onDatasetExport={dataset => this.exportDataset(dataset)}
                          onTableIngest={(p, t) => this.ingestIntoTable(p, t)} />
             </>;
         }

@@ -129,7 +129,8 @@ class Project extends Component {
                                      }}
                                      strayTables={this.props.strayTables}
                                      onEdit={() => (this.props.onEditDataset || nop)(d)}
-                                     onTableIngest={this.props.onTableIngest || nop}  />
+                                     onTableIngest={this.props.onTableIngest || nop}
+                                     onDatasetExport={() => (this.props.onDatasetExport || nop)(d)}  />
                         </Col>
                     </Row>
                 ) : (
@@ -155,6 +156,7 @@ Project.propTypes = {
     onSave: PropTypes.func,
     onAddDataset: PropTypes.func,
     onEditDataset: PropTypes.func,
+    onDatasetExport: PropTypes.func,
 
     onTableIngest: PropTypes.func
 };
