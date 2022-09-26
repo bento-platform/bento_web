@@ -123,7 +123,7 @@ const ManagerIngestionContent = ({}) => {
                 <>
                     <Item label="Table">
                         <TableTreeSelect
-                            onChange={(table) => setSelectedTable(table)}
+                            onChange={setSelectedTable}
                             value={selectedTable}
                         />
                     </Item>
