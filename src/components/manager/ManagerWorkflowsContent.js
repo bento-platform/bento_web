@@ -12,15 +12,29 @@ import {workflowsStateToPropsMixin, workflowsStateToPropsMixinPropTypes} from ".
 class ManagerWorkflowsContent extends Component {
     render() {
         // TODO: real key
-        const workflows = this.props.workflows.map(w => <WorkflowListItem key={w.name} workflow={w} />);
-        return <Layout>
-            <Layout.Content style={LAYOUT_CONTENT_STYLE}>
-                <Typography.Title level={2}>Ingestion Workflows</Typography.Title>
-                <Spin spinning={this.props.workflowsLoading}>
-                    {this.props.workflowsLoading ? <Skeleton /> : <List itemLayout="vertical">{workflows}</List>}
-                </Spin>
-            </Layout.Content>
-        </Layout>;
+        // Create a map of workflows list items keyed by action type (e.g. "ingestion", "export"...)
+        const workflows = {};
+        this.props.workflows.forEach(w => {
+            if (!workflows[w.action]) workflows[w.action] = []; // new list
+
+            workflows[w.action].push(
+                <WorkflowListItem key={w.name} workflow={w} />
+            );
+        });
+
+        return <>
+            { Object.entries(workflows).map(([action, workflowsByAction]) => (
+                <Layout>
+                    <Layout.Content style={LAYOUT_CONTENT_STYLE}>
+                        <Typography.Title level={2} style={{'text-transform': 'capitalize'}}>{action} Workflows</Typography.Title>
+                        <Spin spinning={this.props.workflowsLoading}>
+                            {this.props.workflowsLoading ? <Skeleton /> : <List itemLayout="vertical">{workflowsByAction}</List>}
+                        </Spin>
+                    </Layout.Content>
+                </Layout>
+                ))
+            }
+        </>;
     }
 }
 
