@@ -29,8 +29,8 @@ import {
     workflowsStateToPropsMixinPropTypes
 } from "../../propTypes";
 
-class ManagerExportContent extends Component {
-    managerType = WORKFLOW_ACTION.EXPORT
+class ManagerAnalyzeContent extends Component {
+    managerType = WORKFLOW_ACTION.ANALYSIS
 
     constructor(props) {
         super(props);
@@ -78,6 +78,8 @@ class ManagerExportContent extends Component {
                     .map(i => [i.id, i.value])
             )
         }
+        const [db_object_type, dataset_id] = this.state.selectedDataset.split(":")
+        const dataset_name = this.props.datasetsByID[dataset_id]?.title ?? dataset_id
 
         this.setState({
             step: STEP_CONFIRM,
@@ -86,7 +88,8 @@ class ManagerExportContent extends Component {
             inputFormFields: {},
             inputs: {
                 ...hiddenInputs,
-                dataset_id: this.state.selectedDataset.split(":")[1]
+                dataset_id,
+                dataset_name,
             }
         });
     }
@@ -188,7 +191,7 @@ class ManagerExportContent extends Component {
                 <Steps current={this.state.step} onChange={this.handleStepChange}>
                     <Steps.Step title="Dataset & Workflow"
                                 description={<span style={{letterSpacing: "-0.1px"}}>
-                                    Choose a dataset and export workflow.
+                                    Choose a dataset and analysis workflow.
                                 </span>}>
 
                     </Steps.Step>
@@ -202,7 +205,7 @@ class ManagerExportContent extends Component {
     }
 }
 
-ManagerExportContent.propTypes = {
+ManagerAnalyzeContent.propTypes = {
     ...workflowsStateToPropsMixinPropTypes,
     servicesByID: PropTypes.object, // TODO: Shape
     projectsByID: PropTypes.object,  // TODO: Shape
@@ -226,4 +229,4 @@ const mapStateToProps = state => ({
 
 export default withRouter(connect(mapStateToProps, {
     submitIngestionWorkflowRun,
-})(ManagerExportContent));
+})(ManagerAnalyzeContent));
