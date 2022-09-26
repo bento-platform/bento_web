@@ -18,6 +18,7 @@ import { WORKFLOW_ACTION } from "../../constants";
 import { withBasePath } from "../../utils/url";
 import StepsTemplate from "./StepsTemplate";
 import WorkflowConfirmationForm, { FIELD_OPTIONS } from "./WorkflowConfirmationForm";
+import { filterWorkflows } from "../../utils/workflow";
 
 // TODO: when redirected to this page from a Project/Dataset page,  doesn't defaults to selected Project/Dataset,
 // fix: Have the select box input the value and pass that along
@@ -32,21 +33,7 @@ const ManagerIngestionContent = () => {
     const tablesByServiceID = useSelector((state) => state.serviceTables.itemsByServiceID);
     const isSubmittingIngestionRun = useSelector((state) => state.runs.isSubmittingIngestionRun);
 
-    const workflows = useSelector((state) =>
-        Object.entries(state.serviceWorkflows.workflowsByServiceID)
-            .filter(([_, s]) => !s.isFetching)
-            .flatMap(([serviceID, s]) =>
-                Object.entries(s.workflows).flatMap(([action, workflowsByAction]) =>
-                    Object.entries(workflowsByAction).map(([id, v]) => ({
-                        ...v,
-                        id, // e.g. phenopacket_json, vcf_gz
-                        serviceID,
-                        action,
-                    }))
-                )
-            )
-    );
-
+    const workflows = useSelector((state) => filterWorkflows(state.serviceWorkflows.workflowsByServiceID));
     const workflowsLoading = useSelector(
         (state) => state.services.isFetchingAll || state.serviceWorkflows.isFetchingAll
     );
@@ -189,9 +176,9 @@ const ManagerIngestionContent = () => {
                             data: {
                                 dataSource: selectedWorkflow
                                     ? selectedWorkflow.inputs.map((i) => ({
-                                        id: i.id,
-                                        value: inputs[i.id],
-                                    }))
+                                          id: i.id,
+                                          value: inputs[i.id],
+                                      }))
                                     : [],
                             },
                         },

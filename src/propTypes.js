@@ -1,6 +1,7 @@
 import PropTypes from "prop-types";
 import {FORM_MODE_ADD, FORM_MODE_EDIT, WORKFLOW_ACTION} from "./constants";
 import {KARYOTYPIC_SEX_VALUES, SEX_VALUES} from "./dataTypes/phenopacket";
+import {filterWorkflows} from "./utils/workflow";
 
 export const propTypesFormMode = PropTypes.oneOf([FORM_MODE_ADD, FORM_MODE_EDIT]);
 
@@ -138,18 +139,7 @@ export const userPropTypesShape = PropTypes.shape({
 
 // Gives components which include this in their state to props connection access to workflows and loading status.
 export const workflowsStateToPropsMixin = state => ({
-    workflows: Object.entries(state.serviceWorkflows.workflowsByServiceID)
-        .filter(([_, s]) => !s.isFetching)
-        .flatMap(([serviceID, s]) => Object.entries(s.workflows)
-            .flatMap(([action, workflowsByAction]) => Object.entries(workflowsByAction)
-                .map(([id, v]) => ({
-                    ...v,
-                    id,     // e.g. phenopacket_json, vcf_gz
-                    serviceID,
-                    action,
-                }))
-            )
-        ),
+    workflows: filterWorkflows(state.serviceWorkflows.workflowsByServiceID),
     workflowsLoading: state.services.isFetchingAll || state.serviceWorkflows.isFetchingAll
 });
 
