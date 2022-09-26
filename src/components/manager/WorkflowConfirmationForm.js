@@ -15,6 +15,7 @@ export const FIELD_OPTIONS = {
 };
 
 const WorkflowConfirmationForm = ({ fields }) => {
+    /* eslint-disable react/prop-types */
     const fieldTypes = {
         [FIELD_OPTIONS.TEXT]: ({ text }) => text,
         [FIELD_OPTIONS.TAG]: ({ tag }) => <Tag>{tag}</Tag>,
@@ -70,6 +71,25 @@ const WorkflowConfirmationForm = ({ fields }) => {
                 <span style={{ textTransform: "capitalize" }}>{text}</span>
             </Button>
         ),
+    };
+    /* eslint-enable react/prop-types */
+
+    fieldTypes[FIELD_OPTIONS.TEXT].propTypes = {
+        text: PropTypes.string.isRequired,
+    };
+    fieldTypes[FIELD_OPTIONS.TAG].propTypes = {
+        tag: PropTypes.string.isRequired,
+    };
+    fieldTypes[FIELD_OPTIONS.WORKFLOW].propTypes = {
+        selectedWorkflow: PropTypes.object.isRequired,
+    };
+    fieldTypes[FIELD_OPTIONS.INPUTS].propTypes = {
+        dataSource: PropTypes.array.isRequired,
+    };
+    fieldTypes[FIELD_OPTIONS.SUBMIT].propTypes = {
+        loading: PropTypes.bool.isRequired,
+        onClick: PropTypes.func.isRequired,
+        text: PropTypes.string.isRequired,
     };
 
     return (
