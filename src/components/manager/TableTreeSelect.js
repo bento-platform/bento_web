@@ -8,19 +8,12 @@ const TableTreeSelect = ({ value, onChange }) => {
     // TODO: Handle table loading better
 
     const projects = useSelector((state) => state.projects.items);
-    const projectTables = useSelector(
-        (state) => state.projectTables.itemsByProjectID
-    );
-    const tablesByServiceID = useSelector(
-        (state) => state.serviceTables.itemsByServiceID
-    );
-    const servicesLoading = useSelector(
-        (state) => state.services.isFetchingAll
-    );
+    const projectTables = useSelector((state) => state.projectTables.itemsByProjectID);
+    const tablesByServiceID = useSelector((state) => state.serviceTables.itemsByServiceID);
+    const servicesLoading = useSelector((state) => state.services.isFetchingAll);
     const projectsLoading = useSelector((state) => state.projects.isFetching);
 
-    const getTableName = (serviceID, tableID) =>
-        tablesByServiceID[serviceID]?.tablesByID?.[tableID]?.name;
+    const getTableName = (serviceID, tableID) => tablesByServiceID[serviceID]?.tablesByID?.[tableID]?.name;
 
     const tableListTreeData = projects.map((p) => ({
         title: p.title,
@@ -38,28 +31,18 @@ const TableTreeSelect = ({ value, onChange }) => {
                 .filter(
                     (t) =>
                         t.dataset === d.identifier &&
-                        (
-                            tablesByServiceID?.[t.service_id]?.tablesByID ?? {}
-                        ).hasOwnProperty(t.table_id)
+                        (tablesByServiceID?.[t.service_id]?.tablesByID ?? {}).hasOwnProperty(t.table_id)
                 )
                 .map((t) => ({
                     ...t,
                     tableName: getTableName(t.service_id, t.table_id) ?? "",
-                    dataType:
-                        tablesByServiceID[t.service_id].tablesByID[t.table_id]
-                            .data_type,
+                    dataType: tablesByServiceID[t.service_id].tablesByID[t.table_id].data_type,
                 }))
                 .map((t) => ({
                     title: (
                         <>
-                            <Tag style={{ marginRight: "1em" }}>
-                                {t.dataType}
-                            </Tag>
-                            {t.tableName}&nbsp; (
-                            <span style={{ fontFamily: "monospace" }}>
-                                {t.table_id}
-                            </span>
-                            )
+                            <Tag style={{ marginRight: "1em" }}>{t.dataType}</Tag>
+                            {t.tableName}&nbsp; (<span style={{ fontFamily: "monospace" }}>{t.table_id}</span>)
                         </>
                     ),
                     isLeaf: true,
@@ -79,12 +62,8 @@ const TableTreeSelect = ({ value, onChange }) => {
                     if (filter === "") return true;
                     return (
                         n.key.toLocaleLowerCase().includes(filter) ||
-                        n.props.data.title
-                            .toLocaleLowerCase()
-                            .includes(filter) ||
-                        (n.props.data.dataType || "")
-                            .toLocaleLowerCase()
-                            .includes(filter)
+                        n.props.data.title.toLocaleLowerCase().includes(filter) ||
+                        (n.props.data.dataType || "").toLocaleLowerCase().includes(filter)
                     );
                 }}
                 onChange={onChange}
