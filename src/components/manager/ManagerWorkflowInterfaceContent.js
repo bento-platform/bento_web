@@ -29,11 +29,9 @@ import { EM_DASH, WORKFLOW_ACTION } from "../../constants";
 import { withBasePath } from "../../utils/url";
 import StepsTemplate from "./StepsTemplate";
 
-const ManagerWorkflowInterfaceContent = () => {
+const ManagerWorkflowInterfaceContent = ({managerType}) => {
     const dispatch = useDispatch();
     const history = useHistory();
-
-    const managerType = WORKFLOW_ACTION.ANALYSIS;
 
     const servicesByID = useSelector((state) => state.services.itemsByID);
     const datasetsByID = useSelector((state) =>
