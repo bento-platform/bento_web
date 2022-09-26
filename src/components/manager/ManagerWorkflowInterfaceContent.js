@@ -113,7 +113,7 @@ const ManagerWorkflowInterfaceContent = ({ managerType }) => {
             stepComponent: (
                 <>
                     <Item label="Dataset">
-                        <DatasetTreeSelect onChange={setSelectedDataset} />
+                        <DatasetTreeSelect value={selectedDataset} onChange={setSelectedDataset} />
                     </Item>
                     <Item label="Workflows">
                         {selectedDataset ? (
