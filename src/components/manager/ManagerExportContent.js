@@ -15,11 +15,9 @@ import {
     FORM_BUTTON_COL,
 
     STEP_WORKFLOW_SELECTION,
-    STEP_INPUT,
     STEP_CONFIRM,
 } from "./ingestion";
 
-import IngestionInputForm from "./IngestionInputForm";
 import DatasetTreeSelect from "./DatasetTreeSelect";
 
 import {EM_DASH, WORKFLOW_ACTION} from "../../constants";
@@ -27,8 +25,6 @@ import {LAYOUT_CONTENT_STYLE} from "../../styles/layoutContent";
 import {simpleDeepCopy} from "../../utils/misc";
 import {withBasePath} from "../../utils/url";
 import {
-    dropBoxTreeStateToPropsMixin,
-    dropBoxTreeStateToPropsMixinPropTypes,
     workflowsStateToPropsMixin,
     workflowsStateToPropsMixinPropTypes
 } from "../../propTypes";
@@ -54,12 +50,12 @@ class ManagerExportContent extends Component {
             selectedDataset: (this.props.location.state || {}).selectedDataset || this.initialState.selectedDataset,
             selectedWorkflow: (this.props.location.state || {}).selectedWorkflow || this.initialState.selectedWorkflow,
             initialInputValues: (this.props.location.state || {}).initialInputValues
-                || this.initialState.initialInputValues,
+                || this.initialState.initialInputValues
         };
 
         this.handleStepChange = this.handleStepChange.bind(this);
+        this.handleDatasetChange = this.handleDatasetChange.bind(this);
         this.handleWorkflowClick = this.handleWorkflowClick.bind(this);
-        this.handleInputSubmit = this.handleInputSubmit.bind(this);
         this.handleRunIngestion = this.handleRunIngestion.bind(this);
         this.getStepContents = this.getStepContents.bind(this);
     }
@@ -68,20 +64,19 @@ class ManagerExportContent extends Component {
         this.setState({step});
     }
 
+    handleDatasetChange(dataset) {
+        this.setState({selectedDataset: dataset});
+    }
+
     handleWorkflowClick(workflow) {
         this.setState({
-            step: STEP_INPUT,
+            step: STEP_CONFIRM,
             selectedWorkflow: workflow,
             initialInputValues: {},
             inputFormFields: {},
-            inputs: {}
-        });
-    }
-
-    handleInputSubmit(inputs) {
-        this.setState({
-            inputs,
-            step: STEP_CONFIRM
+            inputs: {
+                dataset_id: this.state.selectedDataset.split(":")[1]
+            }
         });
     }
 
@@ -115,7 +110,7 @@ class ManagerExportContent extends Component {
 
                 return <Form labelCol={FORM_LABEL_COL} wrapperCol={FORM_WRAPPER_COL}>
                     <Form.Item label="Dataset">
-                        <DatasetTreeSelect onChange={dataset => this.setState({selectedDataset: dataset})}
+                        <DatasetTreeSelect onChange={dataset => this.handleDatasetChange(dataset)}
                                          value={this.state.selectedDataset}/>
                     </Form.Item>
                     <Form.Item label="Workflows">
@@ -132,30 +127,14 @@ class ManagerExportContent extends Component {
                 </Form>;
             }
 
-            case STEP_INPUT:
-                return <IngestionInputForm workflow={this.state.selectedWorkflow}
-                                           tree={this.props.tree}
-                                           initialValues={this.state.initialInputValues}
-                                           formValues={this.state.inputFormFields}
-                                           onChange={formValues => this.setState({inputFormFields: formValues})}
-                                           onSubmit={this.handleInputSubmit}
-                                           onBack={() => this.handleStepChange(0)} />;
-
             case STEP_CONFIRM: {
-                const [projectID, dataType, tableID] = this.state.selectedDataset.split(":");
-                const projectTitle = (this.props.projectsByID[projectID] || {title: null}).title || null;
-                const tableName = getTableName(this.state.selectedWorkflow.serviceID, tableID);
+                const [object_type, dataset_id] = this.state.selectedDataset.split(":");
+                const datasetTitle = this.props.datasetsByID[dataset_id]?.title ?? null;
 
                 return (
                     <Form labelCol={FORM_LABEL_COL} wrapperCol={FORM_WRAPPER_COL}>
-                        <Form.Item label="Project">
-                            {formatWithNameIfPossible(projectTitle, projectID)}
-                        </Form.Item>
-                        <Form.Item label="Data Type">
-                            <Tag>{dataType}</Tag>
-                        </Form.Item>
-                        <Form.Item label="Table">
-                            {formatWithNameIfPossible(tableName, tableID)}
+                        <Form.Item label="Dataset">
+                            {formatWithNameIfPossible(datasetTitle, dataset_id)}
                         </Form.Item>
                         <Form.Item label="Workflow">
                             <List itemLayout="vertical" style={{marginBottom: "14px"}}>
@@ -216,7 +195,6 @@ class ManagerExportContent extends Component {
 }
 
 ManagerExportContent.propTypes = {
-    ...dropBoxTreeStateToPropsMixinPropTypes,
     ...workflowsStateToPropsMixinPropTypes,
     servicesByID: PropTypes.object, // TODO: Shape
     projectsByID: PropTypes.object,  // TODO: Shape
@@ -225,10 +203,15 @@ ManagerExportContent.propTypes = {
 };
 
 const mapStateToProps = state => ({
-    ...dropBoxTreeStateToPropsMixin(state),
     ...workflowsStateToPropsMixin(state),
     servicesByID: state.services.itemsByID,
     projectsByID: state.projects.itemsByID,
+    datasetsByID: Object.fromEntries(
+        Object.entries(state.projects.itemsByID).flatMap(([key, p]) => (
+                p.datasets.map(d => [d.identifier, d])
+             )
+        )
+    ),
     tablesByServiceID: state.serviceTables.itemsByServiceID,
     isSubmittingIngestionRun: state.runs.isSubmittingIngestionRun,
 });
