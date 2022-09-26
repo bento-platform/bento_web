@@ -1,4 +1,4 @@
-import React, { Component, Suspense, lazy } from "react";
+import React, { Suspense, lazy, useEffect } from "react";
 import { Redirect, Route, Switch } from "react-router-dom";
 
 import { Menu, Skeleton } from "antd";
@@ -18,7 +18,6 @@ const ManagerWorkflowsContent = lazy(() => import("./manager/ManagerWorkflowsCon
 const ManagerRunsContent = lazy(() => import("./manager/runs/ManagerRunsContent"));
 
 const ManagerAnalyzeContent = () => <ManagerWorkflowInterfaceContent managerType={WORKFLOW_ACTION.ANALYSIS} />;
-
 const ManagerExportContent = () => <ManagerWorkflowInterfaceContent managerType={WORKFLOW_ACTION.EXPORT} />;
 
 const PAGE_MENU = [
@@ -41,81 +40,61 @@ const MENU_STYLE = {
     marginRight: "-24px",
     marginTop: "-12px",
 };
-//
-// const ManagerAnalyzeContent = () => <ManagerWorkflowInterfaceContent managerType={WORKFLOW_ACTION.ANALYSIS}/>
-// const ManagerExportContent = () => <ManagerWorkflowInterfaceContent managerType={WORKFLOW_ACTION.EXPORT} />
 
-class DataManagerContent extends Component {
-    componentDidMount() {
+const DataManagerContent = () => {
+
+    useEffect(() => {
         document.title = `${SITE_NAME} - Manage Your Data`;
-    }
+    }, []);
 
-    render() {
-        const selectedKeys = matchingMenuKeys(PAGE_MENU);
-        return (
-            <>
-                <SitePageHeader
-                    title="Data Manager"
-                    withTabBar={true}
-                    footer={
-                        <Menu mode="horizontal" style={MENU_STYLE} selectedKeys={selectedKeys}>
-                            {PAGE_MENU.map(renderMenuItem)}
-                        </Menu>
-                    }
-                />
-                <Suspense
-                    fallback={
-                        <div
-                            style={{
-                                padding: "24px",
-                                backgroundColor: "white",
-                            }}
-                        >
-                            <Skeleton active />
-                        </div>
-                    }
-                >
-                    <Switch>
-                        <Route
-                            path={withBasePath("admin/data/manager/projects")}
-                            component={ManagerProjectDatasetContent}
-                        />
-                        <Route
-                            exact
-                            path={withBasePath("admin/data/manager/access")}
-                            component={ManagerAccessContent}
-                        />
-                        <Route exact path={withBasePath("admin/data/manager/files")} component={ManagerFilesContent} />
-                        <Route
-                            exact
-                            path={withBasePath("admin/data/manager/ingestion")}
-                            component={ManagerIngestionContent}
-                        />
-                        <Route
-                            exact
-                            path={withBasePath("admin/data/manager/export")}
-                            component={ManagerExportContent}
-                        />
-                        <Route
-                            exact
-                            path={withBasePath("admin/data/manager/analyze")}
-                            component={ManagerAnalyzeContent}
-                        />
-                        <Route
-                            exact
-                            path={withBasePath("admin/data/manager/workflows")}
-                            component={ManagerWorkflowsContent}
-                        />
-                        <Route path={withBasePath("admin/data/manager/runs")} component={ManagerRunsContent} />
-                        <Redirect
-                            from={withBasePath("admin/data/manager")}
-                            to={withBasePath("admin/data/manager/projects")}
-                        />
-                    </Switch>
-                </Suspense>
-            </>
-        );
-    }
-}
+    const selectedKeys = matchingMenuKeys(PAGE_MENU);
+
+    return (
+        <>
+            <SitePageHeader
+                title="Data Manager"
+                withTabBar={true}
+                footer={
+                    <Menu mode="horizontal" style={MENU_STYLE} selectedKeys={selectedKeys}>
+                        {PAGE_MENU.map(renderMenuItem)}
+                    </Menu>
+                }
+            />
+            <Suspense
+                fallback={
+                    <div style={{ padding: "24px", backgroundColor: "white" }}>
+                        <Skeleton active />
+                    </div>
+                }
+            >
+                <Switch>
+                    <Route
+                        path={withBasePath("admin/data/manager/projects")}
+                        component={ManagerProjectDatasetContent}
+                    />
+                    <Route exact path={withBasePath("admin/data/manager/access")} component={ManagerAccessContent} />
+                    <Route exact path={withBasePath("admin/data/manager/files")} component={ManagerFilesContent} />
+                    <Route
+                        exact
+                        path={withBasePath("admin/data/manager/ingestion")}
+                        component={ManagerIngestionContent}
+                    />
+                    <Route exact path={withBasePath("admin/data/manager/export")} component={ManagerExportContent} />
+                    <Route exact path={withBasePath("admin/data/manager/analyze")} component={ManagerAnalyzeContent} />
+                    <Route
+                        exact
+                        path={withBasePath("admin/data/manager/workflows")}
+                        component={ManagerWorkflowsContent}
+                    />
+                    <Route path={withBasePath("admin/data/manager/runs")} component={ManagerRunsContent} />
+                    <Redirect
+                        from={withBasePath("admin/data/manager")}
+                        to={withBasePath("admin/data/manager/projects")}
+                    />
+                </Switch>
+            </Suspense>
+        </>
+    );
+};
 
 export default DataManagerContent;
