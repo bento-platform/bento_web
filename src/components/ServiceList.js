@@ -3,11 +3,10 @@ import { useSelector } from "react-redux";
 
 import { Link } from "react-router-dom";
 
-import { Table, Typography, Tag} from "antd";
+import { Table, Typography, Tag, Icon} from "antd";
 
 import { ROLE_OWNER } from "../constants";
 import { withBasePath } from "../utils/url";
-import { BranchesOutlined, GithubOutlined, TagOutlined} from "@ant-design/icons";
 
 const ARTIFACT_STYLING = { fontFamily: "monospace" };
 
@@ -17,9 +16,9 @@ const MAX_TABLE_PAGE_SIZE = 12;
 
 const data = [
     {color: "blue", logo: null, value: ({serviceInfo}) => serviceInfo.environment},
-    {color: null, logo: <TagOutlined/>, value: ({repository}) => `chord_${repository.split("@")[1]}`},
-    {color: null, logo: <GithubOutlined/>, value: ({serviceInfo}) => serviceInfo.git_tag},
-    {color: null, logo: <BranchesOutlined/>, value: ({serviceInfo}) => serviceInfo.git_branch}
+    {color: null, logo: <Icon type="tag"/>, value: ({repository}) => `chord_${repository.split("@")[1]}`},
+    {color: null, logo: <Icon type="github"/>, value: ({serviceInfo}) => serviceInfo.git_tag},
+    {color: null, logo: <Icon type="branches"/>, value: ({serviceInfo}) => serviceInfo.git_branch}
 ];
 
 const renderGitInfo = (tag, record) => <Tag color={tag.color}>{tag.logo} {tag.value(record)}</Tag>;
