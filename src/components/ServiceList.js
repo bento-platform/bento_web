@@ -21,7 +21,7 @@ const data = [
     {color: null, logo: <Icon type="branches"/>, value: ({serviceInfo}) => serviceInfo.git_branch}
 ];
 
-const renderGitInfo = (tag, record) => <Tag color={tag.color}>{tag.logo} {tag.value(record)}</Tag>;
+const renderGitInfo = (tag, record, key) => <Tag key={key} color={tag.color}>{tag.logo} {tag.value(record)}</Tag>;
 
 
 /* eslint-disable react/prop-types */
@@ -52,8 +52,9 @@ const serviceColumns = (isOwner) => [
                 <>
                 <Typography.Text>{version || "-"}</Typography.Text>
                 {"  "}
-                {record.serviceInfo.environment === "dev" && data.map((tag) => renderGitInfo(tag, record))}</>) : (
-                null),
+                {record.serviceInfo.environment === "dev" && data.map((tag, i) => renderGitInfo(tag, record, i))}
+                </>
+            ) : null,
     },
     {
         title: "URL",
