@@ -15,10 +15,10 @@ const ARTIFACT_STYLING = { fontFamily: "monospace" };
 const MAX_TABLE_PAGE_SIZE = 12;
 
 const data = [
-    {color: "blue", logo: null, value: ({serviceInfo}) => serviceInfo.environment},
+    {color: "blue", logo: null, value: ({serviceInfo}) => serviceInfo.environment.toUpperCase()},
     {color: null, logo: <Icon type="tag"/>, value: ({repository}) => `chord_${repository.split("@")[1]}`},
-    {color: null, logo: <Icon type="github"/>, value: ({serviceInfo}) => serviceInfo.git_tag},
-    {color: null, logo: <Icon type="branches"/>, value: ({serviceInfo}) => serviceInfo.git_branch}
+    {color: null, logo: <Icon type="github"/>, value: ({serviceInfo}) => serviceInfo.git_tag ?? "?"},
+    {color: null, logo: <Icon type="branches"/>, value: ({serviceInfo}) => serviceInfo.git_branch ?? "?"}
 ];
 
 const renderGitInfo = (tag, record, key) => <Tag key={key} color={tag.color}>{tag.logo} {tag.value(record)}</Tag>;
