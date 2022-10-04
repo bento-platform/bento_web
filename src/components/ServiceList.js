@@ -3,7 +3,7 @@ import { useSelector } from "react-redux";
 
 import { Link } from "react-router-dom";
 
-import { Table, Typography, Tag } from "antd";
+import { Table, Typography, Tag, Icon} from "antd";
 
 import { ROLE_OWNER } from "../constants";
 import { withBasePath } from "../utils/url";
@@ -13,6 +13,16 @@ const ARTIFACT_STYLING = { fontFamily: "monospace" };
 // biggest reasonable size limit before rolling over
 // currently 11 services including gohan
 const MAX_TABLE_PAGE_SIZE = 12;
+
+const data = [
+    {color: "blue", logo: null, value: ({serviceInfo}) => serviceInfo.environment.toUpperCase()},
+    {color: null, logo: <Icon type="tag"/>, value: ({repository}) => `chord_${repository.split("@")[1]}`},
+    {color: null, logo: <Icon type="github"/>, value: ({serviceInfo}) => serviceInfo.git_tag ?? "?"},
+    {color: null, logo: <Icon type="branches"/>, value: ({serviceInfo}) => serviceInfo.git_branch ?? "?"}
+];
+
+const renderGitInfo = (tag, record, key) => <Tag key={key} color={tag.color}>{tag.logo} {tag.value(record)}</Tag>;
+
 
 /* eslint-disable react/prop-types */
 const serviceColumns = (isOwner) => [
@@ -37,7 +47,14 @@ const serviceColumns = (isOwner) => [
     {
         title: "Version",
         dataIndex: "serviceInfo.version",
-        render: (version) => <Typography.Text>{version || "-"}</Typography.Text>,
+        render: (version, record) =>
+            record.serviceInfo ? (
+                <>
+                <Typography.Text>{version || "-"}</Typography.Text>
+                {"  "}
+                {record.serviceInfo.environment === "dev" && data.map((tag, i) => renderGitInfo(tag, record, i))}
+                </>
+            ) : null,
     },
     {
         title: "URL",
