@@ -32,6 +32,7 @@ export const explorer = (
         searchResultsByDatasetID: {},
         selectedRowsByDatasetID: {},
         isFetchingDownload: false,
+        fetchingTextSearch: false,
 
         autoQuery: {
             isAutoQuery: false,
@@ -166,10 +167,7 @@ export const explorer = (
         case FREE_TEXT_SEARCH.REQUEST:
             return {
                 ...state,
-                fetchingSearchByDatasetID: {
-                    ...state.fetchingSearchByDatasetID,
-                    [action.datasetID]: true,
-                },
+                fetchingTextSearch: true
             };
         case FREE_TEXT_SEARCH.RECEIVE:
             return {
@@ -185,10 +183,7 @@ export const explorer = (
         case FREE_TEXT_SEARCH.FINISH:
             return {
                 ...state,
-                fetchingSearchByDatasetID: {
-                    ...state.fetchingSearchByDatasetID,
-                    [action.datasetID]: false,
-                },
+                fetchingTextSearch: false
             };
         case SET_OTHER_THRESHOLD_PERCENTAGE:
             return {

@@ -17,7 +17,6 @@ class SearchAllRecords extends Component {
     }
 
     render() {
-        const isFetching = this.props.searchAllRecords.fetchingSearchByDatasetID[this.props.datasetID];
         return (
       <Card style={{ marginBottom: "1.5em" }}>
         <Typography.Title level={3} style={{ marginBottom: "1.5rem" }}>
@@ -27,7 +26,8 @@ class SearchAllRecords extends Component {
           placeholder="Search"
           onSearch={this.onSearch}
           style={{ width: "40%" }}
-          loading={isFetching}
+          loading={this.props.isFetchingTextSearch}
+          disabled={this.props.isFetchingAdvancedSearch}
           enterButton />
       </Card>
         );
@@ -38,10 +38,13 @@ SearchAllRecords.propTypes = {
     datasetID: PropTypes.string,
     performFreeTextSearchIfPossible: PropTypes.func,
     searchAllRecords: PropTypes.object,
+    isFetchingAdvancedSearch: PropTypes.bool,
+    isFetchingTextSearch: PropTypes.bool
 };
 
-const mapStateToProps = (state) => ({
-    searchAllRecords: state.explorer,
+const mapStateToProps = (state, ownProps) => ({
+    isFetchingAdvancedSearch: state.explorer.fetchingSearchByDatasetID[ownProps.datasetID] || false,
+    isFetchingTextSearch: state.explorer.fetchingTextSearch || false,
 });
 
 export default connect(mapStateToProps, {
