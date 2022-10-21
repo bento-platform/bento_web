@@ -14,6 +14,7 @@ export const SET_AUTO_QUERY_PAGE_TRANSITION = "EXPLORER.SET_AUTO_QUERY_PAGE_TRAN
 export const NEUTRALIZE_AUTO_QUERY_PAGE_TRANSITION = "EXPLORER.NEUTRALIZE_AUTO_QUERY_PAGE_TRANSITION";
 export const FREE_TEXT_SEARCH = createNetworkActionTypes("FREE_TEXT_SEARCH");
 export const SET_OTHER_THRESHOLD_PERCENTAGE = "EXPLORER.SET_OTHER_THRESHOLD_PERCENTAGE";
+export const SET_IS_FETCHING_INDIVIDUALS_CSV = "EXPLORER.SET_IS_FETCHING_INDIVIDUALS_CSV";
 
 const performSearch = networkAction((datasetID, dataTypeQueries, excludeFromAutoJoin = []) =>
     (dispatch, getState) => ({
@@ -53,6 +54,7 @@ export const performSearchIfPossible = (datasetID) => (dispatch, getState) => {
 export const performIndividualsDownloadCSVIfPossible = (datasetId, individualIds, allSearchResults) =>
     (dispatch, getState) => {
 
+        dispatch(setIsFetchingIndividualsCSV(true));
         const ids = individualIds.length ? individualIds : allSearchResults.map(sr => sr.key);
 
         const myHeaders = new Headers();
@@ -69,13 +71,13 @@ export const performIndividualsDownloadCSVIfPossible = (datasetId, individualIds
             body: raw,
             redirect: "follow"
         };
-
         fetch(`${getState().services.itemsByArtifact.metadata.url}/api/batch/individuals`, requestOptions)
             .then(response => response.blob())
             .then(result => {
                 FileSaver.saveAs(result, "data.csv");
             })
             .catch(error => console.log("error", error));
+        dispatch(setIsFetchingIndividualsCSV(false));
     };
 
 
@@ -140,4 +142,9 @@ export const performFreeTextSearchIfPossible = (datasetID, term) => (dispatch, _
 export const setOtherThresholdPercentage = (threshold) => ({
     type: SET_OTHER_THRESHOLD_PERCENTAGE,
     otherThresholdPercentage: threshold
+});
+
+export const setIsFetchingIndividualsCSV = (isFetching) => ({
+    type: SET_IS_FETCHING_INDIVIDUALS_CSV,
+    isFetchingIndividualCSV: isFetching
 });

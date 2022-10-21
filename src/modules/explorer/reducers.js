@@ -21,7 +21,7 @@ import {
     SET_AUTO_QUERY_PAGE_TRANSITION,
     NEUTRALIZE_AUTO_QUERY_PAGE_TRANSITION,
     FREE_TEXT_SEARCH,
-    SET_OTHER_THRESHOLD_PERCENTAGE
+    SET_OTHER_THRESHOLD_PERCENTAGE, SET_IS_FETCHING_INDIVIDUALS_CSV
 } from "./actions";
 
 // TODO: Could this somehow be combined with discovery?
@@ -32,7 +32,7 @@ export const explorer = (
         searchResultsByDatasetID: {},
         selectedRowsByDatasetID: {},
         isFetchingDownload: false,
-
+        isFetchingIndividualCSV: false,
         autoQuery: {
             isAutoQuery: false,
         },
@@ -161,6 +161,12 @@ export const explorer = (
                 },
             };
     //.. and end here.. ----
+
+        case SET_IS_FETCHING_INDIVIDUALS_CSV:
+            return {
+                ...state,
+                isFetchingIndividualCSV: action.isFetchingIndividualCSV
+            };
 
     // free-text search
         case FREE_TEXT_SEARCH.REQUEST:
