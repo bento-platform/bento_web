@@ -1,224 +1,137 @@
-import React from "react";
-import {parse} from "iso8601-duration";
-import {Col, Divider, Modal, Row, Statistic, Typography} from "antd";
+import React, { useEffect, useState } from "react";
+import { Col, Divider, Modal, Row, Statistic, Typography } from "antd";
 import CustomPieChart from "../overview/CustomPieChart";
 import Histogram from "../overview/Histogram";
-import {SEX_VALUES} from "../../dataTypes/phenopacket";
-import {explorerSearchResultsPropTypesShape} from "../../propTypes";
-import {mapNameValueFields} from "../../utils/mapNameValueFields";
+import { explorerSearchResultsPropTypesShape } from "../../propTypes";
 import { useSelector } from "react-redux";
 
 const CHART_HEIGHT = 300;
 const CHART_ASPECT_RATIO = 1.8;
 const MODAL_WIDTH = 1000;
 
-const SearchSummaryModal = ({searchResults, ...props}) => {
+const serializePieChartData = (data) => Object.entries(data).map(([key, value]) => ({ name: key, value }));
+const serializeBarChartData = (data) => Object.entries(data).map(([key, value]) => ({ ageBin: key, count: value }));
 
-    const otherThresholdPercentage = useSelector((state) => state.explorer.otherThresholdPercentage);
-    const thresholdProportion = otherThresholdPercentage / 100;
-    const searchFormattedResults = searchResults.searchFormattedResults || [];
 
-    // this doesn't work, many searches incorrectly return all experiments instead of a subset
-    // const experiments = searchResults?.results?.results?.experiment || [];
+const SearchSummaryModal = ({ searchResults, ...props }) => {
+    const [isFetching, setIsFetching] = useState(false);
+    const [data, setData] = useState(null);
 
-    // instead pull experiments from phenopackets
-    const experiments = searchFormattedResults.flatMap(r => r.experiments);
+    const katsuUrl = useSelector((state) => state.services.itemsByArtifact.metadata.url);
 
-    const histogramFormat = (ageCounts) => {
-        // only show age 110+ if present
-        if (!ageCounts[110]) {
-            delete ageCounts[110];
-        }
-        return Object.keys(ageCounts).map(age => {
-            return {ageBin: age, count: ageCounts[age]};
-        });
-    };
+    useEffect(() => {
+        setIsFetching(true);
 
-    const ageBinCounts = {
-        0: 0,
-        10: 0,
-        20: 0,
-        30: 0,
-        40: 0,
-        50: 0,
-        60: 0,
-        70: 0,
-        80: 0,
-        90: 0,
-        100: 0,
-        110: 0,
-    };
+        const myHeaders = new Headers();
+        myHeaders.append("Content-Type", "application/json");
 
-    // Individuals summary
-    const numIndividualsBySex = Object.fromEntries(SEX_VALUES.map(v => [v, 0]));
+        const ids = searchResults.results.results.map(({ subject_id }) => subject_id);
 
-    // - Phenotypic features summary
-    const numPhenoFeatsByType = {};
-
-    // - Individuals' diseases summary - from phenopackets
-    const numDiseasesByTerm = {};
-
-    // Biosamples summary
-    // TODO: More ontology aware
-
-    const numSamplesByTissue = {};
-    const numSamplesByHistologicalDiagnosis = {};
-
-    // Experiments summary
-    const numExperimentsByType = {};
-
-    searchFormattedResults.forEach(r => {
-        if (r.individual) {
-            numIndividualsBySex[r.individual.sex]++;
-        }
-
-        // handles age.age only, age.start and age.end are ignored
-        if (r.individual.age) {
-            const {age} = r.individual.age;
-            if (age) {
-                const ageBin = 10 * Math.floor(parse(age).years / 10);
-                if (ageBin < 0 || ageBin > 110) {
-                    console.error(`age out of range: ${age}`);
-                } else {
-                    ageBinCounts[ageBin] += 1;
-                }
-            }
-        }
-
-        (r.phenotypic_features || []).forEach(pf => {
-            // TODO: Better ontology awareness - label vs id, translation, etc.
-            numPhenoFeatsByType[pf.type.label] = (numPhenoFeatsByType[pf.type.label] || 0) + 1;
+        const raw = JSON.stringify({
+            id: ids,
         });
 
-        (r.diseases || []).forEach(d => {
-            // TODO: Better ontology awareness - label vs id, translation, etc.
-            numDiseasesByTerm[d.term.label] = (numDiseasesByTerm[d.term.label] || 0) + 1;
-        });
+        const requestOptions = {
+            method: "POST",
+            headers: myHeaders,
+            body: raw,
+            redirect: "follow",
+        };
 
-        (r.biosamples || []).forEach(b => {
-            const tissueKey = (b.sampled_tissue || {}).label || "N/A";
-            const histDiagKey = (b.histological_diagnosis || {}).label || "N/A";
-            numSamplesByTissue[tissueKey] = (numSamplesByTissue[tissueKey] || 0) + 1;
-            numSamplesByHistologicalDiagnosis[histDiagKey] = (numSamplesByHistologicalDiagnosis[histDiagKey] || 0) + 1;
-        });
-
-        (r.experiments || []).forEach(e => {
-            numExperimentsByType[e.experiment_type] = (numExperimentsByType[e.experiment_type] || 0) + 1;
-        });
-    });
-
-    const sexPieChartData = mapNameValueFields(numIndividualsBySex, thresholdProportion);
-    const sexDataNonEmpty = sexPieChartData.some(s => s.value > 0);
-    const ageHistogramData = histogramFormat(ageBinCounts);
-    const histogramHasData = ageHistogramData.some(a => a.count > 0);
-    const phenotypicFeaturesData = mapNameValueFields(numPhenoFeatsByType, thresholdProportion);
-    const diseasesData = mapNameValueFields(numDiseasesByTerm, thresholdProportion);
-    const biosamplesByTissueData = mapNameValueFields(numSamplesByTissue, thresholdProportion);
-    const biosamplesByHistologicalDiagnosisData = mapNameValueFields(
-        numSamplesByHistologicalDiagnosis,
-        thresholdProportion
-    );
-    const experimentsByTypeData = mapNameValueFields(numExperimentsByType, thresholdProportion);
-
-    return searchResults ? (
-      <Modal title="Search Results" {...props} width={MODAL_WIDTH} footer={null} style={{padding: "10px"}}>
-        <Row gutter={16} style={{display: "flex", flexWrap: "wrap"}}>
-          <Col span={7}>
-            <Statistic title="Individuals" value={searchFormattedResults.length} />
-          </Col>
-          <Col span={7}>
-            <Statistic
-              title="Biosamples"
-              value={searchFormattedResults
-                  .map((i) => (i.biosamples || []).length)
-                  .reduce((s, v) => s + v, 0)}
-            />
-          </Col>
-          <Col span={7}>
-            <Statistic title="Experiments" value={experiments.length} />
-          </Col>
-        </Row>
-        <Divider />
-          <>
-            <Typography.Title level={4}>Individuals</Typography.Title>
-            <Row gutter={[0, 16]}>
-              {sexDataNonEmpty && <Col span={12} style={{ textAlign: "center" }}>
-                <CustomPieChart
-                  title="Sex"
-                  data={sexPieChartData}
-                  chartHeight={CHART_HEIGHT}
-                  chartAspectRatio={CHART_ASPECT_RATIO}
-                />
-              </Col>}
-              {Boolean(diseasesData.length) && (
-                <Col span={12} style={{ textAlign: "center" }}>
-                  <CustomPieChart
-                    title="Diseases"
-                    data={diseasesData}
-                    chartHeight={CHART_HEIGHT}
-                    chartAspectRatio={CHART_ASPECT_RATIO}
-                  />
+        fetch(`${katsuUrl}/api/search_overview`, requestOptions)
+            .then((response) => response.json())
+            .then((result) => {
+                setData(result);
+                setIsFetching(false);
+                console.log(result);
+            })
+            .catch((error) => console.log("error", error));
+    }, [searchResults]);
+    // return <div>hi</div>
+    return data ? (
+        <Modal title="Search Results" {...props} width={MODAL_WIDTH} footer={null} style={{ padding: "10px" }}>
+            <Row gutter={16} style={{ display: "flex", flexWrap: "wrap" }}>
+                <Col span={7}>
+                    <Statistic title="Individuals" value={"fill this"} />
                 </Col>
-              )}
-              {Boolean(phenotypicFeaturesData.length) && (
-                <Col span={12} style={{ textAlign: "center" }}>
-                  <CustomPieChart
-                    title="Phenotypic Features"
-                    data={phenotypicFeaturesData}
-                    chartHeight={CHART_HEIGHT}
-                    chartAspectRatio={CHART_ASPECT_RATIO}
-                  />
+                <Col span={7}>
+                    <Statistic title="Biosamples" value={data.biosamples.count} />
                 </Col>
-              )}
-              {histogramHasData && <Col span={12} style={{ textAlign: "center" }}>
-                <Histogram
-                  title="Ages"
-                  data={ageHistogramData}
-                  chartHeight={CHART_HEIGHT}
-                  chartAspectRatio={CHART_ASPECT_RATIO}
-                />
-              </Col>}
+                <Col span={7}>
+                    <Statistic title="Experiments" value={data.experiments.count} />
+                </Col>
             </Row>
             <Divider />
-            <Typography.Title level={4}>Biosamples</Typography.Title>
-            <Row gutter={[0, 16]}>
-              {Boolean(biosamplesByTissueData.length) && (
-                <Col span={12} style={{ textAlign: "center" }}>
-                  <CustomPieChart
-                    title="Biosamples by Tissue"
-                    data={biosamplesByTissueData}
-                    chartHeight={CHART_HEIGHT}
-                    chartAspectRatio={CHART_ASPECT_RATIO}
-                  />
-                </Col>
-              )}
-              {Boolean(biosamplesByHistologicalDiagnosisData.length) && (
-                <Col span={12} style={{ textAlign: "center" }}>
-                  <CustomPieChart
-                    title="Biosamples by Diagnosis"
-                    data={biosamplesByHistologicalDiagnosisData}
-                    chartHeight={CHART_HEIGHT}
-                    chartAspectRatio={CHART_ASPECT_RATIO}
-                  />
-                </Col>
-              )}
-            </Row>
+            <>
+                <Typography.Title level={4}>Individuals</Typography.Title>
+                <Row gutter={[0, 16]}>
+                    <Col span={12} style={{ textAlign: "center" }}>
+                        <CustomPieChart
+                            title="Sex"
+                            data={serializePieChartData(data.individuals.sex)}
+                            chartHeight={CHART_HEIGHT}
+                            chartAspectRatio={CHART_ASPECT_RATIO}
+                        />
+                    </Col>
+                    {/*<Col span={12} style={{ textAlign: "center" }}>*/}
+                    {/*    <CustomPieChart*/}
+                    {/*        title="Diseases"*/}
+                    {/*        data={serializePieChartData(data.diseases)}*/}
+                    {/*        chartHeight={CHART_HEIGHT}*/}
+                    {/*        chartAspectRatio={CHART_ASPECT_RATIO}*/}
+                    {/*    />*/}
+                    {/*</Col>*/}
+                    <Col span={12} style={{ textAlign: "center" }}>
+                        <CustomPieChart
+                            title="Phenotypic Features"
+                            data={serializePieChartData(data.phenotypic_features.type)}
+                            chartHeight={CHART_HEIGHT}
+                            chartAspectRatio={CHART_ASPECT_RATIO}
+                        />
+                    </Col>
+                    <Col span={12} style={{ textAlign: "center" }}>
+                        <Histogram
+                            title="Ages"
+                            data={serializeBarChartData(data.individuals.age)}
+                            chartHeight={CHART_HEIGHT}
+                            chartAspectRatio={CHART_ASPECT_RATIO}
+                        />
+                    </Col>
+                </Row>
+                <Divider />
+                <Typography.Title level={4}>Biosamples</Typography.Title>
+                <Row gutter={[0, 16]}>
+                        <Col span={12} style={{ textAlign: "center" }}>
+                            <CustomPieChart
+                                title="Biosamples by Tissue"
+                                data={serializePieChartData(data.biosamples.sampled_tissue)}
+                                chartHeight={CHART_HEIGHT}
+                                chartAspectRatio={CHART_ASPECT_RATIO}
+                            />
+                        </Col>
+                        <Col span={12} style={{ textAlign: "center" }}>
+                            <CustomPieChart
+                                title="Biosamples by Diagnosis"
+                                data={serializePieChartData(data.biosamples.histological_diagnosis)}
+                                chartHeight={CHART_HEIGHT}
+                                chartAspectRatio={CHART_ASPECT_RATIO}
+                            />
+                        </Col>
+                </Row>
                 <Divider />
                 <Typography.Title level={4}>Experiments</Typography.Title>
                 <Row gutter={[0, 16]}>
-                {Boolean(experimentsByTypeData.length) && (
-                <Col span={12} style={{ textAlign: "center" }}>
-                  <CustomPieChart
-                    title="Study Types"
-                    data={experimentsByTypeData}
-                    chartHeight={CHART_HEIGHT}
-                    chartAspectRatio={CHART_ASPECT_RATIO}
-                  />
-                </Col>
-                )}
+                        <Col span={12} style={{ textAlign: "center" }}>
+                            <CustomPieChart
+                                title="Study Types"
+                                data={serializePieChartData(data.experiments.experiment_type)}
+                                chartHeight={CHART_HEIGHT}
+                                chartAspectRatio={CHART_ASPECT_RATIO}
+                            />
+                        </Col>
                 </Row>
-          </>
-      </Modal>
+            </>
+        </Modal>
     ) : null;
 };
 
