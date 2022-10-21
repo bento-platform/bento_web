@@ -142,9 +142,9 @@ class ExplorerDatasetSearch extends Component {
                                 onClick={() => this.setState({tracksModalVisible: true})}
                                 disabled={true}>
                             Visualize Tracks</Button> */}
-                        {/* <Button icon="bar-chart"
+                        { <Button icon="bar-chart"
                                 style={{marginRight: "8px"}}
-                        onClick={() => this.setState({summaryModalVisible: true})}>View Summary</Button> */}
+                        onClick={() => this.setState({summaryModalVisible: true})}>View Summary</Button> }
                         <Spin spinning={this.props.isFetchingDownload} style={{display: "inline-block !important"}}>
                             <Button icon="export" style={{marginRight: "8px"}}
                                     disabled={this.props.isFetchingDownload}
