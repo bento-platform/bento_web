@@ -1,6 +1,6 @@
 import React, {Component, Suspense, lazy} from "react";
 import {connect} from "react-redux";
-import {withRouter, Redirect, Route, Switch} from "react-router-dom";
+import {withRouter, Redirect, Switch} from "react-router-dom";
 import PropTypes from "prop-types";
 
 import io from "socket.io-client";
@@ -28,7 +28,6 @@ const NotificationDrawer = lazy(() => import("./notifications/NotificationDrawer
 
 // Lazy-load route components
 const OverviewContent = lazy(() => import("./OverviewContent"));
-const DataDiscoveryContent = lazy(() => import("./DataDiscoveryContent"));
 const DataExplorerContent = lazy(() => import("./DataExplorerContent"));
 const AdminContent = lazy(() => import("./AdminContent"));
 const NotificationsContent = lazy(() => import("./notifications/NotificationsContent"));
@@ -110,7 +109,6 @@ class App extends Component {
                     <Suspense fallback={<SitePageLoading />}>
                         <Switch>
                             <OwnerRoute path={withBasePath("overview")} component={OverviewContent} />
-                            <Route path={withBasePath("data/sets")} component={DataDiscoveryContent} />
                             <OwnerRoute path={withBasePath("data/explorer")} component={DataExplorerContent} />
                             <OwnerRoute path={withBasePath("admin")} component={AdminContent} />
                             <OwnerRoute path={withBasePath("notifications")} component={NotificationsContent} />
