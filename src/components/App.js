@@ -14,7 +14,6 @@ import SiteFooter from "./SiteFooter";
 import SitePageLoading from "./SitePageLoading";
 
 import {fetchDependentDataWithProvidedUser, fetchUserAndDependentData, setUser} from "../modules/auth/actions";
-import {fetchPeersOrError} from "../modules/peers/actions";
 
 import eventHandler from "../events";
 import {nop} from "../utils/misc";
@@ -166,7 +165,6 @@ class App extends Component {
     componentDidMount() {
         (async () => {
             await this.props.fetchUserAndDependentData(async () => {
-                await this.props.fetchPeersOrError();
                 this.createEventRelayConnectionIfNecessary();
             });
 
@@ -190,7 +188,6 @@ App.propTypes = {
     user: userPropTypesShape,
 
     fetchUserAndDependentData: PropTypes.func,
-    fetchPeersOrError: PropTypes.func,
     fetchDependentDataWithProvidedUser: PropTypes.func,
 };
 
@@ -204,5 +201,4 @@ const mapStateToProps = state => ({
 export default withRouter(connect(mapStateToProps, {
     fetchDependentDataWithProvidedUser,
     fetchUserAndDependentData,
-    fetchPeersOrError,
 })(App));
