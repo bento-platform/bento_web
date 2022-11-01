@@ -32,12 +32,6 @@ const SiteHeader = () => {
             key: "overview",
         },
         {
-            url: withBasePath("data/sets"),
-            icon: <Icon type="file-search" />,
-            text: <span className="nav-text">Datasets</span>,
-            key: "datasets",
-        },
-        {
             url: withBasePath("data/explorer"),
             icon: <Icon type="bar-chart" />,
             text: <span className="nav-text">Explorer</span>,
