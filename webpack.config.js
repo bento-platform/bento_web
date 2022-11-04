@@ -58,7 +58,7 @@ module.exports = {
             directory: path.join(__dirname, "public"),
         },
         compress: true,
-        port: 9000,
+        port: process.env.BENTO_WEB_PORT ?? 9000,
         historyApiFallback: true,
     },
 };
