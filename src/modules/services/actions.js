@@ -103,10 +103,19 @@ export const fetchServicesWithMetadataAndDataTypesAndTables = () => async (dispa
 
     // - Skip services that don't provide data (i.e. no data types/workflows/etc.)
 
-    const dataServicesInfo = getState().services.items.map(s => ({
-        ...s,
-        chordService: getState().chordServices.itemsByArtifact[s.type.split(":")[1]] || null
-    })).filter(s => (s.chordService || {data_service: false}).data_service);
+    const dataServicesInfo = getState().services.items.map(s => {
+        // Backwards compatibility for:
+        // - old type ("group:artifact:version")
+        // - and new  ({"group": "...", "artifact": "...", "version": "..."})
+        const serviceArtifact = (typeof s.type === "string")
+            ? s.type.split(":")[1]
+            : s.type.artifact;
+
+        return {
+            ...s,
+            chordService: getState().chordServices.itemsByArtifact[serviceArtifact] || null,
+        };
+    }).filter(s => (s.chordService || {data_service: false}).data_service);
 
     // - Fetch Data Service Data Types and Workflows
     await Promise.all([

@@ -75,7 +75,16 @@ export const services = (
             return {...state, isFetching: true};
 
         case FETCH_SERVICES.RECEIVE: {
-            const itemsByArtifact = Object.fromEntries(action.data.map(s => [s.type.split(":")[1], s]));
+            const itemsByArtifact = Object.fromEntries(action.data.map(s => {
+                // Backwards compatibility for:
+                // - old type ("group:artifact:version")
+                // - and new  ({"group": "...", "artifact": "...", "version": "..."})
+                const serviceArtifact = (typeof s.type === "string")
+                    ? s.type.split(":")[1]
+                    : s.type.artifact;
+
+                return [serviceArtifact, s];
+            }));
             return {
                 ...state,
 
