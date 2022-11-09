@@ -134,7 +134,7 @@ class App extends Component {
             if (!url) return null;
 
             const manager = new io.Manager(url, {
-                path: "/private/socket.io",
+                path: "/private/socket.io/",
                 reconnection: !!this.props.user,  // Only try to reconnect if we're authenticated
             });
             const socket = manager.socket("/");  // Connect to the main socket.io namespace on the server side
