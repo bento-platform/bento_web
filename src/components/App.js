@@ -1,6 +1,6 @@
 import React, {Component, Suspense, lazy} from "react";
 import {connect} from "react-redux";
-import {withRouter, Redirect, Route, Switch} from "react-router-dom";
+import {withRouter, Redirect, Switch} from "react-router-dom";
 import PropTypes from "prop-types";
 
 import io from "socket.io-client";
@@ -14,7 +14,6 @@ import SiteFooter from "./SiteFooter";
 import SitePageLoading from "./SitePageLoading";
 
 import {fetchDependentDataWithProvidedUser, fetchUserAndDependentData, setUser} from "../modules/auth/actions";
-import {fetchPeersOrError} from "../modules/peers/actions";
 
 import eventHandler from "../events";
 import {nop} from "../utils/misc";
@@ -29,7 +28,6 @@ const NotificationDrawer = lazy(() => import("./notifications/NotificationDrawer
 
 // Lazy-load route components
 const OverviewContent = lazy(() => import("./OverviewContent"));
-const DataDiscoveryContent = lazy(() => import("./DataDiscoveryContent"));
 const DataExplorerContent = lazy(() => import("./DataExplorerContent"));
 const AdminContent = lazy(() => import("./AdminContent"));
 const NotificationsContent = lazy(() => import("./notifications/NotificationsContent"));
@@ -111,7 +109,6 @@ class App extends Component {
                     <Suspense fallback={<SitePageLoading />}>
                         <Switch>
                             <OwnerRoute path={withBasePath("overview")} component={OverviewContent} />
-                            <Route path={withBasePath("data/sets")} component={DataDiscoveryContent} />
                             <OwnerRoute path={withBasePath("data/explorer")} component={DataExplorerContent} />
                             <OwnerRoute path={withBasePath("admin")} component={AdminContent} />
                             <OwnerRoute path={withBasePath("notifications")} component={NotificationsContent} />
@@ -166,7 +163,6 @@ class App extends Component {
     componentDidMount() {
         (async () => {
             await this.props.fetchUserAndDependentData(async () => {
-                await this.props.fetchPeersOrError();
                 this.createEventRelayConnectionIfNecessary();
             });
 
@@ -190,7 +186,6 @@ App.propTypes = {
     user: userPropTypesShape,
 
     fetchUserAndDependentData: PropTypes.func,
-    fetchPeersOrError: PropTypes.func,
     fetchDependentDataWithProvidedUser: PropTypes.func,
 };
 
@@ -204,5 +199,4 @@ const mapStateToProps = state => ({
 export default withRouter(connect(mapStateToProps, {
     fetchDependentDataWithProvidedUser,
     fetchUserAndDependentData,
-    fetchPeersOrError,
 })(App));

@@ -18,7 +18,6 @@ import {
 import {manager, dropBox} from "./modules/manager/reducers";
 import {nodeInfo} from "./modules/node/reducers";
 import {notifications} from "./modules/notifications/reducers";
-import {peers} from "./modules/peers/reducers";
 import {
     chordServices,
     services,
@@ -77,9 +76,6 @@ const rootReducer = combineReducers({
 
     // WES module
     runs,
-
-    // Peers module
-    peers,
 });
 
 export default rootReducer;
