@@ -5,7 +5,7 @@
   "main": "src/index.js",
   "dependencies": {
     "@babel/plugin-proposal-class-properties": "^7.12.1",
-    "antd": "^3.26.19",
+    "antd": "^4.24.2",
     "cross-fetch": "^3.1.5",
     "file-saver": "^2.0.5",
     "igv": "^2.10.1",
