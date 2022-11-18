@@ -2,8 +2,6 @@ import {createNetworkActionTypes, networkAction} from "../../utils/actions";
 import {jsonRequest} from "../../utils/requests";
 import {extractQueriesFromDataTypeForms} from "../../utils/search";
 
-import FileSaver from "file-saver";
-
 export const PERFORM_SEARCH = createNetworkActionTypes("EXPLORER.PERFORM_SEARCH");
 export const PERFORM_INDIVIDUAL_CSV_DOWNLOAD = createNetworkActionTypes("EXPLORER.PERFORM_INDIVIDUAL_CSV_DOWNLOAD");
 export const ADD_DATA_TYPE_QUERY_FORM = "EXPLORER.ADD_DATA_TYPE_QUERY_FORM";
@@ -51,33 +49,23 @@ export const performSearchIfPossible = (datasetID) => (dispatch, getState) => {
     return dispatch(performSearch(datasetID, dataTypeQueries, excludeFromAutoJoin));
 };
 
+const performIndividualsDownloadCSV = networkAction((ids) =>
+    (dispatch, getState) => ({
+        types: PERFORM_INDIVIDUAL_CSV_DOWNLOAD,
+        url: `${getState().services.itemsByArtifact.metadata.url}/api/batch/individuals`,
+        req: jsonRequest({
+            id: ids,
+            format: "csv",
+        }, "POST"),
+        parse: r => r.blob(),
+        err: "Error fetching individuals CSV",
+    }));
+
+
 export const performIndividualsDownloadCSVIfPossible = (datasetId, individualIds, allSearchResults) =>
-    (dispatch, getState) => {
-
-        dispatch(setIsFetchingIndividualsCSV(true));
-        const ids = individualIds.length ? individualIds : allSearchResults.map(sr => sr.key);
-
-        const myHeaders = new Headers();
-        myHeaders.append("Content-Type", "application/json");
-
-        const raw = JSON.stringify({
-            "id": ids,
-            "format": "csv"
-        });
-
-        const requestOptions = {
-            method: "POST",
-            headers: myHeaders,
-            body: raw,
-            redirect: "follow"
-        };
-        fetch(`${getState().services.itemsByArtifact.metadata.url}/api/batch/individuals`, requestOptions)
-            .then(response => response.blob())
-            .then(result => {
-                FileSaver.saveAs(result, "data.csv");
-            })
-            .catch(error => console.log("error", error));
-        dispatch(setIsFetchingIndividualsCSV(false));
+    (dispatch, _getState) => {
+        const ids = individualIds.length ? individuaIds : allSearchResults.map(sr => sr.key);
+        return dispatch(performIndividualsDownloadCSV(ids));
     };
 
 
