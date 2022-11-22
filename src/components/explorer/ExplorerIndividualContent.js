@@ -101,8 +101,8 @@ class ExplorerIndividualContent extends Component {
             if (!individual) {
                 return null;
             }
-            const mainId = (individual || {}).id;
-            const alternateIds = (individual || {}).alternate_ids ?? [];
+            const mainId = individual.id;
+            const alternateIds = individual.alternate_ids ?? [];
             return alternateIds.length ? `${mainId} (${alternateIds.join(", ")})` : mainId;
         };
 
