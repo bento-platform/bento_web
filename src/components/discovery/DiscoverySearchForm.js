@@ -267,10 +267,11 @@ class DiscoverySearchForm extends Component {
         const variantsOptions = Object.values(phenopacketSearchOptions.variants);
         const diseasesOptions = Object.values(phenopacketSearchOptions.diseases);
 
-        const DropdownOption = ({ option }) => {
-            const schema = this.getDataTypeFieldSchema("[dataset item]." + option.path);
+        // eslint-disable-next-line react/prop-types
+        const DropdownOption = ({option: {path, ui_name: uiName}}) => {
+            const schema = this.getDataTypeFieldSchema(`[dataset item].${path}`);
             return <Tooltip title={schema.description} mouseEnterDelay={TOOLTIP_DELAY_SECONDS}>
-              {option.ui_name}
+              {uiName}
             </Tooltip>;
         };
         DropdownOption.propTypes = {
