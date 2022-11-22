@@ -7,6 +7,4 @@ COPY package-lock.json package-lock.json
 
 RUN npm ci
 
-COPY . .
-
 ENTRYPOINT [ "sh", "./entrypoint.dev.sh" ]
