@@ -22,7 +22,7 @@ const performSearch = networkAction((datasetID, dataTypeQueries, excludeFromAuto
         params: {datasetID},
         req: jsonRequest({
             data_type_queries: dataTypeQueries,
-            join_query: null,  // Will get auto-filled by the federation service,
+            join_query: null,  // Will be autofilled by the aggregation service
             exclude_from_auto_join: excludeFromAutoJoin,
         }, "POST"),
         err: "Error performing search",
