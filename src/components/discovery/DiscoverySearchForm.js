@@ -269,11 +269,15 @@ class DiscoverySearchForm extends Component {
 
         const DropdownOption = ({ option }) => {
             const schema = this.getDataTypeFieldSchema("[dataset item]." + option.path);
-            return (
-            <Tooltip title={schema.description} mouseEnterDelay={TOOLTIP_DELAY_SECONDS}>
+            return <Tooltip title={schema.description} mouseEnterDelay={TOOLTIP_DELAY_SECONDS}>
               {option.ui_name}
-            </Tooltip>
-            );
+            </Tooltip>;
+        };
+        DropdownOption.propTypes = {
+            option: PropTypes.shape({
+                path: PropTypes.string,
+                ui_name: PropTypes.string,
+            }),
         };
 
         // longest title padded with marginRight
@@ -377,6 +381,7 @@ class DiscoverySearchForm extends Component {
 }
 
 DiscoverySearchForm.propTypes = {
+    form: PropTypes.instanceOf(Form),
     conditionType: PropTypes.oneOf(["data-type", "join"]),
     dataType: PropTypes.object,  // TODO: Shape?
     isInternal: PropTypes.bool,
