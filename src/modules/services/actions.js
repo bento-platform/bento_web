@@ -113,9 +113,9 @@ export const fetchServicesWithMetadataAndDataTypesAndTables = () => async (dispa
 
         return {
             ...s,
-            chordService: getState().chordServices.itemsByArtifact[serviceArtifact] || null,
+            chordService: getState().chordServices.itemsByArtifact[serviceArtifact] ?? null,
         };
-    }).filter(s => (s.chordService || {data_service: false}).data_service);
+    }).filter(s => s.chordService?.data_service ?? false);
 
     // - Fetch Data Service Data Types and Workflows
     await Promise.all([
@@ -135,7 +135,7 @@ export const fetchServicesWithMetadataAndDataTypesAndTables = () => async (dispa
     // - skip services that don't provide data or don't have data types
     dispatch(beginFlow(LOADING_SERVICE_TABLES));
     await Promise.all(dataServicesInfo.flatMap(s =>
-        ((getState().serviceDataTypes.dataTypesByServiceID[s.id] || {items: []}).items || [])
+        (getState().serviceDataTypes.dataTypesByServiceID[s.id]?.items ?? [])
             .map(dt => dispatch(fetchDataServiceDataTypeTables(s.chordService, s, dt)))));
     dispatch(endFlow(LOADING_SERVICE_TABLES));
 
