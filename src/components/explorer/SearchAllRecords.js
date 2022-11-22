@@ -43,8 +43,8 @@ SearchAllRecords.propTypes = {
 };
 
 const mapStateToProps = (state, ownProps) => ({
-    isFetchingAdvancedSearch: state.explorer.fetchingSearchByDatasetID[ownProps.datasetID] || false,
-    isFetchingTextSearch: state.explorer.fetchingTextSearch || false,
+    isFetchingAdvancedSearch: state.explorer.fetchingSearchByDatasetID[ownProps.datasetID] ?? false,
+    isFetchingTextSearch: state.explorer.fetchingTextSearch ?? false,
 });
 
 export default connect(mapStateToProps, {
