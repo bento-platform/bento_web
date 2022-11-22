@@ -107,7 +107,7 @@ class ExplorerDatasetSearch extends Component {
 
         const numResults = (this.props.searchResults || {searchFormattedResults: []}).searchFormattedResults.length;
 
-        const isFetchingSearchResults = this.props.fetchingSearch || this.props.fetchingTextSearch
+        const isFetchingSearchResults = this.props.fetchingSearch || this.props.fetchingTextSearch;
 
         const tableStyle = {
             opacity: (isFetchingSearchResults ? 0.5 : 1),
