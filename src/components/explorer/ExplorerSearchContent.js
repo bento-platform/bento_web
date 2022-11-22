@@ -55,13 +55,13 @@ class ExplorerSearchContent extends Component {
 }
 
 ExplorerSearchContent.propTypes = {
-    federationServiceInfo: serviceInfoPropTypesShape,
+    aggregationServiceInfo: serviceInfoPropTypesShape,
     projects: PropTypes.arrayOf(projectPropTypesShape),
     isFetchingDependentData: PropTypes.bool,
 };
 
 const mapStateToProps = state => ({
-    federationServiceInfo: state.services.federationService,
+    aggregationServiceInfo: state.services.aggregationService,
     projects: state.projects.items,
     isFetchingDependentData: state.auth.isFetchingDependentData,
     autoQuery: state.explorer.autoQuery

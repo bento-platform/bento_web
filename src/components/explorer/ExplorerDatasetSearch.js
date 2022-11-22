@@ -214,7 +214,7 @@ ExplorerDatasetSearch.propTypes = {
     performIndividualsDownloadCSVIfPossible: PropTypes.func.isRequired,
     isFetchingDownload: PropTypes.bool,
 
-    federationServiceInfo: serviceInfoPropTypesShape,
+    aggregationServiceInfo: serviceInfoPropTypesShape,
     datasetsByID: PropTypes.objectOf(datasetPropTypesShape),
 };
 
@@ -230,7 +230,7 @@ const mapStateToProps = (state, ownProps) => {
 
         isFetchingDownload: state.explorer.isFetchingDownload || false,
 
-        federationServiceInfo: state.services.federationService,
+        aggregationServiceInfo: state.services.aggregationService,
         datasetsByID: Object.fromEntries(state.projects.items
             .flatMap(p => p.datasets.map(d => [d.identifier, {...d, project: p.identifier}]))),
     };
