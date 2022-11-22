@@ -107,9 +107,11 @@ class ExplorerDatasetSearch extends Component {
 
         const numResults = (this.props.searchResults || {searchFormattedResults: []}).searchFormattedResults.length;
 
+        const isFetchingSearchResults = this.props.fetchingSearch || this.props.fetchingTextSearch;
+
         const tableStyle = {
-            opacity: (this.props.fetchingSearch ? 0.5 : 1),
-            pointerEvents: (this.props.fetchingSearch ? "none" : "auto")
+            opacity: (isFetchingSearchResults ? 0.5 : 1),
+            pointerEvents: (isFetchingSearchResults ? "none" : "auto")
         };
 
         // Calculate page numbers and range
@@ -129,7 +131,7 @@ class ExplorerDatasetSearch extends Component {
                                    addDataTypeQueryForm={this.props.addDataTypeQueryForm}
                                    updateDataTypeQueryForm={this.props.updateDataTypeQueryForm}
                                    removeDataTypeQueryForm={this.props.removeDataTypeQueryForm} />
-            {this.props.searchResults && !this.props.fetchingSearch ? <>
+            {this.props.searchResults && !(isFetchingSearchResults) ? <>
                 <Typography.Title level={4}>
                     Showing results {showingResults}-{Math.min(this.state.currentPage * this.state.pageSize,
                     numResults)} of {numResults}
@@ -163,7 +165,7 @@ class ExplorerDatasetSearch extends Component {
                                    onCancel={() => this.setState({tracksModalVisible: false})} />
                     <div style={tableStyle}>
                         <Table bordered
-                               disabled={this.props.fetchingSearch}
+                               disabled={isFetchingSearchResults}
                                size="middle"
                                columns={SEARCH_RESULT_COLUMNS}
                                dataSource={this.props.searchResults.searchFormattedResults || []}
@@ -202,6 +204,7 @@ ExplorerDatasetSearch.propTypes = {
 
     dataTypeForms: PropTypes.arrayOf(PropTypes.object),
     fetchingSearch: PropTypes.bool,
+    fetchingTextSearch: PropTypes.bool,
     searchResults: PropTypes.object,
     selectedRows: PropTypes.arrayOf(PropTypes.string),
 
@@ -225,6 +228,7 @@ const mapStateToProps = (state, ownProps) => {
 
         dataTypeForms: state.explorer.dataTypeFormsByDatasetID[datasetID] || [],
         fetchingSearch: state.explorer.fetchingSearchByDatasetID[datasetID] || false,
+        fetchingTextSearch: state.explorer.fetchingTextSearch || false,
         searchResults: state.explorer.searchResultsByDatasetID[datasetID] || null,
         selectedRows: state.explorer.selectedRowsByDatasetID[datasetID] || [],
 
