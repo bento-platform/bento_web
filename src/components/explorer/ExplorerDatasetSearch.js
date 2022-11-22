@@ -11,7 +11,7 @@ import DiscoveryQueryBuilder from "../discovery/DiscoveryQueryBuilder";
 import SearchSummaryModal from "./SearchSummaryModal";
 import SearchAllRecords from "./SearchAllRecords";
 
-import {datasetPropTypesShape, serviceInfoPropTypesShape} from "../../propTypes";
+import {datasetPropTypesShape} from "../../propTypes";
 import {
     addDataTypeQueryForm,
     performSearchIfPossible,
@@ -217,7 +217,6 @@ ExplorerDatasetSearch.propTypes = {
     performIndividualsDownloadCSVIfPossible: PropTypes.func.isRequired,
     isFetchingDownload: PropTypes.bool,
 
-    aggregationServiceInfo: serviceInfoPropTypesShape,
     datasetsByID: PropTypes.objectOf(datasetPropTypesShape),
 };
 
@@ -234,7 +233,6 @@ const mapStateToProps = (state, ownProps) => {
 
         isFetchingDownload: state.explorer.isFetchingDownload || false,
 
-        aggregationServiceInfo: state.services.aggregationService,
         datasetsByID: Object.fromEntries(state.projects.items
             .flatMap(p => p.datasets.map(d => [d.identifier, {...d, project: p.identifier}]))),
     };
