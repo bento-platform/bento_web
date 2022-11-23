@@ -80,32 +80,32 @@ class DiscoverySearchCondition extends Component {
 
         (this.props.onFieldChange ?? nop)(change);
         this.handleChange(change);
-    }
+    };
 
     handleNegation = (value) => {
         this.handleChange({negated: (value === true || value === "neg")});
-    }
+    };
 
     handleOperation = (value) => {
         this.handleChange({operation: value});
-    }
+    };
 
     handleSearchValue = (e) => {
         this.handleChange({
             searchValue: getSchemaTypeTransformer(this.state.fieldSchema.type)[0](e.target.value)
         });
-    }
+    };
 
     handleSearchSelectValue = (searchValue) => {
         this.handleChange({
             searchValue: getSchemaTypeTransformer(this.state.fieldSchema.type)[0](searchValue)
         });
-    }
+    };
 
     handleChange = (change) => {
         if (!("value" in this.props)) this.setState(change);
         if (this.props.onChange) this.props.onChange({...this.state, ...change});
-    }
+    };
 
     getSearchValue() {
         return getSchemaTypeTransformer(this.state.fieldSchema.type)[1](this.state.searchValue);

@@ -179,7 +179,7 @@ class DiscoverySearchForm extends Component {
         "[dataset item].start",
         "[dataset item].end",
         "[dataset item].calls.[item].genotype_type",
-    ]
+    ];
 
     updateConditions = (conditions, fieldName, newValue) => {
         console.log({CONDITIONSIN: conditions});
@@ -189,7 +189,7 @@ class DiscoverySearchForm extends Component {
         console.log({CONDITIONSOUT: toReturn});
 
         return toReturn;
-    }
+    };
 
     // fill hidden variant forms according to input in user-friendly variant search
     addVariantSearchValues = (values) => {
@@ -227,16 +227,16 @@ class DiscoverySearchForm extends Component {
         };
 
         this.props.handleVariantHiddenFieldChange(updatedFields);
-    }
+    };
 
     // don't count hidden variant fields
     getLabel = (i) => {
         return this.state.isVariantSearch ? `Condition ${i - 1}` : `Condition ${i + 1}`;
-    }
+    };
 
     getHelpText = (key) => {
         return this.state.isVariantSearch ? "" : this.state.conditionsHelp[key] ?? undefined;
-    }
+    };
 
     getInitialOperator = (field, fieldSchema) => {
         if (!this.state.isVariantSearch) {
@@ -256,7 +256,7 @@ class DiscoverySearchForm extends Component {
             default:
                 return OP_EQUALS;
         }
-    }
+    };
 
     phenopacketsSearchOptions = () => {
         const phenopacketSearchOptions = searchUiMappings.phenopacket;
@@ -304,11 +304,11 @@ class DiscoverySearchForm extends Component {
                 </Menu.SubMenu>
             </Menu>
         );
-    }
+    };
 
     addConditionFromPulldown = ({key}) => {
         this.addCondition("[dataset item]." + key);
-    }
+    };
 
     render() {
         const getCondition = ck => this.props.form.getFieldValue(`conditions[${ck}]`);
