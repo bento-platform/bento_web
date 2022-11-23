@@ -97,8 +97,17 @@ class ExplorerIndividualContent extends Component {
             ? matchingMenuKeys(individualMenu, urlPath(this.props.nodeInfo.CHORD_URL))
             : [];
 
+        const headerTitle = (individual) => {
+            if (!individual) {
+                return null;
+            }
+            const mainId = individual.id;
+            const alternateIds = individual.alternate_ids ?? [];
+            return alternateIds.length ? `${mainId} (${alternateIds.join(", ")})` : mainId;
+        };
+
         return <>
-            <SitePageHeader title={(individual || {}).id || "Loading..."}
+            <SitePageHeader title={headerTitle(individual) || "Loading..."}
                             withTabBar={true}
                             onBack={this.state.backUrl
                                 ? (() => this.props.history.push(this.state.backUrl)) : undefined}
