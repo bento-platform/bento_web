@@ -5,4 +5,5 @@ if [ -z "${BENTO_WEB_PORT}" ]; then
   export BENTO_WEB_PORT=80
 fi
 
+npm install
 npm run start
