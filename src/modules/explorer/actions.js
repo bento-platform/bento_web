@@ -18,11 +18,11 @@ export const SET_OTHER_THRESHOLD_PERCENTAGE = "EXPLORER.SET_OTHER_THRESHOLD_PERC
 const performSearch = networkAction((datasetID, dataTypeQueries, excludeFromAutoJoin = []) =>
     (dispatch, getState) => ({
         types: PERFORM_SEARCH,
-        url: `${getState().services.federationService.url}/private/dataset-search/${datasetID}`,
+        url: `${getState().services.aggregationService.url}/private/dataset-search/${datasetID}`,
         params: {datasetID},
         req: jsonRequest({
             data_type_queries: dataTypeQueries,
-            join_query: null,  // Will get auto-filled by the federation service,
+            join_query: null,  // Will be autofilled by the aggregation service
             exclude_from_auto_join: excludeFromAutoJoin,
         }, "POST"),
         err: "Error performing search",

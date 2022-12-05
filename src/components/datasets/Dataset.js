@@ -184,7 +184,6 @@ class Dataset extends Component {
                     <Typography.Paragraph>
                         All data contained in the dataset will be deleted permanently, and the
                         dataset will no longer be available for exploration.
-                        {/* TODO: Real terms and conditions */}
                     </Typography.Paragraph>
                 </>,
                 width: 572,

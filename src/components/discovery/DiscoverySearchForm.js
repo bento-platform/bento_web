@@ -179,7 +179,7 @@ class DiscoverySearchForm extends Component {
         "[dataset item].start",
         "[dataset item].end",
         "[dataset item].calls.[item].genotype_type",
-    ]
+    ];
 
     updateConditions = (conditions, fieldName, newValue) => {
         console.log({CONDITIONSIN: conditions});
@@ -189,7 +189,7 @@ class DiscoverySearchForm extends Component {
         console.log({CONDITIONSOUT: toReturn});
 
         return toReturn;
-    }
+    };
 
     // fill hidden variant forms according to input in user-friendly variant search
     addVariantSearchValues = (values) => {
@@ -227,16 +227,16 @@ class DiscoverySearchForm extends Component {
         };
 
         this.props.handleVariantHiddenFieldChange(updatedFields);
-    }
+    };
 
     // don't count hidden variant fields
     getLabel = (i) => {
         return this.state.isVariantSearch ? `Condition ${i - 1}` : `Condition ${i + 1}`;
-    }
+    };
 
     getHelpText = (key) => {
         return this.state.isVariantSearch ? "" : this.state.conditionsHelp[key] ?? undefined;
-    }
+    };
 
     getInitialOperator = (field, fieldSchema) => {
         if (!this.state.isVariantSearch) {
@@ -256,7 +256,7 @@ class DiscoverySearchForm extends Component {
             default:
                 return OP_EQUALS;
         }
-    }
+    };
 
     phenopacketsSearchOptions = () => {
         const phenopacketSearchOptions = searchUiMappings.phenopacket;
@@ -267,13 +267,18 @@ class DiscoverySearchForm extends Component {
         const variantsOptions = Object.values(phenopacketSearchOptions.variants);
         const diseasesOptions = Object.values(phenopacketSearchOptions.diseases);
 
-        const DropdownOption = ({ option }) => {
-            const schema = this.getDataTypeFieldSchema("[dataset item]." + option.path);
-            return (
-            <Tooltip title={schema.description} mouseEnterDelay={TOOLTIP_DELAY_SECONDS}>
-              {option.ui_name}
-            </Tooltip>
-            );
+        // eslint-disable-next-line react/prop-types
+        const DropdownOption = ({option: {path, ui_name: uiName}}) => {
+            const schema = this.getDataTypeFieldSchema(`[dataset item].${path}`);
+            return <Tooltip title={schema.description} mouseEnterDelay={TOOLTIP_DELAY_SECONDS}>
+              {uiName}
+            </Tooltip>;
+        };
+        DropdownOption.propTypes = {
+            option: PropTypes.shape({
+                path: PropTypes.string,
+                ui_name: PropTypes.string,
+            }),
         };
 
         // longest title padded with marginRight
@@ -299,11 +304,11 @@ class DiscoverySearchForm extends Component {
                 </Menu.SubMenu>
             </Menu>
         );
-    }
+    };
 
     addConditionFromPulldown = ({key}) => {
         this.addCondition("[dataset item]." + key);
-    }
+    };
 
     render() {
         const getCondition = ck => this.props.form.getFieldValue(`conditions[${ck}]`);
@@ -377,6 +382,7 @@ class DiscoverySearchForm extends Component {
 }
 
 DiscoverySearchForm.propTypes = {
+    form: PropTypes.instanceOf(Form),
     conditionType: PropTypes.oneOf(["data-type", "join"]),
     dataType: PropTypes.object,  // TODO: Shape?
     isInternal: PropTypes.bool,

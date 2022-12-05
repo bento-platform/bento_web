@@ -3,7 +3,7 @@ import {connect} from "react-redux";
 import {withRouter, Redirect, Switch} from "react-router-dom";
 import PropTypes from "prop-types";
 
-import io from "socket.io-client";
+import * as io from "socket.io-client";
 
 import {Layout, Modal} from "antd";
 
@@ -17,7 +17,7 @@ import {fetchDependentDataWithProvidedUser, fetchUserAndDependentData, setUser} 
 
 import eventHandler from "../events";
 import {nop} from "../utils/misc";
-import {BASE_PATH, signInURLWithCustomRedirect, urlPath, withBasePath} from "../utils/url";
+import {BASE_PATH, signInURLWithCustomRedirect, withBasePath} from "../utils/url";
 import {nodeInfoDataPropTypesShape, serviceInfoPropTypesShape, userPropTypesShape} from "../propTypes";
 
 import SessionWorker from "../session.worker";
@@ -38,7 +38,7 @@ class App extends Component {
     constructor(props) {
         super(props);
 
-        /** @type {null|io.Manager} */
+        /** @type {null|io.Socket} */
         this.eventRelayConnection = null;
 
         this.pingInterval = null;
@@ -131,10 +131,15 @@ class App extends Component {
             if (!this.props.user) return null;
 
             const url = this.props.eventRelay?.url ?? null;
-            return url ? (() => io(BASE_PATH, {
-                path: `${urlPath(url)}/private/socket.io`,
-                reconnection: !!this.props.user  // Only try to reconnect if we're authenticated
-            }).on("events", message => eventHandler(message, this.props.history)))() : null;
+            if (!url) return null;
+
+            const manager = new io.Manager(url, {
+                path: "/private/socket.io/",
+                reconnection: !!this.props.user,  // Only try to reconnect if we're authenticated
+            });
+            const socket = manager.socket("/");  // Connect to the main socket.io namespace on the server side
+            socket.on("events", message => eventHandler(message, this.props.history));
+            return socket;
         })();
     }
 

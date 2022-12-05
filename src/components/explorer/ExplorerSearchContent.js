@@ -1,7 +1,7 @@
 import React, {Component} from "react";
 import {connect} from "react-redux";
 import {Redirect, Route, Switch} from "react-router-dom";
-import {PropTypes} from "prop-types";
+import PropTypes from "prop-types";
 
 import {Layout, Menu, Skeleton} from "antd";
 
@@ -10,7 +10,7 @@ import {LAYOUT_CONTENT_STYLE} from "../../styles/layoutContent";
 import ExplorerDatasetSearch from "./ExplorerDatasetSearch";
 import {matchingMenuKeys, renderMenuItem} from "../../utils/menu";
 import {withBasePath} from "../../utils/url";
-import {projectPropTypesShape, serviceInfoPropTypesShape} from "../../propTypes";
+import {projectPropTypesShape} from "../../propTypes";
 
 class ExplorerSearchContent extends Component {
     render() {
@@ -55,13 +55,11 @@ class ExplorerSearchContent extends Component {
 }
 
 ExplorerSearchContent.propTypes = {
-    federationServiceInfo: serviceInfoPropTypesShape,
     projects: PropTypes.arrayOf(projectPropTypesShape),
     isFetchingDependentData: PropTypes.bool,
 };
 
 const mapStateToProps = state => ({
-    federationServiceInfo: state.services.federationService,
     projects: state.projects.items,
     isFetchingDependentData: state.auth.isFetchingDependentData,
     autoQuery: state.explorer.autoQuery

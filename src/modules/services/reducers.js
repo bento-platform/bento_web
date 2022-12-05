@@ -53,9 +53,9 @@ export const services = (
         itemsByID: {},
         itemsByArtifact: {},
 
+        aggregationService: null,
         dropBoxService: null,
         eventRelay: null,
-        federationService: null,
         logService: null,
         metadataService: null,
         notificationService: null,
@@ -75,7 +75,16 @@ export const services = (
             return {...state, isFetching: true};
 
         case FETCH_SERVICES.RECEIVE: {
-            const itemsByArtifact = Object.fromEntries(action.data.map(s => [s.type.split(":")[1], s]));
+            const itemsByArtifact = Object.fromEntries(action.data.map(s => {
+                // Backwards compatibility for:
+                // - old type ("group:artifact:version")
+                // - and new  ({"group": "...", "artifact": "...", "version": "..."})
+                const serviceArtifact = (typeof s.type === "string")
+                    ? s.type.split(":")[1]
+                    : s.type.artifact;
+
+                return [serviceArtifact, s];
+            }));
             return {
                 ...state,
 
@@ -83,9 +92,10 @@ export const services = (
                 itemsByID: Object.fromEntries(action.data.map(s => [s.id, s])),
                 itemsByArtifact,
 
+                // TODO: with new federation service, change artifact
+                aggregationService: itemsByArtifact["federation"] ?? null,
                 dropBoxService: itemsByArtifact["drop-box"] ?? null,
                 eventRelay: itemsByArtifact["event-relay"] ?? null,
-                federationService: itemsByArtifact["federation"] ?? null,
                 logService: itemsByArtifact["log-service"] ?? null,
                 notificationService: itemsByArtifact["notification"] ?? null,
                 metadataService: itemsByArtifact["metadata"] ?? null,

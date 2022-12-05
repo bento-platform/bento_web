@@ -25,21 +25,21 @@ module.exports = {
                 test: /\.(png|jpe?g|gif|svg)$/i,
                 use: ["file-loader"],
             },            
-        ]
+        ],
     },
     resolve: {
-        extensions: ["*", ".js", ".jsx"]
+        extensions: ["*", ".js", ".jsx"],
     },
     output: {
         path: path.resolve(__dirname, "dist"),
         publicPath: BASE_PATH,
-        filename: "bundle.js",
-        chunkFilename: "[name].[contenthash].bundle.js"
+        filename: "[name].js",
+        chunkFilename: "[name].[contenthash].bundle.js",
     },
     optimization: {
         splitChunks: {
             chunks: "all"
-        }
+        },
     },
     plugins: [
         new HtmlWebpackPlugin({
@@ -48,8 +48,17 @@ module.exports = {
             hash: true,
         }),
         new webpack.EnvironmentPlugin({
+            // Default environment variables to null if not set
             CHORD_URL: null,
-            CUSTOM_HEADER: process.env.CUSTOM_HEADER,
-        })
-    ]
+            CUSTOM_HEADER: null,
+        }),
+    ],
+    devServer: {
+        static: {
+            directory: path.join(__dirname, "public"),
+        },
+        compress: true,
+        port: process.env.BENTO_WEB_PORT ?? 9000,
+        historyApiFallback: true,
+    },
 };

@@ -299,7 +299,12 @@ export const addProjectTable = (project, datasetID, serviceInfo, dataType, table
             }
 
             const serviceTable = await serviceResponse.json();
-            const serviceArtifact = serviceInfo.type.split(":")[1];
+            // Backwards compatibility for:
+            // - old type ("group:artifact:version")
+            // - and new  ({"group": "...", "artifact": "...", "version": "..."})
+            const serviceArtifact = (typeof serviceInfo.type === "string")
+                ? serviceInfo.type.split(":")[1]
+                : serviceInfo.type.artifact;
 
             try {
                 // If table is created in the metadata service, it'll handle automatically creating the ownership record
@@ -311,7 +316,7 @@ export const addProjectTable = (project, datasetID, serviceInfo, dataType, table
                         jsonRequest({
                             table_id: serviceTable.id,
                             service_id: serviceInfo.id,
-                            service_artifact: serviceInfo.type.split(":")[1],
+                            service_artifact: serviceArtifact,
                             data_type: dataType,
 
                             dataset: datasetID,
@@ -396,8 +401,17 @@ const deleteProjectTable = (project, table) => async (dispatch, getState) => {
 
 export const deleteProjectTableIfPossible = (project, table) => (dispatch, getState) => {
     if (getState().projectTables.isDeleting) return;
-    const chordServiceInfo = getState().chordServices.itemsByArtifact[
-        getState().services.itemsByID[table.service_id].type.split(":")[1]];
+
+    const serviceType = getState().services.itemsByID[table.service_id].type;
+
+    // Backwards compatibility for:
+    // - old type ("group:artifact:version")
+    // - and new  ({"group": "...", "artifact": "...", "version": "..."})
+    const serviceArtifact = (typeof serviceType === "string")
+        ? serviceType.split(":")[1]
+        : serviceType.artifact;
+
+    const chordServiceInfo = getState().chordServices.itemsByArtifact[serviceArtifact];
     if (chordServiceInfo.manageable_tables === false) {
         // If manageable_tables is set and not true, we can't delete the table.
         return;
