@@ -18,6 +18,7 @@ import {
     removeDataTypeQueryForm,
     updateDataTypeQueryForm,
     setSelectedRows,
+    setTableSortOrder,
     performIndividualsDownloadCSVIfPossible,
 } from "../../modules/explorer/actions";
 import {withBasePath} from "../../utils/url";
@@ -32,33 +33,6 @@ const individualRender = (individual) => {
         state: {backUrl: location.pathname},
     })}>{individual.id}</Link> {listRender}</>;
 };
-
-const SEARCH_RESULT_COLUMNS = [
-    {
-        title: "Individual",
-        dataIndex: "individual",
-        render: individual => individualRender(individual),
-        sorter: (a, b) => a.individual.id.localeCompare(b.individual.id),
-        defaultSortOrder: "ascend",
-    },
-    {
-        title: "Samples",
-        dataIndex: "biosamples",
-        render: samples => <>
-            {samples.length} Sample{samples.length === 1 ? "" : "s"}{samples.length ? ": " : ""}
-            {samples.join(", ")}
-        </>,
-        sorter: (a, b) => a.biosamples.length - b.biosamples.length,
-        sortDirections: ["descend", "ascend", "descend"],
-    },
-    {
-        title: "Experiments",
-        dataIndex: "experiments",
-        render: experiments => <>{experiments} Experiment{experiments === 1 ? "" : "s"}</>,
-        sorter: (a, b) => a.experiments - b.experiments,
-        sortDirections: ["descend", "ascend", "descend"],
-    },
-];
 
 
 class ExplorerDatasetSearch extends Component {
@@ -78,9 +52,9 @@ class ExplorerDatasetSearch extends Component {
         window.scrollTo(0, 0);
     }
 
-    onPageChange(pageObj) {
-        //console.log("On page: " + pageObj.current + " with page size: " + pageObj.pageSize);
-        this.setState({currentPage: pageObj.current});
+    onPageChange(pagination, _, sorter) {
+        this.setState({currentPage: pagination.current});
+        this.props.setTableSortOrder(sorter.columnKey, sorter.order);
     }
 
     resetPageNumber() {
@@ -99,6 +73,39 @@ class ExplorerDatasetSearch extends Component {
     }
 
     render() {
+
+        const {sortColumnKey, sortOrder} = this.props.tableSortOrder;
+
+        const SEARCH_RESULT_COLUMNS = [
+            {
+                title: "Individual",
+                dataIndex: "individual",
+                render: individual => individualRender(individual),
+                sorter: (a, b) => a.individual.id.localeCompare(b.individual.id),
+                sortOrder: sortColumnKey === "individual" && sortOrder,
+                defaultSortOrder: "ascend"
+            },
+            {
+                title: "Samples",
+                dataIndex: "biosamples",
+                render: samples => <>
+                    {samples.length} Sample{samples.length === 1 ? "" : "s"}{samples.length ? ": " : ""}
+                    {samples.join(", ")}
+                </>,
+                sorter: (a, b) => a.biosamples.length - b.biosamples.length,
+                sortOrder: sortColumnKey === "biosamples" && sortOrder,
+                sortDirections: ["descend", "ascend", "descend"],
+            },
+            {
+                title: "Experiments",
+                dataIndex: "experiments",
+                render: experiments => <>{experiments} Experiment{experiments === 1 ? "" : "s"}</>,
+                sorter: (a, b) => a.experiments - b.experiments,
+                sortOrder: sortColumnKey === "experiments" && sortOrder,
+                sortDirections: ["descend", "ascend", "descend"],
+            },
+        ];
+
         if (!this.props.match.params.dataset) return null;  // TODO
 
         const selectedDataset = this.props.datasetsByID[this.props.match.params.dataset];
@@ -207,12 +214,14 @@ ExplorerDatasetSearch.propTypes = {
     fetchingTextSearch: PropTypes.bool,
     searchResults: PropTypes.object,
     selectedRows: PropTypes.arrayOf(PropTypes.string),
+    tableSortOrder: PropTypes.object,
 
     addDataTypeQueryForm: PropTypes.func.isRequired,
     updateDataTypeQueryForm: PropTypes.func.isRequired,
     removeDataTypeQueryForm: PropTypes.func.isRequired,
     performSearchIfPossible: PropTypes.func.isRequired,
     setSelectedRows: PropTypes.func.isRequired,
+    setTableSortOrder: PropTypes.func,
 
     performIndividualsDownloadCSVIfPossible: PropTypes.func.isRequired,
     isFetchingDownload: PropTypes.bool,
@@ -230,6 +239,7 @@ const mapStateToProps = (state, ownProps) => {
         fetchingTextSearch: state.explorer.fetchingTextSearch || false,
         searchResults: state.explorer.searchResultsByDatasetID[datasetID] || null,
         selectedRows: state.explorer.selectedRowsByDatasetID[datasetID] || [],
+        tableSortOrder: state.explorer.tableSortOrderByDatasetID[datasetID] || {},
 
         isFetchingDownload: state.explorer.isFetchingDownload || false,
 
@@ -245,6 +255,7 @@ const mapDispatchToProps = (dispatch, ownProps) => Object.fromEntries(Object.ent
     removeDataTypeQueryForm,
     performSearchIfPossible,
     setSelectedRows,
+    setTableSortOrder,
     performIndividualsDownloadCSVIfPossible
 }).map(([k, v]) => [k, (...args) => dispatch(v(ownProps.match.params.dataset, ...args))]));
 
