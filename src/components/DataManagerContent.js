@@ -35,13 +35,13 @@ const MENU_STYLE = {
 
 class DataManagerContent extends Component {
     componentDidMount() {
-        document.title = `${SITE_NAME} - Manage Your Data`;
+        document.title = `${SITE_NAME}: Admin / Data Manager`;
     }
 
     render() {
         const selectedKeys = matchingMenuKeys(PAGE_MENU);
         return <>
-            <SitePageHeader title="Data Manager"
+            <SitePageHeader title="Admin › Data Manager"
                             withTabBar={true}
                             footer={
                                 <Menu mode="horizontal" style={MENU_STYLE} selectedKeys={selectedKeys}>

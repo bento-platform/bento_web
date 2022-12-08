@@ -6,7 +6,6 @@ import {Menu, Skeleton} from "antd";
 
 import SitePageHeader from "../SitePageHeader";
 import ServiceOverview from "./ServiceOverview";
-import ServiceLogs from "./ServiceLogs";
 
 import {matchingMenuKeys, renderMenuItem} from "../../utils/menu";
 import {withBasePath} from "../../utils/url";
@@ -14,7 +13,6 @@ import {Redirect, Route, Switch} from "react-router-dom";
 
 const pageMenu = artifact => [
     {url: withBasePath(`admin/services/${artifact}/overview`), style: {marginLeft: "4px"}, text: "Overview"},
-    {url: withBasePath(`admin/services/${artifact}/logs`), text: "Logs"},
 ];
 
 // TODO: Deduplicate with data manager
@@ -45,7 +43,6 @@ class ServiceDetail extends Component {
                 <Switch>
                     <Route exact path={withBasePath("admin/services/:artifact/overview")}
                            component={ServiceOverview} />
-                    <Route path={withBasePath("admin/services/:artifact/logs")} component={ServiceLogs} />
                     <Redirect from={withBasePath(`admin/services/${artifact}`)}
                               to={withBasePath(`admin/services/${artifact}/overview`)} />
                 </Switch>
