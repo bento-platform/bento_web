@@ -8,7 +8,7 @@ import DataManagerContent from "./DataManagerContent";
 import ServiceDetail from "./services/ServiceDetail";
 
 
-const AdminContent = React.memo(() => (
+const AdminContent = () => (
     <div>
         <Switch>
             <OwnerRoute path={withBasePath("admin/services")} exact={true} component={ServiceContent} />
@@ -17,6 +17,6 @@ const AdminContent = React.memo(() => (
             <Redirect from={BASE_PATH} to={withBasePath("admin/services")} />
         </Switch>
     </div>
-));
+);
 
 export default AdminContent;
