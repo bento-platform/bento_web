@@ -18,6 +18,7 @@ import {
     REMOVE_DATA_TYPE_QUERY_FORM,
     UPDATE_DATA_TYPE_QUERY_FORM,
     SET_SELECTED_ROWS,
+    SET_TABLE_SORT_ORDER,
     SET_AUTO_QUERY_PAGE_TRANSITION,
     NEUTRALIZE_AUTO_QUERY_PAGE_TRANSITION,
     FREE_TEXT_SEARCH,
@@ -31,6 +32,7 @@ export const explorer = (
         fetchingSearchByDatasetID: {},
         searchResultsByDatasetID: {},
         selectedRowsByDatasetID: {},
+        tableSortOrderByDatasetID: {},
         isFetchingDownload: false,
         fetchingTextSearch: false,
 
@@ -135,6 +137,18 @@ export const explorer = (
                     ...state.selectedRowsByDatasetID,
                     [action.datasetID]: action.selectedRows,
                 },
+            };
+
+        case SET_TABLE_SORT_ORDER:
+            return {
+                ...state,
+                tableSortOrderByDatasetID: {
+                    ...state.tableSortOrderByDatasetID,
+                    [action.datasetID]: {
+                        sortColumnKey: action.sortColumnKey,
+                        sortOrder: action.sortOrder,
+                    },
+                }
             };
 
     // Auto-Queries start here ----
