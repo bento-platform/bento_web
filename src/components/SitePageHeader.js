@@ -1,44 +1,42 @@
-import React, {Component} from "react";
+import React from "react";
 import PropTypes from "prop-types";
 
 import {PageHeader} from "antd";
 
-const PAGE_HEADER_STYLE = {
-    borderBottom: "1px solid rgb(232, 232, 232)",
-    background: "white",
-    padding: "12px 24px"
+const styles = {
+    pageHeader: {
+        borderBottom: "1px solid rgb(232, 232, 232)",
+        background: "white",
+        padding: "12px 24px"
+    },
+    pageHeaderTitle: {
+        fontSize: "1rem",
+        lineHeight: "22px",
+        margin: "5px 0"
+    },
+    pageHeaderSubtitle: {
+        lineHeight: "23px",
+    },
+    tabBarHeader: {
+        borderBottom: "none",
+        paddingBottom: "0",
+    },
 };
 
-const PAGE_HEADER_TITLE_STYLE = {
-    fontSize: "1rem",
-    lineHeight: "22px",
-    margin: "5px 0"
-};
-
-const PAGE_HEADER_SUBTITLE_STYLE = {
-    lineHeight: "23px"
-};
-
-const TAB_BAR_HEADER_STYLING = {borderBottom: "none", paddingBottom: "0"};
-
-class SitePageHeader extends Component {
-    render() {
-        return (
-          <PageHeader
-            {...this.props}
-            title={<div style={PAGE_HEADER_TITLE_STYLE}>{this.props.title || ""}</div>}
-            subTitle={
-              this.props.subTitle ? <span style={PAGE_HEADER_SUBTITLE_STYLE}>{this.props.subTitle}</span> : undefined
-            }
-            style={{
-                ...PAGE_HEADER_STYLE,
-                ...(this.props.withTabBar ? TAB_BAR_HEADER_STYLING : {}),
-                ...(this.props.style || {}),
-            }}
-          />
-        );
-    }
-}
+const SitePageHeader = React.memo(({title, subTitle, withTabBar, style, ...props}) => (
+    <PageHeader
+        {...props}
+        title={<div style={styles.pageHeaderTitle}>{title || ""}</div>}
+        subTitle={
+            this.props.subTitle ? <span style={styles.pageHeaderSubtitle}>{subTitle}</span> : undefined
+        }
+        style={{
+            ...styles.pageHeader,
+            ...(withTabBar ? styles.tabBarHeader : {}),
+            ...(style ?? {}),
+        }}
+    />
+));
 
 SitePageHeader.propTypes = {
     title: PropTypes.string,
