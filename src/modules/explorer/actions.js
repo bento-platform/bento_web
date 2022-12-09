@@ -14,6 +14,7 @@ export const SET_AUTO_QUERY_PAGE_TRANSITION = "EXPLORER.SET_AUTO_QUERY_PAGE_TRAN
 export const NEUTRALIZE_AUTO_QUERY_PAGE_TRANSITION = "EXPLORER.NEUTRALIZE_AUTO_QUERY_PAGE_TRANSITION";
 export const FREE_TEXT_SEARCH = createNetworkActionTypes("FREE_TEXT_SEARCH");
 export const SET_OTHER_THRESHOLD_PERCENTAGE = "EXPLORER.SET_OTHER_THRESHOLD_PERCENTAGE";
+export const SET_TABLE_SORT_ORDER = "EXPLORER.SET_TABLE_SORT_ORDER";
 
 const performSearch = networkAction((datasetID, dataTypeQueries, excludeFromAutoJoin = []) =>
     (dispatch, getState) => ({
@@ -103,6 +104,13 @@ export const setSelectedRows = (datasetID, selectedRows) => ({
     type: SET_SELECTED_ROWS,
     datasetID,
     selectedRows,
+});
+
+export const setTableSortOrder = (datasetID, sortColumnKey, sortOrder) => ({
+    type: SET_TABLE_SORT_ORDER,
+    datasetID,
+    sortColumnKey,
+    sortOrder,
 });
 
 export const setAutoQueryPageTransition = (priorPageUrl, type, field, value) => ({
