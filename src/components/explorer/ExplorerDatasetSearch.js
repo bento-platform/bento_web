@@ -76,7 +76,7 @@ class ExplorerDatasetSearch extends Component {
 
         const {sortColumnKey, sortOrder} = this.props.tableSortOrder;
 
-        const SEARCH_RESULT_COLUMNS = [
+        const searchResultColumns = [
             {
                 title: "Individual",
                 dataIndex: "individual",
@@ -174,7 +174,7 @@ class ExplorerDatasetSearch extends Component {
                         <Table bordered
                                disabled={isFetchingSearchResults}
                                size="middle"
-                               columns={SEARCH_RESULT_COLUMNS}
+                               columns={searchResultColumns}
                                dataSource={this.props.searchResults.searchFormattedResults || []}
                                pagination={{
                                    pageSize: this.state.pageSize,
