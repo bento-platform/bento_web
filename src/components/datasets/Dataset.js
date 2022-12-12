@@ -123,8 +123,8 @@ class Dataset extends Component {
                     <Typography.Paragraph style={{maxWidth: "600px"}}>
                         Linked Field Sets group common fields (i.e. fields that share the same &ldquo;value
                         space&rdquo;) between multiple data types. For example, these sets can be used to tell the
-                        discovery system that Phenopacket biosample identifiers are the same as variant call sample
-                        identifiers, and so variant calls with an identifier of &ldquo;sample1&rdquo; come from a
+                        data exploration system that Phenopacket biosample identifiers are the same as variant call
+                        sample identifiers, and so variant calls with an identifier of &ldquo;sample1&rdquo; come from a
                         biosample with identifier &ldquo;sample1&rdquo;.
                     </Typography.Paragraph>
                     <Typography.Paragraph style={{maxWidth: "600px"}}>
@@ -183,9 +183,7 @@ class Dataset extends Component {
                 content: <>
                     <Typography.Paragraph>
                         All data contained in the dataset will be deleted permanently, and the
-                        dataset will no longer be available for discovery within the CHORD
-                        federation.
-                        {/* TODO: Real terms and conditions */}
+                        dataset will no longer be available for exploration.
                     </Typography.Paragraph>
                 </>,
                 width: 572,

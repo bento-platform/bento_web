@@ -1,9 +1,9 @@
 import React, {Component, Suspense, lazy} from "react";
 import {connect} from "react-redux";
-import {withRouter, Redirect, Route, Switch} from "react-router-dom";
+import {withRouter, Redirect, Switch} from "react-router-dom";
 import PropTypes from "prop-types";
 
-import io from "socket.io-client";
+import * as io from "socket.io-client";
 
 import {Layout, Modal} from "antd";
 
@@ -14,11 +14,10 @@ import SiteFooter from "./SiteFooter";
 import SitePageLoading from "./SitePageLoading";
 
 import {fetchDependentDataWithProvidedUser, fetchUserAndDependentData, setUser} from "../modules/auth/actions";
-import {fetchPeersOrError} from "../modules/peers/actions";
 
 import eventHandler from "../events";
 import {nop} from "../utils/misc";
-import {BASE_PATH, signInURLWithCustomRedirect, urlPath, withBasePath} from "../utils/url";
+import {BASE_PATH, signInURLWithCustomRedirect, withBasePath} from "../utils/url";
 import {nodeInfoDataPropTypesShape, serviceInfoPropTypesShape, userPropTypesShape} from "../propTypes";
 
 import SessionWorker from "../session.worker";
@@ -29,7 +28,6 @@ const NotificationDrawer = lazy(() => import("./notifications/NotificationDrawer
 
 // Lazy-load route components
 const OverviewContent = lazy(() => import("./OverviewContent"));
-const DataDiscoveryContent = lazy(() => import("./DataDiscoveryContent"));
 const DataExplorerContent = lazy(() => import("./DataExplorerContent"));
 const AdminContent = lazy(() => import("./AdminContent"));
 const NotificationsContent = lazy(() => import("./notifications/NotificationsContent"));
@@ -40,7 +38,7 @@ class App extends Component {
     constructor(props) {
         super(props);
 
-        /** @type {null|io.Manager} */
+        /** @type {null|io.Socket} */
         this.eventRelayConnection = null;
 
         this.pingInterval = null;
@@ -111,7 +109,6 @@ class App extends Component {
                     <Suspense fallback={<SitePageLoading />}>
                         <Switch>
                             <OwnerRoute path={withBasePath("overview")} component={OverviewContent} />
-                            <Route path={withBasePath("data/sets")} component={DataDiscoveryContent} />
                             <OwnerRoute path={withBasePath("data/explorer")} component={DataExplorerContent} />
                             <OwnerRoute path={withBasePath("admin")} component={AdminContent} />
                             <OwnerRoute path={withBasePath("notifications")} component={NotificationsContent} />
@@ -134,10 +131,15 @@ class App extends Component {
             if (!this.props.user) return null;
 
             const url = this.props.eventRelay?.url ?? null;
-            return url ? (() => io(BASE_PATH, {
-                path: `${urlPath(url)}/private/socket.io`,
-                reconnection: !!this.props.user  // Only try to reconnect if we're authenticated
-            }).on("events", message => eventHandler(message, this.props.history)))() : null;
+            if (!url) return null;
+
+            const manager = new io.Manager(url, {
+                path: "/private/socket.io/",
+                reconnection: !!this.props.user,  // Only try to reconnect if we're authenticated
+            });
+            const socket = manager.socket("/");  // Connect to the main socket.io namespace on the server side
+            socket.on("events", message => eventHandler(message, this.props.history));
+            return socket;
         })();
     }
 
@@ -166,7 +168,6 @@ class App extends Component {
     componentDidMount() {
         (async () => {
             await this.props.fetchUserAndDependentData(async () => {
-                await this.props.fetchPeersOrError();
                 this.createEventRelayConnectionIfNecessary();
             });
 
@@ -190,7 +191,6 @@ App.propTypes = {
     user: userPropTypesShape,
 
     fetchUserAndDependentData: PropTypes.func,
-    fetchPeersOrError: PropTypes.func,
     fetchDependentDataWithProvidedUser: PropTypes.func,
 };
 
@@ -204,5 +204,4 @@ const mapStateToProps = state => ({
 export default withRouter(connect(mapStateToProps, {
     fetchDependentDataWithProvidedUser,
     fetchUserAndDependentData,
-    fetchPeersOrError,
 })(App));

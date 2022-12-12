@@ -33,26 +33,26 @@ class CustomPieChart extends React.Component {
         chartAspectRatio: PropTypes.number,
         setAutoQueryPageTransition: PropTypes.func,
         autoQueryDataType: PropTypes.string,
-    }
+    };
 
     state = {
         canUpdate: false,
         activeIndex: undefined,
         itemSelected: undefined,
         fieldLabel: undefined
-    }
+    };
 
     onEnter = (_data, index) => {
         this.setState({ activeIndex: index });
-    }
+    };
 
     onHover = (_data, _index, e) => {
         e.target.style.cursor = "pointer";
-    }
+    };
 
     onLeave = () => {
         this.setState({ activeIndex: undefined });
-    }
+    };
 
     onClick = (data) => {
         const { history, setAutoQueryPageTransition, autoQueryDataType } = this.props;
@@ -70,7 +70,7 @@ class CustomPieChart extends React.Component {
 
         // Navigate to Explorer
         history.push(withBasePath("/data/explorer/search"));
-    }
+    };
 
     /*
     * This ugly hack prevents the Pie labels from not appearing
@@ -100,11 +100,11 @@ class CustomPieChart extends React.Component {
         fontStyle: "italic",
         padding: "0",
         marginBottom: "-15px",
-    }
+    };
 
     style = {
         marginBottom: "20px"
-    }
+    };
 
     labelShortName(name) {
         if (name.length <= MAX_LABEL_CHARS) {

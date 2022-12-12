@@ -66,9 +66,8 @@ class RoutedProject extends Component {
             title: `Are you sure you want to delete the "${project.title}" project?`,
             content:
                 <>
-                    Deleting this project means all data contained in the project will be deleted
-                    permanently, and datasets will no longer be available for discovery within the
-                    CHORD federation. {/* TODO: Real terms and conditions */}
+                    All data contained in the project will be deleted permanently, and
+                    datasets will no longer be available for exploration.
                 </>,
             width: 576,
             autoFocusButton: "cancel",

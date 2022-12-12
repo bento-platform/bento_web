@@ -361,10 +361,12 @@ export const explorerSearchResultsPropTypesShape = PropTypes.shape({
     }),
     searchFormattedResults: PropTypes.arrayOf(PropTypes.shape({
         key: PropTypes.string.isRequired,
-        individual: individualPropTypesShape,
-        biosamples: PropTypes.arrayOf(biosamplePropTypesShape),
-        diseases: PropTypes.arrayOf(diseasePropTypesShape),
-        experiments: PropTypes.arrayOf(experimentPropTypesShape),  // TODO
+        individual: PropTypes.shape({
+            id: PropTypes.string.isRequired,
+            alternate_ids: PropTypes.arrayOf(PropTypes.string)
+        }),
+        biosamples: PropTypes.arrayOf(PropTypes.string),
+        experiments: PropTypes.number
     })),
 });
 

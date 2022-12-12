@@ -100,7 +100,7 @@ class DiscoveryQueryBuilder extends Component {
         } catch (err) {
             console.error(err);
         }
-    }
+    };
 
     handleFormChange(dataType, fields) {
         this.props.updateDataTypeQueryForm(dataType, fields);
@@ -231,7 +231,7 @@ class DiscoveryQueryBuilder extends Component {
             <Button type="primary"
                     icon="search"
                     loading={this.props.searchLoading}
-                    disabled={this.props.dataTypeForms.length === 0}
+                    disabled={this.props.dataTypeForms.length === 0 || this.props.isFetchingTextSearch}
                     onClick={() => this.handleSubmit()}>Search</Button>
         </Card>;
     }
@@ -250,6 +250,7 @@ DiscoveryQueryBuilder.propTypes = {
     formValues: PropTypes.object,
     dataTypeForms: PropTypes.arrayOf(PropTypes.object),
     joinFormValues: PropTypes.object,
+    isFetchingTextSearch: PropTypes.bool,
 
     addDataTypeQueryForm: PropTypes.func,
     updateDataTypeQueryForm: PropTypes.func,
@@ -267,6 +268,7 @@ const mapStateToProps = state => ({
     dataTypesByID: state.serviceDataTypes.itemsByID,
 
     autoQuery: state.explorer.autoQuery,
+    isFetchingTextSearch: state.explorer.fetchingTextSearch || false,
 
     dataTypesLoading: state.services.isFetching || state.serviceDataTypes.isFetchingAll
         || Object.keys(state.serviceDataTypes.dataTypesByServiceID).length === 0,
