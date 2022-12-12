@@ -16,7 +16,7 @@ const validateJson = (rule, value, callback) => {
     } catch (e) {
         callback("Please enter valid JSON");
     }
-}
+};
 
 const DatasetForm = ({ style, initialValue, form }) => {
     return (
