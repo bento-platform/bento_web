@@ -48,9 +48,9 @@ const DatasetForm = ({ style, initialValue, form }) => {
                 )}
             </Item>
             <Item label="DATS File">
-                {form.getFieldDecorator("dats_File", {
+                {form.getFieldDecorator("dats_file", {
                     initialValue: initialValue?.dats_file || "",
-                    rules: [{ validator: validateJson }],
+                    rules: [{ validator: validateJson }, { min: 2}],
                 })(<Input.TextArea />)}
             {/*<DatsUpload />*/}
             </Item>
@@ -89,6 +89,7 @@ DatasetForm.propTypes = {
         description: PropTypes.string,
         contact_info: PropTypes.string,
         data_use: DATA_USE_PROP_TYPE_SHAPE, // TODO: Shared shape for data use
+        dats_file: PropTypes.string,
     }),
 };
 
