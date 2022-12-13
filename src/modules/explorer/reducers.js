@@ -22,7 +22,8 @@ import {
     SET_AUTO_QUERY_PAGE_TRANSITION,
     NEUTRALIZE_AUTO_QUERY_PAGE_TRANSITION,
     FREE_TEXT_SEARCH,
-    SET_OTHER_THRESHOLD_PERCENTAGE
+    SET_OTHER_THRESHOLD_PERCENTAGE,
+    SET_IGV_POSITION
 } from "./actions";
 
 // TODO: Could this somehow be combined with discovery?
@@ -39,7 +40,8 @@ export const explorer = (
         autoQuery: {
             isAutoQuery: false,
         },
-        otherThresholdPercentage: readFromLocalStorage("otherThresholdPercentage") ?? DEFAULT_OTHER_THRESHOLD_PERCENTAGE
+        otherThresholdPercentage: readFromLocalStorage("otherThresholdPercentage") ?? DEFAULT_OTHER_THRESHOLD_PERCENTAGE,
+        igvPosition: undefined
     },
     action
 ) => {
@@ -203,6 +205,11 @@ export const explorer = (
             return {
                 ...state,
                 otherThresholdPercentage: action.otherThresholdPercentage,
+            };
+        case SET_IGV_POSITION:
+            return {
+                ...state,
+                igvPosition: action.igvPosition
             };
 
         default:
