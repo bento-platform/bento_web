@@ -27,9 +27,7 @@ const SitePageHeader = React.memo(({title, subTitle, withTabBar, style, ...props
     <PageHeader
         {...props}
         title={<div style={styles.pageHeaderTitle}>{title || ""}</div>}
-        subTitle={
-            this.props.subTitle ? <span style={styles.pageHeaderSubtitle}>{subTitle}</span> : undefined
-        }
+        subTitle={subTitle ? <span style={styles.pageHeaderSubtitle}>{subTitle}</span> : undefined}
         style={{
             ...styles.pageHeader,
             ...(withTabBar ? styles.tabBarHeader : {}),
