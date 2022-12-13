@@ -6,7 +6,6 @@ import {
     networkAction
 } from "../../utils/actions";
 
-import {fetchServiceLogsIfPossible, fetchSystemLogsIfPossible} from "../logs/actions";
 import {fetchDropBoxTreeOrFail} from "../manager/actions";
 import {
     fetchProjectsWithDatasetsAndTables,
@@ -37,8 +36,6 @@ export const setUser = user => ({
 
 export const fetchDependentData = () => dispatch => Promise.all([
     fetchDropBoxTreeOrFail,
-    fetchServiceLogsIfPossible,
-    fetchSystemLogsIfPossible,
     fetchRuns,
     fetchNotifications,
     fetchOverviewSummary,

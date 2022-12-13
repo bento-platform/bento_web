@@ -11,7 +11,7 @@ import { EM_DASH } from "../constants";
 
 const ServiceContent = () => {
     useEffect(() => {
-        document.title = `${SITE_NAME} - Dashboard`;
+        document.title = `${SITE_NAME}: Admin / Services`;
     }, []);
 
     const nodeInfo = useSelector((state) => state.nodeInfo.data);
@@ -21,7 +21,7 @@ const ServiceContent = () => {
 
     return (
         <>
-            <SitePageHeader title="Services" subTitle="Node status and health monitor" />
+            <SitePageHeader title="Admin › Services" subTitle="Node status and health monitor" />
             <Layout>
                 <Layout.Content style={{ background: "white", padding: "32px 24px 4px" }}>
                     <Row style={{ marginBottom: "24px" }} gutter={[0, 16]}>
