@@ -173,7 +173,7 @@ const IndividualTracks = ({individual}) => {
         });
     }, [igvUrls]);
 
-    const TRACK_TABLE_COLUMNS = [
+    const trackTableColumns = [
         {
             title: "File",
             key: "filename",
@@ -197,7 +197,7 @@ const IndividualTracks = ({individual}) => {
         bordered
         size="small"
         pagination={false}
-        columns={TRACK_TABLE_COLUMNS}
+        columns={trackTableColumns}
         rowKey="filename"
         dataSource={allFoundFiles}
         style={{ display: "inline-block" }}
