@@ -4,7 +4,8 @@ import { individualPropTypesShape } from "../../propTypes";
 import { Button, Divider, Modal, Switch, Table, Empty } from "antd";
 import { getIgvUrlsFromDrs } from "../../modules/drs/actions";
 import { guessFileType } from "../../utils/guessFileType";
-import { useHistory } from "react-router-dom";
+import { setIgvPosition } from "../../modules/explorer/actions";
+import { debounce } from "lodash";
 import igv from "igv";
 
 const SQUISHED_CALL_HEIGHT = 10;
@@ -14,6 +15,11 @@ const VISIBILITY_WINDOW = 600000;
 
 // highest z-index in IGV is 4096, modal z-index needs to be higher
 const MODAL_Z_INDEX = 5000;
+
+// listening to igv's "locuschange" event can produce a very large number of calls
+// storing in redux on every call gives terrible performance
+// so ignore everything except the last call over a particular time frame (in ms)
+const DEBOUNCE_WAIT = 500;
 
 // IGV notes:
 
@@ -34,10 +40,11 @@ const IndividualTracks = ({individual}) => {
     const igvRendered = useRef(false);
     const igvUrls = useSelector((state) => state.drs.igvUrlsByFilename);
     const isFetchingIgvUrls = useSelector((state) => state.drs.isFetchingIgvUrls);
-    const dispatch = useDispatch();
-    const history = useHistory();
 
-    const locus = history.location?.state?.locus;
+    // read stored position only on first render
+    const igvPosition = useSelector((state) => state.explorer.igvPosition, () => true);
+
+    const dispatch = useDispatch();
     const biosamplesData = (individual?.phenopackets ?? []).flatMap((p) => p.biosamples);
     const experimentsData = biosamplesData.flatMap((b) => b?.experiments ?? []);
     let viewableResults = experimentsData.flatMap((e) => e?.experiment_results ?? []).filter(isViewable);
@@ -86,6 +93,12 @@ const IndividualTracks = ({individual}) => {
                 visibilityWindow: VISIBILITY_WINDOW,
             });
         }
+    };
+
+    const storeIgvPosition = (referenceFrame) => {
+        const {chr, start, end} = referenceFrame[0];
+        const position = `${chr}:${start}-${end}`;
+        dispatch(setIgvPosition(position));
     };
 
     // retrieve urls on mount
@@ -146,7 +159,7 @@ const IndividualTracks = ({individual}) => {
 
         const igvOptions = {
             genome: genome,
-            locus: locus, //zooms out if null or undefined
+            locus: igvPosition,
             tracks: igvTracks,
         };
 
@@ -154,10 +167,9 @@ const IndividualTracks = ({individual}) => {
             igv.browser = browser;
             igvRendered.current = true;
 
-            // code for monitoring user IGV changes, TODO
-            // igv.browser.on('locuschange', (referenceFrame) => {
-            //     console.log({referenceFrame: referenceFrame});
-            // });
+            igv.browser.on("locuschange", debounce((referenceFrame) => {
+                storeIgvPosition(referenceFrame);
+            }, DEBOUNCE_WAIT));
         });
     }, [igvUrls]);
 
