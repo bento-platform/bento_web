@@ -124,7 +124,7 @@ const SiteHeader = () => {
                     </div>
                 </Link>
                 {CUSTOM_HEADER && (
-                    <h3 style={{ color: "rgba(255, 255, 255, 0.95)", float: "left", margin: "0 10px 0 -10px" }}>
+                    <h3 style={{ color: "rgba(255, 255, 255, 0.95)", float: "left", margin: "0 24px 0 0" }}>
                         {CUSTOM_HEADER}
                     </h3>
                 )}
