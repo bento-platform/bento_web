@@ -40,7 +40,8 @@ export const explorer = (
         autoQuery: {
             isAutoQuery: false,
         },
-        otherThresholdPercentage: readFromLocalStorage("otherThresholdPercentage") ?? DEFAULT_OTHER_THRESHOLD_PERCENTAGE,
+        otherThresholdPercentage:
+            readFromLocalStorage("otherThresholdPercentage") ?? DEFAULT_OTHER_THRESHOLD_PERCENTAGE,
         igvPosition: undefined
     },
     action
