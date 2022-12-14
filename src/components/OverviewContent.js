@@ -1,4 +1,4 @@
-import React, { Component } from "react";
+import React, { useEffect } from "react";
 import { Layout, Divider } from "antd";
 
 import SitePageHeader from "./SitePageHeader";
@@ -16,7 +16,7 @@ const styles = {
     },
     pageHeaderExtra: {border: "none"},
     overviewContent: {background: "white", padding: "32px 24px 4px"},
-}
+};
 
 const OverviewContent = () => {
     useEffect(() => {
