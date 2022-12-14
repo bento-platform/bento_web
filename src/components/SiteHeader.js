@@ -120,7 +120,7 @@ const SiteHeader = () => {
                     <div style={{ margin: "0 15px 0 0", float: "left" }}>
                         <img style={{ height: "35px" }}
                              src={withBasePath("static/branding.png")}
-                             alt={CUSTOM_HEADER} />
+                             alt={CUSTOM_HEADER || "Bento"} />
                     </div>
                 </Link>
                 {CUSTOM_HEADER && (
