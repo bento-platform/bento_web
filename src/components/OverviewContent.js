@@ -7,40 +7,36 @@ import VariantsSummary from "./overview/VariantsSummary";
 import { SITE_NAME } from "../constants";
 import ExperimentsSummary from "./overview/ExperimentsSummary";
 
-class OverviewContent extends Component {
-    constructor(props) {
-        super(props);
-    }
+const styles = {
+    pageHeaderContainer: {
+        display: "flex",
+        justifyContent: "space-between",
+        background: "white",
+        borderBottom: "1px solid rgb(232, 232, 232)",
+    },
+    pageHeaderExtra: {border: "none"},
+    overviewContent: {background: "white", padding: "32px 24px 4px"},
+}
 
-    componentDidMount() {
+const OverviewContent = () => {
+    useEffect(() => {
         document.title = `${SITE_NAME} - Overview`;
-    }
+    }, []);
 
-    render() {
-        return (
-            <>
-        <div
-          style={{
-              display: "flex",
-              justifyContent: "space-between",
-              background: "white",
-              borderBottom: "1px solid rgb(232, 232, 232)",
-          }}
-        >
-          <SitePageHeader title="Overview" style={{ border: "none" }} />
+    return <>
+        <div style={styles.pageHeaderContainer}>
+            <SitePageHeader title="Overview" style={styles.pageHeaderExtra} />
         </div>
         <Layout>
-          <Layout.Content style={{ background: "white", padding: "32px 24px 4px" }}>
-            <ClinicalSummary  />
-            <Divider />
-            <ExperimentsSummary />
-            <Divider />
-            <VariantsSummary />
-          </Layout.Content>
+            <Layout.Content style={styles.overviewContent}>
+                <ClinicalSummary />
+                <Divider />
+                <ExperimentsSummary />
+                <Divider />
+                <VariantsSummary />
+            </Layout.Content>
         </Layout>
-            </>
-        );
-    }
-}
+    </>;
+};
 
 export default OverviewContent;
