@@ -28,6 +28,6 @@ jobs:
           registry: ghcr.io
           registry-username: ${{ github.actor }}
           registry-password: ${{ secrets.GITHUB_TOKEN }}
-          image-name: ghcr.io/bento-platform/gohan-api
+          image-name: ghcr.io/bento-platform/bento_web
           development-dockerfile: Dockerfile
           dockerfile: Dockerfile
