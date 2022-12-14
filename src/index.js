@@ -3,16 +3,16 @@ import {render} from "react-dom";
 
 import {applyMiddleware, createStore, compose} from "redux";
 import thunkMiddleware from "redux-thunk";
-
 import {Provider} from "react-redux";
-
 import {BrowserRouter} from "react-router-dom";
 
 import "antd/es/message/style/css";
 
-import App from "./components/App";
-import rootReducer from "./reducers";
+import {BENTO_URL} from "./config";
 import {POPUP_AUTH_CALLBACK_URL} from "./constants";
+import rootReducer from "./reducers";
+
+import App from "./components/App";
 
 // noinspection JSUnresolvedVariable
 const composeEnhancers = window.__REDUX_DEVTOOLS_EXTENSION_COMPOSE__ || compose;
@@ -23,8 +23,8 @@ document.addEventListener("DOMContentLoaded", () => {
 
     // Fall back to checking path name if the front-end was built without CHORD_URL set
     // TODO: Use url.js base path for this? Do we care about the host?
-    const isPopupAuthCallback = process.env.CHORD_URL
-        ? window.location.href.startsWith(`${process.env.CHORD_URL}${POPUP_AUTH_CALLBACK_URL}`)
+    const isPopupAuthCallback = BENTO_URL
+        ? window.location.href.startsWith(`${BENTO_URL}${POPUP_AUTH_CALLBACK_URL}`)
         : window.location.pathname.includes(`/${POPUP_AUTH_CALLBACK_URL}`);  // TODO: Can we only use the fallback?
 
     // Handle auth popup callback
@@ -32,7 +32,7 @@ document.addEventListener("DOMContentLoaded", () => {
         render(<div>Loading...</div>, root);
 
         // We're inside a popup window which has (presumably) successfully
-        // re-authenticated the user, meaning we need to close ourself to return
+        // re-authenticated the user, meaning we need to close ourselves to return
         // focus to the original window.
         window.close();
     } else {

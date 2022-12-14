@@ -3,7 +3,7 @@ import {Layout} from "antd";
 
 import pkg from "../../package.json";
 
-import BentoLogo from "../images/Bento_final.svg";
+import BentoLogo from "../images/logo_colour.svg";
 
 const BENTO_LOGO_WIDTH = "125px";
 

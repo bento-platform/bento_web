@@ -1,8 +1,10 @@
 const webpack = require("webpack");
 const path = require("path");
+const CopyPlugin = require("copy-webpack-plugin");
 const HtmlWebpackPlugin = require("html-webpack-plugin");
 
-const BASE_PATH = process.env.CHORD_URL ? (new URL(process.env.CHORD_URL)).pathname : "/";
+const BENTO_URL = process.env.BENTO_URL || process.env.CHORD_URL || null;
+const BASE_PATH = BENTO_URL ? (new URL(BENTO_URL)).pathname : "/";
 
 module.exports = {
     entry: ["babel-polyfill", path.resolve(__dirname, "./src/index.js")],
@@ -42,6 +44,9 @@ module.exports = {
         },
     },
     plugins: [
+        new CopyPlugin({
+            patterns: [{from: "static", to: "static"}],
+        }),
         new HtmlWebpackPlugin({
             title: "Bento",
             template: path.resolve(__dirname, "./src/template.html"),
@@ -49,13 +54,14 @@ module.exports = {
         }),
         new webpack.EnvironmentPlugin({
             // Default environment variables to null if not set
+            BENTO_URL: null,
             CHORD_URL: null,
             CUSTOM_HEADER: null,
         }),
     ],
     devServer: {
         static: {
-            directory: path.join(__dirname, "public"),
+            directory: path.join(__dirname, "static"),
         },
         compress: true,
         port: process.env.BENTO_WEB_PORT ?? 9000,
