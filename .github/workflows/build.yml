@@ -8,7 +8,7 @@ on:
       - master
   push:
     branches:
-      - "**" # temp
+      - master
 
 jobs:
   build-push:
