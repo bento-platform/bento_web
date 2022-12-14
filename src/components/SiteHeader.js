@@ -11,11 +11,29 @@ import { BASE_PATH, signInURLWithRedirect, withBasePath } from "../utils/url";
 
 import OverviewSettingsControl from "./overview/OverviewSettingsControl";
 
+
+const LinkedLogo = React.memo(() =>
+    <Link to={BASE_PATH}>
+        <div style={{ margin: "0 15px 0 0", float: "left" }}>
+            <img style={{ height: "35px" }}
+                 src={withBasePath("static/branding.png")}
+                 alt={CUSTOM_HEADER || "Bento"} />
+        </div>
+    </Link>
+);
+
+
+const CustomHeaderText = React.memo(() =>
+    <h3 style={{ color: "rgba(255, 255, 255, 0.95)", float: "left", margin: "0 24px 0 0" }}>
+        {CUSTOM_HEADER}
+    </h3>
+);
+
 const SiteHeader = () => {
     const dispatch = useDispatch();
 
-    const unreadNotifications = useSelector((state) => state.notifications.items.filter(n => !n.read));
-    const { user, hasAttempted: authHasAttempted } = useSelector((state) => state.auth);
+    const unreadNotifications = useSelector(state => state.notifications.items.filter(n => !n.read));
+    const { user, hasAttempted: authHasAttempted } = useSelector(state => state.auth);
     const isOwner = user?.chord_user_role === "owner";
 
     const [modalVisible, setModalVisible] = useState(false);
@@ -115,25 +133,15 @@ const SiteHeader = () => {
 
     return <>
         <Layout.Header>
-            <Link to={BASE_PATH}>
-                <div style={{ margin: "0 15px 0 0", float: "left" }}>
-                    <img style={{ height: "35px" }}
-                         src={withBasePath("static/branding.png")}
-                         alt={CUSTOM_HEADER || "Bento"} />
-                </div>
-            </Link>
-            {CUSTOM_HEADER && (
-                <h3 style={{ color: "rgba(255, 255, 255, 0.95)", float: "left", margin: "0 24px 0 0" }}>
-                    {CUSTOM_HEADER}
-                </h3>
-            )}
+            <LinkedLogo />
+            {CUSTOM_HEADER && <CustomHeaderText />}
             <Menu
                 theme="dark"
                 mode="horizontal"
                 selectedKeys={matchingMenuKeys(menuItems)}
                 style={{ lineHeight: "64px" }}
             >
-                {menuItems.map((i) => renderMenuItem(i))}
+                {menuItems.map(i => renderMenuItem(i))}
             </Menu>
         </Layout.Header>
         <OverviewSettingsControl modalVisible={modalVisible} toggleModalVisibility={toggleModalVisibility} />
