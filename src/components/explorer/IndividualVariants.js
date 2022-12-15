@@ -1,8 +1,10 @@
 import React from "react";
 import {Link} from "react-router-dom";
+import { useDispatch } from "react-redux";
 import {Button, Descriptions, Empty} from "antd";
 import PropTypes from "prop-types";
 import {individualPropTypesShape} from "../../propTypes";
+import { setIgvPosition } from "../../modules/explorer/actions";
 import "./explorer.css";
 
 // TODO: Only show variants from the relevant dataset, if specified;
@@ -13,8 +15,8 @@ const variantStyle = {margin: "5px"};
 
 const IndividualVariants = ({individual, tracksUrl}) => {
     const biosamples = (individual || {}).phenopackets.flatMap(p => p.biosamples);
-
     const variantsMapped = {};
+    const dispatch = useDispatch();
 
     biosamples.forEach((bs) => {
         const allvariants = (bs || {}).variants;
@@ -42,14 +44,15 @@ const IndividualVariants = ({individual, tracksUrl}) => {
         return  <div style={variantStyle}>
       <span style={{display: "inline", marginRight: "15px"} }>{`id: ${variant.id} hgvs: ${variant.hgvs}`}</span>
       {variant.gene_context && (
-          <>gene context: <Link
-          to={{
-              pathname: tracksUrl,
-              state: { locus: variant.gene_context },
-          }}
-        >
-          <Button>{variant.gene_context}</Button>
-        </Link></>
+          <>gene context:
+            <Link onClick={() => dispatch(setIgvPosition(variant.gene_context))}
+                  to={{
+                      pathname: tracksUrl,
+                  }}
+            >
+            <Button>{variant.gene_context}</Button>
+            </Link>
+          </>
       )}
     </div>;
     };

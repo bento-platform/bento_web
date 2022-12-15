@@ -15,6 +15,7 @@ export const NEUTRALIZE_AUTO_QUERY_PAGE_TRANSITION = "EXPLORER.NEUTRALIZE_AUTO_Q
 export const FREE_TEXT_SEARCH = createNetworkActionTypes("FREE_TEXT_SEARCH");
 export const SET_OTHER_THRESHOLD_PERCENTAGE = "EXPLORER.SET_OTHER_THRESHOLD_PERCENTAGE";
 export const SET_TABLE_SORT_ORDER = "EXPLORER.SET_TABLE_SORT_ORDER";
+export const SET_IGV_POSITION = "EXPLORER.SET_IGV_POSITION";
 
 const performSearch = networkAction((datasetID, dataTypeQueries, excludeFromAutoJoin = []) =>
     (dispatch, getState) => ({
@@ -148,4 +149,9 @@ export const performFreeTextSearchIfPossible = (datasetID, term) => (dispatch, _
 export const setOtherThresholdPercentage = (threshold) => ({
     type: SET_OTHER_THRESHOLD_PERCENTAGE,
     otherThresholdPercentage: threshold
+});
+
+export const setIgvPosition = (igvPosition) => ({
+    type: SET_IGV_POSITION,
+    igvPosition
 });
