@@ -24,9 +24,9 @@ const LinkedLogo = React.memo(() =>
 
 
 const CustomHeaderText = React.memo(() =>
-    <h3 style={{ color: "rgba(255, 255, 255, 0.95)", float: "left", margin: "0 24px 0 0" }}>
+    <h1 style={{ color: "rgba(255, 255, 255, 0.95)", float: "left", margin: "0 24px 0 0" }}>
         {CUSTOM_HEADER}
-    </h3>
+    </h1>
 );
 
 const SiteHeader = () => {
