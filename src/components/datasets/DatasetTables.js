@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, {useMemo, useState} from "react";
 import PropTypes from "prop-types";
 
 import { useSelector, useDispatch } from "react-redux";
@@ -25,6 +25,14 @@ const DatasetTables = ({ isPrivate, project, dataset, onTableIngest, isFetchingT
 
     const chordServicesByArtifact = useSelector((state) => state.chordServices.itemsByArtifact);
     const serviceInfoByArtifact = useSelector((state) => state.services.itemsByArtifact);
+
+    const dataTypesByArtifact = useSelector(state => state.services.dataTypesByServiceArtifact);
+    const dataTypesByID = useMemo(
+        () => Object.fromEntries(
+            Object.values(dataTypesByArtifact)
+                .flatMap(v => (v.items ?? []))
+                .map(dt => [dt.id, dt])),
+        [dataTypesByArtifact]);
 
     const [additionModalVisible, setAdditionModalVisible] = useState(false);
     const [deletionModalVisible, setDeletionModalVisible] = useState(false);
@@ -86,7 +94,11 @@ const DatasetTables = ({ isPrivate, project, dataset, onTableIngest, isFetchingT
             defaultSortOrder: "ascend",
             sorter: (a, b) => (a.name && b.name ? a.name.localeCompare(b.name) : a.table_id.localeCompare(b.table_id)),
         },
-        { title: "Data Type", dataIndex: "data_type" },
+        {
+            title: "Data Type",
+            dataIndex: "data_type",
+            render: dtID => dataTypesByID[dtID]?.label ?? dtID,
+        },
         ...(isPrivate
             ? [
                 {
