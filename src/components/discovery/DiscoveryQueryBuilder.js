@@ -130,7 +130,6 @@ class DiscoveryQueryBuilder extends Component {
             <Menu onClick={this.handleAddDataTypeQueryForm}>
                 {this.props.servicesInfo
                     .filter(s => (this.props.dataTypes[s.id]?.items ?? []).length)
-                    .filter(s => s.name !== "Bento Variant Service")
                     .flatMap(s =>
                         this.props.dataTypes[s.id].items.map(dt =>
                             <Menu.Item key={`${s.id}:${dt.id}`}>{dt.label ?? dt.id}</Menu.Item>
@@ -143,15 +142,16 @@ class DiscoveryQueryBuilder extends Component {
             <Tabs.TabPane tab={d.dataType.id}
                           key={d.dataType.id}
                           closable={!(this.props.requiredDataTypes ?? []).includes(d.dataType.id)}>
-                <DiscoverySearchForm conditionType="data-type"
-                                     isInternal={this.props.isInternal ?? false}
-                                     dataType={d.dataType}
-                                     formValues={d.formValues}
-                                     loading={this.props.searchLoading}
-                                     wrappedComponentRef={form => this.forms[d.dataType.id] = form}
-                                     onChange={fields => this.handleFormChange(d.dataType, fields)}
-                                     handleVariantHiddenFieldChange={this.handleVariantHiddenFieldChange}
-                                     />
+                <DiscoverySearchForm
+                    conditionType="data-type"
+                    isInternal={this.props.isInternal ?? false}
+                    dataType={d.dataType}
+                    formValues={d.formValues}
+                    loading={this.props.searchLoading}
+                    wrappedComponentRef={form => this.forms[d.dataType.id] = form}
+                    onChange={fields => this.handleFormChange(d.dataType, fields)}
+                    handleVariantHiddenFieldChange={this.handleVariantHiddenFieldChange}
+                />
             </Tabs.TabPane>
         ));
 
