@@ -14,8 +14,8 @@ import OverviewSettingsControl from "./overview/OverviewSettingsControl";
 
 const LinkedLogo = React.memo(() =>
     <Link to={BASE_PATH}>
-        <div style={{ margin: "0 15px 0 0", float: "left" }}>
-            <img style={{ height: "35px" }}
+        <div style={{ margin: "0 20px 0 0", float: "left" }}>
+            <img style={{ height: "32px", verticalAlign: "top", marginTop: "15px" }}
                  src={withBasePath("static/branding.png")}
                  alt={CUSTOM_HEADER || "Bento"} />
         </div>
