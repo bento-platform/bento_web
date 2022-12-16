@@ -124,6 +124,7 @@ export const fetchServicesWithMetadataAndDataTypesAndTables = () => async (dispa
             await Promise.all(dataServicesInfo.map(s => dispatch(fetchDataServiceDataTypes(s.chordService, s))));
             dispatch(endFlow(LOADING_SERVICE_DATA_TYPES));
         })(),
+
         (async () => {
             dispatch(beginFlow(LOADING_SERVICE_WORKFLOWS));
             await Promise.all(dataServicesInfo.map(s => dispatch(fetchDataServiceWorkflows(s.chordService, s))));
