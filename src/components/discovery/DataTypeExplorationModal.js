@@ -54,15 +54,15 @@ class DataTypeExplorationModal extends Component {
             <Radio.Group value={this.state.view}
                          onChange={e => this.setState({view: e.target.value})}
                          buttonStyle="solid"
-                         style={{position: "absolute", top: "73px", right: "24px", zIndex: "50"}}>
+                         style={{position: "absolute", top: "73px", right: "24px", zIndex: 50}}>
                 <Radio.Button value="tree"><Icon type="share-alt" /> Tree View</Radio.Button>
                 <Radio.Button value="table"><Icon type="table" /> Table Detail View</Radio.Button>
             </Radio.Group>
             <Tabs>
-                {Object.values(this.props.dataTypes).flatMap(ds => (ds.items || []).map(d => (
-                    <Tabs.TabPane tab={d.id} key={d.id}>
+                {Object.values(this.props.dataTypes).flatMap(ds => (ds.items || []).map(dataType => (
+                    <Tabs.TabPane tab={dataType.label ?? dataType.id} key={dataType.id}>
                         {this.state.view === "tree" ? (
-                            <SchemaTree schema={d.schema} />
+                            <SchemaTree schema={dataType.schema} />
                         ) : (
                             <>
                                 <Input.Search allowClear={true}
@@ -70,7 +70,7 @@ class DataTypeExplorationModal extends Component {
                                               placeholder="Search for a field..." style={{marginBottom: "16px"}} />
                                 <Table bordered={true}
                                        columns={FIELD_COLUMNS}
-                                       dataSource={this.getTableData(d)} />
+                                       dataSource={this.getTableData(dataType)} />
                             </>
                         )}
                     </Tabs.TabPane>
