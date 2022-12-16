@@ -133,7 +133,7 @@ class DiscoveryQueryBuilder extends Component {
                     .filter(s => s.name !== "Bento Variant Service")
                     .flatMap(s =>
                         this.props.dataTypes[s.id].items.map(dt =>
-                            <Menu.Item key={`${s.id}:${dt.id}`}>{dt.id}</Menu.Item>
+                            <Menu.Item key={`${s.id}:${dt.id}`}>{dt.label ?? dt.id}</Menu.Item>
                         ))
                 }
             </Menu>
