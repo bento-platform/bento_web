@@ -138,22 +138,26 @@ class DiscoveryQueryBuilder extends Component {
             </Menu>
         );
 
-        const dataTypeTabPanes = this.props.dataTypeForms.map(d => (
-            <Tabs.TabPane tab={d.dataType.id}
-                          key={d.dataType.id}
-                          closable={!(this.props.requiredDataTypes ?? []).includes(d.dataType.id)}>
+        const dataTypeTabPanes = this.props.dataTypeForms.map(({dataType, formValues}) => {
+            // Use data type label for tab name, unless it isn't specified - then fall back to ID.
+            // This behaviour should be the same everywhere in bento_web or almost anywhere the
+            // data type is shown to 'end users'.
+            const {id, label} = dataType;
+            return <Tabs.TabPane tab={label ?? id}
+                                 key={id}
+                                 closable={!(this.props.requiredDataTypes ?? []).includes(id)}>
                 <DiscoverySearchForm
                     conditionType="data-type"
                     isInternal={this.props.isInternal ?? false}
-                    dataType={d.dataType}
-                    formValues={d.formValues}
+                    dataType={dataType}
+                    formValues={formValues}
                     loading={this.props.searchLoading}
-                    wrappedComponentRef={form => this.forms[d.dataType.id] = form}
-                    onChange={fields => this.handleFormChange(d.dataType, fields)}
+                    wrappedComponentRef={form => this.forms[id] = form}
+                    onChange={fields => this.handleFormChange(dataType, fields)}
                     handleVariantHiddenFieldChange={this.handleVariantHiddenFieldChange}
                 />
-            </Tabs.TabPane>
-        ));
+            </Tabs.TabPane>;
+        });
 
         const addConditionsOnDataType = (buttonProps = {style: {float: "right"}}) => (
             <Dropdown overlay={dataTypeMenu}
