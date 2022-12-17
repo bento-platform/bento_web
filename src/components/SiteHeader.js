@@ -2,21 +2,39 @@ import React, { useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { Link, withRouter } from "react-router-dom";
 import { Badge, Icon, Layout, Menu } from "antd";
-import { showNotificationDrawer } from "../modules/notifications/actions";
+
+import { CUSTOM_HEADER } from "../config";
 import { SIGN_OUT_URL } from "../constants";
+import { showNotificationDrawer } from "../modules/notifications/actions";
 import { matchingMenuKeys, renderMenuItem } from "../utils/menu";
 import { BASE_PATH, signInURLWithRedirect, withBasePath } from "../utils/url";
-import logo from "../images/logo.png";
+
 import OverviewSettingsControl from "./overview/OverviewSettingsControl";
 
-const customHeader = process.env.CUSTOM_HEADER ?? "";
+
+const LinkedLogo = React.memo(() =>
+    <Link to={BASE_PATH}>
+        <div style={{ margin: "0 20px 0 0", float: "left" }}>
+            <img style={{ height: "32px", verticalAlign: "top", marginTop: "15px" }}
+                 src={withBasePath("static/branding.png")}
+                 alt={CUSTOM_HEADER || "Bento"} />
+        </div>
+    </Link>
+);
+
+
+const CustomHeaderText = React.memo(() =>
+    <h1 style={{ color: "rgba(255, 255, 255, 0.95)", float: "left", margin: "0 24px 0 0" }}>
+        {CUSTOM_HEADER}
+    </h1>
+);
 
 const SiteHeader = () => {
     const dispatch = useDispatch();
 
-    const unreadNotifications = useSelector((state) => state.notifications.items.filter((n) => !n.read));
-    const { user, hasAttempted: authHasAttempted } = useSelector((state) => state.auth);
-    const isOwner = (user || {}).chord_user_role === "owner";
+    const unreadNotifications = useSelector(state => state.notifications.items.filter(n => !n.read));
+    const { user, hasAttempted: authHasAttempted } = useSelector(state => state.auth);
+    const isOwner = user?.chord_user_role === "owner";
 
     const [modalVisible, setModalVisible] = useState(false);
 
@@ -113,31 +131,21 @@ const SiteHeader = () => {
         },
     ];
 
-    return (
-        <>
-            <Layout.Header>
-                <Link to={BASE_PATH}>
-                    <div style={{ margin: "0 15px 0 0", float: "left" }}>
-                        <img style={{ height: "35px" }} src={logo} alt="logo" />
-                    </div>
-                </Link>
-                {customHeader && (
-                    <h3 style={{ color: "rgba(255, 255, 255, 0.95)", float: "left", margin: "0 10px 0 -10px" }}>
-                        {customHeader}
-                    </h3>
-                )}
-                <Menu
-                    theme="dark"
-                    mode="horizontal"
-                    selectedKeys={matchingMenuKeys(menuItems)}
-                    style={{ lineHeight: "64px" }}
-                >
-                    {menuItems.map((i) => renderMenuItem(i))}
-                </Menu>
-            </Layout.Header>
-            <OverviewSettingsControl modalVisible={modalVisible} toggleModalVisibility={toggleModalVisibility} />
-        </>
-    );
+    return <>
+        <Layout.Header>
+            <LinkedLogo />
+            {CUSTOM_HEADER && <CustomHeaderText />}
+            <Menu
+                theme="dark"
+                mode="horizontal"
+                selectedKeys={matchingMenuKeys(menuItems)}
+                style={{ lineHeight: "64px" }}
+            >
+                {menuItems.map(i => renderMenuItem(i))}
+            </Menu>
+        </Layout.Header>
+        <OverviewSettingsControl modalVisible={modalVisible} toggleModalVisibility={toggleModalVisibility} />
+    </>;
 };
 
 export default withRouter(SiteHeader);
