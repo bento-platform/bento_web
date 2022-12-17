@@ -19,3 +19,6 @@ COPY nginx.conf /etc/nginx/nginx.conf
 
 WORKDIR /web
 COPY --from=build /web/dist ./dist
+COPY entrypoint.bash entrypoint.bash
+
+ENTRYPOINT ["bash", "./entrypoint.bash"]

@@ -1,3 +1,4 @@
+import {BENTO_URL} from "../config";
 import {SIGN_IN_URL} from "../constants";
 
 export const urlPath = url => {
@@ -10,8 +11,8 @@ export const urlPath = url => {
     }
 };
 
-// Allow embedding of CHORD_URL at build time
-export const BASE_PATH = process.env.CHORD_URL ? urlPath(process.env.CHORD_URL) : "/";
+// Allow embedding of BENTO_URL at runtime or build time
+export const BASE_PATH = BENTO_URL ? urlPath(BENTO_URL) : "/";
 export const withBasePath = path => `${BASE_PATH}${(path.length > 0 && path[0] === "/" ? path.slice(1) : path)}`;
 
 export const signInURLWithRedirect = () => signInURLWithCustomRedirect(window.location.href);
