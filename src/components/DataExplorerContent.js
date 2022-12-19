@@ -16,8 +16,10 @@ const DataExplorerContent = () => {
         document.title = `${SITE_NAME} - Explore Your Data`;
     }, []);
 
-    const chordURL = useSelector(state => state.nodeInfo?.CHORD_URL);
-    if (!chordURL) return null;
+    const chordURL = useSelector(state => state.nodeInfo?.data?.CHORD_URL);
+    if (!chordURL) {
+        return null;
+    }
 
     return <Switch>
         <Route path={withBasePath("data/explorer/search")}
