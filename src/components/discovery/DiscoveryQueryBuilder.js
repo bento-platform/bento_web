@@ -24,7 +24,7 @@ class DiscoveryQueryBuilder extends Component {
         this.handleSubmit = this.handleSubmit.bind(this);
 
         this.handleFormChange = this.handleFormChange.bind(this);
-        this.handleSchemasToggle = this.handleSchemasToggle.bind(this);
+        this.handleHelpAndSchemasToggle = this.handleHelpAndSchemasToggle.bind(this);
 
         this.handleAddDataTypeQueryForm = this.handleAddDataTypeQueryForm.bind(this);
         this.handleTabsEdit = this.handleTabsEdit.bind(this);
@@ -110,7 +110,7 @@ class DiscoveryQueryBuilder extends Component {
         this.props.updateDataTypeQueryForm(this.props.dataTypesByID["variant"], fields);
     }
 
-    handleSchemasToggle() {
+    handleHelpAndSchemasToggle() {
         this.setState({schemasModalShown: !this.state.schemasModalShown});
     }
 
@@ -167,50 +167,17 @@ class DiscoveryQueryBuilder extends Component {
         );
 
         return <Card style={{marginBottom: "1.5em"}}>
-            <DataTypeExplorationModal dataTypes={this.props.dataTypes}
-                                      visible={this.state.schemasModalShown}
-                                      onCancel={this.handleSchemasToggle} />
+            <DataTypeExplorationModal
+                dataTypes={this.props.dataTypes}
+                visible={this.state.schemasModalShown}
+                onCancel={this.handleHelpAndSchemasToggle}
+            />
 
             <Typography.Title level={3} style={{marginBottom: "1.5rem"}}>
                 Advanced Search
                 {addConditionsOnDataType()}
                 <Button style={{float: "right", marginRight: "1em"}}
-                        onClick={this.handleSchemasToggle}><Icon type="table" /> Explore Data Types</Button>
-                <Button style={{float: "right", marginRight: "1em"}} onClick={() => {
-                    /** @type {object|null} */
-                    let helpModal = null;
-
-                    const destroyHelpModal = () => {
-                        this.handleSchemasToggle();
-                        if (helpModal) helpModal.destroy();
-                    };
-
-                    helpModal = Modal.info({
-                        title: "Help",
-                        content: <>
-                            <Typography.Paragraph>
-                                CHORD defines multiple queryable data types for researchers to take advantage of to
-                                standardize their datasets and make them discoverable. Each of these data types is
-                                defined by a <strong>schema</strong>, which specifies all the components of a single
-                                object in a table of a given data type. Some of the fields of these objects are
-                                directly queryable, while others are not; this is determined in part by the
-                                sensitivity of the field.
-                            </Typography.Paragraph>
-                            <Typography.Paragraph>
-                                Data types and their schemas can be <a onClick={destroyHelpModal}>explored</a> in
-                                both a tree and a searchable table structure.
-                            </Typography.Paragraph>
-                            <Typography.Paragraph>
-                                If two or more data types are queried at the same time, the federated search system
-                                will look for datasets that have linked data objects matching both criteria. This
-                                first requires that researchers have correctly set up their datasets to link e.g.
-                                patients with their corresponding genomic variants.
-                            </Typography.Paragraph>
-                        </>,
-                        maskClosable: true,
-                        width: 720
-                    });
-                }}><Icon type="question-circle" /> Help</Button>
+                        onClick={this.handleHelpAndSchemasToggle}><Icon type="question-circle" /> Help</Button>
             </Typography.Title>
 
             {this.props.dataTypeForms.length > 0
