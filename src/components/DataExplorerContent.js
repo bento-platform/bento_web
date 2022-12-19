@@ -1,5 +1,5 @@
-import React, {Component} from "react";
-import {connect} from "react-redux";
+import React, {useEffect} from "react";
+import {useSelector} from "react-redux";
 
 import {Redirect, Route, Switch} from "react-router-dom";
 
@@ -9,35 +9,25 @@ import ExplorerSearchContent from "./explorer/ExplorerSearchContent";
 
 import {SITE_NAME} from "../constants";
 import {withBasePath} from "../utils/url";
-import {nodeInfoDataPropTypesShape} from "../propTypes";
 
 
-class DataExplorerContent extends Component {
-    componentDidMount() {
+const DataExplorerContent = () => {
+    useEffect(() => {
         document.title = `${SITE_NAME} - Explore Your Data`;
-    }
+    }, []);
 
-    render() {
-        if (!this.props.nodeInfo.CHORD_URL) return null;
-        return <Switch>
-            <Route path={withBasePath("data/explorer/search")}
-                   component={ExplorerSearchContent} />
-            <Route path={withBasePath("data/explorer/individuals/:individual")}
-                   component={ExplorerIndividualContent} />
-            <Route path={withBasePath("data/explorer/genome")}
-                   component={ExplorerGenomeBrowserContent} />
-            <Redirect from={withBasePath("data/explorer")}
-                      to={withBasePath("data/explorer/search")} />
-        </Switch>;
-    }
-}
+    const chordURL = useSelector(state => state.nodeInfo?.CHORD_URL);
+    if (!chordURL) return null;
 
-DataExplorerContent.propTypes = {
-    nodeInfo: nodeInfoDataPropTypesShape,
+    return <Switch>
+        <Route path={withBasePath("data/explorer/search")}
+               component={ExplorerSearchContent} />
+        <Route path={withBasePath("data/explorer/individuals/:individual")}
+               component={ExplorerIndividualContent} />
+        <Route path={withBasePath("data/explorer/genome")}
+               component={ExplorerGenomeBrowserContent} />
+        <Redirect from={withBasePath("data/explorer")}
+                  to={withBasePath("data/explorer/search")} />
+    </Switch>;
 };
-
-const mapStateToProps = state => ({
-    nodeInfo: state.nodeInfo.data,
-});
-
-export default connect(mapStateToProps)(DataExplorerContent);
+export default DataExplorerContent;
