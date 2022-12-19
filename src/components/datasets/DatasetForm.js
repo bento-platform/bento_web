@@ -9,12 +9,21 @@ import DataUseInput from "../DataUseInput";
 import { DATA_USE_PROP_TYPE_SHAPE, INITIAL_DATA_USE_VALUE } from "../../duo";
 import { simpleDeepCopy } from "../../utils/misc";
 
+const validateJson = (rule, value, callback) => {
+    try {
+        JSON.parse(value);
+        callback();
+    } catch (e) {
+        callback("Please enter valid JSON");
+    }
+};
+
 const DatasetForm = ({ style, initialValue, form }) => {
     return (
         <Form style={style || {}}>
             <Item label="Title">
                 {form.getFieldDecorator("title", {
-                    initialValue: (initialValue || { title: "" }).title || "",
+                    initialValue: initialValue?.title || "",
                     rules: [{ required: true }, { min: 3 }],
                 })(<Input placeholder="My Dataset" size="large" />)}
             </Item>
@@ -28,6 +37,12 @@ const DatasetForm = ({ style, initialValue, form }) => {
                 {form.getFieldDecorator("contact_info", {
                     initialValue: (initialValue || { contact_info: "" }).contact_info || "",
                 })(<Input.TextArea placeholder={"Name\nInfo@c3g.ca"} />)}
+            </Item>
+            <Item label="DATS File">
+                {form.getFieldDecorator("dats_file", {
+                    initialValue: initialValue?.dats_file || "",
+                    rules: [{validator: validateJson}, {min: 2}],
+                })(<Input.TextArea />)}
             </Item>
             <Item label="Consent Code and Data Use Requirements">
                 {form.getFieldDecorator("data_use", {
@@ -60,6 +75,7 @@ DatasetForm.propTypes = {
         description: PropTypes.string,
         contact_info: PropTypes.string,
         data_use: DATA_USE_PROP_TYPE_SHAPE, // TODO: Shared shape for data use
+        dats_file: PropTypes.string,
     }),
 };
 
