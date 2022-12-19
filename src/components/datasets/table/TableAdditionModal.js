@@ -30,11 +30,12 @@ class TableAdditionModal extends Component {
     }
 
     render() {
+        const handleCancel = () => (this.props.onCancel || nop)();
         return (
             <Modal visible={this.props.visible}
                    title={modalTitle(this.props.dataset, this.props.project)}
                    footer={[
-                       <Button key="cancel" onClick={this.handleCancel}>Cancel</Button>,
+                       <Button key="cancel" onClick={handleCancel}>Cancel</Button>,
                        <Button key="add"
                                icon="plus"
                                type="primary"
@@ -44,7 +45,7 @@ class TableAdditionModal extends Component {
                            Add
                        </Button>
                    ]}
-                   onCancel={() => (this.props.onCancel || nop)()}>
+                   onCancel={handleCancel}>
                 <TableForm ref={form => this.form = form} />
             </Modal>
         );

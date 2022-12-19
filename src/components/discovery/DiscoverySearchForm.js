@@ -335,13 +335,15 @@ class DiscoverySearchForm extends Component {
                     validateTrigger: false,  // only when called manually
                     rules: CONDITION_RULES
                 })(
-                    <DiscoverySearchCondition conditionType={this.props.conditionType ?? "data-type"}
-                                              dataType={this.props.dataType}
-                                              isExcluded={f => existingUniqueFields.includes(f) ||
-                                                  (!this.props.isInternal && this.isNotPublic(f))}
-                                              onFieldChange={change => this.handleFieldChange(k, change)}
-                                              onRemoveClick={() => this.removeCondition(k)}
-                                              removeDisabled={false} />
+                    <DiscoverySearchCondition
+                        conditionType={this.props.conditionType ?? "data-type"}
+                        dataType={this.props.dataType}
+                        isExcluded={f => existingUniqueFields.includes(f) ||
+                            (!this.props.isInternal && this.isNotPublic(f))}
+                        onFieldChange={change => this.handleFieldChange(k, change)}
+                        onRemoveClick={() => this.removeCondition(k)}
+                        removeDisabled={false}
+                    />
                 )}
             </Form.Item>
         ));
@@ -349,35 +351,33 @@ class DiscoverySearchForm extends Component {
         //for variant search, only show user-added fields, hide everything else
         const nonHiddenFields = formItems.slice(NUM_HIDDEN_VARIANT_FORM_ITEMS);
 
-        return (
-          <Form onSubmit={this.onSubmit}>
+        return <Form onSubmit={this.onSubmit}>
             {this.props.dataType.id === "variant" && (
-              <VariantSearchHeader
-                addVariantSearchValues={this.addVariantSearchValues}
-                dataType={this.props.dataType}
-              />
+                <VariantSearchHeader
+                    addVariantSearchValues={this.addVariantSearchValues}
+                    dataType={this.props.dataType}
+                />
             )}
             {this.state.isVariantSearch ? nonHiddenFields : formItems}
             <Form.Item
-              wrapperCol={{
-                  xl: { span: 24 },
-                  xxl: { offset: 3, span: 18 },
-              }}
+                wrapperCol={{
+                    xl: {span: 24},
+                    xxl: {offset: 3, span: 18},
+                }}
             >
-              {this.state.isPhenopacketSearch ? (
-                <Dropdown overlay={this.phenopacketsSearchOptions} placement="bottomCenter" trigger={["click"]} >
-                  <Button type="dashed" style={{ width: "100%" }}>
-                    <Icon type="plus" /> Add condition
-                  </Button>
-                </Dropdown>
-              ) : (
-                <Button type="dashed" onClick={() => this.addCondition()} style={{ width: "100%" }}>
-                  <Icon type="plus" /> Add condition
-                </Button>
-              )}
+                {this.state.isPhenopacketSearch ? (
+                    <Dropdown overlay={this.phenopacketsSearchOptions} placement="bottomCenter" trigger={["click"]}>
+                        <Button type="dashed" style={{width: "100%"}}>
+                            <Icon type="plus"/> Add condition
+                        </Button>
+                    </Dropdown>
+                ) : (
+                    <Button type="dashed" onClick={() => this.addCondition()} style={{width: "100%"}}>
+                        <Icon type="plus"/> Add condition
+                    </Button>
+                )}
             </Form.Item>
-          </Form>
-        );
+        </Form>;
     }
 }
 

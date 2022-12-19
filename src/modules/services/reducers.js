@@ -163,6 +163,7 @@ export const serviceDataTypes = (
                 },
                 dataTypesByServiceArtifact: {
                     ...state.dataTypesByServiceArtifact,
+                    // TODO: use serviceInfo.type.artifact instead when all use newest version
                     [action.chordService.type.artifact]: {items: action.data, itemsByID, isFetching: false}
                 },
                 lastUpdated: action.receivedAt
