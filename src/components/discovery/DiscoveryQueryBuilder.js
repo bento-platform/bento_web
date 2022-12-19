@@ -2,7 +2,7 @@ import React, {Component} from "react";
 import {connect} from "react-redux";
 import PropTypes from "prop-types";
 
-import {Button, Card, Dropdown, Empty, Icon, Menu, Modal, Tabs, Typography} from "antd";
+import {Button, Card, Dropdown, Empty, Icon, Menu, Tabs, Typography} from "antd";
 
 import DataTypeExplorationModal from "./DataTypeExplorationModal";
 import DiscoverySearchForm from "./DiscoverySearchForm";

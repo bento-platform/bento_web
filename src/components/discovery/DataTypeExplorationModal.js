@@ -60,7 +60,7 @@ class DataTypeExplorationModal extends Component {
                 for datasets that have linked data objects matching both criteria.
             </Typography.Paragraph>
             <Typography.Paragraph>
-                To run a query on a data type, click on the "Query Data Type" button and choose the data
+                To run a query on a data type, click on the &ldquo;Query Data Type&rdquo; button and choose the data
                 type you want to add query conditions on.
             </Typography.Paragraph>
 
