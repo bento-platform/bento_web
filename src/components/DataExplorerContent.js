@@ -16,7 +16,7 @@ const DataExplorerContent = () => {
         document.title = `${SITE_NAME} - Explore Your Data`;
     }, []);
 
-    const chordURL = useSelector(state => state.nodeInfo?.data?.CHORD_URL);
+    const chordURL = useSelector(state => state.nodeInfo.data?.CHORD_URL);
     if (!chordURL) {
         return null;
     }
