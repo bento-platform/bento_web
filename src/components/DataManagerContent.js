@@ -1,4 +1,4 @@
-import React, {Component, Suspense, lazy} from "react";
+import React, {Suspense, lazy, useEffect} from "react";
 import {Redirect, Route, Switch} from "react-router-dom";
 
 import {Menu, Skeleton} from "antd";
@@ -26,45 +26,47 @@ const PAGE_MENU = [
     {url: withBasePath("admin/data/manager/runs"), text: "Workflow Runs"},
 ];
 
-const MENU_STYLE = {
-    marginLeft: "-24px",
-    marginRight: "-24px",
-    marginTop: "-12px"
+const styles = {
+    menu: {
+        marginLeft: "-24px",
+        marginRight: "-24px",
+        marginTop: "-12px"
+    },
+    suspenseFallback: {padding: "24px", backgroundColor: "white"},
 };
 
-
-class DataManagerContent extends Component {
-    componentDidMount() {
+const DataManagerContent = () => {
+    useEffect(() => {
         document.title = `${SITE_NAME}: Admin / Data Manager`;
-    }
+    });
 
-    render() {
-        const selectedKeys = matchingMenuKeys(PAGE_MENU);
-        return <>
-            <SitePageHeader title="Admin › Data Manager"
-                            withTabBar={true}
-                            footer={
-                                <Menu mode="horizontal" style={MENU_STYLE} selectedKeys={selectedKeys}>
-                                    {PAGE_MENU.map(renderMenuItem)}
-                                </Menu>
-                            } />
-            <Suspense fallback={<div style={{padding: "24px", backgroundColor: "white"}}><Skeleton active /></div>}>
-                <Switch>
-                    <Route path={withBasePath("admin/data/manager/projects")}
-                           component={ManagerProjectDatasetContent} />
-                    <Route exact path={withBasePath("admin/data/manager/access")} component={ManagerAccessContent} />
-                    <Route exact path={withBasePath("admin/data/manager/files")} component={ManagerFilesContent} />
-                    <Route exact path={withBasePath("admin/data/manager/ingestion")}
-                           component={ManagerIngestionContent} />
-                    <Route exact path={withBasePath("admin/data/manager/workflows")}
-                           component={ManagerWorkflowsContent} />
-                    <Route path={withBasePath("admin/data/manager/runs")} component={ManagerRunsContent} />
-                    <Redirect from={withBasePath("admin/data/manager")}
-                              to={withBasePath("admin/data/manager/projects")} />
-                </Switch>
-            </Suspense>
-        </>;
-    }
-}
+    const selectedKeys = matchingMenuKeys(PAGE_MENU);
+    return <>
+        <SitePageHeader
+            title="Admin › Data Manager"
+            withTabBar={true}
+            footer={
+                <Menu mode="horizontal" style={styles.menu} selectedKeys={selectedKeys}>
+                    {PAGE_MENU.map(renderMenuItem)}
+                </Menu>
+            }
+        />
+        <Suspense fallback={<div style={styles.suspenseFallback}><Skeleton active /></div>}>
+            <Switch>
+                <Route path={withBasePath("admin/data/manager/projects")}
+                       component={ManagerProjectDatasetContent} />
+                <Route exact path={withBasePath("admin/data/manager/access")} component={ManagerAccessContent} />
+                <Route exact path={withBasePath("admin/data/manager/files")} component={ManagerFilesContent} />
+                <Route exact path={withBasePath("admin/data/manager/ingestion")}
+                       component={ManagerIngestionContent} />
+                <Route exact path={withBasePath("admin/data/manager/workflows")}
+                       component={ManagerWorkflowsContent} />
+                <Route path={withBasePath("admin/data/manager/runs")} component={ManagerRunsContent} />
+                <Redirect from={withBasePath("admin/data/manager")}
+                          to={withBasePath("admin/data/manager/projects")} />
+            </Switch>
+        </Suspense>
+    </>;
+};
 
 export default DataManagerContent;
