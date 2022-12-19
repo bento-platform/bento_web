@@ -26,11 +26,11 @@ const DatasetTables = ({ isPrivate, project, dataset, onTableIngest, isFetchingT
     const chordServicesByArtifact = useSelector((state) => state.chordServices.itemsByArtifact);
     const serviceInfoByArtifact = useSelector((state) => state.services.itemsByArtifact);
 
-    const dataTypesByArtifact = useSelector(state => state.services.dataTypesByServiceArtifact);
+    const dataTypesByArtifact = useSelector(state => state.serviceDataTypes.dataTypesByServiceArtifact);
     const dataTypesByID = useMemo(
         () => Object.fromEntries(
-            Object.values(dataTypesByArtifact)
-                .flatMap(v => (v.items ?? []))
+            Object.values(dataTypesByArtifact ?? {})
+                .flatMap(v => (v?.items ?? []))
                 .map(dt => [dt.id, dt])),
         [dataTypesByArtifact]);
 
