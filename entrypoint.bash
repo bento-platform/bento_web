@@ -2,9 +2,12 @@
 
 CONFIG_FILE="dist/static/config.js"
 
-mkdir -p "dist/static";
+echo "[bento_web] [entrypoint] creating dist/static"
+mkdir -p "dist/static"
 
 # ----- Begin instance config creation --------------------------------
+echo "[bento_web] [entrypoint] writing config.js"
+
 echo 'const BENTO_WEB_CONFIG = {' > "${CONFIG_FILE}"
 
 if [[ -n "${BENTO_URL}" ]]; then
@@ -18,4 +21,5 @@ fi
 echo '};' >> "${CONFIG_FILE}"
 # ----- End -----------------------------------------------------------
 
+echo "[bento_web] [entrypoint] starting NGINX"
 nginx -g 'daemon off;'
