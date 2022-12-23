@@ -1,9 +1,20 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Form, Select } from "antd";
 import PropTypes from "prop-types";
 import LocusSearch from "./LocusSearch";
+import { useDispatch, useSelector } from "react-redux";
+
+import { performGetGohanVariantsOverviewIfPossible } from "../../modules/discovery/actions";
 
 const VariantSearchHeader = ({dataType, addVariantSearchValues}) => {
+  // fetch get gohan variants overview
+  const dispatch = useDispatch();
+  useEffect(() => {
+    dispatch(performGetGohanVariantsOverviewIfPossible());
+  }, []);
+  const variantsOverviewResults = useSelector((state) => state.discovery.variantsOverviewResponse);
+  var overviewAssemblyIds = variantsOverviewResults?.assemblyIDs != undefined ? Object.keys(variantsOverviewResults?.assemblyIDs) : []
+
 
   // or default to GRCh37?
     const [lookupAssemblyId, setLookupAssemblyId] = useState(null);
@@ -44,12 +55,12 @@ const VariantSearchHeader = ({dataType, addVariantSearchValues}) => {
       labelCol={labelCol}
       wrapperCol={wrapperCol}
       label={"Assembly ID"}
-      help={assemblySchema.description}
+      help={""}
     >
       <Select
         onChange={handleAssemblyIdChange}
       >
-       {assemblySchema.enum.map(v => <Select.Option key={v} value={v}>{v}</Select.Option>)}
+       {overviewAssemblyIds.map(v => <Select.Option key={v} value={v}>{v}</Select.Option>)}
       </Select>
     </Form.Item>
     <Form.Item
