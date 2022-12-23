@@ -2,17 +2,10 @@ import React, { useState, useEffect } from "react";
 import { Form, Select } from "antd";
 import PropTypes from "prop-types";
 import LocusSearch from "./LocusSearch";
-import { useDispatch, useSelector } from "react-redux";
-
-import { performGetGohanVariantsOverviewIfPossible } from "../../modules/discovery/actions";
+import { useSelector } from "react-redux";
 
 const VariantSearchHeader = ({dataType, addVariantSearchValues}) => {
-  // fetch get gohan variants overview
-  const dispatch = useDispatch();
-  useEffect(() => {
-    dispatch(performGetGohanVariantsOverviewIfPossible());
-  }, []);
-  const variantsOverviewResults = useSelector((state) => state.discovery.variantsOverviewResponse);
+  const variantsOverviewResults = useSelector((state) => state.explorer.variantsOverviewResponse);
   var overviewAssemblyIds = variantsOverviewResults?.assemblyIDs != undefined ? Object.keys(variantsOverviewResults?.assemblyIDs) : []
 
 
@@ -55,7 +48,7 @@ const VariantSearchHeader = ({dataType, addVariantSearchValues}) => {
       labelCol={labelCol}
       wrapperCol={wrapperCol}
       label={"Assembly ID"}
-      help={""}
+      help={assemblySchema.description}
     >
       <Select
         onChange={handleAssemblyIdChange}
