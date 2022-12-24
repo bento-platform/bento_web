@@ -36,6 +36,11 @@ const SiteHeader = () => {
     const { user, hasAttempted: authHasAttempted } = useSelector(state => state.auth);
     const isOwner = user?.chord_user_role === "owner";
 
+    // -- Testing oidc roles
+    // TODO: avoid hardcoding client name `local_bentov2`
+    const userRoles = user?.resource_access?.local_bentov2?.roles
+    //--
+
     const [modalVisible, setModalVisible] = useState(false);
 
     const toggleModalVisibility = () => {
@@ -84,7 +89,7 @@ const SiteHeader = () => {
                     key: "user-menu",
                     style: { float: "right" },
                     icon: <Icon type="user" />,
-                    text: user.preferred_username,
+                    text: `${user.preferred_username} (${userRoles})`,
                     children: [
                         {
                             key: "sign-out-link",
