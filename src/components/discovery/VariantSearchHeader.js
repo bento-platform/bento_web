@@ -1,9 +1,9 @@
 import React, { useState } from "react";
-import { Form, Select } from "antd";
+import { Input, Form, Select } from "antd";
 import PropTypes from "prop-types";
 import LocusSearch from "./LocusSearch";
 
-const VariantSearchHeader = ({dataType, addVariantSearchValues}) => {
+const VariantSearchHeader = ({dataType, addVariantSearchValues, updateAlleleSearchValue, alleleSearchValue}) => {
 
   // or default to GRCh37?
     const [lookupAssemblyId, setLookupAssemblyId] = useState(null);
@@ -33,6 +33,10 @@ const VariantSearchHeader = ({dataType, addVariantSearchValues}) => {
 
     const handleGenotypeChange = (value) => {
         addVariantSearchValues({genotypeType: value});
+    };
+    
+    const handleAlleleChange = (e) => {
+      updateAlleleSearchValue({allele: e.target.value.toUpperCase()});
     };
 
 // Select needs
@@ -72,6 +76,14 @@ const VariantSearchHeader = ({dataType, addVariantSearchValues}) => {
        {genotypeSchema.enum.map(v => <Select.Option key={v} value={v}>{v}</Select.Option>)}
       </Select>
     </Form.Item>
+    <Form.Item
+      labelCol={labelCol}
+      wrapperCol={wrapperCol}
+      label={"Allele"}
+      help={"i.e. AATG, CTG, NNN"}
+    >
+      <Input onChange={handleAlleleChange} value={alleleSearchValue} />
+    </Form.Item>
     </>
     );
 };
@@ -79,6 +91,8 @@ const VariantSearchHeader = ({dataType, addVariantSearchValues}) => {
 VariantSearchHeader.propTypes = {
     dataType: PropTypes.object,
     addVariantSearchValues: PropTypes.func,
+    updateAlleleSearchValue: PropTypes.func,
+    alleleSearchValue: PropTypes.string,
 };
 
 export default VariantSearchHeader;

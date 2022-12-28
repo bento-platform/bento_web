@@ -17,6 +17,8 @@ import VariantSearchHeader from "./VariantSearchHeader";
 const NUM_HIDDEN_VARIANT_FORM_ITEMS = 5;
 const TOOLTIP_DELAY_SECONDS = 0.8;
 
+const NOT_ALLELE_CHARACTERS_REGEX = new RegExp('[^ACGTN]', 'g');
+
 // noinspection JSUnusedGlobalSymbols
 const CONDITION_RULES = [
     {
@@ -52,6 +54,7 @@ class DiscoverySearchForm extends Component {
             variantSearchValues: {},
             isVariantSearch: props.dataType.id === "variant",
             isPhenopacketSearch: props.dataType.id === "phenopacket",
+            alleleSearchValue: "",
         };
         this.initialValues = {};
 
@@ -60,6 +63,7 @@ class DiscoverySearchForm extends Component {
         this.addCondition = this.addCondition.bind(this);
         this.removeCondition = this.removeCondition.bind(this);
         this.addVariantSearchValues = this.addVariantSearchValues.bind(this);
+        this.updateAlleleSearchValue = this.updateAlleleSearchValue.bind(this);
     }
 
     componentDidMount() {
@@ -94,6 +98,11 @@ class DiscoverySearchForm extends Component {
                 [k]: change.fieldSchema.description ?? undefined,
             }
         });
+    }
+
+    updateAlleleSearchValue(obj) {
+        var validAlleleText = obj.allele.replaceAll(NOT_ALLELE_CHARACTERS_REGEX, '');
+        this.setState({alleleSearchValue: validAlleleText});
     }
 
     removeCondition(k) {
@@ -356,6 +365,8 @@ class DiscoverySearchForm extends Component {
                 <VariantSearchHeader
                     addVariantSearchValues={this.addVariantSearchValues}
                     dataType={this.props.dataType}
+                    updateAlleleSearchValue={this.updateAlleleSearchValue}
+                    alleleSearchValue={this.state.alleleSearchValue}
                 />
             )}
             {this.state.isVariantSearch ? nonHiddenFields : formItems}
