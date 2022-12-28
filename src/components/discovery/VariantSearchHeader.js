@@ -34,7 +34,7 @@ const VariantSearchHeader = ({dataType, addVariantSearchValues, updateAlleleSear
     const handleGenotypeChange = (value) => {
         addVariantSearchValues({genotypeType: value});
     };
-    
+
     const handleAlleleChange = (e) => {
       updateAlleleSearchValue({allele: e.target.value.toUpperCase()});
     };
@@ -80,7 +80,7 @@ const VariantSearchHeader = ({dataType, addVariantSearchValues, updateAlleleSear
       labelCol={labelCol}
       wrapperCol={wrapperCol}
       label={"Allele"}
-      help={"i.e. AATG, CTG, NNN"}
+      help={"Combination of nucleotides A, C, T, and G, including N as a wildcard - i.e. AATG, CG, TNN"}
     >
       <Input onChange={handleAlleleChange} value={alleleSearchValue} />
     </Form.Item>
