@@ -17,7 +17,7 @@ import VariantSearchHeader from "./VariantSearchHeader";
 const NUM_HIDDEN_VARIANT_FORM_ITEMS = 5;
 const TOOLTIP_DELAY_SECONDS = 0.8;
 
-const NOT_ALLELE_CHARACTERS_REGEX = new RegExp('[^ACGTN]', 'g');
+import { notAlleleCharactersRegex } from "../../utils/misc";
 
 // noinspection JSUnusedGlobalSymbols
 const CONDITION_RULES = [
@@ -101,7 +101,7 @@ class DiscoverySearchForm extends Component {
     }
 
     updateAlleleSearchValue(obj) {
-        var validAlleleText = obj.allele.replaceAll(NOT_ALLELE_CHARACTERS_REGEX, '');
+        var validAlleleText = obj.allele.replaceAll(notAlleleCharactersRegex, '');
         this.setState({alleleSearchValue: validAlleleText});
     }
 
