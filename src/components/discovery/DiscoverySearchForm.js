@@ -14,7 +14,7 @@ import {
 import DiscoverySearchCondition, {getSchemaTypeTransformer} from "./DiscoverySearchCondition";
 import VariantSearchHeader from "./VariantSearchHeader";
 
-const NUM_HIDDEN_VARIANT_FORM_ITEMS = 5;
+const NUM_HIDDEN_VARIANT_FORM_ITEMS = 7;
 const TOOLTIP_DELAY_SECONDS = 0.8;
 
 import { notAlleleCharactersRegex } from "../../utils/misc";
@@ -182,8 +182,8 @@ class DiscoverySearchForm extends Component {
         "[dataset item].start",
         "[dataset item].end",
         "[dataset item].calls.[item].genotype_type",
-        "[dataset item].alt",
-        "[dataset item].ref",
+        "[dataset item].alternative", 
+        "[dataset item].reference", 
     ];
 
     updateConditions = (conditions, fieldName, newValue) => {
@@ -229,14 +229,14 @@ class DiscoverySearchForm extends Component {
         if (ref) {
             updatedConditionsArray = this.updateConditions(
                 updatedConditionsArray,
-                "[dataset item].ref",
+                "[dataset item].reference", 
                 ref
             );
         }
         if (alt) {
             updatedConditionsArray = this.updateConditions(
                 updatedConditionsArray,
-                "[dataset item].alt",
+                "[dataset item].alternative", 
                 alt
             );
         }
@@ -376,8 +376,6 @@ class DiscoverySearchForm extends Component {
                 <VariantSearchHeader
                     addVariantSearchValues={this.addVariantSearchValues}
                     dataType={this.props.dataType}
-                    updateAlleleSearchValue={this.updateAlleleSearchValue}
-                    alleleSearchValue={this.state.alleleSearchValue}
                 />
             )}
             {this.state.isVariantSearch ? nonHiddenFields : formItems}
