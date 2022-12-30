@@ -54,7 +54,6 @@ class DiscoverySearchForm extends Component {
             variantSearchValues: {},
             isVariantSearch: props.dataType.id === "variant",
             isPhenopacketSearch: props.dataType.id === "phenopacket",
-            alleleSearchValue: "",
         };
         this.initialValues = {};
 
@@ -63,7 +62,6 @@ class DiscoverySearchForm extends Component {
         this.addCondition = this.addCondition.bind(this);
         this.removeCondition = this.removeCondition.bind(this);
         this.addVariantSearchValues = this.addVariantSearchValues.bind(this);
-        this.updateAlleleSearchValue = this.updateAlleleSearchValue.bind(this);
     }
 
     componentDidMount() {
@@ -100,10 +98,6 @@ class DiscoverySearchForm extends Component {
         });
     }
 
-    updateAlleleSearchValue(obj) {
-        var validAlleleText = obj.allele.replaceAll(notAlleleCharactersRegex, '');
-        this.setState({alleleSearchValue: validAlleleText});
-    }
 
     removeCondition(k) {
         this.props.form.setFieldsValue({
@@ -188,6 +182,8 @@ class DiscoverySearchForm extends Component {
         "[dataset item].start",
         "[dataset item].end",
         "[dataset item].calls.[item].genotype_type",
+        "[dataset item].alt",
+        "[dataset item].ref",
     ];
 
     updateConditions = (conditions, fieldName, newValue) => {
@@ -204,7 +200,7 @@ class DiscoverySearchForm extends Component {
     addVariantSearchValues = (values) => {
         this.setState({variantSearchValues: {...this.state.variantSearchValues, ...values}});
 
-        const {assemblyId, chrom, start, end, genotypeType } = values;
+        const {assemblyId, chrom, start, end, genotypeType, ref, alt } = values;
         const fields = this.props.formValues;
         let updatedConditionsArray = fields.conditions;
 
@@ -228,6 +224,21 @@ class DiscoverySearchForm extends Component {
             updatedConditionsArray = this.updateConditions(updatedConditionsArray, "[dataset item].chromosome", chrom);
             updatedConditionsArray = this.updateConditions(updatedConditionsArray, "[dataset item].start", start);
             updatedConditionsArray = this.updateConditions(updatedConditionsArray, "[dataset item].end", end);
+        }
+
+        if (ref) {
+            updatedConditionsArray = this.updateConditions(
+                updatedConditionsArray,
+                "[dataset item].ref",
+                ref
+            );
+        }
+        if (alt) {
+            updatedConditionsArray = this.updateConditions(
+                updatedConditionsArray,
+                "[dataset item].alt",
+                alt
+            );
         }
 
         const updatedFields = {

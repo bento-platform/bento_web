@@ -2,8 +2,11 @@ import React, { useState } from "react";
 import { Input, Form, Select } from "antd";
 import PropTypes from "prop-types";
 import LocusSearch from "./LocusSearch";
+// import {useSelector} from "react-redux";
 
-const VariantSearchHeader = ({dataType, addVariantSearchValues, updateAlleleSearchValue, alleleSearchValue}) => {
+// import { notAlleleCharactersRegex } from "../../utils/misc";
+
+const VariantSearchHeader = ({dataType, addVariantSearchValues}) => {
 
   // or default to GRCh37?
     const [lookupAssemblyId, setLookupAssemblyId] = useState(null);
@@ -35,9 +38,15 @@ const VariantSearchHeader = ({dataType, addVariantSearchValues, updateAlleleSear
         addVariantSearchValues({genotypeType: value});
     };
 
-    const handleAlleleChange = (e) => {
-      updateAlleleSearchValue({allele: e.target.value.toUpperCase()});
-    };
+    // const handleRefChange = (e) => {
+    //   addVariantSearchValues({ref: validateAlleleText(e.target.value)});
+    // };
+    // const handleAltChange = (e) => {
+    //   addVariantSearchValues({alt: validateAlleleText(e.target.value)});
+    // };
+    // const validateAlleleText = (text) => {
+    //   return text.toUpperCase().replaceAll(notAlleleCharactersRegex, '');
+    // }
 
 // Select needs
 // style
@@ -76,14 +85,22 @@ const VariantSearchHeader = ({dataType, addVariantSearchValues, updateAlleleSear
        {genotypeSchema.enum.map(v => <Select.Option key={v} value={v}>{v}</Select.Option>)}
       </Select>
     </Form.Item>
+    {/* <Form.Item
+      labelCol={labelCol}
+      wrapperCol={wrapperCol}
+      label={"Reference Allele"}
+      help={"Combination of nucleotides A, C, T, and G, including N as a wildcard - i.e. AATG, CG, TNN"}
+    >
+      <Input onChange={handleRefChange} />
+    </Form.Item>
     <Form.Item
       labelCol={labelCol}
       wrapperCol={wrapperCol}
-      label={"Allele"}
+      label={"Alternate Allele"}
       help={"Combination of nucleotides A, C, T, and G, including N as a wildcard - i.e. AATG, CG, TNN"}
     >
-      <Input onChange={handleAlleleChange} value={alleleSearchValue} />
-    </Form.Item>
+      <Input onChange={handleAltChange} />
+    </Form.Item> */}
     </>
     );
 };
