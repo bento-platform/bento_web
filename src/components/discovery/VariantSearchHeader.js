@@ -19,23 +19,23 @@ const VariantSearchHeader = ({dataType, addVariantSearchValues}) => {
 
     // obtain ref and alt values from state
     const firstDatasetDatatypeForm = useSelector(state => state.explorer?.dataTypeFormsByDatasetID[Object.keys(state.explorer.dataTypeFormsByDatasetID)[0]]);
-    const activeRefValue = firstDatasetDatatypeForm[0].formValues?.conditions == undefined ? "" : firstDatasetDatatypeForm[0].formValues.conditions.filter(c => c.value.field == '[dataset item].reference')[0].value.searchValue
-    const activeAltValue = firstDatasetDatatypeForm[0].formValues?.conditions == undefined ? "" : firstDatasetDatatypeForm[0].formValues.conditions.filter(c => c.value.field == '[dataset item].alternative')[0].value.searchValue
+    const activeRefValue = firstDatasetDatatypeForm[0].formValues?.conditions == undefined ? "" : firstDatasetDatatypeForm[0].formValues.conditions.filter(c => c.value.field === "[dataset item].reference")[0].value.searchValue;
+    const activeAltValue = firstDatasetDatatypeForm[0].formValues?.conditions == undefined ? "" : firstDatasetDatatypeForm[0].formValues.conditions.filter(c => c.value.field === "[dataset item].alternative")[0].value.searchValue;
     const handleAssemblyIdChange = (value) => {
 
-        addVariantSearchValues({assemblyId: value});
+      addVariantSearchValues({assemblyId: value});
 
     // temp workaround for bug in Bento back end:
     // files ingested with GRCh37 reference need to be searched using assemblyId "Other"
 
     // so if assembly is "Other", pass that value to the form, but use
     // "GRCh37" as the reference for gene lookup in Gohan
-        if (value === "Other") {
-            setLookupAssemblyId("GRCh37");
-            return;
-        }
+      if (value === "Other") {
+          setLookupAssemblyId("GRCh37");
+          return;
+      }
 
-        setLookupAssemblyId(value);
+      setLookupAssemblyId(value);
     };
 
     const handleGenotypeChange = (value) => {

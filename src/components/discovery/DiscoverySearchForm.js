@@ -17,7 +17,6 @@ import VariantSearchHeader from "./VariantSearchHeader";
 const NUM_HIDDEN_VARIANT_FORM_ITEMS = 7;
 const TOOLTIP_DELAY_SECONDS = 0.8;
 
-import { notAlleleCharactersRegex } from "../../utils/misc";
 
 // noinspection JSUnusedGlobalSymbols
 const CONDITION_RULES = [
@@ -182,8 +181,8 @@ class DiscoverySearchForm extends Component {
         "[dataset item].start",
         "[dataset item].end",
         "[dataset item].calls.[item].genotype_type",
-        "[dataset item].alternative", 
-        "[dataset item].reference", 
+        "[dataset item].alternative",
+        "[dataset item].reference",
     ];
 
     updateConditions = (conditions, fieldName, newValue) => {
@@ -229,14 +228,14 @@ class DiscoverySearchForm extends Component {
         if (ref) {
             updatedConditionsArray = this.updateConditions(
                 updatedConditionsArray,
-                "[dataset item].reference", 
+                "[dataset item].reference",
                 ref
             );
         }
         if (alt) {
             updatedConditionsArray = this.updateConditions(
                 updatedConditionsArray,
-                "[dataset item].alternative", 
+                "[dataset item].alternative",
                 alt
             );
         }
