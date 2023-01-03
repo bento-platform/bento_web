@@ -160,7 +160,7 @@ export const setIgvPosition = (igvPosition) => ({
 export const performGetGohanVariantsOverviewIfPossible = () => (dispatch, getState) => {
     const gohanUrl = getState()?.services?.gohan?.url;
     const bentoBaseUrl = `${getState().nodeInfo.data.CHORD_URL}`;
-    const overviewPath = `/variants/overview`;
+    const overviewPath = "/variants/overview";
     const getUrl = gohanUrl ? `${gohanUrl}${overviewPath}` : `${bentoBaseUrl}api/gohan${overviewPath}`;
     dispatch(performGetGohanVariantsOverview(getUrl));
 };

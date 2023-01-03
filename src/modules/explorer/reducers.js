@@ -53,7 +53,7 @@ export const explorer = (
             return {
                 ...state,
                 variantsOverviewResponse: action.data
-            };  
+            };
         case PERFORM_SEARCH.REQUEST:
             return {
                 ...state,
