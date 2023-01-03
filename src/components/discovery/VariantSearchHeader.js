@@ -21,18 +21,6 @@ const VariantSearchHeader = ({dataType, addVariantSearchValues}) => {
     const handleAssemblyIdChange = (value) => {
 
         addVariantSearchValues({assemblyId: value});
-
-    // temp workaround for bug in Bento back end:
-    // files ingested with GRCh37 reference need to be searched using assemblyId "Other"
-
-    // so if assembly is "Other", pass that value to the form, but use
-    // "GRCh37" as the reference for gene lookup in Gohan
-        if (value === "Other") {
-            setLookupAssemblyId("GRCh37");
-            return;
-        }
-
-        setLookupAssemblyId(value);
     };
 
     const handleGenotypeChange = (value) => {
