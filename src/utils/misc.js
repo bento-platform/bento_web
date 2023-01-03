@@ -8,3 +8,6 @@ export const simpleDeepCopy = o => JSON.parse(JSON.stringify(o));
 export const objectWithoutProps = (o, ps) => Object.fromEntries(Object.entries(o).filter(([p2]) => !ps.includes(p2)));
 export const objectWithoutProp = (o, p) => objectWithoutProps(o, [p]);
 export const arrayToObjectByProperty = (l, p) => Object.fromEntries(l.map(l => [l[p], l]));
+
+// REGEX
+export const notAlleleCharactersRegex = new RegExp("[^ACGTN]", "g");

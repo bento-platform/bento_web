@@ -14,8 +14,9 @@ import {
 import DiscoverySearchCondition, {getSchemaTypeTransformer} from "./DiscoverySearchCondition";
 import VariantSearchHeader from "./VariantSearchHeader";
 
-const NUM_HIDDEN_VARIANT_FORM_ITEMS = 5;
+const NUM_HIDDEN_VARIANT_FORM_ITEMS = 7;
 const TOOLTIP_DELAY_SECONDS = 0.8;
+
 
 // noinspection JSUnusedGlobalSymbols
 const CONDITION_RULES = [
@@ -95,6 +96,7 @@ class DiscoverySearchForm extends Component {
             }
         });
     }
+
 
     removeCondition(k) {
         this.props.form.setFieldsValue({
@@ -179,6 +181,8 @@ class DiscoverySearchForm extends Component {
         "[dataset item].start",
         "[dataset item].end",
         "[dataset item].calls.[item].genotype_type",
+        "[dataset item].alternative",
+        "[dataset item].reference",
     ];
 
     updateConditions = (conditions, fieldName, newValue) => {
@@ -195,7 +199,7 @@ class DiscoverySearchForm extends Component {
     addVariantSearchValues = (values) => {
         this.setState({variantSearchValues: {...this.state.variantSearchValues, ...values}});
 
-        const {assemblyId, chrom, start, end, genotypeType } = values;
+        const {assemblyId, chrom, start, end, genotypeType, ref, alt } = values;
         const fields = this.props.formValues;
         let updatedConditionsArray = fields.conditions;
 
@@ -219,6 +223,21 @@ class DiscoverySearchForm extends Component {
             updatedConditionsArray = this.updateConditions(updatedConditionsArray, "[dataset item].chromosome", chrom);
             updatedConditionsArray = this.updateConditions(updatedConditionsArray, "[dataset item].start", start);
             updatedConditionsArray = this.updateConditions(updatedConditionsArray, "[dataset item].end", end);
+        }
+
+        if (ref) {
+            updatedConditionsArray = this.updateConditions(
+                updatedConditionsArray,
+                "[dataset item].reference",
+                ref
+            );
+        }
+        if (alt) {
+            updatedConditionsArray = this.updateConditions(
+                updatedConditionsArray,
+                "[dataset item].alternative",
+                alt
+            );
         }
 
         const updatedFields = {
