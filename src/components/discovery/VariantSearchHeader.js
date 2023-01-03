@@ -1,12 +1,14 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import { Form, Select } from "antd";
 import PropTypes from "prop-types";
 import LocusSearch from "./LocusSearch";
 import { useSelector } from "react-redux";
 
 const VariantSearchHeader = ({dataType, addVariantSearchValues}) => {
-  const variantsOverviewResults = useSelector((state) => state.explorer.variantsOverviewResponse);
-  var overviewAssemblyIds = variantsOverviewResults?.assemblyIDs != undefined ? Object.keys(variantsOverviewResults?.assemblyIDs) : []
+    const variantsOverviewResults = useSelector((state) => state.explorer.variantsOverviewResponse);
+    const overviewAssemblyIds = variantsOverviewResults?.assemblyIDs !== undefined 
+      ? Object.keys(variantsOverviewResults?.assemblyIDs) 
+      : [] ;
 
 
   // or default to GRCh37?
