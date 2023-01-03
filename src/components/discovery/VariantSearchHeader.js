@@ -5,8 +5,8 @@ import LocusSearch from "./LocusSearch";
 import { useSelector } from "react-redux";
 
 const VariantSearchHeader = ({dataType, addVariantSearchValues}) => {
-    const variantsOverviewResults = useSelector((state) => state.explorer.variantsOverviewResponse);
-    const overviewAssemblyIds = variantsOverviewResults?.assemblyIDs !== undefined ? Object.keys(variantsOverviewResults?.assemblyIDs) : [];
+    const varOvRes = useSelector((state) => state.explorer.variantsOverviewResponse);
+    const ovAsmIds = varOvRes?.assemblyIDs !== undefined ? Object.keys(varOvRes?.assemblyIDs) : [];
 
 
   // or default to GRCh37?
@@ -53,7 +53,7 @@ const VariantSearchHeader = ({dataType, addVariantSearchValues}) => {
       <Select
         onChange={handleAssemblyIdChange}
       >
-       {overviewAssemblyIds.map(v => <Select.Option key={v} value={v}>{v}</Select.Option>)}
+       {ovAsmIds.map(v => <Select.Option key={v} value={v}>{v}</Select.Option>)}
       </Select>
     </Form.Item>
     <Form.Item
