@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Form, Select } from "antd";
 import PropTypes from "prop-types";
 import LocusSearch from "./LocusSearch";
@@ -21,11 +21,26 @@ const VariantSearchHeader = ({dataType, addVariantSearchValues}) => {
     const handleAssemblyIdChange = (value) => {
 
         addVariantSearchValues({assemblyId: value});
+        setLookupAssemblyId(value);
     };
 
     const handleGenotypeChange = (value) => {
         addVariantSearchValues({genotypeType: value});
     };
+
+    // set default selected assemblyId if only 1 is present
+    const shouldTriggerAssemblyIdChange = ovAsmIds.length === 1;
+    useEffect(() => {
+      if (shouldTriggerAssemblyIdChange) {
+        // wait some time before 
+        // triggering handleAssemblyIdChange to 
+        // allow for the form and formValues
+        // in the parent element to populate
+        setTimeout(function() {
+          handleAssemblyIdChange(ovAsmIds[0])
+        }, 500);
+      }
+    }, [shouldTriggerAssemblyIdChange]);
 
 // Select needs
 // style
@@ -40,6 +55,7 @@ const VariantSearchHeader = ({dataType, addVariantSearchValues}) => {
     >
       <Select
         onChange={handleAssemblyIdChange}
+        defaultValue={ovAsmIds && shouldTriggerAssemblyIdChange && ovAsmIds[0]}
       >
        {ovAsmIds.map(v => <Select.Option key={v} value={v}>{v}</Select.Option>)}
       </Select>
