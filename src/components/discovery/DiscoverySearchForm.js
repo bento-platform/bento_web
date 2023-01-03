@@ -202,7 +202,7 @@ class DiscoverySearchForm extends Component {
         if (updatedConditionsArray === undefined) {
             return;
         }
-        
+
         if (assemblyId) {
             updatedConditionsArray = this.updateConditions(
                 updatedConditionsArray,

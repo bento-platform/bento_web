@@ -31,15 +31,15 @@ const VariantSearchHeader = ({dataType, addVariantSearchValues}) => {
     // set default selected assemblyId if only 1 is present
     const shouldTriggerAssemblyIdChange = ovAsmIds.length === 1;
     useEffect(() => {
-      if (shouldTriggerAssemblyIdChange) {
-        // wait some time before 
-        // triggering handleAssemblyIdChange to 
-        // allow for the form and formValues
-        // in the parent element to populate
-        setTimeout(function() {
-          handleAssemblyIdChange(ovAsmIds[0])
-        }, 500);
-      }
+        if (shouldTriggerAssemblyIdChange) {
+            // wait some time before
+            // triggering handleAssemblyIdChange to
+            // allow for the form and formValues
+            // in the parent element to populate
+            setTimeout(function() {
+                handleAssemblyIdChange(ovAsmIds[0]);
+            }, 500);
+        }
     }, [shouldTriggerAssemblyIdChange]);
 
 // Select needs
