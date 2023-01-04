@@ -38,7 +38,7 @@ const SiteHeader = () => {
 
     // -- Testing oidc roles
     // TODO: avoid hardcoding client name `local_bentov2`
-    const userRoles = user?.resource_access?.local_bentov2?.roles
+    const userRoles = user?.resource_access?.local_bentov2?.roles;
     //--
 
     const [modalVisible, setModalVisible] = useState(false);
