@@ -92,7 +92,7 @@ export const services = (
                 itemsByArtifact,
 
                 // TODO: with new federation service, change artifact
-                aggregationService: itemsByArtifact["federation"] ?? null,
+                aggregationService: itemsByArtifact["aggregation"] ?? null,
                 dropBoxService: itemsByArtifact["drop-box"] ?? null,
                 eventRelay: itemsByArtifact["event-relay"] ?? null,
                 notificationService: itemsByArtifact["notification"] ?? null,
