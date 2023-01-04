@@ -1,5 +1,5 @@
 import React, {useEffect} from "react";
-import { useDispatch, useSelector } from "react-redux";
+import { useSelector } from "react-redux";
 import {Redirect, Route, Switch} from "react-router-dom";
 
 import ExplorerGenomeBrowserContent from "./explorer/ExplorerGenomeBrowserContent";
@@ -9,16 +9,11 @@ import ExplorerSearchContent from "./explorer/ExplorerSearchContent";
 import {SITE_NAME} from "../constants";
 import {withBasePath} from "../utils/url";
 
-import { performGetGohanVariantsOverviewIfPossible } from "../modules/explorer/actions";
 
 
 const DataExplorerContent = () => {
-    const dispatch = useDispatch();
     useEffect(() => {
         document.title = `${SITE_NAME} - Explore Your Data`;
-
-        // Trigger Gohan variants-overview fetch
-        dispatch(performGetGohanVariantsOverviewIfPossible());
     }, []);
 
     const chordURL = useSelector(state => state.nodeInfo.data?.CHORD_URL);

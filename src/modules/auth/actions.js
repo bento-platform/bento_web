@@ -16,6 +16,9 @@ import {fetchNodeInfo} from "../node/actions";
 import {fetchNotifications} from "../notifications/actions";
 import {fetchServicesWithMetadataAndDataTypesAndTablesIfNeeded} from "../services/actions";
 import {fetchRuns} from "../wes/actions";
+import { performGetGohanVariantsOverviewIfPossible } from "../explorer/actions";
+
+
 import {nop} from "../../utils/misc";
 import {withBasePath} from "../../utils/url";
 
@@ -40,6 +43,7 @@ export const fetchDependentData = () => dispatch => Promise.all([
     fetchNotifications,
     fetchOverviewSummary,
     fetchVariantTableSummaries,
+    performGetGohanVariantsOverviewIfPossible
 ].map(a => dispatch(a())));
 
 // TODO: Rename this (also fetches node info)
