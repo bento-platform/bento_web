@@ -8,7 +8,7 @@ mkdir -p "dist/static"
 # ----- Begin instance config creation --------------------------------
 echo "[bento_web] [entrypoint] writing config.js"
 
-echo 'const BENTO_WEB_CONFIG = {' > "${CONFIG_FILE}"
+echo 'BENTO_WEB_CONFIG = {' > "${CONFIG_FILE}"
 
 if [[ -n "${BENTO_URL}" ]]; then
   echo "    BENTO_URL: '${BENTO_URL}'," >> "${CONFIG_FILE}"
