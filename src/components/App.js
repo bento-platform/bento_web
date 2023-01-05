@@ -137,7 +137,7 @@ class App extends Component {
 
             const manager = new io.Manager(urlObj.origin, {
                 // path should get rewritten by the reverse proxy in front of event-relay if necessary:
-                path: urlObj.pathname,
+                path: `${urlObj.pathname}/private/socket.io/`,
                 // Only try to reconnect if we're authenticated:
                 reconnection: !!this.props.user,
             });
