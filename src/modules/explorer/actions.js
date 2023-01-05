@@ -4,6 +4,7 @@ import {extractQueriesFromDataTypeForms} from "../../utils/search";
 
 import FileSaver from "file-saver";
 
+export const PERFORM_GET_GOHAN_VARIANTS_OVERVIEW = createNetworkActionTypes("GET_GOHAN_VARIANTS_OVERVIEW");
 export const PERFORM_SEARCH = createNetworkActionTypes("EXPLORER.PERFORM_SEARCH");
 export const PERFORM_INDIVIDUAL_CSV_DOWNLOAD = createNetworkActionTypes("EXPLORER.PERFORM_INDIVIDUAL_CSV_DOWNLOAD");
 export const ADD_DATA_TYPE_QUERY_FORM = "EXPLORER.ADD_DATA_TYPE_QUERY_FORM";
@@ -155,3 +156,21 @@ export const setIgvPosition = (igvPosition) => ({
     type: SET_IGV_POSITION,
     igvPosition
 });
+
+export const performGetGohanVariantsOverviewIfPossible = () => (dispatch, getState) => {
+    const gohanUrl = getState()?.services?.gohan?.url;
+    const bentoBaseUrl = `${getState().nodeInfo.data.CHORD_URL}`;
+    // bentoBaseUrl can sometimes be undefined at runtime
+    // - check for it and skip this call if so
+    if (!bentoBaseUrl) {
+        return;
+    }
+    const overviewPath = "/variants/overview";
+    const getUrl = gohanUrl ? `${gohanUrl}${overviewPath}` : `${bentoBaseUrl}api/gohan${overviewPath}`;
+    dispatch(performGetGohanVariantsOverview(getUrl));
+};
+const performGetGohanVariantsOverview = networkAction((getUrl) => () => ({
+    types: PERFORM_GET_GOHAN_VARIANTS_OVERVIEW,
+    url: getUrl,
+    err: "error getting Gohan variants overview",
+}));

@@ -1,6 +1,5 @@
 import React, {useEffect} from "react";
-import {useSelector} from "react-redux";
-
+import { useSelector } from "react-redux";
 import {Redirect, Route, Switch} from "react-router-dom";
 
 import ExplorerGenomeBrowserContent from "./explorer/ExplorerGenomeBrowserContent";
@@ -9,6 +8,7 @@ import ExplorerSearchContent from "./explorer/ExplorerSearchContent";
 
 import {SITE_NAME} from "../constants";
 import {withBasePath} from "../utils/url";
+
 
 
 const DataExplorerContent = () => {

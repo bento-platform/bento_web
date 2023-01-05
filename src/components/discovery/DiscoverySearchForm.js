@@ -201,7 +201,11 @@ class DiscoverySearchForm extends Component {
 
         const {assemblyId, chrom, start, end, genotypeType, ref, alt } = values;
         const fields = this.props.formValues;
-        let updatedConditionsArray = fields.conditions;
+        let updatedConditionsArray = fields?.conditions;
+
+        if (updatedConditionsArray === undefined) {
+            return;
+        }
 
         if (assemblyId) {
             updatedConditionsArray = this.updateConditions(

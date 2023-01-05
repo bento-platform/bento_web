@@ -3,6 +3,8 @@ import {createNetworkActionTypes, networkAction} from "../../utils/actions";
 
 export const PERFORM_GOHAN_GENE_SEARCH = createNetworkActionTypes("GOHAN_GENE_SEARCH");
 
+
+
 export const performGohanGeneSearchIfPossible = (searchTerm, assemblyId) => (dispatch, getState) => {
     const gohanUrl = getState()?.services?.gohan?.url;
     const bentoBaseUrl = `${getState().nodeInfo.data.CHORD_URL}`;

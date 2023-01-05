@@ -1,12 +1,22 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Input, Form, Select } from "antd";
 import PropTypes from "prop-types";
 import LocusSearch from "./LocusSearch";
-import {useSelector} from "react-redux";
+import { useSelector } from "react-redux";
 
 import { notAlleleCharactersRegex } from "../../utils/misc";
 
 const VariantSearchHeader = ({dataType, addVariantSearchValues}) => {
+  // local state
+  // Declare a state variable and a function to update it
+    const [refFormReceivedValidKeystroke, setRefFormReceivedValidKeystroke ] = useState(true);
+    const [altFormReceivedValidKeystroke , setAltFormReceivedValidKeystroke ] = useState(true);
+
+
+  // global state vars
+    const varOvRes = useSelector((state) => state.explorer.variantsOverviewResponse);
+    const ovAsmIds = varOvRes?.assemblyIDs !== undefined ? Object.keys(varOvRes?.assemblyIDs) : [];
+
 
   // or default to GRCh37?
     const [lookupAssemblyId, setLookupAssemblyId] = useState(null);
@@ -29,17 +39,6 @@ const VariantSearchHeader = ({dataType, addVariantSearchValues}) => {
     const handleAssemblyIdChange = (value) => {
 
         addVariantSearchValues({assemblyId: value});
-
-      // temp workaround for bug in Bento back end:
-      // files ingested with GRCh37 reference need to be searched using assemblyId "Other"
-
-      // so if assembly is "Other", pass that value to the form, but use
-      // "GRCh37" as the reference for gene lookup in Gohan
-        if (value === "Other") {
-            setLookupAssemblyId("GRCh37");
-            return;
-        }
-
         setLookupAssemblyId(value);
     };
 
@@ -48,14 +47,56 @@ const VariantSearchHeader = ({dataType, addVariantSearchValues}) => {
     };
 
     const handleRefChange = (e) => {
-        addVariantSearchValues({ref: validateAlleleText(e.target.value)});
+        const latestInputValue = e.target.value;
+        const validatedRef = validateAlleleText(latestInputValue);
+        const didValueContainInvalidChars = containsInvalid(latestInputValue);
+
+        if (didValueContainInvalidChars) {
+            setRefFormReceivedValidKeystroke(!didValueContainInvalidChars);
+            setTimeout(function() {
+                setRefFormReceivedValidKeystroke(true);
+            }, 1000);
+        }
+        addVariantSearchValues({ref: validatedRef});
     };
     const handleAltChange = (e) => {
-        addVariantSearchValues({alt: validateAlleleText(e.target.value)});
+        const latestInputValue = e.target.value;
+        const validatedAlt = validateAlleleText(latestInputValue);
+        const didValueContainInvalidChars = containsInvalid(latestInputValue);
+
+        if (didValueContainInvalidChars) {
+            setAltFormReceivedValidKeystroke(!didValueContainInvalidChars);
+            setTimeout(function() {
+                setAltFormReceivedValidKeystroke(true);
+            }, 1000);
+        }
+        addVariantSearchValues({alt: validatedAlt});
     };
+
     const validateAlleleText = (text) => {
         return text.toUpperCase().replaceAll(notAlleleCharactersRegex, "");
     };
+    const containsInvalid = (text) => {
+        const matches = text.toUpperCase().match(notAlleleCharactersRegex);
+        if (matches && matches.length > 0) {
+            return true;
+        }
+        return false;
+    };
+
+    // set default selected assemblyId if only 1 is present
+    const shouldTriggerAssemblyIdChange = ovAsmIds.length === 1;
+    useEffect(() => {
+        if (shouldTriggerAssemblyIdChange) {
+            // wait some time before
+            // triggering handleAssemblyIdChange to
+            // allow for the form and formValues
+            // in the parent element to populate
+            setTimeout(function() {
+                handleAssemblyIdChange(ovAsmIds[0]);
+            }, 500);
+        }
+    }, [shouldTriggerAssemblyIdChange]);
 
 // Select needs
 // style
@@ -70,8 +111,9 @@ const VariantSearchHeader = ({dataType, addVariantSearchValues}) => {
     >
       <Select
         onChange={handleAssemblyIdChange}
+        defaultValue={ovAsmIds && shouldTriggerAssemblyIdChange && ovAsmIds[0]}
       >
-       {assemblySchema.enum.map(v => <Select.Option key={v} value={v}>{v}</Select.Option>)}
+       {ovAsmIds.map(v => <Select.Option key={v} value={v}>{v}</Select.Option>)}
       </Select>
     </Form.Item>
     <Form.Item
@@ -100,7 +142,11 @@ const VariantSearchHeader = ({dataType, addVariantSearchValues}) => {
       label={"Reference Allele"}
       help={"Combination of nucleotides A, C, T, and G, including N as a wildcard - i.e. AATG, CG, TNN"}
     >
-      <Input onChange={handleRefChange} value={activeRefValue} />
+      <Input
+        onChange={handleRefChange}
+        value={activeRefValue} style={{
+            borderColor: refFormReceivedValidKeystroke ? "" : "red"
+        }} />
     </Form.Item>
     <Form.Item
       labelCol={labelCol}
@@ -108,7 +154,11 @@ const VariantSearchHeader = ({dataType, addVariantSearchValues}) => {
       label={"Alternate Allele"}
       help={"Combination of nucleotides A, C, T, and G, including N as a wildcard - i.e. AATG, CG, TNN"}
     >
-      <Input onChange={handleAltChange} value={activeAltValue} />
+      <Input
+        onChange={handleAltChange}
+        value={activeAltValue} style={{
+            borderColor: altFormReceivedValidKeystroke ? "" : "red"
+        }} />
     </Form.Item>
     </>
     );

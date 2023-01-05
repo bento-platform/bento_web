@@ -66,5 +66,7 @@ module.exports = {
         compress: true,
         port: process.env.BENTO_WEB_PORT ?? 9000,
         historyApiFallback: true,
+
+        allowedHosts: "all"
     },
 };
