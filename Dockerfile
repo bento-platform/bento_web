@@ -1,5 +1,8 @@
-FROM node:18-bullseye-slim AS build
+FROM --platform=$BUILDPLATFORM node:18-bullseye-slim AS build
+
 # Build bento_web with NodeJS + Webpack
+#  - Use BUILDPLATFORM for running webpack, since it should perform a lot better.
+#  - Then, the resulting built files will be copied to a TARGETPLATFORM-based final image.
 
 WORKDIR /web
 
