@@ -133,9 +133,13 @@ class App extends Component {
             const url = this.props.eventRelay?.url ?? null;
             if (!url) return null;
 
-            const manager = new io.Manager(url, {
-                path: "/private/socket.io/",
-                reconnection: !!this.props.user,  // Only try to reconnect if we're authenticated
+            const urlObj = new URL(url);
+
+            const manager = new io.Manager(urlObj.origin, {
+                // path should get rewritten by the reverse proxy in front of event-relay if necessary:
+                path: urlObj.pathname,
+                // Only try to reconnect if we're authenticated:
+                reconnection: !!this.props.user,
             });
             const socket = manager.socket("/");  // Connect to the main socket.io namespace on the server side
             socket.on("events", message => eventHandler(message, this.props.history));
