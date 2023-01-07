@@ -124,27 +124,30 @@ export const serviceDataTypes = (
         case LOADING_SERVICE_DATA_TYPES.TERMINATE:
             return {...state, isFetchingAll: false};
 
-        case FETCH_SERVICE_DATA_TYPES.REQUEST:
+        case FETCH_SERVICE_DATA_TYPES.REQUEST: {
+            const {serviceInfo} = action;
             return {
                 ...state,
                 dataTypesByServiceID: {
                     ...state.dataTypesByServiceID,
-                    [action.serviceInfo.id]: {
-                        ...(state.dataTypesByServiceID[action.serviceInfo.id] ?? {items: null, itemsByID: null}),
+                    [serviceInfo.id]: {
+                        ...(state.dataTypesByServiceID[serviceInfo.id] ?? {items: null, itemsByID: null}),
                         isFetching: true
                     }
                 },
                 dataTypesByServiceArtifact: {
                     ...state.dataTypesByServiceArtifact,
-                    [action.chordService.type.artifact]: {
-                        ...(state.dataTypesByServiceArtifact[action.chordService.artifact] ??
+                    [serviceInfo.type.artifact]: {
+                        ...(state.dataTypesByServiceArtifact[serviceInfo.type.artifact] ??
                             {items: null, itemsByID: null}),
                         isFetching: true
                     }
                 }
             };
+        }
 
         case FETCH_SERVICE_DATA_TYPES.RECEIVE: {
+            const {serviceInfo} = action;
             const itemsByID = Object.fromEntries(action.data.map(d => [d.id, d]));
             return {
                 ...state,
@@ -154,36 +157,37 @@ export const serviceDataTypes = (
                 },
                 dataTypesByServiceID: {
                     ...state.dataTypesByServiceID,
-                    [action.serviceInfo.id]: {items: action.data, itemsByID, isFetching: false}
+                    [serviceInfo.id]: {items: action.data, itemsByID, isFetching: false},
                 },
                 dataTypesByServiceArtifact: {
                     ...state.dataTypesByServiceArtifact,
-                    // TODO: use serviceInfo.type.artifact instead when all use newest version
-                    [action.chordService.type.artifact]: {items: action.data, itemsByID, isFetching: false}
+                    [serviceInfo.type.artifact]: {items: action.data, itemsByID, isFetching: false},
                 },
                 lastUpdated: action.receivedAt
             };
         }
 
-        case FETCH_SERVICE_DATA_TYPES.ERROR:
+        case FETCH_SERVICE_DATA_TYPES.ERROR: {
+            const {serviceInfo} = action;
             return {
                 ...state,
                 dataTypesByServiceID: {
                     ...state.dataTypesByServiceID,
                     [action.serviceID]: {
-                        ...(state.dataTypesByServiceID[action.serviceInfo.id] ?? {items: null, itemsByID: null}),
-                        isFetching: false
+                        ...(state.dataTypesByServiceID[serviceInfo.id] ?? {items: null, itemsByID: null}),
+                        isFetching: false,
                     }
                 },
                 dataTypesByServiceArtifact: {
                     ...state.dataTypesByServiceArtifact,
                     [action.serviceID]: {
-                        ...(state.dataTypesByServiceArtifact[action.chordService.type.artifact] ||
-                            {items: null, itemsByID: null}),
-                        isFetching: false
+                        ...(state.dataTypesByServiceArtifact[serviceInfo.type.artifact]
+                            ?? {items: null, itemsByID: null}),
+                        isFetching: false,
                     }
                 }
             };
+        }
 
         default:
             return state;
