@@ -145,7 +145,7 @@ export const fetchServicesWithMetadataAndDataTypesAndTables = () => async (dispa
 
 export const fetchServicesWithMetadataAndDataTypesAndTablesIfNeeded = () => (dispatch, getState) => {
     const state = getState();
-    if ((Object.keys(state.chordServices.itemsByID).length === 0 || state.services.items.length === 0 ||
+    if ((Object.keys(state.chordServices.itemsByArtifact).length === 0 || state.services.items.length === 0 ||
             Object.keys(state.serviceDataTypes.dataTypesByServiceID).length === 0) &&
             !state.services.isFetchingAll) {
         return dispatch(fetchServicesWithMetadataAndDataTypesAndTables());
