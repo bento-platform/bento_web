@@ -31,11 +31,7 @@ export const chordServices = (
         case FETCH_CHORD_SERVICES.REQUEST:
             return {...state, isFetching: true};
         case FETCH_CHORD_SERVICES.RECEIVE:
-            return {
-                ...state,
-                itemsByArtifact: action.data,
-                // itemsByArtifact: Object.fromEntries(action.data.map(s => [s.type.artifact, s]))
-            };
+            return {...state, itemsByArtifact: action.data};
         case FETCH_CHORD_SERVICES.FINISH:
             return {...state, isFetching: false};
 
