@@ -137,7 +137,7 @@ export const serviceDataTypes = (
                 dataTypesByServiceArtifact: {
                     ...state.dataTypesByServiceArtifact,
                     [action.chordService.type.artifact]: {
-                        ...(state.dataTypesByServiceArtifact[action.chordService.type.artifact] ??
+                        ...(state.dataTypesByServiceArtifact[action.chordService.artifact] ??
                             {items: null, itemsByID: null}),
                         isFetching: true
                     }
