@@ -14,8 +14,8 @@ import {withBasePath} from "../../utils/url";
 
 /**
  * @typedef {Object} CHORDService
- * @property {string} type.organization
- * @property {string} type.artifact
+ * @property {string} artifact
+ * @property {string} url
  * @property {boolean} data_service
  * @property {?boolean} manageable_tables
  */
@@ -145,7 +145,7 @@ export const fetchServicesWithMetadataAndDataTypesAndTables = () => async (dispa
 
 export const fetchServicesWithMetadataAndDataTypesAndTablesIfNeeded = () => (dispatch, getState) => {
     const state = getState();
-    if ((state.chordServices.items.length === 0 || state.services.items.length === 0 ||
+    if ((Object.keys(state.chordServices.itemsByID).length === 0 || state.services.items.length === 0 ||
             Object.keys(state.serviceDataTypes.dataTypesByServiceID).length === 0) &&
             !state.services.isFetchingAll) {
         return dispatch(fetchServicesWithMetadataAndDataTypesAndTables());

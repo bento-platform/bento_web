@@ -28,7 +28,7 @@ const renderGitInfo = (tag, record, key) => <Tag key={key} color={tag.color}>{ta
 const serviceColumns = (isOwner) => [
     {
         title: "Artifact",
-        dataIndex: "type.artifact",
+        dataIndex: "artifact",
         render: (artifact) =>
             artifact ? (
                 isOwner ? (
@@ -58,7 +58,7 @@ const serviceColumns = (isOwner) => [
     },
     {
         title: "URL",
-        dataIndex: "serviceInfo.url",
+        dataIndex: "url",
         // url is undefined when service-registry does not receive replies from
         // the container.
         render: (url) => url ? <a href={`${url}/service-info`}>{`${url}/service-info`}</a> : "N/A",
@@ -87,12 +87,12 @@ const serviceColumns = (isOwner) => [
 
 const ServiceList = () => {
     const dataSource = useSelector((state) =>
-        state.chordServices.items.map((service) => ({
+        Object.entries(state.chordServices.itemsByArtifact).map(([artifact, service]) => ({
             ...service,
-            key: `${service.type.organization}:${service.type.artifact}`,
-            serviceInfo: state.services.itemsByArtifact[service.type.artifact] || null,
+            key: artifact,
+            serviceInfo: state.services.itemsByArtifact[artifact] || null,
             status: {
-                status: state.services.itemsByArtifact.hasOwnProperty(service.type.artifact),
+                status: state.services.itemsByArtifact.hasOwnProperty(artifact),
                 dataService: service.data_service,
             },
             loading: state.services.isFetching,

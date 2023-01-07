@@ -23,8 +23,7 @@ import {
 export const chordServices = (
     state = {
         isFetching: false,
-        items: [],
-        itemsByArtifact: {}
+        itemsByArtifact: {},
     },
     action
 ) => {
@@ -34,8 +33,8 @@ export const chordServices = (
         case FETCH_CHORD_SERVICES.RECEIVE:
             return {
                 ...state,
-                items: action.data,
-                itemsByArtifact: Object.fromEntries(action.data.map(s => [s.type.artifact, s]))
+                itemsByArtifact: action.data,
+                // itemsByArtifact: Object.fromEntries(action.data.map(s => [s.type.artifact, s]))
             };
         case FETCH_CHORD_SERVICES.FINISH:
             return {...state, isFetching: false};
