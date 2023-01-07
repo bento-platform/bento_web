@@ -15,8 +15,8 @@ export const tableSummaries = (
                 ...state,
                 summariesByServiceArtifactAndTableID: {
                     ...state.summariesByServiceArtifactAndTableID,
-                    [action.chordService.type.artifact]: {
-                        ...(state.summariesByServiceArtifactAndTableID[action.chordService.type.artifact] || {}),
+                    [action.chordService.artifact]: {
+                        ...(state.summariesByServiceArtifactAndTableID[action.chordService.artifact] || {}),
                         [action.tableID]: action.data,
                     }
                 }
