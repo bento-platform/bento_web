@@ -91,8 +91,8 @@ export const services = (
                 itemsByID: Object.fromEntries(action.data.map(s => [s.id, s])),
                 itemsByArtifact,
 
-                // TODO: with new federation service, change artifact
-                aggregationService: itemsByArtifact["federation"] ?? null,
+                // Backwards-compatibility with older Bento versions, where this was called 'federation'
+                aggregationService: itemsByArtifact["aggregation"] ?? itemsByArtifact["federation"] ?? null,
                 dropBoxService: itemsByArtifact["drop-box"] ?? null,
                 eventRelay: itemsByArtifact["event-relay"] ?? null,
                 notificationService: itemsByArtifact["notification"] ?? null,
