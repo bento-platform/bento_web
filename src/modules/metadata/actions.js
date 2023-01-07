@@ -79,6 +79,11 @@ export const fetchProjectsWithDatasetsAndTables = () => async (dispatch, getStat
         state.projects.isDeleting ||
         state.projects.isSaving) return;
 
+    if (!state.services.metadataService.url) {
+        console.error("Missing metadata service (in the context of fetching projects/datasets/tables)");
+        return;
+    }
+
     dispatch(beginFlow(FETCHING_PROJECTS_WITH_TABLES));
     await dispatch(fetchProjects());
     await dispatch(fetchProjectTables(getState().projects.itemsByID));
