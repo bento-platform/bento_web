@@ -69,16 +69,20 @@ export const services = (
             return {...state, isFetching: true};
 
         case FETCH_SERVICES.RECEIVE: {
-            const itemsByArtifact = Object.fromEntries(action.data.map(s => {
-                // Backwards compatibility for:
-                // - old type ("group:artifact:version")
-                // - and new  ({"group": "...", "artifact": "...", "version": "..."})
-                const serviceArtifact = (typeof s.type === "string")
-                    ? s.type.split(":")[1]
-                    : s.type.artifact;
+            // Filter out services without a valid serviceInfo.type
+            const itemsByArtifact = Object.fromEntries(
+                action.data
+                    .filter(s => s?.type)
+                    .map(s => {
+                        // Backwards compatibility for:
+                        // - old type ("group:artifact:version")
+                        // - and new  ({"group": "...", "artifact": "...", "version": "..."})
+                        const serviceArtifact = (typeof s.type === "string")
+                            ? s.type.split(":")[1]
+                            : s.type.artifact;
 
-                return [serviceArtifact, s];
-            }));
+                        return [serviceArtifact, s];
+                    }));
             return {
                 ...state,
 

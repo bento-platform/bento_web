@@ -90,9 +90,9 @@ const ServiceList = () => {
         Object.entries(state.chordServices.itemsByArtifact).map(([artifact, service]) => ({
             ...service,
             key: artifact,
-            serviceInfo: state.services.itemsByArtifact[artifact] || null,
+            serviceInfo: state.services.itemsByArtifact[artifact] ?? null,
             status: {
-                status: state.services.itemsByArtifact.hasOwnProperty(artifact),
+                status: artifact in state.services.itemsByArtifact,
                 dataService: service.data_service,
             },
             loading: state.services.isFetching,
