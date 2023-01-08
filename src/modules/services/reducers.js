@@ -33,10 +33,10 @@ export const chordServices = (
         case FETCH_CHORD_SERVICES.RECEIVE:
             return {
                 ...state,
-                itemsByArtifact: Object.fromEntries(Object.entries(action.data.map(([composeID, service]) => ([
+                itemsByArtifact: Object.fromEntries(Object.entries(action.data).map(([composeID, service]) => ([
                     service.artifact,
                     {...service, composeID},
-                ])))),
+                ]))),
             };
         case FETCH_CHORD_SERVICES.FINISH:
             return {...state, isFetching: false};
