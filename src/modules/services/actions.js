@@ -103,7 +103,7 @@ export const fetchServicesWithMetadataAndDataTypesAndTables = () => async (dispa
 
     // - Skip services that don't provide data (i.e. no data types/workflows/etc.)
 
-    const dataServicesInfo = getState().services.items.map(s => {
+    const dataServicesInfo = getState().services.items.filter(s?.type).map(s => {
         // Backwards compatibility for:
         // - old type ("group:artifact:version")
         // - and new  ({"group": "...", "artifact": "...", "version": "..."})

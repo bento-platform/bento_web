@@ -80,7 +80,7 @@ export const services = (
 
                         let serviceType = s.type;
                         if (typeof serviceType === "string") {
-                            const [group, artifact, version] = s.type.split(":");
+                            const [group, artifact, version] = serviceType.split(":");
                             serviceType = {
                                 group,
                                 artifact,
