@@ -77,11 +77,18 @@ export const services = (
                         // Backwards compatibility for:
                         // - old type ("group:artifact:version")
                         // - and new  ({"group": "...", "artifact": "...", "version": "..."})
-                        const serviceArtifact = (typeof s.type === "string")
-                            ? s.type.split(":")[1]
-                            : s.type.artifact;
 
-                        return [serviceArtifact, s];
+                        let serviceType = s.type;
+                        if (typeof serviceType === "string") {
+                            const [group, artifact, version] = s.type.split(":");
+                            serviceType = {
+                                group,
+                                artifact,
+                                version,
+                            };
+                        }
+
+                        return [serviceType.artifact, {...s, type: serviceType}];
                     }));
             return {
                 ...state,
