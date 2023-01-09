@@ -16,13 +16,13 @@ class TableForm extends Component {
         return <Form style={this.props.style || {}}>
             <Form.Item label="Name">
                 {this.props.form.getFieldDecorator("name", {
-                    initialValue: (this.props.initialValue || {name: ""}).name || "",
+                    initialValue: this.props.initialValue?.name || "",
                     rules: [{required: true}, {min: 3}]
                 })(<Input placeholder="My Variant Dataset" size="large" />)}
             </Form.Item>
             <Form.Item label="Data Type">
                 {this.props.form.getFieldDecorator("dataType", {
-                    initialValue: (this.props.initialValue || {dataType: null}).dataType || null,
+                    initialValue: this.props.initialValue?.dataType || null,
                     rules: [{required: true}]
                 })(<Select style={{width: "100%"}}>{dataTypeOptions}</Select>)}
             </Form.Item>
