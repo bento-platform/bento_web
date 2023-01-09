@@ -13,6 +13,7 @@ WORKDIR /web
 
 COPY package.json .
 COPY package-lock.json .
+COPY entrypoint.dev.sh .
 
 COPY --from=install /web/node_modules ./node_modules
 
