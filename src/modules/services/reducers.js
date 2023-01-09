@@ -18,6 +18,7 @@ import {
     FETCH_SERVICE_WORKFLOWS,
     LOADING_SERVICE_WORKFLOWS
 } from "./actions";
+import {normalizeServiceInfo} from "../../utils/serviceInfo";
 
 
 export const chordServices = (
@@ -75,32 +76,16 @@ export const services = (
             return {...state, isFetching: true};
 
         case FETCH_SERVICES.RECEIVE: {
-            // Filter out services without a valid serviceInfo.type
-            const itemsByArtifact = Object.fromEntries(
-                action.data
-                    .filter(s => s?.type)
-                    .map(s => {
-                        // Backwards compatibility for:
-                        // - old type ("group:artifact:version")
-                        // - and new  ({"group": "...", "artifact": "...", "version": "..."})
+            // Filter out services without a valid serviceInfo.type & normalize service infos across spec versions:
+            const items = action.data.filter(s => s?.type).map(normalizeServiceInfo);
+            const itemsByID = Object.fromEntries(items.map(s => [s.id, s]));
+            const itemsByArtifact = Object.fromEntries(items.map(s => [s.type.artifact, s]));
 
-                        let serviceType = s.type;
-                        if (typeof serviceType === "string") {
-                            const [group, artifact, version] = serviceType.split(":");
-                            serviceType = {
-                                group,
-                                artifact,
-                                version,
-                            };
-                        }
-
-                        return [serviceType.artifact, {...s, type: serviceType}];
-                    }));
             return {
                 ...state,
 
-                items: action.data,
-                itemsByID: Object.fromEntries(action.data.map(s => [s.id, s])),
+                items,
+                itemsByID,
                 itemsByArtifact,
 
                 // Backwards-compatibility with older Bento versions, where this was called 'federation'
@@ -111,7 +96,7 @@ export const services = (
                 metadataService: itemsByArtifact["metadata"] ?? null,
                 wesService: itemsByArtifact["wes"] ?? null,
 
-                lastUpdated: action.receivedAt
+                lastUpdated: action.receivedAt,
             };
         }
 
@@ -166,6 +151,7 @@ export const serviceDataTypes = (
         case FETCH_SERVICE_DATA_TYPES.RECEIVE: {
             const {serviceInfo} = action;
             const itemsByID = Object.fromEntries(action.data.map(d => [d.id, d]));
+            console.log(serviceInfo, action.data);
             return {
                 ...state,
                 itemsByID: {
