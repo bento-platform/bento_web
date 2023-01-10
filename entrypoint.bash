@@ -21,5 +21,9 @@ fi
 echo '};' >> "${CONFIG_FILE}"
 # ----- End -----------------------------------------------------------
 
+# ----- Begin /service-info creation ----------------------------------
+node ./create_service_info.js > dist/static/service-info.json
+# ----- End -----------------------------------------------------------
+
 echo "[bento_web] [entrypoint] starting NGINX"
 nginx -g 'daemon off;'
