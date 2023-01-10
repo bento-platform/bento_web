@@ -31,15 +31,13 @@ export const serviceInfoPropTypesShape = PropTypes.shape({
 });
 
 export const chordServicePropTypesMixin = {
-    type: PropTypes.shape({
-        organization: PropTypes.string,
-        artifact: PropTypes.string,
-        language: PropTypes.string,
-    }),
+    artifact: PropTypes.string,
     repository: PropTypes.string,
     data_service: PropTypes.bool,
     manageable_tables: PropTypes.bool,
-    wsgi: PropTypes.bool,
+    disabled: PropTypes.bool,
+    url_template: PropTypes.string,
+    url: PropTypes.string,
 };
 
 // Gives components which include this in their state to props connection access to the drop box and loading status.
