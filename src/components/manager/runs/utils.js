@@ -15,6 +15,10 @@ export const sortDate = (a, b, dateProperty) =>
     (new Date(Date.parse(a[dateProperty])).getTime() || Infinity) -
     (new Date(Date.parse(b[dateProperty])).getTime() || Infinity);
 
+// If end times are unset, sort by start times
+const sortEndDate = (a, b) =>
+    sortDate(a, b, (!a.end_time || !b.end_time) ? "start_time" : "end_time");
+
 export const RUN_STATE_TAG_COLORS = {
     UNKNOWN: "",
     QUEUED: "blue",
@@ -33,40 +37,40 @@ export const RUN_TABLE_COLUMNS = [
         title: "Run ID",
         dataIndex: "run_id",
         sorter: (a, b) => a.run_id.localeCompare(b.run_id),
-        render: runID => <Link to={withBasePath(`admin/data/manager/runs/${runID}`)} style={{fontFamily: "monospace"}}>
-            {runID}</Link>
+        render: runID => <Link to={withBasePath(`admin/data/manager/runs/${runID}`)}
+                               style={{fontFamily: "monospace"}}>{runID}</Link>
     },
     {
         title: "Purpose",
         dataIndex: "purpose",
         width: 120,
-        sorter: (a, b) => a.purpose.localeCompare(b.purpose)
+        sorter: (a, b) => a.purpose.localeCompare(b.purpose),
     },
     {
         title: "Name",
         dataIndex: "name",
-        sorter: (a, b) => a.name.localeCompare(b.name)
+        sorter: (a, b) => a.name.localeCompare(b.name),
     },
     {
         title: "Started",
         dataIndex: "start_time",
         width: 205,
         render: renderDate,
-        sorter: (a, b) => sortDate(a, b, "start_time")
+        sorter: (a, b) => sortDate(a, b, "start_time"),
     },
     {
         title: "Ended",
         dataIndex: "end_time",
         width: 205,
         render: renderDate,
-        sorter: (a, b) => sortDate(a, b, "end_time"),
-        defaultSortOrder: "descend"
+        sorter: sortEndDate,
+        defaultSortOrder: "descend",
     },
     {
         title: "State",
         dataIndex: "state",
         width: 150,
         render: state => <Tag color={RUN_STATE_TAG_COLORS[state]}>{state}</Tag>,
-        sorter: (a, b) => a.state.localeCompare(b.state)
+        sorter: (a, b) => a.state.localeCompare(b.state),
     }
 ];
