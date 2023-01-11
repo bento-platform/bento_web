@@ -119,10 +119,8 @@ class RoutedProject extends Component {
             console.log("tbl", tables);
 
             const tableList = projectTableRecords
-                .filter(tableOwnership => {
-                    console.log("to", tableOwnership, tables[tableOwnership.service_id]);
-                    return tableOwnership.table_id in (tables[tableOwnership.service_id]?.tablesByID ?? {});
-                })
+                .filter(tableOwnership =>
+                    tableOwnership.table_id in (tables[tableOwnership.service_id]?.tablesByID ?? {}))
                 .map(tableOwnership => ({
                     ...tableOwnership,
                     ...tables[tableOwnership.service_id].tablesByID[tableOwnership.table_id],
