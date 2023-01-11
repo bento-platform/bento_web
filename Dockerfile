@@ -12,8 +12,9 @@ COPY package-lock.json .
 RUN npm ci
 
 # Explicitly choose what to copy to speed up builds
-#  - Copy in build configuration
+#  - Copy in build requirements
 COPY .babelrc .
+COPY create_service_info.js .
 COPY webpack.config.js .
 #  - Copy in source code
 COPY src src
