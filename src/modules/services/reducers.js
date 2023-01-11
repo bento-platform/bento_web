@@ -151,7 +151,6 @@ export const serviceDataTypes = (
         case FETCH_SERVICE_DATA_TYPES.RECEIVE: {
             const {serviceInfo} = action;
             const itemsByID = Object.fromEntries(action.data.map(d => [d.id, d]));
-            console.log(serviceInfo, action.data);
             return {
                 ...state,
                 itemsByID: {
