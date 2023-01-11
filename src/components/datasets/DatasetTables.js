@@ -63,13 +63,7 @@ const DatasetTables = ({ isPrivate, project, dataset, onTableIngest, isFetchingT
     };
 
     const showTableSummaryModal = (table) => {
-        dispatch(
-            fetchTableSummaryIfPossible(
-                chordServicesByArtifact[table.service_artifact],
-                serviceInfoByArtifact[table.service_artifact],
-                table.table_id
-            )
-        );
+        dispatch(fetchTableSummaryIfPossible(serviceInfoByArtifact[table.service_artifact], table.table_id));
         setTableSummaryModalVisible(true);
         setSelectedTable(table);
     };

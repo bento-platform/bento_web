@@ -32,6 +32,14 @@ export const chordServices = (
         case FETCH_CHORD_SERVICES.REQUEST:
             return {...state, isFetching: true};
         case FETCH_CHORD_SERVICES.RECEIVE:
+            if (Array.isArray(action.data)) {
+                // Handle old CHORD services format
+                // TODO: Remove when no longer relevant
+                console.warn("The old chord_services.json format will be deprecated soon.");
+                return Object.fromEntries(action.data.map(s => [s.type.artifact, s]));
+            }
+
+            // Handle the new CHORD services format: an object with the docker-compose service ID as the key
             return {
                 ...state,
                 itemsByArtifact: Object.fromEntries(Object.entries(action.data).map(([composeID, service]) => ([
@@ -215,39 +223,42 @@ export const serviceTables = (
             return {...state, isFetchingAll: false};
 
         case FETCH_SERVICE_TABLES.REQUEST:
+            const {serviceInfo} = action;
             return {
                 ...state,
                 itemsByServiceID: {
                     ...state.itemsByServiceID,
-                    [action.serviceInfo.id]: {
-                        ...(state.itemsByServiceID[action.serviceInfo.id] ?? {}),
+                    [serviceInfo.id]: {
+                        ...(state.itemsByServiceID[serviceInfo.id] ?? {}),
                         isFetching: true,
                     }
                 },
             };
 
         case FETCH_SERVICE_TABLES.RECEIVE: {
-            const newTables = action.data.map(t => ({
+            const {serviceInfo: {id: serviceID}, data, dataTypeID} = action;
+
+            const newTables = data.map(t => ({
                 ...t,
-                service_id: action.serviceInfo.id,
-                data_type: action.dataTypeID
+                service_id: serviceID,
+                data_type: dataTypeID
             })).filter(t =>
-                !(state.itemsByServiceID[action.serviceInfo.id]?.tablesByID ?? {}).hasOwnProperty(t.id));
+                !(state.itemsByServiceID[serviceID]?.tablesByID ?? {}).hasOwnProperty(t.id));
 
             return {
                 ...state,
                 items: [...state.items, ...newTables],
                 itemsByServiceID: {
                     ...state.itemsByServiceID,
-                    [action.serviceInfo.id]: {
-                        ...(state.itemsByServiceID[action.serviceInfo.id] ?? {}),
+                    [serviceID]: {
+                        ...(state.itemsByServiceID[serviceID] ?? {}),
                         isFetching: false,
                         tables: [
-                            ...(state.itemsByServiceID[action.serviceInfo.id]?.tables ?? []),
-                            ...action.data,
+                            ...(state.itemsByServiceID[serviceID]?.tables ?? []),
+                            ...data,
                         ],
                         tablesByID: {
-                            ...(state.itemsByServiceID[action.serviceInfo.id]?.tablesByID ?? {}),
+                            ...(state.itemsByServiceID[serviceID]?.tablesByID ?? {}),
                             ...Object.fromEntries(newTables.map(t => [t.id, t]))
                         },
                     }
@@ -255,36 +266,40 @@ export const serviceTables = (
             };
         }
 
-        case FETCH_SERVICE_TABLES.ERROR:
+        case FETCH_SERVICE_TABLES.ERROR: {
+            const {serviceInfo: {id: serviceID}} = action;
             return {
                 ...state,
                 itemsByServiceID: {
                     ...state.itemsByServiceID,
-                    [action.serviceInfo.id]: {
-                        ...(state.itemsByServiceID[action.serviceInfo.id] ?? {}),
+                    [serviceID]: {
+                        ...(state.itemsByServiceID[serviceID] ?? {}),
                         isFetching: false,
                     }
                 },
             };
+        }
 
         case ADDING_SERVICE_TABLE.BEGIN:
             return {...state, isCreating: true};
 
-        case ADDING_SERVICE_TABLE.END:
+        case ADDING_SERVICE_TABLE.END: {
+            const {serviceInfo: {id: serviceID}, table} = action;
             return {
                 ...state,
                 itemsByServiceID: {
                     ...state.itemsByServiceID,
-                    [action.serviceInfo.id]: {
-                        ...(state.itemsByServiceID[action.serviceInfo.id] ?? {}),
-                        tables: [...(state.itemsByServiceID[action.serviceInfo.id]?.tables ?? []), action.table],
+                    [serviceID]: {
+                        ...(state.itemsByServiceID[serviceID] ?? {}),
+                        tables: [...(state.itemsByServiceID[serviceID]?.tables ?? []), table],
                         tablesByID: {
-                            ...(state.itemsByServiceID[action.serviceInfo.id]?.tablesByID ?? {}),
-                            [action.table.id]: action.table,
+                            ...(state.itemsByServiceID[serviceID]?.tablesByID ?? {}),
+                            [table.id]: table,
                         },
                     },
                 }
             };
+        }
 
         case ADDING_SERVICE_TABLE.TERMINATE:
             return {...state, isCreating: false};
@@ -292,22 +307,24 @@ export const serviceTables = (
         case DELETING_SERVICE_TABLE.BEGIN:
             return {...state, isDeleting: true};
 
-        case DELETING_SERVICE_TABLE.END:
+        case DELETING_SERVICE_TABLE.END: {
+            const {serviceInfo: {id: serviceID}, tableID} = action;
             return {
                 ...state,
                 itemsByServiceID: {
                     ...state.itemsByServiceID,
-                    [action.serviceInfo.id]: {
-                        ...(state.itemsByServiceID[action.serviceInfo.id] ?? {}),
-                        tables: (state.itemsByServiceID[action.serviceInfo.id]?.tables ?? [])
-                            .filter(t => t.id !== action.tableID),
+                    [serviceID]: {
+                        ...(state.itemsByServiceID[serviceID] ?? {}),
+                        tables: (state.itemsByServiceID[serviceID]?.tables ?? [])
+                            .filter(t => t.id !== tableID),
                         tablesByID: objectWithoutProp(
-                            (state.itemsByServiceID[action.serviceInfo.id]?.tablesByID ?? {}),
-                            action.tableID
+                            (state.itemsByServiceID[serviceID]?.tablesByID ?? {}),
+                            tableID
                         ),
                     },
                 },
             };
+        }
 
         case DELETING_SERVICE_TABLE.TERMINATE:
             return {...state, isDeleting: false};
@@ -332,27 +349,31 @@ export const serviceWorkflows = (
         case LOADING_SERVICE_WORKFLOWS.TERMINATE:
             return {...state, isFetchingAll: false};
 
-        case FETCH_SERVICE_WORKFLOWS.REQUEST:
+        case FETCH_SERVICE_WORKFLOWS.REQUEST: {
+            const {serviceInfo: {id: serviceID}} = action;
             return {
                 ...state,
                 workflowsByServiceID: {
                     ...state.workflowsByServiceID,
-                    [action.serviceInfo.id]: {
+                    [serviceID]: {
                         isFetching: true,
-                        ...(state.workflowsByServiceID[action.serviceInfo.id] ?? {workflows: null})
+                        ...(state.workflowsByServiceID[serviceID] ?? {workflows: null})
                     }
                 }
             };
+        }
 
-        case FETCH_SERVICE_WORKFLOWS.RECEIVE:
+        case FETCH_SERVICE_WORKFLOWS.RECEIVE: {
+            const {serviceInfo: {id: serviceID}, data} = action;
             return {
                 ...state,
                 isFetching: false,
                 workflowsByServiceID: {
                     ...state.workflowsByServiceID,
-                    [action.serviceInfo.id]: {isFetching: false, workflows: action.data}
+                    [serviceID]: {isFetching: false, workflows: data},
                 }
             };
+        }
 
         case FETCH_SERVICE_WORKFLOWS.ERROR:
             return {...state, isFetching: false};
