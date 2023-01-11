@@ -222,7 +222,7 @@ export const serviceTables = (
         case LOADING_SERVICE_TABLES.TERMINATE:
             return {...state, isFetchingAll: false};
 
-        case FETCH_SERVICE_TABLES.REQUEST:
+        case FETCH_SERVICE_TABLES.REQUEST: {
             const {serviceInfo} = action;
             return {
                 ...state,
@@ -234,6 +234,7 @@ export const serviceTables = (
                     }
                 },
             };
+        }
 
         case FETCH_SERVICE_TABLES.RECEIVE: {
             const {serviceInfo: {id: serviceID}, data, dataTypeID} = action;
