@@ -54,13 +54,13 @@ RunListContent.propTypes = {
 
 const mapStateToProps = state => ({
     runs: state.runs.items.map(r => {
-        const {name, start_time, end_time} = state.runs.itemsByID[r.run_id]?.details?.run_log ?? {};
+        const {name, start_time: startTime, end_time: endTime} = state.runs.itemsByID[r.run_id]?.details?.run_log ?? {};
         return {
             ...r,
             purpose: "Ingestion",  // TODO: Not hard-coded, Ingestion or Analysis
             name: name || "",
-            start_time: start_time || "",
-            end_time: end_time || "",
+            startTime: startTime || "",
+            endTime: endTime || "",
         };
     }),
     servicesFetching: state.services.isFetchingAll,

@@ -17,7 +17,7 @@ export const sortDate = (a, b, dateProperty) =>
 
 // If end times are unset, sort by start times
 const sortEndDate = (a, b) =>
-    sortDate(a, b, (!a.end_time || !b.end_time) ? "start_time" : "end_time");
+    sortDate(a, b, (!a.startTime || !b.endTime) ? "startTime" : "endTime");
 
 export const RUN_STATE_TAG_COLORS = {
     UNKNOWN: "",
@@ -53,14 +53,14 @@ export const RUN_TABLE_COLUMNS = [
     },
     {
         title: "Started",
-        dataIndex: "start_time",
+        dataIndex: "startTime",
         width: 205,
         render: renderDate,
-        sorter: (a, b) => sortDate(a, b, "start_time"),
+        sorter: (a, b) => sortDate(a, b, "startTime"),
     },
     {
         title: "Ended",
-        dataIndex: "end_time",
+        dataIndex: "endTime",
         width: 205,
         render: renderDate,
         sorter: sortEndDate,
