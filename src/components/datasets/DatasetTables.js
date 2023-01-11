@@ -23,7 +23,6 @@ const NA_TEXT = <span style={{ color: "#999", fontStyle: "italic" }}>N/A</span>;
 const DatasetTables = ({ isPrivate, project, dataset, onTableIngest, isFetchingTables }) => {
     const dispatch = useDispatch();
 
-    const chordServicesByArtifact = useSelector((state) => state.chordServices.itemsByArtifact);
     const serviceInfoByArtifact = useSelector((state) => state.services.itemsByArtifact);
 
     const dataTypesByArtifact = useSelector(state => state.serviceDataTypes.dataTypesByServiceArtifact);

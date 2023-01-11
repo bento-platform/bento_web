@@ -403,15 +403,7 @@ export const deleteProjectTableIfPossible = (project, table) => (dispatch, getSt
     if (getState().projectTables.isDeleting) return;
 
     const serviceType = getState().services.itemsByID[table.service_id].type;
-
-    // Backwards compatibility for:
-    // - old type ("group:artifact:version")
-    // - and new  ({"group": "...", "artifact": "...", "version": "..."})
-    const serviceArtifact = (typeof serviceType === "string")
-        ? serviceType.split(":")[1]
-        : serviceType.artifact;
-
-    const chordServiceInfo = getState().chordServices.itemsByArtifact[serviceArtifact];
+    const chordServiceInfo = getState().chordServices.itemsByArtifact[serviceType.artifact];
     if (chordServiceInfo.manageable_tables === false) {
         // If manageable_tables is set and not true, we can't delete the table.
         return;
