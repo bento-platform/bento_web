@@ -16,7 +16,8 @@ const VariantSearchHeader = ({dataType, addVariantSearchValues}) => {
   // global state vars
     const varOvRes = useSelector((state) => state.explorer.variantsOverviewResponse);
     const ovAsmIds = varOvRes?.assemblyIDs !== undefined ? Object.keys(varOvRes?.assemblyIDs) : [];
-
+    const [activeRefValue, setActiveRefValue] = useState(null)
+    const [activeAltValue, setActiveAltValue] = useState(null)
 
   // or default to GRCh37?
     const [lookupAssemblyId, setLookupAssemblyId] = useState(null);
@@ -27,15 +28,6 @@ const VariantSearchHeader = ({dataType, addVariantSearchValues}) => {
     const labelCol = {lg: { span: 24 }, xl: { span: 4 }, xxl: { span: 3 }};
     const wrapperCol = {lg: { span: 24 }, xl: { span: 20 }, xxl: { span: 18 }};
 
-    // obtain ref and alt values from state
-    const form = useSelector(state =>
-        state.explorer?.dataTypeFormsByDatasetID[Object.keys(state.explorer.dataTypeFormsByDatasetID)[0]]);
-    const activeRefValue = form[0].formValues?.conditions === undefined ? "" : form[0].formValues.conditions.filter(c =>
-        c.value.field === "[dataset item].reference"
-    )[0].value.searchValue;
-    const activeAltValue = form[0].formValues?.conditions === undefined ? "" : form[0].formValues.conditions.filter(c =>
-        c.value.field === "[dataset item].alternative"
-    )[0].value.searchValue;
     const handleAssemblyIdChange = (value) => {
 
         addVariantSearchValues({assemblyId: value});
@@ -57,8 +49,11 @@ const VariantSearchHeader = ({dataType, addVariantSearchValues}) => {
                 setRefFormReceivedValidKeystroke(true);
             }, 1000);
         }
+        setActiveRefValue(validatedRef)
+
         addVariantSearchValues({ref: validatedRef});
     };
+
     const handleAltChange = (e) => {
         const latestInputValue = e.target.value;
         const validatedAlt = validateAlleleText(latestInputValue);
@@ -70,6 +65,8 @@ const VariantSearchHeader = ({dataType, addVariantSearchValues}) => {
                 setAltFormReceivedValidKeystroke(true);
             }, 1000);
         }
+
+        setActiveAltValue(validatedAlt)
         addVariantSearchValues({alt: validatedAlt});
     };
 
