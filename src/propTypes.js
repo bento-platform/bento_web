@@ -31,6 +31,7 @@ export const serviceInfoPropTypesShape = PropTypes.shape({
 });
 
 export const chordServicePropTypesMixin = {
+    service_kind: PropTypes.string,
     artifact: PropTypes.string,
     repository: PropTypes.string,
     data_service: PropTypes.bool,

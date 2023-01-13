@@ -8,7 +8,7 @@ import { Table, Typography, Tag, Icon} from "antd";
 import { ROLE_OWNER } from "../constants";
 import { withBasePath } from "../utils/url";
 
-const ARTIFACT_STYLING = { fontFamily: "monospace" };
+const SERVICE_KIND_STYLING = { fontFamily: "monospace" };
 
 // biggest reasonable size limit before rolling over
 // currently 11 services including gohan
@@ -27,16 +27,16 @@ const renderGitInfo = (tag, record, key) => <Tag key={key} color={tag.color}>{ta
 /* eslint-disable react/prop-types */
 const serviceColumns = (isOwner) => [
     {
-        title: "Artifact",
-        dataIndex: "artifact",
-        render: (artifact) =>
-            artifact ? (
+        title: "Kind",
+        dataIndex: "service_kind",
+        render: (serviceKind) =>
+            serviceKind ? (
                 isOwner ? (
-                    <Link style={ARTIFACT_STYLING} to={withBasePath(`admin/services/${artifact}`)}>
-                        {artifact}
+                    <Link style={SERVICE_KIND_STYLING} to={withBasePath(`admin/services/${serviceKind}`)}>
+                        {serviceKind}
                     </Link>
                 ) : (
-                    <span style={ARTIFACT_STYLING}>{artifact}</span>
+                    <span style={SERVICE_KIND_STYLING}>{serviceKind}</span>
                 )
             ) : null,
     },
@@ -87,13 +87,12 @@ const serviceColumns = (isOwner) => [
 
 const ServiceList = () => {
     const dataSource = useSelector((state) =>
-        Object.entries(state.chordServices.itemsByArtifact).map(([artifact, service]) => ({
+        Object.entries(state.chordServices.itemsByKind).map(([kind, service]) => ({
             ...service,
-            key: artifact,
-            artifact,  // TODO: Remove this when no longer required for backwards compatibility with old chord_services
-            serviceInfo: state.services.itemsByArtifact[artifact] ?? null,
+            key: kind,
+            serviceInfo: state.services.itemsByKind[kind] ?? null,
             status: {
-                status: artifact in state.services.itemsByArtifact,
+                status: kind in state.services.itemsByKind,
                 dataService: service.data_service,
             },
             loading: state.services.isFetching,
