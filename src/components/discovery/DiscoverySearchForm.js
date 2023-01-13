@@ -50,7 +50,6 @@ class DiscoverySearchForm extends Component {
         this.state = {
             conditionsHelp: {},
             fieldSchemas: {},
-            variantSearchValues: {},
             isVariantSearch: props.dataType.id === "variant",
             isPhenopacketSearch: props.dataType.id === "phenopacket",
         };
@@ -72,9 +71,7 @@ class DiscoverySearchForm extends Component {
                 getFieldSchema(this.props.dataType.schema, f).search?.required ?? false)
             : [];
 
-        const stateUpdates = this.state.isVariantSearch
-            ? this.hiddenVariantSearchFields().map((c) => this.addCondition(c, undefined, true))
-            : requiredFields.map((c) => this.addCondition(c, undefined, true));
+        const stateUpdates = requiredFields.map(c => this.addCondition(c, undefined, true));
 
         // Add a single default condition if necessary
         // if (requiredFields.length === 0 && this.props.conditionType !== "join") {
@@ -175,15 +172,15 @@ class DiscoverySearchForm extends Component {
 
     // methods for user-friendly variant search
 
-    hiddenVariantSearchFields = () =>  [
-        "[dataset item].assembly_id",
-        "[dataset item].chromosome",
-        "[dataset item].start",
-        "[dataset item].end",
-        "[dataset item].calls.[item].genotype_type",
-        "[dataset item].alternative",
-        "[dataset item].reference",
-    ];
+    // hiddenVariantSearchFields = () =>  [
+    //     "[dataset item].assembly_id",
+    //     "[dataset item].chromosome",
+    //     "[dataset item].start",
+    //     "[dataset item].end",
+    //     "[dataset item].calls.[item].genotype_type",
+    //     "[dataset item].alternative",
+    //     "[dataset item].reference",
+    // ];
 
     updateConditions = (conditions, fieldName, newValue) => {
         console.log({CONDITIONSIN: conditions});
@@ -197,8 +194,6 @@ class DiscoverySearchForm extends Component {
 
     // fill hidden variant forms according to input in user-friendly variant search
     addVariantSearchValues = (values) => {
-        this.setState({variantSearchValues: {...this.state.variantSearchValues, ...values}});
-
         const {assemblyId, chrom, start, end, genotypeType, ref, alt } = values;
         const fields = this.props.formValues;
         let updatedConditionsArray = fields?.conditions;
@@ -275,7 +270,7 @@ class DiscoverySearchForm extends Component {
             case "[dataset item].end":
                 return OP_LESS_THAN_OR_EQUAL;
 
-          // assemblyID, chromosome, genotype
+          // assemblyID, chromosome, genotype, ref, alt
             default:
                 return OP_EQUALS;
         }
@@ -372,7 +367,12 @@ class DiscoverySearchForm extends Component {
         ));
 
         //for variant search, only show user-added fields, hide everything else
+        // XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+        // can probably accomplish the same thing, but with filter()
         const nonHiddenFields = formItems.slice(NUM_HIDDEN_VARIANT_FORM_ITEMS);
+
+        console.log({formItems: formItems})
+
 
         return <Form onSubmit={this.onSubmit}>
             {this.props.dataType.id === "variant" && (
