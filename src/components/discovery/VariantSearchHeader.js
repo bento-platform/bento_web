@@ -11,17 +11,16 @@ const VariantSearchHeader = ({dataType, addVariantSearchValues}) => {
   // Declare a state variable and a function to update it
     const [refFormReceivedValidKeystroke, setRefFormReceivedValidKeystroke ] = useState(true);
     const [altFormReceivedValidKeystroke , setAltFormReceivedValidKeystroke ] = useState(true);
+    const [activeRefValue, setActiveRefValue] = useState(null);
+    const [activeAltValue, setActiveAltValue] = useState(null);
+    const [lookupAssemblyId, setLookupAssemblyId] = useState(null);
 
-
-    // global state vars
+  // global state vars
     const variantsOverviewResults = useSelector((state) => state.explorer.variantsOverviewResponse);
     const overviewAssemblyIds = variantsOverviewResults?.assemblyIDs !== undefined
         ? Object.keys(variantsOverviewResults?.assemblyIDs)
         : [];
-    const [activeRefValue, setActiveRefValue] = useState(null);
-    const [activeAltValue, setActiveAltValue] = useState(null);
 
-    const [lookupAssemblyId, setLookupAssemblyId] = useState(null);
     const assemblySchema = dataType.schema?.properties?.assembly_id;
     const genotypeSchema = dataType.schema?.properties?.calls?.items?.properties?.genotype_type;
 
@@ -50,8 +49,7 @@ const VariantSearchHeader = ({dataType, addVariantSearchValues}) => {
                 setRefFormReceivedValidKeystroke(true);
             }, 1000);
         }
-        setActiveRefValue(validatedRef)
-
+        setActiveRefValue(validatedRef);
         addVariantSearchValues({ref: validatedRef});
     };
 
@@ -67,7 +65,7 @@ const VariantSearchHeader = ({dataType, addVariantSearchValues}) => {
             }, 1000);
         }
 
-        setActiveAltValue(validatedAlt)
+        setActiveAltValue(validatedAlt);
         addVariantSearchValues({alt: validatedAlt});
     };
 
