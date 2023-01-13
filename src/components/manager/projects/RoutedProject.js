@@ -101,12 +101,12 @@ class RoutedProject extends Component {
              */
             const projectTableRecords = this.props.projectTablesByProjectID[selectedProjectID] || [];
 
-            const chordServicesByArtifact = this.props.chordServicesByArtifact;
+            const chordServicesByKind = this.props.chordServicesByKind;
             const serviceDataTypesByServiceID = this.props.serviceDataTypesByServiceID;
 
             const manageableDataTypes = this.props.services
                 .filter(s => {
-                    const cs = chordServicesByArtifact[s.type.artifact] ?? {};
+                    const cs = chordServicesByKind[s.bento.serviceKind ?? s.type.artifact] ?? {};
                     return (
                         cs.data_service &&  // Service in question must be a data service to have manageable tables ...
                         cs.manageable_tables &&  // ... and it must have manageable tables specified ...
@@ -176,7 +176,7 @@ RoutedProject.propTypes = {
     editingProject: PropTypes.bool,
     savingProject: PropTypes.bool,
 
-    chordServicesByArtifact: PropTypes.objectOf(PropTypes.shape(chordServicePropTypesMixin)),
+    chordServicesByKind: PropTypes.objectOf(PropTypes.shape(chordServicePropTypesMixin)),
 
     services: PropTypes.arrayOf(serviceInfoPropTypesShape),
     servicesByID: PropTypes.objectOf(serviceInfoPropTypesShape),
@@ -210,7 +210,7 @@ const mapStateToProps = state => ({
     editingProject: state.manager.editingProject,
     savingProject: state.projects.isSaving,
 
-    chordServicesByArtifact: state.chordServices.itemsByArtifact,
+    chordServicesByKind: state.chordServices.itemsByKind,
 
     services: state.services.items,
     servicesByID: state.services.itemsByID,

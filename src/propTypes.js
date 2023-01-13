@@ -368,10 +368,3 @@ export const explorerSearchResultsPropTypesShape = PropTypes.shape({
         experiments: PropTypes.number
     })),
 });
-
-
-export const serviceLogsPropTypesShape = PropTypes.shape({
-    itemsByArtifact: PropTypes.objectOf(PropTypes.shape({
-        logs: PropTypes.objectOf(PropTypes.string),
-    })),
-});

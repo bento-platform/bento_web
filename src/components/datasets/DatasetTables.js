@@ -23,15 +23,15 @@ const NA_TEXT = <span style={{ color: "#999", fontStyle: "italic" }}>N/A</span>;
 const DatasetTables = ({ isPrivate, project, dataset, onTableIngest, isFetchingTables }) => {
     const dispatch = useDispatch();
 
-    const serviceInfoByArtifact = useSelector((state) => state.services.itemsByArtifact);
+    const serviceInfoByKind = useSelector((state) => state.services.itemsByKind);
 
-    const dataTypesByArtifact = useSelector(state => state.serviceDataTypes.dataTypesByServiceArtifact);
+    const dataTypesByKind = useSelector(state => state.serviceDataTypes.dataTypesByServiceKind);
     const dataTypesByID = useMemo(
         () => Object.fromEntries(
-            Object.values(dataTypesByArtifact ?? {})
+            Object.values(dataTypesByKind ?? {})
                 .flatMap(v => (v?.items ?? []))
                 .map(dt => [dt.id, dt])),
-        [dataTypesByArtifact]);
+        [dataTypesByKind]);
 
     const [additionModalVisible, setAdditionModalVisible] = useState(false);
     const [deletionModalVisible, setDeletionModalVisible] = useState(false);
@@ -39,8 +39,8 @@ const DatasetTables = ({ isPrivate, project, dataset, onTableIngest, isFetchingT
     const [selectedTable, setSelectedTable] = useState(null);
 
     const handleAdditionSubmit = async (values) => {
-        const [serviceArtifact, dataTypeID] = values.dataType.split(":");
-        const serviceInfo = serviceInfoByArtifact[serviceArtifact];
+        const [serviceKind, dataTypeID] = values.dataType.split(":");
+        const serviceInfo = serviceInfoByKind[serviceKind];
         await dispatch(addProjectTable(project, dataset.identifier, serviceInfo, dataTypeID, values.name));
 
         await dispatch(fetchProjectsWithDatasetsAndTables()); // TODO: If needed / only this project...
@@ -62,7 +62,7 @@ const DatasetTables = ({ isPrivate, project, dataset, onTableIngest, isFetchingT
     };
 
     const showTableSummaryModal = (table) => {
-        dispatch(fetchTableSummaryIfPossible(serviceInfoByArtifact[table.service_artifact], table.table_id));
+        dispatch(fetchTableSummaryIfPossible(serviceInfoByKind[table.service_artifact], table.table_id));
         setTableSummaryModalVisible(true);
         setSelectedTable(table);
     };

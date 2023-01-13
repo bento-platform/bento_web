@@ -25,10 +25,10 @@ const MENU_STYLE = {
 class ServiceDetail extends Component {
     render() {
         // TODO: 404
-        const artifact = this.props.match.params.artifact;
-        const serviceInfo = this.props.serviceInfoByArtifact[artifact] || null;
+        const kind = this.props.match.params.artifact;
+        const serviceInfo = this.props.serviceInfoByKind[kind] || null;
 
-        const menuItems = pageMenu(artifact);
+        const menuItems = pageMenu(kind);
         const selectedKeys = matchingMenuKeys(menuItems);
 
         return <>
@@ -41,10 +41,10 @@ class ServiceDetail extends Component {
                             onBack={() => this.props.history.push(withBasePath("dashboard"))} />
             <Suspense fallback={<div style={{padding: "24px", backgroundColor: "white"}}><Skeleton active /></div>}>
                 <Switch>
-                    <Route exact path={withBasePath("admin/services/:artifact/overview")}
+                    <Route exact path={withBasePath("admin/services/:kind/overview")}
                            component={ServiceOverview} />
-                    <Redirect from={withBasePath(`admin/services/${artifact}`)}
-                              to={withBasePath(`admin/services/${artifact}/overview`)} />
+                    <Redirect from={withBasePath(`admin/services/${kind}`)}
+                              to={withBasePath(`admin/services/${kind}/overview`)} />
                 </Switch>
             </Suspense>
         </>;
@@ -52,11 +52,11 @@ class ServiceDetail extends Component {
 }
 
 ServiceDetail.propTypes = {
-    serviceInfoByArtifact: PropTypes.objectOf(PropTypes.object),  // TODO
+    serviceInfoByKind: PropTypes.objectOf(PropTypes.object),  // TODO
 };
 
 const mapStateToProps = state => ({
-    serviceInfoByArtifact: state.services.itemsByArtifact,
+    serviceInfoByKind: state.services.itemsByKind,
 });
 
 export default connect(mapStateToProps)(ServiceDetail);

@@ -86,29 +86,6 @@ export const fetchProjectsWithDatasetsAndTables = () => async (dispatch, getStat
 };
 
 
-export const fetchVariantTableSummaries = () => async (dispatch, getState) => {
-    const state = getState();
-    if (state.projects.isFetching ||
-        state.projects.isCreating ||
-        state.projects.isDeleting ||
-        state.projects.isSaving) return;
-
-    dispatch(beginFlow(FETCHING_TABLE_SUMMARIES));
-
-    const chordService =  getState().chordServices.itemsByArtifact.variant || null;
-
-    if (chordService) {
-        for (const table of getState().projectTables.items) {
-            if (table.service_artifact === "variant") {
-                await dispatch(fetchTableSummaryIfPossible(
-                    {url: withBasePath("api/variant")}, table.table_id));
-            }
-        }
-    }
-
-    dispatch(endFlow(FETCHING_TABLE_SUMMARIES));
-};
-
 const createProject = networkAction((project, history) => (dispatch, getState) => ({
     types: CREATE_PROJECT,
     url: `${getState().services.metadataService.url}/api/projects`,
@@ -402,9 +379,14 @@ const deleteProjectTable = (project, table) => async (dispatch, getState) => {
 export const deleteProjectTableIfPossible = (project, table) => (dispatch, getState) => {
     if (getState().projectTables.isDeleting) return;
 
-    const serviceType = getState().services.itemsByID[table.service_id].type;
-    const chordServiceInfo = getState().chordServices.itemsByArtifact[serviceType.artifact];
-    if (chordServiceInfo.manageable_tables === false) {
+    const service = getState().services.itemsByID[table.service_id];
+    if (!service) {
+        throw new Error(`Service not found: ${table.service_id}`);l
+    }
+
+    const serviceKind = service.bento?.serviceKind ?? service.type.artifact;
+    const chordServiceInfo = getState().chordServices.itemsByKind[serviceKind];
+    if (!chordServiceInfo.manageable_tables) {
         // If manageable_tables is set and not true, we can't delete the table.
         return;
     }

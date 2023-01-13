@@ -42,7 +42,6 @@ export const fetchDependentData = () => dispatch => Promise.all([
     fetchRuns,
     fetchNotifications,
     fetchOverviewSummary,
-    fetchVariantTableSummaries,
     performGetGohanVariantsOverviewIfPossible
 ].map(a => dispatch(a())));
 

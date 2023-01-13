@@ -11,7 +11,7 @@ import {Form, Input, Select} from "antd";
 class TableForm extends Component {
     render() {
         const dataTypeOptions = this.props.dataTypes.map(dts =>
-            <Select.Option key={`${dts.a}:${dts.dt.id}`}>{dts.dt.id}</Select.Option>);
+            <Select.Option key={`${dts.serviceKind}:${dts.dataType.id}`}>{dts.dataType.id}</Select.Option>);
 
         return <Form style={this.props.style || {}}>
             <Form.Item label="Name">
@@ -32,8 +32,8 @@ class TableForm extends Component {
 
 TableForm.propTypes = {
     dataTypes: PropTypes.arrayOf(PropTypes.shape({
-        dt: PropTypes.object,  // TODO: Shape
-        a: PropTypes.string,
+        dataType: PropTypes.object,  // TODO: Shape
+        serviceKind: PropTypes.string,
     })),
     initialValue: PropTypes.shape({
         name: PropTypes.string,
@@ -43,9 +43,10 @@ TableForm.propTypes = {
 };
 
 const mapStateToProps = state => ({
-    dataTypes: Object.entries(state.serviceDataTypes.dataTypesByServiceArtifact)
-        .filter(([a, _]) => (state.chordServices.itemsByArtifact[a] || {manageable_tables: false}).manageable_tables)
-        .flatMap(([a, dts]) => (dts.items || []).map(dt => ({dt, a})))
+    dataTypes: Object.entries(state.serviceDataTypes.dataTypesByServiceKind)
+        .filter(([k, _]) => state.chordServices.itemsByKind[k]?.manageable_tables ?? false)
+        .flatMap(([serviceKind, dts]) =>
+            (dts.items || []).map(dataType => ({dt: dataType, serviceKind}))),
 });
 
 export default connect(mapStateToProps, null, null, {forwardRef: true})(

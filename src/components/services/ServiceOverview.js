@@ -8,9 +8,9 @@ import {LAYOUT_CONTENT_STYLE} from "../../styles/layoutContent";
 
 class ServiceOverview extends Component {
     render() {
-        const artifact = this.props.match.params.artifact;
-        const serviceInfo = this.props.serviceInfoByArtifact[artifact] || null;
-        const bentoServiceInfo = this.props.bentoServicesByArtifact[artifact] || null;
+        const kind = this.props.match.params.kind;
+        const serviceInfo = this.props.serviceInfoByKind[kind] || null;
+        const bentoServiceInfo = this.props.bentoServicesByKind[kind] || null;
         const loading = !(serviceInfo && bentoServiceInfo);
 
         return loading ? <Skeleton /> : <Layout>
@@ -25,13 +25,13 @@ class ServiceOverview extends Component {
 }
 
 ServiceOverview.propTypes = {
-    serviceInfoByArtifact: PropTypes.objectOf(PropTypes.object),  // TODO
-    bentoServicesByArtifact: PropTypes.objectOf(PropTypes.object),  // TODO
+    serviceInfoByKind: PropTypes.objectOf(PropTypes.object),  // TODO
+    bentoServicesByKind: PropTypes.objectOf(PropTypes.object),  // TODO
 };
 
 const mapStateToProps = state => ({
-    serviceInfoByArtifact: state.services.itemsByArtifact,
-    bentoServicesByArtifact: state.chordServices.itemsByArtifact,
+    serviceInfoByKind: state.services.itemsByKind,
+    bentoServicesByKind: state.chordServices.itemsByKind,
 });
 
 export default connect(mapStateToProps)(ServiceOverview);

@@ -105,12 +105,13 @@ export const services = (
                 itemsByArtifact,
 
                 // Backwards-compatibility with older Bento versions, where this was called 'federation'
-                aggregationService: itemsByArtifact["aggregation"] ?? itemsByArtifact["federation"] ?? null,
-                dropBoxService: itemsByArtifact["drop-box"] ?? null,
-                eventRelay: itemsByArtifact["event-relay"] ?? null,
-                notificationService: itemsByArtifact["notification"] ?? null,
-                metadataService: itemsByArtifact["metadata"] ?? null,
-                wesService: itemsByArtifact["wes"] ?? null,
+                aggregationService: itemsByKind["aggregation"] ?? itemsByKind["federation"] ?? null,
+                dropBoxService: itemsByKind["drop-box"] ?? null,
+                drsService: itemsByKind["drs"] ?? null,
+                eventRelay: itemsByKind["event-relay"] ?? null,
+                notificationService: itemsByKind["notification"] ?? null,
+                metadataService: itemsByKind["metadata"] ?? null,
+                wesService: itemsByKind["wes"] ?? null,
 
                 lastUpdated: action.receivedAt,
             };
