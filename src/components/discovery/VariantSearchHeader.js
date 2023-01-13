@@ -19,7 +19,6 @@ const VariantSearchHeader = ({dataType, addVariantSearchValues}) => {
     const [activeRefValue, setActiveRefValue] = useState(null)
     const [activeAltValue, setActiveAltValue] = useState(null)
 
-  // or default to GRCh37?
     const [lookupAssemblyId, setLookupAssemblyId] = useState(null);
     const assemblySchema = dataType.schema?.properties?.assembly_id;
     const genotypeSchema = dataType.schema?.properties?.calls?.items?.properties?.genotype_type;
