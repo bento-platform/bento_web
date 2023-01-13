@@ -19,6 +19,9 @@ const serviceInfo = () => ({
         url: "https://www.computationalgenomics.ca",
     },
     contactUrl: "mailto:info@c3g.ca",
+    bento: {
+        serviceKind: "web",
+    },
 });
 
 if (typeof require !== "undefined" && require.main === module) {
