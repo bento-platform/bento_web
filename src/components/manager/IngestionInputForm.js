@@ -15,10 +15,15 @@ import {workflowPropTypesShape} from "../../propTypes";
 
 const sortByName = (a, b) => a.name.localeCompare(b.name);
 const generateFileTree = (directory, valid) => [...directory].sort(sortByName).map(entry =>
-    <TreeSelect.TreeNode title={entry.name} key={entry.path} value={entry.path} disabled={!valid(entry)}
-                         isLeaf={!entry.hasOwnProperty("contents")}
-                         selectable={!entry.hasOwnProperty("contents")}>
-        {(entry || {contents: []}).contents ? generateFileTree(entry.contents, valid) : null}
+    <TreeSelect.TreeNode
+        title={entry.name}
+        key={entry.filePath}
+        value={entry.filePath}
+        disabled={!valid(entry)}
+        isLeaf={!entry.hasOwnProperty("contents")}
+        selectable={!entry.hasOwnProperty("contents")}
+    >
+        {entry?.contents ? generateFileTree(entry.contents, valid) : null}
     </TreeSelect.TreeNode>);
 
 class IngestionInputForm extends Component {

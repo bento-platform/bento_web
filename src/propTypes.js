@@ -50,10 +50,11 @@ export const dropBoxTreeStateToPropsMixin = state => ({
 // Any components which include dropBoxTreeStateToPropsMixin should include this as well in their prop types.
 export const dropBoxTreeStateToPropsMixinPropTypes = {
     tree: PropTypes.arrayOf(PropTypes.shape({
-        name: PropTypes.string,
-        path: PropTypes.string
+        name: PropTypes.string.isRequired,
+        filePath: PropTypes.string.isRequired,
+        uri: PropTypes.string,
     })),  // TODO: This is going to change
-    treeLoading: PropTypes.bool
+    treeLoading: PropTypes.bool,
 };
 
 export const linkedFieldSetPropTypesShape = PropTypes.shape({

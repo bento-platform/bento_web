@@ -106,7 +106,7 @@ class RoutedProject extends Component {
 
             const manageableDataTypes = this.props.services
                 .filter(s => {
-                    const cs = chordServicesByKind[s.bento.serviceKind ?? s.type.artifact] ?? {};
+                    const cs = chordServicesByKind[s.bento?.serviceKind ?? s.type.artifact] ?? {};
                     return (
                         cs.data_service &&  // Service in question must be a data service to have manageable tables ...
                         cs.manageable_tables &&  // ... and it must have manageable tables specified ...

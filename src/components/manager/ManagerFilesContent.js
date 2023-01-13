@@ -43,9 +43,20 @@ import {
 
 const sortByName = (a, b) => a.name.localeCompare(b.name);
 const generateFileTree = directory => [...directory].sort(sortByName).map(entry =>
-    <Tree.TreeNode title={entry.name} key={entry.path} isLeaf={!entry.hasOwnProperty("contents")}>
+    <Tree.TreeNode title={entry.name} key={entry.filePath} isLeaf={!entry.hasOwnProperty("contents")}>
         {entry?.contents ? generateFileTree(entry.contents) : null}
     </Tree.TreeNode>);
+
+const generateURIsByFilePath = (entry, acc) => {
+    if (Array.isArray(entry)) {
+        entry.forEach(e => generateURIsByFilePath(e, acc));
+    } else if (entry.uri) {
+        acc[entry.filePath] = entry.uri;
+    } else if (entry.contents) {
+        entry.contents.forEach(e => generateURIsByFilePath(e, acc));
+    }
+    return acc;
+};
 
 const resourceLoadError = resource => `An error was encountered while loading ${resource}`;
 
@@ -112,10 +123,16 @@ class ManagerFilesContent extends Component {
             return;
         }
 
+        const urisByFilePath = generateURIsByFilePath(this.props.tree, {});
+        if (!(file in urisByFilePath)) {
+            console.error(`Files: something went wrong while trying to load ${file}`);
+            return;
+        }
+
         try {
             this.setState({loadingFileContents: true});
 
-            const r = await fetch(`${this.props.dropBoxService.url}/objects/${file}`);
+            const r = await fetch(urisByFilePath[file]);
 
             this.setState({
                 loadingFileContents: false,
