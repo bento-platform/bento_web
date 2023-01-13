@@ -44,7 +44,7 @@ import {
 const sortByName = (a, b) => a.name.localeCompare(b.name);
 const generateFileTree = directory => [...directory].sort(sortByName).map(entry =>
     <Tree.TreeNode title={entry.name} key={entry.path} isLeaf={!entry.hasOwnProperty("contents")}>
-        {(entry || {contents: []}).contents ? generateFileTree(entry.contents) : null}
+        {entry?.contents ? generateFileTree(entry.contents) : null}
     </Tree.TreeNode>);
 
 const resourceLoadError = resource => `An error was encountered while loading ${resource}`;
@@ -115,16 +115,13 @@ class ManagerFilesContent extends Component {
         try {
             this.setState({loadingFileContents: true});
 
-            // TODO: Proper url stuff
-            // TODO: Don't hard-code replace
-            const r = await fetch(`${this.props.dropBoxService.url}/objects${
-                file.replace("/chord/data/drop-box", "")}`);
+            const r = await fetch(`${this.props.dropBoxService.url}/objects/${file}`);
 
             this.setState({
                 loadingFileContents: false,
                 fileContents: {
                     ...this.state.fileContents,
-                    [file]: r.ok ? await r.text() : resourceLoadError(file)
+                    [file]: r.ok ? await r.text() : resourceLoadError(file),
                 }
             });
         } catch (e) {
@@ -133,7 +130,7 @@ class ManagerFilesContent extends Component {
                 loadingFileContents: false,
                 fileContents: {
                     ...this.state.fileContents,
-                    [file]: resourceLoadError(file)
+                    [file]: resourceLoadError(file),
                 }
             });
         }
