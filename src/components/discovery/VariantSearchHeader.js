@@ -13,11 +13,13 @@ const VariantSearchHeader = ({dataType, addVariantSearchValues}) => {
     const [altFormReceivedValidKeystroke , setAltFormReceivedValidKeystroke ] = useState(true);
 
 
-  // global state vars
-    const varOvRes = useSelector((state) => state.explorer.variantsOverviewResponse);
-    const ovAsmIds = varOvRes?.assemblyIDs !== undefined ? Object.keys(varOvRes?.assemblyIDs) : [];
-    const [activeRefValue, setActiveRefValue] = useState(null)
-    const [activeAltValue, setActiveAltValue] = useState(null)
+    // global state vars
+    const variantsOverviewResults = useSelector((state) => state.explorer.variantsOverviewResponse);
+    const overviewAssemblyIds = variantsOverviewResults?.assemblyIDs !== undefined
+        ? Object.keys(variantsOverviewResults?.assemblyIDs)
+        : [];
+    const [activeRefValue, setActiveRefValue] = useState(null);
+    const [activeAltValue, setActiveAltValue] = useState(null);
 
     const [lookupAssemblyId, setLookupAssemblyId] = useState(null);
     const assemblySchema = dataType.schema?.properties?.assembly_id;
@@ -81,7 +83,7 @@ const VariantSearchHeader = ({dataType, addVariantSearchValues}) => {
     };
 
     // set default selected assemblyId if only 1 is present
-    const shouldTriggerAssemblyIdChange = ovAsmIds.length === 1;
+    const shouldTriggerAssemblyIdChange = overviewAssemblyIds.length === 1;
     useEffect(() => {
         if (shouldTriggerAssemblyIdChange) {
             // wait some time before
@@ -89,7 +91,7 @@ const VariantSearchHeader = ({dataType, addVariantSearchValues}) => {
             // allow for the form and formValues
             // in the parent element to populate
             setTimeout(function() {
-                handleAssemblyIdChange(ovAsmIds[0]);
+                handleAssemblyIdChange(overviewAssemblyIds[0]);
             }, 500);
         }
     }, [shouldTriggerAssemblyIdChange]);
@@ -107,9 +109,9 @@ const VariantSearchHeader = ({dataType, addVariantSearchValues}) => {
     >
       <Select
         onChange={handleAssemblyIdChange}
-        defaultValue={ovAsmIds && shouldTriggerAssemblyIdChange && ovAsmIds[0]}
+        defaultValue={overviewAssemblyIds && shouldTriggerAssemblyIdChange && overviewAssemblyIds[0]}
       >
-       {ovAsmIds.map(v => <Select.Option key={v} value={v}>{v}</Select.Option>)}
+       {overviewAssemblyIds.map(v => <Select.Option key={v} value={v}>{v}</Select.Option>)}
       </Select>
     </Form.Item>
     <Form.Item
