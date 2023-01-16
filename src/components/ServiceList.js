@@ -90,7 +90,8 @@ const ServiceList = () => {
         Object.entries(state.chordServices.itemsByArtifact).map(([artifact, service]) => ({
             ...service,
             key: artifact,
-            artifact,  // TODO: Remove this when no longer required for backwards compatibility with old chord_services
+            artifact,  // TODO: Remove this when no longer required for ba$ckwards compatibility with old chord_services
+            url: service.url ?? state.services.itemsByArtifact[artifact]?.url, // TODO: "
             serviceInfo: state.services.itemsByArtifact[artifact] ?? null,
             status: {
                 status: artifact in state.services.itemsByArtifact,
