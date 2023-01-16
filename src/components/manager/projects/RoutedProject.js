@@ -194,7 +194,7 @@ RoutedProject.propTypes = {
     projectsByID: PropTypes.objectOf(projectPropTypesShape),
 
     projectTables: PropTypes.arrayOf(PropTypes.object),  // TODO: Shape
-    projectTablesByProjectID: PropTypes.objectOf(PropTypes.object),  // TODO: Shape
+    projectTablesByProjectID: PropTypes.objectOf(PropTypes.arrayOf(PropTypes.object)),  // TODO: Shape
 
     loadingProjects: PropTypes.bool,
 
