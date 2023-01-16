@@ -84,91 +84,91 @@ class RoutedProject extends Component {
 
     render() {
         const selectedProjectID = this.props.match.params.project;
-        if (selectedProjectID) {
-            const project = this.props.projectsByID[this.props.match.params.project];
-            if (!project) return <ProjectSkeleton />;
-
-            const tables = this.props.serviceTablesByServiceID;
-
-            /**
-             * @typedef {Object} ProjectTable
-             * @property {string} table_id
-             * @property {string} service_id
-             * @property {string} dataset
-             * @property {string} data_type
-             * @property {string} sample
-             * @type {ProjectTable[]}
-             */
-            const projectTableRecords = this.props.projectTablesByProjectID[selectedProjectID] || [];
-
-            const chordServicesByKind = this.props.chordServicesByKind;
-            const serviceDataTypesByServiceID = this.props.serviceDataTypesByServiceID;
-
-            const manageableDataTypes = this.props.services
-                .filter(s => {
-                    const cs = chordServicesByKind[s.bento?.serviceKind ?? s.type.artifact] ?? {};
-                    return (
-                        cs.data_service &&  // Service in question must be a data service to have manageable tables ...
-                        cs.manageable_tables &&  // ... and it must have manageable tables specified ...
-                        serviceDataTypesByServiceID[s.id]?.items?.length  // ... and it must have >=1 data type.
-                    );
-                })
-                .flatMap(s => serviceDataTypesByServiceID[s.id].items.map(dt => dt.id));
-
-            console.log("ptr", projectTableRecords);
-            console.log("tbl", tables);
-
-            const tableList = projectTableRecords
-                .filter(tableOwnership =>
-                    tableOwnership.table_id in (tables[tableOwnership.service_id]?.tablesByID ?? {}))
-                .map(tableOwnership => ({
-                    ...tableOwnership,
-                    ...tables[tableOwnership.service_id].tablesByID[tableOwnership.table_id],
-                }));
-
-            console.log("tll", tableList);
-
-            // TODO: Inconsistent schemas
-            const strayTables = [
-                ...this.props.serviceTables.filter(t2 =>
-                    !this.props.projectTables.map(to => to.table_id).includes(t2.id) &&
-                    manageableDataTypes.includes(t2.data_type)).map(t => ({...t, table_id: t.id})),
-                ...this.props.projectTables.filter(to => !this.props.servicesByID.hasOwnProperty(to.service_id))
-            ];
-
-            return <>
-                <DatasetFormModal mode={FORM_MODE_ADD}
-                                  project={project}
-                                  visible={this.state.datasetAdditionModal}
-                                  onCancel={this.hideDatasetAdditionModal}
-                                  onOk={this.hideDatasetAdditionModal} />
-
-                <DatasetFormModal mode={FORM_MODE_EDIT}
-                                  project={project}
-                                  visible={this.state.datasetEditModal}
-                                  initialValue={this.state.selectedDataset}
-                                  onCancel={this.hideDatasetEditModal}
-                                  onOk={this.hideDatasetEditModal} />
-
-                <Project value={project}
-                         tables={tableList}
-                         strayTables={strayTables}
-                         editing={this.props.editingProject}
-                         saving={this.props.savingProject}
-                         onDelete={() => this.handleDeleteProject(project)}
-                         onEdit={() => this.props.beginProjectEditing()}
-                         onCancelEdit={() => this.props.endProjectEditing()}
-                         onSave={project => this.handleProjectSave(project)}
-                         onAddDataset={() => this.showDatasetAdditionModal()}
-                         onEditDataset={dataset => this.setState({
-                             selectedDataset: dataset,
-                             datasetEditModal: true
-                         })}
-                         onTableIngest={(p, t) => this.ingestIntoTable(p, t)} />
-            </>;
+        if (!selectedProjectID) {
+            return null;
         }
 
-        return null;
+        const project = this.props.projectsByID[this.props.match.params.project];
+        if (!project) return <ProjectSkeleton />;
+
+        const tables = this.props.serviceTablesByServiceID;
+
+        /**
+         * @typedef {Object} ProjectTable
+         * @property {string} table_id
+         * @property {string} service_id
+         * @property {string} dataset
+         * @property {string} data_type
+         * @property {string} sample
+         * @type {ProjectTable[]}
+         */
+        const projectTableRecords = this.props.projectTablesByProjectID[selectedProjectID] || [];
+
+        const chordServicesByKind = this.props.chordServicesByKind;
+        const serviceDataTypesByServiceID = this.props.serviceDataTypesByServiceID;
+
+        const manageableDataTypes = this.props.services
+            .filter(s => {
+                const cs = chordServicesByKind[s.bento?.serviceKind ?? s.type.artifact] ?? {};
+                return (
+                    cs.data_service &&  // Service in question must be a data service to have manageable tables ...
+                    cs.manageable_tables &&  // ... and it must have manageable tables specified ...
+                    serviceDataTypesByServiceID[s.id]?.items?.length  // ... and it must have >=1 data type.
+                );
+            })
+            .flatMap(s => serviceDataTypesByServiceID[s.id].items.map(dt => dt.id));
+
+        console.log("ptr", projectTableRecords);
+        console.log("tbl", tables);
+
+        const tableList = projectTableRecords
+            .filter(tableOwnership =>
+                tableOwnership.table_id in (tables[tableOwnership.service_id]?.tablesByID ?? {}))
+            .map(tableOwnership => ({
+                ...tableOwnership,
+                ...tables[tableOwnership.service_id].tablesByID[tableOwnership.table_id],
+            }));
+
+        console.log("tll", tableList);
+
+        // TODO: Inconsistent schemas
+        const strayTables = [
+            ...this.props.serviceTables.filter(t2 =>
+                !this.props.projectTables.map(to => to.table_id).includes(t2.id) &&
+                manageableDataTypes.includes(t2.data_type)).map(t => ({...t, table_id: t.id})),
+            ...this.props.projectTables.filter(to => !this.props.servicesByID.hasOwnProperty(to.service_id))
+        ];
+
+        return <>
+            <DatasetFormModal mode={FORM_MODE_ADD}
+                              project={project}
+                              visible={this.state.datasetAdditionModal}
+                              onCancel={this.hideDatasetAdditionModal}
+                              onOk={this.hideDatasetAdditionModal} />
+
+            <DatasetFormModal mode={FORM_MODE_EDIT}
+                              project={project}
+                              visible={this.state.datasetEditModal}
+                              initialValue={this.state.selectedDataset}
+                              onCancel={this.hideDatasetEditModal}
+                              onOk={this.hideDatasetEditModal} />
+
+            <Project value={project}
+                     tables={tableList}
+                     strayTables={strayTables}
+                     editing={this.props.editingProject}
+                     saving={this.props.savingProject}
+                     onDelete={() => this.handleDeleteProject(project)}
+                     onEdit={() => this.props.beginProjectEditing()}
+                     onCancelEdit={() => this.props.endProjectEditing()}
+                     onSave={project => this.handleProjectSave(project)}
+                     onAddDataset={() => this.showDatasetAdditionModal()}
+                     onEditDataset={dataset => this.setState({
+                         selectedDataset: dataset,
+                         datasetEditModal: true
+                     })}
+                     onTableIngest={(p, t) => this.ingestIntoTable(p, t)} />
+        </>;
     }
 }
 
