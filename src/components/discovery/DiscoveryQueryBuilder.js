@@ -18,7 +18,8 @@ class DiscoveryQueryBuilder extends Component {
         super(props);
 
         this.state = {
-            schemasModalShown: false
+            schemasModalShown: false,
+            isSubmitting: false
         };
 
         this.handleSubmit = this.handleSubmit.bind(this);
@@ -84,6 +85,7 @@ class DiscoveryQueryBuilder extends Component {
     }
 
     handleSubmit = async () => {
+        this.setState({isSubmitting: true});
         try {
             await Promise.all(Object.entries(this.forms).filter(f => f[1]).map(([_dt, f]) =>
                 new Promise((resolve, reject) => {
@@ -155,6 +157,7 @@ class DiscoveryQueryBuilder extends Component {
                     wrappedComponentRef={form => this.forms[id] = form}
                     onChange={fields => this.handleFormChange(dataType, fields)}
                     handleVariantHiddenFieldChange={this.handleVariantHiddenFieldChange}
+                    isSubmitting={this.state.isSubmitting}
                 />
             </Tabs.TabPane>;
         });

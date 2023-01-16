@@ -6,7 +6,7 @@ import { useSelector } from "react-redux";
 
 import { notAlleleCharactersRegex } from "../../utils/misc";
 
-const VariantSearchHeader = ({dataType, addVariantSearchValues}) => {
+const VariantSearchHeader = ({dataType, addVariantSearchValues, isSubmitting}) => {
   // local state
   // Declare a state variable and a function to update it
     const [refFormReceivedValidKeystroke, setRefFormReceivedValidKeystroke ] = useState(true);
@@ -97,6 +97,8 @@ const VariantSearchHeader = ({dataType, addVariantSearchValues}) => {
 // Select needs
 // style
 // getSearchValue ??
+
+    console.log(`isSubmitting: ${isSubmitting}`)
 
     return (<>
     <Form.Item

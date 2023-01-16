@@ -379,6 +379,7 @@ class DiscoverySearchForm extends Component {
                 <VariantSearchHeader
                     addVariantSearchValues={this.addVariantSearchValues}
                     dataType={this.props.dataType}
+                    isSubmitting={this.props.isSubmitting}
                 />
             )}
             {this.state.isVariantSearch ? nonHiddenFields : formItems}
