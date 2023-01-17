@@ -46,7 +46,7 @@ const mapStateToProps = state => ({
     dataTypes: Object.entries(state.serviceDataTypes.dataTypesByServiceKind)
         .filter(([k, _]) => state.chordServices.itemsByKind[k]?.manageable_tables ?? false)
         .flatMap(([serviceKind, dts]) =>
-            (dts.items || []).map(dataType => ({dt: dataType, serviceKind}))),
+            (dts.items || []).map(dataType => ({dataType, serviceKind}))),
 });
 
 export default connect(mapStateToProps, null, null, {forwardRef: true})(

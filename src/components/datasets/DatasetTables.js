@@ -49,8 +49,8 @@ const DatasetTables = ({ isPrivate, project, dataset, onTableIngest, isFetchingT
     };
 
     const handleTableDeletionClick = (t) => {
-        setDeletionModalVisible(true);
         setSelectedTable(t);
+        setDeletionModalVisible(true);
     };
 
     const handleTableDeletionSubmit = async () => {
@@ -184,7 +184,7 @@ const DatasetTables = ({ isPrivate, project, dataset, onTableIngest, isFetchingT
 
             <TableDeletionModal
                 visible={deletionModalVisible}
-                table={dataset}
+                table={selectedTable}
                 onSubmit={handleTableDeletionSubmit}
                 onCancel={() => setDeletionModalVisible(false)}
             />
