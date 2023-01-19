@@ -18,20 +18,30 @@ class NotificationDrawer extends Component {
         this.seeAllNotifications = this.seeAllNotifications.bind(this);
     }
 
+    markAllAsRead() {
+        // TODO: Implement
+    }
+
     seeAllNotifications() {
         this.props.hideNotificationDrawer();
         this.props.history.push(withBasePath("notifications"));
     }
 
     render() {
-        return <Drawer title={"Notifications"}
+        const unreadNotifications = this.props.notifications.filter(n => !n.read);
+        return <Drawer bodyStyle={{padding: 0}} title="Notifications"
                        visible={this.props.notificationDrawerVisible}
-                       width="auto"
+                       width="500"
                        onClose={() => this.props.hideNotificationDrawer()}>
-            <NotificationList small={true} notifications={this.props.notifications.filter(n => !n.read)} />
-              <Divider />
-              <Button type="link" style={{width: "100%"}} onClick={this.seeAllNotifications}>
-                  See Read Notifications</Button>
+            <div style={{padding: "16px 24px", display: "flex", gap: "16px"}}>
+                <Button style={{flex: 1}} onClick={() => this.markAllAsRead()}
+                        disabled={!unreadNotifications}>Mark All as Read</Button>
+                <Button style={{flex: 1}} onClick={() => this.seeAllNotifications()}>See All Notifications</Button>
+            </div>
+            <Divider style={{margin: 0}} />
+            <div style={{padding: "0 24px"}}>
+                <NotificationList small={true} notifications={unreadNotifications} />
+            </div>
         </Drawer>;
     }
 }
