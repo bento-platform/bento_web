@@ -28,6 +28,14 @@ export const serviceInfoPropTypesShape = PropTypes.shape({
     updatedAt: PropTypes.string,
     environment: PropTypes.string,
     version: PropTypes.string.isRequired,
+    git_tag: PropTypes.string,
+    git_branch: PropTypes.string,
+    bento: PropTypes.shape({
+        serviceKind: PropTypes.string,
+        gitTag: PropTypes.string,
+        gitBranch: PropTypes.string,
+        gitCommit: PropTypes.string,
+    }),
 });
 
 export const chordServicePropTypesMixin = {
