@@ -22,7 +22,7 @@ const BENTO_URL_WITH_TRAILING_SLASH = BENTO_URL.endsWith("/") ? BENTO_URL : `${B
 
 document.addEventListener("DOMContentLoaded", () => {
     const root = document.getElementById("root");
-    
+
     // Fall back to checking path name if the front-end was built without CHORD_URL set
     // TODO: Use url.js base path for this? Do we care about the host?
     const isPopupAuthCallback = BENTO_URL
