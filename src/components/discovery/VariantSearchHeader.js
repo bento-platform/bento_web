@@ -30,12 +30,21 @@ const VariantSearchHeader = ({dataType, addVariantSearchValues}) => {
     // obtain ref and alt values from state
     const form = useSelector(state =>
         state.explorer?.dataTypeFormsByDatasetID[Object.keys(state.explorer.dataTypeFormsByDatasetID)[0]]);
-    const activeRefValue = form[0].formValues?.conditions === undefined ? "" : form[0].formValues.conditions.filter(c =>
-        c.value.field === "[dataset item].reference"
-    )[0].value.searchValue;
-    const activeAltValue = form[0].formValues?.conditions === undefined ? "" : form[0].formValues.conditions.filter(c =>
-        c.value.field === "[dataset item].alternative"
-    )[0].value.searchValue;
+    const variantForm = form.filter(x => {
+          if (x.dataType?.id === 'variant'){
+            return x;
+          }
+        })
+    let activeRefValue = "";
+    let activeAltValue = "";
+    if (variantForm && variantForm.length > 0) {
+      activeRefValue = variantForm[0].formValues?.conditions === undefined ? "" : variantForm[0].formValues.conditions.filter(c =>
+          c.value.field === "[dataset item].reference"
+      )[0].value.searchValue;
+      activeAltValue = variantForm[0].formValues?.conditions === undefined ? "" : variantForm[0].formValues.conditions.filter(c =>
+          c.value.field === "[dataset item].alternative"
+      )[0].value.searchValue;
+    }
     const handleAssemblyIdChange = (value) => {
 
         addVariantSearchValues({assemblyId: value});
