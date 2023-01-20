@@ -13,7 +13,6 @@ const VariantSearchHeader = ({dataType, addVariantSearchValues, isSubmitting}) =
     const [activeAltValue, setActiveAltValue] = useState(null);
     const [assemblyId, setAssemblyId] = useState(null);
     const [locus, setLocus] = useState({chrom: null, start: null, end: null});
-    const [genotype, setGenotype] = useState(null);
 
     // begin with required fields considered valid, so user isn't assaulted with error messages
     const initialValidity = {
@@ -44,7 +43,7 @@ const VariantSearchHeader = ({dataType, addVariantSearchValues, isSubmitting}) =
 
     // custom validation since this form isn't submitted, it's just used to fill fields in hidden form
     // each field is validated invididually elsewhere
-    // for final validation, we only need to make sure required fields are non-empty  
+    // for final validation, we only need to make sure required fields are non-empty
     const validateVariantSearchForm = () => {
 
       // check assembly
@@ -62,29 +61,29 @@ const VariantSearchHeader = ({dataType, addVariantSearchValues, isSubmitting}) =
     };
 
     useEffect(() => {
-      if (isSubmitting){
-        validateVariantSearchForm()
-      }
-    }, [isSubmitting])
+        if (isSubmitting) {
+            validateVariantSearchForm();
+        }
+    }, [isSubmitting]);
 
 
     const isValidLocus = (locus) => {
-      return locus.chrom != null  && locus.start != null && locus.end != null
-    }
+        return locus.chrom !== null  && locus.start !== null && locus.end !== null;
+    };
 
     const setLocusValidity = (isValid) => {
-      setFieldsValidity({...fieldsValidity, "locus": isValid});
-    }
+        setFieldsValidity({...fieldsValidity, "locus": isValid});
+    };
 
     const handleLocusChange = (locus) => {
         const {chrom, start, end} = locus;
 
-        if (isValidLocus(locus)){
-          setLocusValidity(true)
+        if (isValidLocus(locus)) {
+            setLocusValidity(true);
 
         } else {
-          setLocusValidity(false);
-          return
+            setLocusValidity(false);
+            return;
         }
 
         setLocus({chrom: chrom, start: start, end: end});
@@ -180,7 +179,10 @@ const VariantSearchHeader = ({dataType, addVariantSearchValues, isSubmitting}) =
         validateStatus={fieldsValidity.locus ? "success" : "error"}
         required
     >
-      <LocusSearch assemblyId={assemblyId} addVariantSearchValues={addVariantSearchValues} handleLocusChange={handleLocusChange} setLocusValidity={setLocusValidity}/>
+      <LocusSearch assemblyId={assemblyId}
+                   addVariantSearchValues={addVariantSearchValues}
+                   handleLocusChange={handleLocusChange}
+                   setLocusValidity={setLocusValidity}/>
     </Form.Item>
     <Form.Item
       labelCol={labelCol}

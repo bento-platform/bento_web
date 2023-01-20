@@ -55,7 +55,8 @@ export const conditionsToQuery = conditions => {
 
     // temp hack: remove any optional variant fields that are empty
     // greatly simplifies management of variant forms UI
-    const afterVariantCleaning = conditions.filter(c => (!(VARIANT_OPTIONAL_FIELDS.includes(c.value.field) && !c.value.searchValue)));
+    const afterVariantCleaning = conditions.filter(c =>
+        (!(VARIANT_OPTIONAL_FIELDS.includes(c.value.field) && !c.value.searchValue)));
 
     const filteredConditions = afterVariantCleaning.filter(c => c.value && c.value.field);
     if (filteredConditions.length === 0) return null;

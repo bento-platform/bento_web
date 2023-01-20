@@ -43,7 +43,7 @@ const CONDITION_RULES = [
 
             // noinspection JSCheckFunctionSignatures
             if (
-                !VARIANT_OPTIONAL_FIELDS.includes(value.field) && 
+                !VARIANT_OPTIONAL_FIELDS.includes(value.field) &&
                 (searchValue === null ||
                     (!isEnum && !searchValue) ||
                     (isEnum && !value.fieldSchema.enum.includes(searchValue)))
@@ -247,7 +247,7 @@ class DiscoverySearchForm extends Component {
         if (values.hasOwnProperty("ref")) {
             updatedConditionsArray = this.updateConditions(updatedConditionsArray, "[dataset item].reference", ref);
         }
-        
+
         if (values.hasOwnProperty("alt")) {
             updatedConditionsArray = this.updateConditions(updatedConditionsArray, "[dataset item].alternative", alt);
         }
@@ -455,6 +455,7 @@ DiscoverySearchForm.propTypes = {
     isInternal: PropTypes.bool,
     formValues: PropTypes.object,
     handleVariantHiddenFieldChange: PropTypes.func,
+    isSubmitting: PropTypes.bool
 };
 
 export default Form.create({

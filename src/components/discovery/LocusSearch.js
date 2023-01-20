@@ -16,7 +16,8 @@ const geneDropdownText = (g) => {
 const LocusSearch = ({assemblyId, addVariantSearchValues, handleLocusChange, setLocusValidity}) => {
     const [autoCompleteOptions, setAutoCompleteOptions] = useState([]);
     const geneSearchResults = useSelector((state) => state.discovery.geneNameSearchResponse);
-    const [currentLocus, setCurrentLocus] = useState({chrom: null, start: null, end: null}) //needed for onBlur checking
+    const [currentLocus, setCurrentLocus] = useState(
+        {chrom: null, start: null, end: null}); //needed for onBlur checking
     const dispatch = useDispatch();
 
     const showAutoCompleteOptions = assemblyId === "GRCh37" || assemblyId === "GRCh38";
@@ -26,8 +27,8 @@ const LocusSearch = ({assemblyId, addVariantSearchValues, handleLocusChange, set
         const result = parse.exec(value);
 
         if (!result) {
-            setCurrentLocus({chrom: null, start: null, end: null})
-            setLocusValidity(false) 
+            setCurrentLocus({chrom: null, start: null, end: null});
+            setLocusValidity(false);
             return;
         }
 
@@ -35,7 +36,7 @@ const LocusSearch = ({assemblyId, addVariantSearchValues, handleLocusChange, set
         const start = Number(result[2]);
         const end = Number(result[3]);
 
-        setCurrentLocus({chrom: chrom, start: start, end: end})
+        setCurrentLocus({chrom: chrom, start: start, end: end});
         addVariantSearchValues({chrom: chrom, start: start, end: end});
     };
 
@@ -46,7 +47,7 @@ const LocusSearch = ({assemblyId, addVariantSearchValues, handleLocusChange, set
             parsePosition(value);
 
             // let user finish typing position before showing error
-            setLocusValidity(true) 
+            setLocusValidity(true);
 
             setAutoCompleteOptions([]);
             return;
@@ -63,7 +64,7 @@ const LocusSearch = ({assemblyId, addVariantSearchValues, handleLocusChange, set
         // antd has no "select on tab" option
         // so check if there's a valid locus when tabbing away
         handleLocusChange(currentLocus);
-    }
+    };
 
     const handleSelect = (value, options) => {
         const locus = options.props?.locus;
@@ -75,7 +76,7 @@ const LocusSearch = ({assemblyId, addVariantSearchValues, handleLocusChange, set
 
         const {chrom, start, end} = locus;
         addVariantSearchValues({chrom: chrom, start: start, end: end});
-        setCurrentLocus({chrom: chrom, start: start, end: end})
+        setCurrentLocus({chrom: chrom, start: start, end: end});
         handleLocusChange(locus);
     };
 
