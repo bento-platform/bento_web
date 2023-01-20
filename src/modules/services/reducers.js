@@ -37,7 +37,12 @@ export const chordServices = (
                 // Handle old CHORD services format
                 // TODO: Remove when no longer relevant
                 console.warn("The old chord_services.json format will be deprecated soon.");
-                return Object.fromEntries(action.data.map(s => [s.type.artifact, s]));
+                const byArtifact = Object.fromEntries(action.data.map(s => [s.type.artifact, s]));
+                return {
+                    ...state,
+                    itemsByArtifact: byArtifact,
+                    itemsByKind: byArtifact,  // technically wrong but only rarely; deprecated code to be removed
+                };
             }
 
             // Handle the new CHORD services format: an object with the docker-compose service ID as the key
