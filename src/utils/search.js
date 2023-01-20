@@ -27,6 +27,12 @@ export const DEFAULT_SEARCH_PARAMETERS = {
     queryable: "all",
 };
 
+const VARIANT_OPTIONAL_FIELDS = [
+    "[dataset item].calls.[item].genotype_type",
+    "[dataset item].alternative",
+    "[dataset item].reference",
+];
+
 export const addDataTypeFormIfPossible = (dataTypeForms, dataType) =>
     (dataTypeForms.map(d => d.dataType.id).includes(dataType.id))
         ? dataTypeForms
@@ -46,7 +52,12 @@ export const extractQueryConditionsFromFormValues = formValues =>
         .filter(c => c !== null);
 
 export const conditionsToQuery = conditions => {
-    const filteredConditions = conditions.filter(c => c.value && c.value.field);
+
+    // temp hack: remove any optional variant fields that are empty
+    // greatly simplifies management of variant forms UI
+    const afterVariantCleaning = conditions.filter(c => (!(VARIANT_OPTIONAL_FIELDS.includes(c.value.field) && !c.value.searchValue)));
+
+    const filteredConditions = afterVariantCleaning.filter(c => c.value && c.value.field);
     if (filteredConditions.length === 0) return null;
 
     return filteredConditions
