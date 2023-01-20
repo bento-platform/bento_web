@@ -346,6 +346,7 @@ const deleteProjectTable = (project, table) => async (dispatch, getState) => {
 
     // Delete from service
     try {
+        console.debug(`deleting table ${table.table_id}`);
         const serviceResponse = await fetch(`${serviceInfo.url}/tables/${table.table_id}`, {method: "DELETE"});
         if (!serviceResponse.ok) return handleFailure(serviceResponse);
     } catch (e) {
@@ -354,14 +355,19 @@ const deleteProjectTable = (project, table) => async (dispatch, getState) => {
 
     // Delete from project metadata
     try {
-        const projectResponse = await fetch(
-            `${getState().services.metadataService.url}/api/table_ownership/${table.table_id}`,
-            {method: "DELETE"}
-        );
+        if ((serviceInfo.bento?.serviceKind ?? serviceInfo.type.artifact) !== "metadata") {
+            // Only manually delete the table ownership record if we're not deleting from Katsu, since Katsu
+            // handles its own table ownership deletion.
 
-        if (!projectResponse.ok) {
-            // TODO: Handle partial failure / out-of-sync
-            return handleFailure(projectResponse);
+            const projectResponse = await fetch(
+                `${getState().services.metadataService.url}/api/table_ownership/${table.table_id}`,
+                {method: "DELETE"},
+            );
+
+            if (!projectResponse.ok) {
+                // TODO: Handle partial failure / out-of-sync
+                return handleFailure(projectResponse);
+            }
         }
     } catch (e) {
         // TODO: Handle partial failure / out-of-sync
