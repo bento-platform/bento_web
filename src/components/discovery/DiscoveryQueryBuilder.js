@@ -85,7 +85,9 @@ class DiscoveryQueryBuilder extends Component {
     }
 
     handleSubmit = async () => {
-        this.setState({isSubmitting: true});
+        // signal to variants components, may work better in redux
+        this.setState({isSubmitting: true})                 
+
         try {
             await Promise.all(Object.entries(this.forms).filter(f => f[1]).map(([_dt, f]) =>
                 new Promise((resolve, reject) => {
@@ -101,6 +103,7 @@ class DiscoveryQueryBuilder extends Component {
             (this.props.onSubmit ?? nop)();
         } catch (err) {
             console.error(err);
+            this.setState({isSubmitting: false})
         }
     };
 

@@ -14,9 +14,21 @@ import {
 import DiscoverySearchCondition, {getSchemaTypeTransformer} from "./DiscoverySearchCondition";
 import VariantSearchHeader from "./VariantSearchHeader";
 
-const NUM_HIDDEN_VARIANT_FORM_ITEMS = 7;
 const TOOLTIP_DELAY_SECONDS = 0.8;
 
+// required by ui not precisely the same as required in spec, possible TODO
+const VARIANT_REQUIRED_FIELDS = [
+    "[dataset item].assembly_id",
+    "[dataset item].chromosome",
+    "[dataset item].start",
+    "[dataset item].end",
+];
+
+const VARIANT_OPTIONAL_FIELDS = [
+    "[dataset item].calls.[item].genotype_type",
+    "[dataset item].alternative",
+    "[dataset item].reference",
+];
 
 // noinspection JSUnusedGlobalSymbols
 const CONDITION_RULES = [
@@ -30,10 +42,13 @@ const CONDITION_RULES = [
             const isEnum = value.fieldSchema.hasOwnProperty("enum");
 
             // noinspection JSCheckFunctionSignatures
-            if (searchValue === null
-                    || (!isEnum && !searchValue)
-                    || (isEnum && !value.fieldSchema.enum.includes(searchValue))) {
-                cb("This field is required.");
+            if (
+                !VARIANT_OPTIONAL_FIELDS.includes(value.field) && 
+                (searchValue === null ||
+                    (!isEnum && !searchValue) ||
+                    (isEnum && !value.fieldSchema.enum.includes(searchValue)))
+            ) {
+                cb(`This field is required: ${searchValue}`);
             }
 
             cb();
@@ -67,11 +82,21 @@ class DiscoverySearchForm extends Component {
         if (this.props.form.getFieldValue("keys").length !== 0) return;
 
         const requiredFields = this.props.dataType
-            ? getFields(this.props.dataType.schema).filter(f =>
-                getFieldSchema(this.props.dataType.schema, f).search?.required ?? false)
+            ? getFields(this.props.dataType.schema).filter(
+                (f) => getFieldSchema(this.props.dataType.schema, f).search?.required ?? false
+            )
             : [];
 
-        const stateUpdates = requiredFields.map(c => this.addCondition(c, undefined, true));
+        let stateUpdates = [];
+
+        if (this.state.isVariantSearch) {
+            stateUpdates = VARIANT_REQUIRED_FIELDS.concat(VARIANT_OPTIONAL_FIELDS).map((c) =>
+                this.addCondition(c, undefined, true)
+            );
+        } else {
+            // currently usused, since only variant search has required fields
+            stateUpdates = requiredFields.map((c) => this.addCondition(c, undefined, true));
+        }
 
         // Add a single default condition if necessary
         // if (requiredFields.length === 0 && this.props.conditionType !== "join") {
@@ -115,7 +140,9 @@ class DiscoverySearchForm extends Component {
     addCondition(field = undefined, field2 = undefined, didMount = false) {
         const conditionType = this.props.conditionType ?? "data-type";
 
-        const newKey = this.props.form.getFieldValue("keys").length;
+        // new key either 0 or max key value + 1
+        const oldKeys = this.props.form.getFieldValue("keys") ?? [];
+        const newKey = oldKeys.length ? oldKeys.reduce((a, b) => Math.max(a, b), 0) + 1 : 0;
 
         // TODO: What if operations is an empty list?
 
@@ -172,22 +199,12 @@ class DiscoverySearchForm extends Component {
 
     // methods for user-friendly variant search
 
-    // hiddenVariantSearchFields = () =>  [
-    //     "[dataset item].assembly_id",
-    //     "[dataset item].chromosome",
-    //     "[dataset item].start",
-    //     "[dataset item].end",
-    //     "[dataset item].calls.[item].genotype_type",
-    //     "[dataset item].alternative",
-    //     "[dataset item].reference",
-    // ];
-
     updateConditions = (conditions, fieldName, newValue) => {
-        console.log({CONDITIONSIN: conditions});
+        // console.log({CONDITIONSIN: conditions});
         const toReturn = conditions.map((c) =>
             c.value.field === fieldName ? { ...c, value: { ...c.value, searchValue: newValue } } : c
         );
-        console.log({CONDITIONSOUT: toReturn});
+        // console.log({CONDITIONSOUT: toReturn});
 
         return toReturn;
     };
@@ -210,7 +227,16 @@ class DiscoverySearchForm extends Component {
             );
         }
 
-        if (genotypeType) {
+        if (chrom && start && end) {
+            updatedConditionsArray = this.updateConditions(updatedConditionsArray, "[dataset item].chromosome", chrom);
+            updatedConditionsArray = this.updateConditions(updatedConditionsArray, "[dataset item].start", start);
+            updatedConditionsArray = this.updateConditions(updatedConditionsArray, "[dataset item].end", end);
+        }
+
+        // optional fields are of interest even if undefined, so check for existence of keys instead of values
+        // ... user may have entered a value in an optional field, but then deleted it
+
+        if (values.hasOwnProperty("genotypeType")) {
             updatedConditionsArray = this.updateConditions(
                 updatedConditionsArray,
                 "[dataset item].calls.[item].genotype_type",
@@ -218,25 +244,12 @@ class DiscoverySearchForm extends Component {
             );
         }
 
-        if (chrom && start && end) {
-            updatedConditionsArray = this.updateConditions(updatedConditionsArray, "[dataset item].chromosome", chrom);
-            updatedConditionsArray = this.updateConditions(updatedConditionsArray, "[dataset item].start", start);
-            updatedConditionsArray = this.updateConditions(updatedConditionsArray, "[dataset item].end", end);
+        if (values.hasOwnProperty("ref")) {
+            updatedConditionsArray = this.updateConditions(updatedConditionsArray, "[dataset item].reference", ref);
         }
-
-        if (ref) {
-            updatedConditionsArray = this.updateConditions(
-                updatedConditionsArray,
-                "[dataset item].reference",
-                ref
-            );
-        }
-        if (alt) {
-            updatedConditionsArray = this.updateConditions(
-                updatedConditionsArray,
-                "[dataset item].alternative",
-                alt
-            );
+        
+        if (values.hasOwnProperty("alt")) {
+            updatedConditionsArray = this.updateConditions(updatedConditionsArray, "[dataset item].alternative", alt);
         }
 
         const updatedFields = {
@@ -247,9 +260,8 @@ class DiscoverySearchForm extends Component {
         this.props.handleVariantHiddenFieldChange(updatedFields);
     };
 
-    // don't count hidden variant fields
     getLabel = (i) => {
-        return this.state.isVariantSearch ? `Condition ${i - 1}` : `Condition ${i + 1}`;
+        return `Condition ${i + 1}`;
     };
 
     getHelpText = (key) => {
@@ -288,9 +300,11 @@ class DiscoverySearchForm extends Component {
         // eslint-disable-next-line react/prop-types
         const DropdownOption = ({option: {path, ui_name: uiName}}) => {
             const schema = this.getDataTypeFieldSchema(`[dataset item].${path}`);
-            return <Tooltip title={schema.description} mouseEnterDelay={TOOLTIP_DELAY_SECONDS}>
-              {uiName}
-            </Tooltip>;
+            return (
+                <Tooltip title={schema.description} mouseEnterDelay={TOOLTIP_DELAY_SECONDS}>
+                    {uiName}
+                </Tooltip>
+            );
         };
         DropdownOption.propTypes = {
             option: PropTypes.shape({
@@ -301,64 +315,95 @@ class DiscoverySearchForm extends Component {
 
         // longest title padded with marginRight
         return (
-            <Menu style={{display: "inline-block" }} onClick={this.addConditionFromPulldown}>
+            <Menu style={{ display: "inline-block" }} onClick={this.addConditionFromPulldown}>
                 <Menu.SubMenu title={<span>Subject</span>}>
-                {subjectOptions.map(o => <Menu.Item key={o.path}><DropdownOption option={o}/></Menu.Item>)}
+                    {subjectOptions.map((o) => (
+                        <Menu.Item key={o.path}>
+                            <DropdownOption option={o} />
+                        </Menu.Item>
+                    ))}
                 </Menu.SubMenu>
-                <Menu.SubMenu title={<span style={{marginRight: "10px"}}>Phenotypic Features </span>}>
-                {phenotypicFeaturesOptions.map(o => <Menu.Item key={o.path}><DropdownOption option={o}/></Menu.Item>)}
+                <Menu.SubMenu title={<span style={{ marginRight: "10px" }}>Phenotypic Features </span>}>
+                    {phenotypicFeaturesOptions.map((o) => (
+                        <Menu.Item key={o.path}>
+                            <DropdownOption option={o} />
+                        </Menu.Item>
+                    ))}
                 </Menu.SubMenu>
                 <Menu.SubMenu title={<span>Biosamples</span>}>
-                {biosamplesOptions.map(o => <Menu.Item key={o.path}><DropdownOption option={o}/></Menu.Item>)}
+                    {biosamplesOptions.map((o) => (
+                        <Menu.Item key={o.path}>
+                            <DropdownOption option={o} />
+                        </Menu.Item>
+                    ))}
                 </Menu.SubMenu>
                 <Menu.SubMenu title={<span>Genes</span>}>
-                {genesOptions.map(o => <Menu.Item key={o.path}><DropdownOption option={o}/></Menu.Item>)}
+                    {genesOptions.map((o) => (
+                        <Menu.Item key={o.path}>
+                            <DropdownOption option={o} />
+                        </Menu.Item>
+                    ))}
                 </Menu.SubMenu>
                 <Menu.SubMenu title={<span>Annotated variants</span>}>
-                {variantsOptions.map(o => <Menu.Item key={o.path}><DropdownOption option={o}/></Menu.Item>)}
+                    {variantsOptions.map((o) => (
+                        <Menu.Item key={o.path}>
+                            <DropdownOption option={o} />
+                        </Menu.Item>
+                    ))}
                 </Menu.SubMenu>
                 <Menu.SubMenu title={<span>Diseases</span>}>
-                {diseasesOptions.map(o => <Menu.Item key={o.path}><DropdownOption option={o}/></Menu.Item>)}
+                    {diseasesOptions.map((o) => (
+                        <Menu.Item key={o.path}>
+                            <DropdownOption option={o} />
+                        </Menu.Item>
+                    ))}
                 </Menu.SubMenu>
             </Menu>
         );
     };
 
-    addConditionFromPulldown = ({key}) => {
+    addConditionFromPulldown = ({ key }) => {
         this.addCondition("[dataset item]." + key);
     };
 
     render() {
-        const getCondition = ck => this.props.form.getFieldValue(`conditions[${ck}]`);
+        const getCondition = (ck) => this.props.form.getFieldValue(`conditions[${ck}]`);
 
-        this.props.form.getFieldDecorator("keys", {initialValue: []}); // Initialize keys if needed
+        this.props.form.getFieldDecorator("keys", { initialValue: [] }); // Initialize keys if needed
         const keys = this.props.form.getFieldValue("keys");
         const existingUniqueFields = keys
-            .filter(k => k !== undefined)
-            .map(k => getCondition(k).field)
-            .filter(f => f !== undefined && this.cannotBeUsed(f));
+            .filter((k) => k !== undefined)
+            .map((k) => getCondition(k).field)
+            .filter((f) => f !== undefined && this.cannotBeUsed(f));
 
         const formItems = keys.map((k, i) => (
-            <Form.Item key={k} labelCol={{
-                lg: {span: 24},
-                xl: {span: 4},
-                xxl: {span: 3}
-            }} wrapperCol={{
-                lg: {span: 24},
-                xl: {span: 20},
-                xxl: {span: 18}
-            }} label={this.getLabel(i)} help={this.getHelpText(k)}>
+            <Form.Item
+                key={k}
+                labelCol={{
+                    lg: { span: 24 },
+                    xl: { span: 4 },
+                    xxl: { span: 3 },
+                }}
+                wrapperCol={{
+                    lg: { span: 24 },
+                    xl: { span: 20 },
+                    xxl: { span: 18 },
+                }}
+                label={this.getLabel(i)}
+                help={this.getHelpText(k)}
+            >
                 {this.props.form.getFieldDecorator(`conditions[${k}]`, {
                     initialValue: this.initialValues[`conditions[${k}]`],
-                    validateTrigger: false,  // only when called manually
-                    rules: CONDITION_RULES
+                    validateTrigger: false, // only when called manually
+                    rules: CONDITION_RULES,
                 })(
                     <DiscoverySearchCondition
                         conditionType={this.props.conditionType ?? "data-type"}
                         dataType={this.props.dataType}
-                        isExcluded={f => existingUniqueFields.includes(f) ||
-                            (!this.props.isInternal && this.isNotPublic(f))}
-                        onFieldChange={change => this.handleFieldChange(k, change)}
+                        isExcluded={(f) =>
+                            existingUniqueFields.includes(f) || (!this.props.isInternal && this.isNotPublic(f))
+                        }
+                        onFieldChange={(change) => this.handleFieldChange(k, change)}
                         onRemoveClick={() => this.removeCondition(k)}
                         removeDisabled={false}
                     />
@@ -366,44 +411,40 @@ class DiscoverySearchForm extends Component {
             </Form.Item>
         ));
 
-        //for variant search, only show user-added fields, hide everything else
-        // XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
-        // can probably accomplish the same thing, but with filter()
-        const nonHiddenFields = formItems.slice(NUM_HIDDEN_VARIANT_FORM_ITEMS);
+        console.log({ formItems: formItems });
 
-        console.log({formItems: formItems})
-
-
-        return <Form onSubmit={this.onSubmit}>
-            {this.props.dataType.id === "variant" && (
-                <VariantSearchHeader
-                    addVariantSearchValues={this.addVariantSearchValues}
-                    dataType={this.props.dataType}
-                    isSubmitting={this.props.isSubmitting}
-                />
-            )}
-            {this.state.isVariantSearch ? nonHiddenFields : formItems}
-            <Form.Item
-                wrapperCol={{
-                    xl: {span: 24},
-                    xxl: {offset: 3, span: 18},
-                }}
-            >
-                {this.state.isVariantSearch ?
-                    <></> :
-                    this.state.isPhenopacketSearch ? (
-                    <Dropdown overlay={this.phenopacketsSearchOptions} placement="bottomCenter" trigger={["click"]}>
-                        <Button type="dashed" style={{width: "100%"}}>
-                            <Icon type="plus"/> Add condition
-                        </Button>
-                    </Dropdown>
+        return (
+            <Form onSubmit={this.onSubmit}>
+                {this.props.dataType.id === "variant" && (
+                    <VariantSearchHeader
+                        addVariantSearchValues={this.addVariantSearchValues}
+                        dataType={this.props.dataType}
+                        isSubmitting={this.props.isSubmitting}
+                    />
+                )}
+                {this.state.isVariantSearch ? [] : formItems}
+                <Form.Item
+                    wrapperCol={{
+                        xl: { span: 24 },
+                        xxl: { offset: 3, span: 18 },
+                    }}
+                >
+                    {this.state.isVariantSearch ? (
+                        <></>
+                    ) : this.state.isPhenopacketSearch ? (
+                        <Dropdown overlay={this.phenopacketsSearchOptions} placement="bottomCenter" trigger={["click"]}>
+                            <Button type="dashed" style={{ width: "100%" }}>
+                                <Icon type="plus" /> Add condition
+                            </Button>
+                        </Dropdown>
                     ) : (
-                    <Button type="dashed" onClick={() => this.addCondition()} style={{width: "100%"}}>
-                        <Icon type="plus"/> Add condition
-                    </Button>
+                        <Button type="dashed" onClick={() => this.addCondition()} style={{ width: "100%" }}>
+                            <Icon type="plus" /> Add condition
+                        </Button>
                     )}
-            </Form.Item>
-        </Form>;
+                </Form.Item>
+            </Form>
+        );
     }
 }
 

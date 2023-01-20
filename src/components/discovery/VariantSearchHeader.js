@@ -7,15 +7,22 @@ import { useSelector } from "react-redux";
 import { notAlleleCharactersRegex } from "../../utils/misc";
 
 const VariantSearchHeader = ({dataType, addVariantSearchValues, isSubmitting}) => {
-  // local state
-  // Declare a state variable and a function to update it
     const [refFormReceivedValidKeystroke, setRefFormReceivedValidKeystroke ] = useState(true);
     const [altFormReceivedValidKeystroke , setAltFormReceivedValidKeystroke ] = useState(true);
     const [activeRefValue, setActiveRefValue] = useState(null);
     const [activeAltValue, setActiveAltValue] = useState(null);
-    const [lookupAssemblyId, setLookupAssemblyId] = useState(null);
+    const [assemblyId, setAssemblyId] = useState(null);
+    const [locus, setLocus] = useState({chrom: null, start: null, end: null});
+    const [genotype, setGenotype] = useState(null);
 
-  // global state vars
+    // begin with required fields considered valid, so user isn't assaulted with error messages
+    const initialValidity = {
+        "assemblyId": true,
+        "locus": true,
+    };
+
+    const [fieldsValidity, setFieldsValidity] = useState(initialValidity);
+
     const variantsOverviewResults = useSelector((state) => state.explorer.variantsOverviewResponse);
     const overviewAssemblyIds = variantsOverviewResults?.assemblyIDs !== undefined
         ? Object.keys(variantsOverviewResults?.assemblyIDs)
@@ -28,10 +35,64 @@ const VariantSearchHeader = ({dataType, addVariantSearchValues, isSubmitting}) =
     const labelCol = {lg: { span: 24 }, xl: { span: 4 }, xxl: { span: 3 }};
     const wrapperCol = {lg: { span: 24 }, xl: { span: 20 }, xxl: { span: 18 }};
 
-    const handleAssemblyIdChange = (value) => {
+    const helpText = {
+        "assemblyId": assemblySchema?.description,
+        "genotype": genotypeSchema?.description,
+        "locus": "Enter gene name (eg \"BRCA1\") or position (\"chr17:41195311-41278381\")",
+        "ref/alt": "Combination of nucleotides A, C, T, and G, including N as a wildcard - i.e. AATG, CG, TNN"
+    };
 
+    // custom validation since this form isn't submitted, it's just used to fill fields in hidden form
+    // each field is validated invididually elsewhere
+    // for final validation, we only need to make sure required fields are non-empty  
+    const validateVariantSearchForm = () => {
+
+      // check assembly
+        if (!assemblyId) {
+        // change assemblyId helptext & outline
+            setFieldsValidity({...fieldsValidity, "assemblyId": false});
+        }
+
+        // check locus
+        const {chrom, start, end} = locus;
+        if (!chrom || !start || !end) {
+        // change locus helptext & outline
+            setFieldsValidity({...fieldsValidity, "locus": false});
+        }
+    };
+
+    useEffect(() => {
+      if (isSubmitting){
+        validateVariantSearchForm()
+      }
+    }, [isSubmitting])
+
+
+    const isValidLocus = (locus) => {
+      return locus.chrom != null  && locus.start != null && locus.end != null
+    }
+
+    const setLocusValidity = (isValid) => {
+      setFieldsValidity({...fieldsValidity, "locus": isValid});
+    }
+
+    const handleLocusChange = (locus) => {
+        const {chrom, start, end} = locus;
+
+        if (isValidLocus(locus)){
+          setLocusValidity(true)
+
+        } else {
+          setLocusValidity(false);
+          return
+        }
+
+        setLocus({chrom: chrom, start: start, end: end});
+    };
+
+    const handleAssemblyIdChange = (value) => {
         addVariantSearchValues({assemblyId: value});
-        setLookupAssemblyId(value);
+        setAssemblyId(value);
     };
 
     const handleGenotypeChange = (value) => {
@@ -94,18 +155,15 @@ const VariantSearchHeader = ({dataType, addVariantSearchValues, isSubmitting}) =
         }
     }, [shouldTriggerAssemblyIdChange]);
 
-// Select needs
-// style
-// getSearchValue ??
-
-    console.log(`isSubmitting: ${isSubmitting}`)
 
     return (<>
     <Form.Item
       labelCol={labelCol}
       wrapperCol={wrapperCol}
       label={"Assembly ID"}
-      help={assemblySchema.description}
+      help={helpText["assemblyId"]}
+      validateStatus={fieldsValidity.assemblyId ? "success" : "error"}
+      required
     >
       <Select
         onChange={handleAssemblyIdChange}
@@ -118,18 +176,21 @@ const VariantSearchHeader = ({dataType, addVariantSearchValues, isSubmitting}) =
         labelCol={labelCol}
         wrapperCol={wrapperCol}
         label={"Gene / position"}
-        help={"Enter gene name (eg \"BRCA1\") or position (\"chr17:41195311-41278381\")"}
+        help={helpText["locus"]}
+        validateStatus={fieldsValidity.locus ? "success" : "error"}
+        required
     >
-      <LocusSearch assemblyId={lookupAssemblyId} addVariantSearchValues={addVariantSearchValues} />
+      <LocusSearch assemblyId={assemblyId} addVariantSearchValues={addVariantSearchValues} handleLocusChange={handleLocusChange} setLocusValidity={setLocusValidity}/>
     </Form.Item>
     <Form.Item
       labelCol={labelCol}
       wrapperCol={wrapperCol}
       label={"Genotype"}
-      help={genotypeSchema.description}
+      help={helpText["genotype"]}
     >
       <Select
         onChange={handleGenotypeChange}
+        allowClear
       >
        {genotypeSchema.enum.map(v => <Select.Option key={v} value={v}>{v}</Select.Option>)}
       </Select>
@@ -138,7 +199,7 @@ const VariantSearchHeader = ({dataType, addVariantSearchValues, isSubmitting}) =
       labelCol={labelCol}
       wrapperCol={wrapperCol}
       label={"Reference Allele"}
-      help={"Combination of nucleotides A, C, T, and G, including N as a wildcard - i.e. AATG, CG, TNN"}
+      help={helpText["ref/alt"]}
     >
       <Input
         onChange={handleRefChange}
@@ -150,7 +211,7 @@ const VariantSearchHeader = ({dataType, addVariantSearchValues, isSubmitting}) =
       labelCol={labelCol}
       wrapperCol={wrapperCol}
       label={"Alternate Allele"}
-      help={"Combination of nucleotides A, C, T, and G, including N as a wildcard - i.e. AATG, CG, TNN"}
+      help={helpText["ref/alt"]}
     >
       <Input
         onChange={handleAltChange}
@@ -165,6 +226,7 @@ const VariantSearchHeader = ({dataType, addVariantSearchValues, isSubmitting}) =
 VariantSearchHeader.propTypes = {
     dataType: PropTypes.object,
     addVariantSearchValues: PropTypes.func,
+    isSubmitting: PropTypes.bool
 };
 
 export default VariantSearchHeader;

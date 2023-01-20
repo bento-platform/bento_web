@@ -13,9 +13,10 @@ const geneDropdownText = (g) => {
     return `${g.name} chromosome: ${g.chrom} start: ${g.start} end: ${g.end}`;
 };
 
-const LocusSearch = ({assemblyId, addVariantSearchValues}) => {
+const LocusSearch = ({assemblyId, addVariantSearchValues, handleLocusChange, setLocusValidity}) => {
     const [autoCompleteOptions, setAutoCompleteOptions] = useState([]);
     const geneSearchResults = useSelector((state) => state.discovery.geneNameSearchResponse);
+    const [currentLocus, setCurrentLocus] = useState({chrom: null, start: null, end: null}) //needed for onBlur checking
     const dispatch = useDispatch();
 
     const showAutoCompleteOptions = assemblyId === "GRCh37" || assemblyId === "GRCh38";
@@ -25,6 +26,8 @@ const LocusSearch = ({assemblyId, addVariantSearchValues}) => {
         const result = parse.exec(value);
 
         if (!result) {
+            setCurrentLocus({chrom: null, start: null, end: null})
+            setLocusValidity(false) 
             return;
         }
 
@@ -32,6 +35,7 @@ const LocusSearch = ({assemblyId, addVariantSearchValues}) => {
         const start = Number(result[2]);
         const end = Number(result[3]);
 
+        setCurrentLocus({chrom: chrom, start: start, end: end})
         addVariantSearchValues({chrom: chrom, start: start, end: end});
     };
 
@@ -40,6 +44,10 @@ const LocusSearch = ({assemblyId, addVariantSearchValues}) => {
     // handle position notation
         if (value.includes(":")) {
             parsePosition(value);
+
+            // let user finish typing position before showing error
+            setLocusValidity(true) 
+
             setAutoCompleteOptions([]);
             return;
         }
@@ -51,6 +59,12 @@ const LocusSearch = ({assemblyId, addVariantSearchValues}) => {
         dispatch(performGohanGeneSearchIfPossible(value, assemblyId));
     };
 
+    const handleOnBlur = () => {
+        // antd has no "select on tab" option
+        // so check if there's a valid locus when tabbing away
+        handleLocusChange(currentLocus);
+    }
+
     const handleSelect = (value, options) => {
         const locus = options.props?.locus;
 
@@ -59,9 +73,10 @@ const LocusSearch = ({assemblyId, addVariantSearchValues}) => {
             return;
         }
 
-    // don't use locus.assemblyId, since this is the lookup value
         const {chrom, start, end} = locus;
         addVariantSearchValues({chrom: chrom, start: start, end: end});
+        setCurrentLocus({chrom: chrom, start: start, end: end})
+        handleLocusChange(locus);
     };
 
     useEffect(() => {
@@ -73,6 +88,7 @@ const LocusSearch = ({assemblyId, addVariantSearchValues}) => {
       options={autoCompleteOptions}
       onChange={handleChange}
       onSelect={handleSelect}
+      onBlur={handleOnBlur}
       // dropdownMenuStyle={}
       // backfill={true}
     >
@@ -93,6 +109,8 @@ const LocusSearch = ({assemblyId, addVariantSearchValues}) => {
 LocusSearch.propTypes = {
     assemblyId: PropTypes.string,
     addVariantSearchValues: PropTypes.func,
+    handleLocusChange: PropTypes.func,
+    setLocusValidity: PropTypes.func
 };
 
 
