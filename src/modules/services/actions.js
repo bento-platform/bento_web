@@ -14,8 +14,8 @@ import {withBasePath} from "../../utils/url";
 
 /**
  * @typedef {Object} CHORDService
- * @property {string} type.organization
- * @property {string} type.artifact
+ * @property {string} artifact
+ * @property {string} url
  * @property {boolean} data_service
  * @property {?boolean} manageable_tables
  */
@@ -67,23 +67,23 @@ export const fetchServices = networkAction(() => ({
     err: "Error fetching services"
 }));
 
-export const fetchDataServiceDataTypes = networkAction((chordService, serviceInfo) => ({
+export const fetchDataServiceDataTypes = networkAction((serviceInfo) => ({
     types: FETCH_SERVICE_DATA_TYPES,
-    params: {chordService, serviceInfo},
+    params: {serviceInfo},
     url: `${serviceInfo.url}/data-types`,
     err: `Error fetching data types from service '${serviceInfo.name}'`
 }));
 
-export const fetchDataServiceDataTypeTables = networkAction((chordService, serviceInfo, dataType) => ({
+export const fetchDataServiceDataTypeTables = networkAction((serviceInfo, dataType) => ({
     types: FETCH_SERVICE_TABLES,
-    params: {chordService, serviceInfo, dataTypeID: dataType.id},
+    params: {serviceInfo, dataTypeID: dataType.id},
     url: `${serviceInfo.url}/tables?${createURLSearchParams({"data-type": dataType.id}).toString()}`,
     err: `Error fetching tables from service '${serviceInfo.name}' (data type ${dataType.id})`
 }));
 
-export const fetchDataServiceWorkflows = networkAction((chordService, serviceInfo) => ({
+export const fetchDataServiceWorkflows = networkAction((serviceInfo) => ({
     types: FETCH_SERVICE_WORKFLOWS,
-    params: {chordService, serviceInfo},
+    params: {serviceInfo},
     url: `${serviceInfo.url}/workflows`
 }));
 
@@ -103,7 +103,7 @@ export const fetchServicesWithMetadataAndDataTypesAndTables = () => async (dispa
 
     // - Skip services that don't provide data (i.e. no data types/workflows/etc.)
 
-    const dataServicesInfo = getState().services.items.map(s => {
+    const dataServicesInfo = getState().services.items.filter(s => s?.type).map(s => {
         // Backwards compatibility for:
         // - old type ("group:artifact:version")
         // - and new  ({"group": "...", "artifact": "...", "version": "..."})
@@ -121,13 +121,13 @@ export const fetchServicesWithMetadataAndDataTypesAndTables = () => async (dispa
     await Promise.all([
         (async () => {
             dispatch(beginFlow(LOADING_SERVICE_DATA_TYPES));
-            await Promise.all(dataServicesInfo.map(s => dispatch(fetchDataServiceDataTypes(s.chordService, s))));
+            await Promise.all(dataServicesInfo.map(s => dispatch(fetchDataServiceDataTypes(s))));
             dispatch(endFlow(LOADING_SERVICE_DATA_TYPES));
         })(),
 
         (async () => {
             dispatch(beginFlow(LOADING_SERVICE_WORKFLOWS));
-            await Promise.all(dataServicesInfo.map(s => dispatch(fetchDataServiceWorkflows(s.chordService, s))));
+            await Promise.all(dataServicesInfo.map(s => dispatch(fetchDataServiceWorkflows(s))));
             dispatch(endFlow(LOADING_SERVICE_WORKFLOWS));
         })()
     ]);
@@ -137,7 +137,7 @@ export const fetchServicesWithMetadataAndDataTypesAndTables = () => async (dispa
     dispatch(beginFlow(LOADING_SERVICE_TABLES));
     await Promise.all(dataServicesInfo.flatMap(s =>
         (getState().serviceDataTypes.dataTypesByServiceID[s.id]?.items ?? [])
-            .map(dt => dispatch(fetchDataServiceDataTypeTables(s.chordService, s, dt)))));
+            .map(dt => dispatch(fetchDataServiceDataTypeTables(s, dt)))));
     dispatch(endFlow(LOADING_SERVICE_TABLES));
 
     dispatch(endFlow(LOADING_ALL_SERVICE_DATA));
@@ -145,7 +145,7 @@ export const fetchServicesWithMetadataAndDataTypesAndTables = () => async (dispa
 
 export const fetchServicesWithMetadataAndDataTypesAndTablesIfNeeded = () => (dispatch, getState) => {
     const state = getState();
-    if ((state.chordServices.items.length === 0 || state.services.items.length === 0 ||
+    if ((Object.keys(state.chordServices.itemsByArtifact).length === 0 || state.services.items.length === 0 ||
             Object.keys(state.serviceDataTypes.dataTypesByServiceID).length === 0) &&
             !state.services.isFetchingAll) {
         return dispatch(fetchServicesWithMetadataAndDataTypesAndTables());

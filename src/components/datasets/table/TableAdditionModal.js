@@ -10,7 +10,7 @@ import {datasetPropTypesShape, projectPropTypesShape} from "../../../propTypes";
 
 
 const modalTitle = (dataset, project) =>
-    `Add Table to Dataset "${(dataset || {}).title || ""}" (Project "${(project || {}).title || ""}")`;
+    `Add Table to Dataset "${dataset?.title || ""}" (Project "${project?.title || ""}")`;
 
 class TableAdditionModal extends Component {
     componentDidMount() {

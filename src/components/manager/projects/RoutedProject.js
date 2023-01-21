@@ -12,7 +12,7 @@ import {deleteProjectIfPossible, saveProjectIfPossible} from "../../../modules/m
 import {beginProjectEditing, endProjectEditing} from "../../../modules/manager/actions";
 import {withBasePath} from "../../../utils/url";
 import {FORM_MODE_ADD, FORM_MODE_EDIT} from "../../../constants";
-import {projectPropTypesShape, serviceInfoPropTypesShape} from "../../../propTypes";
+import {chordServicePropTypesMixin, projectPropTypesShape, serviceInfoPropTypesShape} from "../../../propTypes";
 
 class RoutedProject extends Component {
     constructor(props) {
@@ -101,19 +101,26 @@ class RoutedProject extends Component {
              */
             const projectTableRecords = this.props.projectTablesByProjectID[selectedProjectID] || [];
 
+            const chordServicesByArtifact = this.props.chordServicesByArtifact;
+            const serviceDataTypesByServiceID = this.props.serviceDataTypesByServiceID;
+
             const manageableDataTypes = this.props.services
-                .filter(s =>
-                    (s.metadata || {chordManageableTables: false}).chordManageableTables &&
-                    (this.props.serviceDataTypesByServiceID[s.id] || {}).items)
-                .flatMap(s => this.props.serviceDataTypesByServiceID[s.id].items.map(dt => dt.id));
+                .filter(s => {
+                    const cs = chordServicesByArtifact[s.type.artifact] ?? {};
+                    return (
+                        cs.data_service &&  // Service in question must be a data service to have manageable tables ...
+                        cs.manageable_tables &&  // ... and it must have manageable tables specified ...
+                        serviceDataTypesByServiceID[s.id]?.items?.length  // ... and it must have >=1 data type.
+                    );
+                })
+                .flatMap(s => serviceDataTypesByServiceID[s.id].items.map(dt => dt.id));
 
             console.log("ptr", projectTableRecords);
             console.log("tbl", tables);
 
             const tableList = projectTableRecords
                 .filter(tableOwnership =>
-                    ((tables[tableOwnership.service_id] || {}).tablesByID || {})
-                        .hasOwnProperty(tableOwnership.table_id))
+                    tableOwnership.table_id in (tables[tableOwnership.service_id]?.tablesByID ?? {}))
                 .map(tableOwnership => ({
                     ...tableOwnership,
                     ...tables[tableOwnership.service_id].tablesByID[tableOwnership.table_id],
@@ -169,6 +176,8 @@ RoutedProject.propTypes = {
     editingProject: PropTypes.bool,
     savingProject: PropTypes.bool,
 
+    chordServicesByArtifact: PropTypes.objectOf(PropTypes.shape(chordServicePropTypesMixin)),
+
     services: PropTypes.arrayOf(serviceInfoPropTypesShape),
     servicesByID: PropTypes.objectOf(serviceInfoPropTypesShape),
 
@@ -185,7 +194,7 @@ RoutedProject.propTypes = {
     projectsByID: PropTypes.objectOf(projectPropTypesShape),
 
     projectTables: PropTypes.arrayOf(PropTypes.object),  // TODO: Shape
-    projectTablesByProjectID: PropTypes.objectOf(PropTypes.object),  // TODO: Shape
+    projectTablesByProjectID: PropTypes.objectOf(PropTypes.arrayOf(PropTypes.object)),  // TODO: Shape
 
     loadingProjects: PropTypes.bool,
 
@@ -200,6 +209,8 @@ RoutedProject.propTypes = {
 const mapStateToProps = state => ({
     editingProject: state.manager.editingProject,
     savingProject: state.projects.isSaving,
+
+    chordServicesByArtifact: state.chordServices.itemsByArtifact,
 
     services: state.services.items,
     servicesByID: state.services.itemsByID,

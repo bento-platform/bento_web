@@ -6,6 +6,9 @@ const HtmlWebpackPlugin = require("html-webpack-plugin");
 const BENTO_URL = process.env.BENTO_URL || process.env.CHORD_URL || null;
 const BASE_PATH = BENTO_URL ? (new URL(BENTO_URL)).pathname : "/";
 
+const createServiceInfo = require("./create_service_info");
+
+// noinspection JSUnusedGlobalSymbols
 module.exports = {
     entry: ["babel-polyfill", path.resolve(__dirname, "./src/index.js")],
     module: {
@@ -65,9 +68,35 @@ module.exports = {
             directory: path.join(__dirname, "static"),
         },
         compress: true,
-        port: process.env.BENTO_WEB_PORT ?? 9000,
         historyApiFallback: true,
 
-        allowedHosts: "all"
+        host: "0.0.0.0",
+        port: process.env.BENTO_WEB_PORT ?? 9000,
+
+        watchFiles: {
+            paths: [
+                "src/**/*.js",
+                "src/**/*.html",
+                "static/**/*",
+            ],
+            options: {
+                usePolling: true,
+            },
+        },
+
+        setupMiddlewares(middlewares, devServer) {
+            if (!devServer) {
+                throw new Error("webpack-dev-server is not defined");
+            }
+
+            devServer.app.get("/service-info", (req, res) => {
+                res.header("Content-Type", "application/json");
+                res.json(createServiceInfo.serviceInfo());
+            });
+
+            return middlewares;
+        },
+
+        allowedHosts: "all",
     },
 };

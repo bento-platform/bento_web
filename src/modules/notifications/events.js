@@ -10,7 +10,7 @@ const NOTIFICATION_WES_RUN_FAILED = "wes_run_failed";
 const NOTIFICATION_WES_RUN_COMPLETED = "wes_run_completed";
 
 export default {
-    [/^chord\.service\.notification$/.source]: (message, history) => async dispatch => {
+    [/^bento\.service\.notification$/.source]: (message, history) => async dispatch => {
         if (message.type !== EVENT_NOTIFICATION) return;
 
         const messageData = message.data || {};

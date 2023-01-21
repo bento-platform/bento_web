@@ -10,6 +10,8 @@ const handlerSets = [
 
 // Global message handler
 export default async (message, history) => {
+    console.debug("Handling event", message);
+
     const handlers = handlerSets
         .flatMap(Object.entries)
         .filter(([p, _]) => message.channel.match(new RegExp(p)) !== null)
