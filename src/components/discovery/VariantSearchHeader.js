@@ -6,13 +6,14 @@ import { useSelector } from "react-redux";
 
 import { notAlleleCharactersRegex } from "../../utils/misc";
 
-const VariantSearchHeader = ({dataType, addVariantSearchValues, isSubmitting}) => {
+const VariantSearchHeader = ({dataType, addVariantSearchValues}) => {
     const [refFormReceivedValidKeystroke, setRefFormReceivedValidKeystroke ] = useState(true);
     const [altFormReceivedValidKeystroke , setAltFormReceivedValidKeystroke ] = useState(true);
     const [activeRefValue, setActiveRefValue] = useState(null);
     const [activeAltValue, setActiveAltValue] = useState(null);
     const [assemblyId, setAssemblyId] = useState(null);
     const [locus, setLocus] = useState({chrom: null, start: null, end: null});
+    const isSubmitting = useSelector(state => state.explorer.isSubmittingSearch);
 
     // begin with required fields considered valid, so user isn't assaulted with error messages
     const initialValidity = {
@@ -228,7 +229,6 @@ const VariantSearchHeader = ({dataType, addVariantSearchValues, isSubmitting}) =
 VariantSearchHeader.propTypes = {
     dataType: PropTypes.object,
     addVariantSearchValues: PropTypes.func,
-    isSubmitting: PropTypes.bool
 };
 
 export default VariantSearchHeader;
