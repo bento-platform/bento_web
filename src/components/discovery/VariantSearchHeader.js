@@ -24,9 +24,10 @@ const VariantSearchHeader = ({dataType, addVariantSearchValues}) => {
     const [fieldsValidity, setFieldsValidity] = useState(initialValidity);
 
     const variantsOverviewResults = useSelector((state) => state.explorer.variantsOverviewResponse);
-    const overviewAssemblyIds = variantsOverviewResults?.assemblyIDs !== undefined
-        ? Object.keys(variantsOverviewResults?.assemblyIDs)
-        : [];
+    const hasAssemblyIds =
+        variantsOverviewResults?.assemblyIDs !== undefined &&
+        !variantsOverviewResults?.assemblyIDs.hasOwnProperty("error");
+    const overviewAssemblyIds = hasAssemblyIds ? Object.keys(variantsOverviewResults?.assemblyIDs) : [];
 
     const assemblySchema = dataType.schema?.properties?.assembly_id;
     const genotypeSchema = dataType.schema?.properties?.calls?.items?.properties?.genotype_type;
