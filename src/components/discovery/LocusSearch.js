@@ -13,6 +13,21 @@ const geneDropdownText = (g) => {
     return `${g.name} chromosome: ${g.chrom} start: ${g.start} end: ${g.end}`;
 };
 
+const parsePosition = (value) => {
+    const parse = /(?:CHR|chr)([0-9]{1,2}|X|x|Y|y|M|m):(\d+)-(\d+)/;
+    const result = parse.exec(value);
+
+    if (!result) {
+        return {chrom: null, start: null, end: null};
+    }
+
+    const chrom = result[1].toUpperCase(); //for eg 'x', has no effect on numbers
+    const start = Number(result[2]);
+    const end = Number(result[3]);
+    return {chrom, start, end};
+};
+
+
 const LocusSearch = ({assemblyId, addVariantSearchValues, handleLocusChange, setLocusValidity}) => {
     const [autoCompleteOptions, setAutoCompleteOptions] = useState([]);
     const geneSearchResults = useSelector((state) => state.discovery.geneNameSearchResponse);
@@ -20,21 +35,6 @@ const LocusSearch = ({assemblyId, addVariantSearchValues, handleLocusChange, set
     const dispatch = useDispatch();
 
     const showAutoCompleteOptions = assemblyId === "GRCh37" || assemblyId === "GRCh38";
-
-    const parsePosition = (value) => {
-        const parse = /(?:CHR|chr)([0-9]{1,2}|X|x|Y|y|M|m):(\d+)-(\d+)/;
-        const result = parse.exec(value);
-
-        if (!result) {
-            return {chrom: null, start: null, end: null};
-        }
-
-        const chrom = result[1].toUpperCase(); //for eg 'x', has no effect on numbers
-        const start = Number(result[2]);
-        const end = Number(result[3]);
-
-        return {chrom, start, end};
-    };
 
     const handlePositionNotation = (value) => {
         const {chrom, start, end} = parsePosition(value);
