@@ -26,7 +26,6 @@ const LocusSearch = ({assemblyId, addVariantSearchValues, handleLocusChange, set
         const result = parse.exec(value);
 
         if (!result) {
-            setLocusValidity(false);
             return {chrom: null, start: null, end: null};
         }
 
