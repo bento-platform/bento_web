@@ -219,7 +219,9 @@ class DiscoverySearchForm extends Component {
             return;
         }
 
-        if (assemblyId) {
+        // some fields may be undefined, so check for key names, not values
+
+        if (values.hasOwnProperty("assemblyId")) {
             updatedConditionsArray = this.updateConditions(
                 updatedConditionsArray,
                 "[dataset item].assembly_id",
@@ -227,14 +229,11 @@ class DiscoverySearchForm extends Component {
             );
         }
 
-        if (chrom && start && end) {
+        if (values.hasOwnProperty("chrom") && values.hasOwnProperty("start") && values.hasOwnProperty("end")) {
             updatedConditionsArray = this.updateConditions(updatedConditionsArray, "[dataset item].chromosome", chrom);
             updatedConditionsArray = this.updateConditions(updatedConditionsArray, "[dataset item].start", start);
             updatedConditionsArray = this.updateConditions(updatedConditionsArray, "[dataset item].end", end);
         }
-
-        // optional fields are of interest even if undefined, so check for existence of keys instead of values
-        // ... user may have entered a value in an optional field, but then deleted it
 
         if (values.hasOwnProperty("genotypeType")) {
             updatedConditionsArray = this.updateConditions(

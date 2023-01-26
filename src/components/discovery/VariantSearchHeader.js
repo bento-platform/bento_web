@@ -78,17 +78,10 @@ const VariantSearchHeader = ({dataType, addVariantSearchValues}) => {
     };
 
     const handleLocusChange = (locus) => {
-        const {chrom, start, end} = locus;
+        setLocusValidity(isValidLocus(locus));
 
-        if (isValidLocus(locus)) {
-            setLocusValidity(true);
-
-        } else {
-            setLocusValidity(false);
-            return;
-        }
-
-        setLocus({chrom: chrom, start: start, end: end});
+        // set even if invalid so we don't keep old values
+        setLocus(locus);
     };
 
     const handleAssemblyIdChange = (value) => {
