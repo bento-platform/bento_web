@@ -26,7 +26,11 @@ class NotificationList extends Component {
             case NOTIFICATION_WES_RUN_COMPLETED:
             case NOTIFICATION_WES_RUN_FAILED:
                 return [
-                    <Button key="run-details" onClick={() => this.props.navigateToWESRun(notification.action_target)}>
+                    <Button key="run-details" onClick={() => {
+                        // If they act on this notification, they read it.
+                        this.props.markNotificationAsRead(notification.id);
+                        this.props.navigateToWESRun(notification.action_target);
+                    }}>
                         Run Details
                     </Button>
                 ];
@@ -55,16 +59,27 @@ class NotificationList extends Component {
                   renderItem={n => (
                       <List.Item key={n.id} actions={[
                           ...this.getNotificationActions(n),
-                          <Button key="mark-as-read"
-                                  type="link"
-                                  icon="read"
-                                  style={{padding: 0}}
-                                  onClick={() => this.props.markNotificationAsRead(n.id)}>
-                              Mark as Read
-                          </Button>
+                          ...(n.read ? [] : [
+                              <Button key="mark-as-read"
+                                      type="link"
+                                      icon="read"
+                                      style={{padding: 0}}
+                                      onClick={() => this.props.markNotificationAsRead(n.id)}>
+                                  Mark as Read
+                              </Button>
+                          ]),
                       ]}>
-                          <List.Item.Meta title={n.title} description={n.description} style={{marginBottom: "8px"}} />
-                          {n.timestamp.toLocaleString()}
+                          <List.Item.Meta
+                              title={<>{n.title} <span style={{
+                                  color: "#999",
+                                  float: "right",
+                                  fontStyle: "italic",
+                                  fontWeight: "normal",
+                              }}>
+                                  {n.timestamp.toLocaleString()}
+                              </span></>}
+                              style={{marginBottom: "8px"}} />
+                          {n.description}
                       </List.Item>
                   )} />
         );

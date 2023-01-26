@@ -12,7 +12,9 @@ import { readFromLocalStorage } from "../../utils/localStorageUtils";
 import { DEFAULT_OTHER_THRESHOLD_PERCENTAGE } from "../../constants";
 
 import {
+    PERFORM_GET_GOHAN_VARIANTS_OVERVIEW,
     PERFORM_SEARCH,
+    SET_IS_SUBMITTING_SEARCH,
     PERFORM_INDIVIDUAL_CSV_DOWNLOAD,
     ADD_DATA_TYPE_QUERY_FORM,
     REMOVE_DATA_TYPE_QUERY_FORM,
@@ -29,6 +31,7 @@ import {
 // TODO: Could this somehow be combined with discovery?
 export const explorer = (
     state = {
+        variantsOverviewResponse: {},
         dataTypeFormsByDatasetID: {},
         fetchingSearchByDatasetID: {},
         searchResultsByDatasetID: {},
@@ -36,6 +39,7 @@ export const explorer = (
         tableSortOrderByDatasetID: {},
         isFetchingDownload: false,
         fetchingTextSearch: false,
+        isSubmittingSearch: false,
 
         autoQuery: {
             isAutoQuery: false,
@@ -47,6 +51,11 @@ export const explorer = (
     action
 ) => {
     switch (action.type) {
+        case PERFORM_GET_GOHAN_VARIANTS_OVERVIEW.RECEIVE:
+            return {
+                ...state,
+                variantsOverviewResponse: action.data
+            };
         case PERFORM_SEARCH.REQUEST:
             return {
                 ...state,
@@ -77,6 +86,12 @@ export const explorer = (
                     ...state.fetchingSearchByDatasetID,
                     [action.datasetID]: false,
                 },
+            };
+
+        case SET_IS_SUBMITTING_SEARCH:
+            return {
+                ...state,
+                isSubmittingSearch: action.isSubmittingSearch
             };
 
         case PERFORM_INDIVIDUAL_CSV_DOWNLOAD.REQUEST:

@@ -55,7 +55,7 @@
     "watch": "npx webpack --watch --mode development",
     "build": "npx webpack --mode production",
     "build-dev": "npx webpack --mode development",
-    "start": "npx webpack serve --mode development"
+    "start": "npx webpack serve --mode development --no-web-socket-server"
   },
   "repository": {
     "type": "git",

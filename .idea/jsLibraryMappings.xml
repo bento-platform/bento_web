@@ -1,7 +1,0 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<project version="4">
-  <component name="JavaScriptLibraryMappings">
-    <file url="file://$PROJECT_DIR$/src" libraries="{@types/prop-types, @types/react, @types/react-dom, @types/react-redux, @types/react-router-dom}" />
-    <file url="PROJECT" libraries="{@types/react-redux, @types/react-router, @types/react-router-dom}" />
-  </component>
-</project>

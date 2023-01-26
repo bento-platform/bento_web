@@ -11,14 +11,14 @@ import {nop} from "../../utils/misc";
 import {OP_EQUALS} from "../../utils/search";
 import {getFieldSchema} from "../../utils/schema";
 
-import { neutralizeAutoQueryPageTransition } from "../../modules/explorer/actions";
+import { neutralizeAutoQueryPageTransition, setIsSubmittingSearch } from "../../modules/explorer/actions";
 
 class DiscoveryQueryBuilder extends Component {
     constructor(props) {
         super(props);
 
         this.state = {
-            schemasModalShown: false
+            schemasModalShown: false,
         };
 
         this.handleSubmit = this.handleSubmit.bind(this);
@@ -84,6 +84,8 @@ class DiscoveryQueryBuilder extends Component {
     }
 
     handleSubmit = async () => {
+        this.props.setIsSubmittingSearch(true);
+
         try {
             await Promise.all(Object.entries(this.forms).filter(f => f[1]).map(([_dt, f]) =>
                 new Promise((resolve, reject) => {
@@ -99,7 +101,11 @@ class DiscoveryQueryBuilder extends Component {
             (this.props.onSubmit ?? nop)();
         } catch (err) {
             console.error(err);
+        } finally {
+            // done whether error caught or not
+            this.props.setIsSubmittingSearch(false);
         }
+
     };
 
     handleFormChange(dataType, fields) {
@@ -231,6 +237,7 @@ DiscoveryQueryBuilder.propTypes = {
     neutralizeAutoQueryPageTransition: PropTypes.func,
 
     onSubmit: PropTypes.func,
+    setIsSubmittingSearch: PropTypes.func
 };
 
 const mapStateToProps = state => ({
@@ -245,4 +252,10 @@ const mapStateToProps = state => ({
         || Object.keys(state.serviceDataTypes.dataTypesByServiceID).length === 0,
 });
 
-export default connect(mapStateToProps, {neutralizeAutoQueryPageTransition})(DiscoveryQueryBuilder);
+const mapDispatchToProps = (dispatch) => ({
+    neutralizeAutoQueryPageTransition: () => dispatch(neutralizeAutoQueryPageTransition()),
+    setIsSubmittingSearch: (isSubmittingSearch) => dispatch(setIsSubmittingSearch(isSubmittingSearch))
+});
+
+
+export default connect(mapStateToProps, mapDispatchToProps)(DiscoveryQueryBuilder);

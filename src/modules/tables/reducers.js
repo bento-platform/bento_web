@@ -10,17 +10,19 @@ export const tableSummaries = (
     switch (action.type) {
         case FETCH_TABLE_SUMMARY.REQUEST:
             return {...state, isFetching: true};
-        case FETCH_TABLE_SUMMARY.RECEIVE:
+        case FETCH_TABLE_SUMMARY.RECEIVE: {
+            const {serviceInfo: {type: {artifact}}, tableID, data} = action;
             return {
                 ...state,
                 summariesByServiceArtifactAndTableID: {
                     ...state.summariesByServiceArtifactAndTableID,
-                    [action.chordService.type.artifact]: {
-                        ...(state.summariesByServiceArtifactAndTableID[action.chordService.type.artifact] || {}),
-                        [action.tableID]: action.data,
+                    [artifact]: {
+                        ...(state.summariesByServiceArtifactAndTableID[artifact] || {}),
+                        [tableID]: data,
                     }
                 }
             };
+        }
         case FETCH_TABLE_SUMMARY.FINISH:
             return {...state, isFetching: false};
         default:

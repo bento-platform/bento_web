@@ -100,7 +100,7 @@ export const fetchVariantTableSummaries = () => async (dispatch, getState) => {
     if (chordService) {
         for (const table of getState().projectTables.items) {
             if (table.service_artifact === "variant") {
-                await dispatch(fetchTableSummaryIfPossible(chordService,
+                await dispatch(fetchTableSummaryIfPossible(
                     {url: withBasePath("api/variant")}, table.table_id));
             }
         }
@@ -369,6 +369,7 @@ const deleteProjectTable = (project, table) => async (dispatch, getState) => {
 
     // Delete from service
     try {
+        console.debug(`deleting table ${table.table_id}`);
         const serviceResponse = await fetch(`${serviceInfo.url}/tables/${table.table_id}`, {method: "DELETE"});
         if (!serviceResponse.ok) return handleFailure(serviceResponse);
     } catch (e) {
@@ -377,14 +378,19 @@ const deleteProjectTable = (project, table) => async (dispatch, getState) => {
 
     // Delete from project metadata
     try {
-        const projectResponse = await fetch(
-            `${getState().services.metadataService.url}/api/table_ownership/${table.table_id}`,
-            {method: "DELETE"}
-        );
+        if ((serviceInfo.bento?.serviceKind ?? serviceInfo.type.artifact) !== "metadata") {
+            // Only manually delete the table ownership record if we're not deleting from Katsu, since Katsu
+            // handles its own table ownership deletion.
 
-        if (!projectResponse.ok) {
-            // TODO: Handle partial failure / out-of-sync
-            return handleFailure(projectResponse);
+            const projectResponse = await fetch(
+                `${getState().services.metadataService.url}/api/table_ownership/${table.table_id}`,
+                {method: "DELETE"},
+            );
+
+            if (!projectResponse.ok) {
+                // TODO: Handle partial failure / out-of-sync
+                return handleFailure(projectResponse);
+            }
         }
     } catch (e) {
         // TODO: Handle partial failure / out-of-sync
@@ -403,15 +409,7 @@ export const deleteProjectTableIfPossible = (project, table) => (dispatch, getSt
     if (getState().projectTables.isDeleting) return;
 
     const serviceType = getState().services.itemsByID[table.service_id].type;
-
-    // Backwards compatibility for:
-    // - old type ("group:artifact:version")
-    // - and new  ({"group": "...", "artifact": "...", "version": "..."})
-    const serviceArtifact = (typeof serviceType === "string")
-        ? serviceType.split(":")[1]
-        : serviceType.artifact;
-
-    const chordServiceInfo = getState().chordServices.itemsByArtifact[serviceArtifact];
+    const chordServiceInfo = getState().chordServices.itemsByArtifact[serviceType.artifact];
     if (chordServiceInfo.manageable_tables === false) {
         // If manageable_tables is set and not true, we can't delete the table.
         return;

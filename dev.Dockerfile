@@ -1,10 +1,19 @@
+FROM --platform=$BUILDPLATFORM node:18-bullseye-slim AS install
+
+WORKDIR /web
+
+COPY package.json .
+COPY package-lock.json .
+
+RUN npm ci
+
 FROM node:18-bullseye-slim
 
 WORKDIR /web
 
-COPY package.json package.json
-COPY package-lock.json package-lock.json
+COPY package.json .
+COPY package-lock.json .
 
-RUN npm ci
+COPY --from=install /web/node_modules ./node_modules
 
 ENTRYPOINT [ "sh", "./entrypoint.dev.sh" ]

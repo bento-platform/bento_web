@@ -5,7 +5,7 @@ import pkg from "../../package.json";
 
 import BentoLogo from "../images/logo_colour.svg";
 
-const BENTO_LOGO_WIDTH = "125px";
+const BENTO_LOGO_WIDTH = "148px";
 
 const SiteFooter = React.memo(() => (
     <Layout.Footer>
