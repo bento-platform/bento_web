@@ -34,7 +34,7 @@ const LocusSearch = ({assemblyId, addVariantSearchValues, handleLocusChange, set
         const start = Number(result[2]);
         const end = Number(result[3]);
 
-        addVariantSearchValues({chrom: chrom, start: start, end: end});
+        addVariantSearchValues({chrom, start, end});
     };
 
     const handleChange = (value) => {
@@ -81,7 +81,7 @@ const LocusSearch = ({assemblyId, addVariantSearchValues, handleLocusChange, set
         }
 
         const {chrom, start, end} = locus;
-        addVariantSearchValues({chrom: chrom, start: start, end: end});
+        addVariantSearchValues({chrom, start, end});
         handleLocusChange(locus);
     };
 
@@ -103,7 +103,7 @@ const LocusSearch = ({assemblyId, addVariantSearchValues, handleLocusChange, set
           <Option
             key={`${g.name}_${g.assemblyId}`}
 
-            //add suffix to selection text to distinguish from user text
+            //add suffix to selection text to distinguish from user text, this text is not shown
             value={`${g.name}_${g.assemblyId}_autocomplete_option`}  
 
             label={`${g.name} chrom: ${g.chrom}`}
