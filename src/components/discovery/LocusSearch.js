@@ -98,8 +98,7 @@ const LocusSearch = ({assemblyId, addVariantSearchValues, handleLocusChange, set
             return;
         }
 
-        const {chrom, start, end} = locus;
-        addVariantSearchValues({chrom, start, end});
+        addVariantSearchValues(locus);
         handleLocusChange(locus);
     };
 
@@ -125,7 +124,7 @@ const LocusSearch = ({assemblyId, addVariantSearchValues, handleLocusChange, set
             value={`${g.name}_${g.assemblyId}_autocomplete_option`}
 
             label={`${g.name} chrom: ${g.chrom}`}
-            locus={g}
+            locus={{"chrom": g.chrom, "start": g.start, "end": g.end}}
             // style={optionStyle}
           >{geneDropdownText(g)}</Option>
         ))}
