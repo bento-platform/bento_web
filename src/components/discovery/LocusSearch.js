@@ -83,9 +83,9 @@ const LocusSearch = ({assemblyId, addVariantSearchValues, handleLocusChange, set
         }
 
         if (isPositionNotation) {
-            const {chrom, start, end} = parsePosition(inputValue);
-            handleLocusChange({chrom, start, end});
-            addVariantSearchValues({chrom, start, end});
+            const position = parsePosition(inputValue);
+            handleLocusChange(position);
+            addVariantSearchValues(position);
         }
     };
 
