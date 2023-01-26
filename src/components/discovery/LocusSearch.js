@@ -16,7 +16,7 @@ const geneDropdownText = (g) => {
 const LocusSearch = ({assemblyId, addVariantSearchValues, handleLocusChange, setLocusValidity}) => {
     const [autoCompleteOptions, setAutoCompleteOptions] = useState([]);
     const geneSearchResults = useSelector((state) => state.discovery.geneNameSearchResponse);
-    const [inputValue, setInputValue] = useState("")
+    const [inputValue, setInputValue] = useState("");
     const dispatch = useDispatch();
 
     const showAutoCompleteOptions = assemblyId === "GRCh37" || assemblyId === "GRCh38";
@@ -27,23 +27,28 @@ const LocusSearch = ({assemblyId, addVariantSearchValues, handleLocusChange, set
 
         if (!result) {
             setLocusValidity(false);
-            return;
+            return {chrom: null, start: null, end: null};
         }
 
         const chrom = result[1].toUpperCase(); //for eg 'x', has no effect on numbers
         const start = Number(result[2]);
         const end = Number(result[3]);
 
+        return {chrom, start, end};
+    };
+
+    const handlePositionNotation = (value) => {
+        const {chrom, start, end} = parsePosition(value);
+        setLocusValidity(chrom && start && end);
         addVariantSearchValues({chrom, start, end});
     };
 
     const handleChange = (value) => {
 
-        setInputValue(value)
+        setInputValue(value);
 
-        // handle position notation
         if (value.includes(":")) {
-            parsePosition(value);
+            handlePositionNotation(value);
 
             // let user finish typing position before showing error
             setLocusValidity(true);
@@ -61,18 +66,32 @@ const LocusSearch = ({assemblyId, addVariantSearchValues, handleLocusChange, set
 
     const handleOnBlur = () => {
         // antd has no "select on tab" option
-        // so make sure when tabbing away that current value is not bare user text
-        if (!inputValue.endsWith("_autocomplete_option")){
-            handleLocusChange({chrom: null, start: null, end: null})
-            addVariantSearchValues({chrom: null, start: null, end: null});
-            return
-        } 
+        // so when tabbing away, handle the current contents of the input
+        // input can be one of three cases:
+        // - an autocomplete selection
+        // - position notation
+        // - incorrect
 
-        handleLocusChange(currentLocus);
+        // incorrect values are passed as null for handling elsewhere
+
+        const isAutoCompleteOption = inputValue.endsWith("_autocomplete_option");
+        const isPositionNotation = inputValue.includes(":");
+
+        if (!(isAutoCompleteOption || isPositionNotation)) {
+            handleLocusChange({chrom: null, start: null, end: null});
+            addVariantSearchValues({chrom: null, start: null, end: null});
+            return;
+        }
+
+        if (isPositionNotation) {
+            const {chrom, start, end} = parsePosition(inputValue);
+            handleLocusChange({chrom, start, end});
+            addVariantSearchValues({chrom, start, end});
+        }
     };
 
     const handleSelect = (value, options) => {
-        setInputValue(value)
+        setInputValue(value);
         const locus = options.props?.locus;
 
     // may not need error checking here, since this is user selection, not user input
@@ -104,7 +123,7 @@ const LocusSearch = ({assemblyId, addVariantSearchValues, handleLocusChange, set
             key={`${g.name}_${g.assemblyId}`}
 
             //add suffix to selection text to distinguish from user text, this text is not shown
-            value={`${g.name}_${g.assemblyId}_autocomplete_option`}  
+            value={`${g.name}_${g.assemblyId}_autocomplete_option`}
 
             label={`${g.name} chrom: ${g.chrom}`}
             locus={g}
