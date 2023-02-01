@@ -4,6 +4,8 @@ FROM --platform=$BUILDPLATFORM node:18-bullseye-slim AS build
 #  - Use BUILDPLATFORM for running webpack, since it should perform a lot better.
 #  - Then, the resulting built files will be copied to a TARGETPLATFORM-based final image.
 
+RUN mkdir -p /tmp/npm && npm config set cache /tmp/npm --global
+
 WORKDIR /web
 
 COPY package.json .

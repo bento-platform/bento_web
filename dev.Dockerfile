@@ -1,5 +1,7 @@
 FROM --platform=$BUILDPLATFORM node:18-bullseye-slim AS install
 
+RUN mkdir -p /tmp/npm && npm config set cache /tmp/npm --global
+
 WORKDIR /web
 
 COPY package.json .
