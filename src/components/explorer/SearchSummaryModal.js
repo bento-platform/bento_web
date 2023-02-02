@@ -14,14 +14,11 @@ const serializeBarChartData = (data) => Object.entries(data).map(([key, value]) 
 
 
 const SearchSummaryModal = ({ searchResults, ...props }) => {
-    const [isFetching, setIsFetching] = useState(false);
     const [data, setData] = useState(null);
 
     const katsuUrl = useSelector((state) => state.services.itemsByArtifact.metadata.url);
 
     useEffect(() => {
-        setIsFetching(true);
-
         const myHeaders = new Headers();
         myHeaders.append("Content-Type", "application/json");
 
@@ -47,12 +44,12 @@ const SearchSummaryModal = ({ searchResults, ...props }) => {
             })
             .catch((error) => console.log("error", error));
     }, [searchResults]);
-    // return <div>hi</div>
+
     return data ? (
         <Modal title="Search Results" {...props} width={MODAL_WIDTH} footer={null} style={{ padding: "10px" }}>
             <Row gutter={16} style={{ display: "flex", flexWrap: "wrap" }}>
                 <Col span={7}>
-                    <Statistic title="Individuals" value={"fill this"} />
+                    <Statistic title="Individuals" value={data.individuals.count} />
                 </Col>
                 <Col span={7}>
                     <Statistic title="Biosamples" value={data.biosamples.count} />
@@ -73,14 +70,14 @@ const SearchSummaryModal = ({ searchResults, ...props }) => {
                             chartAspectRatio={CHART_ASPECT_RATIO}
                         />
                     </Col>
-                    {/*<Col span={12} style={{ textAlign: "center" }}>*/}
-                    {/*    <CustomPieChart*/}
-                    {/*        title="Diseases"*/}
-                    {/*        data={serializePieChartData(data.diseases)}*/}
-                    {/*        chartHeight={CHART_HEIGHT}*/}
-                    {/*        chartAspectRatio={CHART_ASPECT_RATIO}*/}
-                    {/*    />*/}
-                    {/*</Col>*/}
+                    <Col span={12} style={{ textAlign: "center" }}>
+                        <CustomPieChart
+                            title="Diseases"
+                            data={serializePieChartData(data.diseases.term)}
+                            chartHeight={CHART_HEIGHT}
+                            chartAspectRatio={CHART_ASPECT_RATIO}
+                        />
+                    </Col>
                     <Col span={12} style={{ textAlign: "center" }}>
                         <CustomPieChart
                             title="Phenotypic Features"
