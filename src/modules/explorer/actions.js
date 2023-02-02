@@ -2,8 +2,6 @@ import {createNetworkActionTypes, networkAction} from "../../utils/actions";
 import {jsonRequest} from "../../utils/requests";
 import {extractQueriesFromDataTypeForms} from "../../utils/search";
 
-import FileSaver from "file-saver";
-
 export const PERFORM_GET_GOHAN_VARIANTS_OVERVIEW = createNetworkActionTypes("GET_GOHAN_VARIANTS_OVERVIEW");
 export const PERFORM_SEARCH = createNetworkActionTypes("EXPLORER.PERFORM_SEARCH");
 export const SET_IS_SUBMITTING_SEARCH = "EXPLORER.SET_IS_SUBMITTING_SEARCH";
@@ -60,32 +58,23 @@ export const setIsSubmittingSearch = (isSubmittingSearch) => ({
     isSubmittingSearch
 });
 
+
+const performIndividualsDownloadCSV = networkAction((ids) =>
+    (dispatch, getState) => ({
+        types: PERFORM_INDIVIDUAL_CSV_DOWNLOAD,
+        url: `${getState().services.itemsByArtifact.metadata.url}/api/batch/individuals`,
+        req: jsonRequest({
+            id: ids,
+            format: "csv",
+        }, "POST"),
+        parse: r => r.blob(),
+        err: "Error fetching individuals CSV",
+    }));
+
 export const performIndividualsDownloadCSVIfPossible = (datasetId, individualIds, allSearchResults) =>
-    (dispatch, getState) => {
-
+    (dispatch, _getState) => {
         const ids = individualIds.length ? individualIds : allSearchResults.map(sr => sr.key);
-
-        const myHeaders = new Headers();
-        myHeaders.append("Content-Type", "application/json");
-
-        const raw = JSON.stringify({
-            "id": ids,
-            "format": "csv"
-        });
-
-        const requestOptions = {
-            method: "POST",
-            headers: myHeaders,
-            body: raw,
-            redirect: "follow"
-        };
-
-        fetch(`${getState().services.itemsByArtifact.metadata.url}/api/batch/individuals`, requestOptions)
-            .then(response => response.blob())
-            .then(result => {
-                FileSaver.saveAs(result, "data.csv");
-            })
-            .catch(error => console.log("error", error));
+        return dispatch(performIndividualsDownloadCSV(ids));
     };
 
 
