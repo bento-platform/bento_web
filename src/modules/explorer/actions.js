@@ -2,11 +2,7 @@ import {createNetworkActionTypes, networkAction} from "../../utils/actions";
 import {jsonRequest} from "../../utils/requests";
 import {extractQueriesFromDataTypeForms} from "../../utils/search";
 
-import FileSaver from "file-saver";
-
-export const PERFORM_GET_GOHAN_VARIANTS_OVERVIEW = createNetworkActionTypes("GET_GOHAN_VARIANTS_OVERVIEW");
 export const PERFORM_SEARCH = createNetworkActionTypes("EXPLORER.PERFORM_SEARCH");
-export const SET_IS_SUBMITTING_SEARCH = "EXPLORER.SET_IS_SUBMITTING_SEARCH";
 export const PERFORM_INDIVIDUAL_CSV_DOWNLOAD = createNetworkActionTypes("EXPLORER.PERFORM_INDIVIDUAL_CSV_DOWNLOAD");
 export const ADD_DATA_TYPE_QUERY_FORM = "EXPLORER.ADD_DATA_TYPE_QUERY_FORM";
 export const UPDATE_DATA_TYPE_QUERY_FORM = "EXPLORER.UPDATE_DATA_TYPE_QUERY_FORM";
@@ -16,17 +12,16 @@ export const SET_AUTO_QUERY_PAGE_TRANSITION = "EXPLORER.SET_AUTO_QUERY_PAGE_TRAN
 export const NEUTRALIZE_AUTO_QUERY_PAGE_TRANSITION = "EXPLORER.NEUTRALIZE_AUTO_QUERY_PAGE_TRANSITION";
 export const FREE_TEXT_SEARCH = createNetworkActionTypes("FREE_TEXT_SEARCH");
 export const SET_OTHER_THRESHOLD_PERCENTAGE = "EXPLORER.SET_OTHER_THRESHOLD_PERCENTAGE";
-export const SET_TABLE_SORT_ORDER = "EXPLORER.SET_TABLE_SORT_ORDER";
-export const SET_IGV_POSITION = "EXPLORER.SET_IGV_POSITION";
+export const SET_IS_FETCHING_INDIVIDUALS_CSV = "EXPLORER.SET_IS_FETCHING_INDIVIDUALS_CSV";
 
 const performSearch = networkAction((datasetID, dataTypeQueries, excludeFromAutoJoin = []) =>
     (dispatch, getState) => ({
         types: PERFORM_SEARCH,
-        url: `${getState().services.aggregationService.url}/private/dataset-search/${datasetID}`,
+        url: `${getState().services.federationService.url}/private/dataset-search/${datasetID}`,
         params: {datasetID},
         req: jsonRequest({
             data_type_queries: dataTypeQueries,
-            join_query: null,  // Will be autofilled by the aggregation service
+            join_query: null,  // Will get auto-filled by the federation service,
             exclude_from_auto_join: excludeFromAutoJoin,
         }, "POST"),
         err: "Error performing search",
@@ -54,38 +49,23 @@ export const performSearchIfPossible = (datasetID) => (dispatch, getState) => {
     return dispatch(performSearch(datasetID, dataTypeQueries, excludeFromAutoJoin));
 };
 
-// allows coordination between "real" search form and the variants UI form presented to the user
-export const setIsSubmittingSearch = (isSubmittingSearch) => ({
-    type: SET_IS_SUBMITTING_SEARCH,
-    isSubmittingSearch
-});
+const performIndividualsDownloadCSV = networkAction((ids) =>
+    (dispatch, getState) => ({
+        types: PERFORM_INDIVIDUAL_CSV_DOWNLOAD,
+        url: `${getState().services.itemsByArtifact.metadata.url}/api/batch/individuals`,
+        req: jsonRequest({
+            id: ids,
+            format: "csv",
+        }, "POST"),
+        parse: r => r.blob(),
+        err: "Error fetching individuals CSV",
+    }));
+
 
 export const performIndividualsDownloadCSVIfPossible = (datasetId, individualIds, allSearchResults) =>
-    (dispatch, getState) => {
-
-        const ids = individualIds.length ? individualIds : allSearchResults.map(sr => sr.key);
-
-        const myHeaders = new Headers();
-        myHeaders.append("Content-Type", "application/json");
-
-        const raw = JSON.stringify({
-            "id": ids,
-            "format": "csv"
-        });
-
-        const requestOptions = {
-            method: "POST",
-            headers: myHeaders,
-            body: raw,
-            redirect: "follow"
-        };
-
-        fetch(`${getState().services.itemsByArtifact.metadata.url}/api/batch/individuals`, requestOptions)
-            .then(response => response.blob())
-            .then(result => {
-                FileSaver.saveAs(result, "data.csv");
-            })
-            .catch(error => console.log("error", error));
+    (dispatch, _getState) => {
+        const ids = individualIds.length ? individuaIds : allSearchResults.map(sr => sr.key);
+        return dispatch(performIndividualsDownloadCSV(ids));
     };
 
 
@@ -113,13 +93,6 @@ export const setSelectedRows = (datasetID, selectedRows) => ({
     type: SET_SELECTED_ROWS,
     datasetID,
     selectedRows,
-});
-
-export const setTableSortOrder = (datasetID, sortColumnKey, sortOrder) => ({
-    type: SET_TABLE_SORT_ORDER,
-    datasetID,
-    sortColumnKey,
-    sortOrder,
 });
 
 export const setAutoQueryPageTransition = (priorPageUrl, type, field, value) => ({
@@ -159,25 +132,7 @@ export const setOtherThresholdPercentage = (threshold) => ({
     otherThresholdPercentage: threshold
 });
 
-export const setIgvPosition = (igvPosition) => ({
-    type: SET_IGV_POSITION,
-    igvPosition
+export const setIsFetchingIndividualsCSV = (isFetching) => ({
+    type: SET_IS_FETCHING_INDIVIDUALS_CSV,
+    isFetchingIndividualCSV: isFetching
 });
-
-export const performGetGohanVariantsOverviewIfPossible = () => (dispatch, getState) => {
-    const gohanUrl = getState()?.services?.gohan?.url;
-    const bentoBaseUrl = `${getState().nodeInfo.data.CHORD_URL}`;
-    // bentoBaseUrl can sometimes be undefined at runtime
-    // - check for it and skip this call if so
-    if (!bentoBaseUrl) {
-        return;
-    }
-    const overviewPath = "/variants/overview";
-    const getUrl = gohanUrl ? `${gohanUrl}${overviewPath}` : `${bentoBaseUrl}api/gohan${overviewPath}`;
-    dispatch(performGetGohanVariantsOverview(getUrl));
-};
-const performGetGohanVariantsOverview = networkAction((getUrl) => () => ({
-    types: PERFORM_GET_GOHAN_VARIANTS_OVERVIEW,
-    url: getUrl,
-    err: "error getting Gohan variants overview",
-}));

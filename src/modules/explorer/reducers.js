@@ -12,50 +12,35 @@ import { readFromLocalStorage } from "../../utils/localStorageUtils";
 import { DEFAULT_OTHER_THRESHOLD_PERCENTAGE } from "../../constants";
 
 import {
-    PERFORM_GET_GOHAN_VARIANTS_OVERVIEW,
     PERFORM_SEARCH,
-    SET_IS_SUBMITTING_SEARCH,
     PERFORM_INDIVIDUAL_CSV_DOWNLOAD,
     ADD_DATA_TYPE_QUERY_FORM,
     REMOVE_DATA_TYPE_QUERY_FORM,
     UPDATE_DATA_TYPE_QUERY_FORM,
     SET_SELECTED_ROWS,
-    SET_TABLE_SORT_ORDER,
     SET_AUTO_QUERY_PAGE_TRANSITION,
     NEUTRALIZE_AUTO_QUERY_PAGE_TRANSITION,
     FREE_TEXT_SEARCH,
-    SET_OTHER_THRESHOLD_PERCENTAGE,
-    SET_IGV_POSITION
+    SET_OTHER_THRESHOLD_PERCENTAGE, SET_IS_FETCHING_INDIVIDUALS_CSV
 } from "./actions";
 
 // TODO: Could this somehow be combined with discovery?
 export const explorer = (
     state = {
-        variantsOverviewResponse: {},
         dataTypeFormsByDatasetID: {},
         fetchingSearchByDatasetID: {},
         searchResultsByDatasetID: {},
         selectedRowsByDatasetID: {},
-        tableSortOrderByDatasetID: {},
         isFetchingDownload: false,
-        fetchingTextSearch: false,
-        isSubmittingSearch: false,
-
+        isFetchingIndividualCSV: false,
         autoQuery: {
             isAutoQuery: false,
         },
-        otherThresholdPercentage:
-            readFromLocalStorage("otherThresholdPercentage") ?? DEFAULT_OTHER_THRESHOLD_PERCENTAGE,
-        igvPosition: undefined
+        otherThresholdPercentage: readFromLocalStorage("otherThresholdPercentage") ?? DEFAULT_OTHER_THRESHOLD_PERCENTAGE
     },
     action
 ) => {
     switch (action.type) {
-        case PERFORM_GET_GOHAN_VARIANTS_OVERVIEW.RECEIVE:
-            return {
-                ...state,
-                variantsOverviewResponse: action.data
-            };
         case PERFORM_SEARCH.REQUEST:
             return {
                 ...state,
@@ -86,12 +71,6 @@ export const explorer = (
                     ...state.fetchingSearchByDatasetID,
                     [action.datasetID]: false,
                 },
-            };
-
-        case SET_IS_SUBMITTING_SEARCH:
-            return {
-                ...state,
-                isSubmittingSearch: action.isSubmittingSearch
             };
 
         case PERFORM_INDIVIDUAL_CSV_DOWNLOAD.REQUEST:
@@ -157,18 +136,6 @@ export const explorer = (
                 },
             };
 
-        case SET_TABLE_SORT_ORDER:
-            return {
-                ...state,
-                tableSortOrderByDatasetID: {
-                    ...state.tableSortOrderByDatasetID,
-                    [action.datasetID]: {
-                        sortColumnKey: action.sortColumnKey,
-                        sortOrder: action.sortOrder,
-                    },
-                }
-            };
-
     // Auto-Queries start here ----
         case SET_AUTO_QUERY_PAGE_TRANSITION:
             return {
@@ -195,11 +162,20 @@ export const explorer = (
             };
     //.. and end here.. ----
 
+        case SET_IS_FETCHING_INDIVIDUALS_CSV:
+            return {
+                ...state,
+                isFetchingIndividualCSV: action.isFetchingIndividualCSV
+            };
+
     // free-text search
         case FREE_TEXT_SEARCH.REQUEST:
             return {
                 ...state,
-                fetchingTextSearch: true
+                fetchingSearchByDatasetID: {
+                    ...state.fetchingSearchByDatasetID,
+                    [action.datasetID]: true,
+                },
             };
         case FREE_TEXT_SEARCH.RECEIVE:
             return {
@@ -215,17 +191,15 @@ export const explorer = (
         case FREE_TEXT_SEARCH.FINISH:
             return {
                 ...state,
-                fetchingTextSearch: false
+                fetchingSearchByDatasetID: {
+                    ...state.fetchingSearchByDatasetID,
+                    [action.datasetID]: false,
+                },
             };
         case SET_OTHER_THRESHOLD_PERCENTAGE:
             return {
                 ...state,
                 otherThresholdPercentage: action.otherThresholdPercentage,
-            };
-        case SET_IGV_POSITION:
-            return {
-                ...state,
-                igvPosition: action.igvPosition
             };
 
         default:
