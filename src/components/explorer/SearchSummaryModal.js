@@ -1,3 +1,4 @@
+/* eslint-disable camelcase */
 import React, { useEffect, useState } from "react";
 import { Col, Divider, Modal, Row, Statistic, Typography } from "antd";
 import CustomPieChart from "../overview/CustomPieChart";
