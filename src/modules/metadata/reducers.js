@@ -21,8 +21,6 @@ import {
     PROJECT_TABLE_DELETION,
 
     FETCH_INDIVIDUAL,
-    FETCH_PHENOPACKETS,
-    FETCH_EXPERIMENTS,
 
     FETCH_OVERVIEW_SUMMARY,
 } from "./actions";
@@ -360,62 +358,6 @@ export const individuals = (
                         isFetching: false,
                     },
                 },
-            };
-
-        default:
-            return state;
-    }
-};
-
-
-export const phenopackets = (
-    state = {
-        items: [],
-        isFetching: true
-    },
-    action
-) => {
-    switch (action.type) {
-        case FETCH_PHENOPACKETS.REQUEST:
-            return {
-                ...state, items: [],
-                isFetching: true
-            };
-        case FETCH_PHENOPACKETS.RECEIVE:
-            return {
-                ...state,
-                items: action.data,
-                isFetching: false,
-            };
-        case FETCH_PHENOPACKETS.FINISH:
-            return {
-                ...state,
-                items: state.items,
-                isFetching: false,
-            };
-
-        default:
-            return state;
-    }
-};
-
-export const experiments = (
-    state = {
-        items: [],
-        isFetching: true
-    },
-    action
-) => {
-    switch (action.type) {
-        case FETCH_EXPERIMENTS.REQUEST:
-            return {...state, items: [], isFetching: true };
-        case FETCH_EXPERIMENTS.RECEIVE:
-            return {...state, items: action.data};
-        case FETCH_EXPERIMENTS.FINISH:
-            return {
-                ...state,
-                items: state.items,
-                isFetching: false,
             };
 
         default:

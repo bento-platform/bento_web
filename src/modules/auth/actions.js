@@ -9,7 +9,6 @@ import {
 import {fetchDropBoxTreeOrFail} from "../manager/actions";
 import {
     fetchProjectsWithDatasetsAndTables,
-    fetchVariantTableSummaries,
     fetchOverviewSummary
 } from "../metadata/actions";
 import {fetchNodeInfo} from "../node/actions";
