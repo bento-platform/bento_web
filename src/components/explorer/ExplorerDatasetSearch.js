@@ -154,13 +154,11 @@ class ExplorerDatasetSearch extends Component {
                         <Button icon="bar-chart"
                                 style={{marginRight: "8px"}}
                                 onClick={() => this.setState({summaryModalVisible: true})}>View Summary</Button>
-                        <Spin spinning={this.props.isFetchingDownload} style={{display: "inline-block !important"}}>
-                            <Button icon="export" style={{marginRight: "8px"}}
-                                    disabled={this.props.isFetchingDownload}
-                                    onClick={() => this.props.performIndividualsDownloadCSVIfPossible(
-                                        this.props.selectedRows, this.props.searchResults.searchFormattedResults)}>
-                                Export as CSV</Button>
-                        </Spin>
+                        <Button icon="export" style={{marginRight: "8px"}}
+                                loading={this.props.isFetchingDownload}
+                                onClick={() => this.props.performIndividualsDownloadCSVIfPossible(
+                                    this.props.selectedRows, this.props.searchResults.searchFormattedResults)}>
+                            Export as CSV</Button>
                     </div>
                 </Typography.Title>
                 {this.state.summaryModalVisible &&
