@@ -18,7 +18,7 @@ import App from "./components/App";
 const composeEnhancers = window.__REDUX_DEVTOOLS_EXTENSION_COMPOSE__ || compose;
 export const store = createStore(rootReducer, composeEnhancers(applyMiddleware(thunkMiddleware)));
 
-const BENTO_URL_WITH_TRAILING_SLASH = BENTO_URL.endsWith("/") ? BENTO_URL : `${BENTO_URL}/`;
+const BENTO_URL_WITH_TRAILING_SLASH = BENTO_URL ? (BENTO_URL.endsWith("/") ? BENTO_URL : `${BENTO_URL}/`) : null;
 
 document.addEventListener("DOMContentLoaded", () => {
     const root = document.getElementById("root");

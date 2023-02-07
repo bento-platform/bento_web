@@ -6,6 +6,7 @@ import FileSaver from "file-saver";
 
 export const PERFORM_GET_GOHAN_VARIANTS_OVERVIEW = createNetworkActionTypes("GET_GOHAN_VARIANTS_OVERVIEW");
 export const PERFORM_SEARCH = createNetworkActionTypes("EXPLORER.PERFORM_SEARCH");
+export const SET_IS_SUBMITTING_SEARCH = "EXPLORER.SET_IS_SUBMITTING_SEARCH";
 export const PERFORM_INDIVIDUAL_CSV_DOWNLOAD = createNetworkActionTypes("EXPLORER.PERFORM_INDIVIDUAL_CSV_DOWNLOAD");
 export const ADD_DATA_TYPE_QUERY_FORM = "EXPLORER.ADD_DATA_TYPE_QUERY_FORM";
 export const UPDATE_DATA_TYPE_QUERY_FORM = "EXPLORER.UPDATE_DATA_TYPE_QUERY_FORM";
@@ -52,6 +53,12 @@ export const performSearchIfPossible = (datasetID) => (dispatch, getState) => {
 
     return dispatch(performSearch(datasetID, dataTypeQueries, excludeFromAutoJoin));
 };
+
+// allows coordination between "real" search form and the variants UI form presented to the user
+export const setIsSubmittingSearch = (isSubmittingSearch) => ({
+    type: SET_IS_SUBMITTING_SEARCH,
+    isSubmittingSearch
+});
 
 export const performIndividualsDownloadCSVIfPossible = (datasetId, individualIds, allSearchResults) =>
     (dispatch, getState) => {

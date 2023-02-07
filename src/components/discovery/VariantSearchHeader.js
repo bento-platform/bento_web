@@ -7,19 +7,28 @@ import { useSelector } from "react-redux";
 import { notAlleleCharactersRegex } from "../../utils/misc";
 
 const VariantSearchHeader = ({dataType, addVariantSearchValues}) => {
-  // local state
-  // Declare a state variable and a function to update it
     const [refFormReceivedValidKeystroke, setRefFormReceivedValidKeystroke ] = useState(true);
     const [altFormReceivedValidKeystroke , setAltFormReceivedValidKeystroke ] = useState(true);
+    const [activeRefValue, setActiveRefValue] = useState(null);
+    const [activeAltValue, setActiveAltValue] = useState(null);
+    const [assemblyId, setAssemblyId] = useState(null);
+    const [locus, setLocus] = useState({chrom: null, start: null, end: null});
+    const isSubmitting = useSelector(state => state.explorer.isSubmittingSearch);
 
+    // begin with required fields considered valid, so user isn't assaulted with error messages
+    const initialValidity = {
+        "assemblyId": true,
+        "locus": true,
+    };
 
-  // global state vars
-    const varOvRes = useSelector((state) => state.explorer.variantsOverviewResponse);
-    const ovAsmIds = varOvRes?.assemblyIDs !== undefined ? Object.keys(varOvRes?.assemblyIDs) : [];
+    const [fieldsValidity, setFieldsValidity] = useState(initialValidity);
 
+    const variantsOverviewResults = useSelector((state) => state.explorer.variantsOverviewResponse);
+    const hasAssemblyIds =
+        variantsOverviewResults?.assemblyIDs !== undefined &&
+        !variantsOverviewResults?.assemblyIDs.hasOwnProperty("error");
+    const overviewAssemblyIds = hasAssemblyIds ? Object.keys(variantsOverviewResults?.assemblyIDs) : [];
 
-  // or default to GRCh37?
-    const [lookupAssemblyId, setLookupAssemblyId] = useState(null);
     const assemblySchema = dataType.schema?.properties?.assembly_id;
     const genotypeSchema = dataType.schema?.properties?.calls?.items?.properties?.genotype_type;
 
@@ -27,19 +36,57 @@ const VariantSearchHeader = ({dataType, addVariantSearchValues}) => {
     const labelCol = {lg: { span: 24 }, xl: { span: 4 }, xxl: { span: 3 }};
     const wrapperCol = {lg: { span: 24 }, xl: { span: 20 }, xxl: { span: 18 }};
 
-    // obtain ref and alt values from state
-    const form = useSelector(state =>
-        state.explorer?.dataTypeFormsByDatasetID[Object.keys(state.explorer.dataTypeFormsByDatasetID)[0]]);
-    const activeRefValue = form[0].formValues?.conditions === undefined ? "" : form[0].formValues.conditions.filter(c =>
-        c.value.field === "[dataset item].reference"
-    )[0].value.searchValue;
-    const activeAltValue = form[0].formValues?.conditions === undefined ? "" : form[0].formValues.conditions.filter(c =>
-        c.value.field === "[dataset item].alternative"
-    )[0].value.searchValue;
-    const handleAssemblyIdChange = (value) => {
+    const helpText = {
+        "assemblyId": assemblySchema?.description,
+        "genotype": genotypeSchema?.description,
+        "locus": "Enter gene name (eg \"BRCA1\") or position (\"chr17:41195311-41278381\")",
+        "ref/alt": "Combination of nucleotides A, C, T, and G, including N as a wildcard - i.e. AATG, CG, TNN"
+    };
 
+    // custom validation since this form isn't submitted, it's just used to fill fields in hidden form
+    // each field is validated invididually elsewhere
+    // for final validation, we only need to make sure required fields are non-empty
+    const validateVariantSearchForm = () => {
+
+      // check assembly
+        if (!assemblyId) {
+        // change assemblyId helptext & outline
+            setFieldsValidity({...fieldsValidity, "assemblyId": false});
+        }
+
+        // check locus
+        const {chrom, start, end} = locus;
+        if (!chrom || !start || !end) {
+        // change locus helptext & outline
+            setFieldsValidity({...fieldsValidity, "locus": false});
+        }
+    };
+
+    useEffect(() => {
+        if (isSubmitting) {
+            validateVariantSearchForm();
+        }
+    }, [isSubmitting]);
+
+
+    const isValidLocus = (locus) => {
+        return locus.chrom !== null  && locus.start !== null && locus.end !== null;
+    };
+
+    const setLocusValidity = (isValid) => {
+        setFieldsValidity({...fieldsValidity, "locus": isValid});
+    };
+
+    const handleLocusChange = (locus) => {
+        setLocusValidity(isValidLocus(locus));
+
+        // set even if invalid so we don't keep old values
+        setLocus(locus);
+    };
+
+    const handleAssemblyIdChange = (value) => {
         addVariantSearchValues({assemblyId: value});
-        setLookupAssemblyId(value);
+        setAssemblyId(value);
     };
 
     const handleGenotypeChange = (value) => {
@@ -57,8 +104,10 @@ const VariantSearchHeader = ({dataType, addVariantSearchValues}) => {
                 setRefFormReceivedValidKeystroke(true);
             }, 1000);
         }
+        setActiveRefValue(validatedRef);
         addVariantSearchValues({ref: validatedRef});
     };
+
     const handleAltChange = (e) => {
         const latestInputValue = e.target.value;
         const validatedAlt = validateAlleleText(latestInputValue);
@@ -70,6 +119,8 @@ const VariantSearchHeader = ({dataType, addVariantSearchValues}) => {
                 setAltFormReceivedValidKeystroke(true);
             }, 1000);
         }
+
+        setActiveAltValue(validatedAlt);
         addVariantSearchValues({alt: validatedAlt});
     };
 
@@ -85,7 +136,7 @@ const VariantSearchHeader = ({dataType, addVariantSearchValues}) => {
     };
 
     // set default selected assemblyId if only 1 is present
-    const shouldTriggerAssemblyIdChange = ovAsmIds.length === 1;
+    const shouldTriggerAssemblyIdChange = overviewAssemblyIds.length === 1;
     useEffect(() => {
         if (shouldTriggerAssemblyIdChange) {
             // wait some time before
@@ -93,45 +144,50 @@ const VariantSearchHeader = ({dataType, addVariantSearchValues}) => {
             // allow for the form and formValues
             // in the parent element to populate
             setTimeout(function() {
-                handleAssemblyIdChange(ovAsmIds[0]);
+                handleAssemblyIdChange(overviewAssemblyIds[0]);
             }, 500);
         }
     }, [shouldTriggerAssemblyIdChange]);
 
-// Select needs
-// style
-// getSearchValue ??
 
     return (<>
     <Form.Item
       labelCol={labelCol}
       wrapperCol={wrapperCol}
       label={"Assembly ID"}
-      help={assemblySchema.description}
+      help={helpText["assemblyId"]}
+      validateStatus={fieldsValidity.assemblyId ? "success" : "error"}
+      required
     >
       <Select
         onChange={handleAssemblyIdChange}
-        defaultValue={ovAsmIds && shouldTriggerAssemblyIdChange && ovAsmIds[0]}
+        defaultValue={overviewAssemblyIds && shouldTriggerAssemblyIdChange && overviewAssemblyIds[0]}
       >
-       {ovAsmIds.map(v => <Select.Option key={v} value={v}>{v}</Select.Option>)}
+       {overviewAssemblyIds.map(v => <Select.Option key={v} value={v}>{v}</Select.Option>)}
       </Select>
     </Form.Item>
     <Form.Item
         labelCol={labelCol}
         wrapperCol={wrapperCol}
         label={"Gene / position"}
-        help={"Enter gene name (eg \"BRCA1\") or position (\"chr17:41195311-41278381\")"}
+        help={helpText["locus"]}
+        validateStatus={fieldsValidity.locus ? "success" : "error"}
+        required
     >
-      <LocusSearch assemblyId={lookupAssemblyId} addVariantSearchValues={addVariantSearchValues} />
+      <LocusSearch assemblyId={assemblyId}
+                   addVariantSearchValues={addVariantSearchValues}
+                   handleLocusChange={handleLocusChange}
+                   setLocusValidity={setLocusValidity}/>
     </Form.Item>
     <Form.Item
       labelCol={labelCol}
       wrapperCol={wrapperCol}
       label={"Genotype"}
-      help={genotypeSchema.description}
+      help={helpText["genotype"]}
     >
       <Select
         onChange={handleGenotypeChange}
+        allowClear
       >
        {genotypeSchema.enum.map(v => <Select.Option key={v} value={v}>{v}</Select.Option>)}
       </Select>
@@ -140,7 +196,7 @@ const VariantSearchHeader = ({dataType, addVariantSearchValues}) => {
       labelCol={labelCol}
       wrapperCol={wrapperCol}
       label={"Reference Allele"}
-      help={"Combination of nucleotides A, C, T, and G, including N as a wildcard - i.e. AATG, CG, TNN"}
+      help={helpText["ref/alt"]}
     >
       <Input
         onChange={handleRefChange}
@@ -152,7 +208,7 @@ const VariantSearchHeader = ({dataType, addVariantSearchValues}) => {
       labelCol={labelCol}
       wrapperCol={wrapperCol}
       label={"Alternate Allele"}
-      help={"Combination of nucleotides A, C, T, and G, including N as a wildcard - i.e. AATG, CG, TNN"}
+      help={helpText["ref/alt"]}
     >
       <Input
         onChange={handleAltChange}
