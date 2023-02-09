@@ -1,6 +1,9 @@
-#!/bin/sh
+#!/bin/bash
 
-if [ -z "${BENTO_WEB_PORT}" ]; then
+# Set .gitconfig for development
+/set_gitconfig.bash
+
+if [[ -z "${BENTO_WEB_PORT}" ]]; then
   # Set default internal port to 80
   export BENTO_WEB_PORT=80
 fi
