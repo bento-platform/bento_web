@@ -14,7 +14,6 @@ RUN npm ci
 # Explicitly choose what to copy to speed up builds
 #  - Copy in build requirements
 COPY .babelrc .
-COPY create_service_info.js .
 COPY webpack.config.js .
 #  - Copy in source code
 COPY src src
@@ -31,7 +30,9 @@ COPY nginx.conf /etc/nginx/nginx.conf
 WORKDIR /web
 # Copy webpack-built source code from the build stage to the final image
 COPY --from=build /web/dist ./dist
-# Copy in the entrypoint, which writes the config file and
+# Copy in the service info generator
+COPY create_service_info.js .
+# Copy in the entrypoint, which writes the config file and starts NGINX
 COPY entrypoint.bash .
 # Copy in LICENSE so that people can see it if they explore the image contents
 COPY LICENSE .
