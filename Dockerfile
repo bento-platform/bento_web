@@ -25,6 +25,10 @@ RUN npm run build
 
 FROM nginx:1.23
 
+RUN curl -fsSL https://deb.nodesource.com/setup_18.x | sudo -E bash - && \
+    apt-get update -y && \
+    apt-get install nodejs
+
 # Serve bento_web with NGINX; copy in configuration
 COPY nginx.conf /etc/nginx/nginx.conf
 
