@@ -7,7 +7,26 @@ import fetch from "cross-fetch";
 
 import {Light as SyntaxHighlighter} from "react-syntax-highlighter";
 import {a11yLight} from "react-syntax-highlighter/dist/cjs/styles/hljs";
+
+import ReactJson from "react-json-view";
+
 import {json, markdown, plaintext} from "react-syntax-highlighter/dist/cjs/languages/hljs";
+
+import {Button, Dropdown, Empty, Icon, Layout, Menu, Modal, Spin, Tree} from "antd";
+
+
+import {LAYOUT_CONTENT_STYLE} from "../../styles/layoutContent";
+import TableSelectionModal from "./TableSelectionModal";
+
+import {STEP_INPUT} from "./ingestion";
+import {withBasePath} from "../../utils/url";
+import {
+    dropBoxTreeStateToPropsMixin,
+    dropBoxTreeStateToPropsMixinPropTypes,
+    workflowsStateToPropsMixin,
+    workflowsStateToPropsMixinPropTypes
+} from "../../propTypes";
+
 
 SyntaxHighlighter.registerLanguage("json", json);
 SyntaxHighlighter.registerLanguage("markdown", markdown);
@@ -23,22 +42,6 @@ const LANGUAGE_HIGHLIGHTERS = {
     "README": "plaintext",
     "CHANGELOG": "plaintext",
 };
-
-import {Button, Dropdown, Empty, Icon, Layout, Menu, Modal, Spin, Tree} from "antd";
-
-
-
-import {LAYOUT_CONTENT_STYLE} from "../../styles/layoutContent";
-import TableSelectionModal from "./TableSelectionModal";
-
-import {STEP_INPUT} from "./ingestion";
-import {withBasePath} from "../../utils/url";
-import {
-    dropBoxTreeStateToPropsMixin,
-    dropBoxTreeStateToPropsMixinPropTypes,
-    workflowsStateToPropsMixin,
-    workflowsStateToPropsMixinPropTypes
-} from "../../propTypes";
 
 
 const sortByName = (a, b) => a.name.localeCompare(b.name);
@@ -228,16 +231,25 @@ class ManagerFilesContent extends Component {
                 {/* TODO: v0.2: Don't hard-code replace */}
                 <Modal visible={this.state.fileContentsModal}
                        title={selectedFile.replace("/chord/data/drop-box", "")}
-                       width={800}
+                       width={960}
                        footer={null}
                        onCancel={this.hideFileContentsModal}>
                     <Spin spinning={this.state.loadingFileContents}>
-                        <SyntaxHighlighter language={LANGUAGE_HIGHLIGHTERS[`.${selectedFileType}`]}
-                                           style={a11yLight}
-                                           customStyle={{fontSize: "12px"}}
-                                           showLineNumbers={true}>
-                            {this.state.fileContents[selectedFile] || ""}
-                        </SyntaxHighlighter>
+                        {selectedFileType === "json" ? (
+                            <ReactJson
+                                src={JSON.parse(this.state.fileContents[selectedFile] || "{}")}
+                                displayDataTypes={false}
+                            />
+                        ) : (
+                            <SyntaxHighlighter
+                                language={LANGUAGE_HIGHLIGHTERS[`.${selectedFileType}`]}
+                                style={a11yLight}
+                                customStyle={{fontSize: "12px"}}
+                                showLineNumbers={true}
+                            >
+                                {this.state.fileContents[selectedFile] || ""}
+                            </SyntaxHighlighter>
+                        )}
                     </Spin>
                 </Modal>
                 <div style={{marginBottom: "1em"}}>
