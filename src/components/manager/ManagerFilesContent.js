@@ -239,6 +239,8 @@ class ManagerFilesContent extends Component {
                             <ReactJson
                                 src={JSON.parse(this.state.fileContents[selectedFile] || "{}")}
                                 displayDataTypes={false}
+                                enableClipboard={false}
+                                name={null}
                             />
                         ) : (
                             <SyntaxHighlighter

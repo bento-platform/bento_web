@@ -2,7 +2,9 @@ import React, {Component} from "react";
 import {connect} from "react-redux";
 import PropTypes from "prop-types";
 
-import {Layout, Skeleton, Typography} from "antd";
+import {Col, Layout, Row, Skeleton, Typography} from "antd";
+
+import ReactJson from "react-json-view";
 
 import {LAYOUT_CONTENT_STYLE} from "../../styles/layoutContent";
 
@@ -15,10 +17,26 @@ class ServiceOverview extends Component {
 
         return loading ? <Skeleton /> : <Layout>
             <Layout.Content style={LAYOUT_CONTENT_STYLE}>
-                <Typography.Title level={4}>Service Info</Typography.Title>
-                <pre>{JSON.stringify(serviceInfo, null, 2)}</pre>
-                <Typography.Title level={4}>Bento Service Configuration</Typography.Title>
-                <pre>{JSON.stringify(bentoServiceInfo, null, 2)}</pre>
+                <Row>
+                    <Col span={12}>
+                        <Typography.Title level={4}>Service Info</Typography.Title>
+                        <ReactJson
+                            src={serviceInfo ?? {}}
+                            displayDataTypes={false}
+                            enableClipboard={false}
+                            name={null}
+                        />
+                    </Col>
+                    <Col span={12}>
+                        <Typography.Title level={4}>Bento Service Configuration</Typography.Title>
+                        <ReactJson
+                            src={bentoServiceInfo ?? {}}
+                            displayDataTypes={false}
+                            enableClipboard={false}
+                            name={null}
+                        />
+                    </Col>
+                </Row>
             </Layout.Content>
         </Layout>;
     }
