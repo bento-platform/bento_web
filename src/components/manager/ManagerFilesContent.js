@@ -219,7 +219,7 @@ class ManagerFilesContent extends Component {
         return <Layout>
             <Layout.Content style={LAYOUT_CONTENT_STYLE}>
                 <TableSelectionModal
-                    dataType={(this.state.selectedWorkflow || {}).data_type || null}
+                    dataType={this.state.selectedWorkflow?.data_type || null}
                     visible={this.state.tableSelectionModal}
                     title={"Select a Table to Ingest Into"}
                     onCancel={() => this.hideTableSelectionModal()}
