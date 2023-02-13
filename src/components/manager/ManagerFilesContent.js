@@ -269,7 +269,7 @@ class ManagerFilesContent extends Component {
                                             multiple={true}
                                             onSelect={keys => this.handleSelect(keys)}
                                             selectedKeys={this.state.selectedFiles}>
-                            <Tree.TreeNode title="chord_drop_box" key="root">
+                            <Tree.TreeNode title="Drop Box" key="root">
                                 {generateFileTree(this.props.tree)}
                             </Tree.TreeNode>
                         </Tree.DirectoryTree>
