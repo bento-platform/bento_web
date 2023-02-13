@@ -241,6 +241,7 @@ class ManagerFilesContent extends Component {
                                 displayDataTypes={false}
                                 enableClipboard={false}
                                 name={null}
+                                collapsed={true}
                             />
                         ) : (
                             <SyntaxHighlighter
