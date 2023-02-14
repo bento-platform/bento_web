@@ -81,6 +81,8 @@ const formatSize = size => {
     return `${(size / Math.pow(1000, suffixes.length - 1)).toFixed(1)} ${suffixes.at(-1)}`;
 };
 
+const formatTimestamp = timestamp => (new Date(timestamp * 1000)).toLocaleString();
+
 
 const ManagerFilesContent = () => {
     const history = useHistory();
@@ -233,7 +235,7 @@ const ManagerFilesContent = () => {
         }}>Download</Button>
     );
     InfoDownloadButton.propTypes = {
-        disabled: PropTypes.boolean,
+        disabled: PropTypes.bool,
     };
 
     return <Layout>
@@ -284,6 +286,11 @@ const ManagerFilesContent = () => {
                     <Descriptions.Item label="Path" span={3}>{fileForInfo}</Descriptions.Item>
                     <Descriptions.Item label="Size" span={3}>
                         {formatSize(filesByPath[fileForInfo]?.size ?? 0)}</Descriptions.Item>
+                    <Descriptions.Item label="Last Modified" span={3}>
+                        {formatTimestamp(filesByPath[fileForInfo]?.lastModified ?? 0)}</Descriptions.Item>
+                    <Descriptions.Item label="Last Metadata Change" span={3}>
+                        {formatTimestamp(filesByPath[fileForInfo]?.lastMetadataChange ?? 0)}
+                    </Descriptions.Item>
                 </Descriptions>
             </Modal>
 
