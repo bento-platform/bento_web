@@ -2,6 +2,8 @@ import React, {useCallback, useMemo, useState} from "react";
 import {useSelector} from "react-redux";
 import {useHistory} from "react-router-dom";
 
+import PropTypes from "prop-types";
+
 import fetch from "cross-fetch";
 
 import {Light as SyntaxHighlighter} from "react-syntax-highlighter";
@@ -77,7 +79,7 @@ const formatSize = size => {
         }
     }
     return `${(size / Math.pow(1000, suffixes.length - 1)).toFixed(1)} ${suffixes.at(-1)}`;
-}
+};
 
 
 const ManagerFilesContent = () => {
@@ -230,6 +232,9 @@ const ManagerFilesContent = () => {
             }
         }}>Download</Button>
     );
+    InfoDownloadButton.propTypes = {
+        disabled: PropTypes.boolean,
+    };
 
     return <Layout>
         <Layout.Content style={LAYOUT_CONTENT_STYLE}>
