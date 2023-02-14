@@ -11,7 +11,7 @@ import ReactJson from "react-json-view";
 
 import {json, markdown, plaintext} from "react-syntax-highlighter/dist/cjs/languages/hljs";
 
-import {Button, Descriptions, Divider, Dropdown, Empty, Icon, Layout, Menu, Modal, Spin, Statistic, Tree} from "antd";
+import {Button, Descriptions, Dropdown, Empty, Icon, Layout, Menu, Modal, Spin, Statistic, Tree} from "antd";
 
 
 import {LAYOUT_CONTENT_STYLE} from "../../styles/layoutContent";
@@ -184,7 +184,7 @@ const ManagerFilesContent = () => {
             } catch (e) {
                 console.error(e);
                 setFileContents({
-                    ...this.state.fileContents,
+                    ...fileContents,
                     [file]: resourceLoadError(file),
                 });
             } finally {
@@ -282,54 +282,48 @@ const ManagerFilesContent = () => {
                 </Descriptions>
             </Modal>
 
-            <div style={{marginBottom: "1em"}}>
-                <Dropdown.Button overlay={workflowMenu} style={{marginRight: "12px"}}
-                                 disabled={!dropBoxService
-                                     || selectedFiles.length === 0
-                                     || workflowsSupported.length === 0}
-                                 onClick={() => {
-                                     if (workflowsSupported.length !== 1) return;
-                                     showTableSelectionModal(workflowsSupported[0]);
-                                 }}>
-                    <Icon type="import" /> Ingest
-                </Dropdown.Button>
-                <Button
-                    icon="file-text"
-                    onClick={handleViewFile}
-                    style={{marginRight: "12px"}}
-                    disabled={!selectedFileViewable}
-                    loading={loadingFileContents}
-                >View</Button>
-                <Button
-                    icon="info-circle"
-                    onClick={showFileInfoModal}
-                    style={{marginRight: "12px"}}
-                    disabled={!selectedFileInfoAvailable}
-                >File Info</Button>
-                <InfoDownloadButton disabled={!selectedFileInfoAvailable} />
-                {/* TODO: Implement v0.2 */}
-                {/*<Button type="danger" icon="delete" disabled={this.state.selectedFiles.length === 0}>*/}
-                {/*    Delete*/}
-                {/*</Button>*/}
-                {/* TODO: Implement v0.2 */}
-                {/*<Button type="primary" icon="upload" style={{float: "right"}}>Upload</Button>*/}
-            </div>
+            <div style={{display: "flex", flexDirection: "column", gap: "1em"}}>
+                <div style={{display: "flex", gap: "12px"}}>
+                    <Dropdown.Button overlay={workflowMenu}
+                                     disabled={!dropBoxService
+                                         || selectedFiles.length === 0
+                                         || workflowsSupported.length === 0}
+                                     onClick={() => {
+                                         if (workflowsSupported.length !== 1) return;
+                                         showTableSelectionModal(workflowsSupported[0]);
+                                     }}>
+                        <Icon type="import" /> Ingest
+                    </Dropdown.Button>
+                    <Button icon="info-circle" onClick={showFileInfoModal} disabled={!selectedFileInfoAvailable}>
+                        File Info
+                    </Button>
+                    <Button icon="file-text" onClick={handleViewFile} disabled={!selectedFileViewable}
+                            loading={loadingFileContents}>
+                        View
+                    </Button>
+                    <InfoDownloadButton disabled={!selectedFileInfoAvailable} />
+                    {/* TODO: Implement v0.2 */}
+                    {/*<Button type="danger" icon="delete" disabled={this.state.selectedFiles.length === 0}>*/}
+                    {/*    Delete*/}
+                    {/*</Button>*/}
+                    {/* TODO: Implement v0.2 */}
+                    {/*<Button type="primary" icon="upload" style={{float: "right"}}>Upload</Button>*/}
+                </div>
 
-            <Spin spinning={treeLoading}>
-                {(treeLoading || dropBoxService) ? (
-                    <Tree.DirectoryTree defaultExpandAll={true}
-                                        multiple={true}
-                                        onSelect={keys => handleSelect(keys)}
-                                        selectedKeys={selectedFiles}>
-                        <Tree.TreeNode title="Drop Box" key="root">
-                            {generateFileTree(tree)}
-                        </Tree.TreeNode>
-                    </Tree.DirectoryTree>
-                ) : <Empty image={Empty.PRESENTED_IMAGE_SIMPLE}
-                           description="Encountered an error while trying to access the drop box service" />}
-            </Spin>
+                <Spin spinning={treeLoading}>
+                    {(treeLoading || dropBoxService) ? (
+                        <Tree.DirectoryTree defaultExpandAll={true}
+                                            multiple={true}
+                                            onSelect={keys => handleSelect(keys)}
+                                            selectedKeys={selectedFiles}>
+                            <Tree.TreeNode title="Drop Box" key="root">
+                                {generateFileTree(tree)}
+                            </Tree.TreeNode>
+                        </Tree.DirectoryTree>
+                    ) : <Empty image={Empty.PRESENTED_IMAGE_SIMPLE}
+                               description="Encountered an error while trying to access the drop box service" />}
+                </Spin>
 
-            <div style={{marginTop: "1em"}}>
                 <Statistic
                     title="Total Space Used"
                     value={treeLoading
