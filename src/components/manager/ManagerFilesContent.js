@@ -126,6 +126,8 @@ const ManagerFilesContent = () => {
         const inputs = {};
 
         for (const i of w.inputs.filter(i => i.type.startsWith("file"))) {
+            const isFileArray = i.type.endsWith("[]");
+
             // Find tables that support the data type
             // TODO
 
@@ -137,11 +139,10 @@ const ManagerFilesContent = () => {
             }
 
             // Steal the first compatible file, or all if it's an array
-            const filesToTake = filesLeft.filter(f => i.type.endsWith("[]")
-                ? compatibleFiles.includes(f)
-                : f === compatibleFiles[0]);
+            const filesToTake = filesLeft.filter(f =>
+                isFileArray ? compatibleFiles.includes(f) : f === compatibleFiles[0]);
 
-            inputs[i.id] = filesToTake;
+            inputs[i.id] = isFileArray ? filesToTake : filesToTake[0];
             filesLeft = filesLeft.filter(f => !filesToTake.includes(f));
         }
 
