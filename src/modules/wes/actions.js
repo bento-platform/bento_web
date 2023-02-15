@@ -98,31 +98,34 @@ export const fetchRunLogStreamsIfPossibleAndNeeded = runID => (dispatch, getStat
 
 
 export const submitIngestionWorkflowRun = networkAction(
-    (serviceInfo, tableID, workflow, inputs, redirect, hist) => (dispatch, getState) => ({
-        types: SUBMIT_INGESTION_RUN,
-        params: {serviceInfo, tableID},
-        url: `${getState().services.wesService.url}/runs`,
-        req: {
-            method: "POST",
-            body: createFormData({
-                workflow_params: Object.fromEntries(Object.entries(inputs)
-                    .map(([k, v]) => [`${workflow.id}.${k}`, v])),
-                workflow_type: "WDL",  // TODO: Should eventually not be hard-coded
-                workflow_type_version: "1.0",  // TODO: "
-                workflow_engine_parameters: {},  // TODO: Currently unused
-                workflow_url: `${serviceInfo.url}/workflows/${workflow.id}.wdl`,
-                tags: {
-                    workflow_id: workflow.id,
-                    workflow_metadata: workflow,
-                    ingestion_url: `${serviceInfo.url}/private/ingest`,
-                    table_id: tableID  // TODO
-                }
-            })
-        },
-        err: "Error submitting ingestion workflow",
-        onSuccess: async data => {
-            await dispatch(fetchRuns());  // TODO: Maybe just load delta?
-            message.success(`Ingestion with run ID "${data.run_id}" submitted!`);
-            if (redirect) hist.push(redirect);
-        }
-    }));
+    (serviceInfo, tableID, workflow, inputs, redirect, hist) => (dispatch, getState) => {
+        const runRequest = {
+            workflow_params: Object.fromEntries(Object.entries(inputs)
+                .map(([k, v]) => [`${workflow.id}.${k}`, v])),
+            workflow_type: "WDL",  // TODO: Should eventually not be hard-coded
+            workflow_type_version: "1.0",  // TODO: "
+            workflow_engine_parameters: {},  // TODO: Currently unused
+            workflow_url: `${serviceInfo.url}/workflows/${workflow.id}.wdl`,
+            tags: {
+                workflow_id: workflow.id,
+                workflow_metadata: workflow,
+                ingestion_url: `${serviceInfo.url}/private/ingest`,
+                table_id: tableID,  // TODO
+            },
+        };
+
+        return {
+            types: SUBMIT_INGESTION_RUN,
+            params: {serviceInfo, tableID, request: runRequest},
+            url: `${getState().services.wesService.url}/runs`,
+            req: {
+                method: "POST",
+                body: createFormData(runRequest),
+            },
+            err: "Error submitting ingestion workflow",
+            onSuccess: async data => {
+                message.success(`Ingestion with run ID "${data.run_id}" submitted!`);
+                if (redirect) hist.push(redirect);
+            }
+        };
+    });

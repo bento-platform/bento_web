@@ -15,7 +15,6 @@ import {json, markdown, plaintext} from "react-syntax-highlighter/dist/cjs/langu
 
 import {Button, Descriptions, Dropdown, Empty, Icon, Layout, Menu, Modal, Spin, Statistic, Tree} from "antd";
 
-
 import {LAYOUT_CONTENT_STYLE} from "../../styles/layoutContent";
 import TableSelectionModal from "./TableSelectionModal";
 

@@ -80,7 +80,7 @@ export const runs = (
                     ...r,
                     details: r.details || null,
                     isFetching: false,
-                }]))
+                }])),
             };
 
         case FETCH_RUNS.FINISH:
@@ -93,7 +93,7 @@ export const runs = (
                 itemsByID: {
                     ...state.itemsByID,
                     [action.runID]: {...(state.itemsByID[action.runID] || {}), isFetching: true},
-                }
+                },
             };
 
         case FETCH_RUN_DETAILS.RECEIVE:
@@ -110,7 +110,7 @@ export const runs = (
                         state: action.data.state,
                         details: action.data,
                     },
-                }
+                },
             };
 
         case FETCH_RUN_DETAILS.FINISH:
@@ -120,7 +120,7 @@ export const runs = (
                 itemsByID: {
                     ...state.itemsByID,
                     [action.runID]: {...(state.itemsByID[action.runID] || {}), isFetching: false},
-                }
+                },
             };
 
 
@@ -142,7 +142,28 @@ export const runs = (
         case SUBMIT_INGESTION_RUN.REQUEST:
             return {...state, isSubmittingIngestionRun: true};
 
-        case SUBMIT_INGESTION_RUN.RECEIVE:  // TODO: Do something here
+        case SUBMIT_INGESTION_RUN.RECEIVE: {
+            // Create basic run object with no other details
+            //  action.data is of structure {run_id} with no other props
+
+            const runSkeleton = {
+                ...action.data,
+                state: "QUEUED",  // Default initial state
+                run_log: null,
+                request: action.request,
+                outputs: {},  // TODO: is this the right default value? will be fine for now
+            };
+
+            return {
+                ...state,
+                items: [...state.items, runSkeleton],
+                itemsByID: {
+                    ...state.itemsByID,
+                    [action.data.run_id]: runSkeleton,
+                },
+            };
+        }
+
         case SUBMIT_INGESTION_RUN.FINISH:
             return {...state, isSubmittingIngestionRun: false};
 
