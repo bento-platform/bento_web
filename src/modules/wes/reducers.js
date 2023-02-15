@@ -74,12 +74,12 @@ export const runs = (
                 items: action.data.map(r => ({
                     ...r,
                     details: r.details || null,
-                    isFetching: false
+                    isFetching: false,
                 })),
                 itemsByID: Object.fromEntries(action.data.map(r => [r.run_id, {
                     ...r,
                     details: r.details || null,
-                    isFetching: false
+                    isFetching: false,
                 }]))
             };
 
@@ -92,12 +92,12 @@ export const runs = (
                 items: state.items.map(r => r.run_id === action.runID ? ({...r, isFetching: true}) : r),
                 itemsByID: {
                     ...state.itemsByID,
-                    [action.runID]: {...(state.itemsByID[action.runID] || {}), isFetching: true}
+                    [action.runID]: {...(state.itemsByID[action.runID] || {}), isFetching: true},
                 }
             };
 
         case FETCH_RUN_DETAILS.RECEIVE:
-            // Pull state out of received details to ensure it's up to date in both places
+            // Pull state out of received details to ensure it's up-to-date in both places
             return {
                 ...state,
                 items: state.items.map(r => r.run_id === action.runID
@@ -108,8 +108,8 @@ export const runs = (
                     [action.runID]: {
                         ...(state.itemsByID[action.runID] || {}),
                         state: action.data.state,
-                        details: action.data
-                    }
+                        details: action.data,
+                    },
                 }
             };
 
@@ -119,7 +119,7 @@ export const runs = (
                 items: state.items.map(r => r.run_id === action.runID ? {...r, isFetching: false} : r),
                 itemsByID: {
                     ...state.itemsByID,
-                    [action.runID]: {...(state.itemsByID[action.runID] || {}), isFetching: false}
+                    [action.runID]: {...(state.itemsByID[action.runID] || {}), isFetching: false},
                 }
             };
 
