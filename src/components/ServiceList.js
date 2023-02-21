@@ -14,28 +14,42 @@ const SERVICE_KIND_STYLING = { fontFamily: "monospace" };
 // currently 11 services including gohan
 const MAX_TABLE_PAGE_SIZE = 12;
 
-const serviceTags = [
+// noinspection JSUnresolvedFunction
+const getServiceTags = serviceInfo => [
     {
-        color: "blue",
-        logo: null, value: ({serviceInfo}) => serviceInfo.environment.toUpperCase(),
+        color: (serviceInfo.environment ?? "") === "prod" ? "green" : "blue",
+        logo: null,
+        value: serviceInfo.environment ? serviceInfo.environment.toUpperCase() : undefined,
+    },
+    {
+        color: serviceInfo.bento?.gitCommit ? "blue" : "green",
+        logo: null,
+        value: serviceInfo.environment ? (serviceInfo.bento?.gitCommit ? "LOCAL" : "PRE-BUILT") : undefined,
     },
     // {color: null, logo: <Icon type="tag"/>, value: ({repository}) => `${repository.split("@")[1]}`},
     {
         color: null,
         logo: <Icon type="github"/>,
-        value: ({serviceInfo}) => serviceInfo.bento.gitTag ?? serviceInfo.git_tag ?? "?",
+        value: serviceInfo.bento?.gitTag ?? serviceInfo.git_tag,
     },
     {
         color: null,
         logo: <Icon type="branches"/>,
-        value: ({serviceInfo}) => {
+        value: (() => {
             const {bento} = serviceInfo;
-            return `${(bento.gitBranch ?? serviceInfo.git_branch ?? "?")}:${(bento.gitCommit ?? "?").substring(0, 7)}`;
-        },
-    },
-];
 
-const renderGitInfo = (tag, record, key) => <Tag key={key} color={tag.color}>{tag.logo} {tag.value(record)}</Tag>;
+            const branch = bento?.gitBranch ?? serviceInfo.git_branch;
+            /** @type {string|undefined} */
+            const commit = bento?.gitCommit;
+
+            if (!branch || !commit) return undefined;
+
+            return `${branch}:${commit.substring(0, 7)}`;
+        })(),
+    },
+].filter(t => t.value);
+
+const renderGitInfo = (tag, record, key) => <Tag key={key} color={tag.color}>{tag.logo} {tag.value}</Tag>;
 
 
 /* eslint-disable react/prop-types */
@@ -61,12 +75,13 @@ const serviceColumns = (isOwner) => [
     {
         title: "Version",
         dataIndex: "serviceInfo.version",
-        render: (version, record) =>
-            record.serviceInfo ? <>
+        render: (version, record) => {
+            const {serviceInfo} = record;
+            return serviceInfo ? <>
                 <Typography.Text style={{marginRight: "1em"}}>{version || "-"}</Typography.Text>
-                {record.serviceInfo.environment === "dev" &&
-                    serviceTags.map((tag, i) => renderGitInfo(tag, record, i))}
-            </> : null,
+                {getServiceTags(serviceInfo).map((tag, i) => renderGitInfo(tag, record, i))}
+            </> : null;
+        },
     },
     {
         title: "URL",
