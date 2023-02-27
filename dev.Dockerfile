@@ -7,7 +7,7 @@ COPY package-lock.json .
 
 RUN npm ci
 
-FROM ghcr.io/bento-platform/bento_base_image:node-debian-2023.02.21
+FROM ghcr.io/bento-platform/bento_base_image:node-debian-2023.02.27
 
 WORKDIR /web
 
