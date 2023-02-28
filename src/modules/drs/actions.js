@@ -24,9 +24,11 @@ export const RETRIEVE_URLS_FOR_DOWNLOAD = {
 };
 
 const getDrsUrl = (filename) => async (dispatch, getState) => {
+    const drsUrl = getState().services.drsService.url;
+
     console.log("Initiating getDrsUrl");
 
-    const fuzzySearchUrl = `${getState()?.services?.itemsByArtifact?.drs?.url}/search?fuzzy_name=${filename}`;
+    const fuzzySearchUrl = `${drsUrl}/search?fuzzy_name=${filename}`;
     await dispatch(performFuzzyNameSearch(fuzzySearchUrl));
 
     console.log(`Completed fuzzy search for ${filename}`);
@@ -51,16 +53,18 @@ const getDrsUrl = (filename) => async (dispatch, getState) => {
     }
     console.log(`Retrieved objectid ${objId} for ${filename}`);
 
-    const accessUrl = `${getState().services.itemsByArtifact.drs.url}/objects/${objId}/download`;
+    const accessUrl = `${drsUrl}/objects/${objId}/download`;
     return {[filename]: {url: accessUrl}};
 };
 
 // for igv-viewable files, get data and index file urls in a single network call
 const getDrsDataAndIndexUrls = (filename) => async (dispatch, getState) => {
+    const drsUrl = getState().services.drsService.url;
+
     console.log("Initiating getDrsDataAndIndexUrls");
 
     const indexFilename = indexFileName(filename);
-    const fuzzySearchUrl = `${getState()?.services?.itemsByArtifact?.drs?.url}/search?fuzzy_name=${filename}`;
+    const fuzzySearchUrl = `${drsUrl}/search?fuzzy_name=${filename}`;
     await dispatch(performFuzzyNameSearch(fuzzySearchUrl));
     console.log(`Completed fuzzy search for ${filename}`);
 
@@ -79,7 +83,7 @@ const getDrsDataAndIndexUrls = (filename) => async (dispatch, getState) => {
         return { [filename]: { dataUrl: null, indexUrl: null } };
     }
 
-    const dataUrl = `${getState()?.services?.itemsByArtifact?.drs?.url}/objects/${dataFileId}/download`;
+    const dataUrl = `${getState()?.services?.itemsByKind?.drs?.url}/objects/${dataFileId}/download`;
 
     const indexFileId = fuzzySearchObj.find((obj) => obj.name === indexFilename)?.id;
     if (indexFileId === undefined) {
@@ -88,7 +92,7 @@ const getDrsDataAndIndexUrls = (filename) => async (dispatch, getState) => {
         return { [filename]: { dataUrl: dataUrl, indexUrl: null } };
     }
 
-    const indexUrl = `${getState()?.services?.itemsByArtifact?.drs?.url}/objects/${indexFileId}/download`;
+    const indexUrl = `${getState()?.services?.itemsByKind?.drs?.url}/objects/${indexFileId}/download`;
     const urls = { [filename]: { dataUrl: dataUrl, indexUrl: indexUrl } };
 
     console.log(`retrieved urls: ${JSON.stringify(urls)}`);
@@ -96,7 +100,12 @@ const getDrsDataAndIndexUrls = (filename) => async (dispatch, getState) => {
     return urls;
 };
 
-export const getIgvUrlsFromDrs = (fileObjects) => async (dispatch, _getState) => {
+export const getIgvUrlsFromDrs = (fileObjects) => async (dispatch, getState) => {
+    if (!getState().services.drsService) {
+        console.error("DRS not found");
+        return;
+    }
+
     console.log("initiating getIgvUrlsFromDrs");
 
     const searchesToDispatch = fileObjects.map((f) =>
@@ -120,7 +129,12 @@ export const getIgvUrlsFromDrs = (fileObjects) => async (dispatch, _getState) =>
         });
 };
 
-export const getFileDownloadUrlsFromDrs = (fileObjects) => async (dispatch, _getState) => {
+export const getFileDownloadUrlsFromDrs = (fileObjects) => async (dispatch, getState) => {
+    if (!getState().services.drsService) {
+        console.error("DRS not found");
+        return;
+    }
+
     console.log("initiating getFileDownloadUrlsFromDrs");
 
     const searchesToDispatch = fileObjects.map((f) => dispatch(getDrsUrl(f.filename)));

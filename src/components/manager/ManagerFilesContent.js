@@ -1,13 +1,27 @@
-import React, {Component} from "react";
-import {connect} from "react-redux";
-import {withRouter} from "react-router-dom";
+import React, {useCallback, useMemo, useState} from "react";
+import {useSelector} from "react-redux";
+import {useHistory} from "react-router-dom";
+
 import PropTypes from "prop-types";
 
 import fetch from "cross-fetch";
 
 import {Light as SyntaxHighlighter} from "react-syntax-highlighter";
 import {a11yLight} from "react-syntax-highlighter/dist/cjs/styles/hljs";
+
+import ReactJson from "react-json-view";
+
 import {json, markdown, plaintext} from "react-syntax-highlighter/dist/cjs/languages/hljs";
+
+import {Button, Descriptions, Dropdown, Empty, Icon, Layout, Menu, Modal, Spin, Statistic, Tree} from "antd";
+
+import {LAYOUT_CONTENT_STYLE} from "../../styles/layoutContent";
+import TableSelectionModal from "./TableSelectionModal";
+
+import {STEP_INPUT} from "./ingestion";
+import {withBasePath} from "../../utils/url";
+import {workflowsStateToPropsMixin} from "../../propTypes";
+
 
 SyntaxHighlighter.registerLanguage("json", json);
 SyntaxHighlighter.registerLanguage("markdown", markdown);
@@ -24,126 +38,95 @@ const LANGUAGE_HIGHLIGHTERS = {
     "CHANGELOG": "plaintext",
 };
 
-import {Button, Dropdown, Empty, Icon, Layout, Menu, Modal, Spin, Tree} from "antd";
-
-
-
-import {LAYOUT_CONTENT_STYLE} from "../../styles/layoutContent";
-import TableSelectionModal from "./TableSelectionModal";
-
-import {STEP_INPUT} from "./ingestion";
-import {withBasePath} from "../../utils/url";
-import {
-    dropBoxTreeStateToPropsMixin,
-    dropBoxTreeStateToPropsMixinPropTypes,
-    workflowsStateToPropsMixin,
-    workflowsStateToPropsMixinPropTypes
-} from "../../propTypes";
-
 
 const sortByName = (a, b) => a.name.localeCompare(b.name);
 const generateFileTree = directory => [...directory].sort(sortByName).map(entry =>
-    <Tree.TreeNode title={entry.name} key={entry.path} isLeaf={!entry.hasOwnProperty("contents")}>
+    <Tree.TreeNode title={entry.name} key={entry.filePath} isLeaf={!entry.hasOwnProperty("contents")}>
         {entry?.contents ? generateFileTree(entry.contents) : null}
     </Tree.TreeNode>);
+
+const generateURIsByFilePath = (entry, acc) => {
+    if (Array.isArray(entry)) {
+        entry.forEach(e => generateURIsByFilePath(e, acc));
+    } else if (entry.uri) {
+        acc[entry.filePath] = entry.uri;
+    } else if (entry.contents) {
+        entry.contents.forEach(e => generateURIsByFilePath(e, acc));
+    }
+    return acc;
+};
 
 const resourceLoadError = resource => `An error was encountered while loading ${resource}`;
 
 
-class ManagerFilesContent extends Component {
-    constructor(props) {
-        super(props);
-
-        this.state = {
-            selectedFiles: [],
-            loadingFileContents: false,
-            fileContents: {},
-            fileContentsModal: false,
-
-            selectedWorkflow: null,
-            tableSelectionModal: false,
-        };
-
-        this.handleSelect = this.handleSelect.bind(this);
-        this.showFileContentsModal = this.showFileContentsModal.bind(this);
-        this.hideFileContentsModal = this.hideFileContentsModal.bind(this);
-        this.hideTableSelectionModal = this.hideTableSelectionModal.bind(this);
-        this.ingestIntoTable = this.ingestIntoTable.bind(this);
-        this.handleViewFile = this.handleViewFile.bind(this);
-    }
-
-    handleSelect(keys) {
-        this.setState({selectedFiles: keys.filter(k => k !== "root")});
-    }
-
-    showFileContentsModal() {
-        this.setState({fileContentsModal: true});
-    }
-
-    hideFileContentsModal() {
-        this.setState({fileContentsModal: false});
-    }
-
-    showTableSelectionModal(workflow) {
-        this.setState({
-            selectedWorkflow: workflow,
-            tableSelectionModal: true,
-        });
-    }
-
-    hideTableSelectionModal() {
-        this.setState({tableSelectionModal: false});
-    }
-
-    ingestIntoTable(tableKey) {
-        this.props.history.push(withBasePath("admin/data/manager/ingestion"), {
-            step: STEP_INPUT,
-            selectedTable: tableKey,
-            selectedWorkflow: this.state.selectedWorkflow,
-            initialInputValues: this.getWorkflowFit(this.state.selectedWorkflow)[1]
-        });
-    }
-
-    async handleViewFile() {  // TODO: Action-ify?
-        if (this.state.selectedFiles.length !== 1) return;
-        const file = this.state.selectedFiles[0];
-        if (this.state.fileContents.hasOwnProperty(file)) {
-            this.showFileContentsModal();
-            return;
+const recursivelyFlattenFileTree = (acc, contents) => {
+    contents.forEach(c => {
+        if (c.contents) {
+            recursivelyFlattenFileTree(acc, c.contents);
+        } else {
+            acc.push(c);
         }
+    });
+    return acc;
+};
 
-        try {
-            this.setState({loadingFileContents: true});
-
-            const r = await fetch(`${this.props.dropBoxService.url}/objects/${file}`);
-
-            this.setState({
-                loadingFileContents: false,
-                fileContents: {
-                    ...this.state.fileContents,
-                    [file]: r.ok ? await r.text() : resourceLoadError(file),
-                }
-            });
-        } catch (e) {
-            console.error(e);
-            this.setState({
-                loadingFileContents: false,
-                fileContents: {
-                    ...this.state.fileContents,
-                    [file]: resourceLoadError(file),
-                }
-            });
+const suffixes = ["bytes", "KB", "MB", "GB"];
+const formatSize = size => {
+    for (let i = 0; i < suffixes.length - 1; i++) {
+        if (size < Math.pow(1000, i + 1)) {
+            return `${(size / Math.pow(1000, i)).toFixed(1)} ${suffixes[i]}`;
         }
-
-        this.showFileContentsModal();
     }
+    return `${(size / Math.pow(1000, suffixes.length - 1)).toFixed(1)} ${suffixes.at(-1)}`;
+};
 
-    getWorkflowFit(w) {
+const formatTimestamp = timestamp => (new Date(timestamp * 1000)).toLocaleString();
+
+
+const ManagerFilesContent = () => {
+    const history = useHistory();
+
+    const dropBoxService = useSelector(state => state.services.dropBoxService);
+    const tree = useSelector(state => state.dropBox.tree);
+    const treeLoading = useSelector(state => state.dropBox.isFetching);
+    const workflows = useSelector(state => workflowsStateToPropsMixin(state).workflows);
+
+    const filesByPath = useMemo(() => Object.fromEntries(
+        recursivelyFlattenFileTree([], tree).map(f => [f.filePath, f])), [tree]);
+
+    const [selectedFiles, setSelectedFiles] = useState([]);
+    const [loadingFileContents, setLoadingFileContents] = useState(false);
+    const [fileContents, setFileContents] = useState({});
+
+    const [fileInfoModal, setFileInfoModal] = useState(false);
+    const [fileContentsModal, setFileContentsModal] = useState(false);
+
+    const [selectedWorkflow, setSelectedWorkflow] = useState(null);
+    const [tableSelectionModal, setTableSelectionModal] = useState(false);
+
+    const handleSelect = useCallback(keys => {
+        setSelectedFiles(keys.filter(k => k !== "root"));
+    }, []);
+
+    const showFileInfoModal = useCallback(() => setFileInfoModal(true), []);
+    const hideFileInfoModal = useCallback(() => setFileInfoModal(false), []);
+    const showFileContentsModal = useCallback(() => setFileContentsModal(true), []);
+    const hideFileContentsModal = useCallback(() => setFileContentsModal(false), []);
+
+    const showTableSelectionModal = useCallback(workflow => {
+        setSelectedWorkflow(workflow);
+        setTableSelectionModal(true);
+    }, []);
+    const hideTableSelectionModal = useCallback(() => setTableSelectionModal(false), []);
+
+    const getWorkflowFit = useCallback(w => {
         let workflowSupported = true;
-        let filesLeft = [...this.state.selectedFiles];
+        let filesLeft = [...selectedFiles];
         const inputs = {};
 
         for (const i of w.inputs.filter(i => i.type.startsWith("file"))) {
+            const isFileArray = i.type.endsWith("[]");
+
             // Find tables that support the data type
             // TODO
 
@@ -155,11 +138,10 @@ class ManagerFilesContent extends Component {
             }
 
             // Steal the first compatible file, or all if it's an array
-            const filesToTake = filesLeft.filter(f => i.type.endsWith("[]")
-                ? compatibleFiles.includes(f)
-                : f === compatibleFiles[0]);
+            const filesToTake = filesLeft.filter(f =>
+                isFileArray ? compatibleFiles.includes(f) : f === compatibleFiles[0]);
 
-            inputs[i.id] = filesToTake;
+            inputs[i.id] = isFileArray ? filesToTake : filesToTake[0];
             filesLeft = filesLeft.filter(f => !filesToTake.includes(f));
         }
 
@@ -170,75 +152,168 @@ class ManagerFilesContent extends Component {
         }
 
         return [workflowSupported, inputs];
-    }
+    }, [selectedFiles]);
 
-    render() {
-        // TODO: Loading for workflows...
-        // TODO: Proper workflow keys
+    const ingestIntoTable = useCallback(tableKey => {
+        history.push(withBasePath("admin/data/manager/ingestion"), {
+            step: STEP_INPUT,
+            selectedTable: tableKey,
+            selectedWorkflow,
+            initialInputValues: getWorkflowFit(selectedWorkflow)[1]
+        });
+    }, [history, selectedWorkflow]);
 
-        const workflowsSupported = [];
-        const workflowMenu = (
-            <Menu>
-                {this.props.workflows.map(w => {
-                    const workflowSupported = this.getWorkflowFit(w)[0];
-                    if (workflowSupported) workflowsSupported.push(w);
-                    return (
-                        <Menu.Item key={w.id}
-                                   disabled={!workflowSupported}
-                                   onClick={() => this.showTableSelectionModal(w)}>
-                            Ingest with Workflow &ldquo;{w.name}&rdquo;
-                        </Menu.Item>
-                    );
-                })}
-            </Menu>
-        );
+    const handleViewFile = useCallback(() => {
+        (async () => {
+            if (selectedFiles.length !== 1) return;
+            const file = selectedFiles[0];
+            if (fileContents.hasOwnProperty(file)) {
+                showFileContentsModal();
+                return;
+            }
 
-        const selectedFileViewable = this.state.selectedFiles.length === 1 &&
-            Object.keys(LANGUAGE_HIGHLIGHTERS).filter(e => this.state.selectedFiles[0].endsWith(e)).length > 0;
+            const urisByFilePath = generateURIsByFilePath(tree, {});
+            if (!(file in urisByFilePath)) {
+                console.error(`Files: something went wrong while trying to load ${file}`);
+                return;
+            }
 
-        const selectedFile = selectedFileViewable ? this.state.selectedFiles[0] : "";
-        const selectedFileType = selectedFile.split(".").slice(-1)[0];
+            try {
+                setLoadingFileContents(true);
+                const r = await fetch(urisByFilePath[file]);
+                setFileContents({
+                    ...fileContents,
+                    [file]: r.ok ? await r.text() : resourceLoadError(file),
+                });
+            } catch (e) {
+                console.error(e);
+                setFileContents({
+                    ...fileContents,
+                    [file]: resourceLoadError(file),
+                });
+            } finally {
+                setLoadingFileContents(false);
+            }
 
-        return <Layout>
-            <Layout.Content style={LAYOUT_CONTENT_STYLE}>
-                <TableSelectionModal
-                    dataType={(this.state.selectedWorkflow || {}).data_type || null}
-                    visible={this.state.tableSelectionModal}
-                    title={"Select a Table to Ingest Into"}
-                    onCancel={() => this.hideTableSelectionModal()}
-                    onOk={tableKey => this.ingestIntoTable(tableKey)}
-                />
-                {/* TODO: v0.2: Don't hard-code replace */}
-                <Modal visible={this.state.fileContentsModal}
-                       title={selectedFile.replace("/chord/data/drop-box", "")}
-                       width={800}
-                       footer={null}
-                       onCancel={this.hideFileContentsModal}>
-                    <Spin spinning={this.state.loadingFileContents}>
-                        <SyntaxHighlighter language={LANGUAGE_HIGHLIGHTERS[`.${selectedFileType}`]}
-                                           style={a11yLight}
-                                           customStyle={{fontSize: "12px"}}
-                                           showLineNumbers={true}>
-                            {this.state.fileContents[selectedFile] || ""}
+            showFileContentsModal();
+        })();
+    }, [selectedFiles, fileContents]);
+
+    const workflowsSupported = [];
+    const workflowMenu = (
+        <Menu>
+            {workflows.map(w => {
+                const workflowSupported = getWorkflowFit(w)[0];
+                if (workflowSupported) workflowsSupported.push(w);
+                return (
+                    <Menu.Item key={w.id}
+                               disabled={!workflowSupported}
+                               onClick={() => showTableSelectionModal(w)}>
+                        Ingest with Workflow &ldquo;{w.name}&rdquo;
+                    </Menu.Item>
+                );
+            })}
+        </Menu>
+    );
+
+    const selectedFileViewable = selectedFiles.length === 1 &&
+        Object.keys(LANGUAGE_HIGHLIGHTERS).filter(e => selectedFiles[0].endsWith(e)).length > 0;
+
+    const selectedFileInfoAvailable = selectedFiles.length === 1 && selectedFiles[0] in filesByPath;
+
+    const viewableFile = selectedFileViewable ? selectedFiles[0] : "";
+    const viewableFileType = viewableFile.split(".").slice(-1)[0];
+
+    const fileForInfo = selectedFileInfoAvailable ? selectedFiles[0] : "";
+
+    const InfoDownloadButton = ({disabled}) => (
+        <Button key="download" icon="download" disabled={disabled} onClick={() => {
+            const uri = filesByPath[fileForInfo]?.uri;
+            if (uri) {
+                window.open(uri, "_blank");
+            }
+        }}>Download</Button>
+    );
+    InfoDownloadButton.propTypes = {
+        disabled: PropTypes.bool,
+    };
+
+    return <Layout>
+        <Layout.Content style={LAYOUT_CONTENT_STYLE}>
+            <TableSelectionModal
+                dataType={selectedWorkflow?.data_type || null}
+                visible={tableSelectionModal}
+                title={"Select a Table to Ingest Into"}
+                onCancel={hideTableSelectionModal}
+                onOk={tableKey => ingestIntoTable(tableKey)}
+            />
+
+            <Modal visible={fileContentsModal}
+                   title={`${viewableFile.split("/").at(-1)} - contents`}
+                   width={960}
+                   footer={null}
+                   onCancel={hideFileContentsModal}>
+                <Spin spinning={loadingFileContents}>
+                    {viewableFileType === "json" ? (
+                        <ReactJson
+                            src={JSON.parse(fileContents[viewableFile] || "{}")}
+                            displayDataTypes={false}
+                            enableClipboard={false}
+                            name={null}
+                            collapsed={true}
+                        />
+                    ) : (
+                        <SyntaxHighlighter
+                            language={LANGUAGE_HIGHLIGHTERS[`.${viewableFileType}`]}
+                            style={a11yLight}
+                            customStyle={{fontSize: "12px"}}
+                            showLineNumbers={true}
+                        >
+                            {fileContents[viewableFile] || ""}
                         </SyntaxHighlighter>
-                    </Spin>
-                </Modal>
-                <div style={{marginBottom: "1em"}}>
-                    <Dropdown.Button overlay={workflowMenu} style={{marginRight: "12px"}}
-                                     disabled={!this.props.dropBoxService
-                                        || this.state.selectedFiles.length === 0
-                                        || workflowsSupported.length === 0}
+                    )}
+                </Spin>
+            </Modal>
+
+            <Modal visible={fileInfoModal}
+                   title={`${fileForInfo.split("/").at(-1)} - information`}
+                   width={960}
+                   footer={[<InfoDownloadButton key="download" />]}
+                   onCancel={hideFileInfoModal}>
+                <Descriptions bordered={true}>
+                    <Descriptions.Item label="Name" span={3}>
+                        {fileForInfo.split("/").at(-1)}</Descriptions.Item>
+                    <Descriptions.Item label="Path" span={3}>{fileForInfo}</Descriptions.Item>
+                    <Descriptions.Item label="Size" span={3}>
+                        {formatSize(filesByPath[fileForInfo]?.size ?? 0)}</Descriptions.Item>
+                    <Descriptions.Item label="Last Modified" span={3}>
+                        {formatTimestamp(filesByPath[fileForInfo]?.lastModified ?? 0)}</Descriptions.Item>
+                    <Descriptions.Item label="Last Metadata Change" span={3}>
+                        {formatTimestamp(filesByPath[fileForInfo]?.lastMetadataChange ?? 0)}
+                    </Descriptions.Item>
+                </Descriptions>
+            </Modal>
+
+            <div style={{display: "flex", flexDirection: "column", gap: "1em"}}>
+                <div style={{display: "flex", gap: "12px"}}>
+                    <Dropdown.Button overlay={workflowMenu}
+                                     disabled={!dropBoxService
+                                         || selectedFiles.length === 0
+                                         || workflowsSupported.length === 0}
                                      onClick={() => {
                                          if (workflowsSupported.length !== 1) return;
-                                         this.showTableSelectionModal(workflowsSupported[0]);
+                                         showTableSelectionModal(workflowsSupported[0]);
                                      }}>
                         <Icon type="import" /> Ingest
                     </Dropdown.Button>
-                    <Button icon="file-text"
-                            onClick={() => this.handleViewFile()}
-                            style={{marginRight: "12px"}}
-                            disabled={!selectedFileViewable}
-                            loading={this.state.loadingFileContents}>View</Button>
+                    <Button icon="info-circle" onClick={showFileInfoModal} disabled={!selectedFileInfoAvailable}>
+                        File Info
+                    </Button>
+                    <Button icon="file-text" onClick={handleViewFile} disabled={!selectedFileViewable}
+                            loading={loadingFileContents}>
+                        View
+                    </Button>
+                    <InfoDownloadButton disabled={!selectedFileInfoAvailable} />
                     {/* TODO: Implement v0.2 */}
                     {/*<Button type="danger" icon="delete" disabled={this.state.selectedFiles.length === 0}>*/}
                     {/*    Delete*/}
@@ -246,34 +321,30 @@ class ManagerFilesContent extends Component {
                     {/* TODO: Implement v0.2 */}
                     {/*<Button type="primary" icon="upload" style={{float: "right"}}>Upload</Button>*/}
                 </div>
-                <Spin spinning={this.props.treeLoading}>
-                    {(this.props.treeLoading || this.props.dropBoxService) ? (
+
+                <Spin spinning={treeLoading}>
+                    {(treeLoading || dropBoxService) ? (
                         <Tree.DirectoryTree defaultExpandAll={true}
                                             multiple={true}
-                                            onSelect={keys => this.handleSelect(keys)}
-                                            selectedKeys={this.state.selectedFiles}>
-                            <Tree.TreeNode title="chord_drop_box" key="root">
-                                {generateFileTree(this.props.tree)}
+                                            onSelect={keys => handleSelect(keys)}
+                                            selectedKeys={selectedFiles}>
+                            <Tree.TreeNode title="Drop Box" key="root">
+                                {generateFileTree(tree)}
                             </Tree.TreeNode>
                         </Tree.DirectoryTree>
                     ) : <Empty image={Empty.PRESENTED_IMAGE_SIMPLE}
                                description="Encountered an error while trying to access the drop box service" />}
                 </Spin>
-            </Layout.Content>
-        </Layout>;
-    }
-}
 
-ManagerFilesContent.propTypes = {
-    dropBoxService: PropTypes.object,
-    ...dropBoxTreeStateToPropsMixinPropTypes,
-    ...workflowsStateToPropsMixinPropTypes
+                <Statistic
+                    title="Total Space Used"
+                    value={treeLoading
+                        ? "—"
+                        : formatSize(Object.values(filesByPath).reduce((acc, f) => acc + f.size, 0))}
+                />
+            </div>
+        </Layout.Content>
+    </Layout>;
 };
 
-const mapStateToProps = state => ({
-    dropBoxService: state.services.dropBoxService,
-    ...dropBoxTreeStateToPropsMixin(state),
-    ...workflowsStateToPropsMixin(state)
-});
-
-export default withRouter(connect(mapStateToProps)(ManagerFilesContent));
+export default ManagerFilesContent;

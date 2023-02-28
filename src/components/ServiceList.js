@@ -8,35 +8,63 @@ import { Table, Typography, Tag, Icon} from "antd";
 import { ROLE_OWNER } from "../constants";
 import { withBasePath } from "../utils/url";
 
-const ARTIFACT_STYLING = { fontFamily: "monospace" };
+const SERVICE_KIND_STYLING = { fontFamily: "monospace" };
 
 // biggest reasonable size limit before rolling over
 // currently 11 services including gohan
 const MAX_TABLE_PAGE_SIZE = 12;
 
-const data = [
-    {color: "blue", logo: null, value: ({serviceInfo}) => serviceInfo.environment.toUpperCase()},
-    {color: null, logo: <Icon type="tag"/>, value: ({repository}) => `chord_${repository.split("@")[1]}`},
-    {color: null, logo: <Icon type="github"/>, value: ({serviceInfo}) => serviceInfo.git_tag ?? "?"},
-    {color: null, logo: <Icon type="branches"/>, value: ({serviceInfo}) => serviceInfo.git_branch ?? "?"}
-];
+// noinspection JSUnresolvedFunction
+const getServiceTags = serviceInfo => [
+    {
+        color: (serviceInfo.environment ?? "") === "prod" ? "green" : "blue",
+        logo: null,
+        value: serviceInfo.environment ? serviceInfo.environment.toUpperCase() : undefined,
+    },
+    {
+        color: serviceInfo.bento?.gitCommit ? "blue" : "green",
+        logo: null,
+        value: serviceInfo.environment ? (serviceInfo.bento?.gitCommit ? "LOCAL" : "PRE-BUILT") : undefined,
+    },
+    // {color: null, logo: <Icon type="tag"/>, value: ({repository}) => `${repository.split("@")[1]}`},
+    {
+        color: null,
+        logo: <Icon type="github"/>,
+        value: serviceInfo.bento?.gitTag ?? serviceInfo.git_tag,
+    },
+    {
+        color: null,
+        logo: <Icon type="branches"/>,
+        value: (() => {
+            const {bento} = serviceInfo;
 
-const renderGitInfo = (tag, record, key) => <Tag key={key} color={tag.color}>{tag.logo} {tag.value(record)}</Tag>;
+            const branch = bento?.gitBranch ?? serviceInfo.git_branch;
+            /** @type {string|undefined} */
+            const commit = bento?.gitCommit;
+
+            if (!branch || !commit) return undefined;
+
+            return `${branch}:${commit.substring(0, 7)}`;
+        })(),
+    },
+].filter(t => t.value);
+
+const renderGitInfo = (tag, record, key) => <Tag key={key} color={tag.color}>{tag.logo} {tag.value}</Tag>;
 
 
 /* eslint-disable react/prop-types */
 const serviceColumns = (isOwner) => [
     {
-        title: "Artifact",
-        dataIndex: "artifact",
-        render: (artifact) =>
-            artifact ? (
+        title: "Kind",
+        dataIndex: "service_kind",
+        render: (serviceKind) =>
+            serviceKind ? (
                 isOwner ? (
-                    <Link style={ARTIFACT_STYLING} to={withBasePath(`admin/services/${artifact}`)}>
-                        {artifact}
+                    <Link style={SERVICE_KIND_STYLING} to={withBasePath(`admin/services/${serviceKind}`)}>
+                        {serviceKind}
                     </Link>
                 ) : (
-                    <span style={ARTIFACT_STYLING}>{artifact}</span>
+                    <span style={SERVICE_KIND_STYLING}>{serviceKind}</span>
                 )
             ) : null,
     },
@@ -47,14 +75,13 @@ const serviceColumns = (isOwner) => [
     {
         title: "Version",
         dataIndex: "serviceInfo.version",
-        render: (version, record) =>
-            record.serviceInfo ? (
-                <>
-                <Typography.Text>{version || "-"}</Typography.Text>
-                {"  "}
-                {record.serviceInfo.environment === "dev" && data.map((tag, i) => renderGitInfo(tag, record, i))}
-                </>
-            ) : null,
+        render: (version, record) => {
+            const {serviceInfo} = record;
+            return serviceInfo ? <>
+                <Typography.Text style={{marginRight: "1em"}}>{version || "-"}</Typography.Text>
+                {getServiceTags(serviceInfo).map((tag, i) => renderGitInfo(tag, record, i))}
+            </> : null;
+        },
     },
     {
         title: "URL",
@@ -87,14 +114,12 @@ const serviceColumns = (isOwner) => [
 
 const ServiceList = () => {
     const dataSource = useSelector((state) =>
-        Object.entries(state.chordServices.itemsByArtifact).map(([artifact, service]) => ({
+        Object.entries(state.chordServices.itemsByKind).map(([kind, service]) => ({
             ...service,
-            key: artifact,
-            artifact,  // TODO: Remove this when no longer required for ba$ckwards compatibility with old chord_services
-            url: service.url ?? state.services.itemsByArtifact[artifact]?.url, // TODO: "
-            serviceInfo: state.services.itemsByArtifact[artifact] ?? null,
+            key: kind,
+            serviceInfo: state.services.itemsByKind[kind] ?? null,
             status: {
-                status: artifact in state.services.itemsByArtifact,
+                status: kind in state.services.itemsByKind,
                 dataService: service.data_service,
             },
             loading: state.services.isFetching,

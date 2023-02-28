@@ -134,13 +134,15 @@ class ManagerIngestionContent extends Component {
             }
 
             case STEP_INPUT:
-                return <IngestionInputForm workflow={this.state.selectedWorkflow}
-                                           tree={this.props.tree}
-                                           initialValues={this.state.initialInputValues}
-                                           formValues={this.state.inputFormFields}
-                                           onChange={formValues => this.setState({inputFormFields: formValues})}
-                                           onSubmit={this.handleInputSubmit}
-                                           onBack={() => this.handleStepChange(0)} />;
+                return <IngestionInputForm
+                    workflow={this.state.selectedWorkflow}
+                    tree={this.props.tree}
+                    initialValues={this.state.initialInputValues}
+                    formValues={this.state.inputFormFields}
+                    onChange={formValues => this.setState({inputFormFields: formValues})}
+                    onSubmit={this.handleInputSubmit}
+                    onBack={() => this.handleStepChange(0)}
+                />;
 
             case STEP_CONFIRM: {
                 const [projectID, dataType, tableID] = this.state.selectedTable.split(":");

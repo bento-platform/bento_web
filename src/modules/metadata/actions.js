@@ -21,13 +21,11 @@ import {
 import {nop, objectWithoutProps} from "../../utils/misc";
 import {jsonRequest} from "../../utils/requests";
 import {withBasePath} from "../../utils/url";
-import {fetchTableSummaryIfPossible} from "../tables/actions";
 
 
 export const FETCH_PROJECTS = createNetworkActionTypes("FETCH_PROJECTS");
 export const FETCH_PROJECT_TABLES = createNetworkActionTypes("FETCH_PROJECT_TABLES");
 export const FETCHING_PROJECTS_WITH_TABLES = createFlowActionTypes("FETCHING_PROJECTS_WITH_TABLES");
-export const FETCHING_TABLE_SUMMARIES = createFlowActionTypes("FETCHING_TABLE_SUMMARIES");
 
 export const CREATE_PROJECT = createNetworkActionTypes("CREATE_PROJECT");
 export const DELETE_PROJECT = createNetworkActionTypes("DELETE_PROJECT");
@@ -44,10 +42,7 @@ export const PROJECT_TABLE_ADDITION = createFlowActionTypes("PROJECT_TABLE_ADDIT
 export const PROJECT_TABLE_DELETION = createFlowActionTypes("PROJECT_TABLE_DELETION");
 
 export const FETCH_INDIVIDUAL = createNetworkActionTypes("FETCH_INDIVIDUAL");
-export const FETCH_PHENOPACKETS = createNetworkActionTypes("FETCH_PHENOPACKETS");
-export const FETCH_EXPERIMENTS = createNetworkActionTypes("FETCH_EXPERIMENTS");
 export const FETCH_OVERVIEW_SUMMARY = createNetworkActionTypes("FETCH_OVERVIEW_SUMMARY");
-export const FETCH_ALL_RECORDS = createNetworkActionTypes("FETCH_ALL_RECORDS");
 
 
 const endProjectTableAddition = (project, table) => ({type: PROJECT_TABLE_ADDITION.END, project, table});
@@ -85,29 +80,6 @@ export const fetchProjectsWithDatasetsAndTables = () => async (dispatch, getStat
     dispatch(endFlow(FETCHING_PROJECTS_WITH_TABLES));
 };
 
-
-export const fetchVariantTableSummaries = () => async (dispatch, getState) => {
-    const state = getState();
-    if (state.projects.isFetching ||
-        state.projects.isCreating ||
-        state.projects.isDeleting ||
-        state.projects.isSaving) return;
-
-    dispatch(beginFlow(FETCHING_TABLE_SUMMARIES));
-
-    const chordService =  getState().chordServices.itemsByArtifact.variant || null;
-
-    if (chordService) {
-        for (const table of getState().projectTables.items) {
-            if (table.service_artifact === "variant") {
-                await dispatch(fetchTableSummaryIfPossible(
-                    {url: withBasePath("api/variant")}, table.table_id));
-            }
-        }
-    }
-
-    dispatch(endFlow(FETCHING_TABLE_SUMMARIES));
-};
 
 const createProject = networkAction((project, history) => (dispatch, getState) => ({
     types: CREATE_PROJECT,
@@ -408,9 +380,14 @@ const deleteProjectTable = (project, table) => async (dispatch, getState) => {
 export const deleteProjectTableIfPossible = (project, table) => (dispatch, getState) => {
     if (getState().projectTables.isDeleting) return;
 
-    const serviceType = getState().services.itemsByID[table.service_id].type;
-    const chordServiceInfo = getState().chordServices.itemsByArtifact[serviceType.artifact];
-    if (chordServiceInfo.manageable_tables === false) {
+    const service = getState().services.itemsByID[table.service_id];
+    if (!service) {
+        throw new Error(`Service not found: ${table.service_id}`);
+    }
+
+    const serviceKind = service.bento?.serviceKind ?? service.type.artifact;
+    const chordServiceInfo = getState().chordServices.itemsByKind[serviceKind];
+    if (!chordServiceInfo.manageable_tables) {
         // If manageable_tables is set and not true, we can't delete the table.
         return;
     }
@@ -431,30 +408,6 @@ export const fetchIndividualIfNecessary = individualID => (dispatch, getState) =
     return dispatch(fetchIndividual(individualID));
 };
 
-
-
-export const fetchPhenopackets = networkAction(() => (dispatch, getState) => ({
-    types: FETCH_PHENOPACKETS,
-    url: `${getState().services.metadataService.url}/api/phenopackets`,
-    err: "Error fetching phenopackets metadata",
-    paginated: true
-}));
-
-// TODO: fetchPhenopacketsIfNecessary
-// export const fetchIndividualIfNecessary = individualID => (dispatch, getState) => {
-//     const individualRecord = getState().individuals.itemsByID[individualID] || {};
-//     if (individualRecord.isFetching || individualRecord.data) return;  // Don't fetch if already fetching or loaded.
-//     return dispatch(fetchIndividual(individualID));
-// };
-
-
-export const fetchExperiments = networkAction(() => (dispatch, getState) => ({
-    types: FETCH_EXPERIMENTS,
-    url: `${getState().services.metadataService.url}/api/experiments`,
-    baseUrl: `${getState().services.metadataService.url}/`,
-    err: "Error fetching experiments metadata",
-    paginated: true
-}));
 
 export const fetchOverviewSummary = networkAction(() => (dispatch, getState) => ({
     types: FETCH_OVERVIEW_SUMMARY,

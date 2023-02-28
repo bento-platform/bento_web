@@ -25,6 +25,7 @@ export const chordServices = (
     state = {
         isFetching: false,
         itemsByArtifact: {},
+        itemsByKind: {},
     },
     action
 ) => {
@@ -51,6 +52,10 @@ export const chordServices = (
                     service.artifact,
                     {...service, composeID},
                 ]))),
+                itemsByKind: Object.fromEntries(Object.entries(action.data).map(([composeID, service]) => ([
+                    service.service_kind ?? service.artifact,
+                    {...service, composeID},
+                ]))),
             };
         case FETCH_CHORD_SERVICES.FINISH:
             return {...state, isFetching: false};
@@ -67,6 +72,7 @@ export const services = (
         items: [],
         itemsByID: {},
         itemsByArtifact: {},
+        itemsByKind: {},
 
         aggregationService: null,
         dropBoxService: null,
@@ -92,6 +98,7 @@ export const services = (
             // Filter out services without a valid serviceInfo.type & normalize service infos across spec versions:
             const items = action.data.filter(s => s?.type).map(normalizeServiceInfo);
             const itemsByID = Object.fromEntries(items.map(s => [s.id, s]));
+            const itemsByKind = Object.fromEntries(items.map(s => [s.bento?.serviceKind ?? s.type.artifact, s]));
             const itemsByArtifact = Object.fromEntries(items.map(s => [s.type.artifact, s]));
 
             return {
@@ -99,15 +106,17 @@ export const services = (
 
                 items,
                 itemsByID,
+                itemsByKind,
                 itemsByArtifact,
 
                 // Backwards-compatibility with older Bento versions, where this was called 'federation'
-                aggregationService: itemsByArtifact["aggregation"] ?? itemsByArtifact["federation"] ?? null,
-                dropBoxService: itemsByArtifact["drop-box"] ?? null,
-                eventRelay: itemsByArtifact["event-relay"] ?? null,
-                notificationService: itemsByArtifact["notification"] ?? null,
-                metadataService: itemsByArtifact["metadata"] ?? null,
-                wesService: itemsByArtifact["wes"] ?? null,
+                aggregationService: itemsByKind["aggregation"] ?? itemsByKind["federation"] ?? null,
+                dropBoxService: itemsByKind["drop-box"] ?? null,
+                drsService: itemsByKind["drs"] ?? null,
+                eventRelay: itemsByKind["event-relay"] ?? null,
+                notificationService: itemsByKind["notification"] ?? null,
+                metadataService: itemsByKind["metadata"] ?? null,
+                wesService: itemsByKind["wes"] ?? null,
 
                 lastUpdated: action.receivedAt,
             };
@@ -128,6 +137,7 @@ export const serviceDataTypes = (
         itemsByID: {},
         dataTypesByServiceID: {},
         dataTypesByServiceArtifact: {},
+        dataTypesByServiceKind: {},
     },
     action
 ) => {
@@ -141,6 +151,7 @@ export const serviceDataTypes = (
 
         case FETCH_SERVICE_DATA_TYPES.REQUEST: {
             const {serviceInfo} = action;
+            const kind = serviceInfo.bento?.serviceKind ?? serviceInfo.type.artifact;
             return {
                 ...state,
                 dataTypesByServiceID: {
@@ -157,12 +168,21 @@ export const serviceDataTypes = (
                             {items: null, itemsByID: null}),
                         isFetching: true
                     }
-                }
+                },
+                dataTypesByServiceKind: {
+                    ...state.dataTypesByServiceKind,
+                    [kind]: {
+                        ...(state.dataTypesByServiceKind[kind] ?? {items: null, itemsByID: null}),
+                        isFetching: true,
+                    },
+                },
             };
         }
 
         case FETCH_SERVICE_DATA_TYPES.RECEIVE: {
             const {serviceInfo} = action;
+            const artifact = serviceInfo.type.artifact;
+            const kind = serviceInfo.bento?.serviceKind ?? artifact;
             const itemsByID = Object.fromEntries(action.data.map(d => [d.id, d]));
             return {
                 ...state,
@@ -176,7 +196,11 @@ export const serviceDataTypes = (
                 },
                 dataTypesByServiceArtifact: {
                     ...state.dataTypesByServiceArtifact,
-                    [serviceInfo.type.artifact]: {items: action.data, itemsByID, isFetching: false},
+                    [artifact]: {items: action.data, itemsByID, isFetching: false},
+                },
+                dataTypesByServiceKind: {
+                    ...state.dataTypesByServiceKind,
+                    [kind]: {items: action.data, itemsByID, isFetching: false},
                 },
                 lastUpdated: action.receivedAt
             };
@@ -184,6 +208,8 @@ export const serviceDataTypes = (
 
         case FETCH_SERVICE_DATA_TYPES.ERROR: {
             const {serviceInfo} = action;
+            const artifact = serviceInfo.type.artifact;
+            const kind = serviceInfo.bento?.serviceKind ?? artifact;
             return {
                 ...state,
                 dataTypesByServiceID: {
@@ -195,12 +221,18 @@ export const serviceDataTypes = (
                 },
                 dataTypesByServiceArtifact: {
                     ...state.dataTypesByServiceArtifact,
-                    [action.serviceID]: {
-                        ...(state.dataTypesByServiceArtifact[serviceInfo.type.artifact]
-                            ?? {items: null, itemsByID: null}),
+                    [artifact]: {
+                        ...(state.dataTypesByServiceArtifact[artifact] ?? {items: null, itemsByID: null}),
                         isFetching: false,
-                    }
-                }
+                    },
+                },
+                dataTypesByServiceKind: {
+                    ...state.dataTypesByServiceArtifact,
+                    [kind]: {
+                        ...(state.dataTypesByServiceArtifact[kind] ?? {items: null, itemsByID: null}),
+                        isFetching: false,
+                    },
+                },
             };
         }
 

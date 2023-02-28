@@ -63,10 +63,15 @@ class ExplorerDatasetSearch extends Component {
         //this.setState({currentPage: 1});
         // Not-so-React-y way of setting the current data table to page 1
         // in the event a new search query results in an equal-or-longer dataset.
-        // Without such a mechanism, the user will find themself on the same page they
+        // Without such a mechanism, the user will find themselves on the same page they
         // were on with their last query
         try {
-            document.getElementsByClassName("ant-pagination-item ant-pagination-item-1")[0].click();
+            const firstPageButton = document.getElementsByClassName(
+                "ant-pagination-item ant-pagination-item-1")[0];
+            if (firstPageButton) {
+                // Search pagination exists
+                firstPageButton.click();
+            }
         } catch (error) {
             console.error(error);
         }

@@ -12,7 +12,7 @@ class TableDeletionModal extends Component {
     render() {
         return (
             <Modal visible={this.props.visible}
-                   title={`Are you sure you want to delete the "${(this.props.table || {}).name || ""}" table?`}
+                   title={`Are you sure you want to delete the "${this.props.table?.name || ""}" table?`}
                    footer={[
                        <Button key="cancel" onClick={() => (this.props.onCancel || nop)()}>Cancel</Button>,
                        <Button key="confirm"
@@ -44,7 +44,7 @@ TableDeletionModal.propTypes = {
 };
 
 const mapStateToProps = state => ({
-    isDeletingTable: state.serviceTables.isDeleting || state.projectTables.isDeleting
+    isDeletingTable: state.serviceTables.isDeleting || state.projectTables.isDeleting,
 });
 
 export default connect(mapStateToProps)(TableDeletionModal);

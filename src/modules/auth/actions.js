@@ -9,7 +9,6 @@ import {
 import {fetchDropBoxTreeOrFail} from "../manager/actions";
 import {
     fetchProjectsWithDatasetsAndTables,
-    fetchVariantTableSummaries,
     fetchOverviewSummary
 } from "../metadata/actions";
 import {fetchNodeInfo} from "../node/actions";
@@ -42,7 +41,6 @@ export const fetchDependentData = () => dispatch => Promise.all([
     fetchRuns,
     fetchNotifications,
     fetchOverviewSummary,
-    fetchVariantTableSummaries,
     performGetGohanVariantsOverviewIfPossible
 ].map(a => dispatch(a())));
 

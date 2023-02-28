@@ -107,13 +107,10 @@ export const fetchServicesWithMetadataAndDataTypesAndTables = () => async (dispa
         // Backwards compatibility for:
         // - old type ("group:artifact:version")
         // - and new  ({"group": "...", "artifact": "...", "version": "..."})
-        const serviceArtifact = (typeof s.type === "string")
-            ? s.type.split(":")[1]
-            : s.type.artifact;
-
+        const serviceKind = s.bento?.serviceKind ?? s.type.artifact;
         return {
             ...s,
-            chordService: getState().chordServices.itemsByArtifact[serviceArtifact] ?? null,
+            chordService: getState().chordServices.itemsByKind[serviceKind] ?? null,
         };
     }).filter(s => s.chordService?.data_service ?? false);
 
