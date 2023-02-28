@@ -29,6 +29,7 @@ const NotificationDrawer = lazy(() => import("./notifications/NotificationDrawer
 // Lazy-load route components
 const OverviewContent = lazy(() => import("./OverviewContent"));
 const DataExplorerContent = lazy(() => import("./DataExplorerContent"));
+const CBioPortalContent = lazy(() => import("./CBioPortalContent"));
 const AdminContent = lazy(() => import("./AdminContent"));
 const NotificationsContent = lazy(() => import("./notifications/NotificationsContent"));
 
@@ -110,6 +111,7 @@ class App extends Component {
                         <Switch>
                             <OwnerRoute path={withBasePath("overview")} component={OverviewContent} />
                             <OwnerRoute path={withBasePath("data/explorer")} component={DataExplorerContent} />
+                            <OwnerRoute path={withBasePath("cbioportal")} component={CBioPortalContent} />
                             <OwnerRoute path={withBasePath("admin")} component={AdminContent} />
                             <OwnerRoute path={withBasePath("notifications")} component={NotificationsContent} />
                             <Redirect from={BASE_PATH} to={withBasePath("overview")} />
