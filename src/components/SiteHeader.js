@@ -3,7 +3,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { Link, withRouter } from "react-router-dom";
 import { Badge, Icon, Layout, Menu } from "antd";
 
-import { CUSTOM_HEADER } from "../config";
+import {BENTO_CBIOPORTAL_ENABLED, CUSTOM_HEADER} from "../config";
 import { SIGN_OUT_URL } from "../constants";
 import { showNotificationDrawer } from "../modules/notifications/actions";
 import { matchingMenuKeys, renderMenuItem } from "../utils/menu";
@@ -46,34 +46,43 @@ const SiteHeader = () => {
         {
             url: withBasePath("overview"),
             icon: <Icon type="user" />,
-            text: <span className="nav-text">Overview</span>,
+            text: "Overview",
             key: "overview",
         },
         {
             url: withBasePath("data/explorer"),
             icon: <Icon type="bar-chart" />,
-            text: <span className="nav-text">Explorer</span>,
+            text: "Explorer",
             disabled: !isOwner,
             key: "explorer",
         },
+        // TODO: Only if cBioPortal access is enabled for any project/dataset or something like that...
+        ...(BENTO_CBIOPORTAL_ENABLED ? [
+            {
+                url: withBasePath("cbioportal"),
+                text: "cBioPortal",
+                key: "cbioportal",
+            },
+        ] : []),
+        // TODO: Only show if admin / can data manage anything
         {
             url: withBasePath("admin"),
             icon: <Icon type="user" />,
-            text: <span className="nav-text">Admin</span>,
+            text: "Admin",
             disabled: !isOwner,
             children: [
                 {
                     key: "admin-services",
                     url: withBasePath("admin/services"),
                     icon: <Icon type="dashboard" />,
-                    text: <span className="nav-text">Services</span>,
+                    text: "Services",
                     disabled: !isOwner,
                 },
                 {
                     key: "admin-data-manager",
                     url: withBasePath("admin/data/manager"),
                     icon: <Icon type="folder-open" />,
-                    text: <span className="nav-text">Data Manager</span>,
+                    text: "Data Manager",
                     disabled: !isOwner,
                 },
             ],
