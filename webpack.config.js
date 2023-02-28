@@ -59,6 +59,7 @@ module.exports = {
         new webpack.EnvironmentPlugin({
             // Default environment variables to null if not set
             BENTO_URL: null,
+            BENTO_CBIOPORTAL_ENABLED: false,
             CHORD_URL: null,
             CUSTOM_HEADER: null,
         }),
