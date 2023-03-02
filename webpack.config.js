@@ -60,6 +60,7 @@ module.exports = {
             // Default environment variables to null if not set
             BENTO_URL: null,
             BENTO_CBIOPORTAL_ENABLED: false,
+            BENTO_CBIOPORTAL_PUBLIC_URL: null,
             CHORD_URL: null,
             CUSTOM_HEADER: null,
         }),
