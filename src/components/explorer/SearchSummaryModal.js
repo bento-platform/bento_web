@@ -19,8 +19,6 @@ const SearchSummaryModal = ({ searchResults, ...props }) => {
     const katsuUrl = useSelector((state) => state.services.itemsByArtifact.metadata.url);
 
     useEffect(() => {
-        const myHeaders = new Headers();
-        myHeaders.append("Content-Type", "application/json");
 
         const ids = searchResults.results.results.map(({ subject_id }) => subject_id);
 
@@ -30,7 +28,7 @@ const SearchSummaryModal = ({ searchResults, ...props }) => {
 
         const requestOptions = {
             method: "POST",
-            headers: myHeaders,
+            headers: new Headers({"Content-Type": "application/json"}),
             body: raw,
             redirect: "follow",
         };
@@ -39,7 +37,6 @@ const SearchSummaryModal = ({ searchResults, ...props }) => {
             .then((response) => response.json())
             .then((result) => {
                 setData(result);
-                console.log("what i got", result);
             })
             .catch((error) => console.log("error", error));
     }, [searchResults]);
