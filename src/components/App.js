@@ -106,7 +106,7 @@ class App extends Component {
                     <NotificationDrawer />
                 </Suspense>
                 <SiteHeader />
-                <Layout.Content style={{margin: "50px"}}>
+                <Layout.Content style={{margin: "50px", display: "flex", flexDirection: "column"}}>
                     <Suspense fallback={<SitePageLoading />}>
                         <Switch>
                             <OwnerRoute path={withBasePath("overview")} component={OverviewContent} />

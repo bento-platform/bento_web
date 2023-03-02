@@ -60,6 +60,7 @@ const SiteHeader = () => {
         ...(BENTO_CBIOPORTAL_ENABLED ? [
             {
                 url: withBasePath("cbioportal"),
+                icon: <Icon type="dot-chart" />,
                 text: "cBioPortal",
                 key: "cbioportal",
             },
