@@ -8,6 +8,7 @@ mkdir -p "dist/static"
 
 # ----- Begin instance config creation --------------------------------
 echo "[bento_web] [entrypoint] writing ${CONFIG_FILE}"
+node ./create_config_prod.js  # Echo out to logs
 node ./create_config_prod.js > "${CONFIG_FILE}"
 # ----- End -----------------------------------------------------------
 
