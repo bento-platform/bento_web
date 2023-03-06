@@ -29,7 +29,7 @@ const serviceInfo = {
 };
 
 
-const git = cmd => childProcess.execSync(`git ${cmd}`).toString();
+const git = cmd => childProcess.execSync(`git ${cmd}`).toString().trim();
 if (nodeEnv === "development") {
     try {
         serviceInfo.bento.gitTag = git("describe --tags --abbrev=0");
