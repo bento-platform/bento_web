@@ -13,7 +13,8 @@ const CBioPortalContent = () => {
         {BENTO_CBIOPORTAL_PUBLIC_URL && (
             <iframe src={BENTO_CBIOPORTAL_PUBLIC_URL} style={{
                 width: "100%",
-                border: "1px solid #CFCFCF",
+                border: "none",
+                borderBottom: "2px solid #E6E6E6",
                 flex: "1",
             }}></iframe>
         )}

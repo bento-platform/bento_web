@@ -89,6 +89,8 @@ class App extends Component {
     }
 
     render() {
+        const margin = window.location.pathname.endsWith("cbioportal") ? 0 : 26;
+
         // noinspection HtmlUnknownTarget
         return <>
             <Modal title="You have been signed out"
@@ -106,7 +108,7 @@ class App extends Component {
                     <NotificationDrawer />
                 </Suspense>
                 <SiteHeader />
-                <Layout.Content style={{margin: "50px", display: "flex", flexDirection: "column"}}>
+                <Layout.Content style={{margin, display: "flex", flexDirection: "column"}}>
                     <Suspense fallback={<SitePageLoading />}>
                         <Switch>
                             <OwnerRoute path={withBasePath("overview")} component={OverviewContent} />
