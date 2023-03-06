@@ -29,11 +29,12 @@ const serviceInfo = {
 };
 
 
+const git = cmd => childProcess.execSync(`git ${cmd}`).toString();
 if (nodeEnv === "development") {
     try {
-        serviceInfo.bento.gitTag = childProcess.execSync("git describe --tags --abbrev=0");
-        serviceInfo.bento.gitBranch = childProcess.execSync("git branch --show-current");
-        serviceInfo.bento.gitCommit = childProcess.execSync("git rev-parse HEAD");
+        serviceInfo.bento.gitTag = git("describe --tags --abbrev=0");
+        serviceInfo.bento.gitBranch = git("branch --show-current");
+        serviceInfo.bento.gitCommit = git("rev-parse HEAD");
     } catch (e) {
         console.warn(`Could not get git information (${e})`);
     }
