@@ -35,16 +35,19 @@ const ioTagWithType = (id, ioType, typeContent = "") => (
 
 class WorkflowListItem extends Component {
     render() {
-        const typeTag = <Tag key={this.props.workflow.data_type}>{this.props.workflow.data_type}</Tag>;
+        const dt = this.props.workflow.data_type;
+        const {inputs, outputs} = this.props.workflow;
 
-        const inputs = this.props.workflow.inputs.map(i =>
+        const typeTag = dt ? <Tag key={dt}>{dt}</Tag> : null;
+
+        const inputTags = inputs.map(i =>
             ioTagWithType(i.id, i.type, i.type.startsWith("file") ? i.extensions.join(" / ") : ""));
 
-        const inputExtensions = Object.fromEntries(this.props.workflow.inputs
+        const inputExtensions = Object.fromEntries(inputs
             .filter(i => i.type.startsWith("file"))
             .map(i => [i.id, i.extensions[0]]));  // TODO: What to do with more than one?
 
-        const outputs = this.props.workflow.outputs.map(o => {
+        const outputTags = outputs.map(o => {
             if (!o.value) console.error("Missing or invalid value prop for workflow output: ", o);
 
             if (!o.type.startsWith("file")) return ioTagWithType(o.id, o.type);
@@ -74,12 +77,12 @@ class WorkflowListItem extends Component {
 
             <div style={{marginBottom: "12px"}}>
                 <span style={{fontWeight: "bold", marginRight: "1em"}}>Inputs:</span>
-                {inputs}
+                {inputTags}
             </div>
 
             <div>
                 <span style={{fontWeight: "bold", marginRight: "1em"}}>Outputs:</span>
-                {outputs}
+                {outputTags}
             </div>
         </List.Item>;
     }
