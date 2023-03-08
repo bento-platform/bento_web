@@ -89,7 +89,7 @@ const ManagerFilesContent = () => {
     const dropBoxService = useSelector(state => state.services.dropBoxService);
     const tree = useSelector(state => state.dropBox.tree);
     const treeLoading = useSelector(state => state.dropBox.isFetching);
-    const workflows = useSelector(state => workflowsStateToPropsMixin(state).workflows);
+    const ingestionWorkflows = useSelector(state => workflowsStateToPropsMixin(state).workflows.ingestion);
 
     const filesByPath = useMemo(() => Object.fromEntries(
         recursivelyFlattenFileTree([], tree).map(f => [f.filePath, f])), [tree]);
@@ -202,7 +202,7 @@ const ManagerFilesContent = () => {
     const workflowsSupported = [];
     const workflowMenu = (
         <Menu>
-            {workflows.map(w => {
+            {ingestionWorkflows.map(w => {
                 const workflowSupported = getWorkflowFit(w)[0];
                 if (workflowSupported) workflowsSupported.push(w);
                 return (

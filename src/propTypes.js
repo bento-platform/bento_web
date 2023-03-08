@@ -151,16 +151,35 @@ export const userPropTypesShape = PropTypes.shape({
 });
 
 // Gives components which include this in their state to props connection access to workflows and loading status.
-export const workflowsStateToPropsMixin = state => ({
-    workflows: Object.entries(state.serviceWorkflows.workflowsByServiceID)
+export const workflowsStateToPropsMixin = state => {
+    const workflowsByType = {
+        ingestion: [],
+        analysis: [],
+        export: [],
+    };
+
+    Object.entries(state.serviceWorkflows.workflowsByServiceID)
         .filter(([_, s]) => !s.isFetching)
-        .flatMap(([serviceID, s]) => Object.entries(s.workflows.ingestion).map(([k, v]) => ({
-            ...v,
-            id: k,
-            serviceID
-        }))),
-    workflowsLoading: state.services.isFetchingAll || state.serviceWorkflows.isFetchingAll
-});
+        .forEach(([serviceID, s]) => {
+            Object.entries(s.workflows).forEach(([workflowType, workflowTypeWorkflows]) => {
+                if (!(workflowType in workflowsByType)) return;
+
+                // noinspection JSCheckFunctionSignatures
+                workflowsByType[workflowType].push(
+                    ...Object.entries(workflowTypeWorkflows).map(([k, v]) => ({
+                        ...v,
+                        id: k,
+                        serviceID,
+                    }))
+                );
+            })
+        });
+
+    return {
+        workflows: workflowsByType,
+        workflowsLoading: state.services.isFetchingAll || state.serviceWorkflows.isFetchingAll,
+    };
+}
 
 // Prop types object shape for a single workflow object.
 export const workflowPropTypesShape = PropTypes.shape({
@@ -184,7 +203,11 @@ export const workflowPropTypesShape = PropTypes.shape({
 
 // Any components which include workflowStateToPropsMixin should include this as well in their prop types.
 export const workflowsStateToPropsMixinPropTypes = {
-    workflows: PropTypes.arrayOf(workflowPropTypesShape),
+    workflows: PropTypes.shape({
+        ingestion: PropTypes.arrayOf(workflowPropTypesShape),
+        analysis: PropTypes.arrayOf(workflowPropTypesShape),
+        export: PropTypes.arrayOf(workflowPropTypesShape),
+    }),
     workflowsLoading: PropTypes.bool
 };
 

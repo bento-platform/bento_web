@@ -106,7 +106,7 @@ class ManagerIngestionContent extends Component {
 
         switch (this.state.step) {
             case STEP_WORKFLOW_SELECTION: {
-                const workflows = this.props.workflows
+                const workflows = this.props.workflows.ingestion
                     .filter(w => w.data_type === (this.state.selectedTable
                         ? this.state.selectedTable.split(":")[1] : null))
                     .map(w => <WorkflowListItem key={w.id}
