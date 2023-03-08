@@ -7,6 +7,7 @@
     "antd": "^3.26.20",
     "cross-fetch": "^3.1.5",
     "file-saver": "^2.0.5",
+    "filesize": "^10.0.6",
     "igv": "^2.13.7",
     "iso8601-duration": "^1.2.0",
     "lodash.debounce": "^4.0.8",

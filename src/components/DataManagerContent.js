@@ -8,6 +8,7 @@ import {matchingMenuKeys, renderMenuItem} from "../utils/menu";
 import {withBasePath} from "../utils/url";
 
 import SitePageHeader from "./SitePageHeader";
+import ManagerDRSContent from "./manager/drs/ManagerDRSContent";
 
 const ManagerProjectDatasetContent = lazy(() => import("./manager/projects/ManagerProjectDatasetContent"));
 const ManagerAccessContent = lazy(() => import("./manager/ManagerAccessContent"));
@@ -24,6 +25,7 @@ const PAGE_MENU = [
     {url: withBasePath("admin/data/manager/ingestion"), text: "Ingestion"},
     {url: withBasePath("admin/data/manager/workflows"), text: "Workflows"},
     {url: withBasePath("admin/data/manager/runs"), text: "Workflow Runs"},
+    {url: withBasePath("admin/data/manager/drs"), text: "DRS Objects"},
 ];
 
 const styles = {
@@ -61,6 +63,7 @@ const DataManagerContent = () => {
                        component={ManagerIngestionContent} />
                 <Route exact path={withBasePath("admin/data/manager/workflows")}
                        component={ManagerWorkflowsContent} />
+                <Route exact path={withBasePath("admin/data/manager/drs")} component={ManagerDRSContent} />
                 <Route path={withBasePath("admin/data/manager/runs")} component={ManagerRunsContent} />
                 <Redirect from={withBasePath("admin/data/manager")}
                           to={withBasePath("admin/data/manager/projects")} />
