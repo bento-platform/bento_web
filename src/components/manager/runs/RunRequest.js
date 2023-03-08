@@ -4,12 +4,16 @@ import PropTypes from "prop-types";
 
 import {Descriptions, List, Tag} from "antd";
 
+import ReactJson from "react-json-view";
+
 import WorkflowListItem from "../WorkflowListItem";
 
 const RunRequest = ({run}) => {
     const tablesByServiceID = useSelector(state => state.serviceTables.itemsByServiceID);
 
-    const details = run?.details ?? {};
+    const details = run?.details;
+
+    if (!details) return <div />;
 
     const serviceID = details.request.tags.workflow_metadata.serviceID;
     const tableDataType = details.request.tags.workflow_metadata.data_type;
@@ -25,9 +29,12 @@ const RunRequest = ({run}) => {
             <Tag>{tableDataType}</Tag> {tableName ? <>{tableName} ({idFragment})</> : idFragment}
         </Descriptions.Item>
         <Descriptions.Item label="Parameters" span={3}>
-                <pre style={{margin: 0}}>{
-                    JSON.stringify(details.request.workflow_params, null, 4)
-                }</pre>
+            <ReactJson
+                src={details.request.workflow_params}
+                displayDataTypes={false}
+                enableClipboard={false}
+                name={null}
+            />
         </Descriptions.Item>
         <Descriptions.Item label="Workflow Type">
             {details.request.workflow_type}
@@ -46,7 +53,12 @@ const RunRequest = ({run}) => {
             </List>
         </Descriptions.Item>
         <Descriptions.Item label="Tags">
-            <pre style={{margin: 0}}>{JSON.stringify(details.request.tags, null, 4)}</pre>
+            <ReactJson
+                src={details.request.tags}
+                displayDataTypes={false}
+                enableClipboard={false}
+                name={null}
+            />
         </Descriptions.Item>
     </Descriptions>;
 };
@@ -59,8 +71,8 @@ RunRequest.propTypes = {
                 workflow_type_version: PropTypes.string,
                 workflow_url: PropTypes.string,
                 tags: PropTypes.object,
-            })
-        })
+            }),
+        }),
     }),
 };
 
