@@ -39,6 +39,6 @@ const ManagerWorkflowsContent = () => {
             </Tabs>
         </Layout.Content>
     </Layout>;
-}
+};
 
 export default ManagerWorkflowsContent;

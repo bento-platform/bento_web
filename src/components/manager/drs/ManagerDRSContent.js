@@ -32,7 +32,7 @@ const DRS_COLUMNS = [
             const url = record.access_methods[0]?.access_url?.url;
             return <Button disabled={!url} icon="download" onClick={() => {
                 console.debug(`Opening ${url} for download`);
-                window.open(url)
+                window.open(url);
             }}>Download</Button>;
         },
     }
@@ -73,7 +73,7 @@ const ManagerDRSContent = () => {
             })
             .catch(e => {
                 message.error(`Encountered error while fetching DRS objects: ${e}`);
-                console.error(e)
+                console.error(e);
             });
     }, 250, {leading: true, trailing: true}), [drsUrl]);
 
@@ -110,14 +110,13 @@ const ManagerDRSContent = () => {
                                 )}
                             </Descriptions.Item>
                             <Descriptions.Item label="Access Methods" span={3}>
-                                {accessMethods.map(({type, access_url}, i) =>
+                                {accessMethods.map(({type, access_url: url}, i) =>
                                     <div key={i} style={{display: "flex", gap: "0.8em", alignItems: "baseline"}}>
                                         <span style={{fontWeight: "bold"}}>{type.toLocaleUpperCase()}:</span>
                                         <span style={{fontFamily: "monospace"}}>
                                             {type === "http"
-                                                ? <a href={access_url?.url} target="_blank" rel="noreferrer">
-                                                    {access_url?.url}</a>
-                                                : access_url?.url}
+                                                ? <a href={url?.url} target="_blank" rel="noreferrer">{url?.url}</a>
+                                                : url?.url}
                                         </span>
                                     </div>
                                 )}

@@ -172,14 +172,14 @@ export const workflowsStateToPropsMixin = state => {
                         serviceID,
                     }))
                 );
-            })
+            });
         });
 
     return {
         workflows: workflowsByType,
         workflowsLoading: state.services.isFetchingAll || state.serviceWorkflows.isFetchingAll,
     };
-}
+};
 
 // Prop types object shape for a single workflow object.
 export const workflowPropTypesShape = PropTypes.shape({
