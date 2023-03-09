@@ -12,7 +12,7 @@ import ManagerDRSContent from "./manager/drs/ManagerDRSContent";
 
 const ManagerProjectDatasetContent = lazy(() => import("./manager/projects/ManagerProjectDatasetContent"));
 const ManagerAccessContent = lazy(() => import("./manager/ManagerAccessContent"));
-const ManagerFilesContent = lazy(() => import("./manager/ManagerFilesContent"));
+const ManagerDropBoxContent = lazy(() => import("./manager/ManagerDropBoxContent"));
 const ManagerIngestionContent = lazy(() => import("./manager/ManagerIngestionContent"));
 const ManagerWorkflowsContent = lazy(() => import("./manager/ManagerWorkflowsContent"));
 const ManagerRunsContent = lazy(() => import("./manager/runs/ManagerRunsContent"));
@@ -21,7 +21,7 @@ const ManagerRunsContent = lazy(() => import("./manager/runs/ManagerRunsContent"
 const PAGE_MENU = [
     {url: withBasePath("admin/data/manager/projects"), style: {marginLeft: "4px"}, text: "Projects and Datasets"},
     // {url: "/data/manager/access", text: "Access Management"},  // TODO: Re-enable for v0.2
-    {url: withBasePath("admin/data/manager/files"), text: "Files"},
+    {url: withBasePath("admin/data/manager/files"), text: "Drop Box"},
     {url: withBasePath("admin/data/manager/ingestion"), text: "Ingestion"},
     {url: withBasePath("admin/data/manager/workflows"), text: "Workflows"},
     {url: withBasePath("admin/data/manager/runs"), text: "Workflow Runs"},
@@ -58,7 +58,7 @@ const DataManagerContent = () => {
                 <Route path={withBasePath("admin/data/manager/projects")}
                        component={ManagerProjectDatasetContent} />
                 <Route exact path={withBasePath("admin/data/manager/access")} component={ManagerAccessContent} />
-                <Route exact path={withBasePath("admin/data/manager/files")} component={ManagerFilesContent} />
+                <Route exact path={withBasePath("admin/data/manager/files")} component={ManagerDropBoxContent} />
                 <Route exact path={withBasePath("admin/data/manager/ingestion")}
                        component={ManagerIngestionContent} />
                 <Route exact path={withBasePath("admin/data/manager/workflows")}

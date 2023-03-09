@@ -13,7 +13,21 @@ import ReactJson from "react-json-view";
 
 import {json, markdown, plaintext} from "react-syntax-highlighter/dist/cjs/languages/hljs";
 
-import {Button, Descriptions, Dropdown, Empty, Icon, Layout, Menu, Modal, Spin, Statistic, Tree} from "antd";
+import {
+    Alert,
+    Button,
+    Descriptions,
+    Dropdown,
+    Empty,
+    Icon,
+    Layout,
+    Menu,
+    Modal,
+    Spin,
+    Statistic,
+    Tree,
+    Typography
+} from "antd";
 
 import {LAYOUT_CONTENT_STYLE} from "../../styles/layoutContent";
 import TableSelectionModal from "./TableSelectionModal";
@@ -83,7 +97,7 @@ const formatSize = size => {
 const formatTimestamp = timestamp => (new Date(timestamp * 1000)).toLocaleString();
 
 
-const ManagerFilesContent = () => {
+const ManagerDropBoxContent = () => {
     const history = useHistory();
 
     const dropBoxService = useSelector(state => state.services.dropBoxService);
@@ -294,6 +308,8 @@ const ManagerFilesContent = () => {
                 </Descriptions>
             </Modal>
 
+            {/* ------------------------------ End of modals section ------------------------------ */}
+
             <div style={{display: "flex", flexDirection: "column", gap: "1em"}}>
                 <div style={{display: "flex", gap: "12px"}}>
                     <Dropdown.Button overlay={workflowMenu}
@@ -342,9 +358,15 @@ const ManagerFilesContent = () => {
                         ? "—"
                         : formatSize(Object.values(filesByPath).reduce((acc, f) => acc + f.size, 0))}
                 />
+
+                <Alert type="info" showIcon={true} message="About the drop box" description={`
+                    The drop box contains files which are not yet ingested into this Bento instance. They are not
+                    organized in any particular structure; instead, this serves as a place for incoming data files to be
+                    deposited and examined.
+                `} />
             </div>
         </Layout.Content>
     </Layout>;
 };
 
-export default ManagerFilesContent;
+export default ManagerDropBoxContent;
