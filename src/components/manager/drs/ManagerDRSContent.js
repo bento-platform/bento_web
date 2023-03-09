@@ -49,8 +49,12 @@ const ManagerDRSContent = () => {
         if (!drsUrl) return;
 
         // Extract value from either the native HTML event or the AntDesign event
-        const sv = (v.target?.value ?? v).trim();
-        if (!sv) return;
+        const sv = (v.target?.value ?? v ?? "").trim();
+        if (!sv) {
+            setDoneSearch(false);  // Behave as if we have never searched before
+            setSearchResults([]);
+            return;
+        }
 
         setLoading(true);
 
