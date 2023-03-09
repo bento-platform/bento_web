@@ -47,7 +47,7 @@ class IngestionInputForm extends Component {
             case "file[]":
                 // TODO: What about non-unique files?
                 return <TreeSelect showSearch={true} treeDefaultExpandAll={true} multiple={input.type === "file[]"}>
-                    <TreeSelect.TreeNode title="chord_drop_box" key="root">
+                    <TreeSelect.TreeNode title="Drop Box" key="root">
                         {generateFileTree(
                             this.props.tree,
                             entry => entry.hasOwnProperty("contents") ||
