@@ -1,8 +1,9 @@
 import React, {useCallback, useState} from "react";
 import {useSelector} from "react-redux";
 import {filesize} from "filesize";
+import {throttle} from "lodash";
 
-import {Layout, Input, Table, Button, Descriptions} from "antd";
+import {Layout, Input, Table, Button, Descriptions, message} from "antd";
 
 import {LAYOUT_CONTENT_STYLE} from "../../../styles/layoutContent";
 
@@ -44,37 +45,42 @@ const ManagerDRSContent = () => {
     const [doneSearch, setDoneSearch] = useState(false);
     const [loading, setLoading] = useState(false);
 
-    const onSearch = useCallback(v => {
+    const onSearch = useCallback(throttle(v => {
         if (!drsUrl) return;
 
+        // Extract value from either the native HTML event or the AntDesign event
         const sv = (v.target?.value ?? v).trim();
         if (!sv) return;
 
         setLoading(true);
 
         fetch(`${drsUrl}/search?` + new URLSearchParams({q: sv}))
-            .then(r => r.json())
-            .then(data => {
-                if (!(data.errors ?? []).length) {
+            .then(r => Promise.all([Promise.resolve(r.ok), r.json()]))
+            .then(([ok, data]) => {
+                if (ok) {
                     console.debug("received DRS objects:", data);
                     setSearchResults(data);
                 } else {
+                    message.error(`Encountered error while fetching DRS objects: ${data.message}`);
                     console.error(data);
                 }
                 setLoading(false);
                 setDoneSearch(true);
             })
-            .catch(e => console.error(e));  // TODO: error popup
-    }, [drsUrl]);
+            .catch(e => {
+                message.error(`Encountered error while fetching DRS objects: ${e}`);
+                console.error(e)
+            });
+    }, 250, {leading: true, trailing: true}), [drsUrl]);
 
     return <Layout>
         <Layout.Content style={LAYOUT_CONTENT_STYLE}>
             <div style={{maxWidth: 800, marginBottom: "1rem"}}>
                 <Input.Search
                     placeholder="Search DRS objects by name."
-                    // onChange={onSearch}
                     loading={loading || !drsUrl}
                     disabled={!drsUrl}
+                    onChange={onSearch}
                     onSearch={onSearch}
                     size="large"
                 />
