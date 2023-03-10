@@ -5,6 +5,7 @@ import {useHistory} from "react-router-dom";
 import PropTypes from "prop-types";
 
 import fetch from "cross-fetch";
+import {filesize} from "filesize";
 
 import {Light as SyntaxHighlighter} from "react-syntax-highlighter";
 import {a11yLight} from "react-syntax-highlighter/dist/cjs/styles/hljs";
@@ -26,7 +27,6 @@ import {
     Spin,
     Statistic,
     Tree,
-    Typography
 } from "antd";
 
 import {LAYOUT_CONTENT_STYLE} from "../../styles/layoutContent";
@@ -82,16 +82,6 @@ const recursivelyFlattenFileTree = (acc, contents) => {
         }
     });
     return acc;
-};
-
-const suffixes = ["bytes", "KB", "MB", "GB"];
-const formatSize = size => {
-    for (let i = 0; i < suffixes.length - 1; i++) {
-        if (size < Math.pow(1000, i + 1)) {
-            return `${(size / Math.pow(1000, i)).toFixed(1)} ${suffixes[i]}`;
-        }
-    }
-    return `${(size / Math.pow(1000, suffixes.length - 1)).toFixed(1)} ${suffixes.at(-1)}`;
 };
 
 const formatTimestamp = timestamp => (new Date(timestamp * 1000)).toLocaleString();
@@ -299,7 +289,7 @@ const ManagerDropBoxContent = () => {
                         {fileForInfo.split("/").at(-1)}</Descriptions.Item>
                     <Descriptions.Item label="Path" span={3}>{fileForInfo}</Descriptions.Item>
                     <Descriptions.Item label="Size" span={3}>
-                        {formatSize(filesByPath[fileForInfo]?.size ?? 0)}</Descriptions.Item>
+                        {filesize(filesByPath[fileForInfo]?.size ?? 0)}</Descriptions.Item>
                     <Descriptions.Item label="Last Modified" span={3}>
                         {formatTimestamp(filesByPath[fileForInfo]?.lastModified ?? 0)}</Descriptions.Item>
                     <Descriptions.Item label="Last Metadata Change" span={3}>
@@ -356,7 +346,7 @@ const ManagerDropBoxContent = () => {
                     title="Total Space Used"
                     value={treeLoading
                         ? "—"
-                        : formatSize(Object.values(filesByPath).reduce((acc, f) => acc + f.size, 0))}
+                        : filesize(Object.values(filesByPath).reduce((acc, f) => acc + f.size, 0))}
                 />
 
                 <Alert type="info" showIcon={true} message="About the drop box" description={`
