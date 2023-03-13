@@ -66,7 +66,7 @@ const RunSetupInputForm = ({initialValues, form, onSubmit, tree, workflow, onBac
 
     return <Form labelCol={FORM_LABEL_COL} wrapperCol={FORM_WRAPPER_COL} onSubmit={handleSubmit}>
         {[
-            ...workflow.inputs.map(i => (
+            ...workflow.inputs.filter(i => !i.hidden).map(i => (
                 <Form.Item label={i.id} key={i.id}>
                     {form.getFieldDecorator(i.id, {
                         initialValue: initialValues[i.id],  // undefined if not set
