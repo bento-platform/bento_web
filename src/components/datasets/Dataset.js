@@ -200,20 +200,22 @@ class Dataset extends Component {
         };
 
         return (
-            <Card key={this.state.identifier}
-                  title={this.state.title}
-                  tabList={DATASET_CARD_TABS}
-                  activeTabKey={this.state.selectedTab}
-                  onTabChange={t => this.setState({selectedTab: t})}
-                  extra={
-                      isPrivate ? <>
-                          <Button icon="edit"
-                                  style={{marginRight: "8px"}}
-                                  onClick={() => (this.props.onEdit || nop)()}>Edit</Button>
-                          <Button type="danger" icon="delete" onClick={handleDelete}>Delete</Button>
-                          {/* TODO: Share button (vFuture) */}
-                      </> : null
-                  }>
+            <Card
+                key={this.state.identifier}
+                title={this.state.title}
+                tabList={DATASET_CARD_TABS}
+                activeTabKey={this.state.selectedTab}
+                onTabChange={t => this.setState({selectedTab: t})}
+                extra={
+                    isPrivate ? <>
+                        <Button icon="edit"
+                                style={{marginRight: "8px"}}
+                                onClick={() => (this.props.onEdit || nop)()}>Edit</Button>
+                        <Button type="danger" icon="delete" onClick={handleDelete}>Delete</Button>
+                        {/* TODO: Share button (vFuture) */}
+                    </> : null
+                }
+            >
                 {isPrivate ? <>
                     <LinkedFieldSetModal mode={FORM_MODE_ADD}
                                          dataset={this.state}
