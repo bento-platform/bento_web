@@ -14,7 +14,13 @@ import {
     STEP_CONFIRM,
 } from "./workflowCommon";
 
-const RunSetupWizard = ({workflowSelection, confirmDisplay, onSubmit}) => {
+const RunSetupWizard = ({
+    workflowSelection,
+    workflowSelectionTitle,
+    workflowSelectionDescription,
+    confirmDisplay,
+    onSubmit,
+}) => {
     const location = useLocation();
 
     const {tree} = useSelector(dropBoxTreeStateToPropsMixin);
@@ -105,8 +111,8 @@ const RunSetupWizard = ({workflowSelection, confirmDisplay, onSubmit}) => {
         <Layout.Content style={LAYOUT_CONTENT_STYLE}>
             <Steps current={step} onChange={setStep}>
                 <Steps.Step
-                    title="Table & Workflow"
-                    description={<span style={{letterSpacing: "-0.1px"}}>Choose a table and ingestion workflow.</span>}
+                    title={workflowSelectionTitle ?? "Workflow"}
+                    description={workflowSelectionDescription ?? "Choose a workflow."}
                 />
                 <Steps.Step
                     title="Input"

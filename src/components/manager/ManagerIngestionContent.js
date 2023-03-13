@@ -141,6 +141,10 @@ const ManagerIngestionContent = () => {
                 handleWorkflowClick={handleWorkflowClick}
             />
         )}
+        workflowSelectionTitle="Table & Workflow"
+        workflowSelectionDescription={
+            <span style={{letterSpacing: "-0.1px"}}>Choose a table and ingestion workflow.</span>
+        }
         confirmDisplay={({selectedWorkflow, workflowSelectionValues, inputs, handleRunWorkflow}) => (
             <IngestConfirmDisplay
                 selectedTable={workflowSelectionValues.selectedTable}
