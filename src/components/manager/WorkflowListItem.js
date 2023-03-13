@@ -40,8 +40,9 @@ class WorkflowListItem extends Component {
 
         const typeTag = dt ? <Tag key={dt}>{dt}</Tag> : null;
 
-        const inputTags = inputs.map(i =>
-            ioTagWithType(i.id, i.type, i.type.startsWith("file") ? i.extensions.join(" / ") : ""));
+        const inputTags = inputs
+            .filter(i => !i.hidden)  // Filter out hidden (often injected/FROM_CONFIG) inputs
+            .map(i => ioTagWithType(i.id, i.type, i.type.startsWith("file") ? i.extensions.join(" / ") : ""));
 
         const inputExtensions = Object.fromEntries(inputs
             .filter(i => i.type.startsWith("file"))
