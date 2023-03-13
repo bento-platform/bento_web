@@ -26,7 +26,7 @@ const generateFileTree = (directory, valid) => [...directory].sort(sortByName).m
         {entry?.contents ? generateFileTree(entry.contents, valid) : null}
     </TreeSelect.TreeNode>);
 
-class IngestionInputForm extends Component {
+class RunSetupInputForm extends Component {
     constructor(props) {
         super(props);
         this.handleSubmit = this.handleSubmit.bind(this);
@@ -96,7 +96,7 @@ class IngestionInputForm extends Component {
     }
 }
 
-IngestionInputForm.propTypes = {
+RunSetupInputForm.propTypes = {
     tree: PropTypes.array,
     workflow: workflowPropTypesShape,
     initialValues: PropTypes.object,
@@ -106,10 +106,10 @@ IngestionInputForm.propTypes = {
 };
 
 export default Form.create({
-    name: "ingestion_input_form",
+    name: "run_setup_input_form",
     mapPropsToFields: ({workflow, formValues}) =>
         Object.fromEntries(workflow.inputs.map(i => [i.id, Form.createFormField({...formValues[i.id]})])),
     onFieldsChange: ({onChange}, _, allFields) => {
         onChange({...allFields});
     }
-})(IngestionInputForm);
+})(RunSetupInputForm);

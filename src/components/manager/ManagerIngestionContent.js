@@ -13,13 +13,15 @@ import {
     FORM_LABEL_COL,
     FORM_WRAPPER_COL,
     FORM_BUTTON_COL,
+} from "./ingestion";
 
+import {
     STEP_WORKFLOW_SELECTION,
     STEP_INPUT,
     STEP_CONFIRM,
-} from "./ingestion";
+} from "./workflowCommon";
 
-import IngestionInputForm from "./IngestionInputForm";
+import IngestionInputForm from "./RunSetupInputForm";
 import TableTreeSelect from "./TableTreeSelect";
 
 import {EM_DASH} from "../../constants";
