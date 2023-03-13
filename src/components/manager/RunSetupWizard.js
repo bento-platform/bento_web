@@ -36,7 +36,7 @@ const RunSetupWizard = ({workflowSelection, confirmDisplay, onSubmit}) => {
             selectedWorkflow: newSelectedWorkflow,
             initialInputValues: newInitialInputValues
         } = location?.state ?? {};
-        
+
         if (newStep !== undefined) {
             setStep(newStep);
         }
