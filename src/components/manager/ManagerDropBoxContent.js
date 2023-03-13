@@ -32,7 +32,7 @@ import {
 import {LAYOUT_CONTENT_STYLE} from "../../styles/layoutContent";
 import TableSelectionModal from "./TableSelectionModal";
 
-import {STEP_INPUT} from "./ingestion";
+import {STEP_INPUT} from "./workflowCommon";
 import {withBasePath} from "../../utils/url";
 import {workflowsStateToPropsMixin} from "../../propTypes";
 
@@ -161,7 +161,7 @@ const ManagerDropBoxContent = () => {
     const ingestIntoTable = useCallback(tableKey => {
         history.push(withBasePath("admin/data/manager/ingestion"), {
             step: STEP_INPUT,
-            selectedTable: tableKey,
+            workflowSelectionValues: {selectedTable: tableKey},
             selectedWorkflow,
             initialInputValues: getWorkflowFit(selectedWorkflow)[1]
         });
