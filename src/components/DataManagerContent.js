@@ -9,6 +9,7 @@ import {withBasePath} from "../utils/url";
 
 import SitePageHeader from "./SitePageHeader";
 import ManagerDRSContent from "./manager/drs/ManagerDRSContent";
+import ManagerAnalysisContent from "./manager/ManagerAnalysisContent";
 
 const ManagerProjectDatasetContent = lazy(() => import("./manager/projects/ManagerProjectDatasetContent"));
 const ManagerAccessContent = lazy(() => import("./manager/ManagerAccessContent"));
@@ -23,6 +24,7 @@ const PAGE_MENU = [
     // {url: "/data/manager/access", text: "Access Management"},  // TODO: Re-enable for v0.2
     {url: withBasePath("admin/data/manager/files"), text: "Drop Box"},
     {url: withBasePath("admin/data/manager/ingestion"), text: "Ingestion"},
+    {url: withBasePath("admin/data/manager/analysis"), text: "Analysis"},
     {url: withBasePath("admin/data/manager/workflows"), text: "Workflows"},
     {url: withBasePath("admin/data/manager/runs"), text: "Workflow Runs"},
     {url: withBasePath("admin/data/manager/drs"), text: "DRS Objects"},
@@ -61,6 +63,8 @@ const DataManagerContent = () => {
                 <Route exact path={withBasePath("admin/data/manager/files")} component={ManagerDropBoxContent} />
                 <Route exact path={withBasePath("admin/data/manager/ingestion")}
                        component={ManagerIngestionContent} />
+                <Route exact path={withBasePath("admin/data/manager/analysis")}
+                       component={ManagerAnalysisContent} />
                 <Route exact path={withBasePath("admin/data/manager/workflows")}
                        component={ManagerWorkflowsContent} />
                 <Route exact path={withBasePath("admin/data/manager/drs")} component={ManagerDRSContent} />
