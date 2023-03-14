@@ -1,6 +1,7 @@
 import React, {useCallback, useEffect, useState} from "react";
 import {useSelector} from "react-redux";
 import {useLocation} from "react-router-dom";
+import PropTypes from "prop-types";
 
 import {Layout, Steps} from "antd";
 
@@ -128,6 +129,13 @@ const RunSetupWizard = ({
             <div style={{marginTop: "16px"}}>{getStepContents()}</div>
         </Layout.Content>
     </Layout>;
+};
+RunSetupWizard.propTypes = {
+    workflowSelection: PropTypes.node,
+    workflowSelectionTitle: PropTypes.string,
+    workflowSelectionDescription: PropTypes.string,
+    confirmDisplay: PropTypes.node,
+    onSubmit: PropTypes.func,
 };
 
 export default RunSetupWizard;

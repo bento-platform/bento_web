@@ -1,8 +1,9 @@
 import React from "react";
 import {useDispatch, useSelector} from "react-redux";
 import {useHistory} from "react-router-dom";
+import PropTypes from "prop-types";
 
-import {Button, Empty, Form, List, Skeleton, Spin, Table, Tag} from "antd";
+import {Button, Empty, Form, List, Skeleton, Spin, Tag} from "antd";
 
 import WorkflowListItem from "./WorkflowListItem";
 
@@ -16,7 +17,6 @@ import {
 
 import TableTreeSelect from "./TableTreeSelect";
 
-import {EM_DASH} from "../../constants";
 import {withBasePath} from "../../utils/url";
 import {workflowsStateToPropsMixin} from "../../propTypes";
 import RunSetupWizard from "./RunSetupWizard";
@@ -57,6 +57,13 @@ const IngestWorkflowSelection = ({values, setValues, handleWorkflowClick}) => {
             }
         </Form.Item>
     </Form>;
+};
+IngestWorkflowSelection.propTypes = {
+    values: PropTypes.shape({
+        selectedTable: PropTypes.string,
+    }),
+    setValues: PropTypes.func,
+    handleWorkflowClick: PropTypes.func,
 };
 
 const IngestConfirmDisplay = ({selectedTable, selectedWorkflow, inputs, handleRunWorkflow}) => {
@@ -101,6 +108,12 @@ const IngestConfirmDisplay = ({selectedTable, selectedWorkflow, inputs, handleRu
             </Form.Item>
         </Form>
     );
+};
+IngestConfirmDisplay.propTypes = {
+    selectedTable: PropTypes.string,
+    selectedWorkflow: PropTypes.object,
+    inputs: PropTypes.object,
+    handleRunWorkflow: PropTypes.func,
 };
 
 
@@ -150,6 +163,6 @@ const ManagerIngestionContent = () => {
             ));
         }}
     />;
-}
+};
 
 export default ManagerIngestionContent;

@@ -1,4 +1,5 @@
 import React from "react";
+import PropTypes from "prop-types";
 import {Table} from "antd";
 import {EM_DASH} from "../../constants";
 
@@ -20,7 +21,8 @@ const RunSetupInputsTable = ({selectedWorkflow, inputs}) => (
                 render: value =>
                     value === undefined
                         ? EM_DASH
-                        : (value instanceof Array
+                        : (
+                            value instanceof Array
                                 ? <ul>{value.map(v => <li key={v.toString()}>{v.toString()}</li>)}</ul>
                                 : value.toString()
                         )
@@ -30,5 +32,9 @@ const RunSetupInputsTable = ({selectedWorkflow, inputs}) => (
         dataSource={selectedWorkflow.inputs.map(i => ({id: i.id, value: inputs[i.id]}))}
     />
 );
+RunSetupInputsTable.propTypes = {
+    selectedWorkflow: PropTypes.object,
+    inputs: PropTypes.object,
+};
 
 export default RunSetupInputsTable;
