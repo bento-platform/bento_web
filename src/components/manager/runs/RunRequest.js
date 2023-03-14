@@ -25,9 +25,11 @@ const RunRequest = ({run}) => {
     const idFragment = <span style={{fontFamily: "monospace"}}>{tableID}</span>;
 
     return <Descriptions bordered>
-        <Descriptions.Item label="Table" span={3}>
-            <Tag>{tableDataType}</Tag> {tableName ? <>{tableName} ({idFragment})</> : idFragment}
-        </Descriptions.Item>
+        {tableID !== undefined && (
+            <Descriptions.Item label="Table" span={3}>
+                <Tag>{tableDataType}</Tag> {tableName ? <>{tableName} ({idFragment})</> : idFragment}
+            </Descriptions.Item>
+        )}
         <Descriptions.Item label="Parameters" span={3}>
             <ReactJson
                 src={details.request.workflow_params}
