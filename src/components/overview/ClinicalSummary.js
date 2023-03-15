@@ -92,7 +92,7 @@ const ClinicalSummary = () => {
         <>
             <Row>
                 <Typography.Title level={4}>
-                    Clinical/Phenotypic Data
+                    Clinical/Phenotypic DataX
                 </Typography.Title>
                 <Row style={{ marginBottom: "24px" }} gutter={[0, 16]}>
                     {statistics.map((s, i) => (
