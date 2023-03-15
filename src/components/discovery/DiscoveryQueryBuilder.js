@@ -168,7 +168,7 @@ class DiscoveryQueryBuilder extends Component {
         const addConditionsOnDataType = (buttonProps = {style: {float: "right"}}) => (
             <Dropdown overlay={dataTypeMenu}
                       disabled={this.props.dataTypesLoading || this.props.searchLoading}>
-                <Button {...buttonProps}>Add Conditions on Data Type <Icon type="down" /></Button>
+                <Button {...buttonProps}> <Icon type="plus" /> Data Type <Icon type="down" /></Button>
             </Dropdown>
         );
 
