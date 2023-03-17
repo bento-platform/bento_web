@@ -145,7 +145,7 @@ const ManagerIngestionContent = () => {
             const {selectedTable} = workflowSelectionValues;
 
             if (!selectedTable || !selectedWorkflow) {
-                message.error(`Missing ${selectedTable ? 'workflow' : 'table'} selection; cannot submit run!`);
+                message.error(`Missing ${selectedTable ? "workflow" : "table"} selection; cannot submit run!`);
                 return;
             }
 
