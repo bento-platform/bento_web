@@ -132,8 +132,8 @@ const RunSetupWizard = ({
 };
 RunSetupWizard.propTypes = {
     workflowSelection: PropTypes.node,
-    workflowSelectionTitle: PropTypes.string,
-    workflowSelectionDescription: PropTypes.string,
+    workflowSelectionTitle: PropTypes.oneOfType([PropTypes.string, PropTypes.node]),
+    workflowSelectionDescription: PropTypes.oneOfType([PropTypes.string, PropTypes.node]),
     confirmDisplay: PropTypes.node,
     onSubmit: PropTypes.func,
 };
