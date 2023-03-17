@@ -1,265 +1,107 @@
-import React, {Component} from "react";
-import {connect} from "react-redux";
-import {Link, withRouter} from "react-router-dom";
-import PropTypes from "prop-types";
+import React, { useState, useEffect } from "react";
+import { useSelector, useDispatch } from "react-redux";
+import { useParams } from "react-router-dom";
 
-import {Button, Table, Typography, Spin} from "antd";
+import { Typography, Tabs } from "antd";
 
 import "./explorer.css";
 
 import DiscoveryQueryBuilder from "../discovery/DiscoveryQueryBuilder";
-import SearchSummaryModal from "./SearchSummaryModal";
 import SearchAllRecords from "./SearchAllRecords";
 
-import {datasetPropTypesShape} from "../../propTypes";
 import {
     addDataTypeQueryForm,
     performSearchIfPossible,
     removeDataTypeQueryForm,
     updateDataTypeQueryForm,
-    setSelectedRows,
-    setTableSortOrder,
-    performIndividualsDownloadCSVIfPossible,
 } from "../../modules/explorer/actions";
-import {withBasePath} from "../../utils/url";
-import SearchTracksModal from "./SearchTracksModal";
 
+import IndividualsTable from "./IndividualsTable";
+import BiosamplesTable from "./BiosamplesTable";
+import ExperimentsTable from "./ExperimentsTable";
 
-const individualRender = (individual) => {
-    const alternateIds = individual.alternate_ids ?? [];
-    const listRender = alternateIds.length ? " (" + alternateIds.join(", ") + ")" : "";
-    return <><Link to={location => ({
-        pathname: withBasePath(`data/explorer/individuals/${individual.id}/overview`),
-        state: {backUrl: location.pathname},
-    })}>{individual.id}</Link> {listRender}</>;
-};
+const { TabPane } = Tabs;
 
+const ExplorerDatasetSearch = () => {
+    const [,setCurrentPage] = useState(1);
+    const [activeKey, setActiveKey] = useState("1");
+    const dispatch = useDispatch();
+    const { dataset } = useParams();
 
-class ExplorerDatasetSearch extends Component {
-    constructor(props) {
-        super(props);
-        this.onPageChange = this.onPageChange.bind(this);
-        this.resetPageNumber = this.resetPageNumber.bind(this);
+    const datasetsByID = useSelector((state) =>
+        Object.fromEntries(
+            state.projects.items.flatMap((p) => p.datasets.map((d) => [d.identifier, { ...d, project: p.identifier }]))
+        )
+    );
+    const dataTypeForms = useSelector((state) => state.explorer.dataTypeFormsByDatasetID[dataset] || []);
+    const fetchingSearch = useSelector((state) => state.explorer.fetchingSearchByDatasetID[dataset] || false);
+    const fetchingTextSearch = useSelector((state) => state.explorer.fetchingTextSearch || false);
+    const searchResults = useSelector((state) => state.explorer.searchResultsByDatasetID[dataset] || null);
+    console.log("search results: ", searchResults);
 
-        this.state = {
-            summaryModalVisible: false,
-            currentPage: 1,
-            pageSize: 25,
-            tracksModalVisible: false
-        };
-
+    useEffect(() => {
         // Ensure user is at the top of the page after transition
         window.scrollTo(0, 0);
-    }
+    }, []);
 
-    onPageChange(pagination, _, sorter) {
-        this.setState({currentPage: pagination.current});
-        this.props.setTableSortOrder(sorter.columnKey, sorter.order);
-    }
-
-    resetPageNumber() {
-        this.props.performSearchIfPossible();
-
-        //this.setState({currentPage: 1});
-        // Not-so-React-y way of setting the current data table to page 1
-        // in the event a new search query results in an equal-or-longer dataset.
-        // Without such a mechanism, the user will find themselves on the same page they
-        // were on with their last query
-        try {
-            const firstPageButton = document.getElementsByClassName(
-                "ant-pagination-item ant-pagination-item-1")[0];
-            if (firstPageButton) {
-                // Search pagination exists
-                firstPageButton.click();
-            }
-        } catch (error) {
-            console.error(error);
-        }
-    }
-
-    render() {
-
-        const {sortColumnKey, sortOrder} = this.props.tableSortOrder;
-
-        const searchResultColumns = [
-            {
-                title: "Individual",
-                dataIndex: "individual",
-                render: individual => individualRender(individual),
-                sorter: (a, b) => a.individual.id.localeCompare(b.individual.id),
-                sortOrder: sortColumnKey === "individual" && sortOrder,
-                defaultSortOrder: "ascend"
-            },
-            {
-                title: "Samples",
-                dataIndex: "biosamples",
-                render: samples => <>
-                    {samples.length} Sample{samples.length === 1 ? "" : "s"}{samples.length ? ": " : ""}
-                    {samples.join(", ")}
-                </>,
-                sorter: (a, b) => a.biosamples.length - b.biosamples.length,
-                sortOrder: sortColumnKey === "biosamples" && sortOrder,
-                sortDirections: ["descend", "ascend", "descend"],
-            },
-            {
-                title: "Experiments",
-                dataIndex: "experiments",
-                render: experiments => <>{experiments} Experiment{experiments === 1 ? "" : "s"}</>,
-                sorter: (a, b) => a.experiments - b.experiments,
-                sortOrder: sortColumnKey === "experiments" && sortOrder,
-                sortDirections: ["descend", "ascend", "descend"],
-            },
-        ];
-
-        if (!this.props.match.params.dataset) return null;  // TODO
-
-        const selectedDataset = this.props.datasetsByID[this.props.match.params.dataset];
-
-        if (!selectedDataset) return null;  // TODO
-
-        const numResults = (this.props.searchResults || {searchFormattedResults: []}).searchFormattedResults.length;
-
-        const isFetchingSearchResults = this.props.fetchingSearch || this.props.fetchingTextSearch;
-
-        const tableStyle = {
-            opacity: (isFetchingSearchResults ? 0.5 : 1),
-            pointerEvents: (isFetchingSearchResults ? "none" : "auto")
-        };
-
-        // Calculate page numbers and range
-        const showingResults = numResults > 0
-            ? (this.state.currentPage * this.state.pageSize) - this.state.pageSize + 1
-            : 0;
-
-        console.log("search results: ", this.props.searchResults);
-
-        return <>
-            <Typography.Title level={4}>Explore Dataset {selectedDataset.title}</Typography.Title>
-            <SearchAllRecords datasetID={this.props.match.params.dataset}/>
-            <DiscoveryQueryBuilder isInternal={true}
-                                   dataTypeForms={this.props.dataTypeForms}
-                                   onSubmit={this.resetPageNumber}
-                                   searchLoading={this.props.fetchingSearch}
-                                   addDataTypeQueryForm={this.props.addDataTypeQueryForm}
-                                   updateDataTypeQueryForm={this.props.updateDataTypeQueryForm}
-                                   removeDataTypeQueryForm={this.props.removeDataTypeQueryForm} />
-            {this.props.searchResults && !(isFetchingSearchResults) ? <>
-                <Typography.Title level={4}>
-                    Showing results {showingResults}-{Math.min(this.state.currentPage * this.state.pageSize,
-                    numResults)} of {numResults}
-                    <Spin style={{marginLeft: "35px"}} spinning={this.props.fetchingSearch}>
-                    </Spin>
-                    <div style={{float: "right", verticalAlign: "top"}}>
-                        {/* TODO: new "visualize tracks" functionality */}
-                        {/* <Button icon="profile"
-                                style={{marginRight: "8px"}}
-                                onClick={() => this.setState({tracksModalVisible: true})}
-                                disabled={true}>
-                            Visualize Tracks</Button> */}
-                        <Button icon="bar-chart"
-                                style={{marginRight: "8px"}}
-                                onClick={() => this.setState({summaryModalVisible: true})}>View Summary</Button>
-                        <Button icon="export" style={{marginRight: "8px"}}
-                                loading={this.props.isFetchingDownload}
-                                onClick={() => this.props.performIndividualsDownloadCSVIfPossible(
-                                    this.props.selectedRows, this.props.searchResults.searchFormattedResults)}>
-                            Export as CSV</Button>
-                    </div>
-                </Typography.Title>
-                {this.state.summaryModalVisible &&
-                <SearchSummaryModal searchResults={this.props.searchResults}
-                                    visible={this.state.summaryModalVisible}
-                                    onCancel={() => this.setState({summaryModalVisible: false})} />}
-                <SearchTracksModal searchResults={this.props.searchResults}
-                                   visible={this.state.tracksModalVisible}
-                                   onCancel={() => this.setState({tracksModalVisible: false})} />
-                    <div style={tableStyle}>
-                        <Table bordered
-                               disabled={isFetchingSearchResults}
-                               size="middle"
-                               columns={searchResultColumns}
-                               dataSource={this.props.searchResults.searchFormattedResults || []}
-                               pagination={{
-                                   pageSize: this.state.pageSize,
-                                   defaultCurrent: this.state.currentPage,
-                                   showQuickJumper: true
-                               }}
-                               onChange={this.onPageChange}
-                               rowSelection={{
-                                   selectedRowKeys: this.props.selectedRows,
-                                   onChange: this.props.setSelectedRows,
-                                   selections: [
-                                       {
-                                           key: "select-all-data",
-                                           text: "Select all data",
-                                           onSelect: () => this.props.setSelectedRows(
-                                               (this.props.searchResults.searchFormattedResults || []).map(r => r.key)
-                                           ),
-                                       },
-                                       {
-                                           key: "unselect-all-data",
-                                           text: "Unselect all data",
-                                           onSelect: () => this.props.setSelectedRows([]),
-                                       },
-                                   ],
-                               }} />
-                    </div>
-            </> : null}
-        </>;
-    }
-}
-
-ExplorerDatasetSearch.propTypes = {
-    // chordServices: PropTypes.arrayOf(PropTypes.object), // todo: more detail
-
-    dataTypeForms: PropTypes.arrayOf(PropTypes.object),
-    fetchingSearch: PropTypes.bool,
-    fetchingTextSearch: PropTypes.bool,
-    searchResults: PropTypes.object,
-    selectedRows: PropTypes.arrayOf(PropTypes.string),
-    tableSortOrder: PropTypes.object,
-
-    addDataTypeQueryForm: PropTypes.func.isRequired,
-    updateDataTypeQueryForm: PropTypes.func.isRequired,
-    removeDataTypeQueryForm: PropTypes.func.isRequired,
-    performSearchIfPossible: PropTypes.func.isRequired,
-    setSelectedRows: PropTypes.func.isRequired,
-    setTableSortOrder: PropTypes.func,
-
-    performIndividualsDownloadCSVIfPossible: PropTypes.func.isRequired,
-    isFetchingDownload: PropTypes.bool,
-
-    datasetsByID: PropTypes.objectOf(datasetPropTypesShape),
-};
-
-const mapStateToProps = (state, ownProps) => {
-    const datasetID = ownProps.match.params.dataset;
-    return {
-        // chordServices: state.services,
-
-        dataTypeForms: state.explorer.dataTypeFormsByDatasetID[datasetID] || [],
-        fetchingSearch: state.explorer.fetchingSearchByDatasetID[datasetID] || false,
-        fetchingTextSearch: state.explorer.fetchingTextSearch || false,
-        searchResults: state.explorer.searchResultsByDatasetID[datasetID] || null,
-        selectedRows: state.explorer.selectedRowsByDatasetID[datasetID] || [],
-        tableSortOrder: state.explorer.tableSortOrderByDatasetID[datasetID] || {},
-
-        isFetchingDownload: state.explorer.isFetchingDownload || false,
-
-        datasetsByID: Object.fromEntries(state.projects.items
-            .flatMap(p => p.datasets.map(d => [d.identifier, {...d, project: p.identifier}]))),
+    const onCallback = (activeKey) => {
+        setActiveKey(activeKey);
     };
+
+    const resetPageNumber = () => {
+        setCurrentPage(1);
+        dispatch(performSearchIfPossible(dataset));
+    };
+
+    if (!dataset) return null; // TODO
+
+    const selectedDataset = datasetsByID[dataset];
+
+    if (!selectedDataset) return null; // TODO
+
+    const isFetchingSearchResults = fetchingSearch || fetchingTextSearch;
+
+    const hasIndividuals = searchResults && searchResults.searchFormattedResults;
+    const hasExperiments = searchResults && searchResults.searchFormattedResultsExperiment;
+    const hasBiosamples = searchResults && searchResults.searchFormattedResultsBioSamples;
+    const showTabs = hasIndividuals && (hasExperiments || hasBiosamples);
+
+    return (
+        <>
+            <Typography.Title level={4}>Explore DatasetY {selectedDataset.title}</Typography.Title>
+            <SearchAllRecords datasetID={dataset} />
+            <DiscoveryQueryBuilder
+                isInternal={true}
+                dataTypeForms={dataTypeForms}
+                onSubmit={resetPageNumber}
+                searchLoading={fetchingSearch}
+                addDataTypeQueryForm={(form) => dispatch(addDataTypeQueryForm(dataset, form))}
+                updateDataTypeQueryForm={(index, form) => dispatch(updateDataTypeQueryForm(dataset, index, form))}
+                removeDataTypeQueryForm={(index) => dispatch(removeDataTypeQueryForm(dataset, index))}
+            />
+            {hasIndividuals &&
+                !isFetchingSearchResults &&
+                (showTabs ? (
+                    <Tabs defaultActiveKey="1" onChange={onCallback} activeKey={activeKey}>
+                        <TabPane tab="Individual" key="1">
+                            <IndividualsTable data={searchResults.searchFormattedResults} />
+                        </TabPane>
+                        {hasExperiments && (
+                            <TabPane tab="Experiments" key="2">
+                                <ExperimentsTable data={searchResults.searchFormattedResultsExperiments} />
+                            </TabPane>
+                        )}
+                        {hasBiosamples && (
+                            <TabPane tab="Biosamples" key="3">
+                                <BiosamplesTable data={searchResults.searchFormattedResultsBiosamples} />
+                            </TabPane>
+                        )}
+                    </Tabs>
+                ) : (
+                    <IndividualsTable data={searchResults.searchFormattedResults} />
+                ))}
+        </>
+    );
 };
 
-// Map datasetID to the front argument of these actions and add dispatching
-const mapDispatchToProps = (dispatch, ownProps) => Object.fromEntries(Object.entries({
-    addDataTypeQueryForm,
-    updateDataTypeQueryForm,
-    removeDataTypeQueryForm,
-    performSearchIfPossible,
-    setSelectedRows,
-    setTableSortOrder,
-    performIndividualsDownloadCSVIfPossible
-}).map(([k, v]) => [k, (...args) => dispatch(v(ownProps.match.params.dataset, ...args))]));
-
-export default withRouter(connect(mapStateToProps, mapDispatchToProps)(ExplorerDatasetSearch));
+export default ExplorerDatasetSearch;
