@@ -35,8 +35,8 @@ const ioTagWithType = (id, ioType, typeContent = "") => (
 
 class WorkflowListItem extends Component {
     render() {
-        const dt = this.props.workflow.data_type;
-        const {inputs, outputs} = this.props.workflow;
+        const {onClick, workflow} = this.props;
+        const {inputs, outputs, name, description, data_type: dt} = workflow;
 
         const typeTag = dt ? <Tag key={dt}>{dt}</Tag> : null;
 
@@ -66,15 +66,17 @@ class WorkflowListItem extends Component {
             return ioTagWithType(o.id, o.type, formattedOutput);
         });
 
+        const selectable = !!onClick;  // Can be selected if a click handler exists
+
         return <List.Item>
             <List.Item.Meta
                 title={
-                    this.props.selectable
-                        ? <a onClick={() => (this.props.onClick || nop)()}>
-                            {typeTag} {this.props.workflow.name}
+                    selectable
+                        ? <a onClick={() => (onClick || nop)()}>
+                            {typeTag} {name}
                             <Icon type="right" style={{marginLeft: "0.3rem"}} /></a>
-                        : <span>{typeTag} {this.props.workflow.name}</span>}
-                description={this.props.workflow.description || ""} />
+                        : <span>{typeTag} {name}</span>}
+                description={description || ""} />
 
             <div style={{marginBottom: "12px"}}>
                 <span style={{fontWeight: "bold", marginRight: "1em"}}>Inputs:</span>

@@ -33,7 +33,6 @@ const IngestWorkflowSelection = ({values, setValues, handleWorkflowClick}) => {
             <WorkflowListItem
                 key={w.id}
                 workflow={w}
-                selectable={true}
                 onClick={() => handleWorkflowClick(w)}
             />
         );
