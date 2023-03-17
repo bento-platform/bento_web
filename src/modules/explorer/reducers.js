@@ -72,6 +72,8 @@ export const explorer = (
                     [action.datasetID]: {
                         results: action.data,
                         searchFormattedResults: tableSearchResults(action.data),
+                        searchFormattedResultsExperiment: tableSearchResultsExperiments(action.data),
+                        searchFormattedResultsBioSamples: tableSearchResultsBiosamples(action.data),
                     },
                 },
                 selectedRowsByDatasetID: {
@@ -209,6 +211,8 @@ export const explorer = (
                     [action.datasetID]: {
                         results: freeTextResults(action.data),
                         searchFormattedResults: tableSearchResults(action.data),
+                        searchFormattedResultsExperiments: tableSearchResultsExperiments(action.data),
+                        searchFormattedResultsBiosamples: tableSearchResultsBiosamples(action.data),
                     },
                 },
             };
@@ -234,6 +238,77 @@ export const explorer = (
 };
 
 // helpers
+
+const tableSearchResultsExperiments = (searchResults) => {
+    const results = (searchResults || {}).results || [];
+
+    return results.flatMap((result) => {
+        return result.i_type.flatMap((expId, index) => {
+            return {
+                subject_id: result.subject_id,
+                //key: result.subject_id,
+                key: expId,
+                alternate_ids: result.alternate_ids,
+                i_type: result.i_type[index],
+                im_type: expId,
+                e_type: result.e_type[index],
+                studies_type: result.studies_type[index],
+                if_type: result.if_type[index],
+                individual: {
+                    id: result.subject_id,
+                    alternate_ids: result.alternate_ids ?? [],
+                },
+            };
+        });
+    });
+};
+
+
+function generateObjectsSa(searchResults) {
+    const data = (searchResults || {}).results || [];
+    return data.flatMap((result) => {
+        const biosampleIdToIndex = {};
+        return result.biosamples_lM.reduce((objects, biosampleId, i) => {
+            if (biosampleId) {
+                // only add object if key is truthy
+                const index =
+                    biosampleId in biosampleIdToIndex
+                        ? biosampleIdToIndex[biosampleId]
+                        : (biosampleIdToIndex[biosampleId] = objects.length);
+                objects[index] = objects[index] || {
+                    subject_id: result.subject_id,
+                    key: result.subject_id + "_" + biosampleId, ///biosampleId,
+                    alternate_ids: result.alternate_ids,
+                    i_type: result.i_type[index] || "N/A",
+                    im_type: biosampleId,
+                    e_type: result.e_type[index] || "N/A",
+                    //s_type: result.s_type[index] || "N/A",
+                    if_type: result.if_type[index] || "N/A",
+                    num_experiments: result.num_experiments,
+                    individual: {
+                        id: result.subject_id,
+                        alternate_ids: result.alternate_ids || [],
+                    },
+                    experiments_id: [],
+                    experiments_type: [],
+                    studies_type: [],
+                    sampled_tissues: [],
+                };
+                objects[index].experiments_id.push(result.experiments_id[i]);
+                objects[index].experiments_type.push(result.experiments_type[i]);
+                objects[index].studies_type.push(result.studies_type[i]);
+                objects[index].sampled_tissues.push(result.sampled_tissues[i]);
+            }
+            return objects;
+        }, []);
+    }); // flatten the array of arrays into a single-level array
+}
+
+
+const tableSearchResultsBiosamples = (searchResults) => {
+    const res = generateObjectsSa(searchResults);
+    return res;
+};
 
 const tableSearchResults = (searchResults) => {
     const results = (searchResults || {}).results || [];
