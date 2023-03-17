@@ -41,7 +41,7 @@ const DatasetForm = ({ style, initialValue, form }) => {
             <Item label="DATS File">
                 {form.getFieldDecorator("dats_file", {
                     initialValue: initialValue?.dats_file || "",
-                    rules: [{validator: validateJson}, {min: 2}],
+                    rules: [{ required: true }, { validator: validateJson }, { min: 2 }],
                 })(<Input.TextArea />)}
             </Item>
             <Item label="Consent Code and Data Use Requirements">
