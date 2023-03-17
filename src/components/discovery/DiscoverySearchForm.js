@@ -400,7 +400,7 @@ class DiscoverySearchForm extends Component {
             </Form.Item>
         ));
 
-        console.log({ formItems: formItems });
+        //console.log({ formItems: formItems });
 
         return (
             <Form onSubmit={this.onSubmit}>
