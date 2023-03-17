@@ -3,7 +3,6 @@ import PropTypes from "prop-types";
 
 import {Icon, List, Tag} from "antd";
 
-
 import {nop} from "../../utils/misc";
 import {workflowPropTypesShape} from "../../propTypes";
 
