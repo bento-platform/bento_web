@@ -36,12 +36,12 @@ export const setUser = user => ({
     data: user,
 });
 
-export const fetchDependentData = () => dispatch => Promise.all([
+export const fetchServiceDependentData = () => dispatch => Promise.all([
     fetchDropBoxTreeOrFail,
     fetchRuns,
     fetchNotifications,
     fetchOverviewSummary,
-    performGetGohanVariantsOverviewIfPossible
+    performGetGohanVariantsOverviewIfPossible,
 ].map(a => dispatch(a())));
 
 // TODO: Rename this (also fetches node info)
@@ -69,23 +69,22 @@ export const fetchDependentDataWithProvidedUser = (servicesCb, boundUserGetActio
     await dispatch(boundUserGetAction);
     const newUserState = getState().auth.user;
 
+    // If this is false, we either didn't change state (in which case we've handled stuff before)
+    // or are not an owner, and so should not try to fetch authenticated data.
+    // TODO: Actual roles/logic for access
+    const shouldUpdateUserDependentData = !(newUserState?.chord_user_role !== "owner"
+        || oldUserState?.chord_user_role === newUserState?.chord_user_role);
+
     if (!hasAttempted) {
-        await dispatch(fetchServicesWithMetadataAndDataTypesAndTablesIfNeeded());
+        await dispatch(fetchServicesWithMetadataAndDataTypesAndTablesIfNeeded(async () => {
+            if (shouldUpdateUserDependentData) {
+                // We're newly authenticated as an owner, so run all actions that need authentication.
+                await dispatch(fetchServiceDependentData());
+            }
+        }));
         await (servicesCb || nop)();
         await dispatch(fetchProjectsWithDatasetsAndTables());  // TODO: If needed, remove if !hasAttempted
     }
-
-    if (newUserState?.chord_user_role !== "owner"
-        || oldUserState?.chord_user_role === newUserState?.chord_user_role) {
-        // We either didn't change state (in which case we've handled stuff before) or are not an owner, and so
-        // should not try to fetch authenticated data.
-        // TODO: Actual roles for access
-        if (!hasAttempted) dispatch(endFlow(FETCHING_USER_DEPENDENT_DATA));
-        return;
-    }
-
-    // Otherwise, we're newly authenticated as an owner, so run all actions that need authentication.
-    await dispatch(fetchDependentData());
 
     if (!hasAttempted) dispatch(endFlow(FETCHING_USER_DEPENDENT_DATA));
 };

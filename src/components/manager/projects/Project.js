@@ -120,16 +120,18 @@ class Project extends Component {
                 ? this.state.datasets.sort((d1, d2) => d1.title.localeCompare(d2.title)).map(d =>
                     <Row gutter={[0, 16]} key={d.identifier}>
                         <Col span={24}>
-                            <Dataset key={d.identifier}
-                                     mode="private"
-                                     project={this.props.value}
-                                     value={{
-                                         ...d,
-                                         tables: this.props.tables.filter(t => t.dataset === d.identifier),
-                                     }}
-                                     strayTables={this.props.strayTables}
-                                     onEdit={() => (this.props.onEditDataset || nop)(d)}
-                                     onTableIngest={this.props.onTableIngest || nop}  />
+                            <Dataset
+                                key={d.identifier}
+                                mode="private"
+                                project={this.props.value}
+                                value={{
+                                    ...d,
+                                    tables: this.props.tables.filter(t => t.dataset === d.identifier),
+                                }}
+                                strayTables={this.props.strayTables}
+                                onEdit={() => (this.props.onEditDataset || nop)(d)}
+                                onTableIngest={this.props.onTableIngest || nop}
+                            />
                         </Col>
                     </Row>
                 ) : (

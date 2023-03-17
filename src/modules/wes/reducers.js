@@ -6,12 +6,14 @@ import {
     FETCH_RUN_LOG_STDERR,
 
     SUBMIT_INGESTION_RUN,
+    SUBMIT_ANALYSIS_RUN,
 } from "./actions";
 
 
 const INITIAL_RUNS_STATE = {
     isFetching: false,
     isSubmittingIngestionRun: false,
+    isSubmittingAnalysisRun: false,
     items: [],
     itemsByID: {},
     streamsByID: {},
@@ -58,6 +60,15 @@ const streamError = (state = INITIAL_RUNS_STATE, action, stream) => {
         }
     };
 };
+
+
+const makeRunSkeleton = (run, request) => ({
+    ...run,
+    state: "QUEUED",  // Default initial state
+    run_log: null,
+    request,
+    outputs: {},  // TODO: is this the right default value? will be fine for now
+});
 
 
 export const runs = (
@@ -145,27 +156,37 @@ export const runs = (
         case SUBMIT_INGESTION_RUN.RECEIVE: {
             // Create basic run object with no other details
             //  action.data is of structure {run_id} with no other props
-
-            const runSkeleton = {
-                ...action.data,
-                state: "QUEUED",  // Default initial state
-                run_log: null,
-                request: action.request,
-                outputs: {},  // TODO: is this the right default value? will be fine for now
-            };
-
+            const {data, request} = action;
+            const runSkeleton = makeRunSkeleton(data, request);
             return {
                 ...state,
                 items: [...state.items, runSkeleton],
-                itemsByID: {
-                    ...state.itemsByID,
-                    [action.data.run_id]: runSkeleton,
-                },
+                itemsByID: {...state.itemsByID, [data.run_id]: runSkeleton},
             };
         }
 
         case SUBMIT_INGESTION_RUN.FINISH:
             return {...state, isSubmittingIngestionRun: false};
+
+
+        case SUBMIT_ANALYSIS_RUN.REQUEST:
+            return {...state, isSubmittingAnalysisRun: true};
+
+        case SUBMIT_ANALYSIS_RUN.RECEIVE: {
+            // Create basic run object with no other details
+            //  action.data is of structure {run_id} with no other props
+            const {data, request} = action;
+            const runSkeleton = makeRunSkeleton(data, request);
+            return {
+                ...state,
+                items: [...state.items, runSkeleton],
+                itemsByID: {...state.itemsByID, [data.run_id]: runSkeleton},
+            };
+        }
+
+        case SUBMIT_ANALYSIS_RUN.FINISH:
+            return {...state, isSubmittingAnalysisRun: false};
+
 
         default:
             return state;

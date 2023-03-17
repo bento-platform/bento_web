@@ -5,6 +5,7 @@ import {useHistory} from "react-router-dom";
 import PropTypes from "prop-types";
 
 import fetch from "cross-fetch";
+import {filesize} from "filesize";
 
 import {Light as SyntaxHighlighter} from "react-syntax-highlighter";
 import {a11yLight} from "react-syntax-highlighter/dist/cjs/styles/hljs";
@@ -13,12 +14,25 @@ import ReactJson from "react-json-view";
 
 import {json, markdown, plaintext} from "react-syntax-highlighter/dist/cjs/languages/hljs";
 
-import {Button, Descriptions, Dropdown, Empty, Icon, Layout, Menu, Modal, Spin, Statistic, Tree} from "antd";
+import {
+    Alert,
+    Button,
+    Descriptions,
+    Dropdown,
+    Empty,
+    Icon,
+    Layout,
+    Menu,
+    Modal,
+    Spin,
+    Statistic,
+    Tree,
+} from "antd";
 
 import {LAYOUT_CONTENT_STYLE} from "../../styles/layoutContent";
 import TableSelectionModal from "./TableSelectionModal";
 
-import {STEP_INPUT} from "./ingestion";
+import {STEP_INPUT} from "./workflowCommon";
 import {withBasePath} from "../../utils/url";
 import {workflowsStateToPropsMixin} from "../../propTypes";
 
@@ -70,26 +84,16 @@ const recursivelyFlattenFileTree = (acc, contents) => {
     return acc;
 };
 
-const suffixes = ["bytes", "KB", "MB", "GB"];
-const formatSize = size => {
-    for (let i = 0; i < suffixes.length - 1; i++) {
-        if (size < Math.pow(1000, i + 1)) {
-            return `${(size / Math.pow(1000, i)).toFixed(1)} ${suffixes[i]}`;
-        }
-    }
-    return `${(size / Math.pow(1000, suffixes.length - 1)).toFixed(1)} ${suffixes.at(-1)}`;
-};
-
 const formatTimestamp = timestamp => (new Date(timestamp * 1000)).toLocaleString();
 
 
-const ManagerFilesContent = () => {
+const ManagerDropBoxContent = () => {
     const history = useHistory();
 
     const dropBoxService = useSelector(state => state.services.dropBoxService);
     const tree = useSelector(state => state.dropBox.tree);
     const treeLoading = useSelector(state => state.dropBox.isFetching);
-    const workflows = useSelector(state => workflowsStateToPropsMixin(state).workflows);
+    const ingestionWorkflows = useSelector(state => workflowsStateToPropsMixin(state).workflows.ingestion);
 
     const filesByPath = useMemo(() => Object.fromEntries(
         recursivelyFlattenFileTree([], tree).map(f => [f.filePath, f])), [tree]);
@@ -157,7 +161,7 @@ const ManagerFilesContent = () => {
     const ingestIntoTable = useCallback(tableKey => {
         history.push(withBasePath("admin/data/manager/ingestion"), {
             step: STEP_INPUT,
-            selectedTable: tableKey,
+            workflowSelectionValues: {selectedTable: tableKey},
             selectedWorkflow,
             initialInputValues: getWorkflowFit(selectedWorkflow)[1]
         });
@@ -202,7 +206,7 @@ const ManagerFilesContent = () => {
     const workflowsSupported = [];
     const workflowMenu = (
         <Menu>
-            {workflows.map(w => {
+            {ingestionWorkflows.map(w => {
                 const workflowSupported = getWorkflowFit(w)[0];
                 if (workflowSupported) workflowsSupported.push(w);
                 return (
@@ -285,7 +289,7 @@ const ManagerFilesContent = () => {
                         {fileForInfo.split("/").at(-1)}</Descriptions.Item>
                     <Descriptions.Item label="Path" span={3}>{fileForInfo}</Descriptions.Item>
                     <Descriptions.Item label="Size" span={3}>
-                        {formatSize(filesByPath[fileForInfo]?.size ?? 0)}</Descriptions.Item>
+                        {filesize(filesByPath[fileForInfo]?.size ?? 0)}</Descriptions.Item>
                     <Descriptions.Item label="Last Modified" span={3}>
                         {formatTimestamp(filesByPath[fileForInfo]?.lastModified ?? 0)}</Descriptions.Item>
                     <Descriptions.Item label="Last Metadata Change" span={3}>
@@ -293,6 +297,8 @@ const ManagerFilesContent = () => {
                     </Descriptions.Item>
                 </Descriptions>
             </Modal>
+
+            {/* ------------------------------ End of modals section ------------------------------ */}
 
             <div style={{display: "flex", flexDirection: "column", gap: "1em"}}>
                 <div style={{display: "flex", gap: "12px"}}>
@@ -340,11 +346,17 @@ const ManagerFilesContent = () => {
                     title="Total Space Used"
                     value={treeLoading
                         ? "—"
-                        : formatSize(Object.values(filesByPath).reduce((acc, f) => acc + f.size, 0))}
+                        : filesize(Object.values(filesByPath).reduce((acc, f) => acc + f.size, 0))}
                 />
+
+                <Alert type="info" showIcon={true} message="About the drop box" description={`
+                    The drop box contains files which are not yet ingested into this Bento instance. They are not
+                    organized in any particular structure; instead, this serves as a place for incoming data files to be
+                    deposited and examined.
+                `} />
             </div>
         </Layout.Content>
     </Layout>;
 };
 
-export default ManagerFilesContent;
+export default ManagerDropBoxContent;

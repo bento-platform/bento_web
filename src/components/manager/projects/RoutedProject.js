@@ -41,7 +41,7 @@ class RoutedProject extends Component {
 
     ingestIntoTable(p, t) {
         this.props.history.push(withBasePath("admin/data/manager/ingestion"),
-            {selectedTable: `${p.identifier}:${t.data_type}:${t.id}`});
+            {workflowSelectionValues: {selectedTable: `${p.identifier}:${t.data_type}:${t.id}`}});
     }
 
     handleProjectSave(project) {

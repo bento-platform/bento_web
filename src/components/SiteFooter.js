@@ -25,7 +25,7 @@ const SiteFooter = React.memo(() => (
             </div>
 
             <div style={{textAlign: "center"}}>
-                Copyright &copy; 2019-2022 the{" "}
+                Copyright &copy; 2019-2023 the{" "}
                 <a href="https://computationalgenomics.ca">Canadian Centre for Computational Genomics</a>.{" "}
                 <br />
                 <span style={{fontFamily: "monospace"}}>bento_web</span> (v{pkg.version}) is licensed under the{" "}
