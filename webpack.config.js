@@ -59,8 +59,11 @@ module.exports = {
         new webpack.EnvironmentPlugin({
             // Default environment variables to null if not set
             BENTO_URL: null,
+            BENTO_CBIOPORTAL_ENABLED: false,
+            BENTO_CBIOPORTAL_PUBLIC_URL: null,
             CHORD_URL: null,
             CUSTOM_HEADER: null,
+            NODE_ENV: "production",
         }),
     ],
     devServer: {
@@ -91,7 +94,7 @@ module.exports = {
 
             devServer.app.get("/service-info", (req, res) => {
                 res.header("Content-Type", "application/json");
-                res.json(createServiceInfo.serviceInfo());
+                res.json(createServiceInfo.serviceInfo);
             });
 
             return middlewares;

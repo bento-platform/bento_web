@@ -10,8 +10,7 @@ import {
 
     biosamples,
     individuals,
-    phenopackets,
-    experiments,
+
     overviewSummary,
 } from "./modules/metadata/reducers";
 import {manager, dropBox} from "./modules/manager/reducers";
@@ -46,8 +45,6 @@ const rootReducer = combineReducers({
 
     biosamples,
     individuals,
-    phenopackets,
-    experiments,
     overviewSummary,
 
     // Manager module

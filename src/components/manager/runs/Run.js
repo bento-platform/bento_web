@@ -27,6 +27,7 @@ class Run extends Component {
         return <>
             <PageHeader title={<>Run <span style={{fontFamily: "monospace"}}>{run.run_id}</span></>}
                         tags={<Tag color={RUN_STATE_TAG_COLORS[run.state]}>{run.state}</Tag>}
+                        style={{padding: 0}}
                         footer={
                             <Tabs activeKey={tab} onChange={this.props.onChangeTab || nop}>
                                 <Tabs.TabPane tab="Request" key="request" />
@@ -41,7 +42,7 @@ class Run extends Component {
                                style={{marginLeft: "24px"}} />
                 </Row>
             </PageHeader>
-            <div style={{margin: "24px 24px 16px 24px"}}>
+            <div style={{margin: "24px 0 16px 0"}}>
                 <Content run={run} />
             </div>
         </>;

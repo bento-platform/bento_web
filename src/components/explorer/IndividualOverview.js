@@ -26,7 +26,7 @@ const IndividualOverview = ({individual}) => individual ?
                     <pre>
                           <ReactJson src={individual.extra_properties}
                                      displayDataTypes={false}
-                                     name={"Properties"}
+                                     name="Properties"
                                      collapsed={1}
                                      enableClipboard={false}
                           />

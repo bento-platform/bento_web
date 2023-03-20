@@ -88,7 +88,7 @@ export const fetchDataServiceWorkflows = networkAction((serviceInfo) => ({
 }));
 
 
-export const fetchServicesWithMetadataAndDataTypesAndTables = () => async (dispatch, getState) => {
+export const fetchServicesWithMetadataAndDataTypesAndTables = (onServiceFetchFinish) => async (dispatch, getState) => {
     dispatch(beginFlow(LOADING_ALL_SERVICE_DATA));
 
     // Fetch Services
@@ -107,15 +107,15 @@ export const fetchServicesWithMetadataAndDataTypesAndTables = () => async (dispa
         // Backwards compatibility for:
         // - old type ("group:artifact:version")
         // - and new  ({"group": "...", "artifact": "...", "version": "..."})
-        const serviceArtifact = (typeof s.type === "string")
-            ? s.type.split(":")[1]
-            : s.type.artifact;
-
+        const serviceKind = s.bento?.serviceKind ?? s.type.artifact;
         return {
             ...s,
-            chordService: getState().chordServices.itemsByArtifact[serviceArtifact] ?? null,
+            chordService: getState().chordServices.itemsByKind[serviceKind] ?? null,
         };
     }).filter(s => s.chordService?.data_service ?? false);
+
+    // - Custom stuff to start - explicitly don't wait for this promise to finish since it runs parallel to this flow.
+    if (onServiceFetchFinish) onServiceFetchFinish();
 
     // - Fetch Data Service Data Types and Workflows
     await Promise.all([
@@ -143,11 +143,12 @@ export const fetchServicesWithMetadataAndDataTypesAndTables = () => async (dispa
     dispatch(endFlow(LOADING_ALL_SERVICE_DATA));
 };
 
-export const fetchServicesWithMetadataAndDataTypesAndTablesIfNeeded = () => (dispatch, getState) => {
-    const state = getState();
-    if ((Object.keys(state.chordServices.itemsByArtifact).length === 0 || state.services.items.length === 0 ||
-            Object.keys(state.serviceDataTypes.dataTypesByServiceID).length === 0) &&
-            !state.services.isFetchingAll) {
-        return dispatch(fetchServicesWithMetadataAndDataTypesAndTables());
-    }
-};
+export const fetchServicesWithMetadataAndDataTypesAndTablesIfNeeded = (onServiceFetchFinish) =>
+    (dispatch, getState) => {
+        const state = getState();
+        if ((Object.keys(state.chordServices.itemsByArtifact).length === 0 || state.services.items.length === 0 ||
+                Object.keys(state.serviceDataTypes.dataTypesByServiceID).length === 0) &&
+                !state.services.isFetchingAll) {
+            return dispatch(fetchServicesWithMetadataAndDataTypesAndTables(onServiceFetchFinish));
+        }
+    };

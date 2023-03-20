@@ -10,7 +10,7 @@ export const renderMenuItem = i => {
                              disabled={i.disabled ?? false} title={
             <span className="submenu-title-wrapper">
                 {i.icon ?? null}
-                {i.text ?? null}
+                {i.text ? <span className="nav-text">{i.text}</span> : null}
             </span>
         } key={i.key || ""}>
             {(i.children ?? []).map(ii => renderMenuItem(ii))}
@@ -25,10 +25,10 @@ export const renderMenuItem = i => {
             {i.url && !i.onClick ?
                 <Link to={i.url}>
                     {i.icon ?? null}
-                    {i.text ?? null}
+                    {i.text ? <span className="nav-text">{i.text}</span> : null}
                 </Link> : <span>
                     {i.icon ?? null}
-                    {i.text ?? null}
+                    {i.text ? <span className="nav-text">{i.text}</span> : null}
                 </span>}
         </Menu.Item>
     );

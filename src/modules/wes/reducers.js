@@ -6,12 +6,14 @@ import {
     FETCH_RUN_LOG_STDERR,
 
     SUBMIT_INGESTION_RUN,
+    SUBMIT_ANALYSIS_RUN,
 } from "./actions";
 
 
 const INITIAL_RUNS_STATE = {
     isFetching: false,
     isSubmittingIngestionRun: false,
+    isSubmittingAnalysisRun: false,
     items: [],
     itemsByID: {},
     streamsByID: {},
@@ -60,6 +62,15 @@ const streamError = (state = INITIAL_RUNS_STATE, action, stream) => {
 };
 
 
+const makeRunSkeleton = (run, request) => ({
+    ...run,
+    state: "QUEUED",  // Default initial state
+    run_log: null,
+    request,
+    outputs: {},  // TODO: is this the right default value? will be fine for now
+});
+
+
 export const runs = (
     state = INITIAL_RUNS_STATE,
     action
@@ -74,13 +85,13 @@ export const runs = (
                 items: action.data.map(r => ({
                     ...r,
                     details: r.details || null,
-                    isFetching: false
+                    isFetching: false,
                 })),
                 itemsByID: Object.fromEntries(action.data.map(r => [r.run_id, {
                     ...r,
                     details: r.details || null,
-                    isFetching: false
-                }]))
+                    isFetching: false,
+                }])),
             };
 
         case FETCH_RUNS.FINISH:
@@ -92,12 +103,12 @@ export const runs = (
                 items: state.items.map(r => r.run_id === action.runID ? ({...r, isFetching: true}) : r),
                 itemsByID: {
                     ...state.itemsByID,
-                    [action.runID]: {...(state.itemsByID[action.runID] || {}), isFetching: true}
-                }
+                    [action.runID]: {...(state.itemsByID[action.runID] || {}), isFetching: true},
+                },
             };
 
         case FETCH_RUN_DETAILS.RECEIVE:
-            // Pull state out of received details to ensure it's up to date in both places
+            // Pull state out of received details to ensure it's up-to-date in both places
             return {
                 ...state,
                 items: state.items.map(r => r.run_id === action.runID
@@ -108,9 +119,9 @@ export const runs = (
                     [action.runID]: {
                         ...(state.itemsByID[action.runID] || {}),
                         state: action.data.state,
-                        details: action.data
-                    }
-                }
+                        details: action.data,
+                    },
+                },
             };
 
         case FETCH_RUN_DETAILS.FINISH:
@@ -119,8 +130,8 @@ export const runs = (
                 items: state.items.map(r => r.run_id === action.runID ? {...r, isFetching: false} : r),
                 itemsByID: {
                     ...state.itemsByID,
-                    [action.runID]: {...(state.itemsByID[action.runID] || {}), isFetching: false}
-                }
+                    [action.runID]: {...(state.itemsByID[action.runID] || {}), isFetching: false},
+                },
             };
 
 
@@ -142,9 +153,40 @@ export const runs = (
         case SUBMIT_INGESTION_RUN.REQUEST:
             return {...state, isSubmittingIngestionRun: true};
 
-        case SUBMIT_INGESTION_RUN.RECEIVE:  // TODO: Do something here
+        case SUBMIT_INGESTION_RUN.RECEIVE: {
+            // Create basic run object with no other details
+            //  action.data is of structure {run_id} with no other props
+            const {data, request} = action;
+            const runSkeleton = makeRunSkeleton(data, request);
+            return {
+                ...state,
+                items: [...state.items, runSkeleton],
+                itemsByID: {...state.itemsByID, [data.run_id]: runSkeleton},
+            };
+        }
+
         case SUBMIT_INGESTION_RUN.FINISH:
             return {...state, isSubmittingIngestionRun: false};
+
+
+        case SUBMIT_ANALYSIS_RUN.REQUEST:
+            return {...state, isSubmittingAnalysisRun: true};
+
+        case SUBMIT_ANALYSIS_RUN.RECEIVE: {
+            // Create basic run object with no other details
+            //  action.data is of structure {run_id} with no other props
+            const {data, request} = action;
+            const runSkeleton = makeRunSkeleton(data, request);
+            return {
+                ...state,
+                items: [...state.items, runSkeleton],
+                itemsByID: {...state.itemsByID, [data.run_id]: runSkeleton},
+            };
+        }
+
+        case SUBMIT_ANALYSIS_RUN.FINISH:
+            return {...state, isSubmittingAnalysisRun: false};
+
 
         default:
             return state;

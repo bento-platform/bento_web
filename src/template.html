@@ -14,6 +14,12 @@
     </script>
     <script src="<%= webpackConfig.output.publicPath %>static/config.js"></script>
     <title><%= htmlWebpackPlugin.options.title %></title>
+    <style>
+        /* Special Override styles */
+        .ant-table .table-nested-ant-descriptions table {
+            border-collapse: collapse;
+        }
+    </style>
 </head>
 <body>
     <div id="root"></div>

@@ -1,13 +1,13 @@
 import React, {Component} from "react";
 import PropTypes from "prop-types";
 import {Button, Dropdown, Form, Icon, Menu, Tooltip} from "antd";
-import {getFieldSchema, getFields} from "../../utils/schema";
+import {getFields, getFieldSchema} from "../../utils/schema";
 import {
     DEFAULT_SEARCH_PARAMETERS,
-    OP_EQUALS,
-    OP_LESS_THAN_OR_EQUAL,
-    OP_GREATER_THAN_OR_EQUAL,
     OP_CASE_INSENSITIVE_CONTAINING,
+    OP_EQUALS,
+    OP_GREATER_THAN_OR_EQUAL,
+    OP_LESS_THAN_OR_EQUAL,
     searchUiMappings,
 } from "../../utils/search";
 
@@ -87,16 +87,12 @@ class DiscoverySearchForm extends Component {
             )
             : [];
 
-        let stateUpdates = [];
-
-        if (this.state.isVariantSearch) {
-            stateUpdates = VARIANT_REQUIRED_FIELDS.concat(VARIANT_OPTIONAL_FIELDS).map((c) =>
-                this.addCondition(c, undefined, true)
-            );
-        } else {
-            // currently usused, since only variant search has required fields
-            stateUpdates = requiredFields.map((c) => this.addCondition(c, undefined, true));
-        }
+        const stateUpdates = this.state.isVariantSearch
+            ? VARIANT_REQUIRED_FIELDS
+                .concat(VARIANT_OPTIONAL_FIELDS)
+                .map((c) => this.addCondition(c, undefined, true))
+            // currently unused, since only variant search has required fields
+            : requiredFields.map((c) => this.addCondition(c, undefined, true));
 
         // Add a single default condition if necessary
         // if (requiredFields.length === 0 && this.props.conditionType !== "join") {
@@ -199,15 +195,9 @@ class DiscoverySearchForm extends Component {
 
     // methods for user-friendly variant search
 
-    updateConditions = (conditions, fieldName, newValue) => {
-        // console.log({CONDITIONSIN: conditions});
-        const toReturn = conditions.map((c) =>
-            c.value.field === fieldName ? { ...c, value: { ...c.value, searchValue: newValue } } : c
-        );
-        // console.log({CONDITIONSOUT: toReturn});
-
-        return toReturn;
-    };
+    updateConditions = (conditions, fieldName, newValue) =>
+        conditions.map((c) =>
+            c.value.field === fieldName ? {...c, value: {...c.value, searchValue: newValue}} : c);
 
     // fill hidden variant forms according to input in user-friendly variant search
     addVariantSearchValues = (values) => {
@@ -447,7 +437,7 @@ class DiscoverySearchForm extends Component {
 }
 
 DiscoverySearchForm.propTypes = {
-    form: PropTypes.instanceOf(Form),
+    form: PropTypes.object,
     conditionType: PropTypes.oneOf(["data-type", "join"]),
     dataType: PropTypes.object,  // TODO: Shape?
     isInternal: PropTypes.bool,

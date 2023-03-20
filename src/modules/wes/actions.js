@@ -11,6 +11,7 @@ export const FETCH_RUN_LOG_STDOUT = createNetworkActionTypes("FETCH_RUN_LOG_STDO
 export const FETCH_RUN_LOG_STDERR = createNetworkActionTypes("FETCH_RUN_LOG_STDERR");
 
 export const SUBMIT_INGESTION_RUN = createNetworkActionTypes("SUBMIT_INGESTION_RUN");
+export const SUBMIT_ANALYSIS_RUN = createNetworkActionTypes("SUBMIT_ANALYSIS_RUN");
 
 
 // TODO: If needed
@@ -23,7 +24,7 @@ export const fetchRuns = networkAction(() => (dispatch, getState) => ({
 export const receiveRunDetails = (runID, data) => ({
     type: FETCH_RUN_DETAILS.RECEIVE,
     runID,
-    data
+    data,
 });
 
 export const fetchRunDetails = networkAction(runID => (dispatch, getState) => ({
@@ -39,22 +40,18 @@ const RUN_DONE_STATES = ["COMPLETE", "EXECUTOR_ERROR", "SYSTEM_ERROR", "CANCELED
 export const fetchRunDetailsIfNeeded = runID => async (dispatch, getState) => {
     const state = getState();
 
-    const needsUpdate = !state.runs.itemsByID.hasOwnProperty(runID)
-        || (!state.runs.itemsByID[runID].isFetching && (
-            !state.runs.itemsByID[runID].details ||
-            (!RUN_DONE_STATES.includes(state.runs.itemsByID[runID].state) &&
+    const needsUpdate = !state.runs.itemsByID.hasOwnProperty(runID) || (
+        !state.runs.itemsByID[runID].isFetching && (
+            !state.runs.itemsByID[runID].details || (
+                !RUN_DONE_STATES.includes(state.runs.itemsByID[runID].state) &&
                 state.runs.itemsByID[runID].details.run_log.exit_code === null &&
                 state.runs.itemsByID[runID].details.run_log.end_time === "")));
 
     if (!needsUpdate) return;
 
     await dispatch(fetchRunDetails(runID));
-    const runDetails = getState().runs.itemsByID[runID].details;
-    if (runDetails) {
-        await Promise.all([
-            dispatch(fetchRunLogStdOut(getState().runs.itemsByID[runID].details)),
-            dispatch(fetchRunLogStdErr(getState().runs.itemsByID[runID].details)),
-        ]);
+    if (getState().runs.itemsByID[runID].details) {
+        await dispatch(fetchRunLogs(runID));
     }
 };
 
@@ -78,6 +75,11 @@ export const fetchRunLogStdErr = networkAction(runDetails => ({
     err: `Error fetching stderr for run ${runDetails.run_id}`
 }));
 
+export const fetchRunLogs = runID => (dispatch, getState) => Promise.all([
+    dispatch(fetchRunLogStdOut(getState().runs.itemsByID[runID].details)),
+    dispatch(fetchRunLogStdErr(getState().runs.itemsByID[runID].details)),
+]);
+
 export const fetchRunLogStreamsIfPossibleAndNeeded = runID => (dispatch, getState) => {
     if (getState().runs.isFetching) return;
     const run = getState().runs.itemsByID[runID];
@@ -96,32 +98,66 @@ export const fetchRunLogStreamsIfPossibleAndNeeded = runID => (dispatch, getStat
 };
 
 
-export const submitIngestionWorkflowRun = networkAction(
-    (serviceInfo, tableID, workflow, inputs, redirect, hist) => (dispatch, getState) => ({
-        types: SUBMIT_INGESTION_RUN,
-        params: {serviceInfo, tableID},
-        url: `${getState().services.wesService.url}/runs`,
-        req: {
-            method: "POST",
-            body: createFormData({
-                workflow_params: Object.fromEntries(Object.entries(inputs)
-                    .map(([k, v]) => [`${workflow.id}.${k}`, v])),
-                workflow_type: "WDL",  // TODO: Should eventually not be hard-coded
-                workflow_type_version: "1.0",  // TODO: "
-                workflow_engine_parameters: {},  // TODO: Currently unused
-                workflow_url: `${serviceInfo.url}/workflows/${workflow.id}.wdl`,
-                tags: {
-                    workflow_id: workflow.id,
-                    workflow_metadata: workflow,
-                    ingestion_url: `${serviceInfo.url}/private/ingest`,
-                    table_id: tableID  // TODO
-                }
-            })
+export const submitWorkflowRun = networkAction(
+    (types, serviceInfo, workflow, params, inputs, tags, onSuccess, errorMessage) => (dispatch, getState) => {
+        const runRequest = {
+            workflow_params: Object.fromEntries(Object.entries(inputs)
+                .map(([k, v]) => [`${workflow.id}.${k}`, v])),
+            workflow_type: "WDL",  // TODO: Should eventually not be hard-coded
+            workflow_type_version: "1.0",  // TODO: "
+            workflow_engine_parameters: {},  // TODO: Currently unused
+            workflow_url: `${serviceInfo.url}/workflows/${workflow.id}.wdl`,
+            tags: {
+                workflow_id: workflow.id,
+                workflow_metadata: workflow,
+                ...tags,
+            },
+        };
+
+        return {
+            types,
+            params: {serviceInfo, request: runRequest, ...params},
+            url: `${getState().services.wesService.url}/runs`,
+            req: {
+                method: "POST",
+                body: createFormData(runRequest),
+            },
+            err: errorMessage,
+            onSuccess,
+        };
+    });
+
+
+export const submitIngestionWorkflowRun = (serviceInfo, tableID, workflow, inputs, redirect, hist) => (dispatch) =>
+    dispatch(submitWorkflowRun(
+        SUBMIT_INGESTION_RUN,
+        serviceInfo,
+        workflow,
+        {tableID},  // params
+        inputs,
+        {  // tags
+            ingestion_url: `${serviceInfo.url}/private/ingest`,
+            table_id: tableID,  // TODO
         },
-        err: "Error submitting ingestion workflow",
-        onSuccess: async data => {
-            await dispatch(fetchRuns());  // TODO: Maybe just load delta?
-            message.success(`Ingestion with run ID "${data.run_id}" submitted!`);
+        run => {  // onSuccess
+            message.success(`Ingestion with run ID "${run.run_id}" submitted!`);
             if (redirect) hist.push(redirect);
-        }
-    }));
+        },
+        "Error submitting ingestion workflow",  // errorMessage
+    ));
+
+
+export const submitAnalysisWorkflowRun = (serviceInfo, workflow, inputs, redirect, hist) => (dispatch) =>
+    dispatch(submitWorkflowRun(
+        SUBMIT_ANALYSIS_RUN,
+        serviceInfo,
+        workflow,
+        {},  // params
+        inputs,
+        {},  // tags
+        run => {  // onSuccess
+            message.success(`Analysis with run ID "${run.run_id}" submitted!`);
+            if (redirect) hist.push(redirect);
+        },
+        "Error submitting analysis workflow",  // errorMessage
+    ));

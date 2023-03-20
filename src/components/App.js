@@ -29,6 +29,7 @@ const NotificationDrawer = lazy(() => import("./notifications/NotificationDrawer
 // Lazy-load route components
 const OverviewContent = lazy(() => import("./OverviewContent"));
 const DataExplorerContent = lazy(() => import("./DataExplorerContent"));
+const CBioPortalContent = lazy(() => import("./CBioPortalContent"));
 const AdminContent = lazy(() => import("./AdminContent"));
 const NotificationsContent = lazy(() => import("./notifications/NotificationsContent"));
 
@@ -88,6 +89,10 @@ class App extends Component {
     }
 
     render() {
+        // On the cBioPortal tab only, eliminate the margin around the content
+        // to give as much space as possible to the cBioPortal application itself.
+        const margin = window.location.pathname.endsWith("cbioportal") ? 0 : 26;
+
         // noinspection HtmlUnknownTarget
         return <>
             <Modal title="You have been signed out"
@@ -105,11 +110,12 @@ class App extends Component {
                     <NotificationDrawer />
                 </Suspense>
                 <SiteHeader />
-                <Layout.Content style={{margin: "50px"}}>
+                <Layout.Content style={{margin, display: "flex", flexDirection: "column"}}>
                     <Suspense fallback={<SitePageLoading />}>
                         <Switch>
                             <OwnerRoute path={withBasePath("overview")} component={OverviewContent} />
                             <OwnerRoute path={withBasePath("data/explorer")} component={DataExplorerContent} />
+                            <OwnerRoute path={withBasePath("cbioportal")} component={CBioPortalContent} />
                             <OwnerRoute path={withBasePath("admin")} component={AdminContent} />
                             <OwnerRoute path={withBasePath("notifications")} component={NotificationsContent} />
                             <Redirect from={BASE_PATH} to={withBasePath("overview")} />

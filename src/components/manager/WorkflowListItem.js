@@ -1,8 +1,7 @@
-import React, {Component} from "react";
+import React from "react";
 import PropTypes from "prop-types";
 
 import {Icon, List, Tag} from "antd";
-
 
 import {nop} from "../../utils/misc";
 import {workflowPropTypesShape} from "../../propTypes";
@@ -33,57 +32,60 @@ const ioTagWithType = (id, ioType, typeContent = "") => (
     </Tag>
 );
 
-class WorkflowListItem extends Component {
-    render() {
-        const typeTag = <Tag key={this.props.workflow.data_type}>{this.props.workflow.data_type}</Tag>;
+const WorkflowListItem = ({onClick, workflow}) => {
+    const {inputs, outputs, name, description, data_type: dt} = workflow;
 
-        const inputs = this.props.workflow.inputs.map(i =>
-            ioTagWithType(i.id, i.type, i.type.startsWith("file") ? i.extensions.join(" / ") : ""));
+    const typeTag = dt ? <Tag key={dt}>{dt}</Tag> : null;
 
-        const inputExtensions = Object.fromEntries(this.props.workflow.inputs
-            .filter(i => i.type.startsWith("file"))
-            .map(i => [i.id, i.extensions[0]]));  // TODO: What to do with more than one?
+    const inputTags = inputs
+        .filter(i => !i.hidden)  // Filter out hidden (often injected/FROM_CONFIG) inputs
+        .map(i => ioTagWithType(i.id, i.type, i.type.startsWith("file") ? i.extensions.join(" / ") : ""));
 
-        const outputs = this.props.workflow.outputs.map(o => {
-            if (!o.value) console.error("Missing or invalid value prop for workflow output: ", o);
+    const inputExtensions = Object.fromEntries(inputs
+        .filter(i => i.type.startsWith("file"))
+        .map(i => [i.id, i.extensions[0]]));  // TODO: What to do with more than one?
 
-            if (!o.type.startsWith("file")) return ioTagWithType(o.id, o.type);
+    const outputTags = outputs.map(o => {
+        if (!o.value) console.error("Missing or invalid value prop for workflow output: ", o);
 
-            const outputValue = o.value || "";
-            let formattedOutput = outputValue;
+        if (!o.type.startsWith("file")) return ioTagWithType(o.id, o.type);
 
-            [...outputValue.matchAll(/{(.*)}/g)].forEach(([_, id]) => {
-                formattedOutput = formattedOutput.replace(`{${id}}`, {
-                    ...inputExtensions,
-                    "": o.hasOwnProperty("map_from_input") ? inputExtensions[o.map_from_input] : undefined
-                }[id]);
-            });
+        const outputValue = o.value || "";
+        let formattedOutput = outputValue;
 
-            return ioTagWithType(o.id, o.type, formattedOutput);
+        [...outputValue.matchAll(/{(.*)}/g)].forEach(([_, id]) => {
+            formattedOutput = formattedOutput.replace(`{${id}}`, {
+                ...inputExtensions,
+                "": o.hasOwnProperty("map_from_input") ? inputExtensions[o.map_from_input] : undefined
+            }[id]);
         });
 
-        return <List.Item>
-            <List.Item.Meta
-                title={
-                    this.props.selectable
-                        ? <a onClick={() => (this.props.onClick || nop)()}>
-                            {typeTag} {this.props.workflow.name}
-                            <Icon type="right" style={{marginLeft: "0.3rem"}} /></a>
-                        : <span>{typeTag} {this.props.workflow.name}</span>}
-                description={this.props.workflow.description || ""} />
+        return ioTagWithType(o.id, o.type, formattedOutput);
+    });
 
-            <div style={{marginBottom: "12px"}}>
-                <span style={{fontWeight: "bold", marginRight: "1em"}}>Inputs:</span>
-                {inputs}
-            </div>
+    const selectable = !!onClick;  // Can be selected if a click handler exists
 
-            <div>
-                <span style={{fontWeight: "bold", marginRight: "1em"}}>Outputs:</span>
-                {outputs}
-            </div>
-        </List.Item>;
-    }
-}
+    return <List.Item>
+        <List.Item.Meta
+            title={selectable
+                ? <a onClick={() => (onClick || nop)()}>
+                    {typeTag} {name}
+                    <Icon type="right" style={{marginLeft: "0.3rem"}} /></a>
+                : <span>{typeTag} {name}</span>}
+            description={description || ""}
+        />
+
+        <div style={{marginBottom: "12px"}}>
+            <span style={{fontWeight: "bold", marginRight: "1em"}}>Inputs:</span>
+            {inputTags}
+        </div>
+
+        <div>
+            <span style={{fontWeight: "bold", marginRight: "1em"}}>Outputs:</span>
+            {outputTags}
+        </div>
+    </List.Item>;
+};
 
 WorkflowListItem.propTypes = {
     workflow: workflowPropTypesShape,

@@ -7,13 +7,14 @@ COPY package-lock.json .
 
 RUN npm ci
 
-FROM node:18-bullseye-slim
+FROM ghcr.io/bento-platform/bento_base_image:node-debian-2023.03.06
 
 WORKDIR /web
 
 COPY package.json .
 COPY package-lock.json .
+COPY run.dev.bash .
 
 COPY --from=install /web/node_modules ./node_modules
 
-ENTRYPOINT [ "sh", "./entrypoint.dev.sh" ]
+CMD [ "bash", "./run.dev.bash" ]

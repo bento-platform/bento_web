@@ -93,6 +93,8 @@ class Dataset extends Component {
     }
 
     render() {
+        const {identifier, title, selectedTab} = this.state;
+
         const isPrivate = this.props.mode === "private";
 
         const tabContents = {
@@ -200,20 +202,29 @@ class Dataset extends Component {
         };
 
         return (
-            <Card key={this.state.identifier}
-                  title={this.state.title}
-                  tabList={DATASET_CARD_TABS}
-                  activeTabKey={this.state.selectedTab}
-                  onTabChange={t => this.setState({selectedTab: t})}
-                  extra={
-                      isPrivate ? <>
-                          <Button icon="edit"
-                                  style={{marginRight: "8px"}}
-                                  onClick={() => (this.props.onEdit || nop)()}>Edit</Button>
-                          <Button type="danger" icon="delete" onClick={handleDelete}>Delete</Button>
-                          {/* TODO: Share button (vFuture) */}
-                      </> : null
-                  }>
+            <Card
+                key={identifier}
+                title={<span>{title} <span style={{
+                    fontStyle: "italic",
+                    fontWeight: "normal",
+                    fontSize: "0.8em",
+                    fontFamily: "monospace",
+                    marginLeft: "0.8em",
+                    color: "#8c8c8c",  // Ant Design gray-7
+                }}>{identifier}</span></span>}
+                tabList={DATASET_CARD_TABS}
+                activeTabKey={selectedTab}
+                onTabChange={t => this.setState({selectedTab: t})}
+                extra={
+                    isPrivate ? <>
+                        <Button icon="edit"
+                                style={{marginRight: "8px"}}
+                                onClick={() => (this.props.onEdit || nop)()}>Edit</Button>
+                        <Button type="danger" icon="delete" onClick={handleDelete}>Delete</Button>
+                        {/* TODO: Share button (vFuture) */}
+                    </> : null
+                }
+            >
                 {isPrivate ? <>
                     <LinkedFieldSetModal mode={FORM_MODE_ADD}
                                          dataset={this.state}
@@ -229,7 +240,7 @@ class Dataset extends Component {
                                          onSubmit={() => this.setState({fieldSetEditModalVisible: false})}
                                          onCancel={() => this.setState({fieldSetEditModalVisible: false})} />
                 </> : null}
-                {tabContents[this.state.selectedTab]}
+                {tabContents[selectedTab]}
             </Card>
         );
     }

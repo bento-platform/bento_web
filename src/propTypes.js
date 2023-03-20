@@ -39,6 +39,7 @@ export const serviceInfoPropTypesShape = PropTypes.shape({
 });
 
 export const chordServicePropTypesMixin = {
+    service_kind: PropTypes.string,
     artifact: PropTypes.string,
     repository: PropTypes.string,
     data_service: PropTypes.bool,
@@ -57,10 +58,13 @@ export const dropBoxTreeStateToPropsMixin = state => ({
 // Any components which include dropBoxTreeStateToPropsMixin should include this as well in their prop types.
 export const dropBoxTreeStateToPropsMixinPropTypes = {
     tree: PropTypes.arrayOf(PropTypes.shape({
-        name: PropTypes.string,
-        path: PropTypes.string
+        name: PropTypes.string.isRequired,
+        filePath: PropTypes.string.isRequired,
+        uri: PropTypes.string,
+        lastModified: PropTypes.number,
+        lastMetadataChange: PropTypes.number,
     })),  // TODO: This is going to change
-    treeLoading: PropTypes.bool
+    treeLoading: PropTypes.bool,
 };
 
 export const linkedFieldSetPropTypesShape = PropTypes.shape({
@@ -147,16 +151,35 @@ export const userPropTypesShape = PropTypes.shape({
 });
 
 // Gives components which include this in their state to props connection access to workflows and loading status.
-export const workflowsStateToPropsMixin = state => ({
-    workflows: Object.entries(state.serviceWorkflows.workflowsByServiceID)
+export const workflowsStateToPropsMixin = state => {
+    const workflowsByType = {
+        ingestion: [],
+        analysis: [],
+        export: [],
+    };
+
+    Object.entries(state.serviceWorkflows.workflowsByServiceID)
         .filter(([_, s]) => !s.isFetching)
-        .flatMap(([serviceID, s]) => Object.entries(s.workflows.ingestion).map(([k, v]) => ({
-            ...v,
-            id: k,
-            serviceID
-        }))),
-    workflowsLoading: state.services.isFetchingAll || state.serviceWorkflows.isFetchingAll
-});
+        .forEach(([serviceID, s]) => {
+            Object.entries(s.workflows).forEach(([workflowType, workflowTypeWorkflows]) => {
+                if (!(workflowType in workflowsByType)) return;
+
+                // noinspection JSCheckFunctionSignatures
+                workflowsByType[workflowType].push(
+                    ...Object.entries(workflowTypeWorkflows).map(([k, v]) => ({
+                        ...v,
+                        id: k,
+                        serviceID,
+                    }))
+                );
+            });
+        });
+
+    return {
+        workflows: workflowsByType,
+        workflowsLoading: state.services.isFetchingAll || state.serviceWorkflows.isFetchingAll,
+    };
+};
 
 // Prop types object shape for a single workflow object.
 export const workflowPropTypesShape = PropTypes.shape({
@@ -180,7 +203,11 @@ export const workflowPropTypesShape = PropTypes.shape({
 
 // Any components which include workflowStateToPropsMixin should include this as well in their prop types.
 export const workflowsStateToPropsMixinPropTypes = {
-    workflows: PropTypes.arrayOf(workflowPropTypesShape),
+    workflows: PropTypes.shape({
+        ingestion: PropTypes.arrayOf(workflowPropTypesShape),
+        analysis: PropTypes.arrayOf(workflowPropTypesShape),
+        export: PropTypes.arrayOf(workflowPropTypesShape),
+    }),
     workflowsLoading: PropTypes.bool
 };
 
@@ -373,12 +400,5 @@ export const explorerSearchResultsPropTypesShape = PropTypes.shape({
         }),
         biosamples: PropTypes.arrayOf(PropTypes.string),
         experiments: PropTypes.number
-    })),
-});
-
-
-export const serviceLogsPropTypesShape = PropTypes.shape({
-    itemsByArtifact: PropTypes.objectOf(PropTypes.shape({
-        logs: PropTypes.objectOf(PropTypes.string),
     })),
 });

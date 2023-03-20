@@ -53,7 +53,7 @@ class DataTypeExplorationModal extends Component {
                       footer={null}>
             <Typography.Paragraph>
                 Bento separate data types across multiple queryable data services. For instance,
-                clinical and phenotypical data is stored in the Katsu data service, while genomic data
+                clinical and phenotypic data is stored in the Katsu data service, while genomic data
                 is stored in the Gohan data service. Each data service has its own set of queryable
                 properties, and parameters for multiple data types can be used in the same query. If
                 two or more data types are queried at the same time, an aggregation service will look

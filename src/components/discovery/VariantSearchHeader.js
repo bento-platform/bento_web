@@ -129,10 +129,7 @@ const VariantSearchHeader = ({dataType, addVariantSearchValues}) => {
     };
     const containsInvalid = (text) => {
         const matches = text.toUpperCase().match(notAlleleCharactersRegex);
-        if (matches && matches.length > 0) {
-            return true;
-        }
-        return false;
+        return matches && matches.length > 0;
     };
 
     // set default selected assemblyId if only 1 is present
