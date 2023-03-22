@@ -4,6 +4,7 @@
 
 # Set default internal port to 80
 : "${BENTO_WEB_PORT:=80}"
+export BENTO_WEB_PORT
 
 # ----- Begin /service-info creation ----------------------------------
 echo "[bento_web] [entrypoint] creating service-info file"
