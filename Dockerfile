@@ -37,6 +37,8 @@ WORKDIR /web
 COPY --from=build /web/dist ./dist
 # Copy in package.json to provide version
 COPY package.json .
+# Copy in the production config generation script
+COPY create_config_prod.js .
 # Copy in the service info generator
 COPY create_service_info.js .
 # Copy in the entrypoint, which writes the config file and starts NGINX
