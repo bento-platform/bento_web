@@ -28,9 +28,9 @@ const serviceInfo = {
     },
 };
 
-
+const hasGit = childProcess.execSync("which git").toString().trim() === "";
 const git = cmd => childProcess.execSync(`git ${cmd}`).toString().trim();
-if (nodeEnv === "development") {
+if (nodeEnv === "development" && hasGit) {
     try {
         serviceInfo.bento.gitTag = git("describe --tags --abbrev=0");
         serviceInfo.bento.gitBranch = git("branch --show-current");
@@ -38,6 +38,8 @@ if (nodeEnv === "development") {
     } catch (e) {
         console.warn(`Could not get git information (${e})`);
     }
+} else if (!hasGit) {
+    console.warn("Could not get git information (missing git)");
 }
 
 if (typeof require !== "undefined" && require.main === module) {
