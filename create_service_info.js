@@ -28,7 +28,14 @@ const serviceInfo = {
     },
 };
 
-const hasGit = childProcess.execSync("which git").toString().trim() === "";
+const hasGit = (() => {
+    try {
+        return childProcess.execSync("which git").toString().trim() === "";
+    } catch (_e) {
+        // Exit code 1 (git not found)
+        return false;
+    }
+})();
 const git = cmd => childProcess.execSync(`git ${cmd}`).toString().trim();
 if (nodeEnv === "development" && hasGit) {
     try {
