@@ -7,9 +7,14 @@ import { Table, Typography, Button, Spin } from "antd";
 import SearchSummaryModal from "./SearchSummaryModal";
 import SearchTracksModal from "./SearchTracksModal";
 
-import { setSelectedRows, performIndividualsDownloadCSVIfPossible } from "../../modules/explorer/actions";
+import {
+    setSelectedRows,
+    performIndividualsDownloadCSVIfPossible,
+    performBiosamplesDownloadCSVIfPossible,
+    performExperimentsDownloadCSVIfPossible,
+} from "../../modules/explorer/actions";
 
-const ExplorerSearchResultsTableComp = ({ data, ...props }) => {
+const ExplorerSearchResultsTableComp = ({ data, activeTab, ...props }) => {
     const { dataset } = useParams();
     const [currentPage, setCurrentPage] = useState(1);
     const [pageSize] = useState(25);
@@ -28,12 +33,22 @@ const ExplorerSearchResultsTableComp = ({ data, ...props }) => {
     const selectedRows = useSelector((state) => state.explorer.selectedRowsByDatasetID[dataset] || []);
     const isFetchingDownload = useSelector((state) => state.explorer.isFetchingDownload || false);
     const fetchingSearch = useSelector((state) => state.explorer.fetchingSearchByDatasetID[dataset] || false);
-
+    console.log("selected rows: ", selectedRows);
+    console.log("search results: ", searchResults);
     const dispatch = useDispatch();
 
     const handleSetSelectedRows = (...args) => dispatch(setSelectedRows(dataset, ...args));
-    const handlePerformIndividualsDownloadCSVIfPossible = (...args) =>
-        dispatch(performIndividualsDownloadCSVIfPossible(dataset, ...args));
+
+    const handlePerformIndividualsDownloadCSVIfPossible = (...args) => {
+        if (activeTab === "individuals") {
+            return dispatch(performIndividualsDownloadCSVIfPossible(dataset, ...args));
+        }
+        if (activeTab === "biosamples") {
+            return dispatch(performBiosamplesDownloadCSVIfPossible(dataset, ...args));
+        } else if (activeTab === "experiments") {
+            return dispatch(performExperimentsDownloadCSVIfPossible(dataset, ...args));
+        }
+    };
 
     const onPageChange = (pageObj) => {
         setCurrentPage(pageObj.current);
@@ -77,16 +92,28 @@ const ExplorerSearchResultsTableComp = ({ data, ...props }) => {
                 {showingResults}
                 <Spin style={{ marginLeft: "35px" }} spinning={fetchingSearch}></Spin>
                 <div style={{ float: "right", verticalAlign: "top" }}>
-                    <Spin spinning={isFetchingDownload} style={{ display: "inline-block !important" }}>
+                    {/* TODO: new "visualize tracks" functionality */}
+                    {/* <Button icon="profile"
+                                style={{marginRight: "8px"}}
+                                onClick={() => this.setState({tracksModalVisible: true})}
+                                disabled={true}>
+                            Visualize Tracks</Button> */}
+
+                    <Button
+                        icon="bar-chart"
+                        style={{ marginRight: "8px" }}
+                        onClick={() => setSummaryModalVisible(true)}
+                    >
+                        View Summary
+                    </Button>
                         <Button
                             icon="export"
                             style={{ marginRight: "8px" }}
-                            disabled={isFetchingDownload}
+                            loading={isFetchingDownload}
                             onClick={() => handlePerformIndividualsDownloadCSVIfPossible(selectedRows, data)}
                         >
                             Export as CSV
                         </Button>
-                    </Spin>
                 </div>
             </Typography.Title>
             {summaryModalVisible && (
@@ -148,6 +175,7 @@ ExplorerSearchResultsTableComp.propTypes = {
     performIndividualsDownloadCSVIfPossible: PropTypes.func.isRequired,
     type: PropTypes.string,
     data: PropTypes.arrayOf(PropTypes.object),
+    activeTab: PropTypes.string.isRequired,
 };
 
 export default ExplorerSearchResultsTableComp;
