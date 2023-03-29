@@ -4,7 +4,7 @@ import FileSaver from "file-saver";
 import {
     addDataTypeFormIfPossible,
     removeDataTypeFormIfPossible,
-    updateDataTypeFormIfPossible
+    updateDataTypeFormIfPossible,
 } from "../../utils/search";
 
 import { readFromLocalStorage } from "../../utils/localStorageUtils";
@@ -16,6 +16,8 @@ import {
     PERFORM_SEARCH,
     SET_IS_SUBMITTING_SEARCH,
     PERFORM_INDIVIDUAL_CSV_DOWNLOAD,
+    PERFORM_BIOSAMPLE_CSV_DOWNLOAD,
+    PERFORM_EXPERIMENT_CSV_DOWNLOAD,
     ADD_DATA_TYPE_QUERY_FORM,
     REMOVE_DATA_TYPE_QUERY_FORM,
     UPDATE_DATA_TYPE_QUERY_FORM,
@@ -25,7 +27,7 @@ import {
     NEUTRALIZE_AUTO_QUERY_PAGE_TRANSITION,
     FREE_TEXT_SEARCH,
     SET_OTHER_THRESHOLD_PERCENTAGE,
-    SET_IGV_POSITION
+    SET_IGV_POSITION,
 } from "./actions";
 
 // TODO: Could this somehow be combined with discovery?
@@ -46,7 +48,7 @@ export const explorer = (
         },
         otherThresholdPercentage:
             readFromLocalStorage("otherThresholdPercentage") ?? DEFAULT_OTHER_THRESHOLD_PERCENTAGE,
-        igvPosition: undefined
+        igvPosition: undefined,
     },
     action
 ) => {
@@ -54,7 +56,7 @@ export const explorer = (
         case PERFORM_GET_GOHAN_VARIANTS_OVERVIEW.RECEIVE:
             return {
                 ...state,
-                variantsOverviewResponse: action.data
+                variantsOverviewResponse: action.data,
             };
         case PERFORM_SEARCH.REQUEST:
             return {
@@ -93,7 +95,7 @@ export const explorer = (
         case SET_IS_SUBMITTING_SEARCH:
             return {
                 ...state,
-                isSubmittingSearch: action.isSubmittingSearch
+                isSubmittingSearch: action.isSubmittingSearch,
             };
 
         case PERFORM_INDIVIDUAL_CSV_DOWNLOAD.REQUEST:
@@ -113,7 +115,44 @@ export const explorer = (
                 ...state,
                 isFetchingDownload: false,
             };
-    // ---
+        // ---
+        case PERFORM_BIOSAMPLE_CSV_DOWNLOAD.REQUEST:
+            return {
+                ...state,
+                isFetchingDownload: true,
+            };
+        case PERFORM_BIOSAMPLE_CSV_DOWNLOAD.RECEIVE:
+            FileSaver.saveAs(action.data, "biosamples.csv");
+
+            return {
+                ...state,
+                isFetchingDownload: false,
+            };
+        case PERFORM_BIOSAMPLE_CSV_DOWNLOAD.FINISH:
+            return {
+                ...state,
+                isFetchingDownload: false,
+            };
+        // ---
+
+        case PERFORM_EXPERIMENT_CSV_DOWNLOAD.REQUEST:
+            return {
+                ...state,
+                isFetchingDownload: true,
+            };
+        case PERFORM_EXPERIMENT_CSV_DOWNLOAD.RECEIVE:
+            FileSaver.saveAs(action.data, "experiments.csv");
+
+            return {
+                ...state,
+                isFetchingDownload: false,
+            };
+        case PERFORM_EXPERIMENT_CSV_DOWNLOAD.FINISH:
+            return {
+                ...state,
+                isFetchingDownload: false,
+            };
+        // ---
 
         case ADD_DATA_TYPE_QUERY_FORM:
             return {
@@ -168,10 +207,10 @@ export const explorer = (
                         sortColumnKey: action.sortColumnKey,
                         sortOrder: action.sortOrder,
                     },
-                }
+                },
             };
 
-    // Auto-Queries start here ----
+        // Auto-Queries start here ----
         case SET_AUTO_QUERY_PAGE_TRANSITION:
             return {
                 ...state,
@@ -195,13 +234,13 @@ export const explorer = (
                     autoQueryValue: undefined,
                 },
             };
-    //.. and end here.. ----
+        //.. and end here.. ----
 
-    // free-text search
+        // free-text search
         case FREE_TEXT_SEARCH.REQUEST:
             return {
                 ...state,
-                fetchingTextSearch: true
+                fetchingTextSearch: true,
             };
         case FREE_TEXT_SEARCH.RECEIVE:
             return {
@@ -219,7 +258,7 @@ export const explorer = (
         case FREE_TEXT_SEARCH.FINISH:
             return {
                 ...state,
-                fetchingTextSearch: false
+                fetchingTextSearch: false,
             };
         case SET_OTHER_THRESHOLD_PERCENTAGE:
             return {
@@ -229,7 +268,7 @@ export const explorer = (
         case SET_IGV_POSITION:
             return {
                 ...state,
-                igvPosition: action.igvPosition
+                igvPosition: action.igvPosition,
             };
 
         default:
@@ -238,15 +277,18 @@ export const explorer = (
 };
 
 // helpers
-
 const tableSearchResultsExperiments = (searchResults) => {
+    console.log("searchResultstableSearchResultsExperiments", searchResults);
     const results = (searchResults || {}).results || [];
 
     return results.flatMap((result) => {
+        if (!result.i_type) {
+            return [];
+        }
+
         return result.i_type.flatMap((expId, index) => {
             return {
                 subject_id: result.subject_id,
-                //key: result.subject_id,
                 key: expId,
                 alternate_ids: result.alternate_ids,
                 i_type: result.i_type[index],
@@ -264,9 +306,13 @@ const tableSearchResultsExperiments = (searchResults) => {
 };
 
 
-function generateObjectsSa(searchResults) {
+function generateObjectsBiosamples(searchResults) {
     const data = (searchResults || {}).results || [];
     return data.flatMap((result) => {
+        if (!result.biosamples_lM) {
+            return [];
+        }
+
         const biosampleIdToIndex = {};
         return result.biosamples_lM.reduce((objects, biosampleId, i) => {
             if (biosampleId) {
@@ -277,12 +323,11 @@ function generateObjectsSa(searchResults) {
                         : (biosampleIdToIndex[biosampleId] = objects.length);
                 objects[index] = objects[index] || {
                     subject_id: result.subject_id,
-                    key: result.subject_id + "_" + biosampleId, ///biosampleId,
+                    key: biosampleId, // result.subject_id + "_" + biosampleId
                     alternate_ids: result.alternate_ids,
                     i_type: result.i_type[index] || "N/A",
                     im_type: biosampleId,
                     e_type: result.e_type[index] || "N/A",
-                    //s_type: result.s_type[index] || "N/A",
                     if_type: result.if_type[index] || "N/A",
                     num_experiments: result.num_experiments,
                     individual: {
@@ -301,12 +346,12 @@ function generateObjectsSa(searchResults) {
             }
             return objects;
         }, []);
-    }); // flatten the array of arrays into a single-level array
+    });
 }
 
-
 const tableSearchResultsBiosamples = (searchResults) => {
-    const res = generateObjectsSa(searchResults);
+    console.log("tableSearchResultsBiosamples", searchResults);
+    const res = generateObjectsBiosamples(searchResults);
     return res;
 };
 
@@ -318,14 +363,13 @@ const tableSearchResults = (searchResults) => {
             key: p.subject_id,
             individual: {
                 id: p.subject_id,
-                alternate_ids: p.alternate_ids ?? []
+                alternate_ids: p.alternate_ids ?? [],
             },
             biosamples: p.biosamples,
-            experiments: p.num_experiments
+            experiments: p.num_experiments,
         };
     });
 };
-
 
 // free-text search helpers
 
@@ -334,7 +378,6 @@ const tableSearchResults = (searchResults) => {
 // but free-text results are not in the same format as regular queries,
 // so need their own formatting functions
 function freeTextResults(_searchResults) {
-
     // TODO:
     // most information expected here is missing in free-text search response
     // can be added in a future katsu version
@@ -342,7 +385,7 @@ function freeTextResults(_searchResults) {
 
     return {
         results: {
-            variant: []   //TODO
-        }
+            variant: [], //TODO
+        },
     };
 }
