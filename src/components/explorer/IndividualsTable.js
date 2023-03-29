@@ -57,12 +57,17 @@ const SEARCH_RESULT_COLUMNS = [
 ];
 
 const IndividualsTable = ({ data }) => {
-    return <ExplorerSearchResultsTableComp dataStructure={SEARCH_RESULT_COLUMNS} type="individual" data={data} />;
+    return (
+        <ExplorerSearchResultsTableComp
+            dataStructure={SEARCH_RESULT_COLUMNS}
+            data={data}
+            activeTab="individuals"
+        />
+    );
 };
 
 IndividualsTable.propTypes = {
     data: PropTypes.array.isRequired,
 };
-
 
 export default IndividualsTable;
