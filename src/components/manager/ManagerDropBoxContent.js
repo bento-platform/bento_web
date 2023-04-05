@@ -105,7 +105,7 @@ const FileDisplay = ({file, tree}) => {
 
     const [loadingFileContents, setLoadingFileContents] = useState(false);
     const [fileContents, setFileContents] = useState({});
-    const [pdfPageCounts, setPdfPageCounts] = useState({})
+    const [pdfPageCounts, setPdfPageCounts] = useState({});
 
     let textFormat = false;
     if (file) {
