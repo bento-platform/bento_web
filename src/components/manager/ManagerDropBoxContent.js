@@ -1,4 +1,4 @@
-import React, {useCallback, useMemo, useState} from "react";
+import React, {useCallback, useEffect, useMemo, useState} from "react";
 import {useSelector} from "react-redux";
 import {useHistory} from "react-router-dom";
 
@@ -9,6 +9,10 @@ import {filesize} from "filesize";
 
 import {Light as SyntaxHighlighter} from "react-syntax-highlighter";
 import {a11yLight} from "react-syntax-highlighter/dist/cjs/styles/hljs";
+
+import {Document, Page} from "react-pdf/dist/esm/entry.webpack5";
+import "react-pdf/dist/esm/Page/AnnotationLayer.css";
+import "react-pdf/dist/esm/Page/TextLayer.css";
 
 import ReactJson from "react-json-view";
 
@@ -42,6 +46,13 @@ SyntaxHighlighter.registerLanguage("markdown", markdown);
 SyntaxHighlighter.registerLanguage("plaintext", plaintext);
 
 
+const PDF_OPTIONS = {
+    cMapUrl: "cmaps/",
+    cMapPacked: true,
+    standardFontDataUrl: "standard_fonts/",
+};
+
+
 const LANGUAGE_HIGHLIGHTERS = {
     ".json": "json",
     ".md": "markdown",
@@ -51,6 +62,8 @@ const LANGUAGE_HIGHLIGHTERS = {
     "README": "plaintext",
     "CHANGELOG": "plaintext",
 };
+
+const VIEWABLE_FILE_EXTENSIONS = [...Object.keys(LANGUAGE_HIGHLIGHTERS), ".pdf"];
 
 
 const sortByName = (a, b) => a.name.localeCompare(b.name);
@@ -87,6 +100,112 @@ const recursivelyFlattenFileTree = (acc, contents) => {
 const formatTimestamp = timestamp => (new Date(timestamp * 1000)).toLocaleString();
 
 
+const FileDisplay = ({file, tree}) => {
+    const urisByFilePath = useMemo(() => generateURIsByFilePath(tree, {}), [tree]);
+
+    const [loadingFileContents, setLoadingFileContents] = useState(false);
+    const [fileContents, setFileContents] = useState({});
+    const [pdfPageCounts, setPdfPageCounts] = useState({})
+
+    let textFormat = false;
+    if (file) {
+        Object.keys(LANGUAGE_HIGHLIGHTERS).forEach(ext => {
+            if (file.endsWith(ext)) {
+                textFormat = true;
+            }
+        });
+    }
+
+    const fileExt = file ? file.split(".").slice(-1)[0] : null;
+
+    useEffect(() => {
+        (async () => {
+            if (!file) return;
+
+            if (fileExt === "pdf") {
+                setLoadingFileContents(true);
+            }
+
+            if (!textFormat) return;
+
+            if (fileContents.hasOwnProperty(file)) {
+                return;
+            }
+
+            if (!(file in urisByFilePath)) {
+                console.error(`Files: something went wrong while trying to load ${file}`);
+                return;
+            }
+
+            try {
+                setLoadingFileContents(true);
+                const r = await fetch(urisByFilePath[file]);
+                setFileContents({
+                    ...fileContents,
+                    [file]: r.ok ? await r.text() : resourceLoadError(file),
+                });
+            } catch (e) {
+                console.error(e);
+                setFileContents({
+                    ...fileContents,
+                    [file]: resourceLoadError(file),
+                });
+            } finally {
+                setLoadingFileContents(false);
+            }
+        })();
+    }, [file]);
+
+    const onPdfLoad = useCallback(({numPages}) => {
+        setLoadingFileContents(false);
+        setPdfPageCounts({...pdfPageCounts, [file]: numPages});
+    }, [file]);
+
+    if (!file) return <div />;
+
+    return <Spin spinning={loadingFileContents}>
+        {(() => {
+            if (fileExt === "pdf") {  // Non-text, content isn't loaded a priori
+                const uri = urisByFilePath[file];
+                if (!uri) return <div />;
+                return (
+                    <Document file={uri} onLoadSuccess={onPdfLoad} options={PDF_OPTIONS}>
+                        {(() => {
+                            const pages = [];
+                            for (let i = 1; i <= pdfPageCounts[file] ?? 1; i++) {
+                                pages.push(<Page pageNumber={i} key={i} />);
+                            }
+                            return pages;
+                        })()}
+                    </Document>
+                );
+            } else if (fileExt === "json") {
+                return (
+                    <ReactJson
+                        src={JSON.parse(fileContents[file] || "{}")}
+                        displayDataTypes={false}
+                        enableClipboard={false}
+                        name={null}
+                        collapsed={true}
+                    />
+                );
+            } else {  // if (textFormat)
+                return (
+                    <SyntaxHighlighter
+                        language={LANGUAGE_HIGHLIGHTERS[`.${fileExt}`]}
+                        style={a11yLight}
+                        customStyle={{fontSize: "12px"}}
+                        showLineNumbers={true}
+                    >
+                        {fileContents[file] || ""}
+                    </SyntaxHighlighter>
+                );
+            }
+        })()}
+    </Spin>;
+};
+
+
 const ManagerDropBoxContent = () => {
     const history = useHistory();
 
@@ -99,8 +218,6 @@ const ManagerDropBoxContent = () => {
         recursivelyFlattenFileTree([], tree).map(f => [f.filePath, f])), [tree]);
 
     const [selectedFiles, setSelectedFiles] = useState([]);
-    const [loadingFileContents, setLoadingFileContents] = useState(false);
-    const [fileContents, setFileContents] = useState({});
 
     const [fileInfoModal, setFileInfoModal] = useState(false);
     const [fileContentsModal, setFileContentsModal] = useState(false);
@@ -168,40 +285,8 @@ const ManagerDropBoxContent = () => {
     }, [history, selectedWorkflow]);
 
     const handleViewFile = useCallback(() => {
-        (async () => {
-            if (selectedFiles.length !== 1) return;
-            const file = selectedFiles[0];
-            if (fileContents.hasOwnProperty(file)) {
-                showFileContentsModal();
-                return;
-            }
-
-            const urisByFilePath = generateURIsByFilePath(tree, {});
-            if (!(file in urisByFilePath)) {
-                console.error(`Files: something went wrong while trying to load ${file}`);
-                return;
-            }
-
-            try {
-                setLoadingFileContents(true);
-                const r = await fetch(urisByFilePath[file]);
-                setFileContents({
-                    ...fileContents,
-                    [file]: r.ok ? await r.text() : resourceLoadError(file),
-                });
-            } catch (e) {
-                console.error(e);
-                setFileContents({
-                    ...fileContents,
-                    [file]: resourceLoadError(file),
-                });
-            } finally {
-                setLoadingFileContents(false);
-            }
-
-            showFileContentsModal();
-        })();
-    }, [selectedFiles, fileContents]);
+        showFileContentsModal();
+    }, []);
 
     const workflowsSupported = [];
     const workflowMenu = (
@@ -221,12 +306,11 @@ const ManagerDropBoxContent = () => {
     );
 
     const selectedFileViewable = selectedFiles.length === 1 &&
-        Object.keys(LANGUAGE_HIGHLIGHTERS).filter(e => selectedFiles[0].endsWith(e)).length > 0;
+        VIEWABLE_FILE_EXTENSIONS.filter(e => selectedFiles[0].endsWith(e)).length > 0;
 
     const selectedFileInfoAvailable = selectedFiles.length === 1 && selectedFiles[0] in filesByPath;
 
     const viewableFile = selectedFileViewable ? selectedFiles[0] : "";
-    const viewableFileType = viewableFile.split(".").slice(-1)[0];
 
     const fileForInfo = selectedFileInfoAvailable ? selectedFiles[0] : "";
 
@@ -257,26 +341,7 @@ const ManagerDropBoxContent = () => {
                    width={960}
                    footer={null}
                    onCancel={hideFileContentsModal}>
-                <Spin spinning={loadingFileContents}>
-                    {viewableFileType === "json" ? (
-                        <ReactJson
-                            src={JSON.parse(fileContents[viewableFile] || "{}")}
-                            displayDataTypes={false}
-                            enableClipboard={false}
-                            name={null}
-                            collapsed={true}
-                        />
-                    ) : (
-                        <SyntaxHighlighter
-                            language={LANGUAGE_HIGHLIGHTERS[`.${viewableFileType}`]}
-                            style={a11yLight}
-                            customStyle={{fontSize: "12px"}}
-                            showLineNumbers={true}
-                        >
-                            {fileContents[viewableFile] || ""}
-                        </SyntaxHighlighter>
-                    )}
-                </Spin>
+                <FileDisplay file={selectedFiles.length === 1 ? selectedFiles[0] : null} tree={tree} />
             </Modal>
 
             <Modal visible={fileInfoModal}
@@ -315,8 +380,7 @@ const ManagerDropBoxContent = () => {
                     <Button icon="info-circle" onClick={showFileInfoModal} disabled={!selectedFileInfoAvailable}>
                         File Info
                     </Button>
-                    <Button icon="file-text" onClick={handleViewFile} disabled={!selectedFileViewable}
-                            loading={loadingFileContents}>
+                    <Button icon="file-text" onClick={handleViewFile} disabled={!selectedFileViewable}>
                         View
                     </Button>
                     <InfoDownloadButton disabled={!selectedFileInfoAvailable} />
