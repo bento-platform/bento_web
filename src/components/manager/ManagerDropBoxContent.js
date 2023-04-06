@@ -38,7 +38,7 @@ import TableSelectionModal from "./TableSelectionModal";
 
 import {STEP_INPUT} from "./workflowCommon";
 import {withBasePath} from "../../utils/url";
-import {workflowsStateToPropsMixin} from "../../propTypes";
+import {dropBoxTreeStateToPropsMixinPropTypes, workflowsStateToPropsMixin} from "../../propTypes";
 
 
 SyntaxHighlighter.registerLanguage("json", json);
@@ -100,7 +100,7 @@ const recursivelyFlattenFileTree = (acc, contents) => {
 const formatTimestamp = timestamp => (new Date(timestamp * 1000)).toLocaleString();
 
 
-const FileDisplay = ({file, tree}) => {
+const FileDisplay = ({file, tree, treeLoading}) => {
     const urisByFilePath = useMemo(() => generateURIsByFilePath(tree, {}), [tree]);
 
     const [loadingFileContents, setLoadingFileContents] = useState(false);
@@ -163,7 +163,7 @@ const FileDisplay = ({file, tree}) => {
 
     if (!file) return <div />;
 
-    return <Spin spinning={loadingFileContents}>
+    return <Spin spinning={treeLoading || loadingFileContents}>
         {(() => {
             if (fileExt === "pdf") {  // Non-text, content isn't loaded a priori
                 const uri = urisByFilePath[file];
@@ -203,6 +203,10 @@ const FileDisplay = ({file, tree}) => {
             }
         })()}
     </Spin>;
+};
+FileDisplay.propTypes = {
+    file: PropTypes.string,
+    ...dropBoxTreeStateToPropsMixinPropTypes,
 };
 
 
@@ -341,7 +345,11 @@ const ManagerDropBoxContent = () => {
                    width={960}
                    footer={null}
                    onCancel={hideFileContentsModal}>
-                <FileDisplay file={selectedFiles.length === 1 ? selectedFiles[0] : null} tree={tree} />
+                <FileDisplay
+                    file={selectedFiles.length === 1 ? selectedFiles[0] : null}
+                    tree={tree}
+                    treeLoading={treeLoading}
+                />
             </Modal>
 
             <Modal visible={fileInfoModal}
