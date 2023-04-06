@@ -131,10 +131,10 @@ const RunSetupWizard = ({
     </Layout>;
 };
 RunSetupWizard.propTypes = {
-    workflowSelection: PropTypes.node,
+    workflowSelection: PropTypes.func,
     workflowSelectionTitle: PropTypes.oneOfType([PropTypes.string, PropTypes.node]),
     workflowSelectionDescription: PropTypes.oneOfType([PropTypes.string, PropTypes.node]),
-    confirmDisplay: PropTypes.node,
+    confirmDisplay: PropTypes.func,
     onSubmit: PropTypes.func,
 };
 

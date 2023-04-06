@@ -1,6 +1,6 @@
 {
   "name": "bento_web",
-  "version": "1.8.2",
+  "version": "1.8.3",
   "description": "Bento platform front-end",
   "main": "src/index.js",
   "dependencies": {
