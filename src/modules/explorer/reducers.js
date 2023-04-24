@@ -276,8 +276,8 @@ export const explorer = (
     }
 };
 
-// helpers
-const tableSearchResultsExperiments = (searchResults) => {
+// helpers v1
+/* const tableSearchResultsExperiments = (searchResults) => {
     console.log("searchResultstableSearchResultsExperiments", searchResults);
     const results = (searchResults || {}).results || [];
 
@@ -303,10 +303,47 @@ const tableSearchResultsExperiments = (searchResults) => {
             };
         });
     });
+}; */
+
+// helpers v2
+const tableSearchResultsExperiments = (searchResults) => {
+    const results = searchResults.results || [];
+
+    return results.flatMap((result) => {
+        console.log("Processing result:", result);
+        if (!result.biosamples_l) {
+            return [];
+        }
+
+        return result.biosamples_l.flatMap((sample) => {
+            const experiment = sample.experiment;
+            if (!experiment || experiment.experiment_id === null) {
+                return [];
+            }
+
+            const formattedResult = {
+                subject_id: result.subject_id,
+                key: experiment.experiment_id,
+                alternate_ids: result.alternate_ids,
+                i_type: experiment.experiment_id,
+                im_type: experiment.experiment_id,
+                e_type: experiment.experiment_type,
+                studies_type: experiment.study_type,
+                if_type: sample.biosample_id,
+                individual: {
+                    id: result.subject_id,
+                    alternate_ids: result.alternate_ids ?? [],
+                },
+            };
+
+            return formattedResult;
+        });
+    });
 };
 
 
-function generateObjectsBiosamples(searchResults) {
+// helpers v1
+/* function generateObjectsBiosamples(searchResults) {
     const data = (searchResults || {}).results || [];
     return data.flatMap((result) => {
         if (!result.biosamples_lM) {
@@ -347,10 +384,85 @@ function generateObjectsBiosamples(searchResults) {
             return objects;
         }, []);
     });
+} */
+
+// helpers v2
+/* function generateObjectsBiosamples(searchResults) {
+    const data = (searchResults || {}).results || [];
+    return data.flatMap((result) => {
+        if (!result.biosamples_l) {
+            return [];
+        }
+
+        return result.biosamples_l.map((biosample) => {
+            return {
+                subject_id: result.subject_id,
+                key: biosample.biosample_id,
+                alternate_ids: result.alternate_ids,
+                i_type: biosample.experiment.experiment_id || "N/A",
+                im_type: biosample.biosample_id,
+                e_type: biosample.experiment.experiment_type || "N/A",
+                if_type: biosample.biosample_id,
+                num_experiments: result.num_experiments,
+                individual: {
+                    id: result.subject_id,
+                    alternate_ids: result.alternate_ids || [],
+                },
+                experiments_id: [biosample.experiment.experiment_id],
+                experiments_type: [biosample.experiment.experiment_type],
+                studies_type: [biosample.experiment.study_type],
+                sampled_tissues: [biosample.sampled_tissue],
+            };
+        });
+    }).filter(entry => entry.key !== null && entry.key !== undefined);
+} */
+// helpers v2a
+function generateObjectsBiosamples(searchResults) {
+    const data = (searchResults || {}).results || [];
+    return data.flatMap((result) => {
+        if (!result.biosamples_l) {
+            return [];
+        }
+
+        const biosampleIdToIndex = {};
+
+        return result.biosamples_l.reduce((objects, biosample) => {
+            const biosampleId = biosample.biosample_id;
+
+            if (biosampleId) {
+                const index =
+                    biosampleId in biosampleIdToIndex
+                        ? biosampleIdToIndex[biosampleId]
+                        : (biosampleIdToIndex[biosampleId] = objects.length);
+                objects[index] = objects[index] || {
+                    subject_id: result.subject_id,
+                    key: biosampleId,
+                    alternate_ids: result.alternate_ids,
+                    i_type: biosample.experiment.experiment_id || "N/A",
+                    im_type: biosampleId,
+                    e_type: biosample.experiment.experiment_type || "N/A",
+                    if_type: biosampleId,
+                    num_experiments: result.num_experiments,
+                    individual: {
+                        id: result.subject_id,
+                        alternate_ids: result.alternate_ids || [],
+                    },
+                    experiments_id: [],
+                    experiments_type: [],
+                    studies_type: [],
+                    sampled_tissues: [],
+                };
+                objects[index].experiments_id.push(biosample.experiment.experiment_id);
+                objects[index].experiments_type.push(biosample.experiment.experiment_type);
+                objects[index].studies_type.push(biosample.experiment.study_type);
+                objects[index].sampled_tissues.push(biosample.sampled_tissue);
+            }
+            return objects;
+        }, []);
+    }).filter(entry => entry.key !== null && entry.key !== undefined);
 }
 
 const tableSearchResultsBiosamples = (searchResults) => {
-    console.log("tableSearchResultsBiosamples", searchResults);
     const res = generateObjectsBiosamples(searchResults);
     return res;
 };
