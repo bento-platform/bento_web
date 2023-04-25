@@ -87,12 +87,21 @@ export const datasetPropTypesShape = PropTypes.shape({
     project: PropTypes.string,
 });
 
+export const projectJsonSchemaTypesShape = PropTypes.shape({
+    id: PropTypes.string,
+    schema_type: PropTypes.string,
+    project: PropTypes.string,
+    required: PropTypes.bool,
+    json_schema: PropTypes.object // TODO: Shape
+})
+
 // Prop types object shape for a single project object.
 export const projectPropTypesShape = PropTypes.shape({
     identifier: PropTypes.string,
     title: PropTypes.string,
     description: PropTypes.string,
     datasets: PropTypes.arrayOf(datasetPropTypesShape),
+    project_schemas: PropTypes.arrayOf(projectJsonSchemaTypesShape),
     created: PropTypes.string,
     updated: PropTypes.string
 });

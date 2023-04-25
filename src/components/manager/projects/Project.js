@@ -6,7 +6,7 @@ import {Button, Col, Empty, Row, Typography} from "antd";
 
 import Dataset from "../../datasets/Dataset";
 import ProjectForm from "./ProjectForm";
-
+import ProjectJsonSchema from "./ProjectJsonSchema";
 import {INITIAL_DATA_USE_VALUE} from "../../../duo";
 import {nop, simpleDeepCopy} from "../../../utils/misc";
 import {projectPropTypesShape} from "../../../propTypes";
@@ -45,6 +45,7 @@ class Project extends Component {
             title: value.title || "",
             description: value.description || "",
             datasets: value.datasets || [],
+            project_schemas: value.project_schemas || []
         };
     }
 
@@ -106,6 +107,29 @@ class Project extends Component {
                 </>
             )}
 
+            <Typography.Title level={4} style={{marginTop: "1.2em"}}>
+                Extra Properties JSON schemas
+                <div style={{float: "right"}}>
+                    <Button icon="plus"
+                            style={{verticalAlign: "top"}}
+                            onClick={() => (this.props.onAddDataset || nop)()}>
+                        Add JSON schema
+                    </Button>
+                </div>
+            </Typography.Title>
+            {(this.state.project_schemas || []).length > 0 
+                ? this.state.project_schemas.map(pjs => 
+                    <Row gutter={[0, 16]} key={pjs["id"]}>
+                        <Col span={24}>
+                            <ProjectJsonSchema project_schema={pjs}/>
+                        </Col>
+                    </Row>
+                ) : (
+                    <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} description="No project JSON schemas">
+                        <Button icon="plus" onClick={() => (this.props.onAddJsonSchema || nop)()}>Add Dataset</Button>
+                    </Empty>
+            )}
+
             <Typography.Title level={3} style={{marginTop: "1.2em"}}>
                 Datasets
                 <div style={{float: "right"}}>
@@ -135,7 +159,7 @@ class Project extends Component {
                         </Col>
                     </Row>
                 ) : (
-                    <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} description="No Datasets">
+                    <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} description="No datasets">
                         <Button icon="plus" onClick={() => (this.props.onAddDataset || nop)()}>Add Dataset</Button>
                     </Empty>
                 )}
@@ -157,7 +181,8 @@ Project.propTypes = {
     onSave: PropTypes.func,
     onAddDataset: PropTypes.func,
     onEditDataset: PropTypes.func,
-
+    onAddJsonSchema: PropTypes.func,
+    
     onTableIngest: PropTypes.func
 };
 
