@@ -40,6 +40,7 @@ export const explorer = (
         isFetchingDownload: false,
         fetchingTextSearch: false,
         isSubmittingSearch: false,
+        fetchingVariantsOverview: false,
 
         autoQuery: {
             isAutoQuery: false,
@@ -54,7 +55,13 @@ export const explorer = (
         case PERFORM_GET_GOHAN_VARIANTS_OVERVIEW.RECEIVE:
             return {
                 ...state,
-                variantsOverviewResponse: action.data
+                variantsOverviewResponse: action.data,
+                fetchingVariantsOverview: false
+            };
+        case PERFORM_GET_GOHAN_VARIANTS_OVERVIEW.REQUEST:
+            return {
+                ...state,
+                fetchingVariantsOverview: true
             };
         case PERFORM_SEARCH.REQUEST:
             return {
