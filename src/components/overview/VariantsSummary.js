@@ -9,12 +9,12 @@ const VariantsSummary = ( ) => {
     const hasAssemblyIds =
         variantsOverviewResults?.assemblyIDs !== undefined &&
         !variantsOverviewResults?.assemblyIDs.hasOwnProperty("error");
-    const numVariantsFromAssemblyIds = 
-        hasAssemblyIds ? 
-        Object.values(variantsOverviewResults?.assemblyIDs) // retrieve list of values from `assemblyIds`
-            .reduce((partialSum, a) => partialSum + a, 0) : // get all values and add them up 
-        [];
-    
+    const numVariantsFromAssemblyIds =
+        hasAssemblyIds ?
+            Object.values(variantsOverviewResults?.assemblyIDs) // retrieve list of values from `assemblyIds`
+                .reduce((partialSum, a) => partialSum + a, 0) : // get all values and add them up
+            [];
+
     return (
         <>
             <Typography.Title level={4}>Variants</Typography.Title>
