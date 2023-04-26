@@ -38,7 +38,7 @@ class ServiceDetail extends Component {
                                 {menuItems.map(renderMenuItem)}
                             </Menu>}
                             withTabBar={true}
-                            onBack={() => this.props.history.push(withBasePath("dashboard"))} />
+                            onBack={() => this.props.history.push(withBasePath("admin/services"))} />
             <Suspense fallback={<div style={{padding: "24px", backgroundColor: "white"}}><Skeleton active /></div>}>
                 <Switch>
                     <Route exact path={withBasePath("admin/services/:kind/overview")}
