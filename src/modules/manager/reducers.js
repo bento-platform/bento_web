@@ -2,13 +2,15 @@ import {
     TOGGLE_PROJECT_CREATION_MODAL,
     PROJECT_EDITING,
     FETCH_DROP_BOX_TREE,
+    TOGGLE_PROJECT_JSON_SCHEMA_CREATION_MODAL,
 } from "./actions";
 
 
 export const manager = (
     state = {
         projectCreationModal: false,
-        editingProject: false
+        editingProject: false,
+        jsonSchemaCreationModal: false,
     },
     action
 ) => {
@@ -21,6 +23,9 @@ export const manager = (
 
         case PROJECT_EDITING.END:
             return {...state, editingProject: false};
+        
+        case TOGGLE_PROJECT_JSON_SCHEMA_CREATION_MODAL:
+            return {...state, jsonSchemaCreationModal: !state.jsonSchemaCreationModal}
 
         default:
             return state;

@@ -13,6 +13,7 @@ import {beginProjectEditing, endProjectEditing} from "../../../modules/manager/a
 import {withBasePath} from "../../../utils/url";
 import {FORM_MODE_ADD, FORM_MODE_EDIT} from "../../../constants";
 import {chordServicePropTypesMixin, projectPropTypesShape, serviceInfoPropTypesShape} from "../../../propTypes";
+import ProjectJsonSchemaModal from "./ProjectJsonSchemaModal";
 
 class RoutedProject extends Component {
     constructor(props) {
@@ -20,6 +21,7 @@ class RoutedProject extends Component {
         this.state = {
             datasetAdditionModal: false,
             datasetEditModal: false,
+            jsonSchemaAdditionModal: false,
             selectedDataset: null
         };
     }
@@ -59,6 +61,10 @@ class RoutedProject extends Component {
 
     hideDatasetEditModal() {
         this.setState({datasetEditModal: false});
+    }
+
+    showJsonSchemaModal(display) {
+        this.setState({jsonSchemaAdditionModal: display})
     }
 
     handleDeleteProject(project) {
@@ -152,6 +158,11 @@ class RoutedProject extends Component {
                               initialValue={this.state.selectedDataset}
                               onCancel={this.hideDatasetEditModal}
                               onOk={this.hideDatasetEditModal} />
+            
+            <ProjectJsonSchemaModal projectId={project.identifier} 
+                                    visible={this.state.jsonSchemaAdditionModal} 
+                                    onOk={() => this.showJsonSchemaModal(false)}
+                                    onCancel={() => this.showJsonSchemaModal(false)}/>
 
             <Project value={project}
                      tables={tableList}
@@ -167,7 +178,8 @@ class RoutedProject extends Component {
                          selectedDataset: dataset,
                          datasetEditModal: true
                      })}
-                     onTableIngest={(p, t) => this.ingestIntoTable(p, t)} />
+                     onTableIngest={(p, t) => this.ingestIntoTable(p, t)}
+                     onAddJsonSchema={() => this.showJsonSchemaModal(true)} />
         </>;
     }
 }

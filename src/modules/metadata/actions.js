@@ -31,6 +31,9 @@ export const CREATE_PROJECT = createNetworkActionTypes("CREATE_PROJECT");
 export const DELETE_PROJECT = createNetworkActionTypes("DELETE_PROJECT");
 export const SAVE_PROJECT = createNetworkActionTypes("SAVE_PROJECT");
 
+export const CREATE_PROJECT_JSON_SCHEMA = createNetworkActionTypes("CREATE_PROJECT_JSON_SCHEMA");
+export const DELETE_PROJECT_JSON_SCHEMA = createNetworkActionTypes("DELETE_PROJECT_JSON_SCHEMA");
+
 export const ADD_PROJECT_DATASET = createNetworkActionTypes("ADD_PROJECT_DATASET");
 export const SAVE_PROJECT_DATASET = createNetworkActionTypes("SAVE_PROJECT_DATASET");
 export const DELETE_PROJECT_DATASET = createNetworkActionTypes("DELETE_PROJECT_DATASET");
@@ -92,11 +95,36 @@ const createProject = networkAction((project, history) => (dispatch, getState) =
     }
 }));
 
+
 export const createProjectIfPossible = (project, history) => (dispatch, getState) => {
     // TODO: Need object response from POST (is this done??)
     if (getState().projects.isCreating) return;
     return dispatch(createProject(project, history));
 };
+
+
+export const createProjectJsonSchema = networkAction(projectJsonSchema => (dispatch, getState) => ({
+    types: CREATE_PROJECT_JSON_SCHEMA,
+    params: {projectJsonSchema},
+    url: `${getState().services.metadataService.url}/api/project_json_schemas`,
+    req: jsonRequest(projectJsonSchema, "POST"),
+    err: "Error creating project JSON schema",
+    onSuccess: data => {
+        message.success(`Project JSON schema for ${data.schema_type} created!`);
+    }
+}));
+
+export const deleteProjectJsonSchema = networkAction(projectJsonSchema => (dispatch, getState) => ({
+    types: DELETE_PROJECT_JSON_SCHEMA,
+    params: {projectJsonSchema},
+    url: `${getState().services.metadataService.url}/api/project_json_schemas/${projectJsonSchema.id}`,
+    req: jsonRequest(projectJsonSchema, "DELETE"),
+    err: "Error while deleting project JSON schema",
+    onSuccess: data => {
+        message.success(`Project JSON schema for ${data.schema_type} was deleted!`);
+    }
+}));
+
 
 export const deleteProject = networkAction(project => (dispatch, getState) => ({
     types: DELETE_PROJECT,

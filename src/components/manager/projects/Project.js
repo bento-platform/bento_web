@@ -66,6 +66,8 @@ class Project extends Component {
         });
     }
 
+    
+
     render() {
         return <div>
             <div style={{position: "absolute", top: "24px", right: "24px"}}>
@@ -112,7 +114,7 @@ class Project extends Component {
                 <div style={{float: "right"}}>
                     <Button icon="plus"
                             style={{verticalAlign: "top"}}
-                            onClick={() => (this.props.onAddDataset || nop)()}>
+                            onClick={() => (this.props.onAddJsonSchema || nop)()}>
                         Add JSON schema
                     </Button>
                 </div>
@@ -121,12 +123,12 @@ class Project extends Component {
                 ? this.state.project_schemas.map(pjs => 
                     <Row gutter={[0, 16]} key={pjs["id"]}>
                         <Col span={24}>
-                            <ProjectJsonSchema project_schema={pjs}/>
+                            <ProjectJsonSchema projectSchema={pjs}/>
                         </Col>
                     </Row>
                 ) : (
                     <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} description="No project JSON schemas">
-                        <Button icon="plus" onClick={() => (this.props.onAddJsonSchema || nop)()}>Add Dataset</Button>
+                        <Button icon="plus" onClick={() => (this.props.onAddJsonSchema || nop)()}>Add JSON schema</Button>
                     </Empty>
             )}
 
