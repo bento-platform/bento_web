@@ -1,4 +1,5 @@
 import React from "react";
+import {connect} from "react-redux";
 import PropTypes from "prop-types";
 import { withRouter } from "react-router-dom";
 import PieChart from "recharts/es6/chart/PieChart";
@@ -33,6 +34,9 @@ class CustomPieChart extends React.Component {
         chartAspectRatio: PropTypes.number,
         setAutoQueryPageTransition: PropTypes.func,
         autoQueryDataType: PropTypes.string,
+        sort: PropTypes.bool,
+        useGlobalThreshold: PropTypes.bool,
+        globalThreshold: PropTypes.number,
     };
 
     state = {
@@ -274,9 +278,27 @@ class CustomPieChart extends React.Component {
     }
 
     render() {
-        const { data, chartHeight, chartAspectRatio, title } = this.props;
+        const { data: tempData, chartHeight, chartAspectRatio, title, sort, useGlobalThreshold } = this.props;
         const titleHeaderHeight = 31;
-        const totalCount = data.reduce((sum, e) => sum + e.value, 0);
+        const totalCount = tempData.reduce((sum, e) => sum + e.value, 0);
+
+        let data = [...tempData];
+
+        if (sort) {
+            data.sort((a, b) => b.value - a.value);
+        }
+
+        if (useGlobalThreshold) {
+            console.log("Using global threshold: " + this.props.globalThreshold)
+            console.log("title: " + title)
+            // combine all segments below threshold into "Other" and modify data
+            const threshold = totalCount * this.props.globalThreshold * 0.01;
+            const otherData = data.filter(e => e.value < threshold);
+            const otherCount = otherData.reduce((sum, e) => sum + e.value, 0);
+            const other = { name: "Other", value: otherCount };
+            data = data.filter(e => e.value >= threshold);
+            data.push(other);
+        }
 
         return (<>
         <div style={this.style}>
@@ -314,6 +336,11 @@ class CustomPieChart extends React.Component {
         </>
         );
     }
+}
+
+CustomPieChart.defaultProps = {
+    useGlobalThreshold: false,
+    sort: true,
 }
 
 const CustomTooltip = ({active, payload, totalCount }) => {
@@ -363,4 +390,10 @@ CustomTooltip.propTypes = {
     totalCount: PropTypes.number,
 };
 
-export default withRouter(CustomPieChart);
+const mapStateToProps = (state) => (
+     {
+         globalThreshold: state.explorer.otherThresholdPercentage
+    }
+);
+
+export default withRouter(connect(mapStateToProps, (_) => ({}))(CustomPieChart));
