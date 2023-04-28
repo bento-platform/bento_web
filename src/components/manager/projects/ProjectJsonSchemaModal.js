@@ -1,4 +1,4 @@
-import React, { useRef } from "react";
+import React, { useRef, useState } from "react";
 import { Button, Modal } from "antd";
 import { useDispatch, useSelector } from "react-redux";
 import { createProjectJsonSchema } from "../../../modules/metadata/actions";
@@ -7,22 +7,25 @@ import PropTypes from "prop-types";
 
 const ProjectJsonSchemaModal = ({projectId, visible, onOk, onCancel}) => {
     const dispatch = useDispatch();
-    const formRef = useRef(null);
     const isCreatingJsonSchema = useSelector((state) => state.projects.isCreatingJsonSchema)
-
-    const resetFields = () => {
-        if (formRef.current) {
-            formRef.current.resetFields()
-        }
-    };
+    const [initialInputValues, _] = useState({});
+    const [inputFormFields, setInputFormFields] = useState({});
+    const [fileContent, setFileContent] = useState(null);
 
     const cancelReset = () => {
-        resetFields();
+        setInputFormFields({});
         onCancel();
     };
 
-    const handleCreateSubmit = () => {
-        // dispatch(createProjectJsonSchema())
+    const handleCreateSubmit = async () => {
+        const payload = {
+            "project": projectId,
+            "schemaType": inputFormFields.schemaType.value,
+            "required": inputFormFields.required.value,
+            "jsonSchema": fileContent,
+        };
+        console.log(payload);
+        await dispatch(createProjectJsonSchema(payload));
         onOk();
     };
 
@@ -42,9 +45,13 @@ const ProjectJsonSchemaModal = ({projectId, visible, onOk, onCancel}) => {
             ]}
         >
             <ProjectJsonSchemaForm
-                ref={formRef}
-                projectId={projectId}
-                schemaTypes={["PHENOPACKET", "BIOSAMPLE", "INDIVIDUAL"]}/>
+                schemaTypes={["PHENOPACKET", "BIOSAMPLE", "INDIVIDUAL"]}
+                initialValues={initialInputValues}
+                formValues={inputFormFields}
+                onChange={setInputFormFields}
+                fileContent={fileContent}
+                setFileContent={setFileContent}
+                />
         </Modal>
     );
 }
@@ -52,6 +59,7 @@ const ProjectJsonSchemaModal = ({projectId, visible, onOk, onCancel}) => {
 ProjectJsonSchemaModal.proptypes = {
     projectId: PropTypes.string.isRequired,
     visible: PropTypes.bool,
+
     onOk: PropTypes.func,
     onCancel: PropTypes.func,
 }

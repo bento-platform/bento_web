@@ -105,12 +105,12 @@ export const createProjectIfPossible = (project, history) => (dispatch, getState
 
 export const createProjectJsonSchema = networkAction(projectJsonSchema => (dispatch, getState) => ({
     types: CREATE_PROJECT_JSON_SCHEMA,
-    params: {projectJsonSchema},
     url: `${getState().services.metadataService.url}/api/project_json_schemas`,
     req: jsonRequest(projectJsonSchema, "POST"),
     err: "Error creating project JSON schema",
-    onSuccess: data => {
-        message.success(`Project JSON schema for ${data.schema_type} created!`);
+    onSuccess: async () => {
+        await dispatch()
+        message.success(`Project JSON schema for ${projectJsonSchema.schema_type} created!`);
     }
 }));
 
@@ -120,8 +120,8 @@ export const deleteProjectJsonSchema = networkAction(projectJsonSchema => (dispa
     url: `${getState().services.metadataService.url}/api/project_json_schemas/${projectJsonSchema.id}`,
     req: jsonRequest(projectJsonSchema, "DELETE"),
     err: "Error while deleting project JSON schema",
-    onSuccess: data => {
-        message.success(`Project JSON schema for ${data.schema_type} was deleted!`);
+    onSuccess: () => {
+        message.success(`Project JSON schema for ${projectJsonSchema.schema_type} was deleted!`);
     }
 }));
 
