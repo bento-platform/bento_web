@@ -32,6 +32,7 @@ import {
 export const explorer = (
     state = {
         variantsOverviewResponse: {},
+        fetchingVariantsOverview: false,
         dataTypeFormsByDatasetID: {},
         fetchingSearchByDatasetID: {},
         searchResultsByDatasetID: {},
@@ -40,7 +41,6 @@ export const explorer = (
         isFetchingDownload: false,
         fetchingTextSearch: false,
         isSubmittingSearch: false,
-        fetchingVariantsOverview: false,
 
         autoQuery: {
             isAutoQuery: false,
@@ -56,7 +56,6 @@ export const explorer = (
             return {
                 ...state,
                 variantsOverviewResponse: action.data,
-                fetchingVariantsOverview: false
             };
         case PERFORM_GET_GOHAN_VARIANTS_OVERVIEW.REQUEST:
             return {
