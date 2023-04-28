@@ -63,6 +63,12 @@ export const explorer = (
                 ...state,
                 fetchingVariantsOverview: true
             };
+        case PERFORM_GET_GOHAN_VARIANTS_OVERVIEW.FINISH:
+        case PERFORM_GET_GOHAN_VARIANTS_OVERVIEW.ERROR:
+            return {
+                ...state,
+                fetchingVariantsOverview: false
+            };
         case PERFORM_SEARCH.REQUEST:
             return {
                 ...state,
