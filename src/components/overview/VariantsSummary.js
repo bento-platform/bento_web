@@ -4,7 +4,7 @@ import { Col, Row, Spin, Statistic, Typography, Icon } from "antd";
 
 const VariantsSummary = ( ) => {
 
-    const fetchingVariantsOverview = useSelector(state => state.explorer?.fetchingVariantsOverview);
+    const fetchingVariantsOverview = useSelector(state => state.explorer.fetchingVariantsOverview);
     const variantsOverviewResults = useSelector((state) => state.explorer.variantsOverviewResponse);
     const hasAssemblyIds =
         variantsOverviewResults?.assemblyIDs !== undefined &&
