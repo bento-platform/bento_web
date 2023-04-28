@@ -9,10 +9,12 @@ const VariantsSummary = ( ) => {
     const hasSampleIds =
         variantsOverviewResults?.sampleIDs !== undefined &&
         !variantsOverviewResults?.sampleIDs.hasOwnProperty("error");
+    // retrieve list of values from `sampleIDs` and
+    // assume number of files (1 file == 1 sampleId) by adding them up
     const numVariantFilesFromSampleIds =
         hasSampleIds ?
-            Object.values(variantsOverviewResults.sampleIDs) // retrieve list of values from `sampleIDs`
-                .reduce((partialSum, a) => partialSum + a, 0) : // assume number of files (1 file == 1 sampleId) by adding them up
+            Object.values(variantsOverviewResults.sampleIDs) 
+                .reduce((partialSum, a) => partialSum + a, 0) : 
             [];
 
     return (
