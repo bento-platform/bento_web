@@ -11,10 +11,10 @@ const VariantsSummary = ( ) => {
         !variantsOverviewResults?.sampleIDs.hasOwnProperty("error");
     // retrieve list of values from `sampleIDs` and
     // assume number of files (1 file == 1 sampleId) by adding them up
-    const numVariantFilesFromSampleIds =
+    const numVarFilesFromSampleIds =
         hasSampleIds ?
-            Object.values(variantsOverviewResults.sampleIDs) 
-                .reduce((partialSum, a) => partialSum + a, 0) : 
+            Object.values(variantsOverviewResults.sampleIDs)
+                .reduce((partialSum, a) => partialSum + a, 0) :
             [];
 
     return (
@@ -23,7 +23,7 @@ const VariantsSummary = ( ) => {
             <Row style={{ marginBottom: "24px" }} gutter={[0, 16]}>
                 <Col xl={2} lg={3} md={4} sm={5} xs={6}>
                     <Spin spinning={fetchingVariantsOverview}>
-                        <Statistic title="VCF Files" prefix={<Icon type="file" />} value={numVariantFilesFromSampleIds} />
+                        <Statistic title="VCF Files" prefix={<Icon type="file" />} value={numVarFilesFromSampleIds} />
                     </Spin>
                 </Col>
             </Row>
