@@ -72,7 +72,7 @@ const ExplorerDatasetSearch = () => {
 
     return (
         <>
-            <Typography.Title level={4}>Explore DatasetY {selectedDataset.title}</Typography.Title>
+            <Typography.Title level={4}>Explore Dataset {selectedDataset.title}</Typography.Title>
             <SearchAllRecords datasetID={dataset} />
             <DiscoveryQueryBuilder
                 isInternal={true}
