@@ -311,11 +311,11 @@ const tableSearchResultsExperiments = (searchResults) => {
 
     return results.flatMap((result) => {
         console.log("Processing result:", result);
-        if (!result.biosamples_l) {
+        if (!result.biosamples_with_experiments) {
             return [];
         }
 
-        return result.biosamples_l.flatMap((sample) => {
+        return result.biosamples_with_experiments.flatMap((sample) => {
             const experiment = sample.experiment;
             if (!experiment || experiment.experiment_id === null) {
                 return [];
@@ -346,12 +346,12 @@ const tableSearchResultsExperiments = (searchResults) => {
 /* function generateObjectsBiosamples(searchResults) {
     const data = (searchResults || {}).results || [];
     return data.flatMap((result) => {
-        if (!result.biosamples_lM) {
+        if (!result.biosamples_with_experimentsM) {
             return [];
         }
 
         const biosampleIdToIndex = {};
-        return result.biosamples_lM.reduce((objects, biosampleId, i) => {
+        return result.biosamples_with_experimentsM.reduce((objects, biosampleId, i) => {
             if (biosampleId) {
                 // only add object if key is truthy
                 const index =
@@ -390,11 +390,11 @@ const tableSearchResultsExperiments = (searchResults) => {
 /* function generateObjectsBiosamples(searchResults) {
     const data = (searchResults || {}).results || [];
     return data.flatMap((result) => {
-        if (!result.biosamples_l) {
+        if (!result.biosamples_with_experiments) {
             return [];
         }
 
-        return result.biosamples_l.map((biosample) => {
+        return result.biosamples_with_experiments.map((biosample) => {
             return {
                 subject_id: result.subject_id,
                 key: biosample.biosample_id,
@@ -420,13 +420,13 @@ const tableSearchResultsExperiments = (searchResults) => {
 function generateObjectsBiosamples(searchResults) {
     const data = (searchResults || {}).results || [];
     return data.flatMap((result) => {
-        if (!result.biosamples_l) {
+        if (!result.biosamples_with_experiments) {
             return [];
         }
 
         const biosampleIdToIndex = {};
 
-        return result.biosamples_l.reduce((objects, biosample) => {
+        return result.biosamples_with_experiments.reduce((objects, biosample) => {
             const biosampleId = biosample.biosample_id;
 
             if (biosampleId) {
