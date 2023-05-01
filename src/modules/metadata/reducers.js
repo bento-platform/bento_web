@@ -208,21 +208,21 @@ export const projects = (
         case CREATE_PROJECT_JSON_SCHEMA.RECEIVE:
             return {
                 ...state,
-                items: state.items.map(p => p.identifier === action.projectJsonSchema.project
-                    ? {...p, project_schemas: [...p.project_schemas, action.projectJsonSchema]}
+                items: state.items.map(p => p.identifier === action.data.project
+                    ? {...p, project_schemas: [...p.project_schemas, action.data]}
                     : p
                 ),
                 itemsByID: {
                     ...state.itemsByID,
-                    [action.projectJsonSchema.project]: {
-                        ...(state.itemsByID[action.projectJsonSchema.project] || {}),
+                    [action.data.project]: {
+                        ...(state.itemsByID[action.data.project] || {}),
                         project_schemas: [
-                            ...((state.itemsByID[action.projectJsonSchema.project] || {}).project_schemas || []), 
-                            action.projectJsonSchema
+                            ...((state.itemsByID[action.data.project] || {}).project_schemas || []), 
+                            action.data
                         ]
                     }
                 }
-            }
+            };
         case CREATE_PROJECT_JSON_SCHEMA.FINISH:
         case CREATE_PROJECT_JSON_SCHEMA.ERROR:
             return {...state, isCreatingJsonSchema: false}

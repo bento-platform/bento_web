@@ -1,7 +1,7 @@
 import React, { useRef, useState } from "react";
 import { Button, Modal } from "antd";
 import { useDispatch, useSelector } from "react-redux";
-import { createProjectJsonSchema } from "../../../modules/metadata/actions";
+import { createProjectJsonSchemaIfPossible } from "../../../modules/metadata/actions";
 import ProjectJsonSchemaForm from "./ProjectJsonSchemaForm";
 import PropTypes from "prop-types";
 
@@ -17,15 +17,15 @@ const ProjectJsonSchemaModal = ({projectId, visible, onOk, onCancel}) => {
         onCancel();
     };
 
-    const handleCreateSubmit = async () => {
+    const handleCreateSubmit = () => {
         const payload = {
             "project": projectId,
             "schemaType": inputFormFields.schemaType.value,
             "required": inputFormFields.required.value,
             "jsonSchema": fileContent,
         };
-        console.log(payload);
-        await dispatch(createProjectJsonSchema(payload));
+        dispatch(createProjectJsonSchemaIfPossible(payload));
+        setInputFormFields({});
         onOk();
     };
 
