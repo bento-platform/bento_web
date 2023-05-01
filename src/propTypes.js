@@ -93,7 +93,7 @@ export const projectJsonSchemaTypesShape = PropTypes.shape({
     project: PropTypes.string,
     required: PropTypes.bool,
     json_schema: PropTypes.object // TODO: Shape
-})
+});
 
 // Prop types object shape for a single project object.
 export const projectPropTypesShape = PropTypes.shape({

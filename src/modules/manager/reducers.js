@@ -23,9 +23,9 @@ export const manager = (
 
         case PROJECT_EDITING.END:
             return {...state, editingProject: false};
-        
+
         case TOGGLE_PROJECT_JSON_SCHEMA_CREATION_MODAL:
-            return {...state, jsonSchemaCreationModal: !state.jsonSchemaCreationModal}
+            return {...state, jsonSchemaCreationModal: !state.jsonSchemaCreationModal};
 
         default:
             return state;

@@ -1,29 +1,31 @@
-import React, { useCallback, useState } from "react";
+import React, { useCallback } from "react";
 import PropTypes from "prop-types";
-import { Form, Select, Checkbox, Upload, Empty, Tooltip, Button } from "antd";
-import { useDropzone } from 'react-dropzone'
+import { Form, Select, Checkbox, Tooltip, Button } from "antd";
+import { useDropzone } from "react-dropzone";
 import ReactJson from "react-json-view";
-
-const { Dragger } = Upload;
 
 const ProjectJsonSchemaForm = ({ style, schemaTypes, initialValues, setFileContent, fileContent, form }) => {
 
     const onDrop = useCallback((files) => {
         files.forEach((file) => {
             const reader = new FileReader();
-            reader.onabort = () => console.log('file reading was aborted')
-            reader.onerror = () => console.log('file reading has failed')
+            reader.onabort = () => console.log("file reading was aborted");
+            reader.onerror = () => console.log("file reading has failed");
             reader.onload = () => {
                 const json = JSON.parse(reader.result);
                 setFileContent(json);
-            }
+            };
             reader.readAsText(file);
-        })
+        });
     }, []);
 
     const { getRootProps, getInputProps } = useDropzone({
         onDrop: onDrop,
         maxFiles: 1,
+        validator: (file) => {
+            console.log(file);
+            // TODO: JSON meta schema validation here?
+        }
     });
 
     return (
@@ -67,7 +69,7 @@ const ProjectJsonSchemaForm = ({ style, schemaTypes, initialValues, setFileConte
                     <>
                         <div {...getRootProps()}>
                             <input {...getInputProps()} />
-                            <p>Drag 'n' drop some files here, or click to select files</p>
+                            <p>Drag and drop a JSON Schema file here, or click to select files</p>
                         </div>
                         {fileContent && <ReactJson src={fileContent || {}} />}
                     </>
@@ -105,7 +107,7 @@ export default Form.create({
             }),
             required: Form.createFormField({
                 ...formValues.required,
-                value: formValues.required?.value,
+                checked: formValues.required?.value,
             }),
             jsonSchema: Form.createFormField({
                 ...formValues.jsonSchema,
@@ -114,7 +116,7 @@ export default Form.create({
         };
     },
     onFieldsChange: ({ onChange }, _, allFields) => {
-        console.log(allFields)
+        console.log(allFields);
         onChange({ ...allFields });
     }
 })(ProjectJsonSchemaForm);

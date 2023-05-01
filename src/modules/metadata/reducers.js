@@ -40,7 +40,7 @@ export const projects = (
         isAddingDataset: false,
         isSavingDataset: false,
         isDeletingDataset: false,
-        
+
         isCreatingJsonSchema: false,
         isDeletingJsonSchema: false,
 
@@ -217,7 +217,7 @@ export const projects = (
                     [action.data.project]: {
                         ...(state.itemsByID[action.data.project] || {}),
                         project_schemas: [
-                            ...((state.itemsByID[action.data.project] || {}).project_schemas || []), 
+                            ...((state.itemsByID[action.data.project] || {}).project_schemas || []),
                             action.data
                         ]
                     }
@@ -225,12 +225,12 @@ export const projects = (
             };
         case CREATE_PROJECT_JSON_SCHEMA.FINISH:
         case CREATE_PROJECT_JSON_SCHEMA.ERROR:
-            return {...state, isCreatingJsonSchema: false}
+            return {...state, isCreatingJsonSchema: false};
 
         // DELETE_PROJECT_JSON_SCHEMA
         case DELETE_PROJECT_JSON_SCHEMA.REQUEST:
-            return {...state, isDeletingJsonSchema: true}
-        case DELETE_PROJECT_JSON_SCHEMA.RECEIVE:
+            return {...state, isDeletingJsonSchema: true};
+        case DELETE_PROJECT_JSON_SCHEMA.RECEIVE: {
             const deleteSchema = pjs => pjs.id !== action.projectJsonSchema.id;
             return {
                 ...state,
@@ -248,11 +248,12 @@ export const projects = (
                         ]
                     }
                 }
-            }
+            };
+        }
         case DELETE_PROJECT_JSON_SCHEMA.ERROR:
         case DELETE_PROJECT_JSON_SCHEMA.FINISH:
-            return {...state, isDeletingJsonSchema: false}
-        
+            return {...state, isDeletingJsonSchema: false};
+
 
         default:
             return state;

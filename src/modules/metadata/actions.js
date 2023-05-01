@@ -116,7 +116,7 @@ const createProjectJsonSchema = networkAction(projectJsonSchema => (dispatch, ge
 export const createProjectJsonSchemaIfPossible = (projectJsonSchema) => (dispatch, getState) => {
     if (getState().projects.isCreatingJsonSchema) return;
     return dispatch(createProjectJsonSchema(projectJsonSchema));
-}
+};
 
 export const deleteProjectJsonSchema = networkAction(projectJsonSchema => (dispatch, getState) => ({
     types: DELETE_PROJECT_JSON_SCHEMA,

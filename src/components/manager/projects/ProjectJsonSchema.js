@@ -1,9 +1,8 @@
 import React from "react";
 import { projectJsonSchemaTypesShape } from "../../../propTypes";
-import { Button, Card, Modal, Typography, Tooltip } from "antd";
+import { Button, Card, Modal, Typography } from "antd";
 import ReactJson from "react-json-view";
-import PropTypes from "prop-types";
-import { useDispatch, useSelector } from "react-redux";
+import { useDispatch } from "react-redux";
 import { deleteProjectJsonSchema } from "../../../modules/metadata/actions";
 
 const ProjectJsonSchema = ({ projectSchema }) => {
@@ -28,8 +27,8 @@ const ProjectJsonSchema = ({ projectSchema }) => {
                 await dispatch(deleteProjectJsonSchema(projectSchema));
                 deleteModal.update({ okButtonProps: { loading: false } });
             }
-        })
-    }
+        });
+    };
     return (
         <Card
             key={projectSchema.id}

@@ -64,7 +64,7 @@ class RoutedProject extends Component {
     }
 
     showJsonSchemaModal(display) {
-        this.setState({jsonSchemaAdditionModal: display})
+        this.setState({jsonSchemaAdditionModal: display});
     }
 
     handleDeleteProject(project) {
@@ -158,9 +158,9 @@ class RoutedProject extends Component {
                               initialValue={this.state.selectedDataset}
                               onCancel={this.hideDatasetEditModal}
                               onOk={this.hideDatasetEditModal} />
-            
-            <ProjectJsonSchemaModal projectId={project.identifier} 
-                                    visible={this.state.jsonSchemaAdditionModal} 
+
+            <ProjectJsonSchemaModal projectId={project.identifier}
+                                    visible={this.state.jsonSchemaAdditionModal}
                                     onOk={() => this.showJsonSchemaModal(false)}
                                     onCancel={() => this.showJsonSchemaModal(false)}/>
 

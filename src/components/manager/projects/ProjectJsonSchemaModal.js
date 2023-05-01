@@ -1,4 +1,4 @@
-import React, { useRef, useState } from "react";
+import React, { useCallback, useState } from "react";
 import { Button, Modal } from "antd";
 import { useDispatch, useSelector } from "react-redux";
 import { createProjectJsonSchemaIfPossible } from "../../../modules/metadata/actions";
@@ -7,17 +7,21 @@ import PropTypes from "prop-types";
 
 const ProjectJsonSchemaModal = ({projectId, visible, onOk, onCancel}) => {
     const dispatch = useDispatch();
-    const isCreatingJsonSchema = useSelector((state) => state.projects.isCreatingJsonSchema)
-    const [initialInputValues, _] = useState({});
+    const isCreatingJsonSchema = useSelector((state) => state.projects.isCreatingJsonSchema);
     const [inputFormFields, setInputFormFields] = useState({});
     const [fileContent, setFileContent] = useState(null);
 
-    const cancelReset = () => {
+    const reset = () => {
         setInputFormFields({});
-        onCancel();
+        setFileContent(null);
     };
 
-    const handleCreateSubmit = () => {
+    const cancelReset = useCallback(() => {
+        reset();
+        onCancel();
+    }, []);
+
+    const handleCreateSubmit = useCallback(() => {
         const payload = {
             "project": projectId,
             "schemaType": inputFormFields.schemaType.value,
@@ -25,9 +29,9 @@ const ProjectJsonSchemaModal = ({projectId, visible, onOk, onCancel}) => {
             "jsonSchema": fileContent,
         };
         dispatch(createProjectJsonSchemaIfPossible(payload));
-        setInputFormFields({});
+        reset();
         onOk();
-    };
+    }, [projectId, inputFormFields, fileContent]);
 
     return (
         <Modal
@@ -38,15 +42,15 @@ const ProjectJsonSchemaModal = ({projectId, visible, onOk, onCancel}) => {
             footer={[
                 <Button key="cancel" onClick={cancelReset}>Cancel</Button>,
                 <Button key="create"
-                    icon="plus"
-                    type="primary"
-                    onClick={handleCreateSubmit}
-                    loading={isCreatingJsonSchema}>Create</Button>
+                        icon="plus"
+                        type="primary"
+                        onClick={handleCreateSubmit}
+                        loading={isCreatingJsonSchema}>Create</Button>
             ]}
         >
             <ProjectJsonSchemaForm
                 schemaTypes={["PHENOPACKET", "BIOSAMPLE", "INDIVIDUAL"]}
-                initialValues={initialInputValues}
+                initialValues={{}}
                 formValues={inputFormFields}
                 onChange={setInputFormFields}
                 fileContent={fileContent}
@@ -54,14 +58,14 @@ const ProjectJsonSchemaModal = ({projectId, visible, onOk, onCancel}) => {
                 />
         </Modal>
     );
-}
+};
 
-ProjectJsonSchemaModal.proptypes = {
+ProjectJsonSchemaModal.propTypes = {
     projectId: PropTypes.string.isRequired,
     visible: PropTypes.bool,
 
     onOk: PropTypes.func,
     onCancel: PropTypes.func,
-}
+};
 
 export default ProjectJsonSchemaModal;

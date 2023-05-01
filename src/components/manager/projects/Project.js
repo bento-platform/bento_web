@@ -1,15 +1,15 @@
-import React, {Component} from "react";
+import React, { Component } from "react";
 import PropTypes from "prop-types";
 
-import {Button, Col, Empty, Row, Typography} from "antd";
+import { Button, Col, Empty, Row, Typography } from "antd";
 
 
 import Dataset from "../../datasets/Dataset";
 import ProjectForm from "./ProjectForm";
 import ProjectJsonSchema from "./ProjectJsonSchema";
-import {INITIAL_DATA_USE_VALUE} from "../../../duo";
-import {nop, simpleDeepCopy} from "../../../utils/misc";
-import {projectPropTypesShape} from "../../../propTypes";
+import { INITIAL_DATA_USE_VALUE } from "../../../duo";
+import { nop, simpleDeepCopy } from "../../../utils/misc";
+import { projectPropTypesShape } from "../../../propTypes";
 
 
 class Project extends Component {
@@ -66,11 +66,9 @@ class Project extends Component {
         });
     }
 
-    
-
     render() {
         return <div>
-            <div style={{position: "absolute", top: "24px", right: "24px"}}>
+            <div style={{ position: "absolute", top: "24px", right: "24px" }}>
                 {this.props.editing ? (
                     <>
                         <Button type="primary"
@@ -78,7 +76,7 @@ class Project extends Component {
                                 loading={this.props.saving}
                                 onClick={() => this.handleSave()}>Save</Button>
                         <Button icon="close"
-                                style={{marginLeft: "10px"}}
+                                style={{ marginLeft: "10px" }}
                                 disabled={this.props.saving}
                                 onClick={() => this.handleCancelEdit()}>Cancel</Button>
                     </>
@@ -86,13 +84,13 @@ class Project extends Component {
                     <>
                         <Button icon="edit" onClick={() => (this.props.onEdit || nop)()}>Edit</Button>
                         <Button type="danger" icon="delete"
-                                style={{marginLeft: "10px"}}
+                                style={{ marginLeft: "10px" }}
                                 onClick={() => (this.props.onDelete || nop)()}>Delete</Button>
                     </>
                 )}
             </div>
             {this.props.editing ? (
-                <ProjectForm style={{maxWidth: "600px"}}
+                <ProjectForm style={{ maxWidth: "600px" }}
                              initialValue={{
                                  title: this.state.title,
                                  description: this.state.description,
@@ -105,38 +103,40 @@ class Project extends Component {
                         {this.state.title}
                     </Typography.Title>
                     {this.state.description.split("\n").map((p, i) =>
-                        <Typography.Paragraph key={i} style={{maxWidth: "600px"}}>{p}</Typography.Paragraph>)}
+                        <Typography.Paragraph key={i} style={{ maxWidth: "600px" }}>{p}</Typography.Paragraph>)}
                 </>
             )}
 
-            <Typography.Title level={4} style={{marginTop: "1.2em"}}>
+            <Typography.Title level={4} style={{ marginTop: "1.2em" }}>
                 Extra Properties JSON schemas
-                <div style={{float: "right"}}>
+                <div style={{ float: "right" }}>
                     <Button icon="plus"
-                            style={{verticalAlign: "top"}}
+                            style={{ verticalAlign: "top" }}
                             onClick={() => (this.props.onAddJsonSchema || nop)()}>
                         Add JSON schema
                     </Button>
                 </div>
             </Typography.Title>
-            {(this.state.project_schemas || []).length > 0 
-                ? this.state.project_schemas.map(pjs => 
+            {(this.state.project_schemas || []).length > 0
+                ? this.state.project_schemas.map(pjs =>
                     <Row gutter={[0, 16]} key={pjs["id"]}>
                         <Col span={24}>
-                            <ProjectJsonSchema projectSchema={pjs}/>
+                            <ProjectJsonSchema projectSchema={pjs} />
                         </Col>
                     </Row>
                 ) : (
                     <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} description="No project JSON schemas">
-                        <Button icon="plus" onClick={() => (this.props.onAddJsonSchema || nop)()}>Add JSON schema</Button>
+                        <Button icon="plus" onClick={() => (this.props.onAddJsonSchema || nop)()}>
+                            Add JSON schema
+                        </Button>
                     </Empty>
-            )}
+                )}
 
-            <Typography.Title level={3} style={{marginTop: "1.2em"}}>
+            <Typography.Title level={3} style={{ marginTop: "1.2em" }}>
                 Datasets
-                <div style={{float: "right"}}>
+                <div style={{ float: "right" }}>
                     <Button icon="plus"
-                            style={{verticalAlign: "top"}}
+                            style={{ verticalAlign: "top" }}
                             onClick={() => (this.props.onAddDataset || nop)()}>
                         Add Dataset
                     </Button>
@@ -184,7 +184,7 @@ Project.propTypes = {
     onAddDataset: PropTypes.func,
     onEditDataset: PropTypes.func,
     onAddJsonSchema: PropTypes.func,
-    
+
     onTableIngest: PropTypes.func
 };
 
