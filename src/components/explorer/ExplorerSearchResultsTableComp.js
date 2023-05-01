@@ -33,8 +33,6 @@ const ExplorerSearchResultsTableComp = ({ data, activeTab, ...props }) => {
     const selectedRows = useSelector((state) => state.explorer.selectedRowsByDatasetID[dataset] || []);
     const isFetchingDownload = useSelector((state) => state.explorer.isFetchingDownload || false);
     const fetchingSearch = useSelector((state) => state.explorer.fetchingSearchByDatasetID[dataset] || false);
-    console.log("selected rows: ", selectedRows);
-    console.log("search results: ", searchResults);
     const dispatch = useDispatch();
 
     const handleSetSelectedRows = (...args) => dispatch(setSelectedRows(dataset, ...args));

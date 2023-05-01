@@ -276,41 +276,11 @@ export const explorer = (
     }
 };
 
-// helpers v1
-/* const tableSearchResultsExperiments = (searchResults) => {
-    console.log("searchResultstableSearchResultsExperiments", searchResults);
-    const results = (searchResults || {}).results || [];
-
-    return results.flatMap((result) => {
-        if (!result.i_type) {
-            return [];
-        }
-
-        return result.i_type.flatMap((expId, index) => {
-            return {
-                subject_id: result.subject_id,
-                key: expId,
-                alternate_ids: result.alternate_ids,
-                i_type: result.i_type[index],
-                im_type: expId,
-                e_type: result.e_type[index],
-                studies_type: result.studies_type[index],
-                if_type: result.if_type[index],
-                individual: {
-                    id: result.subject_id,
-                    alternate_ids: result.alternate_ids ?? [],
-                },
-            };
-        });
-    });
-}; */
-
-// helpers v2
+// helpers
 const tableSearchResultsExperiments = (searchResults) => {
     const results = searchResults.results || [];
 
     return results.flatMap((result) => {
-        console.log("Processing result:", result);
         if (!result.biosamples_with_experiments) {
             return [];
         }
@@ -342,81 +312,6 @@ const tableSearchResultsExperiments = (searchResults) => {
 };
 
 
-// helpers v1
-/* function generateObjectsBiosamples(searchResults) {
-    const data = (searchResults || {}).results || [];
-    return data.flatMap((result) => {
-        if (!result.biosamples_with_experimentsM) {
-            return [];
-        }
-
-        const biosampleIdToIndex = {};
-        return result.biosamples_with_experimentsM.reduce((objects, biosampleId, i) => {
-            if (biosampleId) {
-                // only add object if key is truthy
-                const index =
-                    biosampleId in biosampleIdToIndex
-                        ? biosampleIdToIndex[biosampleId]
-                        : (biosampleIdToIndex[biosampleId] = objects.length);
-                objects[index] = objects[index] || {
-                    subject_id: result.subject_id,
-                    key: biosampleId, // result.subject_id + "_" + biosampleId
-                    alternate_ids: result.alternate_ids,
-                    i_type: result.i_type[index] || "N/A",
-                    im_type: biosampleId,
-                    e_type: result.e_type[index] || "N/A",
-                    if_type: result.if_type[index] || "N/A",
-                    num_experiments: result.num_experiments,
-                    individual: {
-                        id: result.subject_id,
-                        alternate_ids: result.alternate_ids || [],
-                    },
-                    experiments_id: [],
-                    experiments_type: [],
-                    studies_type: [],
-                    sampled_tissues: [],
-                };
-                objects[index].experiments_id.push(result.experiments_id[i]);
-                objects[index].experiments_type.push(result.experiments_type[i]);
-                objects[index].studies_type.push(result.studies_type[i]);
-                objects[index].sampled_tissues.push(result.sampled_tissues[i]);
-            }
-            return objects;
-        }, []);
-    });
-} */
-
-// helpers v2
-/* function generateObjectsBiosamples(searchResults) {
-    const data = (searchResults || {}).results || [];
-    return data.flatMap((result) => {
-        if (!result.biosamples_with_experiments) {
-            return [];
-        }
-
-        return result.biosamples_with_experiments.map((biosample) => {
-            return {
-                subject_id: result.subject_id,
-                key: biosample.biosample_id,
-                alternate_ids: result.alternate_ids,
-                i_type: biosample.experiment.experiment_id || "N/A",
-                im_type: biosample.biosample_id,
-                e_type: biosample.experiment.experiment_type || "N/A",
-                if_type: biosample.biosample_id,
-                num_experiments: result.num_experiments,
-                individual: {
-                    id: result.subject_id,
-                    alternate_ids: result.alternate_ids || [],
-                },
-                experiments_id: [biosample.experiment.experiment_id],
-                experiments_type: [biosample.experiment.experiment_type],
-                studies_type: [biosample.experiment.study_type],
-                sampled_tissues: [biosample.sampled_tissue],
-            };
-        });
-    }).filter(entry => entry.key !== null && entry.key !== undefined);
-} */
-// helpers v2a
 function generateObjectsBiosamples(searchResults) {
     const data = (searchResults || {}).results || [];
     return data.flatMap((result) => {

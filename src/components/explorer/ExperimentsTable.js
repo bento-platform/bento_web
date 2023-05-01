@@ -55,7 +55,6 @@ const SEARCH_RESULT_COLUMNS_EXP = [
 ];
 
 const ExperimentsTable = ({ data }) => {
-    console.log("ExperimentsTable data", data);
     return (
         <ExplorerSearchResultsTableComp
             dataStructure={SEARCH_RESULT_COLUMNS_EXP}
