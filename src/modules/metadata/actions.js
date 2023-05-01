@@ -110,7 +110,7 @@ const createProjectJsonSchema = networkAction(projectJsonSchema => (dispatch, ge
     err: "Error creating project JSON schema",
     onSuccess: () => {
         message.success(`Project JSON schema for ${projectJsonSchema.schema_type} created!`);
-    }
+    },
 }));
 
 export const createProjectJsonSchemaIfPossible = (projectJsonSchema) => (dispatch, getState) => {
@@ -126,7 +126,7 @@ export const deleteProjectJsonSchema = networkAction(projectJsonSchema => (dispa
     err: "Error while deleting project JSON schema",
     onSuccess: () => {
         message.success(`Project JSON schema for ${projectJsonSchema.schema_type} was deleted!`);
-    }
+    },
 }));
 
 

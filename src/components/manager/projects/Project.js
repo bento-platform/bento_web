@@ -45,7 +45,7 @@ class Project extends Component {
             title: value.title || "",
             description: value.description || "",
             datasets: value.datasets || [],
-            project_schemas: value.project_schemas || []
+            project_schemas: value.project_schemas || [],
         };
     }
 
@@ -161,7 +161,7 @@ class Project extends Component {
                         </Col>
                     </Row>
                 ) : (
-                    <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} description="No datasets">
+                    <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} description="No Datasets">
                         <Button icon="plus" onClick={() => (this.props.onAddDataset || nop)()}>Add Dataset</Button>
                     </Empty>
                 )}
