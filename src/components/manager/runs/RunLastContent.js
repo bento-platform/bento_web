@@ -1,10 +1,10 @@
-import React, { useState, useEffect } from "react";
-import { Table } from "antd";
-import { connect } from "react-redux";
+import React, {useState, useEffect} from "react";
+import {Table} from "antd";
+import {connect} from "react-redux";
 import PropTypes from "prop-types";
-import { fetchRuns } from "../../../modules/wes/actions";
+import {fetchRuns} from "../../../modules/wes/actions";
 
-const LastIngestionTable = ({ runs, fetchRuns }) => {
+const LastIngestionTable = ({runs, fetchRuns}) => {
     const [ingestions, setIngestions] = useState([]);
 
     const processIngestions = (data) => {
@@ -39,7 +39,7 @@ const LastIngestionTable = ({ runs, fetchRuns }) => {
     useEffect(() => {
         async function fetchIngestions() {
             try {
-                await fetchRuns({ with_details: true });
+                await fetchRuns({with_details: true});
             } catch (error) {
                 console.error("Error fetching ingestions:", error);
             }
@@ -54,10 +54,10 @@ const LastIngestionTable = ({ runs, fetchRuns }) => {
     }, [runs]);
 
     const columns = [
-        { title: "Date", dataIndex: "date", key: "date" },
-        { title: "Data Type", dataIndex: "dataType", key: "dataType" },
-        { title: "Table ID", dataIndex: "tableId", key: "tableId" },
-        { title: "Ingested Files", dataIndex: "ingestedFiles", key: "ingestedFiles" },
+        {title: "Date", dataIndex: "date", key: "date"},
+        {title: "Data Type", dataIndex: "dataType", key: "dataType"},
+        {title: "Table ID", dataIndex: "tableId", key: "tableId"},
+        {title: "Ingested Files", dataIndex: "ingestedFiles", key: "ingestedFiles"},
         {
             title: "File Names",
             dataIndex: "fileNames",
