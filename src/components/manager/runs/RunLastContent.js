@@ -8,40 +8,32 @@ const LastIngestionTable = ({ runs, fetchRuns }) => {
     const [ingestions, setIngestions] = useState([]);
 
     const processIngestions = (data) => {
-        const latestIngestion = data.reduce((acc, obj) => {
+        const latestIngestions = data.reduce((acc, obj) => {
             if (obj.state === "COMPLETE") {
                 const dataType = obj.details.request.tags.workflow_metadata.data_type;
                 const tableId = obj.details.request.tags.table_id;
                 const fileNameKey = Object.keys(obj.details.request.workflow_params)[0];
                 const filePath = obj.details.request.workflow_params[fileNameKey];
                 const fileName = filePath.split("/").pop();
-                const runId = obj.run_id;
                 const date = obj.details.run_log.end_time.split("T")[0];
 
-                acc[dataType] = acc[dataType] || {};
-                acc[dataType][tableId] = acc[dataType][tableId] || [];
+                const currentIngestion = { date, dataType, tableId, ingestedFiles: 1, fileNames: [fileName] };
 
-                const lastIngestion = acc[dataType][tableId].slice(-1)[0];
-                const isNewer = !lastIngestion || date > lastIngestion.date;
+                const existingIngestion = acc.find((elem) => elem.dataType === dataType);
 
-                if (isNewer) {
-                    acc[dataType][tableId] = [{ date, runId, fileName }];
-                } else if (date === lastIngestion.date) {
-                    acc[dataType][tableId].push({ date, runId, fileName });
+                if (!existingIngestion) {
+                    acc.push(currentIngestion);
+                } else if (date > existingIngestion.date) {
+                    Object.assign(existingIngestion, currentIngestion);
+                } else if (date === existingIngestion.date) {
+                    existingIngestion.ingestedFiles += 1;
+                    existingIngestion.fileNames.push(fileName);
                 }
             }
             return acc;
-        }, {});
+        }, []);
 
-        return Object.entries(latestIngestion).flatMap(([dataType, tables]) =>
-            Object.entries(tables).map(([tableId, tableIngestions]) => ({
-                date: tableIngestions[0].date,
-                dataType,
-                tableId,
-                ingestedFiles: tableIngestions.length,
-                fileNames: tableIngestions.map((ingestion) => ingestion.fileName),
-            }))
-        );
+        return latestIngestions;
     };
 
     useEffect(() => {
