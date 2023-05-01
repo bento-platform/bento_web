@@ -38,8 +38,8 @@ class ManagerProjectDatasetContent extends Component {
                                 marginLeft: "auto",
                                 marginRight: "auto"
                             }}>
-                                To create datasets and ingest data, you have to create a CHORD project
-                                first. CHORD projects have a name and description, and let you group related
+                                To create datasets and ingest data, you have to create a Bento project
+                                first. Bento projects have a name and description, and let you group related
                                 datasets together. You can then specify project-wide consent codes and data use
                                 restrictions to control data access.
                             </Typography.Paragraph>

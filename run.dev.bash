@@ -1,14 +1,10 @@
 #!/bin/bash
 
-echo "[bento_web] [entrypoint] setting .gitconfig"
+# Base image handles making bento_user and setting its .gitconfig
 
-# Set .gitconfig for development
-/set_gitconfig.bash
-
-if [[ -z "${BENTO_WEB_PORT}" ]]; then
-  # Set default internal port to 80
-  export BENTO_WEB_PORT=80
-fi
+# Set default internal port to 80
+: "${BENTO_WEB_PORT:=80}"
+export BENTO_WEB_PORT
 
 # ----- Begin /service-info creation ----------------------------------
 echo "[bento_web] [entrypoint] creating service-info file"

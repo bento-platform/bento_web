@@ -3,7 +3,7 @@ import {useDispatch, useSelector} from "react-redux";
 import {useHistory} from "react-router-dom";
 import PropTypes from "prop-types";
 
-import {Button, Empty, Form, List, Skeleton, Spin, Tag} from "antd";
+import {Button, Empty, Form, List, Skeleton, Spin, Tag, message} from "antd";
 
 import WorkflowListItem from "./WorkflowListItem";
 
@@ -33,7 +33,6 @@ const IngestWorkflowSelection = ({values, setValues, handleWorkflowClick}) => {
             <WorkflowListItem
                 key={w.id}
                 workflow={w}
-                selectable={true}
                 onClick={() => handleWorkflowClick(w)}
             />
         );
@@ -146,7 +145,7 @@ const ManagerIngestionContent = () => {
             const {selectedTable} = workflowSelectionValues;
 
             if (!selectedTable || !selectedWorkflow) {
-                // TODO: GUI error message
+                message.error(`Missing ${selectedTable ? "workflow" : "table"} selection; cannot submit run!`);
                 return;
             }
 

@@ -89,6 +89,8 @@ class App extends Component {
     }
 
     render() {
+        // On the cBioPortal tab only, eliminate the margin around the content
+        // to give as much space as possible to the cBioPortal application itself.
         const margin = window.location.pathname.endsWith("cbioportal") ? 0 : 26;
 
         // noinspection HtmlUnknownTarget

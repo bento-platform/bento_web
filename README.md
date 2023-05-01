@@ -31,13 +31,13 @@ components.
       * `actions.js`: Utilities related to Redux actions
       * `menu.js`: Utilities related to Ant Design menus
       * `misc.js`: Miscellaneous helper functions
-      * `notifications.js`: Utilities related to CHORD notifications
+      * `notifications.js`: Utilities related to Bento notifications
       * `requests.js`: Utilities related to HTTP requests
       * `schema.js`: Utilities related to JSON schemas
-      * `search.js`: Utilities related to CHORD search
+      * `search.js`: Utilities related to Bento search
       * `url.js`: Utilities related to handling front-end URLs
     * `constants.js`: Re-usable application constants
-    * `duo.js`: Constants and objects related to the CHORD representation of
+    * `duo.js`: Constants and objects related to the Bento representation of
                 the GA4GH Data Use Ontology.
     * `events.js`: Event dispatching code for triggering event handlers defined
                    elsewhere.
