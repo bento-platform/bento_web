@@ -22,16 +22,29 @@ const biosampleRender = (individual, record) => {
     );
 };
 
+const customPluralForms = {
+    Serology: "Serologies",
+};
+
+const pluralize = (word, count) => {
+    if (count <= 1) return word;
+
+    if (customPluralForms[word]) {
+        return customPluralForms[word];
+    } else if (word.slice(-1) !== "s") {
+        return word + "s";
+    }
+
+    return word;
+};
+
 const experimentsRender = (studiesType) => {
     const experimentCount = studiesType.reduce((acc, study) => {
         acc[study] = (acc[study] || 0) + 1;
         return acc;
     }, {});
     const formattedExperiments = Object.entries(experimentCount).map(
-        ([study, count]) =>
-            `${count === studiesType.length ? "" : count + " "}${study}${
-                count > 1 && study.slice(-1) !== "s" ? "s" : ""
-            }`
+        ([study, count]) => `${count === studiesType.length ? "" : count + " "}${pluralize(study, count)}`
     );
     return (
         <>
