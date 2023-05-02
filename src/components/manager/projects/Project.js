@@ -1,12 +1,8 @@
 import React, { Component } from "react";
 import PropTypes from "prop-types";
-
 import { Button, Col, Empty, Row, Typography } from "antd";
-
-
 import Dataset from "../../datasets/Dataset";
 import ProjectForm from "./ProjectForm";
-import ProjectJsonSchema from "./ProjectJsonSchema";
 import { INITIAL_DATA_USE_VALUE } from "../../../duo";
 import { nop, simpleDeepCopy } from "../../../utils/misc";
 import { projectPropTypesShape } from "../../../propTypes";
@@ -106,32 +102,6 @@ class Project extends Component {
                         <Typography.Paragraph key={i} style={{ maxWidth: "600px" }}>{p}</Typography.Paragraph>)}
                 </>
             )}
-
-            <Typography.Title level={4} style={{ marginTop: "1.2em" }}>
-                Extra Properties JSON schemas
-                <div style={{ float: "right" }}>
-                    <Button icon="plus"
-                            style={{ verticalAlign: "top" }}
-                            onClick={() => (this.props.onAddJsonSchema || nop)()}>
-                        Add JSON schema
-                    </Button>
-                </div>
-            </Typography.Title>
-            {(this.state.project_schemas || []).length > 0
-                ? this.state.project_schemas.map(pjs =>
-                    <Row gutter={[0, 16]} key={pjs["id"]}>
-                        <Col span={24}>
-                            <ProjectJsonSchema projectSchema={pjs} />
-                        </Col>
-                    </Row>
-                ) : (
-                    <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} description="No project JSON schemas">
-                        <Button icon="plus" onClick={() => (this.props.onAddJsonSchema || nop)()}>
-                            Add JSON schema
-                        </Button>
-                    </Empty>
-                )}
-
             <Typography.Title level={3} style={{ marginTop: "1.2em" }}>
                 Datasets
                 <div style={{ float: "right" }}>
@@ -183,7 +153,6 @@ Project.propTypes = {
     onSave: PropTypes.func,
     onAddDataset: PropTypes.func,
     onEditDataset: PropTypes.func,
-    onAddJsonSchema: PropTypes.func,
 
     onTableIngest: PropTypes.func
 };

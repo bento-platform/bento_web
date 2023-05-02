@@ -7,7 +7,7 @@ import Ajv from "ajv";
 
 const ajv = new Ajv({
     allErrors: true,
-    strict: true
+    strict: true,
 });
 
 // Does not actually query over http, the URI is the key to the draft-07 meta-schema
@@ -38,7 +38,7 @@ const ProjectJsonSchemaForm = ({ style, schemaTypes, initialValues, setFileConte
         maxFiles: 1,
         accept: {
             "application/json": [".json"]
-        }
+        },
     });
 
     return (
