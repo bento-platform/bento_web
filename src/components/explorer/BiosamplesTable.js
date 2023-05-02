@@ -52,7 +52,7 @@ const experimentsSorter = (a, b) => {
         return studiesType.filter((s) => s !== null).length;
     };
 
-    return countExperiments(a.studies_type) - countExperiments(b.studies_type);
+    return countExperiments(a.study_types) - countExperiments(b.study_types);
 };
 
 const sampledTissuesRender = (sampledTissues) => {
@@ -91,8 +91,8 @@ const availableExperimentsSorter = (a, b) => {
         }
     };
 
-    const highA = highestValue(availableExperimentsRender(a.experiments_type));
-    const highB = highestValue(availableExperimentsRender(b.experiments_type));
+    const highA = highestValue(availableExperimentsRender(a.experiment_types));
+    const highB = highestValue(availableExperimentsRender(b.experiment_types));
 
     return highB - highA;
 };
@@ -100,9 +100,9 @@ const availableExperimentsSorter = (a, b) => {
 const SEARCH_RESULT_COLUMNS_BIOSAMPLE = [
     {
         title: "Biosample",
-        dataIndex: "im_type",
+        dataIndex: "biosample_id",
         render: (bioType, record) => biosampleRender(bioType, record),
-        sorter: (a, b) => a.im_type.localeCompare(b.im_type),
+        sorter: (a, b) => a.biosample_id.localeCompare(b.biosample_id),
         defaultSortOrder: "ascend",
     },
     {
@@ -114,7 +114,7 @@ const SEARCH_RESULT_COLUMNS_BIOSAMPLE = [
     },
     {
         title: "Experiments",
-        dataIndex: "studies_type",
+        dataIndex: "study_types",
         render: experimentsRender,
         sorter: experimentsSorter,
         sortDirections: ["descend", "ascend", "descend"],
@@ -128,7 +128,7 @@ const SEARCH_RESULT_COLUMNS_BIOSAMPLE = [
     },
     {
         title: "Available Experiments",
-        dataIndex: "experiments_type",
+        dataIndex: "experiment_types",
         render: availableExperimentsRender,
         sorter: availableExperimentsSorter,
         sortDirections: ["descend", "ascend", "descend"],
