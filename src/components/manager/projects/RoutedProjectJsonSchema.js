@@ -7,7 +7,7 @@ import ProjectJsonSchema from "./ProjectJsonSchema";
 
 const RoutedProjectJsonSchema = () => {
 
-    let { project } = useParams();
+    const { project } = useParams();
 
     const projectsByID = useSelector(state => state.projects.itemsByID);
 
@@ -15,22 +15,22 @@ const RoutedProjectJsonSchema = () => {
     const [projectSchemas, setProjectSchemas] = useState([]);
 
     useEffect(() => {
-        let selected = projectsByID[project];
-        let schemas = selected.project_schemas;
+        const selected = projectsByID[project];
+        const schemas = selected.project_schemas;
         setProjectSchemas(schemas);
     }, [project, projectsByID]);
 
     return (<>
         <ProjectJsonSchemaModal projectId={project}
-            visible={isModalVisible}
-            onOk={() => setModalVisible(false)}
-            onCancel={() => setModalVisible(false)} />
+                                visible={isModalVisible}
+                                onOk={() => setModalVisible(false)}
+                                onCancel={() => setModalVisible(false)} />
         <Typography.Title level={4} style={{ marginTop: "1.2em" }}>
             Extra Properties JSON schemas
             <div style={{ float: "right" }}>
                 <Button icon="plus"
-                    style={{ verticalAlign: "top" }}
-                    onClick={() => setModalVisible(true)}>
+                        style={{ verticalAlign: "top" }}
+                        onClick={() => setModalVisible(true)}>
                     Add JSON schema
                 </Button>
             </div>
