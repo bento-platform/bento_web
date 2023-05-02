@@ -1,8 +1,17 @@
 import React, { useCallback } from "react";
 import PropTypes from "prop-types";
-import { Form, Select, Checkbox, Tooltip, Button } from "antd";
+import { Form, Select, Checkbox, Tooltip, Button, message } from "antd";
 import { useDropzone } from "react-dropzone";
 import ReactJson from "react-json-view";
+import Ajv from "ajv";
+
+const ajv = new Ajv({
+    allErrors: true,
+    strict: true
+});
+
+// Does not actually query over http, the URI is the key to the draft-07 meta-schema
+const validateSchema = ajv.getSchema("http://json-schema.org/draft-07/schema");
 
 const ProjectJsonSchemaForm = ({ style, schemaTypes, initialValues, setFileContent, fileContent, form }) => {
 
@@ -13,7 +22,12 @@ const ProjectJsonSchemaForm = ({ style, schemaTypes, initialValues, setFileConte
             reader.onerror = () => console.log("file reading has failed");
             reader.onload = () => {
                 const json = JSON.parse(reader.result);
-                setFileContent(json);
+                if (validateSchema(json)) {
+                    // Validate against draft-07 meta schema
+                    setFileContent(json);
+                } else {
+                    message.error("Selected file is an invalid JSON schema definition.");
+                }
             };
             reader.readAsText(file);
         });
@@ -22,9 +36,8 @@ const ProjectJsonSchemaForm = ({ style, schemaTypes, initialValues, setFileConte
     const { getRootProps, getInputProps } = useDropzone({
         onDrop: onDrop,
         maxFiles: 1,
-        validator: (file) => {
-            console.log(file);
-            // TODO: JSON meta schema validation here?
+        accept: {
+            "application/json": [".json"]
         }
     });
 
@@ -71,7 +84,7 @@ const ProjectJsonSchemaForm = ({ style, schemaTypes, initialValues, setFileConte
                             <input {...getInputProps()} />
                             <p>Drag and drop a JSON Schema file here, or click to select files</p>
                         </div>
-                        {fileContent && <ReactJson src={fileContent || {}} />}
+                        {fileContent && <ReactJson src={fileContent || {}} name={false}/>}
                     </>
                 )}
             </Form.Item>
