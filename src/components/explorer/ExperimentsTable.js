@@ -26,9 +26,9 @@ const experimentRender = (individual, record) => {
 const SEARCH_RESULT_COLUMNS_EXP = [
     {
         title: "Experiment",
-        dataIndex: "i_type",
+        dataIndex: "experiment_id",
         render: (experiment, record) => experimentRender(experiment, record),
-        sorter: (a, b) => a.i_type.localeCompare(b.i_type),
+        sorter: (a, b) => a.experiment_id.localeCompare(b.experiment_id),
         defaultSortOrder: "ascend",
     },
     {
@@ -40,27 +40,23 @@ const SEARCH_RESULT_COLUMNS_EXP = [
     },
     {
         title: "Biosample",
-        dataIndex: "if_type",
+        dataIndex: "biosample_id",
         render: (bioType) => <>{bioType}</>,
-        sorter: (a, b) => a.if_type.localeCompare(b.if_type),
+        sorter: (a, b) => a.biosample_id.localeCompare(b.biosample_id),
         sortDirections: ["descend", "ascend", "descend"],
     },
     {
         title: "Experiment Type",
-        dataIndex: "e_type",
+        dataIndex: "experiment_type",
         render: (expType) => <>{expType}</>,
-        sorter: (a, b) => a.e_type.localeCompare(b.e_type),
+        sorter: (a, b) => a.experiment_type.localeCompare(b.experiment_type),
         sortDirections: ["descend", "ascend", "descend"],
     },
 ];
 
 const ExperimentsTable = ({ data }) => {
     return (
-        <ExplorerSearchResultsTableComp
-            dataStructure={SEARCH_RESULT_COLUMNS_EXP}
-            data={data}
-            activeTab="experiments"
-        />
+        <ExplorerSearchResultsTableComp dataStructure={SEARCH_RESULT_COLUMNS_EXP} data={data} activeTab="experiments" />
     );
 };
 
