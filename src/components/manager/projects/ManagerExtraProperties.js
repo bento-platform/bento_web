@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { Redirect, Route, Switch, useHistory } from "react-router-dom";
 import { useSelector } from "react-redux";
-import ProjectSkeleton from "./ProjectSkeleton";
 import { Button, Empty, Layout, Menu, Typography } from "antd";
 import { matchingMenuKeys, renderMenuItem } from "../../../utils/menu";
 import { LAYOUT_CONTENT_STYLE } from "../../../styles/layoutContent";
@@ -46,20 +45,20 @@ const ManagerExtraProperties = () => {
                             JSON schemas for the new project.
                         </Typography.Paragraph>
                         <Button type="primary" icon="left"
-                            onClick={navigateToProjects}>Project Tab</Button>
+                                onClick={navigateToProjects}>Project Tab</Button>
                     </Empty>
                 </Layout.Content>
             ) : <>
                 <Layout.Sider style={{ background: "white" }} width={256} breakpoint="lg" collapsedWidth={0}>
                     <div style={{ display: "flex", height: "100%", flexDirection: "column" }}>
                         <Menu style={{ flex: 1, paddingTop: "8px" }}
-                            mode="inline"
-                            selectedKeys={matchingMenuKeys(projectMenuItems)}>
+                              mode="inline"
+                              selectedKeys={matchingMenuKeys(projectMenuItems)}>
                             {projectMenuItems.map(renderMenuItem)}
                         </Menu>
                         <div style={{ borderRight: "1px solid #e8e8e8", padding: "24px" }}>
                             <Button type="primary" icon="left"
-                                onClick={navigateToProjects}>Project Tab</Button>
+                                    onClick={navigateToProjects}>Project Tab</Button>
                         </div>
                     </div>
                 </Layout.Sider>
@@ -67,13 +66,13 @@ const ManagerExtraProperties = () => {
                     {projectMenuItems.length > 0 ? (
                         <Switch>
                             <Route path={withBasePath("admin/data/manager/schemas/:project")}
-                                component={RoutedProjectJsonSchema} />
+                                   component={RoutedProjectJsonSchema} />
                             <Redirect from={withBasePath("admin/data/manager/schemas")}
-                                to={withBasePath(`admin/data/manager/schemas/${projects[0].identifier}`)} />
+                                      to={withBasePath(`admin/data/manager/schemas/${projects[0].identifier}`)} />
                         </Switch>
                     ) : (
                         <Empty image={Empty.PRESENTED_IMAGE_SIMPLE}
-                            description={
+                               description={
                                 "Select a project from the menu on the" +
                                 " left to manage its Extra Properties."
                             } />
