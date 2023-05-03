@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useCallback } from "react";
 import { projectJsonSchemaTypesShape } from "../../../propTypes";
 import { Button, Card, Modal, Typography } from "antd";
 import ReactJson from "react-json-view";
@@ -6,8 +6,10 @@ import { useDispatch } from "react-redux";
 import { deleteProjectJsonSchema } from "../../../modules/metadata/actions";
 
 const ProjectJsonSchema = ({ projectSchema }) => {
+    
     const dispatch = useDispatch();
-    const handleDelete = () => {
+    
+    const handleDelete = useCallback(() => {
         const deleteModal = Modal.confirm({
             title: `Are you sure you want to delete the "${projectSchema.schema_type}" project JSON schema?`,
             content: <>
@@ -26,9 +28,10 @@ const ProjectJsonSchema = ({ projectSchema }) => {
                 deleteModal.update({ okButtonProps: { loading: true } });
                 await dispatch(deleteProjectJsonSchema(projectSchema));
                 deleteModal.update({ okButtonProps: { loading: false } });
-            }
+            },
         });
-    };
+    }, [projectSchema]);
+
     return (
         <Card
             key={projectSchema.id}
