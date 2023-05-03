@@ -45,7 +45,7 @@ const ProjectJsonSchema = ({ projectSchema }) => {
             </Typography.Paragraph>
 
             <Typography.Paragraph>
-                JSON schema
+                <strong>JSON Schema</strong>
             </Typography.Paragraph>
             <ReactJson
                 src={projectSchema.json_schema ?? {}}
