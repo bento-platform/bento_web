@@ -6,9 +6,9 @@ import { useDispatch } from "react-redux";
 import { deleteProjectJsonSchema } from "../../../modules/metadata/actions";
 
 const ProjectJsonSchema = ({ projectSchema }) => {
-    
+
     const dispatch = useDispatch();
-    
+
     const handleDelete = useCallback(() => {
         const deleteModal = Modal.confirm({
             title: `Are you sure you want to delete the "${projectSchema.schema_type}" project JSON schema?`,
