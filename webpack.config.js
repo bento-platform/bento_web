@@ -1,5 +1,5 @@
 const webpack = require("webpack");
-const path = require("path");
+const path = require("node:path");
 const CopyPlugin = require("copy-webpack-plugin");
 const HtmlWebpackPlugin = require("html-webpack-plugin");
 
@@ -7,6 +7,10 @@ const BENTO_URL = process.env.BENTO_URL || process.env.CHORD_URL || null;
 const BASE_PATH = BENTO_URL ? (new URL(BENTO_URL)).pathname : "/";
 
 const createServiceInfo = require("./create_service_info");
+
+const PDF_CMAPS_DIR = path.join(path.dirname(require.resolve("pdfjs-dist/package.json")), "cmaps");
+const PDF_STANDARD_FONTS_DIR = path.join(
+    path.dirname(require.resolve("pdfjs-dist/package.json")), "standard_fonts");
 
 // noinspection JSUnusedGlobalSymbols
 module.exports = {
@@ -49,7 +53,11 @@ module.exports = {
     },
     plugins: [
         new CopyPlugin({
-            patterns: [{from: "static", to: "static"}],
+            patterns: [
+                {from: "static", to: "static"},
+                {from: PDF_CMAPS_DIR, to: "cmaps/"},
+                {from: PDF_STANDARD_FONTS_DIR, to: "standard_fonts/"},
+            ],
         }),
         new HtmlWebpackPlugin({
             title: "Bento",
