@@ -13,6 +13,7 @@ import {beginProjectEditing, endProjectEditing} from "../../../modules/manager/a
 import {withBasePath} from "../../../utils/url";
 import {FORM_MODE_ADD, FORM_MODE_EDIT} from "../../../constants";
 import {chordServicePropTypesMixin, projectPropTypesShape, serviceInfoPropTypesShape} from "../../../propTypes";
+import ProjectJsonSchemaModal from "./ProjectJsonSchemaModal";
 
 class RoutedProject extends Component {
     constructor(props) {
@@ -20,6 +21,7 @@ class RoutedProject extends Component {
         this.state = {
             datasetAdditionModal: false,
             datasetEditModal: false,
+            jsonSchemaModal: false,
             selectedDataset: null
         };
     }
@@ -59,6 +61,10 @@ class RoutedProject extends Component {
 
     hideDatasetEditModal() {
         this.setState({datasetEditModal: false});
+    }
+
+    setJsonSchemaModalVisible(visible) {
+        this.setState({jsonSchemaModal: visible});
     }
 
     handleDeleteProject(project) {
@@ -153,6 +159,11 @@ class RoutedProject extends Component {
                               onCancel={this.hideDatasetEditModal}
                               onOk={this.hideDatasetEditModal} />
 
+            <ProjectJsonSchemaModal projectId={project.identifier}
+                                    visible={this.state.jsonSchemaModal}
+                                    onOk={() => this.setJsonSchemaModalVisible(false)}
+                                    onCancel={() => this.setJsonSchemaModalVisible(false)} />
+
             <Project value={project}
                      tables={tableList}
                      strayTables={strayTables}
@@ -167,6 +178,7 @@ class RoutedProject extends Component {
                          selectedDataset: dataset,
                          datasetEditModal: true
                      })}
+                     onAddJsonSchema={() => this.setState({jsonSchemaModal: true})}
                      onTableIngest={(p, t) => this.ingestIntoTable(p, t)}/>
         </>;
     }

@@ -17,7 +17,6 @@ const ManagerDropBoxContent = lazy(() => import("./manager/ManagerDropBoxContent
 const ManagerIngestionContent = lazy(() => import("./manager/ManagerIngestionContent"));
 const ManagerWorkflowsContent = lazy(() => import("./manager/ManagerWorkflowsContent"));
 const ManagerRunsContent = lazy(() => import("./manager/runs/ManagerRunsContent"));
-const ManagerExtraProperties = lazy(() => import("./manager/projects/ManagerExtraProperties"));
 
 
 const PAGE_MENU = [
@@ -29,7 +28,6 @@ const PAGE_MENU = [
     {url: withBasePath("admin/data/manager/workflows"), text: "Workflows"},
     {url: withBasePath("admin/data/manager/runs"), text: "Workflow Runs"},
     {url: withBasePath("admin/data/manager/drs"), text: "DRS Objects"},
-    {url: withBasePath("admin/data/manager/schemas"), text: "Extra Properties"},
 ];
 
 const styles = {
@@ -71,7 +69,6 @@ const DataManagerContent = () => {
                        component={ManagerWorkflowsContent} />
                 <Route exact path={withBasePath("admin/data/manager/drs")} component={ManagerDRSContent} />
                 <Route path={withBasePath("admin/data/manager/runs")} component={ManagerRunsContent} />
-                <Route path={withBasePath("admin/data/manager/schemas")} component={ManagerExtraProperties} />
                 <Redirect from={withBasePath("admin/data/manager")}
                           to={withBasePath("admin/data/manager/projects")} />
             </Switch>

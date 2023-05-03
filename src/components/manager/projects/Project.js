@@ -1,12 +1,17 @@
 import React, { Component } from "react";
 import PropTypes from "prop-types";
-import { Button, Col, Empty, Row, Typography } from "antd";
+import { Button, Col, Empty, Menu, Row, Typography } from "antd";
 import Dataset from "../../datasets/Dataset";
 import ProjectForm from "./ProjectForm";
 import { INITIAL_DATA_USE_VALUE } from "../../../duo";
 import { nop, simpleDeepCopy } from "../../../utils/misc";
 import { projectPropTypesShape } from "../../../propTypes";
+import ProjectJsonSchema from "./ProjectJsonSchema";
 
+const SUB_TAB_KEYS = {
+    DATASETS: "project-datasets",
+    EXTRA_PROPERTIES: "project-json-schemas"
+};
 
 class Project extends Component {
     static getDerivedStateFromProps(nextProps) {
@@ -24,6 +29,11 @@ class Project extends Component {
         this._onCancelEdit();
     }
 
+    handleContentTabClick(event) {
+        console.log(event);
+        this.setState({ selectedKey: event.key });
+    }
+
     constructor(props) {
         super(props);
 
@@ -34,6 +44,7 @@ class Project extends Component {
 
         this.handleCancelEdit = this.handleCancelEdit.bind(this);
         this.handleSave = this.handleSave.bind(this);
+        this.handleContentTabClick = this.handleContentTabClick.bind(this);
 
         const value = props.value || {};
         this.state = {
@@ -42,6 +53,7 @@ class Project extends Component {
             description: value.description || "",
             datasets: value.datasets || [],
             project_schemas: value.project_schemas || [],
+            selectedKey: SUB_TAB_KEYS.DATASETS,
         };
     }
 
@@ -102,39 +114,81 @@ class Project extends Component {
                         <Typography.Paragraph key={i} style={{ maxWidth: "600px" }}>{p}</Typography.Paragraph>)}
                 </>
             )}
-            <Typography.Title level={3} style={{ marginTop: "1.2em" }}>
-                Datasets
-                <div style={{ float: "right" }}>
-                    <Button icon="plus"
-                            style={{ verticalAlign: "top" }}
-                            onClick={() => (this.props.onAddDataset || nop)()}>
-                        Add Dataset
-                    </Button>
-                </div>
-            </Typography.Title>
-            {(this.state.datasets || []).length > 0
-                ? this.state.datasets.sort((d1, d2) => d1.title.localeCompare(d2.title)).map(d =>
-                    <Row gutter={[0, 16]} key={d.identifier}>
-                        <Col span={24}>
-                            <Dataset
-                                key={d.identifier}
-                                mode="private"
-                                project={this.props.value}
-                                value={{
-                                    ...d,
-                                    tables: this.props.tables.filter(t => t.dataset === d.identifier),
-                                }}
-                                strayTables={this.props.strayTables}
-                                onEdit={() => (this.props.onEditDataset || nop)(d)}
-                                onTableIngest={this.props.onTableIngest || nop}
-                            />
-                        </Col>
-                    </Row>
-                ) : (
-                    <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} description="No Datasets">
-                        <Button icon="plus" onClick={() => (this.props.onAddDataset || nop)()}>Add Dataset</Button>
-                    </Empty>
-                )}
+
+            <Menu mode="horizontal" onClick={this.handleContentTabClick} selectedKeys={this.state.selectedKey}>
+                <Menu.Item key={SUB_TAB_KEYS.DATASETS}>Datasets</Menu.Item>
+                <Menu.Item key={SUB_TAB_KEYS.EXTRA_PROPERTIES}>Extra Properties</Menu.Item>
+            </Menu>
+
+            {this.state.selectedKey === SUB_TAB_KEYS.DATASETS
+                ? <>
+                    <Typography.Title level={3} style={{ marginTop: "1.2em" }}>
+                        Datasets
+                        <div style={{ float: "right" }}>
+                            <Button icon="plus"
+                                    style={{ verticalAlign: "top" }}
+                                    onClick={() => (this.props.onAddDataset || nop)()}>
+                                Add Dataset
+                            </Button>
+                        </div>
+                    </Typography.Title>
+                    {(this.state.datasets || []).length > 0
+                        ? this.state.datasets.sort((d1, d2) => d1.title.localeCompare(d2.title)).map(d =>
+                            <Row gutter={[0, 16]} key={d.identifier}>
+                                <Col span={24}>
+                                    <Dataset
+                                        key={d.identifier}
+                                        mode="private"
+                                        project={this.props.value}
+                                        value={{
+                                            ...d,
+                                            tables: this.props.tables.filter(t => t.dataset === d.identifier),
+                                        }}
+                                        strayTables={this.props.strayTables}
+                                        onEdit={() => (this.props.onEditDataset || nop)(d)}
+                                        onTableIngest={this.props.onTableIngest || nop}
+                                    />
+                                </Col>
+                            </Row>
+                        ) : (
+                            <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} description="No Datasets">
+                                <Button icon="plus" onClick={() => (this.props.onAddDataset || nop)()}>
+                                    Add Dataset
+                                </Button>
+                            </Empty>
+                        )}
+                </>
+                : <>
+                    <Typography.Title level={4} style={{ marginTop: "1.2em" }}>
+                        Extra Properties JSON schemas
+                        <div style={{ float: "right" }}>
+                            <Button icon="plus"
+                                    style={{ verticalAlign: "top" }}
+                                    onClick={this.props.onAddJsonSchema}>
+                                Add JSON schema
+                            </Button>
+                        </div>
+                    </Typography.Title>
+                    {this.state.project_schemas.length > 0
+                        ? this.state.project_schemas.map(pjs =>
+                            <Row gutter={[0, 16]} key={pjs["id"]}>
+                                <Col span={24}>
+                                    <ProjectJsonSchema projectSchema={pjs} />
+                                </Col>
+                            </Row>
+                        ) : (
+                            <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} description="No project JSON schemas">
+                                <Button icon="plus" onClick={this.props.onAddJsonSchema}>
+                                    Add JSON schema
+                                </Button>
+                            </Empty>
+                        )
+
+                    }
+
+                </>
+            }
+
         </div>;
     }
 }
@@ -153,6 +207,7 @@ Project.propTypes = {
     onSave: PropTypes.func,
     onAddDataset: PropTypes.func,
     onEditDataset: PropTypes.func,
+    onAddJsonSchema: PropTypes.func,
 
     onTableIngest: PropTypes.func
 };
