@@ -60,13 +60,12 @@ export const explorer = (
         case PERFORM_GET_GOHAN_VARIANTS_OVERVIEW.REQUEST:
             return {
                 ...state,
-                fetchingVariantsOverview: true
+                fetchingVariantsOverview: true,
             };
         case PERFORM_GET_GOHAN_VARIANTS_OVERVIEW.FINISH:
-        case PERFORM_GET_GOHAN_VARIANTS_OVERVIEW.ERROR:
             return {
                 ...state,
-                fetchingVariantsOverview: false
+                fetchingVariantsOverview: false,
             };
         case PERFORM_SEARCH.REQUEST:
             return {
