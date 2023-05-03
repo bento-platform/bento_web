@@ -83,9 +83,6 @@ const generateURIsByFilePath = (entry, acc) => {
     return acc;
 };
 
-const resourceLoadError = resource => `An error was encountered while loading ${resource}`;
-
-
 const recursivelyFlattenFileTree = (acc, contents) => {
     contents.forEach(c => {
         if (c.contents) {
@@ -103,6 +100,7 @@ const formatTimestamp = timestamp => (new Date(timestamp * 1000)).toLocaleString
 const FileDisplay = ({file, tree, treeLoading}) => {
     const urisByFilePath = useMemo(() => generateURIsByFilePath(tree, {}), [tree]);
 
+    const [fileLoadError, setFileLoadError] = useState("");
     const [loadingFileContents, setLoadingFileContents] = useState(false);
     const [fileContents, setFileContents] = useState({});
     const [pdfPageCounts, setPdfPageCounts] = useState({});
@@ -119,6 +117,9 @@ const FileDisplay = ({file, tree, treeLoading}) => {
     const fileExt = file ? file.split(".").slice(-1)[0] : null;
 
     useEffect(() => {
+        // File changed, so reset the load error
+        setFileLoadError("");
+
         (async () => {
             if (!file) return;
 
@@ -134,22 +135,21 @@ const FileDisplay = ({file, tree, treeLoading}) => {
 
             if (!(file in urisByFilePath)) {
                 console.error(`Files: something went wrong while trying to load ${file}`);
+                setFileLoadError("Could not find URI for file.");
                 return;
             }
 
             try {
                 setLoadingFileContents(true);
                 const r = await fetch(urisByFilePath[file]);
-                setFileContents({
-                    ...fileContents,
-                    [file]: r.ok ? await r.text() : resourceLoadError(file),
-                });
+                if (r.ok) {
+                    setFileContents({...fileContents, [file]: await r.text()});
+                } else {
+                    setFileLoadError(`Could not load file: ${r.content}`);
+                }
             } catch (e) {
                 console.error(e);
-                setFileContents({
-                    ...fileContents,
-                    [file]: resourceLoadError(file),
-                });
+                setFileLoadError(`Could not load file: ${e.message}`);
             } finally {
                 setLoadingFileContents(false);
             }
@@ -161,15 +161,29 @@ const FileDisplay = ({file, tree, treeLoading}) => {
         setPdfPageCounts({...pdfPageCounts, [file]: numPages});
     }, [file]);
 
+    const onPdfFail = useCallback(err => {
+        console.error(err);
+        setLoadingFileContents(false);
+        setFileLoadError(`Error loading PDF: ${err.message}`);
+    }, []);
+
     if (!file) return <div />;
 
     return <Spin spinning={treeLoading || loadingFileContents}>
         {(() => {
+            if (fileLoadError) {
+                return <Alert
+                    type="error"
+                    message={`Error loading file: ${file}`}
+                    description={fileLoadError}
+                />;
+            }
+
             if (fileExt === "pdf") {  // Non-text, content isn't loaded a priori
                 const uri = urisByFilePath[file];
                 if (!uri) return <div />;
                 return (
-                    <Document file={uri} onLoadSuccess={onPdfLoad} options={PDF_OPTIONS}>
+                    <Document file={uri} onLoadSuccess={onPdfLoad} onLoadError={onPdfFail} options={PDF_OPTIONS}>
                         {(() => {
                             const pages = [];
                             for (let i = 1; i <= pdfPageCounts[file] ?? 1; i++) {
