@@ -1,10 +1,10 @@
-import React, {useState, useEffect} from "react";
-import {Table} from "antd";
-import {connect} from "react-redux";
-import PropTypes from "prop-types";
-import {fetchRuns} from "../../../modules/wes/actions";
+import React, { useState, useEffect } from "react";
+import { Table } from "antd";
+import { useSelector} from "react-redux";
 
-const LastIngestionTable = ({runs, fetchRuns}) => {
+const LastIngestionTable = () => {
+    const runs = useSelector((state) => state.runs.items);
+
     const [ingestions, setIngestions] = useState([]);
 
     const processIngestions = (data) => {
@@ -12,6 +12,10 @@ const LastIngestionTable = ({runs, fetchRuns}) => {
             if (obj.state === "COMPLETE") {
                 const dataType = obj.details.request.tags.workflow_metadata.data_type;
                 const tableId = obj.details.request.tags.table_id;
+                // Skip the process if the tableId is undefined
+                if (tableId === undefined) {
+                    return acc;
+                }
                 const fileNameKey = Object.keys(obj.details.request.workflow_params)[0];
                 const filePath = obj.details.request.workflow_params[fileNameKey];
                 const fileName = filePath.split("/").pop();
@@ -37,27 +41,15 @@ const LastIngestionTable = ({runs, fetchRuns}) => {
     };
 
     useEffect(() => {
-        async function fetchIngestions() {
-            try {
-                await fetchRuns({with_details: true});
-            } catch (error) {
-                console.error("Error fetching ingestions:", error);
-            }
-        }
-
-        fetchIngestions();
-    }, [fetchRuns]);
-
-    useEffect(() => {
         const formattedIngestions = processIngestions(runs);
         setIngestions(formattedIngestions);
     }, [runs]);
 
     const columns = [
-        {title: "Date", dataIndex: "date", key: "date"},
-        {title: "Data Type", dataIndex: "dataType", key: "dataType"},
-        {title: "Table ID", dataIndex: "tableId", key: "tableId"},
-        {title: "Ingested Files", dataIndex: "ingestedFiles", key: "ingestedFiles"},
+        { title: "Date", dataIndex: "date", key: "date" },
+        { title: "Data Type", dataIndex: "dataType", key: "dataType" },
+        { title: "Table ID", dataIndex: "tableId", key: "tableId" },
+        { title: "Ingested Files", dataIndex: "ingestedFiles", key: "ingestedFiles" },
         {
             title: "File Names",
             dataIndex: "fileNames",
@@ -82,21 +74,4 @@ const LastIngestionTable = ({runs, fetchRuns}) => {
     );
 };
 
-LastIngestionTable.propTypes = {
-    runs: PropTypes.array.isRequired,
-    fetchRuns: PropTypes.func.isRequired,
-};
-
-const mapStateToProps = (state) => {
-    return {
-        runs: state.runs.items,
-    };
-};
-
-const mapDispatchToProps = (dispatch) => {
-    return {
-        fetchRuns: (queryParams) => dispatch(fetchRuns(queryParams)),
-    };
-};
-
-export default connect(mapStateToProps, mapDispatchToProps)(LastIngestionTable);
+export default LastIngestionTable;
