@@ -78,6 +78,10 @@ module.exports = {
             NODE_ENV: "production",
         }),
     ],
+    watchOptions: {
+        aggregateTimeout: 200,
+        poll: 1000,
+    },
     devServer: {
         static: {
             directory: path.join(__dirname, "static"),
