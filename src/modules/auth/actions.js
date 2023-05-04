@@ -29,6 +29,7 @@ export const SET_USER = "SET_USER";
 
 export const FETCH_USER = createNetworkActionTypes("FETCH_USER");
 export const FETCHING_USER_DEPENDENT_DATA = createFlowActionTypes("FETCHING_USER_DEPENDENT_DATA");
+export const FETCHING_USER_DEPENDENT_DATA_SILENT = createFlowActionTypes("FETCHING_USER_DEPENDENT_DATA_SILENT");
 
 export const fetchUser = networkAction(() => ({
     types: FETCH_USER,
@@ -54,8 +55,15 @@ export const fetchUserAndDependentData = servicesCb => dispatch =>
 
 // TODO: Rename this (also fetches node info)
 export const fetchDependentDataWithProvidedUser = (servicesCb, boundUserGetAction) => async (dispatch, getState) => {
-    const oldUserState = getState().auth.user;
-    const hasAttempted = getState().auth.hasAttempted;
+    const {
+        isFetchingDependentData,
+        isFetchingDependentDataSilent,
+        user: oldUserState,
+        hasAttempted,
+    } = getState().auth;
+
+    // If action is already being executed elsewhere, leave.
+    if (isFetchingDependentData || isFetchingDependentDataSilent) return;
 
     if (!hasAttempted) {
         dispatch(beginFlow(FETCHING_USER_DEPENDENT_DATA));
@@ -66,6 +74,8 @@ export const fetchDependentDataWithProvidedUser = (servicesCb, boundUserGetActio
         // is because we want to silently check the user / auth status without
         // any loading indicators afterward.
         await dispatch(fetchNodeInfo());
+    } else {
+        dispatch(beginFlow(FETCHING_USER_DEPENDENT_DATA_SILENT));
     }
 
     // Parameterize the (bound) action which sets the new user state, so it
@@ -90,12 +100,17 @@ export const fetchDependentDataWithProvidedUser = (servicesCb, boundUserGetActio
         await dispatch(fetchProjectsWithDatasetsAndTables());  // TODO: If needed, remove if !hasAttempted
     }
 
-    if (!hasAttempted) dispatch(endFlow(FETCHING_USER_DEPENDENT_DATA));
+    if (!hasAttempted) {
+        dispatch(endFlow(FETCHING_USER_DEPENDENT_DATA));
+    } else {
+        dispatch(endFlow(FETCHING_USER_DEPENDENT_DATA_SILENT));
+    }
 };
 
 export const FETCH_OPENID_CONFIGURATION = createNetworkActionTypes("FETCH_OPENID_CONFIGURATION");
-export const fetchOpenIdConfiguration = () => async (dispatch, getState) => {
-    if (getState().openIdConfiguration.isFetching) return;
+export const fetchOpenIdConfigurationIfNeeded = () => async (dispatch, getState) => {
+    const {isFetching, data: existingData} = getState().openIdConfiguration;
+    if (isFetching || !!existingData) return;
 
     const err = () => {
         message.error("Could not fetch identity provider configuration");
