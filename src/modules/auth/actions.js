@@ -1,3 +1,7 @@
+import {message} from "antd";
+
+import {OPENID_CONFIG_URL} from "../../config";
+
 import {
     beginFlow,
     createFlowActionTypes,
@@ -17,9 +21,9 @@ import {fetchServicesWithMetadataAndDataTypesAndTablesIfNeeded} from "../service
 import {fetchRuns} from "../wes/actions";
 import { performGetGohanVariantsOverviewIfPossible } from "../explorer/actions";
 
-
 import {nop} from "../../utils/misc";
 import {withBasePath} from "../../utils/url";
+
 
 export const SET_USER = "SET_USER";
 
@@ -60,7 +64,7 @@ export const fetchDependentDataWithProvidedUser = (servicesCb, boundUserGetActio
         // doesn't really change.
         // The reason this flow is only triggered the first time it is called
         // is because we want to silently check the user / auth status without
-        // any loading indicators afterwards.
+        // any loading indicators afterward.
         await dispatch(fetchNodeInfo());
     }
 
@@ -87,4 +91,36 @@ export const fetchDependentDataWithProvidedUser = (servicesCb, boundUserGetActio
     }
 
     if (!hasAttempted) dispatch(endFlow(FETCHING_USER_DEPENDENT_DATA));
+};
+
+export const FETCH_OPENID_CONFIGURATION = createNetworkActionTypes("FETCH_OPENID_CONFIGURATION");
+export const fetchOpenIdConfiguration = () => async (dispatch, getState) => {
+    if (getState().openIdConfiguration.isFetching) return;
+
+    const err = () => {
+        message.error("Could not fetch identity provider configuration");
+        dispatch({type: FETCH_OPENID_CONFIGURATION.ERROR});
+    };
+
+    dispatch({type: FETCH_OPENID_CONFIGURATION.REQUEST});
+
+    const res = await fetch(OPENID_CONFIG_URL);
+    let data = null;
+
+    try {
+        if (res.ok) {
+            data = await res.json();
+            dispatch({type: FETCH_OPENID_CONFIGURATION.RECEIVE, data});
+        } else {
+            console.error("Received non-200 request while fetching OpenID configuration", res);
+            err();
+        }
+    } catch (e) {
+        console.error("Received error while fetching OpenID configuration:", e);
+        err();
+    }
+
+    dispatch({type: FETCH_OPENID_CONFIGURATION.FINISH});
+
+    return data;
 };

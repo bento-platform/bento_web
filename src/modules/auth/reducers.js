@@ -1,4 +1,4 @@
-import {FETCH_USER, FETCHING_USER_DEPENDENT_DATA, SET_USER} from "./actions";
+import {FETCH_OPENID_CONFIGURATION, FETCH_USER, FETCHING_USER_DEPENDENT_DATA, SET_USER} from "./actions";
 
 export const auth = (
     state = {
@@ -30,6 +30,27 @@ export const auth = (
         case FETCHING_USER_DEPENDENT_DATA.TERMINATE:
             return {...state, isFetchingDependentData: false};
 
+        default:
+            return state;
+    }
+};
+
+export const openIdConfiguration = (
+    state = {
+        data: null,
+        isFetching: false,
+    },
+    action
+) => {
+    switch (action.type) {
+        case FETCH_OPENID_CONFIGURATION.REQUEST:
+            return {...state, isFetching: true};
+        case FETCH_OPENID_CONFIGURATION.RECEIVE:
+            return {...state, data: action.data};
+        case FETCH_OPENID_CONFIGURATION.ERROR:
+            return {...state, data: null};
+        case FETCH_OPENID_CONFIGURATION.FINISH:
+            return {...state, isFetching: false};
         default:
             return state;
     }

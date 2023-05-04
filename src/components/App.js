@@ -13,7 +13,12 @@ import SiteHeader from "./SiteHeader";
 import SiteFooter from "./SiteFooter";
 import SitePageLoading from "./SitePageLoading";
 
-import {fetchDependentDataWithProvidedUser, fetchUserAndDependentData, setUser} from "../modules/auth/actions";
+import {
+    fetchOpenIdConfiguration,
+    fetchDependentDataWithProvidedUser,
+    fetchUserAndDependentData,
+    setUser,
+} from "../modules/auth/actions";
 
 import eventHandler from "../events";
 import {nop} from "../utils/misc";
@@ -177,6 +182,8 @@ class App extends Component {
 
     componentDidMount() {
         (async () => {
+            await this.props.fetchOpenIdConfiguration();
+
             await this.props.fetchUserAndDependentData(async () => {
                 this.createEventRelayConnectionIfNecessary();
             });
@@ -212,6 +219,7 @@ const mapStateToProps = state => ({
 });
 
 export default withRouter(connect(mapStateToProps, {
+    fetchOpenIdConfiguration,
     fetchDependentDataWithProvidedUser,
     fetchUserAndDependentData,
 })(App));
