@@ -1,12 +1,12 @@
-import React, {Component} from "react";
-import {connect} from "react-redux";
+import React, { Component } from "react";
+import { connect } from "react-redux";
 import PropTypes from "prop-types";
 
-import {Table, Typography} from "antd";
+import { Table, Typography } from "antd";
 
-import {fetchAllRunDetailsIfNeeded} from "../../../modules/wes/actions";
+import { fetchAllRunDetailsIfNeeded } from "../../../modules/wes/actions";
 
-import {RUN_REFRESH_TIMEOUT, RUN_TABLE_COLUMNS} from "./utils";
+import { RUN_REFRESH_TIMEOUT, RUN_TABLE_COLUMNS } from "./utils";
 
 import LastIngestionTable from "./RunLastContent";
 

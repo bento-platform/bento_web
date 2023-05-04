@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { Table } from "antd";
-import { useSelector} from "react-redux";
+import { useSelector } from "react-redux";
 
 const LastIngestionTable = () => {
     const runs = useSelector((state) => state.runs.items);
