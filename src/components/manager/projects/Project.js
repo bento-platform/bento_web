@@ -159,7 +159,7 @@ class Project extends Component {
                         )}
                 </>
                 : <>
-                    <Typography.Title level={4} style={{ marginTop: "1.2em" }}>
+                    <Typography.Title level={3} style={{ marginTop: "1.2em" }}>
                         Extra Properties JSON schemas
                         <div style={{ float: "right" }}>
                             <Button icon="plus"

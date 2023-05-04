@@ -38,6 +38,10 @@ const ProjectJsonSchemaModal = ({projectId, visible, onOk, onCancel}) => {
             visible={visible}
             width={648}
             title="Create project level JSON schema"
+            bodyStyle={{
+                "overflowY": "auto",
+                "maxHeight": 800
+            }}
             onCancel={cancelReset}
             footer={[
                 <Button key="cancel" onClick={cancelReset}>Cancel</Button>,

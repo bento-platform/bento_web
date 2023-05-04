@@ -84,7 +84,7 @@ const ProjectJsonSchemaForm = ({ style, schemaTypes, initialValues, setFileConte
                             <input {...getInputProps()} />
                             <p>Drag and drop a JSON Schema file here, or click to select files</p>
                         </div>
-                        {fileContent && <ReactJson src={fileContent || {}} name={false}/>}
+                        {fileContent && <ReactJson src={fileContent || {}} name={false} collapsed={true}/>}
                     </>
                 )}
             </Form.Item>

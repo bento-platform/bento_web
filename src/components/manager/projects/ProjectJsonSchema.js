@@ -49,6 +49,7 @@ const ProjectJsonSchema = ({ projectSchema }) => {
             </Typography.Paragraph>
             <ReactJson
                 src={projectSchema.json_schema ?? {}}
+                collapsed={true}
                 displayDataTypes={false}
                 enableClipboard={false}
                 name={null}
