@@ -62,8 +62,6 @@ const App = () => {
     const createEventRelayConnectionIfNecessary = useCallback(() => {
         if (eventRelayConnection.current) return;
         eventRelayConnection.current = (() => {
-            console.log(user, eventRelay)
-
             // Don't bother trying to create the event relay connection if the user isn't authenticated
             if (!user) return null;
 
@@ -117,7 +115,7 @@ const App = () => {
         if (focusListener.current) window.removeEventListener("focus", focusListener.current);
         window.addEventListener("focus", refreshUserAndDependentData);
         focusListener.current = refreshUserAndDependentData;
-    }, [focusListener, refreshUserAndDependentData])
+    }, [focusListener, refreshUserAndDependentData]);
 
     useEffect(() => {
         if (didPostLoadEffects) return;
