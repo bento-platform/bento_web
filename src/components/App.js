@@ -25,6 +25,7 @@ import {BASE_PATH, signInURLWithCustomRedirect, withBasePath} from "../utils/url
 
 import SessionWorker from "../session.worker";
 import {POPUP_AUTH_CALLBACK_URL} from "../constants";
+import {useHandleCallback} from "../lib/auth/performAuth";
 
 // Lazy-load notification drawer
 const NotificationDrawer = lazy(() => import("./notifications/NotificationDrawer"));
@@ -51,13 +52,15 @@ const App = () => {
 
     const sessionWorker = useRef(null);
 
-    const [lastUser, setLastUser] = useState(false);
-
     const user = useSelector(state => state.auth.user);
     const eventRelay = useSelector(state => state.services.eventRelay);
     const nodeInfo = useSelector(state => state.nodeInfo.data);
+    const [lastUser, setLastUser] = useState(false);
 
     const [didPostLoadEffects, setDidPostLoadEffects] = useState(false);
+
+    // Set up auth callback handling
+    useHandleCallback();
 
     const createEventRelayConnectionIfNecessary = useCallback(() => {
         if (eventRelayConnection.current) return;

@@ -1,11 +1,12 @@
 import {message} from "antd";
 
-import {CLIENT_ID} from "../../config";
+import {AUTH_CALLBACK_URL, CLIENT_ID} from "../../config";
 import {PKCE_LS_STATE, PKCE_LS_VERIFIER, pkceChallengeFromVerifier, secureRandomString} from "./pkce";
 import {useDispatch, useSelector} from "react-redux";
 import {accessTokenHandoff} from "../../modules/auth/actions";
+import {withBasePath} from "../../utils/url";
 
-const performAuth = async (authorizationEndpoint, scope = "openid email") => {
+export const performAuth = async (authorizationEndpoint, scope = "openid email") => {
     const state = secureRandomString();
     const verifier = secureRandomString();
     const challenge = await pkceChallengeFromVerifier(verifier);
@@ -20,7 +21,7 @@ const performAuth = async (authorizationEndpoint, scope = "openid email") => {
         client_id: CLIENT_ID,
         state,
         scope,
-        redirect_uri: "/callback",
+        redirect_uri: AUTH_CALLBACK_URL,
         code_challenge: challenge,
         code_challenge_method: "S256",
     }).forEach(([k, v]) => authParams.set(k, v));
@@ -28,11 +29,12 @@ const performAuth = async (authorizationEndpoint, scope = "openid email") => {
     window.location = `${authorizationEndpoint}?${authParams.toString()}`; // TODO;
 };
 
-const useHandleCallback = (callbackPath) => {
+const CALLBACK_PATH = withBasePath("/callback");
+export const useHandleCallback = () => {
     const dispatch = useDispatch();
     const oidcConfig = useSelector(state => state.openIdConfiguration.data);
 
-    if (!window.location.pathname.startsWith(callbackPath)) {
+    if (!window.location.pathname.startsWith(CALLBACK_PATH)) {
         // Ignore non-callback URLs
         return;
     }
@@ -71,17 +73,14 @@ const useHandleCallback = (callbackPath) => {
 
     const verifier = localStorage.getItem(PKCE_LS_VERIFIER);
 
-    // TODO: dispatch token getter
-
     const handoffBody = new URLSearchParams();
     Object.entries({
         grant_type: "authorization_code",
         code,
         client_id: CLIENT_ID,
-        redirect_uri: "/callback",
+        redirect_uri: AUTH_CALLBACK_URL,
         code_verifier: verifier,
     }).forEach(([k, v]) => handoffBody.set(k, v));
+
     dispatch(accessTokenHandoff(tokenEndpoint, handoffBody));
 };
-
-export default performAuth;
