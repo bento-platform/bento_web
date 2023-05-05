@@ -89,13 +89,16 @@ const App = () => {
             // ... and disable constant websocket pinging if necessary by removing existing connections
             eventRelayConnection.current?.close();
             eventRelayConnection.current = null;
+            // Finally, mark us as signed out so that any user change to non-null (signed-in) is detected.
+            setLastUser(false);
         } else if ((!lastUser || signedOutModal) && user) {
             // We got authenticated, so re-enable reconnection on the websocket.
             createEventRelayConnectionIfNecessary();
             // ... and minimize the sign-in prompt modal if necessary
             setSignedOutModal(false);
+            // Finally, mark us as signed in so that any user change to null (signed-out) is detected.
+            setLastUser(true);
         }
-        setLastUser(!!user);
     }, [lastUser, user, signedOutModal, eventRelayConnection, createEventRelayConnectionIfNecessary]);
 
     // TODO: Don't execute on focus if it's been checked recently
