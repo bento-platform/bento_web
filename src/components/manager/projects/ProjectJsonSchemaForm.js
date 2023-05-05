@@ -80,7 +80,11 @@ const ProjectJsonSchemaForm = ({ style, schemaTypes, initialValues, setFileConte
                     rules: [{ required: true }]
                 })(
                     <>
-                        <div {...getRootProps()}>
+                        <div {...getRootProps()} style={{
+                            border: "2px dashed #bae7ff",
+                            textAlign: "center",
+                            cursor: "pointer",
+                        }}>
                             <input {...getInputProps()} />
                             <p>Drag and drop a JSON Schema file here, or click to select files</p>
                         </div>
