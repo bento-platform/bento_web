@@ -143,7 +143,8 @@ const FileDisplay = ({file, tree, treeLoading}) => {
                 setLoadingFileContents(true);
                 const r = await fetch(urisByFilePath[file]);
                 if (r.ok) {
-                    setFileContents({...fileContents, [file]: await r.text()});
+                    const parsed = JSON.parse(await r.text());
+                    setFileContents({...fileContents, [file]: parsed});
                 } else {
                     setFileLoadError(`Could not load file: ${r.content}`);
                 }
@@ -196,7 +197,7 @@ const FileDisplay = ({file, tree, treeLoading}) => {
             } else if (fileExt === "json") {
                 return (
                     <ReactJson
-                        src={JSON.parse(fileContents[file] || "{}")}
+                        src={fileContents[file] || {}}
                         displayDataTypes={false}
                         enableClipboard={false}
                         name={null}
