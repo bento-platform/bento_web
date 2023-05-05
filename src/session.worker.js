@@ -3,9 +3,7 @@
 // not active, so we need to move this pinging to a web worker to maintain the
 // session when the tab doesn't have focus.
 
-import {BENTO_URL} from "./config";
-
-const BASE_PATH = BENTO_URL ? (new URL(BENTO_URL)).pathname : "/";
+const BASE_PATH = process.env.BENTO_URL ? (new URL(process.env.BENTO_URL)).pathname : "/";
 const USER_URL = `${BASE_PATH}api/auth/user`;
 
 const makeErr = error => ({user: null, error});
