@@ -1,4 +1,8 @@
+import {message} from "antd";
+import {decodeJwt} from "jose";
+
 import {
+    ACCESS_TOKEN_HANDOFF,
     FETCH_OPENID_CONFIGURATION,
     FETCH_USER,
     FETCHING_USER_DEPENDENT_DATA,
@@ -13,6 +17,16 @@ export const auth = (
         hasAttempted: false,
         isFetchingDependentData: false,
         isFetchingDependentDataSilent: false,
+
+        isHandingOffCodeForToken: false,
+        handoffError: "",
+
+        sessionExpiry: null,
+        idTokenContents: null,
+
+        // NEVER dehydrate the below items to localStorage; it is a security risk!
+        accessToken: null,
+        refreshToken: null,
     },
     action
 ) => {
@@ -41,6 +55,34 @@ export const auth = (
         case FETCHING_USER_DEPENDENT_DATA_SILENT.END:
         case FETCHING_USER_DEPENDENT_DATA_SILENT.TERMINATE:
             return {...state, isFetchingDependentDataSilent: false};
+
+        case ACCESS_TOKEN_HANDOFF.REQUEST:
+            return {...state, isHandingOffCodeForToken: true};
+        case ACCESS_TOKEN_HANDOFF.RECEIVE: {
+            const {
+                access_token: accessToken,
+                expires_in: exp,
+                id_token: idToken,
+                refresh_token: refreshToken,
+            } = action.data;
+
+            return {
+                ...state,
+                sessionExpiry: (new Date()).getTime() / 1000 + exp,
+                idTokenContents: decodeJwt(idToken),  // OK to decode ID token
+                accessToken,  // A client (i.e., the web app) MUST not decode the access token
+                refreshToken,
+            };
+        }
+        case ACCESS_TOKEN_HANDOFF.ERROR: {
+            const {error, error_description: errorDesc} = action.data;
+            const handoffError = `${error}: ${errorDesc}`;
+            message.error(handoffError);
+            console.error(handoffError)
+            return {...state, idTokenContents: null, accessToken: null, refreshToken: null, handoffError};
+        }
+        case ACCESS_TOKEN_HANDOFF.FINISH:
+            return {...state, isHandingOffCodeForToken: false};
 
         default:
             return state;

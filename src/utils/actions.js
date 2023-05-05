@@ -18,7 +18,7 @@ export const createFlowActionTypes = name => ({
 });
 
 
-const _unpaginatedNetworkFetch = async (url, baseUrl, req, parse) => {
+const _unpaginatedNetworkFetch = async (url, _baseUrl, req, parse) => {
     const response = await fetch(url, req);
     if (!response.ok) {
         throw `${response.status} ${response.statusText}`;
