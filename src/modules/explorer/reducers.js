@@ -34,6 +34,7 @@ import {
 export const explorer = (
     state = {
         variantsOverviewResponse: {},
+        fetchingVariantsOverview: false,
         dataTypeFormsByDatasetID: {},
         fetchingSearchByDatasetID: {},
         searchResultsByDatasetID: {},
@@ -57,6 +58,16 @@ export const explorer = (
             return {
                 ...state,
                 variantsOverviewResponse: action.data,
+            };
+        case PERFORM_GET_GOHAN_VARIANTS_OVERVIEW.REQUEST:
+            return {
+                ...state,
+                fetchingVariantsOverview: true,
+            };
+        case PERFORM_GET_GOHAN_VARIANTS_OVERVIEW.FINISH:
+            return {
+                ...state,
+                fetchingVariantsOverview: false,
             };
         case PERFORM_SEARCH.REQUEST:
             return {
