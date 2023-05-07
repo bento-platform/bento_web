@@ -4,22 +4,28 @@ import { Link } from "react-router-dom";
 import { withBasePath } from "../../utils/url";
 import ExplorerSearchResultsTableComp from "./ExplorerSearchResultsTableComp";
 
-const biosampleRender = (individual, record) => {
-    const alternateIds = individual.alternate_ids ?? [];
-    const listRender = alternateIds.length ? " (" + alternateIds.join(", ") + ")" : "";
+const BiosampleRender = ({ biosample_id, alternate_ids, individual_id }) => {
+    const alternateIds = alternate_ids ?? [];
+    const listRender = alternateIds.length ? ` (${alternateIds.join(", ")})` : "";
     return (
         <>
             <Link
                 to={{
-                    pathname: withBasePath(`data/explorer/individuals/${record.individual.id}/biosamples`),
+                    pathname: withBasePath(`data/explorer/individuals/${individual_id}/biosamples`),
                     state: { backUrl: location.pathname },
                 }}
             >
-                {individual}
+                {biosample_id}
             </Link>{" "}
             {listRender}
         </>
     );
+};
+
+BiosampleRender.propTypes = {
+    biosample_id: PropTypes.string.isRequired,
+    alternate_ids: PropTypes.arrayOf(PropTypes.string),
+    individual_id: PropTypes.string.isRequired,
 };
 
 const customPluralForms = {
@@ -114,7 +120,13 @@ const SEARCH_RESULT_COLUMNS_BIOSAMPLE = [
     {
         title: "Biosample",
         dataIndex: "biosample_id",
-        render: (bioType, record) => biosampleRender(bioType, record),
+        render: (biosample_id, record) => (
+            <BiosampleRender
+                biosample_id={biosample_id}
+                alternate_ids={record.alternate_ids}
+                individual_id={record.individual.id}
+            />
+        ),
         sorter: (a, b) => a.biosample_id.localeCompare(b.biosample_id),
         defaultSortOrder: "ascend",
     },
