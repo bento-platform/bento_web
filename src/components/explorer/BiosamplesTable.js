@@ -100,6 +100,8 @@ const availableExperimentsRender = (experimentsType) => {
     }
 };
 
+const NO_EXPERIMENTS_VALUE = -Infinity;
+
 const availableExperimentsSorter = (a, b) => {
     const highestValue = (experimentsType) => {
         if (experimentsType.every((s) => s !== null)) {
@@ -111,7 +113,7 @@ const availableExperimentsSorter = (a, b) => {
             const counts = Object.values(experimentCount);
             return Math.max(...counts);
         } else {
-            return -Infinity;
+            return NO_EXPERIMENTS_VALUE;
         }
     };
 
@@ -176,7 +178,23 @@ const BiosamplesTable = ({ data }) => {
 };
 
 BiosamplesTable.propTypes = {
-    data: PropTypes.array.isRequired,
+    data: PropTypes.arrayOf(
+        PropTypes.shape({
+            biosample: PropTypes.string.isRequired,
+            alternateIds: PropTypes.arrayOf(PropTypes.string),
+            individual: PropTypes.shape({
+                id: PropTypes.string.isRequired,
+            }).isRequired,
+            studyTypes: PropTypes.arrayOf(PropTypes.string).isRequired,
+            sampledTissues: PropTypes.arrayOf(
+                PropTypes.shape({
+                    label: PropTypes.string.isRequired,
+                })
+            ).isRequired,
+            experimentTypes: PropTypes.arrayOf(PropTypes.string).isRequired,
+        })
+    ).isRequired,
 };
+
 
 export default BiosamplesTable;
