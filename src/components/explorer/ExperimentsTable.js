@@ -4,31 +4,39 @@ import React from "react";
 import { withBasePath } from "../../utils/url";
 import ExplorerSearchResultsTableComp from "./ExplorerSearchResultsTableComp";
 
-const experimentRender = (individual, record) => {
+const experimentRender = (experimentId, { individual }) => {
     const alternateIds = individual.alternate_ids ?? [];
     const listRender = alternateIds.length ? " (" + alternateIds.join(", ") + ")" : "";
     return (
         <>
             <Link
                 to={{
-                    pathname: withBasePath(`data/explorer/individuals/${record.individual.id}/experiments`),
-                    hash: "#" + record.i_type,
+                    pathname: withBasePath(`data/explorer/individuals/${individual.id}/experiments`),
+                    hash: "#" + experimentId,
                     state: { backUrl: location.pathname },
                 }}
             >
-                {individual}
+                {experimentId}
             </Link>{" "}
             {listRender}
         </>
     );
 };
 
+experimentRender.propTypes = {
+    experimentId: PropTypes.string.isRequired,
+    individual: PropTypes.shape({
+        id: PropTypes.string.isRequired,
+        alternate_ids: PropTypes.arrayOf(PropTypes.string),
+    }).isRequired,
+};
+
 const SEARCH_RESULT_COLUMNS_EXP = [
     {
         title: "Experiment",
-        dataIndex: "experiment_id",
-        render: (experiment, record) => experimentRender(experiment, record),
-        sorter: (a, b) => a.experiment_id.localeCompare(b.experiment_id),
+        dataIndex: "experimentId",
+        render: experimentRender,
+        sorter: (a, b) => a.experimentId.localeCompare(b.experimentId),
         defaultSortOrder: "ascend",
     },
     {
@@ -40,16 +48,23 @@ const SEARCH_RESULT_COLUMNS_EXP = [
     },
     {
         title: "Biosample",
-        dataIndex: "biosample_id",
+        dataIndex: "biosampleId",
         render: (bioType) => <>{bioType}</>,
-        sorter: (a, b) => a.biosample_id.localeCompare(b.biosample_id),
+        sorter: (a, b) => a.biosampleId.localeCompare(b.biosampleId),
+        sortDirections: ["descend", "ascend", "descend"],
+    },
+    {
+        title: "Study Type",
+        dataIndex: "studyType",
+        render: (studyType) => <>{studyType}</>,
+        sorter: (a, b) => a.studyType.localeCompare(b.studyType),
         sortDirections: ["descend", "ascend", "descend"],
     },
     {
         title: "Experiment Type",
-        dataIndex: "experiment_type",
+        dataIndex: "experimentType",
         render: (expType) => <>{expType}</>,
-        sorter: (a, b) => a.experiment_type.localeCompare(b.experiment_type),
+        sorter: (a, b) => a.experimentType.localeCompare(b.experimentType),
         sortDirections: ["descend", "ascend", "descend"],
     },
 ];
@@ -61,7 +76,18 @@ const ExperimentsTable = ({ data }) => {
 };
 
 ExperimentsTable.propTypes = {
-    data: PropTypes.arrayOf(PropTypes.object).isRequired,
+    data: PropTypes.arrayOf(
+        PropTypes.shape({
+            experimentId: PropTypes.string.isRequired,
+            individual: PropTypes.shape({
+                id: PropTypes.string.isRequired,
+                alternate_ids: PropTypes.arrayOf(PropTypes.string),
+            }).isRequired,
+            biosampleId: PropTypes.string.isRequired,
+            studyType: PropTypes.string.isRequired,
+            experimentType: PropTypes.string.isRequired,
+        })
+    ).isRequired,
 };
 
 export default ExperimentsTable;

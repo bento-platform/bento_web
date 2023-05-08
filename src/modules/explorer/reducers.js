@@ -303,13 +303,13 @@ const tableSearchResultsExperiments = (searchResults) => {
             }
 
             const formattedResult = {
-                subject_id: result.subject_id,
+                subjectId: result.subject_id,
                 key: experiment.experiment_id,
-                alternate_ids: result.alternate_ids,
-                experiment_id: experiment.experiment_id,
-                experiment_type: experiment.experiment_type,
-                study_type: experiment.study_type,
-                biosample_id: sample.biosample_id,
+                alternateIds: result.alternate_ids,
+                experimentId: experiment.experiment_id,
+                experimentType: experiment.experiment_type,
+                studyType: experiment.study_type,
+                biosampleId: sample.biosample_id,
                 individual: {
                     id: result.subject_id,
                     alternate_ids: result.alternate_ids ?? [],
