@@ -340,26 +340,23 @@ function generateBiosampleObjects(searchResults) {
                             ? biosampleIdToIndex[biosampleId]
                             : (biosampleIdToIndex[biosampleId] = objects.length);
                     objects[index] = objects[index] || {
-                        subject_id: result.subject_id,
+                        subjectId: result.subject_id,
                         key: biosampleId,
-                        biosample_id: biosampleId,
-                        alternate_ids: result.alternate_ids,
-                        experiment_id: biosample.experiment.experiment_id || "N/A",
-                        experiment_type: biosample.experiment.experiment_type || "N/A",
-                        num_experiments: result.num_experiments,
+                        biosample: biosampleId,
+                        alternateIds: result.alternate_ids,
                         individual: {
                             id: result.subject_id,
-                            alternate_ids: result.alternate_ids || [],
+                            alternateIds: result.alternate_ids || [],
                         },
-                        experiment_ids: [],
-                        experiment_types: [],
-                        study_types: [],
-                        sampled_tissues: [],
+                        experimentIds: [],
+                        experimentTypes: [],
+                        studyTypes: [],
+                        sampledTissues: [],
                     };
-                    objects[index].experiment_ids.push(biosample.experiment.experiment_id);
-                    objects[index].experiment_types.push(biosample.experiment.experiment_type);
-                    objects[index].study_types.push(biosample.experiment.study_type);
-                    objects[index].sampled_tissues.push(biosample.sampled_tissue);
+                    objects[index].experimentIds.push(biosample.experiment.experiment_id);
+                    objects[index].experimentTypes.push(biosample.experiment.experiment_type);
+                    objects[index].studyTypes.push(biosample.experiment.study_type);
+                    objects[index].sampledTissues.push(biosample.sampled_tissue);
                 }
                 return objects;
             }, []);

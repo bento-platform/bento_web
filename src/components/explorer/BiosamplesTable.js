@@ -4,18 +4,18 @@ import { Link } from "react-router-dom";
 import { withBasePath } from "../../utils/url";
 import ExplorerSearchResultsTableComp from "./ExplorerSearchResultsTableComp";
 
-const BiosampleRender = ({ biosample_id, alternate_ids, individual_id }) => {
-    const alternateIds = alternate_ids ?? [];
-    const listRender = alternateIds.length ? ` (${alternateIds.join(", ")})` : "";
+const BiosampleRender = ({ biosample, alternateIds, individualId }) => {
+    const alternateIdsList = alternateIds ?? [];
+    const listRender = alternateIdsList.length ? ` (${alternateIdsList.join(", ")})` : "";
     return (
         <>
             <Link
                 to={{
-                    pathname: withBasePath(`data/explorer/individuals/${individual_id}/biosamples`),
+                    pathname: withBasePath(`data/explorer/individuals/${individualId}/biosamples`),
                     state: { backUrl: location.pathname },
                 }}
             >
-                {biosample_id}
+                {biosample}
             </Link>{" "}
             {listRender}
         </>
@@ -23,9 +23,9 @@ const BiosampleRender = ({ biosample_id, alternate_ids, individual_id }) => {
 };
 
 BiosampleRender.propTypes = {
-    biosample_id: PropTypes.string.isRequired,
-    alternate_ids: PropTypes.arrayOf(PropTypes.string),
-    individual_id: PropTypes.string.isRequired,
+    biosample: PropTypes.string.isRequired,
+    alternateIds: PropTypes.arrayOf(PropTypes.string),
+    individualId: PropTypes.string.isRequired,
 };
 
 const customPluralForms = {
@@ -71,7 +71,7 @@ const experimentsSorter = (a, b) => {
         return studiesType.filter((s) => s !== null).length;
     };
 
-    return countExperiments(a.study_types) - countExperiments(b.study_types);
+    return countExperiments(a.studyTypes) - countExperiments(b.studyTypes);
 };
 
 const sampledTissuesRender = (sampledTissues) => {
@@ -79,8 +79,8 @@ const sampledTissuesRender = (sampledTissues) => {
 };
 
 const sampledTissuesSorter = (a, b) => {
-    if (a.sampled_tissues[0].label && b.sampled_tissues[0].label) {
-        return a.sampled_tissues[0].label.toString().localeCompare(b.sampled_tissues[0].label.toString());
+    if (a.sampledTissues[0].label && b.sampledTissues[0].label) {
+        return a.sampledTissues[0].label.toString().localeCompare(b.sampledTissues[0].label.toString());
     }
     return 0;
 };
@@ -101,17 +101,22 @@ const availableExperimentsRender = (experimentsType) => {
 };
 
 const availableExperimentsSorter = (a, b) => {
-    const highestValue = (formattedExperiments) => {
-        if (formattedExperiments !== "—") {
-            const counts = formattedExperiments.split(", ").map((experiment) => parseInt(experiment.split(" ")[0], 10));
+    const highestValue = (experimentsType) => {
+        if (experimentsType.every((s) => s !== null)) {
+            const experimentCount = experimentsType.reduce((acc, experiment) => {
+                acc[experiment] = (acc[experiment] || 0) + 1;
+                return acc;
+            }, {});
+
+            const counts = Object.values(experimentCount);
             return Math.max(...counts);
         } else {
             return -Infinity;
         }
     };
 
-    const highA = highestValue(availableExperimentsRender(a.experiment_types));
-    const highB = highestValue(availableExperimentsRender(b.experiment_types));
+    const highA = highestValue(a.experimentTypes);
+    const highB = highestValue(b.experimentTypes);
 
     return highB - highA;
 };
@@ -119,15 +124,15 @@ const availableExperimentsSorter = (a, b) => {
 const SEARCH_RESULT_COLUMNS_BIOSAMPLE = [
     {
         title: "Biosample",
-        dataIndex: "biosample_id",
-        render: (biosample_id, record) => (
+        dataIndex: "biosample",
+        render: (biosample, record) => (
             <BiosampleRender
-                biosample_id={biosample_id}
-                alternate_ids={record.alternate_ids}
-                individual_id={record.individual.id}
+                biosample={biosample}
+                alternateIds={record.alternateIds}
+                individualId={record.individual.id}
             />
         ),
-        sorter: (a, b) => a.biosample_id.localeCompare(b.biosample_id),
+        sorter: (a, b) => a.biosample.localeCompare(b.biosample),
         defaultSortOrder: "ascend",
     },
     {
@@ -139,21 +144,21 @@ const SEARCH_RESULT_COLUMNS_BIOSAMPLE = [
     },
     {
         title: "Experiments",
-        dataIndex: "study_types",
+        dataIndex: "studyTypes",
         render: experimentsRender,
         sorter: experimentsSorter,
         sortDirections: ["descend", "ascend", "descend"],
     },
     {
         title: "Sampled Tissues",
-        dataIndex: "sampled_tissues",
+        dataIndex: "sampledTissues",
         render: sampledTissuesRender,
         sorter: sampledTissuesSorter,
         sortDirections: ["descend", "ascend", "descend"],
     },
     {
         title: "Available Experiments",
-        dataIndex: "experiment_types",
+        dataIndex: "experimentTypes",
         render: availableExperimentsRender,
         sorter: availableExperimentsSorter,
         sortDirections: ["descend", "ascend", "descend"],
