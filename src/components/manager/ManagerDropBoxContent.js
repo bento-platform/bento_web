@@ -14,8 +14,6 @@ import {Document, Page} from "react-pdf/dist/esm/entry.webpack5";
 import "react-pdf/dist/esm/Page/AnnotationLayer.css";
 import "react-pdf/dist/esm/Page/TextLayer.css";
 
-import ReactJson from "react-json-view";
-
 import {json, markdown, plaintext} from "react-syntax-highlighter/dist/cjs/languages/hljs";
 
 import {
@@ -39,6 +37,7 @@ import TableSelectionModal from "./TableSelectionModal";
 import {STEP_INPUT} from "./workflowCommon";
 import {withBasePath} from "../../utils/url";
 import {dropBoxTreeStateToPropsMixinPropTypes, workflowsStateToPropsMixin} from "../../propTypes";
+import { JsonArrayDisplay, JsonObjectDisplay } from "../JsonDisplay";
 
 
 SyntaxHighlighter.registerLanguage("json", json);
@@ -64,7 +63,6 @@ const LANGUAGE_HIGHLIGHTERS = {
 };
 
 const VIEWABLE_FILE_EXTENSIONS = [...Object.keys(LANGUAGE_HIGHLIGHTERS), ".pdf"];
-
 
 const sortByName = (a, b) => a.name.localeCompare(b.name);
 const generateFileTree = directory => [...directory].sort(sortByName).map(entry =>
@@ -121,17 +119,7 @@ const FileDisplay = ({file, tree, treeLoading}) => {
         setFileLoadError("");
 
         (async () => {
-            if (!file) return;
-
-            if (fileExt === "pdf") {
-                setLoadingFileContents(true);
-            }
-
-            if (!textFormat) return;
-
-            if (fileContents.hasOwnProperty(file)) {
-                return;
-            }
+            if (!file || !textFormat || fileContents.hasOwnProperty(file)) return;
 
             if (!(file in urisByFilePath)) {
                 console.error(`Files: something went wrong while trying to load ${file}`);
@@ -143,8 +131,12 @@ const FileDisplay = ({file, tree, treeLoading}) => {
                 setLoadingFileContents(true);
                 const r = await fetch(urisByFilePath[file]);
                 if (r.ok) {
-                    const parsed = JSON.parse(await r.text());
-                    setFileContents({...fileContents, [file]: parsed});
+                    const text = await r.text();
+                    const content = (fileExt === "json" ? JSON.parse(text) : text);
+                    setFileContents({
+                        ...fileContents,
+                        [file]: content
+                    });
                 } else {
                     setFileLoadError(`Could not load file: ${r.content}`);
                 }
@@ -195,15 +187,11 @@ const FileDisplay = ({file, tree, treeLoading}) => {
                     </Document>
                 );
             } else if (fileExt === "json") {
-                return (
-                    <ReactJson
-                        src={fileContents[file] || {}}
-                        displayDataTypes={false}
-                        enableClipboard={false}
-                        name={null}
-                        collapsed={true}
-                    />
-                );
+                if (Array.isArray(fileContents[file])) {
+                    return ( <JsonArrayDisplay doc={fileContents[file] || []} standalone/> );
+                } else {
+                    return (<JsonObjectDisplay doc={fileContents[file] || {}} /> );
+                }
             } else {  // if (textFormat)
                 return (
                     <SyntaxHighlighter
