@@ -5,6 +5,8 @@ import ReactJson from "react-json-view";
 
 const { Panel } = Collapse;
 
+// TODO: replace react-json-view with a maintained package.
+
 const JSON_PROP_TYPE = PropTypes.oneOfType([
     PropTypes.array,
     PropTypes.object,
@@ -16,6 +18,10 @@ const JsonArrayDisplay = ({ doc, standalone }) => {
 
     const [jsonArrayGroups, setJsonArrayGroups] = useState(null);
     const [selectedJsonGroup, setSelectedJsonGroup] = useState(null);
+    
+    // React re-mount hack 
+    // To get around ReactJson's lack of collapse control
+    const [mountKey, setMountKey] = useState(0);
 
     useEffect(() => {
         if (Array.isArray(doc) && doc.length > JSON_ARRAY_GROUP_SIZE) {
@@ -38,15 +44,20 @@ const JsonArrayDisplay = ({ doc, standalone }) => {
         }
     }, [doc]);
 
+    useEffect(() => {
+        setMountKey(mountKey + 1)
+    }, [selectedJsonGroup])
+
     const onJsonGroupSelect = useCallback((key) => {
         setSelectedJsonGroup(key);
-    }, [doc]);
+    }, []);
 
     const shouldGroup = doc.length > JSON_ARRAY_GROUP_SIZE;
 
     // Wait for group slicing to avoid render flicker
     if (shouldGroup && !(jsonArrayGroups && selectedJsonGroup)) return <div />;
 
+    const src = shouldGroup ? jsonArrayGroups[selectedJsonGroup] : doc;
     return (
         <>
             {standalone && <Typography.Title level={4}>JSON array</Typography.Title>}
@@ -61,11 +72,13 @@ const JsonArrayDisplay = ({ doc, standalone }) => {
                 </>
             }
             <ReactJson
-                src={shouldGroup ? jsonArrayGroups[selectedJsonGroup] : doc}
+                key={mountKey}
+                src={src}
                 displayDataTypes={false}
                 enableClipboard={false}
                 name={false}
                 collapsed={true}
+                groupArraysAfterLength={JSON_ARRAY_GROUP_SIZE}
             />
         </>
     );
