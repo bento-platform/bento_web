@@ -18,8 +18,8 @@ const JsonArrayDisplay = ({ doc, standalone }) => {
 
     const [jsonArrayGroups, setJsonArrayGroups] = useState(null);
     const [selectedJsonGroup, setSelectedJsonGroup] = useState(null);
-    
-    // React re-mount hack 
+
+    // React re-mount hack
     // To get around ReactJson's lack of collapse control
     const [mountKey, setMountKey] = useState(0);
 
@@ -45,8 +45,8 @@ const JsonArrayDisplay = ({ doc, standalone }) => {
     }, [doc]);
 
     useEffect(() => {
-        setMountKey(mountKey + 1)
-    }, [selectedJsonGroup])
+        setMountKey(mountKey + 1);
+    }, [selectedJsonGroup]);
 
     const onJsonGroupSelect = useCallback((key) => {
         setSelectedJsonGroup(key);
