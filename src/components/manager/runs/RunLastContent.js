@@ -26,13 +26,15 @@ const COLUMNS_LAST_CONTENT = [
     },
 ];
 
-const processIngestions = (data) => {
+const processIngestions = (data, currentTables) => {
+    const currentTableIds = (currentTables || []).map((table) => table.table_id);
+
     const ingestionsByDataType = data.reduce((acc, obj) => {
         if (obj.state === "COMPLETE") {
             const dataType = obj.details.request.tags.workflow_metadata.data_type;
             const tableId = obj.details.request.tags.table_id;
 
-            if (tableId === undefined) {
+            if (tableId === undefined || !currentTableIds.includes(tableId)) {
                 return acc;
             }
 
@@ -44,12 +46,14 @@ const processIngestions = (data) => {
 
             const currentIngestion = { date: dateStr, dataType, tableId, fileNames: [fileName] };
 
-            if (!acc[dataType]) {
-                acc[dataType] = currentIngestion;
-            } else if (date > Date.parse(acc[dataType].date)) {
-                Object.assign(acc[dataType], currentIngestion);
-            } else if (date === Date.parse(acc[dataType].date)) {
-                acc[dataType].fileNames.push(fileName);
+            const dataTypeAndTableId = `${dataType}-${tableId}`;
+
+            if (!acc[dataTypeAndTableId]) {
+                acc[dataTypeAndTableId] = currentIngestion;
+            } else if (date > Date.parse(acc[dataTypeAndTableId].date)) {
+                Object.assign(acc[dataTypeAndTableId], currentIngestion);
+            } else if (date === Date.parse(acc[dataTypeAndTableId].date)) {
+                acc[dataTypeAndTableId].fileNames.push(fileName);
             }
         }
         return acc;
@@ -60,12 +64,13 @@ const processIngestions = (data) => {
 
 const LastIngestionTable = () => {
     const runs = useSelector((state) => state.runs.items);
+    const currentTables = useSelector((state) => state.projectTables.items);
     const [ingestions, setIngestions] = useState([]);
 
     useEffect(() => {
-        const formattedIngestions = processIngestions(runs);
+        const formattedIngestions = processIngestions(runs, currentTables);
         setIngestions(formattedIngestions);
-    }, [runs]);
+    }, [runs, currentTables]);
 
     return (
         <Table
