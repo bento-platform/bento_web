@@ -118,7 +118,7 @@ const SearchSummaryModal = ({ searchResults, ...props }) => {
     const experimentsCharts = [
         {
             type: "PieChart",
-            title: "Study Types",
+            title: "Experiment Types",
             data: data?.experiments?.experiment_type,
         },
     ];
