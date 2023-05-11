@@ -57,7 +57,6 @@ const SearchSummaryModal = ({ searchResults, ...props }) => {
     const katsuUrl = useSelector((state) => state.services.itemsByArtifact.metadata.url);
 
     useEffect(() => {
-
         const ids = searchResults.searchFormattedResults.map(({ key }) => key);
 
         const raw = JSON.stringify({
@@ -66,7 +65,7 @@ const SearchSummaryModal = ({ searchResults, ...props }) => {
 
         const requestOptions = {
             method: "POST",
-            headers: new Headers({"Content-Type": "application/json"}),
+            headers: new Headers({ "Content-Type": "application/json" }),
             body: raw,
             redirect: "follow",
         };
@@ -75,7 +74,7 @@ const SearchSummaryModal = ({ searchResults, ...props }) => {
             .then((response) => response.json())
             .then((result) => {
                 setData(result);
-                console.log(result)
+                console.log(result);
             })
             .catch((error) => console.log("error", error));
     }, [searchResults]);
@@ -142,19 +141,13 @@ const SearchSummaryModal = ({ searchResults, ...props }) => {
                     <Divider />
                     <>
                         <Typography.Title level={4}>Individuals</Typography.Title>
-                        <Row gutter={[0, 16]}>
-                            {renderCharts(individualsCharts)}
-                        </Row>
+                        <Row gutter={[0, 16]}>{renderCharts(individualsCharts)}</Row>
                         <Divider />
                         <Typography.Title level={4}>Biosamples</Typography.Title>
-                        <Row gutter={[0, 16]}>
-                            {renderCharts(biosamplesCharts)}
-                        </Row>
+                        <Row gutter={[0, 16]}>{renderCharts(biosamplesCharts)}</Row>
                         <Divider />
                         <Typography.Title level={4}>Experiments</Typography.Title>
-                        <Row gutter={[0, 16]}>
-                            {renderCharts(experimentsCharts)}
-                        </Row>
+                        <Row gutter={[0, 16]}>{renderCharts(experimentsCharts)}</Row>
                     </>
                 </>
             ) : (
