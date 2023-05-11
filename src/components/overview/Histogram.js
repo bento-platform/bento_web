@@ -1,6 +1,7 @@
 import React from "react";
 import PropTypes from "prop-types";
 import { BarChart, Bar, XAxis, YAxis, Tooltip, Label } from "recharts";
+import { Empty } from "antd";
 
 class Histogram extends React.Component {
     static propTypes = {
@@ -26,7 +27,7 @@ class Histogram extends React.Component {
     };
 
     style = {
-        marginBottom: "20px"
+        marginBottom: "20px",
     };
 
     shouldComponentUpdate(props, state) {
@@ -42,21 +43,35 @@ class Histogram extends React.Component {
         return (
             <div style={this.style}>
                 <h2 style={this.titleStyle}>{title}</h2>
-                <BarChart
-                    width={(chartHeight - titleHeaderHeight) * chartAspectRatio}
-                    height={chartHeight - titleHeaderHeight}
-                    data={data}
-                    margin={{ top: 50, right: 80, bottom: 30, left: 80 }}
-                >
-                    <XAxis dataKey="ageBin" height={20}>
-                        <Label value="Subject age (yrs)" offset={-20} position="insideBottom" />
-                    </XAxis>
-                    <YAxis>
-                        <Label value="Count" offset={-10} position="left" angle={270} />
-                    </YAxis>
-                    <Tooltip />
-                    <Bar dataKey="count" fill="#ff0000" isAnimationActive={false} />
-                </BarChart>
+                {data.length !== 0 ? (
+                    <BarChart
+                        width={(chartHeight - titleHeaderHeight) * chartAspectRatio}
+                        height={chartHeight - titleHeaderHeight}
+                        data={data}
+                        margin={{ top: 50, right: 80, bottom: 30, left: 80 }}
+                    >
+                        <XAxis dataKey="ageBin" height={20}>
+                            <Label value="Subject age (yrs)" offset={-20} position="insideBottom" />
+                        </XAxis>
+                        <YAxis>
+                            <Label value="Count" offset={-10} position="left" angle={270} />
+                        </YAxis>
+                        <Tooltip />
+                        <Bar dataKey="count" fill="#ff0000" isAnimationActive={false} />
+                    </BarChart>
+                ) : (
+                    <div
+                        style={{
+                            display: "flex",
+                            alignItems: "center",
+                            justifyContent: "center",
+                            height: `${chartHeight - titleHeaderHeight}px`,
+                            width: `${(chartHeight - titleHeaderHeight) * chartAspectRatio}px`,
+                        }}
+                    >
+                        <Empty />
+                    </div>
+                )}
             </div>
         );
     }

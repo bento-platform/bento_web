@@ -307,7 +307,15 @@ class CustomPieChart extends React.Component {
                             />
                         </PieChart>
                     ) : (
-                        <div style={{ padding: "20px" }}>
+                        <div
+                            style={{
+                                display: "flex",
+                                alignItems: "center",
+                                justifyContent: "center",
+                                height: `${chartHeight - titleHeaderHeight}px`,
+                                width: `${(chartHeight - titleHeaderHeight) * chartAspectRatio}px`,
+                            }}
+                        >
                             <Empty />
                         </div>
                     )}
