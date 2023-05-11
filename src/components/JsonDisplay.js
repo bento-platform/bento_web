@@ -19,10 +19,6 @@ const JsonArrayDisplay = ({ doc, standalone }) => {
     const [jsonArrayGroups, setJsonArrayGroups] = useState(null);
     const [selectedJsonGroup, setSelectedJsonGroup] = useState(null);
 
-    // React re-mount hack
-    // To get around ReactJson's lack of collapse control
-    const [mountKey, setMountKey] = useState(0);
-
     useEffect(() => {
         if (Array.isArray(doc) && doc.length > JSON_ARRAY_GROUP_SIZE) {
             // Array group selector options
@@ -44,10 +40,6 @@ const JsonArrayDisplay = ({ doc, standalone }) => {
         }
     }, [doc]);
 
-    useEffect(() => {
-        setMountKey(mountKey + 1);
-    }, [selectedJsonGroup]);
-
     const onJsonGroupSelect = useCallback((key) => {
         setSelectedJsonGroup(key);
     }, []);
@@ -58,6 +50,7 @@ const JsonArrayDisplay = ({ doc, standalone }) => {
     if (shouldGroup && !(jsonArrayGroups && selectedJsonGroup)) return <div />;
 
     const src = shouldGroup ? jsonArrayGroups[selectedJsonGroup] : doc;
+    
     return (
         <>
             {standalone && <Typography.Title level={4}>JSON array</Typography.Title>}
@@ -72,7 +65,7 @@ const JsonArrayDisplay = ({ doc, standalone }) => {
                 </>
             }
             <ReactJson
-                key={mountKey}
+                key={selectedJsonGroup} // remount ReactJson to force collapse on group change
                 src={src}
                 displayDataTypes={false}
                 enableClipboard={false}
