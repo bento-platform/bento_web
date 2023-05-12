@@ -16,7 +16,7 @@ import {toggleProjectCreationModal} from "../../../modules/manager/actions";
 import {LAYOUT_CONTENT_STYLE} from "../../../styles/layoutContent";
 import {matchingMenuKeys, renderMenuItem} from "../../../utils/menu";
 import {withBasePath} from "../../../utils/url";
-import {nodeInfoDataPropTypesShape, projectPropTypesShape} from "../../../propTypes";
+import {projectPropTypesShape} from "../../../propTypes";
 
 
 class ManagerProjectDatasetContent extends Component {
@@ -92,8 +92,6 @@ class ManagerProjectDatasetContent extends Component {
 }
 
 ManagerProjectDatasetContent.propTypes = {
-    nodeInfo: nodeInfoDataPropTypesShape,
-
     projects: PropTypes.arrayOf(projectPropTypesShape),
     projectsByID: PropTypes.objectOf(projectPropTypesShape),
     loadingAuthDependentData: PropTypes.bool,
@@ -102,7 +100,6 @@ ManagerProjectDatasetContent.propTypes = {
 };
 
 const mapStateToProps = state => ({
-    nodeInfo: state.nodeInfo.data,
     projects: state.projects.items,
     projectsByID: state.projects.itemsByID,
     loadingAuthDependentData: state.auth.isFetchingDependentData,

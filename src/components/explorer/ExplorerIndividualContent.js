@@ -8,7 +8,7 @@ import ReactRouterPropTypes from "react-router-prop-types";
 import {Layout, Menu, Skeleton} from "antd";
 
 import {fetchIndividualIfNecessary} from "../../modules/metadata/actions";
-import {individualPropTypesShape, nodeInfoDataPropTypesShape} from "../../propTypes";
+import {individualPropTypesShape} from "../../propTypes";
 import {LAYOUT_CONTENT_STYLE} from "../../styles/layoutContent";
 import {matchingMenuKeys, renderMenuItem} from "../../utils/menu";
 import {urlPath, withBasePath} from "../../utils/url";
@@ -23,6 +23,7 @@ import IndividualMetadata from "./IndividualMetadata";
 import IndividualVariants from "./IndividualVariants";
 import IndividualGenes from "./IndividualGenes";
 import IndividualTracks from "./IndividualTracks";
+import {BENTO_URL} from "../../config";
 
 const withURLPrefix = (individual, page) => withBasePath(`data/explorer/individuals/${individual}/${page}`);
 
@@ -93,9 +94,7 @@ class ExplorerIndividualContent extends Component {
             {url: metadataUrl, text: "Metadata",},
         ];
 
-        const selectedKeys = this.props.nodeInfo
-            ? matchingMenuKeys(individualMenu, urlPath(this.props.nodeInfo.CHORD_URL))
-            : [];
+        const selectedKeys = matchingMenuKeys(individualMenu, urlPath(BENTO_URL));
 
         const headerTitle = (individual) => {
             if (!individual) {
@@ -155,7 +154,6 @@ class ExplorerIndividualContent extends Component {
 }
 
 ExplorerIndividualContent.propTypes = {
-    nodeInfo: nodeInfoDataPropTypesShape,
     metadataService: PropTypes.object,  // TODO
     individuals: PropTypes.objectOf(individualPropTypesShape),
 
@@ -166,7 +164,6 @@ ExplorerIndividualContent.propTypes = {
 };
 
 const mapStateToProps = state => ({
-    nodeInfo: state.nodeInfo.data,
     metadataService: state.services.metadataService,
     individuals: state.individuals.itemsByID,
 });

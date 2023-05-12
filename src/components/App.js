@@ -26,6 +26,7 @@ import {BASE_PATH, signInURLWithCustomRedirect, withBasePath} from "../utils/url
 import SessionWorker from "../session.worker";
 import {POPUP_AUTH_CALLBACK_URL} from "../constants";
 import {useHandleCallback} from "../lib/auth/performAuth";
+import {BENTO_URL} from "../config";
 
 // Lazy-load notification drawer
 const NotificationDrawer = lazy(() => import("./notifications/NotificationDrawer"));
@@ -151,7 +152,7 @@ const App = () => {
 
     const openSignInWindow = useCallback(() => {
         const signInURL = signInURLWithCustomRedirect(
-            `${nodeInfo.CHORD_URL}${POPUP_AUTH_CALLBACK_URL}`);
+            `${BENTO_URL}${POPUP_AUTH_CALLBACK_URL}`);
 
         if (!signInWindow.current || signInWindow.current.closed) {
             const popupTop = window.top.outerHeight / 2 + window.top.screenY - 350;
@@ -163,7 +164,7 @@ const App = () => {
         } else {
             signInWindow.current.focus();
         }
-    }, [nodeInfo, signInWindow]);
+    }, [signInWindow]);
 
     // On the cBioPortal tab only, eliminate the margin around the content
     // to give as much space as possible to the cBioPortal application itself.

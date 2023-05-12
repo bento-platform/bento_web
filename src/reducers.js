@@ -14,7 +14,6 @@ import {
     overviewSummary,
 } from "./modules/metadata/reducers";
 import {manager, dropBox} from "./modules/manager/reducers";
-import {nodeInfo} from "./modules/node/reducers";
 import {notifications} from "./modules/notifications/reducers";
 import {
     chordServices,
@@ -51,9 +50,6 @@ const rootReducer = combineReducers({
     // Manager module
     manager,
     dropBox,
-
-    // Node Information module
-    nodeInfo,
 
     // Notifications module
     notifications,

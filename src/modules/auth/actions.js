@@ -15,7 +15,6 @@ import {
     fetchProjectsWithDatasetsAndTables,
     fetchOverviewSummary
 } from "../metadata/actions";
-import {fetchNodeInfo} from "../node/actions";
 import {fetchNotifications} from "../notifications/actions";
 import {fetchServicesWithMetadataAndDataTypesAndTablesIfNeeded} from "../services/actions";
 import {fetchRuns} from "../wes/actions";
@@ -67,13 +66,9 @@ export const fetchDependentDataWithProvidedUser = (servicesCb, boundUserGetActio
 
     if (!hasAttempted) {
         dispatch(beginFlow(FETCHING_USER_DEPENDENT_DATA));
-
-        // Fetch node info if it's the first time this has been run; node info
-        // doesn't really change.
         // The reason this flow is only triggered the first time it is called
         // is because we want to silently check the user / auth status without
         // any loading indicators afterward.
-        await dispatch(fetchNodeInfo());
     } else {
         dispatch(beginFlow(FETCHING_USER_DEPENDENT_DATA_SILENT));
     }
