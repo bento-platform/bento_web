@@ -7,7 +7,7 @@ import {
     FETCH_USER,
     FETCHING_USER_DEPENDENT_DATA,
     FETCHING_USER_DEPENDENT_DATA_SILENT,
-    SET_USER
+    SET_USER, REFRESH_TOKENS
 } from "./actions";
 
 export const auth = (
@@ -21,10 +21,15 @@ export const auth = (
         isHandingOffCodeForToken: false,
         handoffError: "",
 
+        isRefreshingTokens: false,
+        tokensRefreshError: "",
+
+        // Below is token/token-derived data
+
         sessionExpiry: null,
         idTokenContents: null,
 
-        // NEVER dehydrate the below items to localStorage; it is a security risk!
+        //  - NEVER dehydrate the below items to localStorage; it is a security risk!
         accessToken: null,
         refreshToken: null,
     },
@@ -58,7 +63,8 @@ export const auth = (
 
         case TOKEN_HANDOFF.REQUEST:
             return {...state, isHandingOffCodeForToken: true};
-        case TOKEN_HANDOFF.RECEIVE: {
+        case TOKEN_HANDOFF.RECEIVE:
+        case REFRESH_TOKENS.RECEIVE: {  // Same response from token handoff & token renewal
             const {
                 access_token: accessToken,
                 expires_in: exp,
@@ -71,18 +77,49 @@ export const auth = (
                 sessionExpiry: (new Date()).getTime() / 1000 + exp,
                 idTokenContents: decodeJwt(idToken),  // OK to decode ID token
                 accessToken,  // A client (i.e., the web app) MUST not decode the access token
-                refreshToken,
+                refreshToken: refreshToken ?? state.refreshToken,
             };
         }
         case TOKEN_HANDOFF.ERROR: {
-            const {error, error_description: errorDesc} = action.data;
-            const handoffError = `${error}: ${errorDesc}`;
+            let handoffError = "Error handing off authorization code for token";
+
+            const {error, error_description: errorDesc} = action.data ?? {};
+            if (error) {
+                handoffError = `${error}: ${errorDesc}`;
+            }
+
             message.error(handoffError);
             console.error(handoffError);
-            return {...state, idTokenContents: null, accessToken: null, refreshToken: null, handoffError};
+            return {
+                ...state,
+                sessionExpiry: null,
+                idTokenContents: null,
+                accessToken: null,
+                refreshToken: null,
+                handoffError,
+            };
         }
         case TOKEN_HANDOFF.FINISH:
             return {...state, isHandingOffCodeForToken: false};
+
+        case REFRESH_TOKENS.REQUEST:
+            return {...state, isRefreshingTokens: true};
+        case REFRESH_TOKENS.ERROR: {
+            const {error, error_description: errorDesc} = action.data;
+            const tokensRefreshError = `${error}: ${errorDesc}`;
+            console.error(tokensRefreshError);
+            return {
+                ...state,
+                sessionExpiry: null,
+                idTokenContents: null,
+                accessToken: null,
+                refreshToken: null,
+                tokensRefreshError,
+            };
+        }
+        case REFRESH_TOKENS.FINISH: {
+            return {...state, isRefreshingTokens: false};
+        }
 
         default:
             return state;

@@ -3,8 +3,12 @@ import {message} from "antd";
 import {AUTH_CALLBACK_URL, CLIENT_ID} from "../../config";
 import {PKCE_LS_STATE, PKCE_LS_VERIFIER, pkceChallengeFromVerifier, secureRandomString} from "./pkce";
 import {useDispatch, useSelector} from "react-redux";
-import {accessTokenHandoff} from "../../modules/auth/actions";
+import {useHistory, useLocation} from "react-router-dom";
+
+import {fetchUserDependentData, tokenHandoff} from "../../modules/auth/actions";
 import {withBasePath} from "../../utils/url";
+import {nop} from "../../utils/misc";
+import {useEffect} from "react";
 
 export const performAuth = async (authorizationEndpoint, scope = "openid email") => {
     const state = secureRandomString();
@@ -32,55 +36,56 @@ export const performAuth = async (authorizationEndpoint, scope = "openid email")
 const CALLBACK_PATH = withBasePath("/callback");
 export const useHandleCallback = () => {
     const dispatch = useDispatch();
+    const history = useHistory();
+    const location = useLocation();
     const oidcConfig = useSelector(state => state.openIdConfiguration.data);
 
-    if (!window.location.pathname.startsWith(CALLBACK_PATH)) {
-        // Ignore non-callback URLs
-        return;
-    }
+    useEffect(() => {
+        if (!location.pathname.startsWith(CALLBACK_PATH)) {
+            // Ignore non-callback URLs
+            return;
+        }
 
-    if (!oidcConfig) {
-        // We don't have OpenID config (yet)
-        return;
-    }
+        if (!oidcConfig) {
+            // We don't have OpenID config (yet)
+            return;
+        }
 
-    const {token_endpoint: tokenEndpoint} = oidcConfig;
+        const params = new URLSearchParams(window.location.search);
 
-    const params = new URLSearchParams(window.location.search);
+        const error = params.get("error");
+        if (error) {
+            message.error(`Error encountered during sign-in: ${error}`);
+            console.error(error);
+            return;
+        }
 
-    const error = params.get("error");
-    if (error) {
-        message.error(`Error encountered during sign-in: ${error}`);
-        console.error(error);
-        return;
-    }
+        const code = params.get("code");
+        if (!code) {
+            // No code, don't do anything
+            return;
+        }
 
-    const code = params.get("code");
-    if (!code) {
-        // No code, don't do anything
-        return;
-    }
+        const localState = localStorage.getItem(PKCE_LS_STATE);
+        localStorage.removeItem(PKCE_LS_STATE);
 
-    const localState = localStorage.getItem(PKCE_LS_STATE);
-    localStorage.removeItem(PKCE_LS_STATE);
+        if (!localState) {
+            console.error("no local state");
+            return;
+        }
 
-    const paramState = params.get("state");
-    if (localState !== paramState) {
-        message.error(`Error encountered during sign-in: state mismatch`);
-        console.error("state mismatch");
-        return;
-    }
+        const paramState = params.get("state");
+        if (localState !== paramState) {
+            message.error("Error encountered during sign-in: state mismatch");
+            console.error("state mismatch");
+            return;
+        }
 
-    const verifier = localStorage.getItem(PKCE_LS_VERIFIER);
-
-    const handoffBody = new URLSearchParams();
-    Object.entries({
-        grant_type: "authorization_code",
-        code,
-        client_id: CLIENT_ID,
-        redirect_uri: AUTH_CALLBACK_URL,
-        code_verifier: verifier,
-    }).forEach(([k, v]) => handoffBody.set(k, v));
-
-    dispatch(accessTokenHandoff(tokenEndpoint, handoffBody));
+        const verifier = localStorage.getItem(PKCE_LS_VERIFIER);
+        (async () => {
+            await dispatch(tokenHandoff(code, verifier));
+            history.replace(withBasePath("/overview"));
+            await dispatch(fetchUserDependentData(nop));
+        })();
+    }, [location, history, oidcConfig]);
 };

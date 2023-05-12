@@ -1,6 +1,6 @@
 import React, {Suspense, lazy, useRef, useState, useEffect, useCallback} from "react";
 import {useDispatch, useSelector} from "react-redux";
-import {Redirect, Switch, useHistory} from "react-router-dom";
+import {Redirect, Route, Switch, useHistory} from "react-router-dom";
 
 import * as io from "socket.io-client";
 
@@ -14,9 +14,8 @@ import SitePageLoading from "./SitePageLoading";
 
 import {
     fetchOpenIdConfigurationIfNeeded,
-    fetchDependentDataWithProvidedUser,
-    fetchUserAndDependentData,
-    setUser,
+    fetchUserDependentData,
+    refreshTokens,
 } from "../modules/auth/actions";
 
 import eventHandler from "../events";
@@ -40,6 +39,8 @@ const NotificationsContent = lazy(() => import("./notifications/NotificationsCon
 
 const SIGN_IN_WINDOW_FEATURES = "scrollbars=no, toolbar=no, menubar=no, width=800, height=600";
 
+const CallbackContent = () => <div />;  // TODO: loading?
+
 const App = () => {
     const dispatch = useDispatch();
     const history = useHistory();
@@ -53,10 +54,9 @@ const App = () => {
 
     const sessionWorker = useRef(null);
 
-    const user = useSelector(state => state.auth.user);
+    const idTokenContents = useSelector(state => state.auth.idTokenContents);
     const eventRelay = useSelector(state => state.services.eventRelay);
-    const nodeInfo = useSelector(state => state.nodeInfo.data);
-    const [lastUser, setLastUser] = useState(false);
+    const [lastIdTokenContents, setLastIdTokenContents] = useState(false);
 
     const [didPostLoadEffects, setDidPostLoadEffects] = useState(false);
 
@@ -67,7 +67,7 @@ const App = () => {
         if (eventRelayConnection.current) return;
         eventRelayConnection.current = (() => {
             // Don't bother trying to create the event relay connection if the user isn't authenticated
-            if (!user) return null;
+            if (!idTokenContents) return null;
 
             const url = eventRelay?.url ?? null;
             if (!url) return null;
@@ -78,57 +78,60 @@ const App = () => {
                 // path should get rewritten by the reverse proxy in front of event-relay if necessary:
                 path: `${urlObj.pathname}/private/socket.io/`,
                 // Only try to reconnect if we're authenticated:
-                reconnection: !!user,
+                reconnection: !!idTokenContents,
             });
             const socket = manager.socket("/");  // Connect to the main socket.io namespace on the server side
             socket.on("events", message => eventHandler(message, history));
             return socket;
         })();
-    }, [history, user, eventRelay, eventRelayConnection]);
+    }, [history, idTokenContents, eventRelay, eventRelayConnection]);
 
     const handleUserChange = useCallback(() => {
-        if (lastUser && user === null) {
+        console.log(lastIdTokenContents, idTokenContents);
+        if (lastIdTokenContents && idTokenContents === null) {
             // We got de-authenticated, so show a prompt...
             setSignedOutModal(true);
             // ... and disable constant websocket pinging if necessary by removing existing connections
             eventRelayConnection.current?.close();
             eventRelayConnection.current = null;
             // Finally, mark us as signed out so that any user change to non-null (signed-in) is detected.
-            setLastUser(false);
-        } else if ((!lastUser || signedOutModal) && user) {
+            setLastIdTokenContents(false);
+        } else if ((!lastIdTokenContents || signedOutModal) && idTokenContents) {
             // We got authenticated, so re-enable reconnection on the websocket.
             createEventRelayConnectionIfNecessary();
             // ... and minimize the sign-in prompt modal if necessary
             setSignedOutModal(false);
             // Finally, mark us as signed in so that any user change to null (signed-out) is detected.
-            setLastUser(true);
+            setLastIdTokenContents(true);
         }
-    }, [lastUser, user, signedOutModal, eventRelayConnection, createEventRelayConnectionIfNecessary]);
+    }, [
+        lastIdTokenContents,
+        idTokenContents,
+        signedOutModal,
+        eventRelayConnection,
+        createEventRelayConnectionIfNecessary,
+    ]);
 
     // TODO: Don't execute on focus if it's been checked recently
-    const refreshUserAndDependentData = useCallback(() => {
+    const refreshDependentData = useCallback(() => {
         (async () => {
-            await dispatch(fetchUserAndDependentData(nop));
+            await dispatch(fetchUserDependentData(nop));
             handleUserChange();
         })();
     }, [dispatch, handleUserChange]);
 
     useEffect(() => {
-        // TODO: Refresh other data
-        // TODO: Variable rate
-        // this.pingInterval = setInterval(this.refreshUserAndDependentData, 30000);
-
-        if (focusListener.current === refreshUserAndDependentData) return;  // Same as before
+        if (focusListener.current === refreshDependentData) return;  // Same as before
         if (focusListener.current) window.removeEventListener("focus", focusListener.current);
-        window.addEventListener("focus", refreshUserAndDependentData);
-        focusListener.current = refreshUserAndDependentData;
-    }, [focusListener, refreshUserAndDependentData]);
+        window.addEventListener("focus", refreshDependentData);
+        focusListener.current = refreshDependentData;
+    }, [focusListener, refreshDependentData]);
 
     useEffect(() => {
         if (didPostLoadEffects) return;
         (async () => {
             await dispatch(fetchOpenIdConfigurationIfNeeded());
-            await dispatch(fetchUserAndDependentData(createEventRelayConnectionIfNecessary));
+            await dispatch(fetchUserDependentData(createEventRelayConnectionIfNecessary));
             setDidPostLoadEffects(true);
         })();
     }, [dispatch, createEventRelayConnectionIfNecessary, didPostLoadEffects]);
@@ -136,9 +139,11 @@ const App = () => {
     useEffect(() => {
         // initialize session refresh worker
         if (!sessionWorker.current) {
+            // Use session worker to send pings to refresh the token set even when the tab is inactive.
             const sw = new SessionWorker();
-            sw.addEventListener("message", async msg => {
-                dispatch(fetchDependentDataWithProvidedUser(nop, setUser(msg.data.user)));
+            sw.addEventListener("message", () => {
+                dispatch(refreshTokens());
+                dispatch(fetchUserDependentData(nop));
             });
             sessionWorker.current = sw;
         }
@@ -190,6 +195,7 @@ const App = () => {
             <Layout.Content style={{margin, display: "flex", flexDirection: "column"}}>
                 <Suspense fallback={<SitePageLoading />}>
                     <Switch>
+                        <Route path="/callback" component={CallbackContent} />
                         <OwnerRoute path={withBasePath("overview")} component={OverviewContent} />
                         <OwnerRoute path={withBasePath("data/explorer")} component={DataExplorerContent} />
                         <OwnerRoute path={withBasePath("cbioportal")} component={CBioPortalContent} />

@@ -1,6 +1,6 @@
 import {message} from "antd";
 
-import {OPENID_CONFIG_URL} from "../../config";
+import {AUTH_CALLBACK_URL, CLIENT_ID, OPENID_CONFIG_URL} from "../../config";
 
 import {
     beginFlow,
@@ -21,24 +21,12 @@ import {fetchRuns} from "../wes/actions";
 import { performGetGohanVariantsOverviewIfPossible } from "../explorer/actions";
 
 import {nop} from "../../utils/misc";
-import {withBasePath} from "../../utils/url";
 
 
 export const SET_USER = "SET_USER";
 
-export const FETCH_USER = createNetworkActionTypes("FETCH_USER");
 export const FETCHING_USER_DEPENDENT_DATA = createFlowActionTypes("FETCHING_USER_DEPENDENT_DATA");
 export const FETCHING_USER_DEPENDENT_DATA_SILENT = createFlowActionTypes("FETCHING_USER_DEPENDENT_DATA_SILENT");
-
-export const fetchUser = networkAction(() => ({
-    types: FETCH_USER,
-    url: withBasePath("api/auth/user")
-}));
-
-export const setUser = user => ({
-    type: SET_USER,
-    data: user,
-});
 
 export const fetchServiceDependentData = () => dispatch => Promise.all([
     fetchDropBoxTreeOrFail,
@@ -48,16 +36,11 @@ export const fetchServiceDependentData = () => dispatch => Promise.all([
     performGetGohanVariantsOverviewIfPossible,
 ].map(a => dispatch(a())));
 
-// TODO: Rename this (also fetches node info)
-export const fetchUserAndDependentData = servicesCb => dispatch =>
-    dispatch(fetchDependentDataWithProvidedUser(servicesCb, fetchUser()));
-
-// TODO: Rename this (also fetches node info)
-export const fetchDependentDataWithProvidedUser = (servicesCb, boundUserGetAction) => async (dispatch, getState) => {
+export const fetchUserDependentData = (servicesCb) => async (dispatch, getState) => {
     const {
         isFetchingDependentData,
         isFetchingDependentDataSilent,
-        user: oldUserState,
+        idTokenContents,
         hasAttempted,
     } = getState().auth;
 
@@ -75,21 +58,17 @@ export const fetchDependentDataWithProvidedUser = (servicesCb, boundUserGetActio
 
     // Parameterize the (bound) action which sets the new user state, so it
     // can either set already fetched data or fetch it from the API itself.
-    await dispatch(boundUserGetAction);
-    const newUserState = getState().auth.user;
+    // await dispatch(boundUserGetAction);
+    // const newUserState = getState().auth.idTokenContents;
 
-    // If this is false, we either didn't change state (in which case we've handled stuff before)
-    // or are not an owner, and so should not try to fetch authenticated data.
+    // If this is false, we didn't change state (in which case we've handled stuff before).
     // TODO: Actual roles/logic for access
-    const shouldUpdateUserDependentData = !(newUserState?.chord_user_role !== "owner"
-        || oldUserState?.chord_user_role === newUserState?.chord_user_role);
+    // const shouldUpdateUserDependentData = oldUserState?.sub !== newUserState?.sub;
 
-    if (!hasAttempted) {
+    if (!hasAttempted && idTokenContents) {
         await dispatch(fetchServicesWithMetadataAndDataTypesAndTablesIfNeeded(async () => {
-            if (shouldUpdateUserDependentData) {
-                // We're newly authenticated as an owner, so run all actions that need authentication.
-                await dispatch(fetchServiceDependentData());
-            }
+            // We're newly authenticated as an owner, so run all actions that need authentication.
+            await dispatch(fetchServiceDependentData());
         }));
         await (servicesCb || nop)();
         await dispatch(fetchProjectsWithDatasetsAndTables());  // TODO: If needed, remove if !hasAttempted
@@ -135,10 +114,40 @@ export const fetchOpenIdConfigurationIfNeeded = () => async (dispatch, getState)
     return data;
 };
 
+const buildUrlEncodedFormData = obj =>
+    Object.entries(obj).reduce((params, [k, v]) => params.set(k, v) || params, new URLSearchParams());
+
 // Action to do the initial handoff of an authorization code for an access token
 export const TOKEN_HANDOFF = createNetworkActionTypes("TOKEN_HANDOFF");
-export const tokenHandoff = networkAction((tokenEndpoint, body) => ({
+export const tokenHandoff = networkAction((code, verifier) => (_dispatch, getState) => ({
     types: TOKEN_HANDOFF,
-    url: tokenEndpoint,
-    req: {method: "POST", body},
+    url: getState().openIdConfiguration.data?.["token_endpoint"],
+    req: {
+        method: "POST",
+        headers: {"Content-Type": "application/x-www-form-urlencoded"},
+        body: buildUrlEncodedFormData({
+            grant_type: "authorization_code",
+            code,
+            client_id: CLIENT_ID,
+            redirect_uri: AUTH_CALLBACK_URL,
+            code_verifier: verifier,
+        }),
+    },
 }));
+
+// Action to renew access/refresh tokens
+// TODO: handle session expiry / refresh token expiry
+export const REFRESH_TOKENS = createNetworkActionTypes("REFRESH_TOKENS");
+export const refreshTokens = networkAction(() => (_dispatch, getState) => ({
+    types: REFRESH_TOKENS,
+    url: getState().openIdConfiguration.data?.["token_endpoint"],
+    req: {
+        method: "POST",
+        headers: {"Content-Type": "application/x-www-form-urlencoded"},
+        body: buildUrlEncodedFormData({
+            grant_type: "refresh_token",
+            client_id: CLIENT_ID,
+            refresh_token: getState().auth.refreshToken,
+        }),
+    },
+}))
