@@ -4,16 +4,13 @@ import {decodeJwt} from "jose";
 import {
     TOKEN_HANDOFF,
     FETCH_OPENID_CONFIGURATION,
-    FETCH_USER,
     FETCHING_USER_DEPENDENT_DATA,
     FETCHING_USER_DEPENDENT_DATA_SILENT,
-    SET_USER, REFRESH_TOKENS
+    REFRESH_TOKENS,
 } from "./actions";
 
 export const auth = (
     state = {
-        user: null,
-        isFetching: false,
         hasAttempted: false,
         isFetchingDependentData: false,
         isFetchingDependentDataSilent: false,
@@ -36,19 +33,6 @@ export const auth = (
     action
 ) => {
     switch (action.type) {
-        case FETCH_USER.REQUEST:
-            return {...state, isFetching: true};
-        case FETCH_USER.RECEIVE:
-            return {...state, user: action.data};
-        case FETCH_USER.ERROR:
-            // TODO: Handle different errors differently?
-            return {...state, user: null};
-        case FETCH_USER.FINISH:
-            return {...state, isFetching: false, hasAttempted: true};
-
-        case SET_USER:
-            return {...state, user: action.data};
-
         case FETCHING_USER_DEPENDENT_DATA.BEGIN:
             return {...state, isFetchingDependentData: true};
         case FETCHING_USER_DEPENDENT_DATA.END:

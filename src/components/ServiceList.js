@@ -53,13 +53,13 @@ const renderGitInfo = (tag, record, key) => <Tag key={key} color={tag.color}>{ta
 
 
 /* eslint-disable react/prop-types */
-const serviceColumns = (isOwner) => [
+const serviceColumns = (isAuthenticated) => [
     {
         title: "Kind",
         dataIndex: "service_kind",
         render: (serviceKind) =>
             serviceKind ? (
-                isOwner ? (
+                isAuthenticated ? (
                     <Link style={SERVICE_KIND_STYLING} to={withBasePath(`admin/services/${serviceKind}`)}>
                         {serviceKind}
                     </Link>
@@ -127,8 +127,10 @@ const ServiceList = () => {
     );
 
     const columns = serviceColumns(
-        useSelector((state) => state.auth.hasAttempted && state.auth.user?.chord_user_role === ROLE_OWNER)
+        useSelector((state) => state.auth.hasAttempted && !!state.auth.idTokenContents)
     );
+
+    /** @type boolean */
     const isLoading = useSelector((state) => state.chordServices.isFetching || state.services.isFetching);
 
     return (

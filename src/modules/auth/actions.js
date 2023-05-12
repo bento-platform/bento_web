@@ -23,8 +23,6 @@ import { performGetGohanVariantsOverviewIfPossible } from "../explorer/actions";
 import {nop} from "../../utils/misc";
 
 
-export const SET_USER = "SET_USER";
-
 export const FETCHING_USER_DEPENDENT_DATA = createFlowActionTypes("FETCHING_USER_DEPENDENT_DATA");
 export const FETCHING_USER_DEPENDENT_DATA_SILENT = createFlowActionTypes("FETCHING_USER_DEPENDENT_DATA_SILENT");
 
