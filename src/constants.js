@@ -5,8 +5,6 @@ export const SIGN_OUT_URL = "api/auth/sign-out";
 
 export const POPUP_AUTH_CALLBACK_URL = "popup-auth-callback";
 
-export const ROLE_OWNER = "owner";
-
 export const FORM_MODE_ADD = "add";
 export const FORM_MODE_EDIT = "edit";
 

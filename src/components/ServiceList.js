@@ -5,7 +5,6 @@ import { Link } from "react-router-dom";
 
 import { Table, Typography, Tag, Icon} from "antd";
 
-import { ROLE_OWNER } from "../constants";
 import { withBasePath } from "../utils/url";
 
 const SERVICE_KIND_STYLING = { fontFamily: "monospace" };
