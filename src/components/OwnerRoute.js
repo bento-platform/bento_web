@@ -1,5 +1,5 @@
 import React from "react";
-import {connect, useSelector} from "react-redux";
+import {useSelector} from "react-redux";
 import {Route} from "react-router-dom";
 import PropTypes from "prop-types";
 
@@ -7,7 +7,7 @@ import {Button, Empty, Icon, Layout} from "antd";
 
 import {SIGN_OUT_URL} from "../constants";
 import {performAuth} from "../lib/auth/performAuth";
-import {signInURLWithRedirect, withBasePath} from "../utils/url";
+import {withBasePath} from "../utils/url";
 
 const signInIcon = (
     <div style={{textAlign: "center"}}>

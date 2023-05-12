@@ -1,4 +1,3 @@
-import {BENTO_URL} from "../../config";
 import {createNetworkActionTypes, networkAction} from "../../utils/actions";
 
 
