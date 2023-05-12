@@ -24,7 +24,6 @@ import {nop} from "../../utils/misc";
 
 
 export const FETCHING_USER_DEPENDENT_DATA = createFlowActionTypes("FETCHING_USER_DEPENDENT_DATA");
-export const FETCHING_USER_DEPENDENT_DATA_SILENT = createFlowActionTypes("FETCHING_USER_DEPENDENT_DATA_SILENT");
 
 export const fetchServiceDependentData = () => dispatch => Promise.all([
     fetchDropBoxTreeOrFail,
@@ -45,37 +44,23 @@ export const fetchUserDependentData = (servicesCb) => async (dispatch, getState)
     // If action is already being executed elsewhere, leave.
     if (isFetchingDependentData || isFetchingDependentDataSilent) return;
 
-    if (!hasAttempted) {
-        dispatch(beginFlow(FETCHING_USER_DEPENDENT_DATA));
-        // The reason this flow is only triggered the first time it is called
-        // is because we want to silently check the user / auth status without
-        // any loading indicators afterward.
-    } else {
-        dispatch(beginFlow(FETCHING_USER_DEPENDENT_DATA_SILENT));
-    }
+    // The reason this flow is only triggered the first time it is called
+    // is because we want to silently check the user / auth status without
+    // any loading indicators afterward.
+    if (hasAttempted) return;
 
-    // Parameterize the (bound) action which sets the new user state, so it
-    // can either set already fetched data or fetch it from the API itself.
-    // await dispatch(boundUserGetAction);
-    // const newUserState = getState().auth.idTokenContents;
-
-    // If this is false, we didn't change state (in which case we've handled stuff before).
-    // TODO: Actual roles/logic for access
-    // const shouldUpdateUserDependentData = oldUserState?.sub !== newUserState?.sub;
-
-    if (!hasAttempted && idTokenContents) {
-        await dispatch(fetchServicesWithMetadataAndDataTypesAndTablesIfNeeded(async () => {
-            // We're newly authenticated as an owner, so run all actions that need authentication.
-            await dispatch(fetchServiceDependentData());
-        }));
-        await (servicesCb || nop)();
-        await dispatch(fetchProjectsWithDatasetsAndTables());  // TODO: If needed, remove if !hasAttempted
-    }
-
-    if (!hasAttempted) {
+    dispatch(beginFlow(FETCHING_USER_DEPENDENT_DATA));
+    try {
+        if (idTokenContents) {
+            await dispatch(fetchServicesWithMetadataAndDataTypesAndTablesIfNeeded(async () => {
+                // We're newly authenticated as an owner, so run all actions that need authentication.
+                await dispatch(fetchServiceDependentData());
+            }));
+            await (servicesCb || nop)();
+            await dispatch(fetchProjectsWithDatasetsAndTables());  // TODO: If needed, remove if !hasAttempted
+        }
+    } finally {
         dispatch(endFlow(FETCHING_USER_DEPENDENT_DATA));
-    } else {
-        dispatch(endFlow(FETCHING_USER_DEPENDENT_DATA_SILENT));
     }
 };
 

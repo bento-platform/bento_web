@@ -5,7 +5,6 @@ import {
     TOKEN_HANDOFF,
     FETCH_OPENID_CONFIGURATION,
     FETCHING_USER_DEPENDENT_DATA,
-    FETCHING_USER_DEPENDENT_DATA_SILENT,
     REFRESH_TOKENS,
 } from "./actions";
 
@@ -13,7 +12,6 @@ export const auth = (
     state = {
         hasAttempted: false,
         isFetchingDependentData: false,
-        isFetchingDependentDataSilent: false,
 
         isHandingOffCodeForToken: false,
         handoffError: "",
@@ -37,13 +35,7 @@ export const auth = (
             return {...state, isFetchingDependentData: true};
         case FETCHING_USER_DEPENDENT_DATA.END:
         case FETCHING_USER_DEPENDENT_DATA.TERMINATE:
-            return {...state, isFetchingDependentData: false};
-
-        case FETCHING_USER_DEPENDENT_DATA_SILENT.BEGIN:
-            return {...state, isFetchingDependentDataSilent: true};
-        case FETCHING_USER_DEPENDENT_DATA_SILENT.END:
-        case FETCHING_USER_DEPENDENT_DATA_SILENT.TERMINATE:
-            return {...state, isFetchingDependentDataSilent: false};
+            return {...state, isFetchingDependentData: false, hasAttempted: true};
 
         case TOKEN_HANDOFF.REQUEST:
             return {...state, isHandingOffCodeForToken: true};
@@ -56,8 +48,12 @@ export const auth = (
                 refresh_token: refreshToken,
             } = action.data;
 
+            // Reset hasAttempted for user-dependent data if we just signed in
+            const hasAttempted = (!state.idTokenContents && idToken) ? false : state.hasAttempted;
+
             return {
                 ...state,
+                hasAttempted,
                 sessionExpiry: (new Date()).getTime() / 1000 + exp,
                 idTokenContents: decodeJwt(idToken),  // OK to decode ID token
                 accessToken,  // A client (i.e., the web app) MUST not decode the access token
