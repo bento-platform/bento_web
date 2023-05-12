@@ -2,7 +2,7 @@ import {message} from "antd";
 import {decodeJwt} from "jose";
 
 import {
-    ACCESS_TOKEN_HANDOFF,
+    TOKEN_HANDOFF,
     FETCH_OPENID_CONFIGURATION,
     FETCH_USER,
     FETCHING_USER_DEPENDENT_DATA,
@@ -56,9 +56,9 @@ export const auth = (
         case FETCHING_USER_DEPENDENT_DATA_SILENT.TERMINATE:
             return {...state, isFetchingDependentDataSilent: false};
 
-        case ACCESS_TOKEN_HANDOFF.REQUEST:
+        case TOKEN_HANDOFF.REQUEST:
             return {...state, isHandingOffCodeForToken: true};
-        case ACCESS_TOKEN_HANDOFF.RECEIVE: {
+        case TOKEN_HANDOFF.RECEIVE: {
             const {
                 access_token: accessToken,
                 expires_in: exp,
@@ -74,14 +74,14 @@ export const auth = (
                 refreshToken,
             };
         }
-        case ACCESS_TOKEN_HANDOFF.ERROR: {
+        case TOKEN_HANDOFF.ERROR: {
             const {error, error_description: errorDesc} = action.data;
             const handoffError = `${error}: ${errorDesc}`;
             message.error(handoffError);
-            console.error(handoffError)
+            console.error(handoffError);
             return {...state, idTokenContents: null, accessToken: null, refreshToken: null, handoffError};
         }
-        case ACCESS_TOKEN_HANDOFF.FINISH:
+        case TOKEN_HANDOFF.FINISH:
             return {...state, isHandingOffCodeForToken: false};
 
         default:

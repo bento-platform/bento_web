@@ -136,9 +136,9 @@ export const fetchOpenIdConfigurationIfNeeded = () => async (dispatch, getState)
 };
 
 // Action to do the initial handoff of an authorization code for an access token
-export const ACCESS_TOKEN_HANDOFF = createNetworkActionTypes("ACCESS_TOKEN_HANDOFF");
-export const accessTokenHandoff = networkAction((tokenEndpoint, body) => ({
-    types: ACCESS_TOKEN_HANDOFF,
+export const TOKEN_HANDOFF = createNetworkActionTypes("TOKEN_HANDOFF");
+export const tokenHandoff = networkAction((tokenEndpoint, body) => ({
+    types: TOKEN_HANDOFF,
     url: tokenEndpoint,
     req: {method: "POST", body},
 }));
