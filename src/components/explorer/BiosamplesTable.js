@@ -44,7 +44,7 @@ const pluralize = (word, count) => {
     return word;
 };
 
-const experimentsRender = (studiesType) => {
+const ExperimentsRender = ({studiesType}) => {
     const experimentCount = studiesType.reduce((acc, study) => {
         acc[study] = (acc[study] || 0) + 1;
         return acc;
@@ -66,6 +66,10 @@ const experimentsRender = (studiesType) => {
     );
 };
 
+ExperimentsRender.propTypes = {
+    studiesType: PropTypes.arrayOf(PropTypes.string).isRequired
+};
+
 const experimentsSorter = (a, b) => {
     const countExperiments = (studiesType) => {
         return studiesType.filter((s) => s !== null).length;
@@ -74,9 +78,7 @@ const experimentsSorter = (a, b) => {
     return countExperiments(a.studyTypes) - countExperiments(b.studyTypes);
 };
 
-const sampledTissuesRender = (sampledTissues) => {
-    return sampledTissues.map((m) => m.label)[0];
-};
+const sampledTissuesRender = (sampledTissues) => sampledTissues.map((m) => m.label)[0];
 
 const sampledTissuesSorter = (a, b) => {
     if (a.sampledTissues[0].label && b.sampledTissues[0].label) {
@@ -147,7 +149,7 @@ const SEARCH_RESULT_COLUMNS_BIOSAMPLE = [
     {
         title: "Experiments",
         dataIndex: "studyTypes",
-        render: experimentsRender,
+        render: (studyTypes) => <ExperimentsRender studiesType={studyTypes} />,
         sorter: experimentsSorter,
         sortDirections: ["descend", "ascend", "descend"],
     },
