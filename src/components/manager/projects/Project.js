@@ -30,7 +30,6 @@ class Project extends Component {
     }
 
     handleContentTabClick(event) {
-        console.log(event);
         this.setState({ selectedKey: event.key });
     }
 
@@ -76,7 +75,7 @@ class Project extends Component {
 
     render() {
         return <div>
-            <div style={{ position: "absolute", top: "24px", right: "24px" }}>
+            <div style={{position: "absolute", top: "24px", right: "24px"}}>
                 {this.props.editing ? (
                     <>
                         <Button type="primary"
@@ -84,7 +83,7 @@ class Project extends Component {
                                 loading={this.props.saving}
                                 onClick={() => this.handleSave()}>Save</Button>
                         <Button icon="close"
-                                style={{ marginLeft: "10px" }}
+                                style={{marginLeft: "10px"}}
                                 disabled={this.props.saving}
                                 onClick={() => this.handleCancelEdit()}>Cancel</Button>
                     </>
@@ -92,13 +91,13 @@ class Project extends Component {
                     <>
                         <Button icon="edit" onClick={() => (this.props.onEdit || nop)()}>Edit</Button>
                         <Button type="danger" icon="delete"
-                                style={{ marginLeft: "10px" }}
+                                style={{marginLeft: "10px"}}
                                 onClick={() => (this.props.onDelete || nop)()}>Delete</Button>
                     </>
                 )}
             </div>
             {this.props.editing ? (
-                <ProjectForm style={{ maxWidth: "600px" }}
+                <ProjectForm style={{maxWidth: "600px"}}
                              initialValue={{
                                  title: this.state.title,
                                  description: this.state.description,
@@ -111,7 +110,7 @@ class Project extends Component {
                         {this.state.title}
                     </Typography.Title>
                     {this.state.description.split("\n").map((p, i) =>
-                        <Typography.Paragraph key={i} style={{ maxWidth: "600px" }}>{p}</Typography.Paragraph>)}
+                        <Typography.Paragraph key={i} style={{maxWidth: "600px"}}>{p}</Typography.Paragraph>)}
                 </>
             )}
 

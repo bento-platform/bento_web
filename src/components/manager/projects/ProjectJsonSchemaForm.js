@@ -133,7 +133,6 @@ export default Form.create({
         };
     },
     onFieldsChange: ({ onChange }, _, allFields) => {
-        console.log(allFields);
         onChange({ ...allFields });
     }
 })(ProjectJsonSchemaForm);
