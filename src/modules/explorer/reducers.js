@@ -86,7 +86,7 @@ export const explorer = (
                         results: action.data,
                         searchFormattedResults: tableSearchResults(action.data),
                         searchFormattedResultsExperiment: tableSearchResultsExperiments(action.data),
-                        searchFormattedResultsBioSamples: tableSearchResultsBiosamples(action.data),
+                        searchFormattedResultsBiosamples: generateBiosampleObjects(action.data),
                     },
                 },
                 selectedRowsByDatasetID: {
@@ -262,7 +262,7 @@ export const explorer = (
                         results: freeTextResults(action.data),
                         searchFormattedResults: tableSearchResults(action.data),
                         searchFormattedResultsExperiments: tableSearchResultsExperiments(action.data),
-                        searchFormattedResultsBiosamples: tableSearchResultsBiosamples(action.data),
+                        searchFormattedResultsBiosamples: generateBiosampleObjects(action.data),
                     },
                 },
             };
@@ -322,52 +322,47 @@ const tableSearchResultsExperiments = (searchResults) => {
 };
 
 function generateBiosampleObjects(searchResults) {
-    const data = (searchResults || {}).results || [];
-    return data
+    return (searchResults?.results ?? [])
         .flatMap((result) => {
-            if (!result.biosamples_with_experiments) {
+            if (!result["biosamples_with_experiments"]) {
                 return [];
             }
 
             const biosampleIdToIndex = {};
 
-            return result.biosamples_with_experiments.reduce((objects, biosample) => {
-                const biosampleId = biosample.biosample_id;
+            return result["biosamples_with_experiments"].reduce((objects, biosample) => {
+                const biosampleId = biosample["biosample_id"];
 
                 if (biosampleId) {
                     const index =
                         biosampleId in biosampleIdToIndex
                             ? biosampleIdToIndex[biosampleId]
                             : (biosampleIdToIndex[biosampleId] = objects.length);
+
                     objects[index] = objects[index] || {
-                        subjectId: result.subject_id,
+                        subjectId: result["subject_id"],
                         key: biosampleId,
                         biosample: biosampleId,
-                        alternateIds: result.alternate_ids,
+                        alternateIds: result["alternate_ids"],
                         individual: {
-                            id: result.subject_id,
-                            alternateIds: result.alternate_ids || [],
+                            id: result["subject_id"],
+                            alternateIds: result["alternate_ids"] || [],
                         },
                         experimentIds: [],
                         experimentTypes: [],
                         studyTypes: [],
                         sampledTissues: [],
                     };
-                    objects[index].experimentIds.push(biosample.experiment.experiment_id);
-                    objects[index].experimentTypes.push(biosample.experiment.experiment_type);
-                    objects[index].studyTypes.push(biosample.experiment.study_type);
-                    objects[index].sampledTissues.push(biosample.sampled_tissue);
+                    objects[index].experimentIds.push(biosample.experiment["experiment_id"]);
+                    objects[index].experimentTypes.push(biosample.experiment["experiment_type"]);
+                    objects[index].studyTypes.push(biosample.experiment["study_type"]);
+                    objects[index].sampledTissues.push(biosample["sampled_tissue"]);
                 }
                 return objects;
             }, []);
         })
         .filter((entry) => entry.key !== null && entry.key !== undefined);
 }
-
-const tableSearchResultsBiosamples = (searchResults) => {
-    const res = generateBiosampleObjects(searchResults);
-    return res;
-};
 
 const tableSearchResults = (searchResults) => {
     const results = (searchResults || {}).results || [];
