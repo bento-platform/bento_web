@@ -1,6 +1,6 @@
 import React, { useCallback } from "react";
 import { projectJsonSchemaTypesShape } from "../../../propTypes";
-import { Button, Card, Modal, Typography } from "antd";
+import { Button, Card, Descriptions, Modal, Typography } from "antd";
 import ReactJson from "react-json-view";
 import { useDispatch } from "react-redux";
 import { deleteProjectJsonSchema } from "../../../modules/metadata/actions";
@@ -40,20 +40,21 @@ const ProjectJsonSchema = ({ projectSchema }) => {
                 <Button type="danger" icon="delete" onClick={handleDelete}>Delete</Button>
             }
         >
-            <Typography.Paragraph>
-                <strong>Required:</strong> {String(projectSchema.required ?? false)}
-            </Typography.Paragraph>
+            <Descriptions layout="vertical" column={1} bordered>
+                <Descriptions.Item label="Required">
+                    {projectSchema.required ? "Yes" : "No"}
+                </Descriptions.Item>
 
-            <Typography.Paragraph>
-                <strong>JSON Schema</strong>
-            </Typography.Paragraph>
-            <ReactJson
-                src={projectSchema.json_schema ?? {}}
-                collapsed={true}
-                displayDataTypes={false}
-                enableClipboard={false}
-                name={null}
-            />
+                <Descriptions.Item label="JSON Schema">
+                    <ReactJson
+                        src={projectSchema.json_schema ?? {}}
+                        collapsed={true}
+                        displayDataTypes={false}
+                        enableClipboard={false}
+                        name={null}
+                    />
+                </Descriptions.Item>
+            </Descriptions>
         </Card>
     );
 };
