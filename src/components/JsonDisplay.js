@@ -50,7 +50,7 @@ const JsonArrayDisplay = ({ doc, standalone }) => {
     if (shouldGroup && !(jsonArrayGroups && selectedJsonGroup)) return <div />;
 
     const src = shouldGroup ? jsonArrayGroups[selectedJsonGroup] : doc;
-    
+
     return (
         <>
             {standalone && <Typography.Title level={4}>JSON array</Typography.Title>}
