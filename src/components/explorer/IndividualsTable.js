@@ -4,7 +4,7 @@ import { Link } from "react-router-dom";
 import { withBasePath } from "../../utils/url";
 import ExplorerSearchResultsTableComp from "./ExplorerSearchResultsTableComp";
 
-const individualRender = (individual) => {
+const IndividualRender = ({individual}) => {
     const alternateIds = individual.alternate_ids ?? [];
     const listRender = alternateIds.length ? " (" + alternateIds.join(", ") + ")" : "";
     return (
@@ -22,11 +22,15 @@ const individualRender = (individual) => {
     );
 };
 
+IndividualRender.propTypes = {
+    individual: PropTypes.object.isRequired,
+};
+
 const SEARCH_RESULT_COLUMNS = [
     {
         title: "Individual",
         dataIndex: "individual",
-        render: (individual) => individualRender(individual),
+        render: (individual) => <IndividualRender individual={individual} />,
         sorter: (a, b) => a.individual.id.localeCompare(b.individual.id),
         defaultSortOrder: "ascend",
     },
