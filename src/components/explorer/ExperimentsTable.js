@@ -1,12 +1,13 @@
+import React from "react";
 import { Link } from "react-router-dom";
 import PropTypes from "prop-types";
-import React from "react";
 import { withBasePath } from "../../utils/url";
-import ExplorerSearchResultsTableComp from "./ExplorerSearchResultsTableComp";
+import ExplorerSearchResultsTable from "./ExplorerSearchResultsTable";
 
-const experimentRender = (experimentId, { individual }) => {
+const ExperimentRender = ({ experimentId, individual }) => {
     const alternateIds = individual.alternate_ids ?? [];
-    const listRender = alternateIds.length ? " (" + alternateIds.join(", ") + ")" : "";
+    const listRender = alternateIds.length ? ` (${alternateIds.join(", ")})` : "";
+
     return (
         <>
             <Link
@@ -23,7 +24,7 @@ const experimentRender = (experimentId, { individual }) => {
     );
 };
 
-experimentRender.propTypes = {
+ExperimentRender.propTypes = {
     experimentId: PropTypes.string.isRequired,
     individual: PropTypes.shape({
         id: PropTypes.string.isRequired,
@@ -35,7 +36,7 @@ const SEARCH_RESULT_COLUMNS_EXP = [
     {
         title: "Experiment",
         dataIndex: "experimentId",
-        render: experimentRender,
+        render: (experimentId, record) => <ExperimentRender experimentId={experimentId} {...record} />,
         sorter: (a, b) => a.experimentId.localeCompare(b.experimentId),
         defaultSortOrder: "ascend",
     },
@@ -71,7 +72,7 @@ const SEARCH_RESULT_COLUMNS_EXP = [
 
 const ExperimentsTable = ({ data }) => {
     return (
-        <ExplorerSearchResultsTableComp dataStructure={SEARCH_RESULT_COLUMNS_EXP} data={data} activeTab="experiments" />
+        <ExplorerSearchResultsTable dataStructure={SEARCH_RESULT_COLUMNS_EXP} data={data} activeTab="experiments" />
     );
 };
 
