@@ -18,8 +18,8 @@ const ProjectJsonSchemaForm = ({ style, schemaTypes, initialValues, setFileConte
     const onDrop = useCallback((files) => {
         files.forEach((file) => {
             const reader = new FileReader();
-            reader.onabort = () => console.log("file reading was aborted");
-            reader.onerror = () => console.log("file reading has failed");
+            reader.onabort = () => console.error("file reading was aborted");
+            reader.onerror = () => console.error("file reading has failed");
             reader.onload = () => {
                 const json = JSON.parse(reader.result);
                 if (validateSchema(json)) {
@@ -34,7 +34,7 @@ const ProjectJsonSchemaForm = ({ style, schemaTypes, initialValues, setFileConte
     }, []);
 
     const { getRootProps, getInputProps } = useDropzone({
-        onDrop: onDrop,
+        onDrop,
         maxFiles: 1,
         accept: {
             "application/json": [".json"]

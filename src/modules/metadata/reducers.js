@@ -225,7 +225,6 @@ export const projects = (
                 }
             };
         case CREATE_PROJECT_JSON_SCHEMA.FINISH:
-        case CREATE_PROJECT_JSON_SCHEMA.ERROR:
             return {...state, isCreatingJsonSchema: false};
 
         // DELETE_PROJECT_JSON_SCHEMA
@@ -251,7 +250,6 @@ export const projects = (
                 }
             };
         }
-        case DELETE_PROJECT_JSON_SCHEMA.ERROR:
         case DELETE_PROJECT_JSON_SCHEMA.FINISH:
             return {...state, isDeletingJsonSchema: false};
 
