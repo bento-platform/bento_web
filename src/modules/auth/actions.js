@@ -20,6 +20,7 @@ import {fetchServicesWithMetadataAndDataTypesAndTablesIfNeeded} from "../service
 import {fetchRuns} from "../wes/actions";
 import { performGetGohanVariantsOverviewIfPossible } from "../explorer/actions";
 
+import {LS_BENTO_WAS_SIGNED_IN} from "../../lib/auth/performAuth";
 import {nop} from "../../utils/misc";
 
 
@@ -100,11 +101,22 @@ export const fetchOpenIdConfigurationIfNeeded = () => async (dispatch, getState)
 const buildUrlEncodedFormData = obj =>
     Object.entries(obj).reduce((params, [k, v]) => params.set(k, v) || params, new URLSearchParams());
 
+// noinspection JSUnusedGlobalSymbols
+const tokenSuccessError = {
+    onSuccess: () => {
+        localStorage.setItem(LS_BENTO_WAS_SIGNED_IN, "true");
+    },
+    onError: () => {
+        localStorage.removeItem(LS_BENTO_WAS_SIGNED_IN);
+    },
+};
+
 // Action to do the initial handoff of an authorization code for an access token
 export const TOKEN_HANDOFF = createNetworkActionTypes("TOKEN_HANDOFF");
 export const tokenHandoff = networkAction((code, verifier) => (_dispatch, getState) => ({
     types: TOKEN_HANDOFF,
     url: getState().openIdConfiguration.data?.["token_endpoint"],
+    ...tokenSuccessError,
     req: {
         method: "POST",
         headers: {"Content-Type": "application/x-www-form-urlencoded"},
@@ -124,6 +136,7 @@ export const REFRESH_TOKENS = createNetworkActionTypes("REFRESH_TOKENS");
 export const refreshTokens = networkAction(() => (_dispatch, getState) => ({
     types: REFRESH_TOKENS,
     url: getState().openIdConfiguration.data?.["token_endpoint"],
+    ...tokenSuccessError,
     req: {
         method: "POST",
         headers: {"Content-Type": "application/x-www-form-urlencoded"},

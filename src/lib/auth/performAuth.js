@@ -10,6 +10,8 @@ import {withBasePath} from "../../utils/url";
 import {nop} from "../../utils/misc";
 import {useEffect} from "react";
 
+export const LS_BENTO_WAS_SIGNED_IN = "BENTO_WAS_SIGNED_IN";
+
 export const performAuth = async (authorizationEndpoint, scope = "openid email") => {
     const state = secureRandomString();
     const verifier = secureRandomString();

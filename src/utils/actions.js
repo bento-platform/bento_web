@@ -56,7 +56,7 @@ const _networkAction = (fn, ...args) => async (dispatch, getState) => {
         fnResult = fnResult(dispatch, getState);
     }
 
-    const {types, params, url, baseUrl, req, err, onSuccess, paginated} = fnResult;
+    const {types, params, url, baseUrl, req, err, onSuccess, onError, paginated} = fnResult;
 
     // Only include access token when we are making a request to this Bento node or the IdP!
     // Otherwise, we could leak it to external sites.
@@ -99,6 +99,7 @@ const _networkAction = (fn, ...args) => async (dispatch, getState) => {
             message.error(err);
         }
         dispatch({type: types.ERROR, ...params});
+        if (onError) await onError(e);
     }
     dispatch({type: types.FINISH, ...params});
 };
