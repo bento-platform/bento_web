@@ -62,19 +62,23 @@ export const setIsSubmittingSearch = (isSubmittingSearch) => ({
     isSubmittingSearch,
 });
 
-const performIndividualsDownloadCSV = networkAction((ids) => (dispatch, getState) => ({
-    types: PERFORM_INDIVIDUAL_CSV_DOWNLOAD,
-    url: `${getState().services.itemsByArtifact.metadata.url}/api/batch/individuals`,
-    req: jsonRequest(
-        {
-            id: ids,
-            format: "csv",
-        },
-        "POST"
-    ),
-    parse: (r) => r.blob(),
-    err: "Error fetching individuals CSV",
-}));
+// Helper function for CSV download functions
+const performCSVDownloadHelper = (actionTypes, urlPath) =>
+    networkAction((ids) => (dispatch, getState) => ({
+        types: actionTypes,
+        url: `${getState().services.itemsByArtifact.metadata.url}/api/batch/${urlPath}`,
+        req: jsonRequest(
+            {
+                id: ids,
+                format: "csv",
+            },
+            "POST"
+        ),
+        parse: (r) => r.blob(),
+        err: `Error fetching ${urlPath} CSV`,
+    }));
+
+const performIndividualsDownloadCSV = performCSVDownloadHelper(PERFORM_INDIVIDUAL_CSV_DOWNLOAD, "individuals");
 
 export const performIndividualsDownloadCSVIfPossible =
     (datasetId, individualIds, allSearchResults) => (dispatch, _getState) => {
@@ -83,19 +87,7 @@ export const performIndividualsDownloadCSVIfPossible =
     };
 
 // Action to perform the request to download biosamples CSV
-const performBiosamplesDownloadCSV = networkAction((ids) => (dispatch, getState) => ({
-    types: PERFORM_BIOSAMPLE_CSV_DOWNLOAD,
-    url: `${getState().services.itemsByArtifact.metadata.url}/api/batch/biosamples`,
-    req: jsonRequest(
-        {
-            ids: ids,
-            format: "csv",
-        },
-        "POST"
-    ),
-    parse: (r) => r.blob(),
-    err: "Error fetching biosamples CSV",
-}));
+const performBiosamplesDownloadCSV = performCSVDownloadHelper(PERFORM_BIOSAMPLE_CSV_DOWNLOAD, "biosamples");
 
 // Function to download biosamples CSV if possible
 export const performBiosamplesDownloadCSVIfPossible =
@@ -105,19 +97,7 @@ export const performBiosamplesDownloadCSVIfPossible =
     };
 
 // Action to perform the request to download experiments CSV
-const performExperimentsDownloadCSV = networkAction((ids) => (dispatch, getState) => ({
-    types: PERFORM_EXPERIMENT_CSV_DOWNLOAD,
-    url: `${getState().services.itemsByArtifact.metadata.url}/api/batch/experiments`,
-    req: jsonRequest(
-        {
-            ids: ids,
-            format: "csv",
-        },
-        "POST"
-    ),
-    parse: (r) => r.blob(),
-    err: "Error fetching experiments CSV",
-}));
+const performExperimentsDownloadCSV = performCSVDownloadHelper(PERFORM_EXPERIMENT_CSV_DOWNLOAD, "experiments");
 
 // Function to download experiments CSV if possible
 export const performExperimentsDownloadCSVIfPossible =
