@@ -3,11 +3,13 @@ import {useSelector} from "react-redux";
 import {Route} from "react-router-dom";
 import PropTypes from "prop-types";
 
-import {Button, Empty, Icon, Layout, Skeleton} from "antd";
+import {Button, Empty, Icon, Layout} from "antd";
 
 import {SIGN_OUT_URL} from "../constants";
 import {LS_BENTO_WAS_SIGNED_IN, performAuth} from "../lib/auth/performAuth";
 import {withBasePath} from "../utils/url";
+
+import SitePageLoading from "./SitePageLoading";
 
 const signInIcon = (
     <div style={{textAlign: "center"}}>
@@ -49,9 +51,7 @@ const OwnerRoute = ({component: Component, path, ...rest}) => {
     //  shouldRedirect: state.auth.hasAttempted && (state.auth.idTokenContents === null || false),
 
     if (openIdConfigFetching || isAutoAuthenticating) {
-        return <Layout.Content style={{background: "white", padding: "48px 24px"}}>
-            <Skeleton loading={true} />
-        </Layout.Content>;
+        return <SitePageLoading />;
     }
 
     const cleanedPath = path.length > 0 ? path.replace(/^\//, "") : path;
