@@ -2,7 +2,7 @@ import React from "react";
 import PropTypes from "prop-types";
 import { Link } from "react-router-dom";
 import { withBasePath } from "../../utils/url";
-import ExplorerSearchResultsTableComp from "./ExplorerSearchResultsTableComp";
+import ExplorerSearchResultsTable from "./ExplorerSearchResultsTable";
 
 const IndividualRender = ({individual}) => {
     const alternateIds = individual.alternate_ids ?? [];
@@ -62,7 +62,7 @@ const SEARCH_RESULT_COLUMNS = [
 
 const IndividualsTable = ({ data }) => {
     return (
-        <ExplorerSearchResultsTableComp
+        <ExplorerSearchResultsTable
             dataStructure={SEARCH_RESULT_COLUMNS}
             data={data}
             activeTab="individuals"
