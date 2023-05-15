@@ -67,7 +67,7 @@ const ExplorerDatasetSearch = () => {
 
     const hasIndividuals = searchResults && searchResults.searchFormattedResults;
     const hasExperiments = searchResults && searchResults.searchFormattedResultsExperiment;
-    const hasBiosamples = searchResults && searchResults.searchFormattedResultsBioSamples;
+    const hasBiosamples = searchResults && searchResults.searchFormattedResultsBiosamples;
     const showTabs = hasIndividuals && (hasExperiments || hasBiosamples);
 
     return (
@@ -92,7 +92,7 @@ const ExplorerDatasetSearch = () => {
                         </TabPane>
                         {hasBiosamples && (
                             <TabPane tab="Biosamples" key="2">
-                                <BiosamplesTable data={searchResults.searchFormattedResultsBioSamples} />
+                                <BiosamplesTable data={searchResults.searchFormattedResultsBiosamples} />
                             </TabPane>
                         )}
                         {hasExperiments && (
