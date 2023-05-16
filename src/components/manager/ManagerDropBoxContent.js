@@ -33,11 +33,11 @@ import {
 
 import {LAYOUT_CONTENT_STYLE} from "../../styles/layoutContent";
 import TableSelectionModal from "./TableSelectionModal";
+import { JsonArrayDisplay, JsonObjectDisplay } from "../JsonDisplay";
 
 import {STEP_INPUT} from "./workflowCommon";
 import {withBasePath} from "../../utils/url";
 import {dropBoxTreeStateToPropsMixinPropTypes, workflowsStateToPropsMixin} from "../../propTypes";
-import { JsonArrayDisplay, JsonObjectDisplay } from "../JsonDisplay";
 
 
 SyntaxHighlighter.registerLanguage("json", json);
@@ -188,10 +188,9 @@ const FileDisplay = ({file, tree, treeLoading}) => {
                 );
             } else if (fileExt === "json") {
                 if (Array.isArray(fileContents[file])) {
-                    return ( <JsonArrayDisplay doc={fileContents[file] || []} standalone/> );
-                } else {
-                    return (<JsonObjectDisplay doc={fileContents[file] || {}} /> );
+                    return (<JsonArrayDisplay doc={fileContents[file] || []} standalone/>);
                 }
+                return (<JsonObjectDisplay doc={fileContents[file] || {}}/>);
             } else {  // if (textFormat)
                 return (
                     <SyntaxHighlighter
