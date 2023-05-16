@@ -119,7 +119,13 @@ const FileDisplay = ({file, tree, treeLoading}) => {
         setFileLoadError("");
 
         (async () => {
-            if (!file || !textFormat || fileContents.hasOwnProperty(file)) return;
+            if (!file) return;
+
+            if (fileExt === "pdf") {
+                setLoadingFileContents(true);
+            }
+
+            if (!textFormat || fileContents.hasOwnProperty(file)) return;
 
             if (!(file in urisByFilePath)) {
                 console.error(`Files: something went wrong while trying to load ${file}`);
