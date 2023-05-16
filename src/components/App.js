@@ -54,8 +54,9 @@ const App = () => {
 
     const sessionWorker = useRef(null);
 
-    const idTokenContents = useSelector(state => state.auth.idTokenContents);
+    const {accessToken, idTokenContents} = useSelector(state => state.auth);
     const eventRelay = useSelector(state => state.services.eventRelay);
+    const eventRelayUrl = eventRelay?.url ?? null;
     const [lastIdTokenContents, setLastIdTokenContents] = useState(false);
 
     const [didPostLoadEffects, setDidPostLoadEffects] = useState(false);
@@ -66,13 +67,17 @@ const App = () => {
     const createEventRelayConnectionIfNecessary = useCallback(() => {
         if (eventRelayConnection.current) return;
         eventRelayConnection.current = (() => {
+            console.debug(
+                `considering creating an event-relay connection: 
+                have idTokenContents? ${!!idTokenContents} | 
+                have event relay? ${!!eventRelayUrl}`);
+
             // Don't bother trying to create the event relay connection if the user isn't authenticated
             if (!idTokenContents) return null;
+            // ... or if we don't have the event relay (yet or at all)
+            if (!eventRelayUrl) return null;
 
-            const url = eventRelay?.url ?? null;
-            if (!url) return null;
-
-            const urlObj = new URL(url);
+            const urlObj = new URL(eventRelayUrl);
 
             const manager = new io.Manager(urlObj.origin, {
                 // path should get rewritten by the reverse proxy in front of event-relay if necessary:
@@ -80,8 +85,15 @@ const App = () => {
                 // Only try to reconnect if we're authenticated:
                 reconnection: !!idTokenContents,
             });
-            const socket = manager.socket("/");  // Connect to the main socket.io namespace on the server side
+            const socket = manager.socket("/", {
+                auth: {
+                    token: accessToken,
+                },
+            });  // Connect to the main socket.io namespace on the server side
             socket.on("events", message => eventHandler(message, history));
+            socket.on("connect_error", err => {
+                console.error(`socket.io: connect_error - ${err.message}`);
+            });
             return socket;
         })();
     }, [history, idTokenContents, eventRelay, eventRelayConnection]);
@@ -97,12 +109,16 @@ const App = () => {
             // Finally, mark us as signed out so that any user change to non-null (signed-in) is detected.
             setLastIdTokenContents(false);
         } else if ((!lastIdTokenContents || signedOutModal) && idTokenContents) {
-            // We got authenticated, so re-enable reconnection on the websocket.
-            createEventRelayConnectionIfNecessary();
-            // ... and minimize the sign-in prompt modal if necessary
+            // Minimize the sign-in prompt modal if necessary
             setSignedOutModal(false);
             // Finally, mark us as signed in so that any user change to null (signed-out) is detected.
             setLastIdTokenContents(true);
+
+            // Fetch dependent data if we were authenticated
+            dispatch(fetchUserDependentData(nop)).catch(console.error);
+
+            // We got authenticated, so connect to the event relay if needed.
+            createEventRelayConnectionIfNecessary();
         }
     }, [
         lastIdTokenContents,
@@ -112,20 +128,23 @@ const App = () => {
         createEventRelayConnectionIfNecessary,
     ]);
 
-    // TODO: Don't execute on focus if it's been checked recently
-    const refreshDependentData = useCallback(() => {
-        (async () => {
-            await dispatch(fetchUserDependentData(nop));
-            handleUserChange();
-        })();
-    }, [dispatch, handleUserChange]);
+    useEffect(() => {
+        if (eventRelayUrl) {
+            createEventRelayConnectionIfNecessary();
+        }
+    }, [eventRelay, createEventRelayConnectionIfNecessary]);
 
     useEffect(() => {
-        if (focusListener.current === refreshDependentData) return;  // Same as before
+        handleUserChange();
+    }, [eventRelayConnection, lastIdTokenContents, idTokenContents]);
+
+    // TODO: Don't execute on focus if it's been checked recently
+    useEffect(() => {
+        if (focusListener.current === handleUserChange) return;  // Same as before
         if (focusListener.current) window.removeEventListener("focus", focusListener.current);
-        window.addEventListener("focus", refreshDependentData);
-        focusListener.current = refreshDependentData;
-    }, [focusListener, refreshDependentData]);
+        window.addEventListener("focus", handleUserChange);
+        focusListener.current = handleUserChange;
+    }, [focusListener, handleUserChange]);
 
     useEffect(() => {
         if (didPostLoadEffects) return;
