@@ -76,7 +76,9 @@ class DataTypeExplorationModal extends Component {
                     <Radio.Button value="table"><Icon type="table" /> Table Detail View</Radio.Button>
                 </Radio.Group>
                 <Tabs>
-                    {Object.values(this.props.dataTypes).flatMap(ds => (ds.items ?? []).map(dataType =>
+                    {Object.values(this.props.dataTypes).flatMap(ds => (ds.items ?? [])
+                        .filter(dataType => dataType.queryable && dataType.count > 0)
+                        .map(dataType =>
                         <Tabs.TabPane tab={dataType.label ?? dataType.id} key={dataType.id}>
                             {this.state.view === "tree" ? (
                                 <SchemaTree schema={dataType.schema} />
@@ -91,7 +93,7 @@ class DataTypeExplorationModal extends Component {
                                 </>
                             )}
                         </Tabs.TabPane>
-                    ))}
+                        ))}
                 </Tabs>
             </div>
         </Modal>;
