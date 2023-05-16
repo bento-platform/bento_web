@@ -98,7 +98,7 @@ const _networkAction = (fn, ...args) => async (dispatch, getState) => {
             console.error(e, err);
             message.error(err);
         }
-        dispatch({type: types.ERROR, ...params});
+        dispatch({type: types.ERROR, ...params, caughtError: e});
         if (onError) await onError(e);
     }
     dispatch({type: types.FINISH, ...params});

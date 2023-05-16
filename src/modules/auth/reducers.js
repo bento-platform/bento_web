@@ -85,8 +85,10 @@ export const auth = (
         case REFRESH_TOKENS.REQUEST:
             return {...state, isRefreshingTokens: true};
         case REFRESH_TOKENS.ERROR: {
-            const {error, error_description: errorDesc} = action.data;
-            const tokensRefreshError = `${error}: ${errorDesc}`;
+            const {error, error_description: errorDesc} = action.data ?? {};
+            const tokensRefreshError = error
+                ? `${error}: ${errorDesc}`
+                : `An error occurred while refreshing tokens: ${action.caughtError ?? "Unknown error"}`;
             console.error(tokensRefreshError);
             return {
                 ...state,
