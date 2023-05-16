@@ -11,6 +11,7 @@ import {nop} from "../../utils/misc";
 import {useEffect} from "react";
 
 export const LS_BENTO_WAS_SIGNED_IN = "BENTO_WAS_SIGNED_IN";
+export const LS_BENTO_POST_AUTH_REDIRECT = "BENTO_POST_AUTH_REDIRECT";
 
 export const performAuth = async (authorizationEndpoint, scope = "openid email") => {
     const state = secureRandomString();
@@ -20,9 +21,9 @@ export const performAuth = async (authorizationEndpoint, scope = "openid email")
     localStorage.setItem(PKCE_LS_STATE, state);
     localStorage.setItem(PKCE_LS_VERIFIER, verifier);
 
-    const authParams = new URLSearchParams();
+    localStorage.setItem(LS_BENTO_POST_AUTH_REDIRECT, window.location.pathname);
 
-    Object.entries({
+    const authParams = Object.entries({
         response_type: "code",
         client_id: CLIENT_ID,
         state,
@@ -30,9 +31,9 @@ export const performAuth = async (authorizationEndpoint, scope = "openid email")
         redirect_uri: AUTH_CALLBACK_URL,
         code_challenge: challenge,
         code_challenge_method: "S256",
-    }).forEach(([k, v]) => authParams.set(k, v));
+    }).reduce((authParams, [k, v]) => authParams.set(k, v) || authParams, new URLSearchParams());
 
-    window.location = `${authorizationEndpoint}?${authParams.toString()}`; // TODO;
+    window.location = `${authorizationEndpoint}?${authParams.toString()}`;
 };
 
 const CALLBACK_PATH = withBasePath("/callback");
@@ -43,15 +44,11 @@ export const useHandleCallback = () => {
     const oidcConfig = useSelector(state => state.openIdConfiguration.data);
 
     useEffect(() => {
-        if (!location.pathname.startsWith(CALLBACK_PATH)) {
-            // Ignore non-callback URLs
-            return;
-        }
+        // Ignore non-callback URLs
+        if (!location.pathname.startsWith(CALLBACK_PATH)) return;
 
-        if (!oidcConfig) {
-            // We don't have OpenID config (yet)
-            return;
-        }
+        // End early if we don't have OpenID config (yet)
+        if (!oidcConfig) return;
 
         const params = new URLSearchParams(window.location.search);
 
@@ -84,9 +81,11 @@ export const useHandleCallback = () => {
         }
 
         const verifier = localStorage.getItem(PKCE_LS_VERIFIER);
+        const lastPath = localStorage.getItem(LS_BENTO_POST_AUTH_REDIRECT);
+        localStorage.removeItem(LS_BENTO_POST_AUTH_REDIRECT);
         (async () => {
             await dispatch(tokenHandoff(code, verifier));
-            history.replace(withBasePath("/overview"));
+            history.replace(withBasePath(lastPath ?? "/overview"));
             await dispatch(fetchUserDependentData(nop));
         })();
     }, [location, history, oidcConfig]);
