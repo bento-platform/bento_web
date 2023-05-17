@@ -3,7 +3,6 @@ import {message} from "antd";
 import {AUTH_CALLBACK_URL, CLIENT_ID, OPENID_CONFIG_URL} from "../../config";
 
 import {
-    basicAction,
     beginFlow,
     createFlowActionTypes,
     createNetworkActionTypes,
@@ -100,7 +99,7 @@ export const fetchOpenIdConfigurationIfNeeded = () => async (dispatch, getState)
 };
 
 const buildUrlEncodedFormData = obj =>
-    Object.entries(obj).reduce((params, [k, v]) => params.set(k, v) || params, new URLSearchParams());
+    Object.entries(obj).reduce((params, [k, v]) => params.set(k, v.toString()) || params, new URLSearchParams());
 
 const setLSNotSignedIn = () => {
     localStorage.removeItem(LS_BENTO_WAS_SIGNED_IN);
