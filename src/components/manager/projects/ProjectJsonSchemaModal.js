@@ -11,15 +11,11 @@ const ProjectJsonSchemaModal = ({projectId, visible, onOk, onCancel}) => {
     const [inputFormFields, setInputFormFields] = useState({});
     const [fileContent, setFileContent] = useState(null);
 
-    const reset = () => {
+    const cancelReset = useCallback(() => {
         setInputFormFields({});
         setFileContent(null);
-    };
-
-    const cancelReset = useCallback(() => {
-        reset();
         onCancel();
-    }, []);
+    }, [onCancel]);
 
     const handleCreateSubmit = useCallback(() => {
         const payload = {
@@ -29,9 +25,10 @@ const ProjectJsonSchemaModal = ({projectId, visible, onOk, onCancel}) => {
             "jsonSchema": fileContent,
         };
         dispatch(createProjectJsonSchemaIfPossible(payload));
-        reset();
+        setInputFormFields({});
+        setFileContent(null);
         onOk();
-    }, [projectId, inputFormFields, fileContent]);
+    }, [projectId, inputFormFields, fileContent, onOk]);
 
     return (
         <Modal
@@ -40,7 +37,7 @@ const ProjectJsonSchemaModal = ({projectId, visible, onOk, onCancel}) => {
             title="Create project level JSON schema"
             bodyStyle={{
                 "overflowY": "auto",
-                "maxHeight": 800
+                "maxHeight": 800,
             }}
             onCancel={cancelReset}
             footer={[
@@ -49,7 +46,7 @@ const ProjectJsonSchemaModal = ({projectId, visible, onOk, onCancel}) => {
                         icon="plus"
                         type="primary"
                         onClick={handleCreateSubmit}
-                        loading={isCreatingJsonSchema}>Create</Button>
+                        loading={isCreatingJsonSchema}>Create</Button>,
             ]}
         >
             <ProjectJsonSchemaForm

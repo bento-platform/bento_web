@@ -178,7 +178,7 @@ class RoutedProject extends Component {
                          selectedDataset: dataset,
                          datasetEditModal: true
                      })}
-                     onAddJsonSchema={() => this.setState({jsonSchemaModal: true})}
+                     onAddJsonSchema={() => this.setJsonSchemaModalVisible(true)}
                      onTableIngest={(p, t) => this.ingestIntoTable(p, t)}/>
         </>;
     }

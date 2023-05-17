@@ -4,6 +4,7 @@ import { Form, Select, Checkbox, Tooltip, Button, message } from "antd";
 import { useDropzone } from "react-dropzone";
 import ReactJson from "react-json-view";
 import Ajv from "ajv";
+import { ExtraPropertiesCode } from "./ProjectJsonSchema";
 
 const ajv = new Ajv({
     allErrors: true,
@@ -44,7 +45,9 @@ const ProjectJsonSchemaForm = ({ style, schemaTypes, initialValues, setFileConte
     return (
         <Form style={style || {}}>
             <Form.Item label={
-                <Tooltip title="The data type on which this extra_properties schema will be applied">
+                <Tooltip title={
+                    <span>The data type on which this <ExtraPropertiesCode tooltip/> schema will be applied</span>
+                }>
                     Schema Type
                 </Tooltip>
             }>
@@ -62,12 +65,15 @@ const ProjectJsonSchemaForm = ({ style, schemaTypes, initialValues, setFileConte
                 )}
             </Form.Item>
             <Form.Item label={
-                <Tooltip title="Check to make the extra_properties field required">
+                <Tooltip title={
+                    <span>Check to make the <ExtraPropertiesCode tooltip/> field required</span>
+                }>
                     <span>Required</span>
                 </Tooltip>
             }>
                 {form.getFieldDecorator("required", {
                     initialValue: initialValues.required,
+                    valuePropName: "checked"
                 })(
                     <Checkbox />
                 )}
@@ -88,7 +94,7 @@ const ProjectJsonSchemaForm = ({ style, schemaTypes, initialValues, setFileConte
                             <input {...getInputProps()} />
                             <p>Drag and drop a JSON Schema file here, or click to select files</p>
                         </div>
-                        {fileContent && <ReactJson src={fileContent || {}} name={false} collapsed={true}/>}
+                        {fileContent && <ReactJson src={fileContent || {}} name={false} collapsed={true} />}
                     </>
                 )}
             </Form.Item>
@@ -116,7 +122,6 @@ export default Form.create({
     name: "project_json_schema_form",
     mapPropsToFields: (props) => {
         const { formValues } = props;
-        // keys: Form.createFormField({ ...formValues.keys }),
         return {
             schemaType: Form.createFormField({
                 ...formValues.schemaType,

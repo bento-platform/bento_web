@@ -218,7 +218,7 @@ export const projects = (
                     [action.data.project]: {
                         ...(state.itemsByID[action.data.project] || {}),
                         project_schemas: [
-                            ...((state.itemsByID[action.data.project] || {}).project_schemas || []),
+                            ...(state.itemsByID[action.data.project]?.project_schemas ?? []),
                             action.data
                         ]
                     }
@@ -242,10 +242,9 @@ export const projects = (
                     ...state.itemsByID,
                     [action.projectJsonSchema.project]: {
                         ...(state.itemsByID[action.projectJsonSchema.project] || {}),
-                        project_schemas: [
-                            ...((state.itemsByID[action.projectJsonSchema.project] || {}).project_schemas || [])
-                                .filter(deleteSchema)
-                        ]
+                        project_schemas: (state.itemsByID[action.projectJsonSchema.project]?.project_schemas ?? [])
+                            .filter(deleteSchema)
+
                     }
                 }
             };
