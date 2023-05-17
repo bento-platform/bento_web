@@ -59,7 +59,7 @@ export const useHandleCallback = (callbackPath, authCodeCallback = undefined) =>
     const history = useHistory();
     const location = useLocation();
     const oidcConfig = useSelector(state => state.openIdConfiguration.data);
-    const idTokenContents = useSelector(state => state.auth.idTokenContents)
+    const idTokenContents = useSelector(state => state.auth.idTokenContents);
     const isAuthenticated = getIsAuthenticated(idTokenContents);
 
     useEffect(() => {

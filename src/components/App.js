@@ -93,7 +93,7 @@ const App = () => {
             if (e.origin !== BENTO_URL_NO_TRAILING_SLASH) return;
             const {code, verifier} = e.data ?? {};
             if (!code || !verifier) return;
-            dispatch(tokenHandoff(code, verifier))
+            dispatch(tokenHandoff(code, verifier));
         };
         window.addEventListener("message", windowMessageHandler.current);
     }, [dispatch]);
@@ -132,7 +132,6 @@ const App = () => {
     }, [history, isAuthenticated, eventRelay, eventRelayConnection]);
 
     const handleUserChange = useCallback(() => {
-        console.log(lastIsAuthenticated, idTokenContents);
         if (lastIsAuthenticated && !isAuthenticated) {
             // We got de-authenticated, so show a prompt...
             setSignedOutModal(true);
