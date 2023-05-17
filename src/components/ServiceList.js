@@ -5,6 +5,7 @@ import { Link } from "react-router-dom";
 
 import { Table, Typography, Tag, Icon} from "antd";
 
+import { getIsAuthenticated } from "../lib/auth/utils";
 import { withBasePath } from "../utils/url";
 
 const SERVICE_KIND_STYLING = { fontFamily: "monospace" };
@@ -126,7 +127,7 @@ const ServiceList = () => {
     );
 
     const columns = serviceColumns(
-        useSelector((state) => state.auth.hasAttempted && !!state.auth.idTokenContents)
+        useSelector((state) => state.auth.hasAttempted && getIsAuthenticated(state.auth.idTokenContents))
     );
 
     /** @type boolean */
