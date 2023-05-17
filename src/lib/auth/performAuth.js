@@ -13,7 +13,7 @@ import {useEffect} from "react";
 export const LS_BENTO_WAS_SIGNED_IN = "BENTO_WAS_SIGNED_IN";
 export const LS_BENTO_POST_AUTH_REDIRECT = "BENTO_POST_AUTH_REDIRECT";
 
-export const performAuth = async (authorizationEndpoint, scope = "openid email") => {
+export const createAuthURL = async (authorizationEndpoint, scope = "openid email") => {
     const state = secureRandomString();
     const verifier = secureRandomString();
     const challenge = await pkceChallengeFromVerifier(verifier);
@@ -33,11 +33,24 @@ export const performAuth = async (authorizationEndpoint, scope = "openid email")
         code_challenge_method: "S256",
     }).reduce((authParams, [k, v]) => authParams.set(k, v) || authParams, new URLSearchParams());
 
-    window.location = `${authorizationEndpoint}?${authParams.toString()}`;
+    return `${authorizationEndpoint}?${authParams.toString()}`;
+};
+
+export const performAuth = async (authorizationEndpoint, scope = "openid email") => {
+    window.location = await createAuthURL(authorizationEndpoint, scope);
+};
+
+const defaultAuthCodeCallback = async (dispatch, history, code, verifier) => {
+    const lastPath = localStorage.getItem(LS_BENTO_POST_AUTH_REDIRECT);
+    localStorage.removeItem(LS_BENTO_POST_AUTH_REDIRECT);
+
+    await dispatch(tokenHandoff(code, verifier));
+    history.replace(withBasePath(lastPath ?? "/overview"));
+    await dispatch(fetchUserDependentData(nop));
 };
 
 const CALLBACK_PATH = withBasePath("/callback");
-export const useHandleCallback = () => {
+export const useHandleCallback = (authCodeCallback = undefined) => {
     const dispatch = useDispatch();
     const history = useHistory();
     const location = useLocation();
@@ -81,12 +94,8 @@ export const useHandleCallback = () => {
         }
 
         const verifier = localStorage.getItem(PKCE_LS_VERIFIER);
-        const lastPath = localStorage.getItem(LS_BENTO_POST_AUTH_REDIRECT);
-        localStorage.removeItem(LS_BENTO_POST_AUTH_REDIRECT);
-        (async () => {
-            await dispatch(tokenHandoff(code, verifier));
-            history.replace(withBasePath(lastPath ?? "/overview"));
-            await dispatch(fetchUserDependentData(nop));
-        })();
+        localStorage.removeItem(PKCE_LS_VERIFIER);
+
+        (authCodeCallback ?? defaultAuthCodeCallback)(dispatch, history, code, verifier).catch(console.error);
     }, [location, history, oidcConfig]);
 };

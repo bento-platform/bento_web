@@ -15,15 +15,15 @@ import SitePageLoading from "./SitePageLoading";
 import {
     fetchOpenIdConfigurationIfNeeded,
     fetchUserDependentData,
-    refreshTokens,
+    refreshTokens, tokenHandoff,
 } from "../modules/auth/actions";
 
+import {BENTO_URL_NO_TRAILING_SLASH} from "../config";
 import eventHandler from "../events";
+import {createAuthURL, useHandleCallback} from "../lib/auth/performAuth";
+import SessionWorker from "../session.worker";
 import {nop} from "../utils/misc";
 import {BASE_PATH, withBasePath} from "../utils/url";
-
-import SessionWorker from "../session.worker";
-import {useHandleCallback} from "../lib/auth/performAuth";
 
 // Lazy-load notification drawer
 const NotificationDrawer = lazy(() => import("./notifications/NotificationDrawer"));
@@ -39,12 +39,25 @@ const SIGN_IN_WINDOW_FEATURES = "scrollbars=no, toolbar=no, menubar=no, width=80
 
 const CallbackContent = () => <div />;  // TODO: loading?
 
+const popupOpenerAuthCallback = async (dispatch, _history, code, verifier) => {
+    if (window.opener) {  // We're inside a popup window for authentication
+        // IMPORTANT SECURITY: provide BENTO_URL as the target origin:
+        window.opener.postMessage({code, verifier}, BENTO_URL_NO_TRAILING_SLASH);
+
+        // We're inside a popup window which has (presumably) successfully
+        // re-authenticated the user, meaning we need to close ourselves to return
+        // focus to the original window.
+        window.close();
+    }
+};
+
 const App = () => {
     const dispatch = useDispatch();
     const history = useHistory();
 
     const eventRelayConnection = useRef(null);
     const signInWindow = useRef(null);
+    const windowMessageHandler = useRef(null);
     const pingInterval = useRef(null);
     const focusListener = useRef(undefined);
 
@@ -55,12 +68,31 @@ const App = () => {
     const {accessToken, idTokenContents} = useSelector(state => state.auth);
     const eventRelay = useSelector(state => state.services.eventRelay);
     const eventRelayUrl = eventRelay?.url ?? null;
+    const openIdConfig = useSelector(state => state.openIdConfiguration.data);
+
     const [lastIdTokenContents, setLastIdTokenContents] = useState(false);
 
     const [didPostLoadEffects, setDidPostLoadEffects] = useState(false);
 
+    // TODO: add in localstorage flag to condition to avoid false positives
+    const isInAuthPopup = !!window.opener;
+
     // Set up auth callback handling
-    useHandleCallback();
+    useHandleCallback(isInAuthPopup ? popupOpenerAuthCallback : undefined);
+
+    // Set up message handling from sign-in popup
+    useEffect(() => {
+        if (windowMessageHandler.current) {
+            window.removeEventListener("message", windowMessageHandler.current);
+        }
+        windowMessageHandler.current = e => {
+            if (e.origin !== BENTO_URL_NO_TRAILING_SLASH) return;
+            const {code, verifier} = e.data ?? {};
+            if (!code || !verifier) return;
+            dispatch(tokenHandoff(code, verifier))
+        };
+        window.addEventListener("message", windowMessageHandler.current);
+    }, [dispatch]);
 
     const createEventRelayConnectionIfNecessary = useCallback(() => {
         if (eventRelayConnection.current) return;
@@ -173,23 +205,32 @@ const App = () => {
     }, [pingInterval]);
 
     const openSignInWindow = useCallback(() => {
-        const signInURL = "TODO";  // TODO
+        // If we already have a sign-in window open, focus on it instead.
+        if (signInWindow.current && !signInWindow.current.closed) {
+            signInWindow.current.focus();
+            return;
+        }
 
-        if (!signInWindow.current || signInWindow.current.closed) {
-            const popupTop = window.top.outerHeight / 2 + window.top.screenY - 350;
-            const popupLeft = window.top.outerWidth / 2 + window.top.screenX - 400;
+        if (!openIdConfig) return;
+
+        const popupTop = window.top.outerHeight / 2 + window.top.screenY - 350;
+        const popupLeft = window.top.outerWidth / 2 + window.top.screenX - 400;
+
+        (async () => {
             signInWindow.current = window.open(
-                signInURL,
+                await createAuthURL(openIdConfig["authorization_endpoint"]),
                 "Bento Sign In",
                 `${SIGN_IN_WINDOW_FEATURES}, top=${popupTop}, left=${popupLeft}`);
-        } else {
-            signInWindow.current.focus();
-        }
-    }, [signInWindow]);
+        })();
+    }, [signInWindow, openIdConfig]);
 
     // On the cBioPortal tab only, eliminate the margin around the content
     // to give as much space as possible to the cBioPortal application itself.
     const margin = window.location.pathname.endsWith("cbioportal") ? 0 : 26;
+
+    if (isInAuthPopup) {
+        return <div>Authenticating...</div>;
+    }
 
     // noinspection HtmlUnknownTarget
     return <>
