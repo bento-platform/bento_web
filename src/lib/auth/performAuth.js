@@ -1,3 +1,5 @@
+import {useEffect} from "react";
+
 import {message} from "antd";
 
 import {AUTH_CALLBACK_URL, CLIENT_ID} from "../../config";
@@ -8,7 +10,7 @@ import {useHistory, useLocation} from "react-router-dom";
 import {fetchUserDependentData, tokenHandoff} from "../../modules/auth/actions";
 import {withBasePath} from "../../utils/url";
 import {nop} from "../../utils/misc";
-import {useEffect} from "react";
+import {buildUrlEncodedData} from "./utils";
 
 export const LS_BENTO_WAS_SIGNED_IN = "BENTO_WAS_SIGNED_IN";
 export const LS_BENTO_POST_AUTH_REDIRECT = "BENTO_POST_AUTH_REDIRECT";
@@ -23,7 +25,7 @@ export const createAuthURL = async (authorizationEndpoint, scope = "openid email
 
     localStorage.setItem(LS_BENTO_POST_AUTH_REDIRECT, window.location.pathname);
 
-    const authParams = Object.entries({
+    const authParams = buildUrlEncodedData({
         response_type: "code",
         client_id: CLIENT_ID,
         state,
@@ -31,9 +33,8 @@ export const createAuthURL = async (authorizationEndpoint, scope = "openid email
         redirect_uri: AUTH_CALLBACK_URL,
         code_challenge: challenge,
         code_challenge_method: "S256",
-    }).reduce((authParams, [k, v]) => authParams.set(k, v) || authParams, new URLSearchParams());
-
-    return `${authorizationEndpoint}?${authParams.toString()}`;
+    }).toString();
+    return `${authorizationEndpoint}?${authParams}`;
 };
 
 export const performAuth = async (authorizationEndpoint, scope = "openid email") => {

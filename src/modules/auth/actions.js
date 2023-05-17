@@ -21,6 +21,7 @@ import {fetchRuns} from "../wes/actions";
 import { performGetGohanVariantsOverviewIfPossible } from "../explorer/actions";
 
 import {LS_BENTO_WAS_SIGNED_IN} from "../../lib/auth/performAuth";
+import {buildUrlEncodedData} from "../../lib/auth/utils";
 import {nop} from "../../utils/misc";
 
 
@@ -98,9 +99,6 @@ export const fetchOpenIdConfigurationIfNeeded = () => async (dispatch, getState)
     return data;
 };
 
-const buildUrlEncodedFormData = obj =>
-    Object.entries(obj).reduce((params, [k, v]) => params.set(k, v.toString()) || params, new URLSearchParams());
-
 const setLSNotSignedIn = () => {
     localStorage.removeItem(LS_BENTO_WAS_SIGNED_IN);
 };
@@ -122,7 +120,7 @@ export const tokenHandoff = networkAction((code, verifier) => (_dispatch, getSta
     req: {
         method: "POST",
         headers: {"Content-Type": "application/x-www-form-urlencoded"},
-        body: buildUrlEncodedFormData({
+        body: buildUrlEncodedData({
             grant_type: "authorization_code",
             code,
             client_id: CLIENT_ID,
@@ -142,7 +140,7 @@ export const refreshTokens = networkAction(() => (_dispatch, getState) => ({
     req: {
         method: "POST",
         headers: {"Content-Type": "application/x-www-form-urlencoded"},
-        body: buildUrlEncodedFormData({
+        body: buildUrlEncodedData({
             grant_type: "refresh_token",
             client_id: CLIENT_ID,
             refresh_token: getState().auth.refreshToken,
