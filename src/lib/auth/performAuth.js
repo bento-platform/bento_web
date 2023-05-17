@@ -18,23 +18,21 @@ export const LS_BENTO_POST_AUTH_REDIRECT = "BENTO_POST_AUTH_REDIRECT";
 export const createAuthURL = async (authorizationEndpoint, scope = "openid email") => {
     const state = secureRandomString();
     const verifier = secureRandomString();
-    const challenge = await pkceChallengeFromVerifier(verifier);
 
     localStorage.setItem(PKCE_LS_STATE, state);
     localStorage.setItem(PKCE_LS_VERIFIER, verifier);
 
     localStorage.setItem(LS_BENTO_POST_AUTH_REDIRECT, window.location.pathname);
 
-    const authParams = buildUrlEncodedData({
+    return `${authorizationEndpoint}?` + buildUrlEncodedData({
         response_type: "code",
         client_id: CLIENT_ID,
         state,
         scope,
         redirect_uri: AUTH_CALLBACK_URL,
-        code_challenge: challenge,
+        code_challenge: await pkceChallengeFromVerifier(verifier),
         code_challenge_method: "S256",
     }).toString();
-    return `${authorizationEndpoint}?${authParams}`;
 };
 
 export const performAuth = async (authorizationEndpoint, scope = "openid email") => {
