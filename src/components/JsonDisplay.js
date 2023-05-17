@@ -141,7 +141,7 @@ const JsonDisplay = ({ jsonSrc }) => {
         return (<JsonArrayDisplay doc={jsonSrc || []} standalone/>);
     }
 
-    //
+    // Display for objects and primitives
     return (<JsonObjectDisplay doc={jsonSrc || {}}/>);
 };
 
