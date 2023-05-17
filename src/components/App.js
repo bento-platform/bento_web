@@ -8,7 +8,7 @@ import {Layout, Modal} from "antd";
 
 import OwnerRoute from "./OwnerRoute";
 
-import SiteHeader from "./SiteHeader";
+const SiteHeader = lazy(() => import("./SiteHeader"));
 import SiteFooter from "./SiteFooter";
 import SitePageLoading from "./SitePageLoading";
 
@@ -233,7 +233,6 @@ const App = () => {
         return <div>Authenticating...</div>;
     }
 
-    // noinspection HtmlUnknownTarget
     return <>
         <Modal title="You have been signed out"
                onOk={openSignInWindow}
@@ -248,7 +247,9 @@ const App = () => {
             <Suspense fallback={<div />}>
                 <NotificationDrawer />
             </Suspense>
-            <SiteHeader />
+            <Suspense fallback={<Layout.Header />}>
+                <SiteHeader />
+            </Suspense>
             <Layout.Content style={{margin, display: "flex", flexDirection: "column"}}>
                 <Suspense fallback={<SitePageLoading />}>
                     <Switch>
