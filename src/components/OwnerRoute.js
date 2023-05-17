@@ -5,7 +5,7 @@ import PropTypes from "prop-types";
 
 import {Button, Empty, Icon, Layout} from "antd";
 
-import {LS_BENTO_WAS_SIGNED_IN, performAuth} from "../lib/auth/performAuth";
+import {LS_BENTO_WAS_SIGNED_IN, performAuth, setLSNotSignedIn} from "../lib/auth/performAuth";
 import {withBasePath} from "../utils/url";
 
 import SitePageLoading from "./SitePageLoading";
@@ -37,15 +37,15 @@ const OwnerRoute = ({component: Component, path, ...rest}) => {
         if (
             !isAuthenticated &&
             !isAutoAuthenticating &&
-            openIdConfig &&
+            authzEndpoint &&
             localStorage.getItem(LS_BENTO_WAS_SIGNED_IN) === "true"
         ) {
             console.debug("auto-authenticating");
-            localStorage.removeItem(LS_BENTO_WAS_SIGNED_IN);
+            setLSNotSignedIn();
             setIsAutoAuthenticating(true);
             performAuth(authzEndpoint).catch(console.error);
         }
-    }, [openIdConfig]);
+    }, [authzEndpoint, isAuthenticated, isAutoAuthenticating]);
 
     if (openIdConfigFetching || isAutoAuthenticating) {
         return <SitePageLoading />;

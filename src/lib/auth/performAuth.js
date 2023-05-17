@@ -10,7 +10,7 @@ import {useHistory, useLocation} from "react-router-dom";
 import {fetchUserDependentData, tokenHandoff} from "../../modules/auth/actions";
 import {withBasePath} from "../../utils/url";
 import {nop} from "../../utils/misc";
-import {buildUrlEncodedData} from "./utils";
+import {buildUrlEncodedData, getIsAuthenticated} from "./utils";
 
 export const LS_BENTO_WAS_SIGNED_IN = "BENTO_WAS_SIGNED_IN";
 export const LS_BENTO_POST_AUTH_REDIRECT = "BENTO_POST_AUTH_REDIRECT";
@@ -35,6 +35,8 @@ export const createAuthURL = async (authorizationEndpoint, scope = "openid email
     }).toString();
 };
 
+const DEFAULT_REDIRECT = withBasePath("/overview");
+
 export const performAuth = async (authorizationEndpoint, scope = "openid email") => {
     window.location = await createAuthURL(authorizationEndpoint, scope);
 };
@@ -44,8 +46,12 @@ const defaultAuthCodeCallback = async (dispatch, history, code, verifier) => {
     localStorage.removeItem(LS_BENTO_POST_AUTH_REDIRECT);
 
     await dispatch(tokenHandoff(code, verifier));
-    history.replace(withBasePath(lastPath ?? "/overview"));
+    history.replace(lastPath ?? DEFAULT_REDIRECT);
     await dispatch(fetchUserDependentData(nop));
+};
+
+export const setLSNotSignedIn = () => {
+    localStorage.removeItem(LS_BENTO_WAS_SIGNED_IN);
 };
 
 export const useHandleCallback = (callbackPath, authCodeCallback = undefined) => {
@@ -53,6 +59,8 @@ export const useHandleCallback = (callbackPath, authCodeCallback = undefined) =>
     const history = useHistory();
     const location = useLocation();
     const oidcConfig = useSelector(state => state.openIdConfiguration.data);
+    const idTokenContents = useSelector(state => state.auth.idTokenContents)
+    const isAuthenticated = getIsAuthenticated(idTokenContents);
 
     useEffect(() => {
         // Ignore non-callback URLs
@@ -61,18 +69,26 @@ export const useHandleCallback = (callbackPath, authCodeCallback = undefined) =>
         // End early if we don't have OpenID config (yet)
         if (!oidcConfig) return;
 
+        // If we're already authenticated, don't try to reauthenticate
+        if (isAuthenticated) {
+            history.replace(DEFAULT_REDIRECT);
+            return;
+        }
+
         const params = new URLSearchParams(window.location.search);
 
         const error = params.get("error");
         if (error) {
             message.error(`Error encountered during sign-in: ${error}`);
             console.error(error);
+            setLSNotSignedIn();
             return;
         }
 
         const code = params.get("code");
         if (!code) {
             // No code, don't do anything
+            setLSNotSignedIn();
             return;
         }
 
@@ -81,6 +97,7 @@ export const useHandleCallback = (callbackPath, authCodeCallback = undefined) =>
 
         if (!localState) {
             console.error("no local state");
+            setLSNotSignedIn();
             return;
         }
 
@@ -88,12 +105,16 @@ export const useHandleCallback = (callbackPath, authCodeCallback = undefined) =>
         if (localState !== paramState) {
             message.error("Error encountered during sign-in: state mismatch");
             console.error("state mismatch");
+            setLSNotSignedIn();
             return;
         }
 
         const verifier = localStorage.getItem(PKCE_LS_VERIFIER);
         localStorage.removeItem(PKCE_LS_VERIFIER);
 
-        (authCodeCallback ?? defaultAuthCodeCallback)(dispatch, history, code, verifier).catch(console.error);
+        (authCodeCallback ?? defaultAuthCodeCallback)(dispatch, history, code, verifier).catch(err => {
+            console.error(err);
+            setLSNotSignedIn();
+        });
     }, [location, history, oidcConfig]);
 };

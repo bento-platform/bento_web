@@ -1,5 +1,6 @@
+// noinspection JSCheckFunctionSignatures
 export const buildUrlEncodedData = obj =>
     Object.entries(obj).reduce((params, [k, v]) => params.set(k, v.toString()) || params, new URLSearchParams());
 
 export const getIsAuthenticated = idTokenContents =>
-    !!idTokenContents && (new Date()).getTime() < idTokenContents.exp;
+    !!idTokenContents && Math.round((new Date()).getTime() / 1000) < idTokenContents.exp;

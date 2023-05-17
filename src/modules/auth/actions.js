@@ -1,6 +1,6 @@
-import {message} from "antd";
+import { message } from "antd";
 
-import {AUTH_CALLBACK_URL, CLIENT_ID, OPENID_CONFIG_URL} from "../../config";
+import { AUTH_CALLBACK_URL, CLIENT_ID, OPENID_CONFIG_URL } from "../../config";
 
 import {
     beginFlow,
@@ -10,19 +10,19 @@ import {
     networkAction
 } from "../../utils/actions";
 
-import {fetchDropBoxTreeOrFail} from "../manager/actions";
+import { fetchDropBoxTreeOrFail } from "../manager/actions";
 import {
     fetchProjectsWithDatasetsAndTables,
     fetchOverviewSummary
 } from "../metadata/actions";
-import {fetchNotifications} from "../notifications/actions";
-import {fetchServicesWithMetadataAndDataTypesAndTablesIfNeeded} from "../services/actions";
-import {fetchRuns} from "../wes/actions";
+import { fetchNotifications } from "../notifications/actions";
+import { fetchServicesWithMetadataAndDataTypesAndTablesIfNeeded } from "../services/actions";
+import { fetchRuns } from "../wes/actions";
 import { performGetGohanVariantsOverviewIfPossible } from "../explorer/actions";
 
-import {LS_BENTO_WAS_SIGNED_IN} from "../../lib/auth/performAuth";
-import {buildUrlEncodedData} from "../../lib/auth/utils";
-import {nop} from "../../utils/misc";
+import { LS_BENTO_WAS_SIGNED_IN, setLSNotSignedIn } from "../../lib/auth/performAuth";
+import { buildUrlEncodedData } from "../../lib/auth/utils";
+import { nop } from "../../utils/misc";
 
 
 export const FETCHING_USER_DEPENDENT_DATA = createFlowActionTypes("FETCHING_USER_DEPENDENT_DATA");
@@ -97,10 +97,6 @@ export const fetchOpenIdConfigurationIfNeeded = () => async (dispatch, getState)
     dispatch({type: FETCH_OPENID_CONFIGURATION.FINISH});
 
     return data;
-};
-
-const setLSNotSignedIn = () => {
-    localStorage.removeItem(LS_BENTO_WAS_SIGNED_IN);
 };
 
 // noinspection JSUnusedGlobalSymbols
