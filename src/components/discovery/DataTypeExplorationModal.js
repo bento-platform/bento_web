@@ -76,22 +76,28 @@ class DataTypeExplorationModal extends Component {
                     <Radio.Button value="table"><Icon type="table" /> Table Detail View</Radio.Button>
                 </Radio.Group>
                 <Tabs>
-                    {Object.values(this.props.dataTypes).flatMap(ds => (ds.items ?? []).map(dataType =>
-                        <Tabs.TabPane tab={dataType.label ?? dataType.id} key={dataType.id}>
-                            {this.state.view === "tree" ? (
-                                <SchemaTree schema={dataType.schema} />
-                            ) : (
-                                <>
-                                    <Input.Search allowClear={true}
-                                                  onChange={e => this.onFilterChange(e.target.value)}
-                                                  placeholder="Search for a field..." style={{marginBottom: "16px"}} />
-                                    <Table bordered={true}
-                                           columns={FIELD_COLUMNS}
-                                           dataSource={this.getTableData(dataType)} />
-                                </>
-                            )}
-                        </Tabs.TabPane>
-                    ))}
+                    {Object.values(this.props.dataTypes).flatMap(ds => (ds.items ?? [])
+                        .filter(dataType => (dataType.queryable ?? true) && dataType.count > 0)
+                        .map(dataType =>
+                            <Tabs.TabPane tab={dataType.label ?? dataType.id} key={dataType.id}>
+                                {this.state.view === "tree" ? (
+                                    <SchemaTree schema={dataType.schema} />
+                                ) : (
+                                    <>
+                                        <Input.Search
+                                            allowClear={true}
+                                            onChange={e => this.onFilterChange(e.target.value)}
+                                            placeholder="Search for a field..."
+                                            style={{marginBottom: "16px"}}
+                                        />
+                                        <Table
+                                            bordered={true}
+                                            columns={FIELD_COLUMNS}
+                                            dataSource={this.getTableData(dataType)} />
+                                    </>
+                                )}
+                            </Tabs.TabPane>
+                        ))}
                 </Tabs>
             </div>
         </Modal>;

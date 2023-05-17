@@ -137,9 +137,12 @@ class DiscoveryQueryBuilder extends Component {
                 {this.props.servicesInfo
                     .filter(s => (this.props.dataTypes[s.id]?.items ?? []).length)
                     .flatMap(s =>
-                        this.props.dataTypes[s.id].items.map(dt =>
-                            <Menu.Item key={`${s.id}:${dt.id}`}>{dt.label ?? dt.id}</Menu.Item>
-                        ))
+                        this.props.dataTypes[s.id].items
+                            .filter(dt => (dt.queryable ?? true) && dt.count > 0)
+                            .map(dt =>
+                                <Menu.Item key={`${s.id}:${dt.id}`}>{dt.label ?? dt.id}</Menu.Item>
+                            )
+                    )
                 }
             </Menu>
         );
