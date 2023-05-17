@@ -26,6 +26,8 @@ const COLUMNS_LAST_CONTENT = [
     },
 ];
 
+const buildKeyFromRecord = (record) => `${record.dataType}-${record.tableId}`;
+
 const processIngestions = (data, currentTables) => {
     const currentTableIds = (currentTables || []).map((table) => table.table_id);
 
@@ -46,12 +48,10 @@ const processIngestions = (data, currentTables) => {
 
             const currentIngestion = { date: dateStr, dataType, tableId, fileNames: [fileName] };
 
-            const dataTypeAndTableId = `${dataType}-${tableId}`;
+            const dataTypeAndTableId = buildKeyFromRecord(currentIngestion);
 
-            if (!acc[dataTypeAndTableId]) {
+            if (!acc[dataTypeAndTableId] || date > Date.parse(acc[dataTypeAndTableId].date)) {
                 acc[dataTypeAndTableId] = currentIngestion;
-            } else if (date > Date.parse(acc[dataTypeAndTableId].date)) {
-                Object.assign(acc[dataTypeAndTableId], currentIngestion);
             } else if (date === Date.parse(acc[dataTypeAndTableId].date)) {
                 acc[dataTypeAndTableId].fileNames.push(fileName);
             }
@@ -77,7 +77,7 @@ const LastIngestionTable = () => {
             bordered={true}
             columns={COLUMNS_LAST_CONTENT}
             dataSource={ingestions}
-            rowKey={(record) => `${record.dataType}-${record.tableId}`}
+            rowKey={buildKeyFromRecord}
         />
     );
 };
