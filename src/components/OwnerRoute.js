@@ -9,6 +9,7 @@ import {LS_BENTO_WAS_SIGNED_IN, performAuth} from "../lib/auth/performAuth";
 import {withBasePath} from "../utils/url";
 
 import SitePageLoading from "./SitePageLoading";
+import {getIsAuthenticated} from "../lib/auth/utils";
 import {signOut} from "../modules/auth/actions";
 
 const signInIcon = (
@@ -23,9 +24,7 @@ const OwnerRoute = ({component: Component, path, ...rest}) => {
     const [isAutoAuthenticating, setIsAutoAuthenticating] = useState(false);
 
     const idTokenContents = useSelector(state => state.auth.idTokenContents);
-    const exp = idTokenContents?.exp;
-
-    const isAuthenticated = !!idTokenContents;  // TODO: && exp
+    const isAuthenticated = getIsAuthenticated(idTokenContents);
 
     const {
         data: openIdConfig,

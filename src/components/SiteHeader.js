@@ -10,6 +10,7 @@ import { BASE_PATH, withBasePath } from "../utils/url";
 
 import OverviewSettingsControl from "./overview/OverviewSettingsControl";
 import { performAuth } from "../lib/auth/performAuth";
+import { getIsAuthenticated } from "../lib/auth/utils";
 import { signOut } from "../modules/auth/actions";
 
 
@@ -45,7 +46,7 @@ const SiteHeader = () => {
         isHandingOffCodeForToken,
         hasAttempted: authHasAttempted,
     } = useSelector(state => state.auth);
-    const isAuthenticated = !!idTokenContents;
+    const isAuthenticated = getIsAuthenticated(idTokenContents);
 
     const [modalVisible, setModalVisible] = useState(false);
 

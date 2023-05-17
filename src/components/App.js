@@ -21,6 +21,7 @@ import {
 import {BENTO_URL_NO_TRAILING_SLASH} from "../config";
 import eventHandler from "../events";
 import {createAuthURL, useHandleCallback} from "../lib/auth/performAuth";
+import {getIsAuthenticated} from "../lib/auth/utils";
 import SessionWorker from "../session.worker";
 import {nop} from "../utils/misc";
 import {BASE_PATH, withBasePath} from "../utils/url";
@@ -67,11 +68,13 @@ const App = () => {
     const sessionWorker = useRef(null);
 
     const {accessToken, idTokenContents} = useSelector(state => state.auth);
+    const isAuthenticated = getIsAuthenticated(idTokenContents);
+
     const eventRelay = useSelector(state => state.services.eventRelay);
     const eventRelayUrl = eventRelay?.url ?? null;
     const openIdConfig = useSelector(state => state.openIdConfiguration.data);
 
-    const [lastIdTokenContents, setLastIdTokenContents] = useState(false);
+    const [lastIsAuthenticated, setLastIsAuthenticated] = useState(false);
 
     const [didPostLoadEffects, setDidPostLoadEffects] = useState(false);
 
@@ -100,11 +103,11 @@ const App = () => {
         eventRelayConnection.current = (() => {
             console.debug(
                 `considering creating an event-relay connection: 
-                have idTokenContents? ${!!idTokenContents} | 
+                is authenticated? ${isAuthenticated} | 
                 have event relay? ${!!eventRelayUrl}`);
 
             // Don't bother trying to create the event relay connection if the user isn't authenticated
-            if (!idTokenContents) return null;
+            if (!isAuthenticated) return null;
             // ... or if we don't have the event relay (yet or at all)
             if (!eventRelayUrl) return null;
 
@@ -113,8 +116,7 @@ const App = () => {
             const manager = new io.Manager(urlObj.origin, {
                 // path should get rewritten by the reverse proxy in front of event-relay if necessary:
                 path: `${urlObj.pathname}/private/socket.io/`,
-                // Only try to reconnect if we're authenticated:
-                reconnection: !!idTokenContents,
+                reconnection: true,
             });
             const socket = manager.socket("/", {
                 auth: {
@@ -127,23 +129,23 @@ const App = () => {
             });
             return socket;
         })();
-    }, [history, idTokenContents, eventRelay, eventRelayConnection]);
+    }, [history, isAuthenticated, eventRelay, eventRelayConnection]);
 
     const handleUserChange = useCallback(() => {
-        console.log(lastIdTokenContents, idTokenContents);
-        if (lastIdTokenContents && idTokenContents === null) {
+        console.log(lastIsAuthenticated, idTokenContents);
+        if (lastIsAuthenticated && !isAuthenticated) {
             // We got de-authenticated, so show a prompt...
             setSignedOutModal(true);
             // ... and disable constant websocket pinging if necessary by removing existing connections
             eventRelayConnection.current?.close();
             eventRelayConnection.current = null;
             // Finally, mark us as signed out so that any user change to non-null (signed-in) is detected.
-            setLastIdTokenContents(false);
-        } else if ((!lastIdTokenContents || signedOutModal) && idTokenContents) {
+            setLastIsAuthenticated(false);
+        } else if ((!lastIsAuthenticated || signedOutModal) && isAuthenticated) {
             // Minimize the sign-in prompt modal if necessary
             setSignedOutModal(false);
             // Finally, mark us as signed in so that any user change to null (signed-out) is detected.
-            setLastIdTokenContents(true);
+            setLastIsAuthenticated(true);
 
             // Fetch dependent data if we were authenticated
             dispatch(fetchUserDependentData(nop)).catch(console.error);
@@ -152,8 +154,8 @@ const App = () => {
             createEventRelayConnectionIfNecessary();
         }
     }, [
-        lastIdTokenContents,
-        idTokenContents,
+        lastIsAuthenticated,
+        isAuthenticated,
         signedOutModal,
         eventRelayConnection,
         createEventRelayConnectionIfNecessary,
@@ -167,7 +169,7 @@ const App = () => {
 
     useEffect(() => {
         handleUserChange();
-    }, [eventRelayConnection, lastIdTokenContents, idTokenContents]);
+    }, [eventRelayConnection, lastIsAuthenticated, idTokenContents]);
 
     // TODO: Don't execute on focus if it's been checked recently
     useEffect(() => {
