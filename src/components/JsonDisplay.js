@@ -7,10 +7,11 @@ const { Panel } = Collapse;
 
 // TODO: replace react-json-view with a maintained package.
 
-const JSON_PROP_TYPE = PropTypes.oneOfType([
-    PropTypes.array,
-    PropTypes.object,
-]);
+const DEFAULT_REACT_JSON_OPTIONS = {
+    "displayDataTypes": false,
+    "enableClipboard": false,
+    "name": false,
+};
 
 const JSON_ARRAY_GROUP_SIZE = 100;
 
@@ -65,20 +66,18 @@ const JsonArrayDisplay = ({ doc, standalone }) => {
                 </>
             }
             <ReactJson
-                key={selectedJsonGroup} // remount ReactJson to force collapse on group change
+                key={selectedJsonGroup} // remount ReactJson with group change to force collapse
                 src={src}
-                displayDataTypes={false}
-                enableClipboard={false}
-                name={false}
                 collapsed={true}
                 groupArraysAfterLength={JSON_ARRAY_GROUP_SIZE}
+                {...DEFAULT_REACT_JSON_OPTIONS}
             />
         </>
     );
 };
 
 JsonArrayDisplay.propTypes = {
-    doc: JSON_PROP_TYPE,
+    doc: PropTypes.array,
     standalone: PropTypes.bool,
 };
 
@@ -86,22 +85,33 @@ JsonArrayDisplay.defaultProps = {
     standalone: false,
 };
 
-const JsonPropertyDisplay = ({ value }) => {
+const JsonPropertyDisplay = ({ keyName, value }) => {
+    console.debug("JsonPropertyDisplay", value);
     if (Array.isArray(value) && value.length > 100) {
+        // Display property as an array with custom nav
         return (<JsonArrayDisplay doc={value} />);
     }
 
+    if (typeof value === "object") {
+        // Display property as an object
+        return (<ReactJson
+            src={value}
+            collapsed={true}
+            {...DEFAULT_REACT_JSON_OPTIONS}
+        />);
+    }
+
+    // Display primitive
     return (<ReactJson
-        src={value || {}}
-        displayDataTypes={false}
-        enableClipboard={false}
-        name={false}
-        collapsed={true}
+        src={{[keyName]: value}}
+        collapsed={false}
+        {...DEFAULT_REACT_JSON_OPTIONS}
     />);
 };
 
 JsonPropertyDisplay.propTypes = {
-    value: JSON_PROP_TYPE,
+    keyName: PropTypes.string,
+    value: PropTypes.any,
 };
 
 const JsonObjectDisplay = ({ doc }) => {
@@ -112,7 +122,7 @@ const JsonObjectDisplay = ({ doc }) => {
             <Collapse accordion>
                 {entries.map(([key, value]) =>
                     <Panel header={key.toUpperCase()} key={key}>
-                        <JsonPropertyDisplay value={value} />
+                        <JsonPropertyDisplay keyName={key} value={value}/>
                     </Panel>
                 )}
             </Collapse>
@@ -124,4 +134,22 @@ JsonObjectDisplay.propTypes = {
     doc: PropTypes.object
 };
 
-export { JsonArrayDisplay, JsonObjectDisplay };
+const JsonDisplay = ({ jsonSrc }) => {
+    if (Array.isArray(jsonSrc)) {
+        // Special display for array nav
+        console.log("ARRAY JSON");
+        return (<JsonArrayDisplay doc={jsonSrc || []} standalone/>);
+    }
+
+    //
+    return (<JsonObjectDisplay doc={jsonSrc || {}}/>);
+};
+
+JsonDisplay.propTypes = {
+    jsonSrc: PropTypes.oneOfType([
+        PropTypes.object,
+        PropTypes.array
+    ])
+};
+
+export default JsonDisplay;

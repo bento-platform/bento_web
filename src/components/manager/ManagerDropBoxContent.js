@@ -33,7 +33,7 @@ import {
 
 import {LAYOUT_CONTENT_STYLE} from "../../styles/layoutContent";
 import TableSelectionModal from "./TableSelectionModal";
-import { JsonArrayDisplay, JsonObjectDisplay } from "../JsonDisplay";
+import JsonDisplay from "../JsonDisplay";
 
 import {STEP_INPUT} from "./workflowCommon";
 import {withBasePath} from "../../utils/url";
@@ -193,10 +193,9 @@ const FileDisplay = ({file, tree, treeLoading}) => {
                     </Document>
                 );
             } else if (fileExt === "json") {
-                if (Array.isArray(fileContents[file])) {
-                    return (<JsonArrayDisplay doc={fileContents[file] || []} standalone/>);
-                }
-                return (<JsonObjectDisplay doc={fileContents[file] || {}}/>);
+                const jsonSrc = fileContents[file];
+                if (loadingFileContents || !jsonSrc) return <div />;
+                return (<JsonDisplay jsonSrc={jsonSrc}/>);
             } else {  // if (textFormat)
                 return (
                     <SyntaxHighlighter
