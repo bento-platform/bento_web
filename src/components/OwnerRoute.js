@@ -1,15 +1,15 @@
 import React, {useEffect, useState} from "react";
-import {useSelector} from "react-redux";
+import {useDispatch, useSelector} from "react-redux";
 import {Route} from "react-router-dom";
 import PropTypes from "prop-types";
 
 import {Button, Empty, Icon, Layout} from "antd";
 
-import {SIGN_OUT_URL} from "../constants";
 import {LS_BENTO_WAS_SIGNED_IN, performAuth} from "../lib/auth/performAuth";
 import {withBasePath} from "../utils/url";
 
 import SitePageLoading from "./SitePageLoading";
+import {signOut} from "../modules/auth/actions";
 
 const signInIcon = (
     <div style={{textAlign: "center"}}>
@@ -18,6 +18,8 @@ const signInIcon = (
 );
 
 const OwnerRoute = ({component: Component, path, ...rest}) => {
+    const dispatch = useDispatch();
+
     const [isAutoAuthenticating, setIsAutoAuthenticating] = useState(false);
 
     const idTokenContents = useSelector(state => state.auth.idTokenContents);
@@ -46,10 +48,6 @@ const OwnerRoute = ({component: Component, path, ...rest}) => {
         }
     }, [openIdConfig]);
 
-    // TODO: with redirect!
-    // TODO: logic for displaying signed-out page:
-    //  shouldRedirect: state.auth.hasAttempted && (state.auth.idTokenContents === null || false),
-
     if (openIdConfigFetching || isAutoAuthenticating) {
         return <SitePageLoading />;
     }
@@ -62,7 +60,7 @@ const OwnerRoute = ({component: Component, path, ...rest}) => {
                        imageStyle={{height: "auto", marginBottom: "16px"}}
                        description="You must sign into this node to access this page.">
                     {isAuthenticated
-                        ? <Button onClick={() => window.location.href = withBasePath(SIGN_OUT_URL)}>
+                        ? <Button onClick={() => dispatch(signOut())}>
                             Sign Out</Button>
                         : <Button
                             type="primary"

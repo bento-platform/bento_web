@@ -20,12 +20,10 @@ import {
 
 import eventHandler from "../events";
 import {nop} from "../utils/misc";
-import {BASE_PATH, signInURLWithCustomRedirect, withBasePath} from "../utils/url";
+import {BASE_PATH, withBasePath} from "../utils/url";
 
 import SessionWorker from "../session.worker";
-import {POPUP_AUTH_CALLBACK_URL} from "../constants";
 import {useHandleCallback} from "../lib/auth/performAuth";
-import {BENTO_URL} from "../config";
 
 // Lazy-load notification drawer
 const NotificationDrawer = lazy(() => import("./notifications/NotificationDrawer"));
@@ -175,8 +173,7 @@ const App = () => {
     }, [pingInterval]);
 
     const openSignInWindow = useCallback(() => {
-        const signInURL = signInURLWithCustomRedirect(
-            `${BENTO_URL}${POPUP_AUTH_CALLBACK_URL}`);
+        const signInURL = "TODO";  // TODO
 
         if (!signInWindow.current || signInWindow.current.closed) {
             const popupTop = window.top.outerHeight / 2 + window.top.screenY - 350;
@@ -201,7 +198,6 @@ const App = () => {
                onCancel={() => {
                    clearPingInterval();  // Stop pinging until the user decides to sign in again
                    setSignedOutModal(false);  // Close the modal
-                   // TODO: Set a new interval at a slower rate
                }}
                visible={signedOutModal}>
             Please <a onClick={openSignInWindow}>sign in</a> (uses a popup window) to continue working.

@@ -3,14 +3,14 @@ import { useDispatch, useSelector } from "react-redux";
 import { Link, withRouter } from "react-router-dom";
 import { Badge, Icon, Layout, Menu } from "antd";
 
-import {BENTO_CBIOPORTAL_ENABLED, CUSTOM_HEADER} from "../config";
-import { SIGN_OUT_URL } from "../constants";
+import { BENTO_CBIOPORTAL_ENABLED, CUSTOM_HEADER } from "../config";
 import { showNotificationDrawer } from "../modules/notifications/actions";
 import { matchingMenuKeys, renderMenuItem } from "../utils/menu";
 import { BASE_PATH, withBasePath } from "../utils/url";
 
 import OverviewSettingsControl from "./overview/OverviewSettingsControl";
-import {performAuth} from "../lib/auth/performAuth";
+import { performAuth } from "../lib/auth/performAuth";
+import { signOut } from "../modules/auth/actions";
 
 
 const LinkedLogo = React.memo(() =>
@@ -109,7 +109,7 @@ const SiteHeader = () => {
                     children: [
                         {
                             key: "sign-out-link",
-                            onClick: () => (window.location.href = withBasePath(SIGN_OUT_URL)),
+                            onClick: () => dispatch(signOut()),
                             icon: <Icon type="logout" />,
                             text: <span className="nav-text">Sign Out</span>,
                         },
@@ -124,7 +124,7 @@ const SiteHeader = () => {
                     text: <span className="nav-text">
                         {(openIdConfigFetching || isHandingOffCodeForToken) ? "Loading..." : "Sign In"}
                     </span>,
-                    onClick: () => performAuth(authzEndpoint),  // TODO: redirect
+                    onClick: () => performAuth(authzEndpoint),
                 },
             ]),
         {

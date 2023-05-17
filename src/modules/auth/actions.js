@@ -3,6 +3,7 @@ import {message} from "antd";
 import {AUTH_CALLBACK_URL, CLIENT_ID, OPENID_CONFIG_URL} from "../../config";
 
 import {
+    basicAction,
     beginFlow,
     createFlowActionTypes,
     createNetworkActionTypes,
@@ -101,14 +102,16 @@ export const fetchOpenIdConfigurationIfNeeded = () => async (dispatch, getState)
 const buildUrlEncodedFormData = obj =>
     Object.entries(obj).reduce((params, [k, v]) => params.set(k, v) || params, new URLSearchParams());
 
+const setLSNotSignedIn = () => {
+    localStorage.removeItem(LS_BENTO_WAS_SIGNED_IN);
+};
+
 // noinspection JSUnusedGlobalSymbols
 const tokenSuccessError = {
     onSuccess: () => {
         localStorage.setItem(LS_BENTO_WAS_SIGNED_IN, "true");
     },
-    onError: () => {
-        localStorage.removeItem(LS_BENTO_WAS_SIGNED_IN);
-    },
+    onError: setLSNotSignedIn,
 };
 
 // Action to do the initial handoff of an authorization code for an access token
@@ -147,3 +150,9 @@ export const refreshTokens = networkAction(() => (_dispatch, getState) => ({
         }),
     },
 }));
+
+export const SIGN_OUT = "SIGN_OUT";
+export const signOut = () => {
+    setLSNotSignedIn();
+    return {type: SIGN_OUT};
+};

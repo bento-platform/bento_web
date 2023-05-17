@@ -6,6 +6,7 @@ import {
     FETCH_OPENID_CONFIGURATION,
     FETCHING_USER_DEPENDENT_DATA,
     REFRESH_TOKENS,
+    SIGN_OUT,
 } from "./actions";
 
 export const auth = (
@@ -102,6 +103,17 @@ export const auth = (
         case REFRESH_TOKENS.FINISH: {
             return {...state, isRefreshingTokens: false};
         }
+
+        case SIGN_OUT:
+            // TODO: sign out of Keycloak too? (in action, not in reducer)
+            return {
+                ...state,
+                sessionExpiry: null,
+                idTokenContents: null,
+                accessToken: null,
+                refreshToken: null,
+                tokensRefreshError: "",
+            };
 
         default:
             return state;
