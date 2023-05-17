@@ -37,7 +37,8 @@ const NotificationsContent = lazy(() => import("./notifications/NotificationsCon
 
 const SIGN_IN_WINDOW_FEATURES = "scrollbars=no, toolbar=no, menubar=no, width=800, height=600";
 
-const CallbackContent = () => <div />;  // TODO: loading?
+const CALLBACK_PATH = withBasePath("callback");
+const CallbackContent = () => <SitePageLoading />;
 
 const popupOpenerAuthCallback = async (dispatch, _history, code, verifier) => {
     if (window.opener) {  // We're inside a popup window for authentication
@@ -78,7 +79,7 @@ const App = () => {
     const isInAuthPopup = !!window.opener;
 
     // Set up auth callback handling
-    useHandleCallback(isInAuthPopup ? popupOpenerAuthCallback : undefined);
+    useHandleCallback(CALLBACK_PATH, isInAuthPopup ? popupOpenerAuthCallback : undefined);
 
     // Set up message handling from sign-in popup
     useEffect(() => {
@@ -251,7 +252,7 @@ const App = () => {
             <Layout.Content style={{margin, display: "flex", flexDirection: "column"}}>
                 <Suspense fallback={<SitePageLoading />}>
                     <Switch>
-                        <Route path="/callback" component={CallbackContent} />
+                        <Route path={CALLBACK_PATH} component={CallbackContent} />
                         <OwnerRoute path={withBasePath("overview")} component={OverviewContent} />
                         <OwnerRoute path={withBasePath("data/explorer")} component={DataExplorerContent} />
                         <OwnerRoute path={withBasePath("cbioportal")} component={CBioPortalContent} />

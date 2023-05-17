@@ -49,8 +49,7 @@ const defaultAuthCodeCallback = async (dispatch, history, code, verifier) => {
     await dispatch(fetchUserDependentData(nop));
 };
 
-const CALLBACK_PATH = withBasePath("/callback");
-export const useHandleCallback = (authCodeCallback = undefined) => {
+export const useHandleCallback = (callbackPath, authCodeCallback = undefined) => {
     const dispatch = useDispatch();
     const history = useHistory();
     const location = useLocation();
@@ -58,7 +57,7 @@ export const useHandleCallback = (authCodeCallback = undefined) => {
 
     useEffect(() => {
         // Ignore non-callback URLs
-        if (!location.pathname.startsWith(CALLBACK_PATH)) return;
+        if (!location.pathname.startsWith(callbackPath)) return;
 
         // End early if we don't have OpenID config (yet)
         if (!oidcConfig) return;
