@@ -23,9 +23,15 @@ import ExperimentsTable from "./ExperimentsTable";
 
 const { TabPane } = Tabs;
 
+const TAB_KEYS = {
+    INDIVIDUAL: "1",
+    BIOSAMPLES: "2",
+    EXPERIMENTS: "3",
+};
+
 const ExplorerDatasetSearch = () => {
     const [, setCurrentPage] = useState(1);
-    const [activeKey, setActiveKey] = useState("1");
+    const [activeKey, setActiveKey] = useState(TAB_KEYS.INDIVIDUAL);
     const dispatch = useDispatch();
     const { dataset } = useParams();
 
@@ -47,8 +53,8 @@ const ExplorerDatasetSearch = () => {
         window.scrollTo(0, 0);
     }, []);
 
-    const onCallback = (activeKey) => {
-        setActiveKey(activeKey);
+    const onTabChange = (newActiveKey) => {
+        setActiveKey(newActiveKey);
         handleSetSelectedRows([]);
     };
 
@@ -66,8 +72,14 @@ const ExplorerDatasetSearch = () => {
     const isFetchingSearchResults = fetchingSearch || fetchingTextSearch;
 
     const hasIndividuals = searchResults && searchResults.searchFormattedResults;
-    const hasExperiments = searchResults && searchResults.searchFormattedResultsExperiment;
-    const hasBiosamples = searchResults && searchResults.searchFormattedResultsBiosamples;
+    const hasExperiments =
+        searchResults &&
+        searchResults.searchFormattedResultsExperiment &&
+        searchResults.searchFormattedResultsExperiment.length > 0;
+    const hasBiosamples =
+        searchResults &&
+        searchResults.searchFormattedResultsBiosamples &&
+        searchResults.searchFormattedResultsBiosamples.length > 0;
     const showTabs = hasIndividuals && (hasExperiments || hasBiosamples);
 
     return (
@@ -86,7 +98,7 @@ const ExplorerDatasetSearch = () => {
             {hasIndividuals &&
                 !isFetchingSearchResults &&
                 (showTabs ? (
-                    <Tabs defaultActiveKey="1" onChange={onCallback} activeKey={activeKey}>
+                    <Tabs defaultActiveKey="1" onChange={onTabChange} activeKey={activeKey}>
                         <TabPane tab="Individual" key="1">
                             <IndividualsTable data={searchResults.searchFormattedResults} />
                         </TabPane>
