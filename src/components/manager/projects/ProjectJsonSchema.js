@@ -31,7 +31,7 @@ ExtraPropertiesCode.propTypes = {
 };
 
 ExtraPropertiesCode.defaultProps = {
-    tooltip: false
+    tooltip: false,
 };
 
 const ProjectJsonSchema = ({ projectSchema }) => {
@@ -41,12 +41,11 @@ const ProjectJsonSchema = ({ projectSchema }) => {
     const handleDelete = useCallback(() => {
         const deleteModal = Modal.confirm({
             title: `Are you sure you want to delete the "${projectSchema.schema_type}" project JSON schema?`,
-            content: <>
+            content:
                 <Typography.Paragraph>
                     Doing so will mean that <ExtraPropertiesCode /> data validation will not be enforced for entities
                     of type <strong>{projectSchema.schema_type}</strong> in project {projectSchema.project}.
-                </Typography.Paragraph>
-            </>,
+                </Typography.Paragraph>,
             width: 720,
             autoFocusButton: "cancel",
             okText: "Delete",
