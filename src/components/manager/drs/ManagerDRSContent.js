@@ -35,7 +35,7 @@ const DRS_COLUMNS = [
                 window.open(url);
             }}>Download</Button>;
         },
-    }
+    },
 ];
 
 const ManagerDRSContent = () => {
@@ -106,7 +106,7 @@ const ManagerDRSContent = () => {
                                     <div key={type} style={{display: "flex", gap: "0.8em", alignItems: "baseline"}}>
                                         <span style={{fontWeight: "bold"}}>{type.toLocaleUpperCase()}:</span>
                                         <span style={{fontFamily: "monospace"}}>{checksum}</span>
-                                    </div>
+                                    </div>,
                                 )}
                             </Descriptions.Item>
                             <Descriptions.Item label="Access Methods" span={3}>
@@ -118,7 +118,7 @@ const ManagerDRSContent = () => {
                                                 ? <a href={url?.url} target="_blank" rel="noreferrer">{url?.url}</a>
                                                 : url?.url}
                                         </span>
-                                    </div>
+                                    </div>,
                                 )}
                             </Descriptions.Item>
                             {description && <Descriptions.Item label="Description" span={3}>

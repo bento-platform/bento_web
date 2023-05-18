@@ -52,7 +52,7 @@ export const chordServicePropTypesMixin = {
 // Gives components which include this in their state to props connection access to the drop box and loading status.
 export const dropBoxTreeStateToPropsMixin = state => ({
     tree: state.dropBox.tree,
-    treeLoading: state.dropBox.isFetching
+    treeLoading: state.dropBox.isFetching,
 });
 
 // Any components which include dropBoxTreeStateToPropsMixin should include this as well in their prop types.
@@ -94,7 +94,7 @@ export const projectPropTypesShape = PropTypes.shape({
     description: PropTypes.string,
     datasets: PropTypes.arrayOf(datasetPropTypesShape),
     created: PropTypes.string,
-    updated: PropTypes.string
+    updated: PropTypes.string,
 });
 
 // Prop types object shape for a single notification object.
@@ -134,8 +134,8 @@ export const runPropTypesShape = PropTypes.shape({
             stdout: PropTypes.string,
             stderr: PropTypes.string,
             exit_code: PropTypes.number,
-        })
-    })
+        }),
+    }),
 });
 
 // Prop types object shape for a single table summary object.
@@ -170,7 +170,7 @@ export const workflowsStateToPropsMixin = state => {
                         ...v,
                         id: k,
                         serviceID,
-                    }))
+                    })),
                 );
             });
         });
@@ -193,12 +193,12 @@ export const workflowPropTypesShape = PropTypes.shape({
     inputs: PropTypes.arrayOf(PropTypes.shape({
         type: PropTypes.string,
         id: PropTypes.string,
-        extensions: PropTypes.arrayOf(PropTypes.string)  // File type only
+        extensions: PropTypes.arrayOf(PropTypes.string),  // File type only
     })),
     outputs: PropTypes.arrayOf(PropTypes.shape({
         type: PropTypes.string,
-        value: PropTypes.string
-    }))
+        value: PropTypes.string,
+    })),
 });
 
 // Any components which include workflowStateToPropsMixin should include this as well in their prop types.
@@ -208,7 +208,7 @@ export const workflowsStateToPropsMixinPropTypes = {
         analysis: PropTypes.arrayOf(workflowPropTypesShape),
         export: PropTypes.arrayOf(workflowPropTypesShape),
     }),
-    workflowsLoading: PropTypes.bool
+    workflowsLoading: PropTypes.bool,
 };
 
 // Shape of a phenopackets ontology object
@@ -365,8 +365,8 @@ export const overviewSummaryPropTypesShape = PropTypes.shape({
             diseases: PropTypes.object,
             individuals: PropTypes.object,
             phenotypic_features: PropTypes.object,
-        })
-    })
+        }),
+    }),
 });
 
 export const searchAllRecordsPropTypesShape = PropTypes.shape({
@@ -378,8 +378,8 @@ export const searchAllRecordsPropTypesShape = PropTypes.shape({
             diseases: PropTypes.object,
             individuals: PropTypes.object,
             phenotypic_features: PropTypes.object,
-        })
-    })
+        }),
+    }),
 });
 
 
@@ -396,9 +396,9 @@ export const explorerSearchResultsPropTypesShape = PropTypes.shape({
         key: PropTypes.string.isRequired,
         individual: PropTypes.shape({
             id: PropTypes.string.isRequired,
-            alternate_ids: PropTypes.arrayOf(PropTypes.string)
+            alternate_ids: PropTypes.arrayOf(PropTypes.string),
         }),
         biosamples: PropTypes.arrayOf(PropTypes.string),
-        experiments: PropTypes.number
+        experiments: PropTypes.number,
     })),
 });

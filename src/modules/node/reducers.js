@@ -3,9 +3,9 @@ import {FETCH_NODE_INFO} from "./actions";
 export const nodeInfo = (
     state = {
         isFetching: false,
-        data: {}
+        data: {},
     },
-    {type, data}
+    {type, data},
 ) => {
     switch (type) {
         case FETCH_NODE_INFO.REQUEST:

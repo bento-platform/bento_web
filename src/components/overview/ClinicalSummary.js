@@ -16,7 +16,7 @@ const ClinicalSummary = () => {
 
     const { data, isFetching } = useSelector((state) => state.overviewSummary);
     const otherThresholdPercentage = useSelector(
-        (state) => state.explorer.otherThresholdPercentage
+        (state) => state.explorer.otherThresholdPercentage,
     );
 
     const statistics = [
@@ -47,7 +47,7 @@ const ClinicalSummary = () => {
             title: "Individuals",
             data: mapNameValueFields(
                 data.data_type_specific?.individuals?.sex,
-                -1
+                -1,
             ),
             fieldLabel: "[dataset item].subject.sex",
             type: "PIE",
@@ -56,7 +56,7 @@ const ClinicalSummary = () => {
             title: "Diseases",
             data: mapNameValueFields(
                 data.data_type_specific?.diseases?.term,
-                otherThresholdPercentage / 100
+                otherThresholdPercentage / 100,
             ),
             fieldLabel: "[dataset item].diseases.[item].term.label",
             type: "PIE",
@@ -70,7 +70,7 @@ const ClinicalSummary = () => {
             title: "Biosamples",
             data: mapNameValueFields(
                 data.data_type_specific?.biosamples?.sampled_tissue,
-                otherThresholdPercentage / 100
+                otherThresholdPercentage / 100,
             ),
             fieldLabel: "[dataset item].biosamples.[item].sampled_tissue.label",
             type: "PIE",
@@ -79,7 +79,7 @@ const ClinicalSummary = () => {
             title: "Phenotypic Features",
             data: mapNameValueFields(
                 data.data_type_specific?.phenotypic_features?.type,
-                otherThresholdPercentage / 100
+                otherThresholdPercentage / 100,
             ),
             fieldLabel: "[dataset item].phenotypic_features.[item].type.label",
             type: "PIE",

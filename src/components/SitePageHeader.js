@@ -7,12 +7,12 @@ const styles = {
     pageHeader: {
         borderBottom: "1px solid rgb(232, 232, 232)",
         background: "white",
-        padding: "12px 24px"
+        padding: "12px 24px",
     },
     pageHeaderTitle: {
         fontSize: "1rem",
         lineHeight: "22px",
-        margin: "5px 0"
+        margin: "5px 0",
     },
     pageHeaderSubtitle: {
         lineHeight: "23px",

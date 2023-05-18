@@ -37,7 +37,7 @@ const IndividualVariants = ({individual, tracksUrl}) => {
                 <pre>{JSON.stringify(map[b.id], null, 2)}</pre></div>,
             //sorter: (a, b) => a.id.localeCompare(b.id),
             //defaultSortOrder: "ascend"
-        })
+        }),
     );
 
     const VariantDetails = ({variant}) => {

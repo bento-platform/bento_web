@@ -21,12 +21,12 @@ export default {
             // Assume message data has at least ID, title, description, and read, although it should have everything
             ...messageData,
             notification_type: messageData.notification_type || "generic",
-            action_target: messageData.action_target || null
+            action_target: messageData.action_target || null,
         };
 
         const notificationBasics = {
             message: notificationData.title,
-            description: notificationData.description
+            description: notificationData.description,
         };
 
         const wesClickAction = () => {
@@ -38,19 +38,19 @@ export default {
             case NOTIFICATION_WES_RUN_FAILED:
                 notification.error({
                     ...notificationBasics,
-                    onClick: wesClickAction
+                    onClick: wesClickAction,
                 });
                 break;
 
             case NOTIFICATION_WES_RUN_COMPLETED:
                 notification.success({
                     ...notificationBasics,
-                    onClick: wesClickAction
+                    onClick: wesClickAction,
                 });
                 break;
 
             default:
                 notification.open(notificationBasics);
         }
-    }
+    },
 };

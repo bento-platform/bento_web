@@ -34,7 +34,7 @@ const styles = {
     menu: {
         marginLeft: "-24px",
         marginRight: "-24px",
-        marginTop: "-12px"
+        marginTop: "-12px",
     },
     suspenseFallback: {padding: "24px", backgroundColor: "white"},
 };

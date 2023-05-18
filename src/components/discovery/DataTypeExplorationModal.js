@@ -20,7 +20,7 @@ class DataTypeExplorationModal extends Component {
         super(props);
         this.state = {
             view: "table",
-            filter: ""
+            filter: "",
         };
 
         this.onFilterChange = this.onFilterChange.bind(this);
@@ -96,7 +96,7 @@ class DataTypeExplorationModal extends Component {
                                             dataSource={this.getTableData(dataType)} />
                                     </>
                                 )}
-                            </Tabs.TabPane>
+                            </Tabs.TabPane>,
                         ))}
                 </Tabs>
             </div>

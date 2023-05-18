@@ -47,7 +47,7 @@ const IndividualGenes = ({individual, tracksUrl}) => {
 };
 IndividualGenes.propTypes = {
     individual: individualPropTypesShape,
-    tracksUrl: PropTypes.string
+    tracksUrl: PropTypes.string,
 };
 
 export default IndividualGenes;

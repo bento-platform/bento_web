@@ -29,9 +29,9 @@ const streamRequest = (state = INITIAL_RUNS_STATE, action, stream) => {
             ...state.streamsByID,
             [action.runID]: {
                 ...existingRun,
-                [stream]: {isFetching: true, data: existingStreamData === undefined ? null : existingStreamData}
-            }
-        }
+                [stream]: {isFetching: true, data: existingStreamData === undefined ? null : existingStreamData},
+            },
+        },
     };
 };
 
@@ -41,9 +41,9 @@ const streamReceive = (state = INITIAL_RUNS_STATE, action, stream) => ({
         ...state.streamsByID,
         [action.runID]: {
             ...(state.streamsByID[action.runID] || {}),
-            [stream]: {isFetching: false, data: action.data}
-        }
-    }
+            [stream]: {isFetching: false, data: action.data},
+        },
+    },
 });
 
 const streamError = (state = INITIAL_RUNS_STATE, action, stream) => {
@@ -55,9 +55,9 @@ const streamError = (state = INITIAL_RUNS_STATE, action, stream) => {
             ...state.streamsByID,
             [action.runID]: {
                 ...existingRun,
-                [stream]: {isFetching: false, data: existingStreamData === undefined ? null : existingStreamData}
-            }
-        }
+                [stream]: {isFetching: false, data: existingStreamData === undefined ? null : existingStreamData},
+            },
+        },
     };
 };
 
@@ -73,7 +73,7 @@ const makeRunSkeleton = (run, request) => ({
 
 export const runs = (
     state = INITIAL_RUNS_STATE,
-    action
+    action,
 ) => {
     switch (action.type) {
         case FETCH_RUNS.REQUEST:

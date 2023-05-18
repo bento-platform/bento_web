@@ -4,7 +4,7 @@ export const FORM_BUTTON_COL = {
     md: {span: 24},
     lg: {offset: 4, span: 16},
     xl: {offset: 6, span: 12},
-    xxl: {offset: 7, span: 10}
+    xxl: {offset: 7, span: 10},
 };
 
 export const STEP_WORKFLOW_SELECTION = 0;

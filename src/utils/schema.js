@@ -50,7 +50,7 @@ export const generateSchemaTreeData = (
     node,
     name = ROOT_SCHEMA_ID,
     prefix = "",
-    isExcluded = getFalse
+    isExcluded = getFalse,
 ) => {
     const key = `${prefix}${name}`;
     const displayType = (node.type instanceof Array) ? node.type.join(" or ") : node.type;
@@ -97,12 +97,12 @@ export const generateSchemaTreeData = (
             float: "right",
             fontFamily: "monospace",
             fontSize: "0.7rem",
-            marginRight: "0.4rem"
+            marginRight: "0.4rem",
         }}>{key.split(".").slice(1).join(".")}</Typography.Text>,
         selectable,
         disabled: !selectable && (!["object", "array"].includes(node.type)
             || children.filter(c => !c.disabled).length === 0),
-        children
+        children,
     };
 };
 
@@ -117,9 +117,9 @@ export const generateSchemaTableData = treeData =>
             ? []
             : [{
                 ...Object.fromEntries(Object.entries(treeData).filter(p => p[0] !== "children")),
-                key: treeData.key.replace(`${ROOT_SCHEMA_ID}.`, "")
+                key: treeData.key.replace(`${ROOT_SCHEMA_ID}.`, ""),
             }]),
-        ...(treeData.children ?? []).flatMap(c => generateSchemaTableData(c))
+        ...(treeData.children ?? []).flatMap(c => generateSchemaTableData(c)),
     ].sort((a, b) => a.key.localeCompare(b.key));
 
 /**
