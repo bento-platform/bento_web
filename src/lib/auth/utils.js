@@ -1,6 +1,7 @@
 // noinspection JSCheckFunctionSignatures
 export const buildUrlEncodedData = obj =>
     Object.entries(obj).reduce((params, [k, v]) => {
+        if (v === undefined) return params;
         params.set(k, v.toString());
         return params;
     }, new URLSearchParams());
