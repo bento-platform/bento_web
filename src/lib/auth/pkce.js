@@ -15,13 +15,27 @@ export const secureRandomString = (length = 32) =>
         v => ("0" + v.toString(16)).slice(-2)  // Prepend with 0 to prevent slice from yielding only 1 char
     ).join("");
 
-const textSHA256 = v =>
-    crypto.subtle.digest("SHA-256", (new TextEncoder()).encode(v));
+/**
+ * Generates a SHA256 hash of a given string.
+ * @param {string} v The string to calculate the hash for.
+ * @return {Promise<ArrayBuffer>} A promise yielding the array buffer with the bytes of the hash.
+ */
+const textSHA256 = v => crypto.subtle.digest("SHA-256", (new TextEncoder()).encode(v));
 
+/**
+ * Create a URL-safe base-64 representation of a cryptographic hash
+ * @param {ArrayBuffer} v The array buffer containing the bytes of a cryptographic hash.
+ * @return {string} The URL-safe base-64 representation of a cryptographic hash
+ */
 const b64URLEncode = v =>
     btoa(String.fromCharCode.apply(null, new Uint8Array(v)))
         .replace(/\+/g, "-")
         .replace(/\//g, "_")
         .replace(/=+$/, "");
 
+/**
+ * Create a PKCE (proof key for code exchange) challenge from a given securely randomly-generated string.
+ * @param {string} v The verifier to generate the challenge from.
+ * @return {Promise<string>} A promise yielding the challenge string.
+ */
 export const pkceChallengeFromVerifier = async v => b64URLEncode(await textSHA256(v));
