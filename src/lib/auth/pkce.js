@@ -4,11 +4,16 @@ export const PKCE_LS_PREFIX = "pkce";
 export const PKCE_LS_STATE = `${PKCE_LS_PREFIX}_state`;
 export const PKCE_LS_VERIFIER = `${PKCE_LS_PREFIX}_verifier`;
 
-export const secureRandomString = (length = 32) => {
-    const randomArray = crypto.getRandomValues(new Uint32Array(length));  // Create an array of securely random values
-    // Prepend with 0 to prevent substr from yielding only 1 character
-    return Array.from(randomArray, v => ("0" + v.toString(16)).slice(-2)).join("");
-};
+/**
+ * Create an array of securely random values
+ * @param {number} length The number of Uint32s to use for creating the random string.
+ * @return {string} A securely randomly-generated string of characters in the hex alphanumeric representation range.
+ */
+export const secureRandomString = (length = 32) =>
+    Array.from(
+        crypto.getRandomValues(new Uint32Array(length)),
+        v => ("0" + v.toString(16)).slice(-2)  // Prepend with 0 to prevent slice from yielding only 1 char
+    ).join("");
 
 const textSHA256 = v =>
     crypto.subtle.digest("SHA-256", (new TextEncoder()).encode(v));
