@@ -36,21 +36,23 @@ const CBioPortalContent = lazy(() => import("./CBioPortalContent"));
 const AdminContent = lazy(() => import("./AdminContent"));
 const NotificationsContent = lazy(() => import("./notifications/NotificationsContent"));
 
+const LS_SIGN_IN_POPUP = "BENTO_DID_CREATE_SIGN_IN_POPUP";
 const SIGN_IN_WINDOW_FEATURES = "scrollbars=no, toolbar=no, menubar=no, width=800, height=600";
 
 const CALLBACK_PATH = withBasePath("callback");
 
 const popupOpenerAuthCallback = async (dispatch, _history, code, verifier) => {
-    if (window.opener) {  // We're inside a popup window for authentication
-        // Send the code and verifier to the main thread/page for authentication
-        // IMPORTANT SECURITY: provide BENTO_URL as the target origin:
-        window.opener.postMessage({code, verifier}, BENTO_URL_NO_TRAILING_SLASH);
+    if (!window.opener) return;
 
-        // We're inside a popup window which has (presumably) successfully
-        // re-authenticated the user, meaning we need to close ourselves to return
-        // focus to the original window.
-        window.close();
-    }
+    // We're inside a popup window for authentication
+
+    // Send the code and verifier to the main thread/page for authentication
+    // IMPORTANT SECURITY: provide BENTO_URL as the target origin:
+    window.opener.postMessage({type: "authResult", code, verifier}, BENTO_URL_NO_TRAILING_SLASH);
+
+    // We're inside a popup window which has successfully re-authenticated the user, meaning we need to
+    // close ourselves to return focus to the original window.
+    window.close();
 };
 
 const App = () => {
@@ -78,8 +80,17 @@ const App = () => {
 
     const [didPostLoadEffects, setDidPostLoadEffects] = useState(false);
 
-    // TODO: add in localstorage flag to condition to avoid false positives
-    const isInAuthPopup = !!window.opener;
+    const isInAuthPopup = (() => {
+        try {
+            const didCreateSignInPopup = localStorage.getItem(LS_SIGN_IN_POPUP);
+            return window.opener
+                && window.opener.origin === BENTO_URL_NO_TRAILING_SLASH
+                && didCreateSignInPopup === "true";
+        } catch {
+            // If we are restricted from accessing the opener, we are not in an auth popup.
+            return false;
+        }
+    })();
 
     // Set up auth callback handling
     useHandleCallback(CALLBACK_PATH, isInAuthPopup ? popupOpenerAuthCallback : undefined);
@@ -91,8 +102,10 @@ const App = () => {
         }
         windowMessageHandler.current = e => {
             if (e.origin !== BENTO_URL_NO_TRAILING_SLASH) return;
+            if (e.data?.type !== "authResult") return;
             const {code, verifier} = e.data ?? {};
             if (!code || !verifier) return;
+            localStorage.removeItem(LS_SIGN_IN_POPUP);
             dispatch(tokenHandoff(code, verifier));
         };
         window.addEventListener("message", windowMessageHandler.current);
@@ -219,6 +232,7 @@ const App = () => {
         const popupLeft = window.top.outerWidth / 2 + window.top.screenX - 400;
 
         (async () => {
+            localStorage.setItem(LS_SIGN_IN_POPUP, "true");
             signInWindow.current = window.open(
                 await createAuthURL(openIdConfig["authorization_endpoint"]),
                 "Bento Sign In",
