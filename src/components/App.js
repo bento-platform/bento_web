@@ -39,10 +39,10 @@ const NotificationsContent = lazy(() => import("./notifications/NotificationsCon
 const SIGN_IN_WINDOW_FEATURES = "scrollbars=no, toolbar=no, menubar=no, width=800, height=600";
 
 const CALLBACK_PATH = withBasePath("callback");
-const CallbackContent = () => <SitePageLoading />;
 
 const popupOpenerAuthCallback = async (dispatch, _history, code, verifier) => {
     if (window.opener) {  // We're inside a popup window for authentication
+        // Send the code and verifier to the main thread/page for authentication
         // IMPORTANT SECURITY: provide BENTO_URL as the target origin:
         window.opener.postMessage({code, verifier}, BENTO_URL_NO_TRAILING_SLASH);
 
@@ -254,7 +254,7 @@ const App = () => {
             <Layout.Content style={{margin, display: "flex", flexDirection: "column"}}>
                 <Suspense fallback={<SitePageLoading />}>
                     <Switch>
-                        <Route path={CALLBACK_PATH} component={CallbackContent} />
+                        <Route path={CALLBACK_PATH} component={SitePageLoading} />
                         <OwnerRoute path={withBasePath("overview")} component={OverviewContent} />
                         <OwnerRoute path={withBasePath("data/explorer")} component={DataExplorerContent} />
                         <OwnerRoute path={withBasePath("cbioportal")} component={CBioPortalContent} />
