@@ -11,6 +11,7 @@ import {fetchUserDependentData, tokenHandoff} from "../../modules/auth/actions";
 import {withBasePath} from "../../utils/url";
 import {nop} from "../../utils/misc";
 import {buildUrlEncodedData, getIsAuthenticated} from "./utils";
+import {popLocalStorageItem} from "../../utils/localStorageUtils";
 
 export const LS_BENTO_WAS_SIGNED_IN = "BENTO_WAS_SIGNED_IN";
 export const LS_BENTO_POST_AUTH_REDIRECT = "BENTO_POST_AUTH_REDIRECT";
@@ -42,9 +43,7 @@ export const performAuth = async (authorizationEndpoint, scope = "openid email")
 };
 
 const defaultAuthCodeCallback = async (dispatch, history, code, verifier) => {
-    const lastPath = localStorage.getItem(LS_BENTO_POST_AUTH_REDIRECT);
-    localStorage.removeItem(LS_BENTO_POST_AUTH_REDIRECT);
-
+    const lastPath = popLocalStorageItem(LS_BENTO_POST_AUTH_REDIRECT);
     await dispatch(tokenHandoff(code, verifier));
     history.replace(lastPath ?? DEFAULT_REDIRECT);
     await dispatch(fetchUserDependentData(nop));
@@ -92,9 +91,7 @@ export const useHandleCallback = (callbackPath, authCodeCallback = undefined) =>
             return;
         }
 
-        const localState = localStorage.getItem(PKCE_LS_STATE);
-        localStorage.removeItem(PKCE_LS_STATE);
-
+        const localState = popLocalStorageItem(PKCE_LS_STATE);
         if (!localState) {
             console.error("no local state");
             setLSNotSignedIn();
@@ -109,8 +106,7 @@ export const useHandleCallback = (callbackPath, authCodeCallback = undefined) =>
             return;
         }
 
-        const verifier = localStorage.getItem(PKCE_LS_VERIFIER);
-        localStorage.removeItem(PKCE_LS_VERIFIER);
+        const verifier = popLocalStorageItem(PKCE_LS_VERIFIER);
 
         (authCodeCallback ?? defaultAuthCodeCallback)(dispatch, history, code, verifier).catch(err => {
             console.error(err);
