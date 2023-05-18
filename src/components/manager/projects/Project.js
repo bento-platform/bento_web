@@ -10,7 +10,7 @@ import ProjectJsonSchema from "./ProjectJsonSchema";
 
 const SUB_TAB_KEYS = {
     DATASETS: "project-datasets",
-    EXTRA_PROPERTIES: "project-json-schemas"
+    EXTRA_PROPERTIES: "project-json-schemas",
 };
 
 class Project extends Component {
@@ -148,7 +148,7 @@ class Project extends Component {
                                         onTableIngest={this.props.onTableIngest || nop}
                                     />
                                 </Col>
-                            </Row>
+                            </Row>,
                         ) : (
                             <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} description="No Datasets">
                                 <Button icon="plus" onClick={() => (this.props.onAddDataset || nop)()}>
@@ -174,7 +174,7 @@ class Project extends Component {
                                 <Col span={24}>
                                     <ProjectJsonSchema projectSchema={pjs} />
                                 </Col>
-                            </Row>
+                            </Row>,
                         ) : (
                             <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} description="No project JSON schemas">
                                 <Button icon="plus" onClick={this.props.onAddJsonSchema}>

@@ -38,7 +38,7 @@ const ProjectJsonSchemaForm = ({ style, schemaTypes, initialValues, setFileConte
         onDrop,
         maxFiles: 1,
         accept: {
-            "application/json": [".json"]
+            "application/json": [".json"],
         },
     });
 
@@ -53,7 +53,7 @@ const ProjectJsonSchemaForm = ({ style, schemaTypes, initialValues, setFileConte
             }>
                 {form.getFieldDecorator("schemaType", {
                     initialValue: initialValues.schemaType,
-                    rules: [{ required: true }]
+                    rules: [{ required: true }],
                 })(
                     <Select>
                         {schemaTypes.map(option => (
@@ -61,7 +61,7 @@ const ProjectJsonSchemaForm = ({ style, schemaTypes, initialValues, setFileConte
                                 {option}
                             </Select.Option>
                         ))}
-                    </Select>
+                    </Select>,
                 )}
             </Form.Item>
             <Form.Item label={
@@ -73,9 +73,9 @@ const ProjectJsonSchemaForm = ({ style, schemaTypes, initialValues, setFileConte
             }>
                 {form.getFieldDecorator("required", {
                     initialValue: initialValues.required,
-                    valuePropName: "checked"
+                    valuePropName: "checked",
                 })(
-                    <Checkbox />
+                    <Checkbox />,
                 )}
             </Form.Item>
             <Form.Item label="JSON Schema" extra={(fileContent &&
@@ -83,7 +83,7 @@ const ProjectJsonSchemaForm = ({ style, schemaTypes, initialValues, setFileConte
             )}>
                 {form.getFieldDecorator("jsonSchema", {
                     initialValue: initialValues.jsonSchema,
-                    rules: [{ required: true }]
+                    rules: [{ required: true }],
                 })(
                     <>
                         <div {...getRootProps()} style={{
@@ -95,7 +95,7 @@ const ProjectJsonSchemaForm = ({ style, schemaTypes, initialValues, setFileConte
                             <p>Drag and drop a JSON Schema file here, or click to select files</p>
                         </div>
                         {fileContent && <ReactJson src={fileContent || {}} name={false} collapsed={true} />}
-                    </>
+                    </>,
                 )}
             </Form.Item>
         </Form >
@@ -139,5 +139,5 @@ export default Form.create({
     },
     onFieldsChange: ({ onChange }, _, allFields) => {
         onChange({ ...allFields });
-    }
+    },
 })(ProjectJsonSchemaForm);

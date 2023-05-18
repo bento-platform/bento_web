@@ -211,7 +211,7 @@ export const projects = (
                 ...state,
                 items: state.items.map(p => p.identifier === action.data.project
                     ? {...p, project_schemas: [...p.project_schemas, action.data]}
-                    : p
+                    : p,
                 ),
                 itemsByID: {
                     ...state.itemsByID,
@@ -219,10 +219,10 @@ export const projects = (
                         ...(state.itemsByID[action.data.project] || {}),
                         project_schemas: [
                             ...(state.itemsByID[action.data.project]?.project_schemas ?? []),
-                            action.data
-                        ]
-                    }
-                }
+                            action.data,
+                        ],
+                    },
+                },
             };
         case CREATE_PROJECT_JSON_SCHEMA.FINISH:
             return {...state, isCreatingJsonSchema: false};
@@ -236,17 +236,17 @@ export const projects = (
                 ...state,
                 items: state.items.map(p => p.identifier === action.projectJsonSchema.project
                     ? {...p, project_schemas: p.project_schemas.filter(deleteSchema)}
-                    : p
+                    : p,
                 ),
                 itemsByID: {
                     ...state.itemsByID,
                     [action.projectJsonSchema.project]: {
                         ...(state.itemsByID[action.projectJsonSchema.project] || {}),
                         project_schemas: (state.itemsByID[action.projectJsonSchema.project]?.project_schemas ?? [])
-                            .filter(deleteSchema)
+                            .filter(deleteSchema),
 
-                    }
-                }
+                    },
+                },
             };
         }
         case DELETE_PROJECT_JSON_SCHEMA.FINISH:
