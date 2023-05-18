@@ -250,7 +250,7 @@ const App = () => {
 
     return <>
         <Modal title="You have been signed out"
-               onOk={openSignInWindow}
+               footer={null}
                onCancel={() => {
                    clearPingInterval();  // Stop pinging until the user decides to sign in again
                    setSignedOutModal(false);  // Close the modal
