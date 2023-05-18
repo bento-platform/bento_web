@@ -5,8 +5,7 @@ export const PKCE_LS_STATE = `${PKCE_LS_PREFIX}_state`;
 export const PKCE_LS_VERIFIER = `${PKCE_LS_PREFIX}_verifier`;
 
 export const secureRandomString = (length = 32) => {
-    const randomArray = new Uint32Array(length);
-    crypto.getRandomValues(randomArray);  // Populate array with securely random values
+    const randomArray = crypto.getRandomValues(new Uint32Array(length));  // Create an array of securely random values
     // Prepend with 0 to prevent substr from yielding only 1 character
     return Array.from(randomArray, v => ("0" + v.toString(16)).slice(-2)).join("");
 };
