@@ -24,6 +24,6 @@ document.addEventListener("DOMContentLoaded", () => {
                 <App/>
             </BrowserRouter>
         </Provider>,
-        root
+        root,
     );
 });

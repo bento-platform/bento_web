@@ -125,7 +125,7 @@ export const openIdConfiguration = (
         data: null,
         isFetching: false,
     },
-    action
+    action,
 ) => {
     switch (action.type) {
         case FETCH_OPENID_CONFIGURATION.REQUEST:

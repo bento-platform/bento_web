@@ -12,7 +12,7 @@ export const PKCE_LS_VERIFIER = `${PKCE_LS_PREFIX}_verifier`;
 export const secureRandomString = (length = 32) =>
     Array.from(
         crypto.getRandomValues(new Uint32Array(length)),
-        v => ("0" + v.toString(16)).slice(-2)  // Prepend with 0 to prevent slice from yielding only 1 char
+        v => ("0" + v.toString(16)).slice(-2),  // Prepend with 0 to prevent slice from yielding only 1 char
     ).join("");
 
 /**
