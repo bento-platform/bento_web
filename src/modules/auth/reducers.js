@@ -29,7 +29,7 @@ export const auth = (
         accessToken: null,
         refreshToken: null,
     },
-    action
+    action,
 ) => {
     switch (action.type) {
         case FETCHING_USER_DEPENDENT_DATA.BEGIN:

@@ -30,7 +30,7 @@ const withURLPrefix = (individual, page) => withBasePath(`data/explorer/individu
 const MENU_STYLE = {
     marginLeft: "-24px",
     marginRight: "-24px",
-    marginTop: "-12px"
+    marginTop: "-12px",
 };
 
 
@@ -83,15 +83,15 @@ class ExplorerIndividualContent extends Component {
         const metadataUrl = withURLPrefix(individualID, "metadata");
         const tracksUrl = withURLPrefix(individualID, "tracks");
         const individualMenu = [
-            {url: overviewUrl, style: {marginLeft: "4px"}, text: "Overview",},
-            {url: pfeaturesUrl, text: "Phenotypic Features",},
-            {url: biosamplesUrl, text: "Biosamples",},
-            {url: experimentsUrl, text: "Experiments",},
-            {url: tracksUrl, text: "Tracks",},
-            {url: variantsUrl, text: "Variants",},
-            {url: genesUrl, text: "Genes",},
-            {url: diseasesUrl, text: "Diseases",},
-            {url: metadataUrl, text: "Metadata",},
+            {url: overviewUrl, style: {marginLeft: "4px"}, text: "Overview"},
+            {url: pfeaturesUrl, text: "Phenotypic Features"},
+            {url: biosamplesUrl, text: "Biosamples"},
+            {url: experimentsUrl, text: "Experiments"},
+            {url: tracksUrl, text: "Tracks"},
+            {url: variantsUrl, text: "Variants"},
+            {url: genesUrl, text: "Genes"},
+            {url: diseasesUrl, text: "Diseases"},
+            {url: metadataUrl, text: "Metadata"},
         ];
 
         const selectedKeys = matchingMenuKeys(individualMenu, urlPath(BENTO_URL));

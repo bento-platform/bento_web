@@ -26,7 +26,7 @@ const P_FEATURES_COLUMNS = [
             (individual.hasOwnProperty("extra_properties") && Object.keys(individual.extra_properties).length)
                 ?  <div><pre>{JSON.stringify(individual.extra_properties, null, 2)}</pre></div>
                 : EM_DASH,
-    }
+    },
 
 ];
 

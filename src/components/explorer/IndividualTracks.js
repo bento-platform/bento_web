@@ -60,7 +60,7 @@ const IndividualTracks = ({individual}) => {
     });
 
     const [allTracks, setAllTracks] = useState(
-        viewableResults.sort((r1, r2) => (r1.file_format > r2.file_format ? 1 : -1))
+        viewableResults.sort((r1, r2) => (r1.file_format > r2.file_format ? 1 : -1)),
     );
 
     const allFoundFiles = allTracks.filter(
@@ -127,11 +127,11 @@ const IndividualTracks = ({individual}) => {
         }
 
         const indexedTracks = allFoundFiles.filter(
-            (t) => t.viewInIgv && igvUrls[t.filename].dataUrl && igvUrls[t.filename].indexUrl
+            (t) => t.viewInIgv && igvUrls[t.filename].dataUrl && igvUrls[t.filename].indexUrl,
         );
 
         const unindexedTracks = allFoundFiles.filter(
-            (t) => t.viewInIgv && igvUrls[t.filename].url
+            (t) => t.viewInIgv && igvUrls[t.filename].url,
         );
 
         const igvIndexedTracks = indexedTracks.map((t) => ({

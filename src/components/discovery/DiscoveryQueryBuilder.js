@@ -52,7 +52,7 @@ class DiscoveryQueryBuilder extends Component {
                 const dataType = this.props.dataTypesByID[this.props.autoQuery.autoQueryType];
                 const fields = {
                     keys: {
-                        value:[0]
+                        value:[0],
                     },
                     conditions: [{
                         name: "conditions[0]",
@@ -63,7 +63,7 @@ class DiscoveryQueryBuilder extends Component {
                             fieldSchema: getFieldSchema(dataType.schema, this.props.autoQuery.autoQueryField),
                             negated: false,
                             operation: OP_EQUALS,
-                            searchValue: this.props.autoQuery.autoQueryValue
+                            searchValue: this.props.autoQuery.autoQueryValue,
                         },
                     }],
                 };
@@ -137,9 +137,12 @@ class DiscoveryQueryBuilder extends Component {
                 {this.props.servicesInfo
                     .filter(s => (this.props.dataTypes[s.id]?.items ?? []).length)
                     .flatMap(s =>
-                        this.props.dataTypes[s.id].items.map(dt =>
-                            <Menu.Item key={`${s.id}:${dt.id}`}>{dt.label ?? dt.id}</Menu.Item>
-                        ))
+                        this.props.dataTypes[s.id].items
+                            .filter(dt => (dt.queryable ?? true) && dt.count > 0)
+                            .map(dt =>
+                                <Menu.Item key={`${s.id}:${dt.id}`}>{dt.label ?? dt.id}</Menu.Item>,
+                            ),
+                    )
                 }
             </Menu>
         );
@@ -237,7 +240,7 @@ DiscoveryQueryBuilder.propTypes = {
     neutralizeAutoQueryPageTransition: PropTypes.func,
 
     onSubmit: PropTypes.func,
-    setIsSubmittingSearch: PropTypes.func
+    setIsSubmittingSearch: PropTypes.func,
 };
 
 const mapStateToProps = state => ({
@@ -254,7 +257,7 @@ const mapStateToProps = state => ({
 
 const mapDispatchToProps = (dispatch) => ({
     neutralizeAutoQueryPageTransition: () => dispatch(neutralizeAutoQueryPageTransition()),
-    setIsSubmittingSearch: (isSubmittingSearch) => dispatch(setIsSubmittingSearch(isSubmittingSearch))
+    setIsSubmittingSearch: (isSubmittingSearch) => dispatch(setIsSubmittingSearch(isSubmittingSearch)),
 });
 
 

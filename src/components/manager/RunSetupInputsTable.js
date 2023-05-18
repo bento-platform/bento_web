@@ -25,8 +25,8 @@ const RunSetupInputsTable = ({selectedWorkflow, inputs}) => (
                             value instanceof Array
                                 ? <ul>{value.map(v => <li key={v.toString()}>{v.toString()}</li>)}</ul>
                                 : value.toString()
-                        )
-            }
+                        ),
+            },
         ]}
         rowKey="id"
         dataSource={selectedWorkflow.inputs.map(i => ({id: i.id, value: inputs[i.id]}))}

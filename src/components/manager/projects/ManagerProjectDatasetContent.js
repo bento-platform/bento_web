@@ -23,7 +23,7 @@ class ManagerProjectDatasetContent extends Component {
     render() {
         const projectMenuItems = this.props.projects.map(project => ({
             url: withBasePath(`admin/data/manager/projects/${project.identifier}`),
-            text: project.title
+            text: project.title,
         }));
 
         return <>
@@ -36,7 +36,7 @@ class ManagerProjectDatasetContent extends Component {
                             <Typography.Paragraph style={{
                                 maxWidth: "600px",
                                 marginLeft: "auto",
-                                marginRight: "auto"
+                                marginRight: "auto",
                             }}>
                                 To create datasets and ingest data, you have to create a Bento project
                                 first. Bento projects have a name and description, and let you group related

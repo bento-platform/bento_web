@@ -90,7 +90,7 @@ const _networkAction = (fn, ...args) => async (dispatch, getState) => {
             ...params,
             ...(data === null ? {} : {data}),
             downloadedFilename : downloadedFilename,
-            receivedAt: Date.now()
+            receivedAt: Date.now(),
         });
         if (onSuccess) await onSuccess(data);
     } catch (e) {

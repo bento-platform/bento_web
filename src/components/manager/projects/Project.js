@@ -18,7 +18,7 @@ class Project extends Component {
         if ("value" in nextProps) {
             return {
                 ...(nextProps.value || {}),
-                data_use: simpleDeepCopy((nextProps.value || {}).data_use || INITIAL_DATA_USE_VALUE)
+                data_use: simpleDeepCopy((nextProps.value || {}).data_use || INITIAL_DATA_USE_VALUE),
             };
         }
         return null;
@@ -60,7 +60,7 @@ class Project extends Component {
                 identifier: this.state.identifier,
                 title: values.title || this.state.title,
                 description: values.description || this.state.description,
-                data_use: values.data_use || this.state.data_use
+                data_use: values.data_use || this.state.data_use,
             });
         });
     }
@@ -93,7 +93,7 @@ class Project extends Component {
                              initialValue={{
                                  title: this.state.title,
                                  description: this.state.description,
-                                 data_use: this.state.data_use
+                                 data_use: this.state.data_use,
                              }}
                              ref={form => this.editingForm = form} />
             ) : (
@@ -133,7 +133,7 @@ class Project extends Component {
                                 onTableIngest={this.props.onTableIngest || nop}
                             />
                         </Col>
-                    </Row>
+                    </Row>,
                 ) : (
                     <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} description="No Datasets">
                         <Button icon="plus" onClick={() => (this.props.onAddDataset || nop)()}>Add Dataset</Button>
@@ -158,7 +158,7 @@ Project.propTypes = {
     onAddDataset: PropTypes.func,
     onEditDataset: PropTypes.func,
 
-    onTableIngest: PropTypes.func
+    onTableIngest: PropTypes.func,
 };
 
 export default Project;

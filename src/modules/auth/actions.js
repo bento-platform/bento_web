@@ -7,13 +7,13 @@ import {
     createFlowActionTypes,
     createNetworkActionTypes,
     endFlow,
-    networkAction
+    networkAction,
 } from "../../utils/actions";
 
 import { fetchDropBoxTreeOrFail } from "../manager/actions";
 import {
     fetchProjectsWithDatasetsAndTables,
-    fetchOverviewSummary
+    fetchOverviewSummary,
 } from "../metadata/actions";
 import { fetchNotifications } from "../notifications/actions";
 import { fetchServicesWithMetadataAndDataTypesAndTablesIfNeeded } from "../services/actions";

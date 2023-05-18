@@ -109,7 +109,7 @@ export const getIgvUrlsFromDrs = (fileObjects) => async (dispatch, getState) => 
     console.log("initiating getIgvUrlsFromDrs");
 
     const searchesToDispatch = fileObjects.map((f) =>
-        isIndexedFileType(f) ? dispatch(getDrsDataAndIndexUrls(f.filename)) : dispatch(getDrsUrl(f.filename))
+        isIndexedFileType(f) ? dispatch(getDrsDataAndIndexUrls(f.filename)) : dispatch(getDrsUrl(f.filename)),
     );
 
     dispatch(beginIgvUrlSearch());
@@ -168,7 +168,7 @@ const beginIgvUrlSearch = () => ({
 
 const setDrsUrlsForIgv = (urls) => ({
     type: RETRIEVE_URLS_FOR_IGV.END,
-    urls: urls
+    urls: urls,
 });
 
 const errorIgvUrlSearch = () => ({
@@ -195,7 +195,7 @@ const indexFileName = (filename) => filename + indexSuffix[guessFileType(filenam
 
 const indexSuffix = {
     "vcf": ".tbi",
-    "cram": ".crai"
+    "cram": ".crai",
 };
 
 const hasIndex = (fileType) => {

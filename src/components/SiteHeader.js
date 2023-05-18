@@ -21,14 +21,14 @@ const LinkedLogo = React.memo(() =>
                  src={withBasePath("static/branding.png")}
                  alt={CUSTOM_HEADER || "Bento"} />
         </div>
-    </Link>
+    </Link>,
 );
 
 
 const CustomHeaderText = React.memo(() =>
     <h1 style={{ color: "rgba(255, 255, 255, 0.95)", float: "left", margin: "0 24px 0 0" }}>
         {CUSTOM_HEADER}
-    </h1>
+    </h1>,
 );
 
 const SiteHeader = () => {

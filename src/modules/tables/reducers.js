@@ -3,9 +3,9 @@ import {FETCH_TABLE_SUMMARY} from "./actions";
 export const tableSummaries = (
     state = {
         isFetching: false,
-        summariesByServiceArtifactAndTableID: {}
+        summariesByServiceArtifactAndTableID: {},
     },
-    action
+    action,
 ) => {
     switch (action.type) {
         case FETCH_TABLE_SUMMARY.REQUEST:
@@ -19,8 +19,8 @@ export const tableSummaries = (
                     [artifact]: {
                         ...(state.summariesByServiceArtifactAndTableID[artifact] || {}),
                         [tableID]: data,
-                    }
-                }
+                    },
+                },
             };
         }
         case FETCH_TABLE_SUMMARY.FINISH:

@@ -5,7 +5,7 @@ import {
 
     beginFlow,
     endFlow,
-    terminateFlow
+    terminateFlow,
 } from "../../utils/actions";
 
 import {createURLSearchParams} from "../../utils/requests";
@@ -43,7 +43,7 @@ export const endAddingServiceTable = (serviceInfo, dataTypeID, table) => ({
     type: ADDING_SERVICE_TABLE.END,
     serviceInfo,
     dataTypeID,
-    table
+    table,
 });
 
 
@@ -51,40 +51,40 @@ export const endDeletingServiceTable = (serviceInfo, dataTypeID, tableID) => ({
     type: DELETING_SERVICE_TABLE.END,
     serviceInfo,
     dataTypeID,
-    tableID
+    tableID,
 });
 
 
 export const fetchCHORDServices = networkAction(() => ({
     types: FETCH_CHORD_SERVICES,
     url: withBasePath("api/service-registry/chord-services"),
-    err: "Error fetching CHORD services"
+    err: "Error fetching CHORD services",
 }));
 
 export const fetchServices = networkAction(() => ({
     types: FETCH_SERVICES,
     url: withBasePath("api/service-registry/services"),
-    err: "Error fetching services"
+    err: "Error fetching services",
 }));
 
 export const fetchDataServiceDataTypes = networkAction((serviceInfo) => ({
     types: FETCH_SERVICE_DATA_TYPES,
     params: {serviceInfo},
     url: `${serviceInfo.url}/data-types`,
-    err: `Error fetching data types from service '${serviceInfo.name}'`
+    err: `Error fetching data types from service '${serviceInfo.name}'`,
 }));
 
 export const fetchDataServiceDataTypeTables = networkAction((serviceInfo, dataType) => ({
     types: FETCH_SERVICE_TABLES,
     params: {serviceInfo, dataTypeID: dataType.id},
     url: `${serviceInfo.url}/tables?${createURLSearchParams({"data-type": dataType.id}).toString()}`,
-    err: `Error fetching tables from service '${serviceInfo.name}' (data type ${dataType.id})`
+    err: `Error fetching tables from service '${serviceInfo.name}' (data type ${dataType.id})`,
 }));
 
 export const fetchDataServiceWorkflows = networkAction((serviceInfo) => ({
     types: FETCH_SERVICE_WORKFLOWS,
     params: {serviceInfo},
-    url: `${serviceInfo.url}/workflows`
+    url: `${serviceInfo.url}/workflows`,
 }));
 
 
@@ -129,7 +129,7 @@ export const fetchServicesWithMetadataAndDataTypesAndTables = (onServiceFetchFin
             dispatch(beginFlow(LOADING_SERVICE_WORKFLOWS));
             await Promise.all(dataServicesInfo.map(s => dispatch(fetchDataServiceWorkflows(s))));
             dispatch(endFlow(LOADING_SERVICE_WORKFLOWS));
-        })()
+        })(),
     ]);
 
     // Fetch Data Service Local Tables

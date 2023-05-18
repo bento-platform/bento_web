@@ -9,7 +9,7 @@ export const drs = (
         downloadUrlsByFilename: {},
         isFetchingDownloadUrls: false,
     },
-    action
+    action,
 ) => {
     switch (action.type) {
         case PERFORM_SEARCH_BY_FUZZYNAME.REQUEST:

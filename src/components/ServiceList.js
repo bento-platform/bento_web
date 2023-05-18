@@ -120,11 +120,11 @@ const ServiceList = () => {
                 dataService: service.data_service,
             },
             loading: state.services.isFetching,
-        }))
+        })),
     );
 
     const columns = serviceColumns(
-        useSelector((state) => state.auth.hasAttempted && getIsAuthenticated(state.auth.idTokenContents))
+        useSelector((state) => state.auth.hasAttempted && getIsAuthenticated(state.auth.idTokenContents)),
     );
 
     /** @type boolean */

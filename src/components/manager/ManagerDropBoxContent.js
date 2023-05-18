@@ -298,7 +298,7 @@ const ManagerDropBoxContent = () => {
             step: STEP_INPUT,
             workflowSelectionValues: {selectedTable: tableKey},
             selectedWorkflow,
-            initialInputValues: getWorkflowFit(selectedWorkflow)[1]
+            initialInputValues: getWorkflowFit(selectedWorkflow)[1],
         });
     }, [history, selectedWorkflow]);
 
