@@ -9,10 +9,7 @@ import { getIsAuthenticated } from "../lib/auth/utils";
 import { withBasePath } from "../utils/url";
 
 const SERVICE_KIND_STYLING = { fontFamily: "monospace" };
-
-// biggest reasonable size limit before rolling over
-// currently 11 services including gohan
-const MAX_TABLE_PAGE_SIZE = 12;
+const MAX_TABLE_PAGE_SIZE = 15;
 
 // noinspection JSUnresolvedFunction
 const getServiceTags = serviceInfo => [
