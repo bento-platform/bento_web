@@ -7,7 +7,7 @@ export const auth = (
         hasAttempted: false,
         isFetchingDependentData: false,
     },
-    action
+    action,
 ) => {
     switch (action.type) {
         case FETCH_USER.REQUEST:

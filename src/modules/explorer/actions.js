@@ -55,7 +55,7 @@ export const performSearchIfPossible = (datasetID) => (dispatch, getState) => {
 // allows coordination between "real" search form and the variants UI form presented to the user
 export const setIsSubmittingSearch = (isSubmittingSearch) => ({
     type: SET_IS_SUBMITTING_SEARCH,
-    isSubmittingSearch
+    isSubmittingSearch,
 });
 
 
@@ -145,12 +145,12 @@ export const performFreeTextSearchIfPossible = (datasetID, term) => (dispatch, _
 
 export const setOtherThresholdPercentage = (threshold) => ({
     type: SET_OTHER_THRESHOLD_PERCENTAGE,
-    otherThresholdPercentage: threshold
+    otherThresholdPercentage: threshold,
 });
 
 export const setIgvPosition = (igvPosition) => ({
     type: SET_IGV_POSITION,
-    igvPosition
+    igvPosition,
 });
 
 export const performGetGohanVariantsOverviewIfPossible = () => (dispatch, getState) => {

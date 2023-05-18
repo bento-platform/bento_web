@@ -54,7 +54,7 @@ class IndividualBiosamples extends Component {
                                         <div>
                                             <strong>Body Site:</strong>{" "}
                                             {renderOntologyTerm(
-                                                biosample.procedure.body_site
+                                                biosample.procedure.body_site,
                                             )}
                                         </div>
                                     ) : null}

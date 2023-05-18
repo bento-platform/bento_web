@@ -48,7 +48,7 @@ const METADATA_COLUMNS = [
                                       rel="noopener noreferrer"
                                       href={individual.iri_prefix}>{individual.iri_prefix}</a>,
         defaultSortOrder: "ascend",
-    }
+    },
 ];
 
 const IndividualMetadata = ({individual}) =>

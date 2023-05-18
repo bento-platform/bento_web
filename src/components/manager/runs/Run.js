@@ -15,7 +15,7 @@ import {runPropTypesShape} from "../../../propTypes";
 const TABS = {
     "request": RunRequest,
     "run_log": RunLog,
-    "task_logs": RunTaskLogs
+    "task_logs": RunTaskLogs,
 };
 
 

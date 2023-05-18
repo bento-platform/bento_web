@@ -12,7 +12,7 @@ export const manager = (
         editingProject: false,
         jsonSchemaCreationModal: false,
     },
-    action
+    action,
 ) => {
     switch (action.type) {
         case TOGGLE_PROJECT_CREATION_MODAL:
@@ -35,9 +35,9 @@ export const manager = (
 export const dropBox = (
     state = {
         isFetching: true,
-        tree: []
+        tree: [],
     },
-    action
+    action,
 ) => {
     switch (action.type) {
         case FETCH_DROP_BOX_TREE.REQUEST:

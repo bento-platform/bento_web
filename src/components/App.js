@@ -46,7 +46,7 @@ class App extends Component {
         this.lastUser = false;
 
         this.state = {
-            signedOutModal: false
+            signedOutModal: false,
         };
 
         this.signInWindow = null;
@@ -208,7 +208,7 @@ const mapStateToProps = state => ({
     isFetchingNodeInfo: state.nodeInfo.isFetching,
     nodeInfo: state.nodeInfo.data,
     eventRelay: state.services.eventRelay,
-    user: state.auth.user
+    user: state.auth.user,
 });
 
 export default withRouter(connect(mapStateToProps, {

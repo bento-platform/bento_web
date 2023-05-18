@@ -21,7 +21,7 @@ class TableDeletionModal extends Component {
                                onClick={() => (this.props.onSubmit || nop)()}
                                loading={this.props.isDeletingTable}>
                            Delete
-                       </Button>
+                       </Button>,
                    ]}
                    onCancel={this.props.onCancel || nop}>
                 <Typography.Paragraph>
@@ -40,7 +40,7 @@ TableDeletionModal.propTypes = {
     isDeletingTable: PropTypes.bool,
 
     onSubmit: PropTypes.func,
-    onCancel: PropTypes.func
+    onCancel: PropTypes.func,
 };
 
 const mapStateToProps = state => ({

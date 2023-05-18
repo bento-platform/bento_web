@@ -14,9 +14,9 @@ export const notifications = (
         isMarkingAllAsRead: false,
         drawerVisible: false,
         items: [],
-        itemsByID: {}
+        itemsByID: {},
     },
-    action
+    action,
 ) => {
     switch (action.type) {
         case ADD_NOTIFICATION:
@@ -25,8 +25,8 @@ export const notifications = (
                 items: [...state.items, action.data],
                 itemsByID: {
                     ...state.itemsByID,
-                    [action.data.id]: action.data
-                }
+                    [action.data.id]: action.data,
+                },
             };
 
         case FETCH_NOTIFICATIONS.REQUEST:
@@ -35,7 +35,7 @@ export const notifications = (
             return {
                 ...state,
                 items: action.data,
-                itemsByID: Object.fromEntries(action.data.map(n => [n.id, n]))
+                itemsByID: Object.fromEntries(action.data.map(n => [n.id, n])),
             };
         case FETCH_NOTIFICATIONS.FINISH:
             return {...state, isFetching: false};
@@ -50,9 +50,9 @@ export const notifications = (
                     ...state.itemsByID,
                     [action.notificationID]: {
                         ...(state.itemsByID[action.notificationID] || {}),
-                        read: true
-                    }
-                }
+                        read: true,
+                    },
+                },
             };
         case MARK_NOTIFICATION_AS_READ.FINISH:
             return {...state, isMarkingAsRead: false};

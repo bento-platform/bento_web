@@ -12,5 +12,5 @@ export default {
                 await dispatch(fetchRunLogs(runDetails.run_id));
             }
         }
-    }
+    },
 };

@@ -9,20 +9,20 @@ import {workflowPropTypesShape} from "../../propTypes";
 const TYPE_TAG_DISPLAY = {
     file: {
         color: "volcano",
-        icon: "file"
+        icon: "file",
     },
     enum: {
         color: "blue",
-        icon: "menu"
+        icon: "menu",
     },
     number: { // TODO: Break into int and float?
         color: "green",
-        icon: "number"
+        icon: "number",
     },
     string: {
         color: "purple",
-        icon: "font-size"
-    }
+        icon: "font-size",
+    },
 };
 
 const ioTagWithType = (id, ioType, typeContent = "") => (
@@ -56,7 +56,7 @@ const WorkflowListItem = ({onClick, workflow}) => {
         [...outputValue.matchAll(/{(.*)}/g)].forEach(([_, id]) => {
             formattedOutput = formattedOutput.replace(`{${id}}`, {
                 ...inputExtensions,
-                "": o.hasOwnProperty("map_from_input") ? inputExtensions[o.map_from_input] : undefined
+                "": o.hasOwnProperty("map_from_input") ? inputExtensions[o.map_from_input] : undefined,
             }[id]);
         });
 
@@ -90,7 +90,7 @@ const WorkflowListItem = ({onClick, workflow}) => {
 WorkflowListItem.propTypes = {
     workflow: workflowPropTypesShape,
     selectable: PropTypes.bool,
-    onClick: PropTypes.func
+    onClick: PropTypes.func,
 };
 
 export default WorkflowListItem;

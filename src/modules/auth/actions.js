@@ -3,13 +3,13 @@ import {
     createFlowActionTypes,
     createNetworkActionTypes,
     endFlow,
-    networkAction
+    networkAction,
 } from "../../utils/actions";
 
 import {fetchDropBoxTreeOrFail} from "../manager/actions";
 import {
     fetchProjectsWithDatasetsAndTables,
-    fetchOverviewSummary
+    fetchOverviewSummary,
 } from "../metadata/actions";
 import {fetchNodeInfo} from "../node/actions";
 import {fetchNotifications} from "../notifications/actions";
@@ -28,7 +28,7 @@ export const FETCHING_USER_DEPENDENT_DATA = createFlowActionTypes("FETCHING_USER
 
 export const fetchUser = networkAction(() => ({
     types: FETCH_USER,
-    url: withBasePath("api/auth/user")
+    url: withBasePath("api/auth/user"),
 }));
 
 export const setUser = user => ({

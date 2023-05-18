@@ -22,7 +22,7 @@ class RoutedProject extends Component {
             datasetAdditionModal: false,
             datasetEditModal: false,
             jsonSchemaModal: false,
-            selectedDataset: null
+            selectedDataset: null,
         };
     }
 
@@ -142,7 +142,7 @@ class RoutedProject extends Component {
             ...this.props.serviceTables.filter(t2 =>
                 !this.props.projectTables.map(to => to.table_id).includes(t2.id) &&
                 manageableDataTypes.includes(t2.data_type)).map(t => ({...t, table_id: t.id})),
-            ...this.props.projectTables.filter(to => !this.props.servicesByID.hasOwnProperty(to.service_id))
+            ...this.props.projectTables.filter(to => !this.props.servicesByID.hasOwnProperty(to.service_id)),
         ];
 
         return <>
@@ -176,7 +176,7 @@ class RoutedProject extends Component {
                      onAddDataset={() => this.showDatasetAdditionModal()}
                      onEditDataset={dataset => this.setState({
                          selectedDataset: dataset,
-                         datasetEditModal: true
+                         datasetEditModal: true,
                      })}
                      onAddJsonSchema={() => this.setJsonSchemaModalVisible(true)}
                      onTableIngest={(p, t) => this.ingestIntoTable(p, t)}/>
