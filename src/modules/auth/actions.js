@@ -54,10 +54,9 @@ export const fetchUserDependentData = (servicesCb) => async (dispatch, getState)
     dispatch(beginFlow(FETCHING_USER_DEPENDENT_DATA));
     try {
         if (idTokenContents) {
-            await dispatch(fetchServicesWithMetadataAndDataTypesAndTablesIfNeeded(async () => {
-                // We're newly authenticated as an owner, so run all actions that need authentication.
-                await dispatch(fetchServiceDependentData());
-            }));
+            // If we're newly authenticated as an owner, we run all actions that need authentication (via the callback).
+            await dispatch(fetchServicesWithMetadataAndDataTypesAndTablesIfNeeded(
+                () => dispatch(fetchServiceDependentData())));
             await (servicesCb || nop)();
             await dispatch(fetchProjectsWithDatasetsAndTables());  // TODO: If needed, remove if !hasAttempted
         }
