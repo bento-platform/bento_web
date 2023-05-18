@@ -21,7 +21,7 @@ import {
     services,
     serviceDataTypes,
     serviceTables,
-    serviceWorkflows
+    serviceWorkflows,
 } from "./modules/services/reducers";
 import {tableSummaries} from "./modules/tables/reducers";
 import {runs} from "./modules/wes/reducers";

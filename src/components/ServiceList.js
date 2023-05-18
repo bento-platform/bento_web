@@ -123,11 +123,11 @@ const ServiceList = () => {
                 dataService: service.data_service,
             },
             loading: state.services.isFetching,
-        }))
+        })),
     );
 
     const columns = serviceColumns(
-        useSelector((state) => state.auth.hasAttempted && state.auth.user?.chord_user_role === ROLE_OWNER)
+        useSelector((state) => state.auth.hasAttempted && state.auth.user?.chord_user_role === ROLE_OWNER),
     );
     const isLoading = useSelector((state) => state.chordServices.isFetching || state.services.isFetching);
 

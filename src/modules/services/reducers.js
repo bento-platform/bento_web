@@ -16,7 +16,7 @@ import {
     DELETING_SERVICE_TABLE,
 
     FETCH_SERVICE_WORKFLOWS,
-    LOADING_SERVICE_WORKFLOWS
+    LOADING_SERVICE_WORKFLOWS,
 } from "./actions";
 import {normalizeServiceInfo} from "../../utils/serviceInfo";
 
@@ -27,7 +27,7 @@ export const chordServices = (
         itemsByArtifact: {},
         itemsByKind: {},
     },
-    action
+    action,
 ) => {
     switch (action.type) {
         case FETCH_CHORD_SERVICES.REQUEST:
@@ -81,7 +81,7 @@ export const services = (
         notificationService: null,
         wesService: null,
     },
-    action
+    action,
 ) => {
     switch (action.type) {
         case LOADING_ALL_SERVICE_DATA.BEGIN:
@@ -139,7 +139,7 @@ export const serviceDataTypes = (
         dataTypesByServiceArtifact: {},
         dataTypesByServiceKind: {},
     },
-    action
+    action,
 ) => {
     switch (action.type) {
         case LOADING_SERVICE_DATA_TYPES.BEGIN:
@@ -158,16 +158,16 @@ export const serviceDataTypes = (
                     ...state.dataTypesByServiceID,
                     [serviceInfo.id]: {
                         ...(state.dataTypesByServiceID[serviceInfo.id] ?? {items: null, itemsByID: null}),
-                        isFetching: true
-                    }
+                        isFetching: true,
+                    },
                 },
                 dataTypesByServiceArtifact: {
                     ...state.dataTypesByServiceArtifact,
                     [serviceInfo.type.artifact]: {
                         ...(state.dataTypesByServiceArtifact[serviceInfo.type.artifact] ??
                             {items: null, itemsByID: null}),
-                        isFetching: true
-                    }
+                        isFetching: true,
+                    },
                 },
                 dataTypesByServiceKind: {
                     ...state.dataTypesByServiceKind,
@@ -202,7 +202,7 @@ export const serviceDataTypes = (
                     ...state.dataTypesByServiceKind,
                     [kind]: {items: action.data, itemsByID, isFetching: false},
                 },
-                lastUpdated: action.receivedAt
+                lastUpdated: action.receivedAt,
             };
         }
 
@@ -217,7 +217,7 @@ export const serviceDataTypes = (
                     [action.serviceID]: {
                         ...(state.dataTypesByServiceID[serviceInfo.id] ?? {items: null, itemsByID: null}),
                         isFetching: false,
-                    }
+                    },
                 },
                 dataTypesByServiceArtifact: {
                     ...state.dataTypesByServiceArtifact,
@@ -249,7 +249,7 @@ export const serviceTables = (
         items: [],
         itemsByServiceID: {},
     },
-    action
+    action,
 ) => {
     switch (action.type) {
         case LOADING_SERVICE_TABLES.BEGIN:
@@ -268,7 +268,7 @@ export const serviceTables = (
                     [serviceInfo.id]: {
                         ...(state.itemsByServiceID[serviceInfo.id] ?? {}),
                         isFetching: true,
-                    }
+                    },
                 },
             };
         }
@@ -279,7 +279,7 @@ export const serviceTables = (
             const newTables = data.map(t => ({
                 ...t,
                 service_id: serviceID,
-                data_type: dataTypeID
+                data_type: dataTypeID,
             })).filter(t =>
                 !(state.itemsByServiceID[serviceID]?.tablesByID ?? {}).hasOwnProperty(t.id));
 
@@ -297,9 +297,9 @@ export const serviceTables = (
                         ],
                         tablesByID: {
                             ...(state.itemsByServiceID[serviceID]?.tablesByID ?? {}),
-                            ...Object.fromEntries(newTables.map(t => [t.id, t]))
+                            ...Object.fromEntries(newTables.map(t => [t.id, t])),
                         },
-                    }
+                    },
                 },
             };
         }
@@ -313,7 +313,7 @@ export const serviceTables = (
                     [serviceID]: {
                         ...(state.itemsByServiceID[serviceID] ?? {}),
                         isFetching: false,
-                    }
+                    },
                 },
             };
         }
@@ -335,7 +335,7 @@ export const serviceTables = (
                             [table.id]: table,
                         },
                     },
-                }
+                },
             };
         }
 
@@ -357,7 +357,7 @@ export const serviceTables = (
                             .filter(t => t.id !== tableID),
                         tablesByID: objectWithoutProp(
                             (state.itemsByServiceID[serviceID]?.tablesByID ?? {}),
-                            tableID
+                            tableID,
                         ),
                     },
                 },
@@ -375,9 +375,9 @@ export const serviceTables = (
 export const serviceWorkflows = (
     state = {
         isFetchingAll: false,
-        workflowsByServiceID: {}
+        workflowsByServiceID: {},
     },
-    action
+    action,
 ) => {
     switch (action.type) {
         case LOADING_SERVICE_WORKFLOWS.BEGIN:
@@ -395,9 +395,9 @@ export const serviceWorkflows = (
                     ...state.workflowsByServiceID,
                     [serviceID]: {
                         isFetching: true,
-                        ...(state.workflowsByServiceID[serviceID] ?? {workflows: null})
-                    }
-                }
+                        ...(state.workflowsByServiceID[serviceID] ?? {workflows: null}),
+                    },
+                },
             };
         }
 
@@ -409,7 +409,7 @@ export const serviceWorkflows = (
                 workflowsByServiceID: {
                     ...state.workflowsByServiceID,
                     [serviceID]: {isFetching: false, workflows: data},
-                }
+                },
             };
         }
 

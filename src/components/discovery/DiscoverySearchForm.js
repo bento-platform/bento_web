@@ -52,8 +52,8 @@ const CONDITION_RULES = [
             }
 
             cb();
-        }
-    }
+        },
+    },
 
 ];
 
@@ -83,7 +83,7 @@ class DiscoverySearchForm extends Component {
 
         const requiredFields = this.props.dataType
             ? getFields(this.props.dataType.schema).filter(
-                (f) => getFieldSchema(this.props.dataType.schema, f).search?.required ?? false
+                (f) => getFieldSchema(this.props.dataType.schema, f).search?.required ?? false,
             )
             : [];
 
@@ -101,8 +101,8 @@ class DiscoverySearchForm extends Component {
 
         this.setState({
             ...stateUpdates.reduce((acc, v) => ({
-                ...acc, conditionsHelp: {...(acc.conditionsHelp ?? {}), ...(v.conditionsHelp ?? {})}
-            }), {})
+                ...acc, conditionsHelp: {...(acc.conditionsHelp ?? {}), ...(v.conditionsHelp ?? {})},
+            }), {}),
         });
     }
 
@@ -111,14 +111,14 @@ class DiscoverySearchForm extends Component {
             conditionsHelp: {
                 ...this.state.conditionsHelp,
                 [k]: change.fieldSchema.description ?? undefined,
-            }
+            },
         });
     }
 
 
     removeCondition(k) {
         this.props.form.setFieldsValue({
-            keys: this.props.form.getFieldValue("keys").filter(key => key !== k)
+            keys: this.props.form.getFieldValue("keys").filter(key => key !== k),
         });
     }
 
@@ -128,8 +128,8 @@ class DiscoverySearchForm extends Component {
             ...fs,
             search: {
                 ...DEFAULT_SEARCH_PARAMETERS,
-                ...(fs.search ?? {})
-            }
+                ...(fs.search ?? {}),
+            },
         };
     }
 
@@ -150,7 +150,7 @@ class DiscoverySearchForm extends Component {
             conditionsHelp: {
                 ...this.state.conditionsHelp,
                 [newKey]: fieldSchema.description ?? undefined,
-            }
+            },
         };
 
         if (!didMount) this.setState(stateUpdate);  // Won't fire properly in componentDidMount
@@ -163,7 +163,7 @@ class DiscoverySearchForm extends Component {
                 fieldSchema,
                 negated: false,
                 operation:  this.getInitialOperator(field, fieldSchema),
-                ...(conditionType === "data-type" ? {searchValue: ""} : {})
+                ...(conditionType === "data-type" ? {searchValue: ""} : {}),
             },
         };
 
@@ -175,7 +175,7 @@ class DiscoverySearchForm extends Component {
         });
 
         this.props.form.setFieldsValue({
-            keys: this.props.form.getFieldValue("keys").concat(newKey)
+            keys: this.props.form.getFieldValue("keys").concat(newKey),
         });
 
         return stateUpdate;
@@ -215,7 +215,7 @@ class DiscoverySearchForm extends Component {
             updatedConditionsArray = this.updateConditions(
                 updatedConditionsArray,
                 "[dataset item].assembly_id",
-                assemblyId
+                assemblyId,
             );
         }
 
@@ -229,7 +229,7 @@ class DiscoverySearchForm extends Component {
             updatedConditionsArray = this.updateConditions(
                 updatedConditionsArray,
                 "[dataset item].calls.[item].genotype_type",
-                genotypeType
+                genotypeType,
             );
         }
 
@@ -395,7 +395,7 @@ class DiscoverySearchForm extends Component {
                         onFieldChange={(change) => this.handleFieldChange(k, change)}
                         onRemoveClick={() => this.removeCondition(k)}
                         removeDisabled={false}
-                    />
+                    />,
                 )}
             </Form.Item>
         ));
@@ -450,7 +450,7 @@ export default Form.create({
         keys: Form.createFormField({...formValues.keys}),
         ...Object.assign({}, ...(formValues["conditions"] ?? [])
             .filter(c => c !== null)  // TODO: Why does this happen?
-            .map(c => ({[c.name]: Form.createFormField({...c})})))
+            .map(c => ({[c.name]: Form.createFormField({...c})}))),
     }),
     onFieldsChange: ({onChange}, _, allFields) => {
         onChange({...allFields});

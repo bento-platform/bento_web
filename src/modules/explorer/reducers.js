@@ -4,7 +4,7 @@ import FileSaver from "file-saver";
 import {
     addDataTypeFormIfPossible,
     removeDataTypeFormIfPossible,
-    updateDataTypeFormIfPossible
+    updateDataTypeFormIfPossible,
 } from "../../utils/search";
 
 import { readFromLocalStorage } from "../../utils/localStorageUtils";
@@ -25,7 +25,7 @@ import {
     NEUTRALIZE_AUTO_QUERY_PAGE_TRANSITION,
     FREE_TEXT_SEARCH,
     SET_OTHER_THRESHOLD_PERCENTAGE,
-    SET_IGV_POSITION
+    SET_IGV_POSITION,
 } from "./actions";
 
 // TODO: Could this somehow be combined with discovery?
@@ -47,9 +47,9 @@ export const explorer = (
         },
         otherThresholdPercentage:
             readFromLocalStorage("otherThresholdPercentage") ?? DEFAULT_OTHER_THRESHOLD_PERCENTAGE,
-        igvPosition: undefined
+        igvPosition: undefined,
     },
-    action
+    action,
 ) => {
     switch (action.type) {
         case PERFORM_GET_GOHAN_VARIANTS_OVERVIEW.RECEIVE:
@@ -102,7 +102,7 @@ export const explorer = (
         case SET_IS_SUBMITTING_SEARCH:
             return {
                 ...state,
-                isSubmittingSearch: action.isSubmittingSearch
+                isSubmittingSearch: action.isSubmittingSearch,
             };
 
         case PERFORM_INDIVIDUAL_CSV_DOWNLOAD.REQUEST:
@@ -131,7 +131,7 @@ export const explorer = (
                     ...state.dataTypeFormsByDatasetID,
                     [action.datasetID]: addDataTypeFormIfPossible(
                         state.dataTypeFormsByDatasetID[action.datasetID] || [],
-                        action.dataType
+                        action.dataType,
                     ),
                 },
             };
@@ -143,7 +143,7 @@ export const explorer = (
                     [action.datasetID]: updateDataTypeFormIfPossible(
                         state.dataTypeFormsByDatasetID[action.datasetID] || [],
                         action.dataType,
-                        action.fields
+                        action.fields,
                     ),
                 },
             };
@@ -154,7 +154,7 @@ export const explorer = (
                     ...state.dataTypeFormsByDatasetID,
                     [action.datasetID]: removeDataTypeFormIfPossible(
                         state.dataTypeFormsByDatasetID[action.datasetID] || [],
-                        action.dataType
+                        action.dataType,
                     ),
                 },
             };
@@ -177,7 +177,7 @@ export const explorer = (
                         sortColumnKey: action.sortColumnKey,
                         sortOrder: action.sortOrder,
                     },
-                }
+                },
             };
 
     // Auto-Queries start here ----
@@ -210,7 +210,7 @@ export const explorer = (
         case FREE_TEXT_SEARCH.REQUEST:
             return {
                 ...state,
-                fetchingTextSearch: true
+                fetchingTextSearch: true,
             };
         case FREE_TEXT_SEARCH.RECEIVE:
             return {
@@ -226,7 +226,7 @@ export const explorer = (
         case FREE_TEXT_SEARCH.FINISH:
             return {
                 ...state,
-                fetchingTextSearch: false
+                fetchingTextSearch: false,
             };
         case SET_OTHER_THRESHOLD_PERCENTAGE:
             return {
@@ -236,7 +236,7 @@ export const explorer = (
         case SET_IGV_POSITION:
             return {
                 ...state,
-                igvPosition: action.igvPosition
+                igvPosition: action.igvPosition,
             };
 
         default:
@@ -254,10 +254,10 @@ const tableSearchResults = (searchResults) => {
             key: p.subject_id,
             individual: {
                 id: p.subject_id,
-                alternate_ids: p.alternate_ids ?? []
+                alternate_ids: p.alternate_ids ?? [],
             },
             biosamples: p.biosamples,
-            experiments: p.num_experiments
+            experiments: p.num_experiments,
         };
     });
 };
@@ -278,7 +278,7 @@ function freeTextResults(_searchResults) {
 
     return {
         results: {
-            variant: []   //TODO
-        }
+            variant: [],   //TODO
+        },
     };
 }

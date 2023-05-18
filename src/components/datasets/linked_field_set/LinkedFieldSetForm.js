@@ -26,7 +26,7 @@ class LinkedFieldSetForm extends Component {
 
     removeField(key) {
         this.props.form.setFieldsValue({
-            [FIELD_KEYS]: this.props.form.getFieldValue(FIELD_KEYS).filter(k => k !== key)
+            [FIELD_KEYS]: this.props.form.getFieldValue(FIELD_KEYS).filter(k => k !== key),
         });
     }
 
@@ -54,7 +54,7 @@ class LinkedFieldSetForm extends Component {
                     const selected = `[dataset item].${dt}.[item].${f.join(".")}`;
                     try {
                         this.props.form.getFieldDecorator(`fields[${i}]`, {
-                            initialValue: {selected, schema: getFieldSchema(rootSchema, selected)}
+                            initialValue: {selected, schema: getFieldSchema(rootSchema, selected)},
                         });
                     } catch (err) {
                         // Possibly invalid field (due to migration / data model change), skip it.
@@ -78,8 +78,8 @@ class LinkedFieldSetForm extends Component {
             "type": "object",
             "properties": Object.fromEntries(Object.entries(this.props.dataTypes).map(([k, v]) => [k, {
                 "type": "array",
-                "items": v.schema
-            }]))
+                "items": v.schema,
+            }])),
         };
     }
 
@@ -95,7 +95,7 @@ class LinkedFieldSetForm extends Component {
             <Form.Item required={i < 2} key={k} label={`Field ${i + 1}`}>
                 <Input.Group compact={true}>
                     {getFieldDecorator(`fields[${k}]`, {
-                        rules: [{required: true, message: "Please specify a field"}]
+                        rules: [{required: true, message: "Please specify a field"}],
                     })(<SchemaTreeSelect schema={joinedSchema} style={{width: "calc(100% - 33px)"}} /> )}
                     <Button icon="close" type="danger" disabled={i < 2} onClick={() => this.removeField(k)} />
                 </Input.Group>
@@ -106,7 +106,7 @@ class LinkedFieldSetForm extends Component {
             <Form.Item label="Name">
                 {getFieldDecorator("name", {
                     initialValue: this.props.initialValue?.name ?? "",
-                    rules: [{required: true}, {min: 3}]
+                    rules: [{required: true}, {min: 3}],
                 })(<Input placeholder="Sample IDs" />)}
             </Form.Item>
             {fieldItems}

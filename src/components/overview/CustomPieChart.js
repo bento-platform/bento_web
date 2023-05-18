@@ -39,7 +39,7 @@ class CustomPieChart extends React.Component {
         canUpdate: false,
         activeIndex: undefined,
         itemSelected: undefined,
-        fieldLabel: undefined
+        fieldLabel: undefined,
     };
 
     onEnter = (_data, index) => {
@@ -65,7 +65,7 @@ class CustomPieChart extends React.Component {
             window.location.href,
             autoQueryDataType,
             this.props.fieldLabel,
-            data.name
+            data.name,
         );
 
         // Navigate to Explorer
@@ -103,7 +103,7 @@ class CustomPieChart extends React.Component {
     };
 
     style = {
-        marginBottom: "20px"
+        marginBottom: "20px",
     };
 
     labelShortName(name) {
@@ -333,7 +333,7 @@ const CustomTooltip = ({active, payload, totalCount }) => {
         border: "1px solid grey",
         boxShadow: "0px 0px 2px rgba(0, 0, 0, 0.9)",
         borderRadius: "2px",
-        textAlign: "left"
+        textAlign: "left",
     };
 
     const labelStyle = {

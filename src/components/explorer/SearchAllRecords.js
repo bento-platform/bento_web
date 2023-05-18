@@ -39,7 +39,7 @@ SearchAllRecords.propTypes = {
     performFreeTextSearchIfPossible: PropTypes.func,
     searchAllRecords: PropTypes.object,
     isFetchingAdvancedSearch: PropTypes.bool,
-    isFetchingTextSearch: PropTypes.bool
+    isFetchingTextSearch: PropTypes.bool,
 };
 
 const mapStateToProps = (state, ownProps) => ({
