@@ -85,7 +85,7 @@ JsonArrayDisplay.defaultProps = {
     standalone: false,
 };
 
-const JsonPropertyDisplay = ({ keyName, value }) => {
+const JsonPropertyDisplay = ({ value }) => {
     console.debug("JsonPropertyDisplay", value);
 
     if (Array.isArray(value) && value.length > 100) {
@@ -103,7 +103,6 @@ const JsonPropertyDisplay = ({ keyName, value }) => {
 };
 
 JsonPropertyDisplay.propTypes = {
-    keyName: PropTypes.string,
     value: PropTypes.any,
 };
 
@@ -115,7 +114,7 @@ const JsonObjectDisplay = ({ doc }) => {
             <Collapse accordion>
                 {entries.map(([key, value]) =>
                     <Panel header={<span style={{fontFamily: "monospace"}}>{key}</span>} key={key}>
-                        <JsonPropertyDisplay keyName={key} value={value} />
+                        <JsonPropertyDisplay value={value} />
                     </Panel>,
                 )}
             </Collapse>
