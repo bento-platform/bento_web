@@ -6,6 +6,7 @@ import {throttle} from "lodash";
 import {Layout, Input, Table, Button, Descriptions, message} from "antd";
 
 import {LAYOUT_CONTENT_STYLE} from "../../../styles/layoutContent";
+import {makeAuthorizationHeader} from "../../../lib/auth/utils";
 
 const DRS_COLUMNS = [
     {
@@ -40,6 +41,7 @@ const DRS_COLUMNS = [
 
 const ManagerDRSContent = () => {
     const drsUrl = useSelector(state => state.services.drsService?.url);
+    const accessToken = useSelector(state => state.auth.accessToken);
 
     const [searchResults, setSearchResults] = useState([]);
     const [doneSearch, setDoneSearch] = useState(false);
@@ -58,7 +60,8 @@ const ManagerDRSContent = () => {
 
         setLoading(true);
 
-        fetch(`${drsUrl}/search?` + new URLSearchParams({q: sv}))
+        const authHeaders = makeAuthorizationHeader(accessToken);
+        fetch(`${drsUrl}/search?` + new URLSearchParams({q: sv}), {method: "GET", headers: authHeaders})
             .then(r => Promise.all([Promise.resolve(r.ok), r.json()]))
             .then(([ok, data]) => {
                 if (ok) {
