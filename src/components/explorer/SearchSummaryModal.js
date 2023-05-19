@@ -74,9 +74,8 @@ const SearchSummaryModal = ({ searchResults, ...props }) => {
             .then((response) => response.json())
             .then((result) => {
                 setData(result);
-                console.log(result);
             })
-            .catch((error) => console.log("error", error));
+            .catch((error) => console.error("error", error));
     }, [searchResults]);
 
     const individualsCharts = [
