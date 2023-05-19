@@ -128,7 +128,7 @@ export const tokenHandoff = networkAction((code, verifier) => (_dispatch, getSta
 // Action to renew access/refresh tokens
 // TODO: handle session expiry / refresh token expiry
 export const REFRESH_TOKENS = createNetworkActionTypes("REFRESH_TOKENS");
-export const refreshTokens = networkAction(() => (_dispatch, getState) => ({
+const refreshTokens = networkAction(() => (_dispatch, getState) => ({
     types: REFRESH_TOKENS,
     url: getState().openIdConfiguration.data?.["token_endpoint"],
     ...tokenSuccessError,
@@ -142,6 +142,11 @@ export const refreshTokens = networkAction(() => (_dispatch, getState) => ({
         }),
     },
 }));
+export const refreshTokensIfPossible = () => (dispatch, getState) => {
+    // If refresh token is null, it has been invalidated or was never fetched, so we cannot refresh the session.
+    if (!getState().auth.refreshToken) return;
+    return dispatch(refreshTokens());
+};
 
 export const SIGN_OUT = "SIGN_OUT";
 export const signOut = () => {
