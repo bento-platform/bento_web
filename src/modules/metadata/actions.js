@@ -21,6 +21,7 @@ import {
 import {nop, objectWithoutProps} from "../../utils/misc";
 import {jsonRequest} from "../../utils/requests";
 import {withBasePath} from "../../utils/url";
+import {makeAuthorizationHeader} from "../../lib/auth/utils";
 
 
 export const FETCH_PROJECTS = createNetworkActionTypes("FETCH_PROJECTS");
@@ -275,6 +276,8 @@ export const addProjectTable = (project, datasetID, serviceInfo, dataType, table
     async (dispatch, getState) => {
         if (getState().projectTables.isAdding) return;  // TODO: or isDeleting
 
+        const authHeaders = makeAuthorizationHeader(getState().auth.accessToken);
+
         dispatch(beginFlow(PROJECT_TABLE_ADDITION));
         dispatch(beginFlow(ADDING_SERVICE_TABLE));
 
@@ -284,7 +287,10 @@ export const addProjectTable = (project, datasetID, serviceInfo, dataType, table
             dispatch(terminateFlow(PROJECT_TABLE_ADDITION));
         };
 
-        await fetch(`${serviceInfo.url}/tables?data-type=${dataType}`, {method: "OPTIONS"});
+        await fetch(`${serviceInfo.url}/tables?data-type=${dataType}`, {
+            method: "OPTIONS",
+            headers: authHeaders,
+        });
 
         try {
             const serviceResponse = await fetch(
@@ -294,7 +300,7 @@ export const addProjectTable = (project, datasetID, serviceInfo, dataType, table
                     metadata: {},
                     data_type: dataType,
                     dataset: datasetID,  // This will only be used by the metadata service to create the ownership
-                }, "POST"));
+                }, "POST", authHeaders));
 
             if (!serviceResponse.ok) {
                 console.error(serviceResponse);
@@ -315,6 +321,7 @@ export const addProjectTable = (project, datasetID, serviceInfo, dataType, table
                 const projectResponse = await (
                     serviceArtifact === "metadata" ? fetch(
                         `${getState().services.metadataService.url}/api/table_ownership/${serviceTable.id}`,
+                        {method: "GET", headers: authHeaders},
                     ) : fetch(
                         `${getState().services.metadataService.url}/api/table_ownership`,
                         jsonRequest({
@@ -325,7 +332,7 @@ export const addProjectTable = (project, datasetID, serviceInfo, dataType, table
 
                             dataset: datasetID,
                             sample: null,  // TODO: Sample ID if wanted  // TODO: Deprecate?
-                        }, "POST"),
+                        }, "POST", authHeaders),
                     )
                 );
 
@@ -358,6 +365,7 @@ const deleteProjectTable = (project, table) => async (dispatch, getState) => {
     dispatch(beginFlow(DELETING_SERVICE_TABLE));
 
     const serviceInfo = getState().services.itemsByID[table.service_id];
+    const authHeaders = makeAuthorizationHeader(getState().auth.accessToken);
 
     const terminate = () => {
         message.error(`Error deleting table '${table.name}'`);
@@ -371,10 +379,15 @@ const deleteProjectTable = (project, table) => async (dispatch, getState) => {
         terminate();
     };
 
-    // Delete from service
+    const deleteReqInit = {
+        method: "DELETE",
+        headers: authHeaders,
+    };
+
+        // Delete from service
     try {
         console.debug(`deleting table ${table.table_id}`);
-        const serviceResponse = await fetch(`${serviceInfo.url}/tables/${table.table_id}`, {method: "DELETE"});
+        const serviceResponse = await fetch(`${serviceInfo.url}/tables/${table.table_id}`, deleteReqInit);
         if (!serviceResponse.ok) return handleFailure(serviceResponse);
     } catch (e) {
         return handleFailure(e);
@@ -388,7 +401,7 @@ const deleteProjectTable = (project, table) => async (dispatch, getState) => {
 
             const projectResponse = await fetch(
                 `${getState().services.metadataService.url}/api/table_ownership/${table.table_id}`,
-                {method: "DELETE"},
+                deleteReqInit,
             );
 
             if (!projectResponse.ok) {

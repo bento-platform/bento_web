@@ -38,6 +38,7 @@ import JsonDisplay from "../JsonDisplay";
 import {STEP_INPUT} from "./workflowCommon";
 import {withBasePath} from "../../utils/url";
 import {dropBoxTreeStateToPropsMixinPropTypes, workflowsStateToPropsMixin} from "../../propTypes";
+import {makeAuthorizationHeader} from "../../lib/auth/utils";
 
 
 SyntaxHighlighter.registerLanguage("json", json);
@@ -99,15 +100,12 @@ const FileDisplay = ({file, tree, treeLoading}) => {
     const urisByFilePath = useMemo(() => generateURIsByFilePath(tree, {}), [tree]);
 
     const accessToken = useSelector(state => state.auth.accessToken);
+    const headers = useMemo(() => makeAuthorizationHeader(accessToken), [accessToken]);
 
     const [fileLoadError, setFileLoadError] = useState("");
     const [loadingFileContents, setLoadingFileContents] = useState(false);
     const [fileContents, setFileContents] = useState({});
     const [pdfPageCounts, setPdfPageCounts] = useState({});
-
-    const headers = useMemo(
-        () => accessToken ? {"Authorization": `Bearer ${accessToken}`} : undefined,
-        [accessToken]);
 
     const pdfOptions = useMemo(() => ({
         ...BASE_PDF_OPTIONS,

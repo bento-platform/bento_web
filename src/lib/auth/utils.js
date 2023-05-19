@@ -8,3 +8,5 @@ export const buildUrlEncodedData = obj =>
 
 export const getIsAuthenticated = idTokenContents =>
     !!idTokenContents && Math.round((new Date()).getTime() / 1000) < idTokenContents.exp;
+
+export const makeAuthorizationHeader = token => token ? {"Authorization": `Bearer ${token}`} : {};
