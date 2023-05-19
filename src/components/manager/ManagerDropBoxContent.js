@@ -98,6 +98,8 @@ const formatTimestamp = timestamp => (new Date(timestamp * 1000)).toLocaleString
 const FileDisplay = ({file, tree, treeLoading}) => {
     const urisByFilePath = useMemo(() => generateURIsByFilePath(tree, {}), [tree]);
 
+    const accessToken = useSelector(state => state.auth.accessToken);
+
     const [fileLoadError, setFileLoadError] = useState("");
     const [loadingFileContents, setLoadingFileContents] = useState(false);
     const [fileContents, setFileContents] = useState({});
@@ -135,7 +137,9 @@ const FileDisplay = ({file, tree, treeLoading}) => {
 
             try {
                 setLoadingFileContents(true);
-                const r = await fetch(urisByFilePath[file]);
+                const r = await fetch(urisByFilePath[file], {
+                    headers: accessToken ? {"Authorization": `Bearer ${accessToken}`} : undefined,
+                });
                 if (r.ok) {
                     const text = await r.text();
                     const content = (fileExt === "json" ? JSON.parse(text) : text);
