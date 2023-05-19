@@ -15,7 +15,8 @@ import SitePageLoading from "./SitePageLoading";
 import {
     fetchOpenIdConfigurationIfNeeded,
     fetchUserDependentData,
-    refreshTokens, tokenHandoff,
+    refreshTokensIfPossible,
+    tokenHandoff,
 } from "../modules/auth/actions";
 
 import {BENTO_URL_NO_TRAILING_SLASH} from "../config";
@@ -206,7 +207,7 @@ const App = () => {
             // Use session worker to send pings to refresh the token set even when the tab is inactive.
             const sw = new SessionWorker();
             sw.addEventListener("message", () => {
-                dispatch(refreshTokens());
+                dispatch(refreshTokensIfPossible());
                 dispatch(fetchUserDependentData(nop));
             });
             sessionWorker.current = sw;
