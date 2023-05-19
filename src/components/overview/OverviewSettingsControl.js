@@ -16,12 +16,12 @@ import { DEFAULT_OTHER_THRESHOLD_PERCENTAGE } from "../../constants";
 const OverviewSettingsControl = ({ modalVisible, toggleModalVisibility }) => {
     const otherThresholdPercentage = useSelector((state) => state.explorer.otherThresholdPercentage);
     const [inputValue, setInputValue] = useState(
-        otherThresholdPercentage ?? DEFAULT_OTHER_THRESHOLD_PERCENTAGE
+        otherThresholdPercentage ?? DEFAULT_OTHER_THRESHOLD_PERCENTAGE,
     );
 
     //preserve earlier setting in case user cancels
     const [previousThreshold, setPreviousThreshold] = useState(
-        otherThresholdPercentage ?? DEFAULT_OTHER_THRESHOLD_PERCENTAGE
+        otherThresholdPercentage ?? DEFAULT_OTHER_THRESHOLD_PERCENTAGE,
     );
     const dispatch = useDispatch();
 

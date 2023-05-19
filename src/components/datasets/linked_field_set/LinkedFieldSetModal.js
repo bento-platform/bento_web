@@ -8,7 +8,7 @@ import LinkedFieldSetForm from "./LinkedFieldSetForm";
 
 import {
     addDatasetLinkedFieldSetIfPossible,
-    saveDatasetLinkedFieldSetIfPossible
+    saveDatasetLinkedFieldSetIfPossible,
 } from "../../../modules/metadata/actions";
 
 import {nop} from "../../../utils/misc";

@@ -20,8 +20,8 @@ class ExplorerSearchContent extends Component {
             text: project.title,
             children: project.datasets.map(dataset => ({
                 url: withBasePath(`data/explorer/search/${dataset.identifier}`),
-                text: dataset.title
-            }))
+                text: dataset.title,
+            })),
         }));
 
         const datasets = this.props.projects.flatMap(p => p.datasets);
@@ -62,7 +62,7 @@ ExplorerSearchContent.propTypes = {
 const mapStateToProps = state => ({
     projects: state.projects.items,
     isFetchingDependentData: state.auth.isFetchingDependentData,
-    autoQuery: state.explorer.autoQuery
+    autoQuery: state.explorer.autoQuery,
 });
 
 export default connect(mapStateToProps)(ExplorerSearchContent);

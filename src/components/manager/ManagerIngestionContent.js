@@ -34,7 +34,7 @@ const IngestWorkflowSelection = ({values, setValues, handleWorkflowClick}) => {
                 key={w.id}
                 workflow={w}
                 onClick={() => handleWorkflowClick(w)}
-            />
+            />,
         );
 
     return <Form labelCol={FORM_LABEL_COL} wrapperCol={FORM_WRAPPER_COL}>

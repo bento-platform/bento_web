@@ -12,3 +12,9 @@ export const readFromLocalStorage = (item) => {
     }
     return value;
 };
+
+export const popLocalStorageItem = key => {
+    const val = localStorage.getItem(key);
+    localStorage.removeItem(key);
+    return val;
+};

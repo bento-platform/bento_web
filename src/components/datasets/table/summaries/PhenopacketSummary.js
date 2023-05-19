@@ -54,7 +54,7 @@ const PhenopacketSummary = ({summary}) => {
 };
 
 PhenopacketSummary.propTypes = {
-    summary: summaryPropTypesShape
+    summary: summaryPropTypesShape,
 };
 
 export default PhenopacketSummary;

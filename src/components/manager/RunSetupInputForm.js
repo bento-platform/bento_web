@@ -36,7 +36,7 @@ const getInputComponent = (input, tree) => {
                     {generateFileTree(
                         tree,
                         entry => entry.hasOwnProperty("contents") ||
-                            input.extensions.find(e => entry.name.endsWith(e)) !== undefined
+                            input.extensions.find(e => entry.name.endsWith(e)) !== undefined,
                     )}
                 </TreeSelect.TreeNode>
             </TreeSelect>;
@@ -81,7 +81,7 @@ const RunSetupInputForm = ({initialValues, form, onSubmit, tree, workflow, onBac
                 <Button type="primary" htmlType="submit" style={{float: "right"}}>
                     Next <Icon type="right" />
                 </Button>
-            </Form.Item>
+            </Form.Item>,
         ]}
     </Form>;
 };

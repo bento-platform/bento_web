@@ -1,19 +1,11 @@
-// We need to constantly ping the server to make sure the session cookie is as
-// up to date as possible. Unfortunately, setInterval slows down when a tab is
+// We need to constantly ping the server to make sure the token set is as
+// up-to-date as possible. Unfortunately, setInterval slows down when a tab is
 // not active, so we need to move this pinging to a web worker to maintain the
 // session when the tab doesn't have focus.
 
-const BASE_PATH = process.env.CHORD_URL ? (new URL(process.env.CHORD_URL)).pathname : "/";
-const USER_URL = `${BASE_PATH}api/auth/user`;
+// When the main page receives the message, it will trigger the REFRESH_TOKENS.*
+// network action to get a new access & refresh token.
 
-setInterval(() => fetch(USER_URL).then(response => {
-    response.json().then(data => {
-        if (response.ok) {
-            self.postMessage({user: data});
-        } else {
-            self.postMessage({user: null, error: data});
-        }
-    }).catch(err => {
-        self.postMessage({user: null, error: err});
-    });
-}), 30000);
+setInterval(() => {
+    self.postMessage(true);  // Send a window-inactive-resilient ping
+}, 120000);  // every 2 minutes

@@ -10,7 +10,7 @@ import DatasetForm from "./DatasetForm";
 import {
     addProjectDataset,
     saveProjectDataset,
-    fetchProjectsWithDatasetsAndTables
+    fetchProjectsWithDatasetsAndTables,
 } from "../../modules/metadata/actions";
 
 import {nop} from "../../utils/misc";
@@ -75,7 +75,7 @@ class DatasetFormModal extends Component {
                                loading={this.props.projectsFetching || this.props.projectDatasetsAdding ||
                                    this.props.projectDatasetsSaving || this.props.projectsFetchingWithTables}>
                            {mode === FORM_MODE_ADD ? "Add" : "Save"}
-                       </Button>
+                       </Button>,
                    ]}
                    onCancel={this.handleCancel}>
                 <DatasetForm ref={form => this.form = form}
@@ -107,7 +107,7 @@ DatasetFormModal.propTypes = {
 
     addProjectDataset: PropTypes.func,
     saveProjectDataset: PropTypes.func,
-    fetchProjectsWithDatasetsAndTables: PropTypes.func
+    fetchProjectsWithDatasetsAndTables: PropTypes.func,
 };
 
 const mapStateToProps = state => ({

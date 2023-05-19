@@ -8,7 +8,7 @@ import ReactRouterPropTypes from "react-router-prop-types";
 import {Layout, Menu, Skeleton} from "antd";
 
 import {fetchIndividualIfNecessary} from "../../modules/metadata/actions";
-import {individualPropTypesShape, nodeInfoDataPropTypesShape} from "../../propTypes";
+import {individualPropTypesShape} from "../../propTypes";
 import {LAYOUT_CONTENT_STYLE} from "../../styles/layoutContent";
 import {matchingMenuKeys, renderMenuItem} from "../../utils/menu";
 import {urlPath, withBasePath} from "../../utils/url";
@@ -23,13 +23,14 @@ import IndividualMetadata from "./IndividualMetadata";
 import IndividualVariants from "./IndividualVariants";
 import IndividualGenes from "./IndividualGenes";
 import IndividualTracks from "./IndividualTracks";
+import {BENTO_URL} from "../../config";
 
 const withURLPrefix = (individual, page) => withBasePath(`data/explorer/individuals/${individual}/${page}`);
 
 const MENU_STYLE = {
     marginLeft: "-24px",
     marginRight: "-24px",
-    marginTop: "-12px"
+    marginTop: "-12px",
 };
 
 
@@ -82,20 +83,18 @@ class ExplorerIndividualContent extends Component {
         const metadataUrl = withURLPrefix(individualID, "metadata");
         const tracksUrl = withURLPrefix(individualID, "tracks");
         const individualMenu = [
-            {url: overviewUrl, style: {marginLeft: "4px"}, text: "Overview",},
-            {url: pfeaturesUrl, text: "Phenotypic Features",},
-            {url: biosamplesUrl, text: "Biosamples",},
-            {url: experimentsUrl, text: "Experiments",},
-            {url: tracksUrl, text: "Tracks",},
-            {url: variantsUrl, text: "Variants",},
-            {url: genesUrl, text: "Genes",},
-            {url: diseasesUrl, text: "Diseases",},
-            {url: metadataUrl, text: "Metadata",},
+            {url: overviewUrl, style: {marginLeft: "4px"}, text: "Overview"},
+            {url: pfeaturesUrl, text: "Phenotypic Features"},
+            {url: biosamplesUrl, text: "Biosamples"},
+            {url: experimentsUrl, text: "Experiments"},
+            {url: tracksUrl, text: "Tracks"},
+            {url: variantsUrl, text: "Variants"},
+            {url: genesUrl, text: "Genes"},
+            {url: diseasesUrl, text: "Diseases"},
+            {url: metadataUrl, text: "Metadata"},
         ];
 
-        const selectedKeys = this.props.nodeInfo
-            ? matchingMenuKeys(individualMenu, urlPath(this.props.nodeInfo.CHORD_URL))
-            : [];
+        const selectedKeys = matchingMenuKeys(individualMenu, urlPath(BENTO_URL));
 
         const headerTitle = (individual) => {
             if (!individual) {
@@ -155,7 +154,6 @@ class ExplorerIndividualContent extends Component {
 }
 
 ExplorerIndividualContent.propTypes = {
-    nodeInfo: nodeInfoDataPropTypesShape,
     metadataService: PropTypes.object,  // TODO
     individuals: PropTypes.objectOf(individualPropTypesShape),
 
@@ -166,7 +164,6 @@ ExplorerIndividualContent.propTypes = {
 };
 
 const mapStateToProps = state => ({
-    nodeInfo: state.nodeInfo.data,
     metadataService: state.services.metadataService,
     individuals: state.individuals.itemsByID,
 });

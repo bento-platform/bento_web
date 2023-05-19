@@ -41,7 +41,7 @@ const RunSetupWizard = ({
             step: newStep,
             workflowSelectionValues: newWorkflowSelectionValues,
             selectedWorkflow: newSelectedWorkflow,
-            initialInputValues: newInitialInputValues
+            initialInputValues: newInitialInputValues,
         } = location?.state ?? {};
 
         if (newStep !== undefined) {

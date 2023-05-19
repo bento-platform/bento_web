@@ -1,10 +1,13 @@
 /* eslint-disable camelcase */
 import React, { useEffect, useState } from "react";
+import { useSelector } from "react-redux";
+
 import { Col, Divider, Modal, Row, Skeleton, Statistic, Typography } from "antd";
 import CustomPieChart from "../overview/CustomPieChart";
 import Histogram from "../overview/Histogram";
+
+import { makeAuthorizationHeader } from "../../lib/auth/utils";
 import { explorerSearchResultsPropTypesShape } from "../../propTypes";
-import { useSelector } from "react-redux";
 
 const CHART_HEIGHT = 300;
 const CHART_ASPECT_RATIO = 1.8;
@@ -55,6 +58,7 @@ const SearchSummaryModal = ({ searchResults, ...props }) => {
     const [data, setData] = useState(null);
 
     const katsuUrl = useSelector((state) => state.services.itemsByArtifact.metadata.url);
+    const accessToken = useSelector((state) => state.auth.accessToken);
 
     useEffect(() => {
         const ids = searchResults.searchFormattedResults.map(({ key }) => key);
@@ -65,7 +69,7 @@ const SearchSummaryModal = ({ searchResults, ...props }) => {
 
         const requestOptions = {
             method: "POST",
-            headers: new Headers({ "Content-Type": "application/json" }),
+            headers: new Headers({"Content-Type": "application/json", ...makeAuthorizationHeader(accessToken)}),
             body: raw,
             redirect: "follow",
         };

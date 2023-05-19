@@ -136,7 +136,7 @@ LocusSearch.propTypes = {
     assemblyId: PropTypes.string,
     addVariantSearchValues: PropTypes.func,
     handleLocusChange: PropTypes.func,
-    setLocusValidity: PropTypes.func
+    setLocusValidity: PropTypes.func,
 };
 
 

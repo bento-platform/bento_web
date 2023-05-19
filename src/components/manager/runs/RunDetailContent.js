@@ -28,7 +28,7 @@ RunDetailContent.propTypes = {
 };
 
 const mapStateToProps = state => ({
-    runsByID: state.runs.itemsByID
+    runsByID: state.runs.itemsByID,
 });
 
 export default connect(mapStateToProps)(RunDetailContent);
