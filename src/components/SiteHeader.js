@@ -1,15 +1,17 @@
-import React, { useState } from "react";
+import React, {useMemo, useState} from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { Link, withRouter } from "react-router-dom";
 import { Badge, Icon, Layout, Menu } from "antd";
 
-import {BENTO_CBIOPORTAL_ENABLED, CUSTOM_HEADER} from "../config";
-import { SIGN_OUT_URL } from "../constants";
+import { BENTO_CBIOPORTAL_ENABLED, CUSTOM_HEADER } from "../config";
 import { showNotificationDrawer } from "../modules/notifications/actions";
 import { matchingMenuKeys, renderMenuItem } from "../utils/menu";
-import { BASE_PATH, signInURLWithRedirect, withBasePath } from "../utils/url";
+import { BASE_PATH, withBasePath } from "../utils/url";
 
 import OverviewSettingsControl from "./overview/OverviewSettingsControl";
+import { performAuth } from "../lib/auth/performAuth";
+import { getIsAuthenticated } from "../lib/auth/utils";
+import { signOut } from "../modules/auth/actions";
 
 
 const LinkedLogo = React.memo(() =>
@@ -32,9 +34,19 @@ const CustomHeaderText = React.memo(() =>
 const SiteHeader = () => {
     const dispatch = useDispatch();
 
+    const {
+        data: openIdConfig,
+        isFetching: openIdConfigFetching,
+    } = useSelector(state => state.openIdConfiguration);
+    const authzEndpoint = openIdConfig?.["authorization_endpoint"];
+
     const unreadNotifications = useSelector(state => state.notifications.items.filter(n => !n.read));
-    const { user, hasAttempted: authHasAttempted } = useSelector(state => state.auth);
-    const isOwner = user?.chord_user_role === "owner";
+    const {
+        idTokenContents,
+        isHandingOffCodeForToken,
+        hasAttempted: authHasAttempted,
+    } = useSelector(state => state.auth);
+    const isAuthenticated = getIsAuthenticated(idTokenContents);
 
     const [modalVisible, setModalVisible] = useState(false);
 
@@ -42,7 +54,7 @@ const SiteHeader = () => {
         setModalVisible(!modalVisible);
     };
 
-    const menuItems = [
+    const menuItems = useMemo(() => [
         {
             url: withBasePath("overview"),
             icon: <Icon type="user" />,
@@ -53,7 +65,7 @@ const SiteHeader = () => {
             url: withBasePath("data/explorer"),
             icon: <Icon type="bar-chart" />,
             text: "Explorer",
-            disabled: !isOwner,
+            disabled: !isAuthenticated,
             key: "explorer",
         },
         // TODO: Only if cBioPortal access is enabled for any project/dataset or something like that...
@@ -70,35 +82,35 @@ const SiteHeader = () => {
             url: withBasePath("admin"),
             icon: <Icon type="user" />,
             text: "Admin",
-            disabled: !isOwner,
+            disabled: !isAuthenticated,
             children: [
                 {
                     key: "admin-services",
                     url: withBasePath("admin/services"),
                     icon: <Icon type="dashboard" />,
                     text: "Services",
-                    disabled: !isOwner,
+                    disabled: !isAuthenticated,
                 },
                 {
                     key: "admin-data-manager",
                     url: withBasePath("admin/data/manager"),
                     icon: <Icon type="folder-open" />,
                     text: "Data Manager",
-                    disabled: !isOwner,
+                    disabled: !isAuthenticated,
                 },
             ],
         },
-        ...(user
+        ...(isAuthenticated
             ? [
                 {
                     key: "user-menu",
                     style: { float: "right" },
                     icon: <Icon type="user" />,
-                    text: user.preferred_username,
+                    text: idTokenContents?.preferred_username,
                     children: [
                         {
                             key: "sign-out-link",
-                            onClick: () => (window.location.href = withBasePath(SIGN_OUT_URL)),
+                            onClick: () => dispatch(signOut()),
                             icon: <Icon type="logout" />,
                             text: <span className="nav-text">Sign Out</span>,
                         },
@@ -110,14 +122,16 @@ const SiteHeader = () => {
                     key: "sign-in",
                     style: { float: "right" },
                     icon: <Icon type="login" />,
-                    text: <span className="nav-text">{authHasAttempted ? "Sign In" : "Loading..."}</span>,
-                    onClick: () => (window.location.href = signInURLWithRedirect()),
+                    text: <span className="nav-text">
+                        {(openIdConfigFetching || isHandingOffCodeForToken) ? "Loading..." : "Sign In"}
+                    </span>,
+                    onClick: () => performAuth(authzEndpoint),
                 },
             ]),
         {
             url: withBasePath("notifications"),
             style: { float: "right" },
-            disabled: !isOwner,
+            disabled: !isAuthenticated,
             icon: (
                 <Badge dot count={unreadNotifications.length}>
                     <Icon type="bell" style={{ marginRight: "0" }} />
@@ -139,7 +153,7 @@ const SiteHeader = () => {
             onClick: toggleModalVisibility,
             key: "settings",
         },
-    ];
+    ], [isAuthenticated, authHasAttempted, idTokenContents, unreadNotifications]);
 
     return <>
         <Layout.Header>
