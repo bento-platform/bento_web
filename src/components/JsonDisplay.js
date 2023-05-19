@@ -99,7 +99,7 @@ const JsonPropertyDisplay = ({ keyName, value }) => {
     }
 
     // Display primitive
-    return <ReactJson src={{[keyName]: value}} collapsed={false} {...DEFAULT_REACT_JSON_OPTIONS} />;
+    return <span style={{fontFamily: "monospace"}}>{JSON.stringify(value)}</span>;
 };
 
 JsonPropertyDisplay.propTypes = {
