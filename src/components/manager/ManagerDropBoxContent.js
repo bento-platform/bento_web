@@ -38,6 +38,7 @@ import JsonDisplay from "../JsonDisplay";
 import {STEP_INPUT} from "./workflowCommon";
 import {withBasePath} from "../../utils/url";
 import {dropBoxTreeStateToPropsMixinPropTypes, workflowsStateToPropsMixin} from "../../propTypes";
+import {makeAuthorizationHeader} from "../../lib/auth/utils";
 
 
 SyntaxHighlighter.registerLanguage("json", json);
@@ -45,7 +46,7 @@ SyntaxHighlighter.registerLanguage("markdown", markdown);
 SyntaxHighlighter.registerLanguage("plaintext", plaintext);
 
 
-const PDF_OPTIONS = {
+const BASE_PDF_OPTIONS = {
     cMapUrl: "cmaps/",
     cMapPacked: true,
     standardFontDataUrl: "standard_fonts/",
@@ -98,10 +99,18 @@ const formatTimestamp = timestamp => (new Date(timestamp * 1000)).toLocaleString
 const FileDisplay = ({file, tree, treeLoading}) => {
     const urisByFilePath = useMemo(() => generateURIsByFilePath(tree, {}), [tree]);
 
+    const accessToken = useSelector(state => state.auth.accessToken);
+    const headers = useMemo(() => makeAuthorizationHeader(accessToken), [accessToken]);
+
     const [fileLoadError, setFileLoadError] = useState("");
     const [loadingFileContents, setLoadingFileContents] = useState(false);
     const [fileContents, setFileContents] = useState({});
     const [pdfPageCounts, setPdfPageCounts] = useState({});
+
+    const pdfOptions = useMemo(() => ({
+        ...BASE_PDF_OPTIONS,
+        httpHeaders: headers,
+    }), [headers]);
 
     let textFormat = false;
     if (file) {
@@ -135,7 +144,7 @@ const FileDisplay = ({file, tree, treeLoading}) => {
 
             try {
                 setLoadingFileContents(true);
-                const r = await fetch(urisByFilePath[file]);
+                const r = await fetch(urisByFilePath[file], {headers});
                 if (r.ok) {
                     const text = await r.text();
                     const content = (fileExt === "json" ? JSON.parse(text) : text);
@@ -182,7 +191,7 @@ const FileDisplay = ({file, tree, treeLoading}) => {
                 const uri = urisByFilePath[file];
                 if (!uri) return <div />;
                 return (
-                    <Document file={uri} onLoadSuccess={onPdfLoad} onLoadError={onPdfFail} options={PDF_OPTIONS}>
+                    <Document file={uri} onLoadSuccess={onPdfLoad} onLoadError={onPdfFail} options={pdfOptions}>
                         {(() => {
                             const pages = [];
                             for (let i = 1; i <= pdfPageCounts[file] ?? 1; i++) {

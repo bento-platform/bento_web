@@ -349,6 +349,7 @@ export const serviceTables = (
             const {serviceInfo: {id: serviceID}, tableID} = action;
             return {
                 ...state,
+                isDeleting: false,
                 itemsByServiceID: {
                     ...state.itemsByServiceID,
                     [serviceID]: {
