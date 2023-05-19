@@ -68,7 +68,7 @@ class TableTreeSelect extends Component {
                         value: `${p.identifier}:${t.dataType}:${t.table_id}`,
                         data: t,
                     })),
-            }))
+            })),
         }));
 
         return <Spin spinning={this.props.servicesLoading || this.props.projectsLoading}>

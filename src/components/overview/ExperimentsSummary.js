@@ -11,11 +11,11 @@ import {mapNameValueFields} from "../../utils/mapNameValueFields";
 
 const mapStateToProps = state => ({
     overviewSummary: state.overviewSummary,
-    otherThresholdPercentage: state.explorer.otherThresholdPercentage
+    otherThresholdPercentage: state.explorer.otherThresholdPercentage,
 });
 
 const actionCreators = {
-    setAutoQueryPageTransition
+    setAutoQueryPageTransition,
 };
 
 class ExperimentsSummary2 extends Component {
@@ -23,10 +23,10 @@ class ExperimentsSummary2 extends Component {
     static propTypes = {
         overviewSummary: PropTypes.shape({
             isFetching: PropTypes.bool,
-            data: overviewSummaryPropTypesShape
+            data: overviewSummaryPropTypesShape,
         }).isRequired,
         setAutoQueryPageTransition: PropTypes.func, // temp
-        otherThresholdPercentage: PropTypes.number
+        otherThresholdPercentage: PropTypes.number,
     };
 
     constructor(props) {
@@ -47,35 +47,35 @@ class ExperimentsSummary2 extends Component {
         // TODO: most of these have "other" categories, so counts here are ambiguous or simply incorrect
         const numExperiments = overviewSummary.data?.data_type_specific?.experiments?.count;
         const numExperimentTypes = Object.keys(
-            overviewSummary.data?.data_type_specific?.experiments?.experiment_type || {}
+            overviewSummary.data?.data_type_specific?.experiments?.experiment_type || {},
         ).length;
         const numMoleculesUsed = Object.keys(
-            overviewSummary.data?.data_type_specific?.experiments?.molecule || {}
+            overviewSummary.data?.data_type_specific?.experiments?.molecule || {},
         ).length;
         const numLibraryStrategies = Object.keys(
-            overviewSummary.data?.data_type_specific?.experiments?.library_strategy || {}
+            overviewSummary.data?.data_type_specific?.experiments?.library_strategy || {},
         ).length;
 
         // extract data in pie chart format
         const experimentTypeData = mapNameValueFields(
             data.data_type_specific?.experiments?.experiment_type,
-            otherThresholdPercentage / 100
+            otherThresholdPercentage / 100,
         );
         const studyTypeData = mapNameValueFields(
             data.data_type_specific?.experiments?.study_type,
-            otherThresholdPercentage / 100
+            otherThresholdPercentage / 100,
         );
         const moleculeData = mapNameValueFields(
             data.data_type_specific?.experiments?.molecule,
-            otherThresholdPercentage / 100
+            otherThresholdPercentage / 100,
         );
         const libraryStrategyData = mapNameValueFields(
             data.data_type_specific?.experiments?.library_strategy,
-            otherThresholdPercentage / 100
+            otherThresholdPercentage / 100,
         );
         const librarySelectionData = mapNameValueFields(
             data.data_type_specific?.experiments?.library_selection,
-            otherThresholdPercentage / 100
+            otherThresholdPercentage / 100,
         );
         const autoQueryDataType = "experiment";
 

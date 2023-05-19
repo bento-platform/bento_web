@@ -43,7 +43,7 @@ class TableAdditionModal extends Component {
                                loading={this.props.projectsFetchingWithTables ||
                                    this.props.projectTablesAdding || this.props.projectTablesFetching}>
                            Add
-                       </Button>
+                       </Button>,
                    ]}
                    onCancel={handleCancel}>
                 <TableForm ref={form => this.form = form} />
@@ -62,7 +62,7 @@ TableAdditionModal.propTypes = {
     dataset: datasetPropTypesShape,
 
     onCancel: PropTypes.func,
-    onSubmit: PropTypes.func
+    onSubmit: PropTypes.func,
 };
 
 const mapStateToProps = state => ({

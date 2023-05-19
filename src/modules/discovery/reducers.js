@@ -6,13 +6,13 @@ export const discovery = (
     state = {
         geneNameSearchResponse: [],
     },
-    action
+    action,
 ) => {
     switch (action.type) {
         case PERFORM_GOHAN_GENE_SEARCH.RECEIVE:
             return {
                 ...state,
-                geneNameSearchResponse: action.data.results
+                geneNameSearchResponse: action.data.results,
             };
 
         default:

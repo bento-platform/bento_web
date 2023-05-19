@@ -57,7 +57,7 @@ class Dataset extends Component {
             fieldSetEditModalVisible: false,
             selectedLinkedFieldSet: {
                 data: null,
-                index: null
+                index: null,
             },
 
             selectedTab: "overview",
@@ -157,8 +157,8 @@ class Dataset extends Component {
                                                 fieldSetEditModalVisible: true,
                                                 selectedLinkedFieldSet: {
                                                     data: fieldSet,
-                                                    index: i
-                                                }
+                                                    index: i,
+                                                },
                                             })}>
                                                 <Icon type="edit"
                                                       style={{width: "auto", display: "inline"}}
@@ -176,7 +176,7 @@ class Dataset extends Component {
                         )}
                 </>
             ),
-            data_use: <DataUseDisplay dataUse={this.state.data_use} />
+            data_use: <DataUseDisplay dataUse={this.state.data_use} />,
         };
 
         const handleDelete = () => {

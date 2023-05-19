@@ -15,7 +15,7 @@ export const VICTORY_PIE_LABEL_PROPS = {
     textAnchor: "middle",
     x: 200,
     y: 125,
-    style: {fontFamily: "monospace"}
+    style: {fontFamily: "monospace"},
 };
 
 export const VICTORY_BAR_CONTAINER_PROPS = {
@@ -39,7 +39,7 @@ export const VICTORY_BAR_TITLE_PROPS = {
 export const VICTORY_BAR_TITLE_PROPS_WITHOUT_MONOSPACE = {
     textAnchor: "middle",
     x: 175,
-    y: 20
+    y: 20,
 };
 
 export const VICTORY_BAR_X_AXIS_PROPS = {

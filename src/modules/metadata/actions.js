@@ -5,7 +5,7 @@ import {
     ADDING_SERVICE_TABLE,
     DELETING_SERVICE_TABLE,
     endAddingServiceTable,
-    endDeletingServiceTable
+    endDeletingServiceTable,
 } from "../services/actions";
 import {endProjectEditing} from "../manager/actions";
 
@@ -31,6 +31,9 @@ export const CREATE_PROJECT = createNetworkActionTypes("CREATE_PROJECT");
 export const DELETE_PROJECT = createNetworkActionTypes("DELETE_PROJECT");
 export const SAVE_PROJECT = createNetworkActionTypes("SAVE_PROJECT");
 
+export const CREATE_PROJECT_JSON_SCHEMA = createNetworkActionTypes("CREATE_PROJECT_JSON_SCHEMA");
+export const DELETE_PROJECT_JSON_SCHEMA = createNetworkActionTypes("DELETE_PROJECT_JSON_SCHEMA");
+
 export const ADD_PROJECT_DATASET = createNetworkActionTypes("ADD_PROJECT_DATASET");
 export const SAVE_PROJECT_DATASET = createNetworkActionTypes("SAVE_PROJECT_DATASET");
 export const DELETE_PROJECT_DATASET = createNetworkActionTypes("DELETE_PROJECT_DATASET");
@@ -53,7 +56,7 @@ export const fetchProjects = networkAction(() => (dispatch, getState) => ({
     types: FETCH_PROJECTS,
     url: `${getState().services.metadataService.url}/api/projects`,
     paginated: true,
-    err: "Error fetching projects"
+    err: "Error fetching projects",
 }));
 
 
@@ -62,7 +65,7 @@ export const fetchProjectTables = networkAction(projectsByID => (dispatch, getSt
     params: {projectsByID},
     url: `${getState().services.metadataService.url}/api/table_ownership`,
     paginated: true,
-    err: "Error fetching tables"
+    err: "Error fetching tables",
 }));
 
 
@@ -89,8 +92,9 @@ const createProject = networkAction((project, history) => (dispatch, getState) =
     onSuccess: data => {
         if (history) history.push(withBasePath(`admin/data/manager/projects/${data.identifier}`));
         message.success(`Project '${data.title}' created!`);
-    }
+    },
 }));
+
 
 export const createProjectIfPossible = (project, history) => (dispatch, getState) => {
     // TODO: Need object response from POST (is this done??)
@@ -98,13 +102,41 @@ export const createProjectIfPossible = (project, history) => (dispatch, getState
     return dispatch(createProject(project, history));
 };
 
+
+const createProjectJsonSchema = networkAction(projectJsonSchema => (dispatch, getState) => ({
+    types: CREATE_PROJECT_JSON_SCHEMA,
+    url: `${getState().services.metadataService.url}/api/project_json_schemas`,
+    req: jsonRequest(projectJsonSchema, "POST"),
+    err: "Error creating project JSON schema",
+    onSuccess: () => {
+        message.success(`Project JSON schema for ${projectJsonSchema.schema_type} created!`);
+    },
+}));
+
+export const createProjectJsonSchemaIfPossible = (projectJsonSchema) => (dispatch, getState) => {
+    if (getState().projects.isCreatingJsonSchema) return;
+    return dispatch(createProjectJsonSchema(projectJsonSchema));
+};
+
+export const deleteProjectJsonSchema = networkAction(projectJsonSchema => (dispatch, getState) => ({
+    types: DELETE_PROJECT_JSON_SCHEMA,
+    params: {projectJsonSchema},
+    url: `${getState().services.metadataService.url}/api/project_json_schemas/${projectJsonSchema.id}`,
+    req: jsonRequest(projectJsonSchema, "DELETE"),
+    err: "Error while deleting project JSON schema",
+    onSuccess: () => {
+        message.success(`Project JSON schema for ${projectJsonSchema.schema_type} was deleted!`);
+    },
+}));
+
+
 export const deleteProject = networkAction(project => (dispatch, getState) => ({
     types: DELETE_PROJECT,
     params: {project},
     url: `${getState().services.metadataService.url}/api/projects/${project.identifier}`,
     req: {method: "DELETE"},
     err: `Error deleting project '${project.title}'`,  // TODO: More user-friendly, detailed error
-    onSuccess: () => message.success(`Project '${project.title}' deleted!`)
+    onSuccess: () => message.success(`Project '${project.title}' deleted!`),
 }));
 
 export const deleteProjectIfPossible = project => (dispatch, getState) => {
@@ -123,7 +155,7 @@ const saveProject = networkAction(project => (dispatch, getState) => ({
     onSuccess: () => {
         dispatch(endProjectEditing());
         message.success(`Project '${project.title}' saved!`);
-    }
+    },
 }));
 
 export const saveProjectIfPossible = project => (dispatch, getState) => {
@@ -141,7 +173,7 @@ export const addProjectDataset = networkAction((project, dataset, onSuccess = no
     onSuccess: async () => {
         await onSuccess();
         message.success(`Added dataset '${dataset.title}' to project ${project.title}!`);
-    }
+    },
 }));
 
 export const saveProjectDataset = networkAction((dataset, onSuccess = nop) => (dispatch, getState) => ({
@@ -154,7 +186,7 @@ export const saveProjectDataset = networkAction((dataset, onSuccess = nop) => (d
     onSuccess: async () => {
         await onSuccess();
         message.success(`Saved dataset '${dataset.title}'`);
-    }
+    },
 }));
 
 export const deleteProjectDataset = networkAction((project, dataset) => (dispatch, getState) => ({
@@ -162,7 +194,7 @@ export const deleteProjectDataset = networkAction((project, dataset) => (dispatc
     params: {project, dataset},
     url: `${getState().services.metadataService.url}/api/datasets/${dataset.identifier}`,
     req: {method: "DELETE"},
-    err: `Error deleting dataset '${dataset.title}'`
+    err: `Error deleting dataset '${dataset.title}'`,
     // TODO: Do we need to delete project tables as well? What to do here??
 }));
 
@@ -182,7 +214,7 @@ const addDatasetLinkedFieldSet = networkAction((dataset, linkedFieldSet, onSucce
     onSuccess: async () => {
         await onSuccess();
         message.success(`Added linked field set '${linkedFieldSet.name}' to dataset '${dataset.title}'`);
-    }
+    },
 }));
 
 export const addDatasetLinkedFieldSetIfPossible = (dataset, linkedFieldSet, onSuccess = nop) =>
@@ -199,13 +231,13 @@ const saveDatasetLinkedFieldSet = networkAction((dataset, index, linkedFieldSet,
         types: SAVE_DATASET_LINKED_FIELD_SET,
         url: `${getState().services.metadataService.url}/api/datasets/${dataset.identifier}`,
         req: jsonRequest({
-            linked_field_sets: dataset.linked_field_sets.map((l, i) => i === index ? linkedFieldSet : l)
+            linked_field_sets: dataset.linked_field_sets.map((l, i) => i === index ? linkedFieldSet : l),
         }, "PATCH"),
         err: `Error saving linked field set '${linkedFieldSet.name}' in dataset '${dataset.title}'`,
         onSuccess: async () => {
             await onSuccess();
             message.success(`Saved linked field set '${linkedFieldSet.name}' in dataset '${dataset.title}'`);
-        }
+        },
     }));
 
 export const saveDatasetLinkedFieldSetIfPossible = (dataset, index, linkedFieldSet, onSuccess = nop) =>
@@ -222,11 +254,11 @@ const deleteDatasetLinkedFieldSet = networkAction((dataset, linkedFieldSet, link
         types: DELETE_DATASET_LINKED_FIELD_SET,
         url: `${getState().services.metadataService.url}/api/datasets/${dataset.identifier}`,
         req: jsonRequest({
-            linked_field_sets: dataset.linked_field_sets.filter((_, i) => i !== linkedFieldSetIndex)
+            linked_field_sets: dataset.linked_field_sets.filter((_, i) => i !== linkedFieldSetIndex),
         }, "PATCH"),
         err: `Error deleting linked field set '${linkedFieldSet.name}' from dataset '${dataset.title}'`,
         onSuccess: () =>
-            message.success(`Deleted linked field set '${linkedFieldSet.name}' from dataset '${dataset.title}'`)
+            message.success(`Deleted linked field set '${linkedFieldSet.name}' from dataset '${dataset.title}'`),
     }));
 
 export const deleteDatasetLinkedFieldSetIfPossible = (dataset, linkedFieldSet, linkedFieldSetIndex) =>
@@ -292,8 +324,8 @@ export const addProjectTable = (project, datasetID, serviceInfo, dataType, table
                             data_type: dataType,
 
                             dataset: datasetID,
-                            sample: null  // TODO: Sample ID if wanted  // TODO: Deprecate?
-                        }, "POST")
+                            sample: null,  // TODO: Sample ID if wanted  // TODO: Deprecate?
+                        }, "POST"),
                     )
                 );
 
@@ -412,6 +444,6 @@ export const fetchIndividualIfNecessary = individualID => (dispatch, getState) =
 export const fetchOverviewSummary = networkAction(() => (dispatch, getState) => ({
     types: FETCH_OVERVIEW_SUMMARY,
     url: `${getState().services.metadataService.url}/api/overview`,
-    err: "Error fetching overview summary metadata"
+    err: "Error fetching overview summary metadata",
 }));
 

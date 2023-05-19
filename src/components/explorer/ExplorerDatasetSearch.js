@@ -45,7 +45,7 @@ class ExplorerDatasetSearch extends Component {
             summaryModalVisible: false,
             currentPage: 1,
             pageSize: 25,
-            tracksModalVisible: false
+            tracksModalVisible: false,
         };
 
         // Ensure user is at the top of the page after transition
@@ -88,7 +88,7 @@ class ExplorerDatasetSearch extends Component {
                 render: individual => individualRender(individual),
                 sorter: (a, b) => a.individual.id.localeCompare(b.individual.id),
                 sortOrder: sortColumnKey === "individual" && sortOrder,
-                defaultSortOrder: "ascend"
+                defaultSortOrder: "ascend",
             },
             {
                 title: "Samples",
@@ -123,7 +123,7 @@ class ExplorerDatasetSearch extends Component {
 
         const tableStyle = {
             opacity: (isFetchingSearchResults ? 0.5 : 1),
-            pointerEvents: (isFetchingSearchResults ? "none" : "auto")
+            pointerEvents: (isFetchingSearchResults ? "none" : "auto"),
         };
 
         // Calculate page numbers and range
@@ -182,7 +182,7 @@ class ExplorerDatasetSearch extends Component {
                                pagination={{
                                    pageSize: this.state.pageSize,
                                    defaultCurrent: this.state.currentPage,
-                                   showQuickJumper: true
+                                   showQuickJumper: true,
                                }}
                                onChange={this.onPageChange}
                                rowSelection={{
@@ -193,7 +193,7 @@ class ExplorerDatasetSearch extends Component {
                                            key: "select-all-data",
                                            text: "Select all data",
                                            onSelect: () => this.props.setSelectedRows(
-                                               (this.props.searchResults.searchFormattedResults || []).map(r => r.key)
+                                               (this.props.searchResults.searchFormattedResults || []).map(r => r.key),
                                            ),
                                        },
                                        {
@@ -259,7 +259,7 @@ const mapDispatchToProps = (dispatch, ownProps) => Object.fromEntries(Object.ent
     performSearchIfPossible,
     setSelectedRows,
     setTableSortOrder,
-    performIndividualsDownloadCSVIfPossible
+    performIndividualsDownloadCSVIfPossible,
 }).map(([k, v]) => [k, (...args) => dispatch(v(ownProps.match.params.dataset, ...args))]));
 
 export default withRouter(connect(mapStateToProps, mapDispatchToProps)(ExplorerDatasetSearch));

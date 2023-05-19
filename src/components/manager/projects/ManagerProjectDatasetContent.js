@@ -16,14 +16,14 @@ import {toggleProjectCreationModal} from "../../../modules/manager/actions";
 import {LAYOUT_CONTENT_STYLE} from "../../../styles/layoutContent";
 import {matchingMenuKeys, renderMenuItem} from "../../../utils/menu";
 import {withBasePath} from "../../../utils/url";
-import {nodeInfoDataPropTypesShape, projectPropTypesShape} from "../../../propTypes";
+import {projectPropTypesShape} from "../../../propTypes";
 
 
 class ManagerProjectDatasetContent extends Component {
     render() {
         const projectMenuItems = this.props.projects.map(project => ({
             url: withBasePath(`admin/data/manager/projects/${project.identifier}`),
-            text: project.title
+            text: project.title,
         }));
 
         return <>
@@ -36,7 +36,7 @@ class ManagerProjectDatasetContent extends Component {
                             <Typography.Paragraph style={{
                                 maxWidth: "600px",
                                 marginLeft: "auto",
-                                marginRight: "auto"
+                                marginRight: "auto",
                             }}>
                                 To create datasets and ingest data, you have to create a Bento project
                                 first. Bento projects have a name and description, and let you group related
@@ -92,8 +92,6 @@ class ManagerProjectDatasetContent extends Component {
 }
 
 ManagerProjectDatasetContent.propTypes = {
-    nodeInfo: nodeInfoDataPropTypesShape,
-
     projects: PropTypes.arrayOf(projectPropTypesShape),
     projectsByID: PropTypes.objectOf(projectPropTypesShape),
     loadingAuthDependentData: PropTypes.bool,
@@ -102,7 +100,6 @@ ManagerProjectDatasetContent.propTypes = {
 };
 
 const mapStateToProps = state => ({
-    nodeInfo: state.nodeInfo.data,
     projects: state.projects.items,
     projectsByID: state.projects.itemsByID,
     loadingAuthDependentData: state.auth.isFetchingDependentData,

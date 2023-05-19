@@ -29,7 +29,7 @@ export const RUN_STATE_TAG_COLORS = {
     EXECUTOR_ERROR: "red",
     SYSTEM_ERROR: "volcano",
     CANCELED: "magenta",
-    CANCELING: "purple"
+    CANCELING: "purple",
 };
 
 export const RUN_TABLE_COLUMNS = [
@@ -38,7 +38,7 @@ export const RUN_TABLE_COLUMNS = [
         dataIndex: "run_id",
         sorter: (a, b) => a.run_id.localeCompare(b.run_id),
         render: runID => <Link to={withBasePath(`admin/data/manager/runs/${runID}`)}
-                               style={{fontFamily: "monospace"}}>{runID}</Link>
+                               style={{fontFamily: "monospace"}}>{runID}</Link>,
     },
     {
         title: "Purpose",
@@ -72,5 +72,5 @@ export const RUN_TABLE_COLUMNS = [
         width: 150,
         render: state => <Tag color={RUN_STATE_TAG_COLORS[state]}>{state}</Tag>,
         sorter: (a, b) => a.state.localeCompare(b.state),
-    }
+    },
 ];

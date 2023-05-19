@@ -50,10 +50,10 @@ class DiscoverySearchCondition extends Component {
             field2: value.field2 ?? undefined,
 
             fieldSchema: value.fieldSchema ?? {
-                search: {...DEFAULT_SEARCH_PARAMETERS}
+                search: {...DEFAULT_SEARCH_PARAMETERS},
             },
             fieldSchema2: value.fieldSchema2 ?? {
-                search: {...DEFAULT_SEARCH_PARAMETERS}
+                search: {...DEFAULT_SEARCH_PARAMETERS},
             },
 
             negated: value.negated ?? false,
@@ -75,7 +75,7 @@ class DiscoverySearchCondition extends Component {
             [key]: value.selected,
             [fieldSchemaKey]: value.schema,
             searchValue: "",  // Clear search value if the field changes
-            operation: fieldOperations.includes(this.state.operation) ? this.state.operation : fieldOperations[0]
+            operation: fieldOperations.includes(this.state.operation) ? this.state.operation : fieldOperations[0],
         };
 
         (this.props.onFieldChange ?? nop)(change);
@@ -92,13 +92,13 @@ class DiscoverySearchCondition extends Component {
 
     handleSearchValue = (e) => {
         this.handleChange({
-            searchValue: getSchemaTypeTransformer(this.state.fieldSchema.type)[0](e.target.value)
+            searchValue: getSchemaTypeTransformer(this.state.fieldSchema.type)[0](e.target.value),
         });
     };
 
     handleSearchSelectValue = (searchValue) => {
         this.handleChange({
-            searchValue: getSchemaTypeTransformer(this.state.fieldSchema.type)[0](searchValue)
+            searchValue: getSchemaTypeTransformer(this.state.fieldSchema.type)[0](searchValue),
         });
     };
 
@@ -185,8 +185,8 @@ class DiscoverySearchCondition extends Component {
                         ? this.getInputStyle(valueWidth,2)
                         : {width: `${DATA_TYPE_FIELD_WIDTH}px`}),
                     borderTopRightRadius: "0",
-                    borderBottomRightRadius: "0"
-                }
+                    borderBottomRightRadius: "0",
+                },
             )}
             {canNegate ? (  // Negation
                 <Select style={{width: `${NEGATION_WIDTH}px`, float: "left"}}
@@ -210,7 +210,7 @@ class DiscoverySearchCondition extends Component {
                     "field2",
                     "fieldSchema2",
                     this.props.joinedSchema,
-                    {...this.getInputStyle(valueWidth, 2), borderRadius: "0"}
+                    {...this.getInputStyle(valueWidth, 2), borderRadius: "0"},
                 ) : this.getRHSInput(valueWidth)}
             {canRemove ? (  // Condition removal button
                 <Button icon="close"
@@ -233,7 +233,7 @@ DiscoverySearchCondition.propTypes = {
     onFieldChange: PropTypes.func,
     onChange: PropTypes.func,
     onRemoveClick: PropTypes.func,
-    removeDisabled: PropTypes.bool
+    removeDisabled: PropTypes.bool,
 };
 
 const mapStateToProps = state => ({
@@ -241,7 +241,7 @@ const mapStateToProps = state => ({
         type: "object",
         properties: Object.fromEntries(Object.entries(state.serviceDataTypes.itemsByID).map(([k, v]) => [k, {
             type: "array",
-            items: v.schema
+            items: v.schema,
         }])),
     },
 });

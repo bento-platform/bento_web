@@ -19,7 +19,7 @@ const pageMenu = artifact => [
 const MENU_STYLE = {
     marginLeft: "-24px",
     marginRight: "-24px",
-    marginTop: "-12px"
+    marginTop: "-12px",
 };
 
 class ServiceDetail extends Component {
