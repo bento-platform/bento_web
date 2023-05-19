@@ -45,7 +45,7 @@ SyntaxHighlighter.registerLanguage("markdown", markdown);
 SyntaxHighlighter.registerLanguage("plaintext", plaintext);
 
 
-const PDF_OPTIONS = {
+const BASE_PDF_OPTIONS = {
     cMapUrl: "cmaps/",
     cMapPacked: true,
     standardFontDataUrl: "standard_fonts/",
@@ -105,6 +105,15 @@ const FileDisplay = ({file, tree, treeLoading}) => {
     const [fileContents, setFileContents] = useState({});
     const [pdfPageCounts, setPdfPageCounts] = useState({});
 
+    const headers = useMemo(
+        () => accessToken ? {"Authorization": `Bearer ${accessToken}`} : undefined,
+        [accessToken]);
+
+    const pdfOptions = useMemo(() => ({
+        ...BASE_PDF_OPTIONS,
+        httpHeaders: headers,
+    }), [headers]);
+
     let textFormat = false;
     if (file) {
         Object.keys(LANGUAGE_HIGHLIGHTERS).forEach(ext => {
@@ -137,9 +146,7 @@ const FileDisplay = ({file, tree, treeLoading}) => {
 
             try {
                 setLoadingFileContents(true);
-                const r = await fetch(urisByFilePath[file], {
-                    headers: accessToken ? {"Authorization": `Bearer ${accessToken}`} : undefined,
-                });
+                const r = await fetch(urisByFilePath[file], {headers});
                 if (r.ok) {
                     const text = await r.text();
                     const content = (fileExt === "json" ? JSON.parse(text) : text);
@@ -186,7 +193,7 @@ const FileDisplay = ({file, tree, treeLoading}) => {
                 const uri = urisByFilePath[file];
                 if (!uri) return <div />;
                 return (
-                    <Document file={uri} onLoadSuccess={onPdfLoad} onLoadError={onPdfFail} options={PDF_OPTIONS}>
+                    <Document file={uri} onLoadSuccess={onPdfLoad} onLoadError={onPdfFail} options={pdfOptions}>
                         {(() => {
                             const pages = [];
                             for (let i = 1; i <= pdfPageCounts[file] ?? 1; i++) {
