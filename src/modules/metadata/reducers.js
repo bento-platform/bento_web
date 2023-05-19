@@ -23,11 +23,13 @@ import {
     FETCH_INDIVIDUAL,
 
     FETCH_OVERVIEW_SUMMARY,
+
+    CREATE_PROJECT_JSON_SCHEMA,
+    DELETE_PROJECT_JSON_SCHEMA,
 } from "./actions";
 
 
 const projectSort = (a, b) => a.title.localeCompare(b.title);
-
 
 export const projects = (
     state = {
@@ -39,6 +41,10 @@ export const projects = (
         isAddingDataset: false,
         isSavingDataset: false,
         isDeletingDataset: false,
+
+        isCreatingJsonSchema: false,
+        isDeletingJsonSchema: false,
+
         items: [],
         itemsByID: {},
     },
@@ -196,6 +202,55 @@ export const projects = (
 
         case DELETE_PROJECT_DATASET.FINISH:
             return {...state, isDeletingDataset: false};
+
+        // CREATE_PROJECT_JSON_SCHEMA
+        case CREATE_PROJECT_JSON_SCHEMA.REQUEST:
+            return {...state, isCreatingJsonSchema: true};
+        case CREATE_PROJECT_JSON_SCHEMA.RECEIVE:
+            return {
+                ...state,
+                items: state.items.map(p => p.identifier === action.data.project
+                    ? {...p, project_schemas: [...p.project_schemas, action.data]}
+                    : p,
+                ),
+                itemsByID: {
+                    ...state.itemsByID,
+                    [action.data.project]: {
+                        ...(state.itemsByID[action.data.project] || {}),
+                        project_schemas: [
+                            ...(state.itemsByID[action.data.project]?.project_schemas ?? []),
+                            action.data,
+                        ],
+                    },
+                },
+            };
+        case CREATE_PROJECT_JSON_SCHEMA.FINISH:
+            return {...state, isCreatingJsonSchema: false};
+
+        // DELETE_PROJECT_JSON_SCHEMA
+        case DELETE_PROJECT_JSON_SCHEMA.REQUEST:
+            return {...state, isDeletingJsonSchema: true};
+        case DELETE_PROJECT_JSON_SCHEMA.RECEIVE: {
+            const deleteSchema = pjs => pjs.id !== action.projectJsonSchema.id;
+            return {
+                ...state,
+                items: state.items.map(p => p.identifier === action.projectJsonSchema.project
+                    ? {...p, project_schemas: p.project_schemas.filter(deleteSchema)}
+                    : p,
+                ),
+                itemsByID: {
+                    ...state.itemsByID,
+                    [action.projectJsonSchema.project]: {
+                        ...(state.itemsByID[action.projectJsonSchema.project] || {}),
+                        project_schemas: (state.itemsByID[action.projectJsonSchema.project]?.project_schemas ?? [])
+                            .filter(deleteSchema),
+
+                    },
+                },
+            };
+        }
+        case DELETE_PROJECT_JSON_SCHEMA.FINISH:
+            return {...state, isDeletingJsonSchema: false};
 
 
         default:
