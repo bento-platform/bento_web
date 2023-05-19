@@ -114,7 +114,7 @@ const JsonObjectDisplay = ({ doc }) => {
             <Typography.Title level={4}>JSON object</Typography.Title>
             <Collapse accordion>
                 {entries.map(([key, value]) =>
-                    <Panel header={key.toUpperCase()} key={key}>
+                    <Panel header={<span style={{fontFamily: "monospace"}}>{key}</span>} key={key}>
                         <JsonPropertyDisplay keyName={key} value={value} />
                     </Panel>,
                 )}
