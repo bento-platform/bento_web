@@ -87,26 +87,19 @@ JsonArrayDisplay.defaultProps = {
 
 const JsonPropertyDisplay = ({ keyName, value }) => {
     console.debug("JsonPropertyDisplay", value);
+
     if (Array.isArray(value) && value.length > 100) {
         // Display property as an array with custom nav
-        return (<JsonArrayDisplay doc={value} />);
+        return <JsonArrayDisplay doc={value} />;
     }
 
     if (typeof value === "object") {
         // Display property as an object
-        return (<ReactJson
-            src={value}
-            collapsed={true}
-            {...DEFAULT_REACT_JSON_OPTIONS}
-        />);
+        return <ReactJson src={value} collapsed={true} {...DEFAULT_REACT_JSON_OPTIONS} />;
     }
 
     // Display primitive
-    return (<ReactJson
-        src={{[keyName]: value}}
-        collapsed={false}
-        {...DEFAULT_REACT_JSON_OPTIONS}
-    />);
+    return <ReactJson src={{[keyName]: value}} collapsed={false} {...DEFAULT_REACT_JSON_OPTIONS} />;
 };
 
 JsonPropertyDisplay.propTypes = {
@@ -122,7 +115,7 @@ const JsonObjectDisplay = ({ doc }) => {
             <Collapse accordion>
                 {entries.map(([key, value]) =>
                     <Panel header={key.toUpperCase()} key={key}>
-                        <JsonPropertyDisplay keyName={key} value={value}/>
+                        <JsonPropertyDisplay keyName={key} value={value} />
                     </Panel>,
                 )}
             </Collapse>
@@ -137,12 +130,11 @@ JsonObjectDisplay.propTypes = {
 const JsonDisplay = ({ jsonSrc }) => {
     if (Array.isArray(jsonSrc)) {
         // Special display for array nav
-        console.log("ARRAY JSON");
-        return (<JsonArrayDisplay doc={jsonSrc || []} standalone/>);
+        return <JsonArrayDisplay doc={jsonSrc || []} standalone />;
     }
 
     // Display for objects and primitives
-    return (<JsonObjectDisplay doc={jsonSrc || {}}/>);
+    return <JsonObjectDisplay doc={jsonSrc || {}} />;
 };
 
 JsonDisplay.propTypes = {
