@@ -141,7 +141,7 @@ const FileDisplay = ({file, tree, treeLoading}) => {
                     const content = (fileExt === "json" ? JSON.parse(text) : text);
                     setFileContents({
                         ...fileContents,
-                        [file]: content
+                        [file]: content,
                     });
                 } else {
                     setFileLoadError(`Could not load file: ${r.content}`);

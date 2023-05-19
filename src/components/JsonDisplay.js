@@ -123,7 +123,7 @@ const JsonObjectDisplay = ({ doc }) => {
                 {entries.map(([key, value]) =>
                     <Panel header={key.toUpperCase()} key={key}>
                         <JsonPropertyDisplay keyName={key} value={value}/>
-                    </Panel>
+                    </Panel>,
                 )}
             </Collapse>
         </>
@@ -131,7 +131,7 @@ const JsonObjectDisplay = ({ doc }) => {
 };
 
 JsonObjectDisplay.propTypes = {
-    doc: PropTypes.object
+    doc: PropTypes.object,
 };
 
 const JsonDisplay = ({ jsonSrc }) => {
@@ -148,8 +148,8 @@ const JsonDisplay = ({ jsonSrc }) => {
 JsonDisplay.propTypes = {
     jsonSrc: PropTypes.oneOfType([
         PropTypes.object,
-        PropTypes.array
-    ])
+        PropTypes.array,
+    ]),
 };
 
 export default JsonDisplay;
