@@ -7,9 +7,9 @@ export const PERFORM_GOHAN_GENE_SEARCH = createNetworkActionTypes("GOHAN_GENE_SE
 
 export const performGohanGeneSearchIfPossible = (searchTerm, assemblyId) => (dispatch, getState) => {
     const gohanUrl = getState()?.services?.gohan?.url;
-    const bentoBaseUrl = `${getState().nodeInfo.data.CHORD_URL}`;
+    if (!gohanUrl) return;
     const queryString = `/genes/search?term=${searchTerm}&assemblyId=${assemblyId}`;
-    const searchUrl = gohanUrl ? `${gohanUrl}${queryString}` : `${bentoBaseUrl}api/gohan${queryString}`;
+    const searchUrl = `${gohanUrl}${queryString}`;
     dispatch(performGohanGeneSearch(searchUrl));
 };
 

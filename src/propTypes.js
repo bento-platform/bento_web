@@ -4,11 +4,6 @@ import {KARYOTYPIC_SEX_VALUES, SEX_VALUES} from "./dataTypes/phenopacket";
 
 export const propTypesFormMode = PropTypes.oneOf([FORM_MODE_ADD, FORM_MODE_EDIT]);
 
-export const nodeInfoDataPropTypesShape = PropTypes.shape({
-    CHORD_URL: PropTypes.string,
-    OIDC_DISCOVERY_URI: PropTypes.string,
-});
-
 export const serviceInfoPropTypesShape = PropTypes.shape({
     id: PropTypes.string.isRequired,
     name: PropTypes.string.isRequired,

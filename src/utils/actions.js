@@ -2,6 +2,8 @@ import fetch from "cross-fetch";
 
 import {message} from "antd";
 
+import {BENTO_URL, IDP_BASE_URL} from "../config";
+
 export const basicAction = t => () => ({type: t});
 
 export const createNetworkActionTypes = name => ({
@@ -18,7 +20,7 @@ export const createFlowActionTypes = name => ({
 });
 
 
-const _unpaginatedNetworkFetch = async (url, baseUrl, req, parse) => {
+const _unpaginatedNetworkFetch = async (url, _baseUrl, req, parse) => {
     const response = await fetch(url, req);
     if (!response.ok) {
         throw `${response.status} ${response.statusText}`;
@@ -54,7 +56,25 @@ const _networkAction = (fn, ...args) => async (dispatch, getState) => {
         fnResult = fnResult(dispatch, getState);
     }
 
-    const {types, params, url, baseUrl, req, err, onSuccess, paginated} = fnResult;
+    const {types, params, url, baseUrl, req, err, onSuccess, onError, paginated} = fnResult;
+
+    // Only include access token when we are making a request to this Bento node or the IdP!
+    // Otherwise, we could leak it to external sites.
+
+    const token = (url.startsWith("/") || url.startsWith(BENTO_URL) || url.startsWith(IDP_BASE_URL))
+        ? getState().auth.accessToken
+        : null;
+
+    const finalReq = {
+        ...(req ?? {
+            method: "GET",  // Default request method
+        }),
+        headers: {
+            ...(token ? {"Authorization": `Bearer ${token}`} : {}),
+            ...(req?.headers ?? {}),
+        },
+    };
+
     let {parse} = fnResult;
     if (!parse) parse = r => r.json();
 
@@ -63,7 +83,8 @@ const _networkAction = (fn, ...args) => async (dispatch, getState) => {
 
     dispatch({type: types.REQUEST, ...params});
     try {
-        const data = await (paginated ? _paginatedNetworkFetch : _unpaginatedNetworkFetch)(url, baseUrl, req, parse);
+        const data = await (paginated ? _paginatedNetworkFetch : _unpaginatedNetworkFetch)(
+            url, baseUrl, finalReq, parse);
         dispatch({
             type: types.RECEIVE,
             ...params,
@@ -77,7 +98,8 @@ const _networkAction = (fn, ...args) => async (dispatch, getState) => {
             console.error(e, err);
             message.error(err);
         }
-        dispatch({type: types.ERROR, ...params});
+        dispatch({type: types.ERROR, ...params, caughtError: e});
+        if (onError) await onError(e);
     }
     dispatch({type: types.FINISH, ...params});
 };

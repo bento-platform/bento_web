@@ -8,14 +8,13 @@ import ServiceList from "./ServiceList";
 
 import { SITE_NAME } from "../constants";
 import { EM_DASH } from "../constants";
+import { BENTO_URL } from "../config";
 
 const ServiceContent = () => {
     useEffect(() => {
         document.title = `${SITE_NAME}: Admin / Services`;
     }, []);
 
-    const nodeInfo = useSelector((state) => state.nodeInfo.data);
-    const isFetchingNodeInfo = useSelector((state) => state.nodeInfo.isFetching);
     const projects = useSelector((state) => state.projects.items);
     const isFetchingProjects = useSelector((state) => state.auth.isFetchingDependentData || state.projects.isFetching);
 
@@ -26,9 +25,7 @@ const ServiceContent = () => {
                 <Layout.Content style={{ background: "white", padding: "32px 24px 4px" }}>
                     <Row style={{ marginBottom: "24px" }} gutter={[0, 16]}>
                         <Col lg={24} xl={12}>
-                            <Spin spinning={isFetchingNodeInfo}>
-                                <Statistic title="Node URL" value={isFetchingNodeInfo ? EM_DASH : nodeInfo.CHORD_URL} />
-                            </Spin>
+                            <Statistic title="Node URL" value={BENTO_URL} />
                         </Col>
                         <Col md={12} lg={8} xl={3}>
                             <Spin spinning={isFetchingProjects}>

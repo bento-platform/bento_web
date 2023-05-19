@@ -1,7 +1,6 @@
-import React, {Component, Suspense, lazy} from "react";
-import {connect} from "react-redux";
-import {withRouter, Redirect, Switch} from "react-router-dom";
-import PropTypes from "prop-types";
+import React, {Suspense, lazy, useRef, useState, useEffect, useCallback} from "react";
+import {useDispatch, useSelector} from "react-redux";
+import {Redirect, Route, Switch, useHistory} from "react-router-dom";
 
 import * as io from "socket.io-client";
 
@@ -9,19 +8,23 @@ import {Layout, Modal} from "antd";
 
 import OwnerRoute from "./OwnerRoute";
 
-import SiteHeader from "./SiteHeader";
+const SiteHeader = lazy(() => import("./SiteHeader"));
 import SiteFooter from "./SiteFooter";
 import SitePageLoading from "./SitePageLoading";
 
-import {fetchDependentDataWithProvidedUser, fetchUserAndDependentData, setUser} from "../modules/auth/actions";
+import {
+    fetchOpenIdConfigurationIfNeeded,
+    fetchUserDependentData,
+    refreshTokens, tokenHandoff,
+} from "../modules/auth/actions";
 
+import {BENTO_URL_NO_TRAILING_SLASH} from "../config";
 import eventHandler from "../events";
-import {nop} from "../utils/misc";
-import {BASE_PATH, signInURLWithCustomRedirect, withBasePath} from "../utils/url";
-import {nodeInfoDataPropTypesShape, serviceInfoPropTypesShape, userPropTypesShape} from "../propTypes";
-
+import {createAuthURL, useHandleCallback} from "../lib/auth/performAuth";
+import {getIsAuthenticated} from "../lib/auth/utils";
 import SessionWorker from "../session.worker";
-import {POPUP_AUTH_CALLBACK_URL} from "../constants";
+import {nop} from "../utils/misc";
+import {BASE_PATH, withBasePath} from "../utils/url";
 
 // Lazy-load notification drawer
 const NotificationDrawer = lazy(() => import("./notifications/NotificationDrawer"));
@@ -33,185 +36,251 @@ const CBioPortalContent = lazy(() => import("./CBioPortalContent"));
 const AdminContent = lazy(() => import("./AdminContent"));
 const NotificationsContent = lazy(() => import("./notifications/NotificationsContent"));
 
+const LS_SIGN_IN_POPUP = "BENTO_DID_CREATE_SIGN_IN_POPUP";
 const SIGN_IN_WINDOW_FEATURES = "scrollbars=no, toolbar=no, menubar=no, width=800, height=600";
 
-class App extends Component {
-    constructor(props) {
-        super(props);
+const CALLBACK_PATH = withBasePath("callback");
 
-        /** @type {null|io.Socket} */
-        this.eventRelayConnection = null;
+const popupOpenerAuthCallback = async (dispatch, _history, code, verifier) => {
+    if (!window.opener) return;
 
-        this.pingInterval = null;
-        this.lastUser = false;
+    // We're inside a popup window for authentication
 
-        this.state = {
-            signedOutModal: false,
-        };
+    // Send the code and verifier to the main thread/page for authentication
+    // IMPORTANT SECURITY: provide BENTO_URL as the target origin:
+    window.opener.postMessage({type: "authResult", code, verifier}, BENTO_URL_NO_TRAILING_SLASH);
 
-        this.signInWindow = null;
+    // We're inside a popup window which has successfully re-authenticated the user, meaning we need to
+    // close ourselves to return focus to the original window.
+    window.close();
+};
 
-        // Initialize a web worker which pings the user endpoint on a set
-        // interval. This lets the application accept Set-Cookie headers which
-        // keep the session ID up to date and prevent invalidating the session
-        // incorrectly / early.
-        // TODO: Refresh other data
-        // TODO: Variable rate
-        this.sessionWorker = new SessionWorker();
-        this.sessionWorker.addEventListener("message", async msg => {
-            await this.props.fetchDependentDataWithProvidedUser(nop, setUser(msg.data.user));
-            this.handleUserChange();
-        });
+const App = () => {
+    const dispatch = useDispatch();
+    const history = useHistory();
 
-        this.createEventRelayConnectionIfNecessary = this.createEventRelayConnectionIfNecessary.bind(this);
-        this.refreshUserAndDependentData = this.refreshUserAndDependentData.bind(this);
-    }
+    const eventRelayConnection = useRef(null);
+    const signInWindow = useRef(null);
+    const windowMessageHandler = useRef(null);
+    const pingInterval = useRef(null);
+    const focusListener = useRef(undefined);
 
-    clearPingInterval() {
-        if (this.pingInterval === null) return;
-        clearInterval(this.pingInterval);
-        this.pingInterval = null;
-    }
+    const [signedOutModal, setSignedOutModal] = useState(false);
 
-    openSignInWindow() {
-        const signInURL = signInURLWithCustomRedirect(
-            `${this.props.nodeInfo.CHORD_URL}${POPUP_AUTH_CALLBACK_URL}`);
-        if (!this.signInWindow || this.signInWindow.closed) {
-            const popupTop = window.top.outerHeight / 2 + window.top.screenY - 350;
-            const popupLeft = window.top.outerWidth / 2 + window.top.screenX - 400;
-            this.signInWindow = window.open(
-                signInURL,
-                "Bento Sign In",
-                `${SIGN_IN_WINDOW_FEATURES}, top=${popupTop}, left=${popupLeft}`);
-        } else {
-            this.signInWindow.focus();
+    const sessionWorker = useRef(null);
+
+    const {accessToken, idTokenContents} = useSelector(state => state.auth);
+    const isAuthenticated = getIsAuthenticated(idTokenContents);
+
+    const eventRelay = useSelector(state => state.services.eventRelay);
+    const eventRelayUrl = eventRelay?.url ?? null;
+    const openIdConfig = useSelector(state => state.openIdConfiguration.data);
+
+    const [lastIsAuthenticated, setLastIsAuthenticated] = useState(false);
+
+    const [didPostLoadEffects, setDidPostLoadEffects] = useState(false);
+
+    const isInAuthPopup = (() => {
+        try {
+            const didCreateSignInPopup = localStorage.getItem(LS_SIGN_IN_POPUP);
+            return window.opener
+                && window.opener.origin === BENTO_URL_NO_TRAILING_SLASH
+                && didCreateSignInPopup === "true";
+        } catch {
+            // If we are restricted from accessing the opener, we are not in an auth popup.
+            return false;
         }
-    }
+    })();
 
-    render() {
-        // On the cBioPortal tab only, eliminate the margin around the content
-        // to give as much space as possible to the cBioPortal application itself.
-        const margin = window.location.pathname.endsWith("cbioportal") ? 0 : 26;
+    // Set up auth callback handling
+    useHandleCallback(CALLBACK_PATH, isInAuthPopup ? popupOpenerAuthCallback : undefined);
 
-        // noinspection HtmlUnknownTarget
-        return <>
-            <Modal title="You have been signed out"
-                   onOk={() => this.openSignInWindow()}
-                   onCancel={() => {
-                       this.clearPingInterval();  // Stop pinging until the user decides to sign in again
-                       this.setState({signedOutModal: false});  // Close the modal
-                       // TODO: Set a new interval at a slower rate
-                   }}
-                   visible={this.state.signedOutModal}>
-                Please <a onClick={() => this.openSignInWindow()}>sign in</a> (uses a popup window) to continue working.
-            </Modal>
-            <Layout style={{minHeight: "100vh"}}>
-                <Suspense fallback={<div />}>
-                    <NotificationDrawer />
-                </Suspense>
-                <SiteHeader />
-                <Layout.Content style={{margin, display: "flex", flexDirection: "column"}}>
-                    <Suspense fallback={<SitePageLoading />}>
-                        <Switch>
-                            <OwnerRoute path={withBasePath("overview")} component={OverviewContent} />
-                            <OwnerRoute path={withBasePath("data/explorer")} component={DataExplorerContent} />
-                            <OwnerRoute path={withBasePath("cbioportal")} component={CBioPortalContent} />
-                            <OwnerRoute path={withBasePath("admin")} component={AdminContent} />
-                            <OwnerRoute path={withBasePath("notifications")} component={NotificationsContent} />
-                            <Redirect from={BASE_PATH} to={withBasePath("overview")} />
-                        </Switch>
-                    </Suspense>
-                </Layout.Content>
-                <SiteFooter />
-            </Layout>
-        </>;
-    }
+    // Set up message handling from sign-in popup
+    useEffect(() => {
+        if (windowMessageHandler.current) {
+            window.removeEventListener("message", windowMessageHandler.current);
+        }
+        windowMessageHandler.current = e => {
+            if (e.origin !== BENTO_URL_NO_TRAILING_SLASH) return;
+            if (e.data?.type !== "authResult") return;
+            const {code, verifier} = e.data ?? {};
+            if (!code || !verifier) return;
+            localStorage.removeItem(LS_SIGN_IN_POPUP);
+            dispatch(tokenHandoff(code, verifier));
+        };
+        window.addEventListener("message", windowMessageHandler.current);
+    }, [dispatch]);
 
-    createEventRelayConnectionIfNecessary() {
-        this.eventRelayConnection = (() => {
-            if (this.eventRelayConnection) {
-                return this.eventRelayConnection;
-            }
+    const createEventRelayConnectionIfNecessary = useCallback(() => {
+        if (eventRelayConnection.current) return;
+        eventRelayConnection.current = (() => {
+            console.debug(
+                `considering creating an event-relay connection: 
+                is authenticated? ${isAuthenticated} | 
+                have event relay? ${!!eventRelayUrl}`);
 
             // Don't bother trying to create the event relay connection if the user isn't authenticated
-            if (!this.props.user) return null;
+            if (!isAuthenticated) return null;
+            // ... or if we don't have the event relay (yet or at all)
+            if (!eventRelayUrl) return null;
 
-            const url = this.props.eventRelay?.url ?? null;
-            if (!url) return null;
-
-            const urlObj = new URL(url);
+            const urlObj = new URL(eventRelayUrl);
 
             const manager = new io.Manager(urlObj.origin, {
                 // path should get rewritten by the reverse proxy in front of event-relay if necessary:
                 path: `${urlObj.pathname}/private/socket.io/`,
-                // Only try to reconnect if we're authenticated:
-                reconnection: !!this.props.user,
+                reconnection: true,
             });
-            const socket = manager.socket("/");  // Connect to the main socket.io namespace on the server side
-            socket.on("events", message => eventHandler(message, this.props.history));
+            const socket = manager.socket("/", {
+                auth: {
+                    token: accessToken,
+                },
+            });  // Connect to the main socket.io namespace on the server side
+            socket.on("events", message => eventHandler(message, history));
+            socket.on("connect_error", err => {
+                console.error(`socket.io: connect_error - ${err.message}`);
+            });
             return socket;
         })();
-    }
+    }, [history, isAuthenticated, eventRelay, eventRelayConnection]);
+
+    const handleUserChange = useCallback(() => {
+        if (lastIsAuthenticated && !isAuthenticated) {
+            // We got de-authenticated, so show a prompt...
+            setSignedOutModal(true);
+            // ... and disable constant websocket pinging if necessary by removing existing connections
+            eventRelayConnection.current?.close();
+            eventRelayConnection.current = null;
+            // Finally, mark us as signed out so that any user change to non-null (signed-in) is detected.
+            setLastIsAuthenticated(false);
+        } else if ((!lastIsAuthenticated || signedOutModal) && isAuthenticated) {
+            // Minimize the sign-in prompt modal if necessary
+            setSignedOutModal(false);
+            // Finally, mark us as signed in so that any user change to null (signed-out) is detected.
+            setLastIsAuthenticated(true);
+
+            // Fetch dependent data if we were authenticated
+            dispatch(fetchUserDependentData(nop)).catch(console.error);
+
+            // We got authenticated, so connect to the event relay if needed.
+            createEventRelayConnectionIfNecessary();
+        }
+    }, [
+        lastIsAuthenticated,
+        isAuthenticated,
+        signedOutModal,
+        eventRelayConnection,
+        createEventRelayConnectionIfNecessary,
+    ]);
+
+    useEffect(() => {
+        if (eventRelayUrl) {
+            createEventRelayConnectionIfNecessary();
+        }
+    }, [eventRelay, createEventRelayConnectionIfNecessary]);
+
+    useEffect(() => {
+        handleUserChange();
+    }, [eventRelayConnection, lastIsAuthenticated, idTokenContents]);
 
     // TODO: Don't execute on focus if it's been checked recently
-    async refreshUserAndDependentData() {
-        await this.props.fetchUserAndDependentData(nop);
-        this.handleUserChange();
-    }
+    useEffect(() => {
+        if (focusListener.current === handleUserChange) return;  // Same as before
+        if (focusListener.current) window.removeEventListener("focus", focusListener.current);
+        window.addEventListener("focus", handleUserChange);
+        focusListener.current = handleUserChange;
+    }, [focusListener, handleUserChange]);
 
-    handleUserChange() {
-        if (this.lastUser && this.props.user === null) {
-            // We got de-authenticated, so show a prompt...
-            this.setState({signedOutModal: true});
-            // ... and disable constant websocket pinging if necessary by removing existing connections
-            this.eventRelayConnection?.close();
-            this.eventRelayConnection = null;
-        } else if ((!this.lastUser || this.state.signedOutModal) && this.props.user) {
-            // We got authenticated, so re-enable reconnection on the websocket..
-            this.createEventRelayConnectionIfNecessary();
-            // ... and minimize the sign-in prompt modal if necessary
-            this.setState({signedOutModal: false});
-        }
-        this.lastUser = !!this.props.user;
-    }
-
-    componentDidMount() {
+    useEffect(() => {
+        if (didPostLoadEffects) return;
         (async () => {
-            await this.props.fetchUserAndDependentData(async () => {
-                this.createEventRelayConnectionIfNecessary();
-            });
-
-            // TODO: Refresh other data
-            // TODO: Variable rate
-            // this.pingInterval = setInterval(this.refreshUserAndDependentData, 30000);
-            window.addEventListener("focus", () => this.refreshUserAndDependentData());
+            await dispatch(fetchOpenIdConfigurationIfNeeded());
+            await dispatch(fetchUserDependentData(createEventRelayConnectionIfNecessary));
+            setDidPostLoadEffects(true);
         })();
+    }, [dispatch, createEventRelayConnectionIfNecessary, didPostLoadEffects]);
+
+    useEffect(() => {
+        // initialize session refresh worker
+        if (!sessionWorker.current) {
+            // Use session worker to send pings to refresh the token set even when the tab is inactive.
+            const sw = new SessionWorker();
+            sw.addEventListener("message", () => {
+                dispatch(refreshTokens());
+                dispatch(fetchUserDependentData(nop));
+            });
+            sessionWorker.current = sw;
+        }
+    }, [sessionWorker]);
+
+    const clearPingInterval = useCallback(() => {
+        if (pingInterval.current === null) return;
+        clearInterval(pingInterval.current);
+        pingInterval.current = null;
+    }, [pingInterval]);
+
+    const openSignInWindow = useCallback(() => {
+        // If we already have a sign-in window open, focus on it instead.
+        if (signInWindow.current && !signInWindow.current.closed) {
+            signInWindow.current.focus();
+            return;
+        }
+
+        if (!openIdConfig) return;
+
+        const popupTop = window.top.outerHeight / 2 + window.top.screenY - 350;
+        const popupLeft = window.top.outerWidth / 2 + window.top.screenX - 400;
+
+        (async () => {
+            localStorage.setItem(LS_SIGN_IN_POPUP, "true");
+            signInWindow.current = window.open(
+                await createAuthURL(openIdConfig["authorization_endpoint"]),
+                "Bento Sign In",
+                `${SIGN_IN_WINDOW_FEATURES}, top=${popupTop}, left=${popupLeft}`);
+        })();
+    }, [signInWindow, openIdConfig]);
+
+    // On the cBioPortal tab only, eliminate the margin around the content
+    // to give as much space as possible to the cBioPortal application itself.
+    const margin = window.location.pathname.endsWith("cbioportal") ? 0 : 26;
+
+    if (isInAuthPopup) {
+        return <div>Authenticating...</div>;
     }
 
-    componentWillUnmount() {
-        // TODO: DO WE NEED THIS FOR THE WORKER?
-        // this.clearPingInterval();
-    }
-}
-
-App.propTypes = {
-    isFetchingNodeInfo: PropTypes.bool,
-    nodeInfo: nodeInfoDataPropTypesShape,
-    eventRelay: serviceInfoPropTypesShape,
-    user: userPropTypesShape,
-
-    fetchUserAndDependentData: PropTypes.func,
-    fetchDependentDataWithProvidedUser: PropTypes.func,
+    return <>
+        <Modal title="You have been signed out"
+               footer={null}
+               onCancel={() => {
+                   clearPingInterval();  // Stop pinging until the user decides to sign in again
+                   setSignedOutModal(false);  // Close the modal
+               }}
+               visible={signedOutModal}>
+            Please <a onClick={openSignInWindow}>sign in</a> (uses a popup window) to continue working.
+        </Modal>
+        <Layout style={{minHeight: "100vh"}}>
+            <Suspense fallback={<div />}>
+                <NotificationDrawer />
+            </Suspense>
+            <Suspense fallback={<Layout.Header />}>
+                <SiteHeader />
+            </Suspense>
+            <Layout.Content style={{margin, display: "flex", flexDirection: "column"}}>
+                <Suspense fallback={<SitePageLoading />}>
+                    <Switch>
+                        <Route path={CALLBACK_PATH} component={SitePageLoading} />
+                        <OwnerRoute path={withBasePath("overview")} component={OverviewContent} />
+                        <OwnerRoute path={withBasePath("data/explorer")} component={DataExplorerContent} />
+                        <OwnerRoute path={withBasePath("cbioportal")} component={CBioPortalContent} />
+                        <OwnerRoute path={withBasePath("admin")} component={AdminContent} />
+                        <OwnerRoute path={withBasePath("notifications")} component={NotificationsContent} />
+                        <Redirect from={BASE_PATH} to={withBasePath("overview")} />
+                    </Switch>
+                </Suspense>
+            </Layout.Content>
+            <SiteFooter />
+        </Layout>
+    </>;
 };
 
-const mapStateToProps = state => ({
-    isFetchingNodeInfo: state.nodeInfo.isFetching,
-    nodeInfo: state.nodeInfo.data,
-    eventRelay: state.services.eventRelay,
-    user: state.auth.user,
-});
-
-export default withRouter(connect(mapStateToProps, {
-    fetchDependentDataWithProvidedUser,
-    fetchUserAndDependentData,
-})(App));
+export default App;
