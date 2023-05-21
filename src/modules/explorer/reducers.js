@@ -292,11 +292,11 @@ const tableSearchResultsExperiments = (searchResults) => {
     const results = searchResults.results || [];
 
     return results.flatMap((result) => {
-        if (!result.biosamples_with_experiments) {
+        if (!result.experiments_with_biosamples) {
             return [];
         }
 
-        return result.biosamples_with_experiments.flatMap((sample) => {
+        return result.experiments_with_biosamples.flatMap((sample) => {
             const experiment = sample.experiment;
             if (!experiment || experiment.experiment_id === null) {
                 return [];
@@ -324,13 +324,13 @@ const tableSearchResultsExperiments = (searchResults) => {
 function generateBiosampleObjects(searchResults) {
     return (searchResults?.results ?? [])
         .flatMap((result) => {
-            if (!result["biosamples_with_experiments"]) {
+            if (!result["experiments_with_biosamples"]) {
                 return [];
             }
 
             const biosampleIdToIndex = {};
 
-            return result["biosamples_with_experiments"].reduce((objects, biosample) => {
+            return result["experiments_with_biosamples"].reduce((objects, biosample) => {
                 const biosampleId = biosample["biosample_id"];
 
                 if (biosampleId) {
