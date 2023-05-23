@@ -4,9 +4,9 @@ import { useSelector } from "react-redux";
 import PropTypes from "prop-types";
 
 const COLUMNS_LAST_CONTENT = [
-    { title: "Date", dataIndex: "date", key: "date" },
-    { title: "Data Type", dataIndex: "dataType", key: "dataType" },
-    { title: "Table ID", dataIndex: "tableId", key: "tableId" },
+    { title: "Date", dataIndex: "date", key: "date"},
+    { title: "Data Type", dataIndex: "dataType", key: "dataType"},
+    { title: "Table ID", dataIndex: "tableId", key: "tableId"},
     {
         title: "Ingested Files",
         dataIndex: "fileNames",
@@ -78,7 +78,7 @@ const fileNameFromPath = (path) => path.split("/").pop();
 
 const getFileNameKey = (dataType, workflowParams) =>
     dataType === "variant"
-        ? "vcf_gz.original_vcf_gz_file_paths" // path to vcf_gz file
+        ? "vcf_gz.vcf_gz_file_names" // vcf_gz file names
         : Object.keys(workflowParams)[0];
 
 const getDateFromEndTime = (endTime) => endTime.split("T")[0];
