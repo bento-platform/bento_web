@@ -49,7 +49,7 @@ function FileNamesCell({fileNames, dataType}) {
         <>
             <div onClick={openModal} style={divStyle}>
                 {truncatedFileNames.map((element, index) =>
-                    typeof element === "string" ? <div key={index}>{element}</div> : element
+                    typeof element === "string" ? <div key={index}>{element}</div> : element,
                 )}
             </div>
             <Modal
