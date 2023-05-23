@@ -1,12 +1,12 @@
-import React, { useState, useMemo } from "react";
-import { Table, Modal, Icon } from "antd";
-import { useSelector } from "react-redux";
+import React, {useState, useMemo} from "react";
+import {Table, Modal, Icon} from "antd";
+import {useSelector} from "react-redux";
 import PropTypes from "prop-types";
 
 const COLUMNS_LAST_CONTENT = [
-    { title: "Date", dataIndex: "date", key: "date"},
-    { title: "Data Type", dataIndex: "dataType", key: "dataType"},
-    { title: "Table ID", dataIndex: "tableId", key: "tableId"},
+    {title: "Date", dataIndex: "date", key: "date"},
+    {title: "Data Type", dataIndex: "dataType", key: "dataType"},
+    {title: "Table ID", dataIndex: "tableId", key: "tableId"},
     {
         title: "Ingested Files",
         dataIndex: "fileNames",
@@ -17,16 +17,16 @@ const COLUMNS_LAST_CONTENT = [
         title: "File Names",
         dataIndex: "fileNames",
         key: "fileNames",
-        render: (fileNames, record) => <FileNamesCell fileNames={fileNames} dataType={record.dataType} />,
+        render: (fileNames, record) => <FileNamesCell fileNames={fileNames} dataType={record.dataType}/>,
     },
 ];
 
-function FileNamesCell({ fileNames, dataType }) {
+function FileNamesCell({fileNames, dataType}) {
     const [isModalVisible, setIsModalVisible] = useState(false);
 
     const isTruncated = fileNames.length > 4;
     const truncatedFileNames = isTruncated
-        ? [...fileNames.slice(0, 2), <Icon type="more" key="more-icon" />, ...fileNames.slice(-2)]
+        ? [...fileNames.slice(0, 2), <Icon type="more" key="more-icon"/>, ...fileNames.slice(-2)]
         : fileNames;
 
     const divStyle = isTruncated
@@ -57,7 +57,7 @@ function FileNamesCell({ fileNames, dataType }) {
                 footer={null}
                 visible={isModalVisible}
                 onCancel={closeModal}
-                bodyStyle={{ maxHeight: "80vh", overflowY: "auto" }}
+                bodyStyle={{maxHeight: "80vh", overflowY: "auto"}}
             >
                 {fileNames.map((fileName, index) => (
                     <div key={index}>{fileName}</div>
