@@ -18,5 +18,6 @@
     <orderEntry type="library" name="@types/html-webpack-plugin" level="application" />
     <orderEntry type="library" name="@types/victory" level="application" />
     <orderEntry type="library" name="@types/react-router" level="application" />
+    <orderEntry type="library" name="@types/react-pdf" level="application" />
   </component>
 </module>

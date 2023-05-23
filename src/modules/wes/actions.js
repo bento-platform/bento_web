@@ -18,7 +18,7 @@ export const SUBMIT_ANALYSIS_RUN = createNetworkActionTypes("SUBMIT_ANALYSIS_RUN
 export const fetchRuns = networkAction(() => (dispatch, getState) => ({
     types: FETCH_RUNS,
     url: `${getState().services.wesService.url}/runs?with_details=true`,
-    err: "Error fetching WES runs"
+    err: "Error fetching WES runs",
 }));
 
 export const receiveRunDetails = (runID, data) => ({
@@ -31,7 +31,7 @@ export const fetchRunDetails = networkAction(runID => (dispatch, getState) => ({
     types: FETCH_RUN_DETAILS,
     params: {runID},
     url: `${getState().services.wesService.url}/runs/${runID}`,
-    err: `Error fetching run details for run ${runID}`
+    err: `Error fetching run details for run ${runID}`,
 }));
 
 
@@ -64,7 +64,7 @@ export const fetchRunLogStdOut = networkAction(runDetails => ({
     params: {runID: runDetails.run_id},
     url: runDetails.run_log.stdout,
     parse: r => r.text(),
-    err: `Error fetching stdout for run ${runDetails.run_id}`
+    err: `Error fetching stdout for run ${runDetails.run_id}`,
 }));
 
 export const fetchRunLogStdErr = networkAction(runDetails => ({
@@ -72,7 +72,7 @@ export const fetchRunLogStdErr = networkAction(runDetails => ({
     params: {runID: runDetails.run_id},
     url: runDetails.run_log.stderr,
     parse: r => r.text(),
-    err: `Error fetching stderr for run ${runDetails.run_id}`
+    err: `Error fetching stderr for run ${runDetails.run_id}`,
 }));
 
 export const fetchRunLogs = runID => (dispatch, getState) => Promise.all([

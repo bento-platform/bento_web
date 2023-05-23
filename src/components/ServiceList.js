@@ -5,14 +5,11 @@ import { Link } from "react-router-dom";
 
 import { Table, Typography, Tag, Icon} from "antd";
 
-import { ROLE_OWNER } from "../constants";
+import { getIsAuthenticated } from "../lib/auth/utils";
 import { withBasePath } from "../utils/url";
 
 const SERVICE_KIND_STYLING = { fontFamily: "monospace" };
-
-// biggest reasonable size limit before rolling over
-// currently 11 services including gohan
-const MAX_TABLE_PAGE_SIZE = 12;
+const MAX_TABLE_PAGE_SIZE = 15;
 
 // noinspection JSUnresolvedFunction
 const getServiceTags = serviceInfo => [
@@ -53,13 +50,13 @@ const renderGitInfo = (tag, record, key) => <Tag key={key} color={tag.color}>{ta
 
 
 /* eslint-disable react/prop-types */
-const serviceColumns = (isOwner) => [
+const serviceColumns = (isAuthenticated) => [
     {
         title: "Kind",
         dataIndex: "service_kind",
         render: (serviceKind) =>
             serviceKind ? (
-                isOwner ? (
+                isAuthenticated ? (
                     <Link style={SERVICE_KIND_STYLING} to={withBasePath(`admin/services/${serviceKind}`)}>
                         {serviceKind}
                     </Link>
@@ -123,12 +120,14 @@ const ServiceList = () => {
                 dataService: service.data_service,
             },
             loading: state.services.isFetching,
-        }))
+        })),
     );
 
     const columns = serviceColumns(
-        useSelector((state) => state.auth.hasAttempted && state.auth.user?.chord_user_role === ROLE_OWNER)
+        useSelector((state) => state.auth.hasAttempted && getIsAuthenticated(state.auth.idTokenContents)),
     );
+
+    /** @type boolean */
     const isLoading = useSelector((state) => state.chordServices.isFetching || state.services.isFetching);
 
     return (

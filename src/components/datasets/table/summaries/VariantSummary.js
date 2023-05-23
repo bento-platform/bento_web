@@ -16,7 +16,7 @@ const VariantSummary = ({summary}) =>
     </Row>;
 
 VariantSummary.propTypes = {
-    summary: summaryPropTypesShape
+    summary: summaryPropTypesShape,
 };
 
 export default VariantSummary;

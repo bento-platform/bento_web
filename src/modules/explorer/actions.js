@@ -55,7 +55,7 @@ export const performSearchIfPossible = (datasetID) => (dispatch, getState) => {
 // allows coordination between "real" search form and the variants UI form presented to the user
 export const setIsSubmittingSearch = (isSubmittingSearch) => ({
     type: SET_IS_SUBMITTING_SEARCH,
-    isSubmittingSearch
+    isSubmittingSearch,
 });
 
 
@@ -145,24 +145,19 @@ export const performFreeTextSearchIfPossible = (datasetID, term) => (dispatch, _
 
 export const setOtherThresholdPercentage = (threshold) => ({
     type: SET_OTHER_THRESHOLD_PERCENTAGE,
-    otherThresholdPercentage: threshold
+    otherThresholdPercentage: threshold,
 });
 
 export const setIgvPosition = (igvPosition) => ({
     type: SET_IGV_POSITION,
-    igvPosition
+    igvPosition,
 });
 
 export const performGetGohanVariantsOverviewIfPossible = () => (dispatch, getState) => {
     const gohanUrl = getState()?.services?.gohan?.url;
-    const bentoBaseUrl = `${getState().nodeInfo.data.CHORD_URL}`;
-    // bentoBaseUrl can sometimes be undefined at runtime
-    // - check for it and skip this call if so
-    if (!bentoBaseUrl) {
-        return;
-    }
+    if (!gohanUrl) return;
     const overviewPath = "/variants/overview";
-    const getUrl = gohanUrl ? `${gohanUrl}${overviewPath}` : `${bentoBaseUrl}api/gohan${overviewPath}`;
+    const getUrl = `${gohanUrl}${overviewPath}`;
     dispatch(performGetGohanVariantsOverview(getUrl));
 };
 const performGetGohanVariantsOverview = networkAction((getUrl) => () => ({

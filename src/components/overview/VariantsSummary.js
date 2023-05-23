@@ -4,17 +4,26 @@ import { Col, Row, Spin, Statistic, Typography, Icon } from "antd";
 
 const VariantsSummary = ( ) => {
 
-    const fetchingTableSummaries = useSelector(state => state.tableSummaries?.isFetching);
-    const numVCFs =
-        useSelector((state) => state.overviewSummary.data?.data_type_specific?.experiment_results.file_format.VCF) || 0;
+    const fetchingVariantsOverview = useSelector(state => state.explorer.fetchingVariantsOverview);
+    const variantsOverviewResults = useSelector(state => state.explorer.variantsOverviewResponse);
+    const hasSampleIds =
+        variantsOverviewResults?.sampleIDs !== undefined &&
+        !variantsOverviewResults?.sampleIDs.hasOwnProperty("error");
+    // retrieve list of values from `sampleIDs` and
+    // assume number of files (1 file == 1 sampleId) by adding them up
+    const numVarFilesFromSampleIds =
+        hasSampleIds ?
+            Object.values(variantsOverviewResults.sampleIDs)
+                .reduce((partialSum, a) => partialSum + a, 0) :
+            [];
 
     return (
         <>
             <Typography.Title level={4}>Variants</Typography.Title>
             <Row style={{ marginBottom: "24px" }} gutter={[0, 16]}>
                 <Col xl={2} lg={3} md={4} sm={5} xs={6}>
-                    <Spin spinning={fetchingTableSummaries}>
-                        <Statistic title="VCF Files" prefix={<Icon type="file" />} value={numVCFs} />
+                    <Spin spinning={fetchingVariantsOverview}>
+                        <Statistic title="VCF Files" prefix={<Icon type="file" />} value={numVarFilesFromSampleIds} />
                     </Spin>
                 </Col>
             </Row>

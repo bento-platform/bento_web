@@ -23,11 +23,13 @@ import {
     FETCH_INDIVIDUAL,
 
     FETCH_OVERVIEW_SUMMARY,
+
+    CREATE_PROJECT_JSON_SCHEMA,
+    DELETE_PROJECT_JSON_SCHEMA,
 } from "./actions";
 
 
 const projectSort = (a, b) => a.title.localeCompare(b.title);
-
 
 export const projects = (
     state = {
@@ -39,10 +41,14 @@ export const projects = (
         isAddingDataset: false,
         isSavingDataset: false,
         isDeletingDataset: false,
+
+        isCreatingJsonSchema: false,
+        isDeletingJsonSchema: false,
+
         items: [],
-        itemsByID: {}
+        itemsByID: {},
     },
-    action
+    action,
 ) => {
     switch (action.type) {
         case FETCH_PROJECTS.REQUEST:
@@ -76,8 +82,8 @@ export const projects = (
                 items: [...state.items, action.data].sort(projectSort),
                 itemsByID: {
                     ...state.itemsByID,
-                    [action.data.identifier]: action.data
-                }
+                    [action.data.identifier]: action.data,
+                },
             };
 
         case CREATE_PROJECT.FINISH:
@@ -92,7 +98,7 @@ export const projects = (
                 ...state,
                 items: state.items.filter(p => p.identifier !== action.project.identifier),
                 itemsByID: Object.fromEntries(Object.entries(objectWithoutProp(state.itemsByID,
-                    action.project.identifier)).filter(([projectID, _]) => projectID !== action.project.identifier))
+                    action.project.identifier)).filter(([projectID, _]) => projectID !== action.project.identifier)),
             };
 
         case DELETE_PROJECT.FINISH:
@@ -109,8 +115,8 @@ export const projects = (
                     .sort(projectSort),
                 itemsByID: {
                     ...state.itemsByID,
-                    [action.data.identifier]: action.data
-                }
+                    [action.data.identifier]: action.data,
+                },
             };
 
         case SAVE_PROJECT.FINISH:
@@ -126,15 +132,15 @@ export const projects = (
                 isAddingDataset: false,
                 items: state.items.map(p => p.identifier === action.data.project
                     ? {...p, datasets: [...p.datasets, action.data]}
-                    : p
+                    : p,
                 ),
                 itemsByID: {
                     ...state.itemsByID,
                     [action.data.project]: {
                         ...(state.itemsByID[action.data.project] || {}),
-                        datasets: [...((state.itemsByID[action.data.project] || {}).datasets || []), action.data]
-                    }
-                }
+                        datasets: [...((state.itemsByID[action.data.project] || {}).datasets || []), action.data],
+                    },
+                },
             };
 
 
@@ -153,15 +159,15 @@ export const projects = (
                 ...state,
                 items: state.items.map(p => p.identifier === action.data.project
                     ? {...p, datasets: p.datasets.map(replaceDataset)}
-                    : p
+                    : p,
                 ),
                 itemsByID: {
                     ...state.itemsByID,
                     [action.data.project]: {
                         ...(state.itemsByID[action.data.project] || {}),
-                        datasets: ((state.itemsByID[action.data.project] || {}).datasets || []).map(replaceDataset)
-                    }
-                }
+                        datasets: ((state.itemsByID[action.data.project] || {}).datasets || []).map(replaceDataset),
+                    },
+                },
             };
         }
 
@@ -181,21 +187,70 @@ export const projects = (
                 ...state,
                 items: state.items.map(p => p.identifier === action.project.identifier
                     ? {...p, datasets: p.datasets.filter(deleteDataset)}
-                    : p
+                    : p,
                 ),
                 itemsByID: {
                     ...state.itemsByID,
                     [action.project.identifier]: {
                         ...(state.itemsByID[action.project.identifier] || {}),
                         datasets: ((state.itemsByID[action.project.identifier] || {}).datasets || [])
-                            .filter(deleteDataset)
-                    }
-                }
+                            .filter(deleteDataset),
+                    },
+                },
             };
         }
 
         case DELETE_PROJECT_DATASET.FINISH:
             return {...state, isDeletingDataset: false};
+
+        // CREATE_PROJECT_JSON_SCHEMA
+        case CREATE_PROJECT_JSON_SCHEMA.REQUEST:
+            return {...state, isCreatingJsonSchema: true};
+        case CREATE_PROJECT_JSON_SCHEMA.RECEIVE:
+            return {
+                ...state,
+                items: state.items.map(p => p.identifier === action.data.project
+                    ? {...p, project_schemas: [...p.project_schemas, action.data]}
+                    : p,
+                ),
+                itemsByID: {
+                    ...state.itemsByID,
+                    [action.data.project]: {
+                        ...(state.itemsByID[action.data.project] || {}),
+                        project_schemas: [
+                            ...(state.itemsByID[action.data.project]?.project_schemas ?? []),
+                            action.data,
+                        ],
+                    },
+                },
+            };
+        case CREATE_PROJECT_JSON_SCHEMA.FINISH:
+            return {...state, isCreatingJsonSchema: false};
+
+        // DELETE_PROJECT_JSON_SCHEMA
+        case DELETE_PROJECT_JSON_SCHEMA.REQUEST:
+            return {...state, isDeletingJsonSchema: true};
+        case DELETE_PROJECT_JSON_SCHEMA.RECEIVE: {
+            const deleteSchema = pjs => pjs.id !== action.projectJsonSchema.id;
+            return {
+                ...state,
+                items: state.items.map(p => p.identifier === action.projectJsonSchema.project
+                    ? {...p, project_schemas: p.project_schemas.filter(deleteSchema)}
+                    : p,
+                ),
+                itemsByID: {
+                    ...state.itemsByID,
+                    [action.projectJsonSchema.project]: {
+                        ...(state.itemsByID[action.projectJsonSchema.project] || {}),
+                        project_schemas: (state.itemsByID[action.projectJsonSchema.project]?.project_schemas ?? [])
+                            .filter(deleteSchema),
+
+                    },
+                },
+            };
+        }
+        case DELETE_PROJECT_JSON_SCHEMA.FINISH:
+            return {...state, isDeletingJsonSchema: false};
 
 
         default:
@@ -211,9 +266,9 @@ export const projectTables = (
         isAdding: false,
         isDeleting: false,
         items: [],
-        itemsByProjectID: {}
+        itemsByProjectID: {},
     },
-    action
+    action,
 ) => {
     switch (action.type) {
         case CREATE_PROJECT.RECEIVE:
@@ -222,15 +277,15 @@ export const projectTables = (
                 ...state,
                 itemsByProjectID: {
                     ...state.itemsByProjectID,
-                    [action.data.id]: []
-                }
+                    [action.data.id]: [],
+                },
             };
 
         case DELETE_PROJECT.RECEIVE:
             return {
                 ...state,
                 items: state.items.filter(t => t.project_id !== action.project.identifier),
-                itemsByProjectID: objectWithoutProp(state.itemsByProjectID, action.project.identifier)
+                itemsByProjectID: objectWithoutProp(state.itemsByProjectID, action.project.identifier),
             };
 
         case FETCH_PROJECT_TABLES.REQUEST:
@@ -247,18 +302,18 @@ export const projectTables = (
                             ...t,
                             project_id: (Object.entries(action.projectsByID)
                                 .filter(([_, project]) => project.datasets.map(d => d.identifier)
-                                    .includes(t.dataset))[0] || [])[0] || null
+                                    .includes(t.dataset))[0] || [])[0] || null,
                         }))
-                        .filter(t => t.project_id !== null && !state.items.map(t => t.table_id).includes(t.table_id))
+                        .filter(t => t.project_id !== null && !state.items.map(t => t.table_id).includes(t.table_id)),
                 ],
                 itemsByProjectID: {  // TODO: Improve performance by maybe returning project ID on server side?
                     ...state.itemsByProjectID,
                     ...Object.fromEntries(Object.entries(action.projectsByID).map(([projectID, project]) =>
                         [projectID, action.data.filter(t => project.datasets
                             .map(d => d.identifier)
-                            .includes(t.dataset))]
-                    ))
-                }
+                            .includes(t.dataset))],
+                    )),
+                },
             };
 
         case FETCH_PROJECT_TABLES.FINISH:
@@ -276,8 +331,8 @@ export const projectTables = (
                 itemsByProjectID: {
                     ...state.itemsByProjectID,
                     [action.project.identifier]: [...(state.itemsByProjectID[action.project.identifier] || []),
-                        action.table]
-                }
+                        action.table],
+                },
             };
 
         case PROJECT_TABLE_ADDITION.TERMINATE:
@@ -294,8 +349,8 @@ export const projectTables = (
                 itemsByProjectID: {
                     ...state.itemsByProjectID,
                     [action.project.identifier]: (state.itemsByProjectID[action.project.identifier] || [])
-                        .filter(t => t.id !== action.tableID)
-                }
+                        .filter(t => t.id !== action.tableID),
+                },
             };
 
         case PROJECT_TABLE_DELETION.TERMINATE:
@@ -311,7 +366,7 @@ export const biosamples = (
     state = {
         itemsByID: {},
     },
-    action
+    action,
 ) => {
     switch (action.type) {
         default:
@@ -323,7 +378,7 @@ export const individuals = (
     state = {
         itemsByID: {},
     },
-    action
+    action,
 ) => {
     switch (action.type) {
         case FETCH_INDIVIDUAL.REQUEST:
@@ -369,9 +424,9 @@ export const individuals = (
 export const overviewSummary = (
     state = {
         data: {},
-        isFetching: true
+        isFetching: true,
     },
-    action
+    action,
 ) => {
     switch (action.type) {
         case FETCH_OVERVIEW_SUMMARY.REQUEST:

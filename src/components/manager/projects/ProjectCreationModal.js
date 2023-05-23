@@ -43,7 +43,7 @@ class ProjectCreationModal extends Component {
                     icon="plus"
                     type="primary"
                     onClick={this.handleCreateSubmit}
-                    loading={this.props.isCreatingProject}>Create</Button>
+                    loading={this.props.isCreatingProject}>Create</Button>,
         ]} onCancel={this.handleCreateCancel}><ProjectForm ref={form => this.form = form} /></Modal>;
     }
 }
