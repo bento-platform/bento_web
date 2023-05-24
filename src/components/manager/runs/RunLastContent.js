@@ -45,9 +45,7 @@ function FileNamesCell({fileNames, dataType}) {
         textOverflow: "ellipsis",
     };
 
-    const openModal = () => {
-        if (isTruncated) setIsModalVisible(true);
-    };
+    const openModal = () => isTruncated && setIsModalVisible(true);
 
     const closeModal = () => setIsModalVisible(false);
 
@@ -67,8 +65,7 @@ function FileNamesCell({fileNames, dataType}) {
             >
                  <ul style={{ padding: "0 20px", listStyle: "none" }}>
                     {fileNames.map((fileName, index) => (
-                        <li key={index} style={modalListStyle}
-                        >- {fileName}</li>
+                        <li key={index} style={modalListStyle}>- {fileName}</li>
                     ))}
                 </ul>
             </Modal>
@@ -83,7 +80,7 @@ FileNamesCell.propTypes = {
 
 const buildKeyFromRecord = (record) => `${record.dataType}-${record.tableId}`;
 
-const fileNameFromPath = (path) => path.split("/").pop();
+const fileNameFromPath = (path) => path.split("/").at(-1);
 
 const getFileNameKey = (dataType, workflowParams) =>
     dataType === "variant"
@@ -116,14 +113,14 @@ const processIngestions = (data, currentTables) => {
             const currentIngestion = { date: dateStr, dataType, tableId, fileNames };
             const dataTypeAndTableId = buildKeyFromRecord(currentIngestion);
 
-            if (!ingestions[dataTypeAndTableId]) {
-                ingestions[dataTypeAndTableId] = currentIngestion;
-            } else {
+            if (ingestions[dataTypeAndTableId]) {
                 const existingDate = Date.parse(ingestions[dataTypeAndTableId].date);
                 if (date > existingDate) {
                     ingestions[dataTypeAndTableId].date = dateStr;
                 }
                 ingestions[dataTypeAndTableId].fileNames.push(...fileNames);
+            } else {
+                ingestions[dataTypeAndTableId] = currentIngestion;
             }
         }
         return ingestions;
