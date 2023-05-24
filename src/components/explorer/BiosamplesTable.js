@@ -50,7 +50,7 @@ const ExperimentsRender = ({studiesType}) => {
         return acc;
     }, {});
     const formattedExperiments = Object.entries(experimentCount).map(
-        ([study, count]) => `${count === studiesType.length ? "" : count + " "}${pluralize(study, count)}`
+        ([study, count]) => `${count === studiesType.length ? "" : count + " "}${pluralize(study, count)}`,
     );
     return (
         <>
@@ -67,7 +67,7 @@ const ExperimentsRender = ({studiesType}) => {
 };
 
 ExperimentsRender.propTypes = {
-    studiesType: PropTypes.arrayOf(PropTypes.string).isRequired
+    studiesType: PropTypes.arrayOf(PropTypes.string).isRequired,
 };
 
 const experimentsSorter = (a, b) => {
@@ -94,7 +94,7 @@ const availableExperimentsRender = (experimentsType) => {
             return acc;
         }, {});
         const formattedExperiments = Object.entries(experimentCount).map(
-            ([experiment, count]) => `${count} ${experiment}`
+            ([experiment, count]) => `${count} ${experiment}`,
         );
         return formattedExperiments.join(", ");
     } else {
@@ -191,10 +191,10 @@ BiosamplesTable.propTypes = {
             sampledTissues: PropTypes.arrayOf(
                 PropTypes.shape({
                     label: PropTypes.string.isRequired,
-                })
+                }),
             ).isRequired,
             experimentTypes: PropTypes.arrayOf(PropTypes.string).isRequired,
-        })
+        }),
     ).isRequired,
 };
 

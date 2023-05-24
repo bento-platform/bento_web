@@ -29,7 +29,7 @@ const performSearch = networkAction((datasetID, dataTypeQueries, excludeFromAuto
             join_query: null, // Will be autofilled by the aggregation service
             exclude_from_auto_join: excludeFromAutoJoin,
         },
-        "POST"
+        "POST",
     ),
     err: "Error performing search",
 }));
@@ -72,7 +72,7 @@ const performCSVDownloadHelper = (actionTypes, urlPath) =>
                 id: ids,
                 format: "csv",
             },
-            "POST"
+            "POST",
         ),
         parse: (r) => r.blob(),
         err: `Error fetching ${urlPath} CSV`,
@@ -169,7 +169,7 @@ const performFreeTextSearch = networkAction(
                 "&format=bento_search_result",
             err: `Error searching in all records with term ${term}`,
         }
-    )
+    ),
 );
 
 export const performFreeTextSearchIfPossible = (datasetID, term) => (dispatch, _getState) => {

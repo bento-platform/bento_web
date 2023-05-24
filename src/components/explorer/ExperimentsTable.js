@@ -87,7 +87,7 @@ ExperimentsTable.propTypes = {
             biosampleId: PropTypes.string.isRequired,
             studyType: PropTypes.string.isRequired,
             experimentType: PropTypes.string.isRequired,
-        })
+        }),
     ).isRequired,
 };
 
