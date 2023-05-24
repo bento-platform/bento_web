@@ -39,6 +39,12 @@ function FileNamesCell({fileNames, dataType}) {
         }
         : {};
 
+    const modalListStyle = {
+        whiteSpace: "nowrap",
+        overflow: "hidden",
+        textOverflow: "ellipsis",
+    };
+
     const openModal = () => {
         if (isTruncated) setIsModalVisible(true);
     };
@@ -57,11 +63,14 @@ function FileNamesCell({fileNames, dataType}) {
                 footer={null}
                 visible={isModalVisible}
                 onCancel={closeModal}
-                bodyStyle={{maxHeight: "80vh", overflowY: "auto"}}
+                bodyStyle={{maxHeight: "80vh", overflowY: "auto", whiteSpace: "text-overflow"}}
             >
-                {fileNames.map((fileName, index) => (
-                    <div key={index}>{fileName}</div>
-                ))}
+                 <ul style={{ padding: "0 20px", listStyle: "none" }}>
+                    {fileNames.map((fileName, index) => (
+                        <li key={index} style={modalListStyle}
+                        >- {fileName}</li>
+                    ))}
+                </ul>
             </Modal>
         </>
     );
