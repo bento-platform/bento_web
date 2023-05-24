@@ -26,7 +26,7 @@ class Histogram extends React.Component {
     };
 
     style = {
-        marginBottom: "20px"
+        marginBottom: "20px",
     };
 
     shouldComponentUpdate(props, state) {

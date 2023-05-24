@@ -32,7 +32,7 @@ class NotificationList extends Component {
                         this.props.navigateToWESRun(notification.action_target);
                     }}>
                         Run Details
-                    </Button>
+                    </Button>,
                 ];
             default:
                 return [];
@@ -42,7 +42,7 @@ class NotificationList extends Component {
     render() {
         const processedNotifications = this.props.notifications.map(n => ({
             ...n,
-            timestamp: new Date(Date.parse(n.timestamp))
+            timestamp: new Date(Date.parse(n.timestamp)),
         })).sort(sortNotificationTimestamps);
 
         const small = this.props.small || false;
@@ -53,7 +53,7 @@ class NotificationList extends Component {
                   pagination={{
                       hideOnSinglePage: small,
                       pageSize: small ? 5 : 10,
-                      size: small ? "small" : ""
+                      size: small ? "small" : "",
                   }}
                   loading={this.props.fetchingNotifications}
                   renderItem={n => (
@@ -66,7 +66,7 @@ class NotificationList extends Component {
                                       style={{padding: 0}}
                                       onClick={() => this.props.markNotificationAsRead(n.id)}>
                                   Mark as Read
-                              </Button>
+                              </Button>,
                           ]),
                       ]}>
                           <List.Item.Meta

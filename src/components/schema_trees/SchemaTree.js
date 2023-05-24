@@ -14,7 +14,7 @@ class SchemaTree extends Component {
 }
 
 SchemaTree.propTypes = {
-    schema: PropTypes.object
+    schema: PropTypes.object,
 };
 
 export default SchemaTree;

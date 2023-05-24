@@ -13,7 +13,7 @@ import {
     DATA_USE_PROP_TYPE_SHAPE,
     DATA_USE_KEYS,
     DATA_USE_INFO,
-    DUO_NOT_FOR_PROFIT_USE_ONLY
+    DUO_NOT_FOR_PROFIT_USE_ONLY,
 } from "../duo";
 
 const sortSCC = (a, b) => SECONDARY_CONSENT_CODE_KEYS.indexOf(a.code) - SECONDARY_CONSENT_CODE_KEYS.indexOf(b.code);
@@ -33,9 +33,9 @@ class DataUseInput extends Component {
         this.state = {
             consent_code: {
                 primary_category: value.consent_code?.primary_category ?? null,
-                secondary_categories: [...(value.consent_code?.secondary_categories ?? [])]
+                secondary_categories: [...(value.consent_code?.secondary_categories ?? [])],
             },
-            data_use_requirements: [...(value.data_use_requirements ?? [])]
+            data_use_requirements: [...(value.data_use_requirements ?? [])],
         };
 
         this.triggerChange = this.triggerChange.bind(this);
@@ -54,8 +54,8 @@ class DataUseInput extends Component {
         this.triggerChange({
             consent_code: {
                 ...this.state.consent_code,
-                primary_category: {code}
-            }
+                primary_category: {code},
+            },
         });
     }
 
@@ -65,8 +65,8 @@ class DataUseInput extends Component {
                 ...this.state.consent_code,
                 secondary_categories: event.target.checked
                     ? [...this.state.consent_code.secondary_categories, {code}].sort(sortSCC)
-                    : this.state.consent_code.secondary_categories.filter(c => c.code !== code)
-            }
+                    : this.state.consent_code.secondary_categories.filter(c => c.code !== code),
+            },
         });
     }
 
@@ -74,7 +74,7 @@ class DataUseInput extends Component {
         this.triggerChange({
             data_use_requirements: event.target.checked
                 ? [...this.state.data_use_requirements, {code}].sort(sortDUR)
-                : this.state.data_use_requirements.filter(c => c.code !== code)
+                : this.state.data_use_requirements.filter(c => c.code !== code),
         });
     }
 
@@ -95,12 +95,12 @@ class DataUseInput extends Component {
                                 verticalAlign: "top",
                                 paddingTop: "2px",
                                 paddingRight: "16px",
-                                whiteSpace: "normal"
+                                whiteSpace: "normal",
                             }}>
                                 <List.Item.Meta title={PRIMARY_CONSENT_CODE_INFO[pcc].title}
                                                 description={PRIMARY_CONSENT_CODE_INFO[pcc].content} />
                             </List.Item>
-                        </Radio>
+                        </Radio>,
                     )}
                     </List>
                 </Radio.Group>
@@ -120,7 +120,7 @@ class DataUseInput extends Component {
                             } description={<div style={{marginLeft: "24px"}}>
                                 {SECONDARY_CONSENT_CODE_INFO[scc].content}
                             </div>} />
-                        </List.Item>
+                        </List.Item>,
                     )}
                 </List>
             </div>

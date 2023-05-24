@@ -37,8 +37,8 @@ const ExplorerDatasetSearch = () => {
 
     const datasetsByID = useSelector((state) =>
         Object.fromEntries(
-            state.projects.items.flatMap((p) => p.datasets.map((d) => [d.identifier, { ...d, project: p.identifier }]))
-        )
+            state.projects.items.flatMap((p) => p.datasets.map((d) => [d.identifier, { ...d, project: p.identifier }])),
+        ),
     );
     const dataTypeForms = useSelector((state) => state.explorer.dataTypeFormsByDatasetID[dataset] || []);
     const fetchingSearch = useSelector((state) => state.explorer.fetchingSearchByDatasetID[dataset] || false);

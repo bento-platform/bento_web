@@ -15,13 +15,13 @@ const IndividualExperiments = ({ individual }) => {
     const blankExperimentOntology = [{ id: EM_DASH, label: EM_DASH }];
 
     const downloadUrls = useSelector(
-        (state) => state.drs.downloadUrlsByFilename
+        (state) => state.drs.downloadUrlsByFilename,
     );
     const dispatch = useDispatch();
     const history = useHistory();
 
     const biosamplesData = (individual?.phenopackets ?? []).flatMap(
-        (p) => p.biosamples
+        (p) => p.biosamples,
     );
     const experimentsData = biosamplesData.flatMap((b) => b?.experiments ?? []);
     let results = experimentsData.flatMap((e) => e?.experiment_results ?? []);
@@ -52,7 +52,7 @@ const IndividualExperiments = ({ individual }) => {
                     onClick={async () =>
                         FileSaver.saveAs(
                             downloadUrls[resultFile.filename].url,
-                            resultFile.filename
+                            resultFile.filename,
                         )
                     }
                 >
@@ -183,7 +183,7 @@ const IndividualExperiments = ({ individual }) => {
                                                         {mo.label}
                                                     </Descriptions.Item>
                                                 </Descriptions>
-                                            )
+                                            ),
                                         )}
                                     </Descriptions.Item>
                                     <Descriptions.Item>
@@ -292,7 +292,7 @@ const IndividualExperiments = ({ individual }) => {
                                 rowKey="filename"
                                 dataSource={(e.experiment_results || []).sort(
                                     (r1, r2) =>
-                                        r1.file_format > r2.file_format ? 1 : -1
+                                        r1.file_format > r2.file_format ? 1 : -1,
                                 )}
                             />
                         </div>

@@ -46,13 +46,13 @@ TableSummaryModal.propTypes = {
     onCancel: PropTypes.func,
 
     isFetchingSummaries: PropTypes.bool,
-    summary: summaryPropTypesShape
+    summary: summaryPropTypesShape,
 };
 
 const mapStateToProps = (state, ownProps) => ({
     isFetchingSummaries: state.tableSummaries.isFetching,
     summary: (state.tableSummaries.summariesByServiceArtifactAndTableID[(ownProps.table || {}).service_artifact]
-        || {})[(ownProps.table || {}).table_id]
+        || {})[(ownProps.table || {}).table_id],
 });
 
 export default connect(mapStateToProps)(TableSummaryModal);

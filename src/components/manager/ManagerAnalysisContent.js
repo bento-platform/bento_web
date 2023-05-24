@@ -22,7 +22,7 @@ const AnalysisWorkflowSelection = ({handleWorkflowClick}) => {
             workflow={w}
             selectable={true}
             onClick={() => handleWorkflowClick(w)}
-        />
+        />,
     );
 
     return <Form labelCol={FORM_LABEL_COL} wrapperCol={FORM_WRAPPER_COL}>

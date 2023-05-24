@@ -14,8 +14,6 @@ import {Document, Page} from "react-pdf/dist/esm/entry.webpack5";
 import "react-pdf/dist/esm/Page/AnnotationLayer.css";
 import "react-pdf/dist/esm/Page/TextLayer.css";
 
-import ReactJson from "react-json-view";
-
 import {json, markdown, plaintext} from "react-syntax-highlighter/dist/cjs/languages/hljs";
 
 import {
@@ -35,10 +33,12 @@ import {
 
 import {LAYOUT_CONTENT_STYLE} from "../../styles/layoutContent";
 import TableSelectionModal from "./TableSelectionModal";
+import JsonDisplay from "../JsonDisplay";
 
 import {STEP_INPUT} from "./workflowCommon";
 import {withBasePath} from "../../utils/url";
 import {dropBoxTreeStateToPropsMixinPropTypes, workflowsStateToPropsMixin} from "../../propTypes";
+import {makeAuthorizationHeader} from "../../lib/auth/utils";
 
 
 SyntaxHighlighter.registerLanguage("json", json);
@@ -46,7 +46,7 @@ SyntaxHighlighter.registerLanguage("markdown", markdown);
 SyntaxHighlighter.registerLanguage("plaintext", plaintext);
 
 
-const PDF_OPTIONS = {
+const BASE_PDF_OPTIONS = {
     cMapUrl: "cmaps/",
     cMapPacked: true,
     standardFontDataUrl: "standard_fonts/",
@@ -64,7 +64,6 @@ const LANGUAGE_HIGHLIGHTERS = {
 };
 
 const VIEWABLE_FILE_EXTENSIONS = [...Object.keys(LANGUAGE_HIGHLIGHTERS), ".pdf"];
-
 
 const sortByName = (a, b) => a.name.localeCompare(b.name);
 const generateFileTree = directory => [...directory].sort(sortByName).map(entry =>
@@ -100,10 +99,18 @@ const formatTimestamp = timestamp => (new Date(timestamp * 1000)).toLocaleString
 const FileDisplay = ({file, tree, treeLoading}) => {
     const urisByFilePath = useMemo(() => generateURIsByFilePath(tree, {}), [tree]);
 
+    const accessToken = useSelector(state => state.auth.accessToken);
+    const headers = useMemo(() => makeAuthorizationHeader(accessToken), [accessToken]);
+
     const [fileLoadError, setFileLoadError] = useState("");
     const [loadingFileContents, setLoadingFileContents] = useState(false);
     const [fileContents, setFileContents] = useState({});
     const [pdfPageCounts, setPdfPageCounts] = useState({});
+
+    const pdfOptions = useMemo(() => ({
+        ...BASE_PDF_OPTIONS,
+        httpHeaders: headers,
+    }), [headers]);
 
     let textFormat = false;
     if (file) {
@@ -127,11 +134,7 @@ const FileDisplay = ({file, tree, treeLoading}) => {
                 setLoadingFileContents(true);
             }
 
-            if (!textFormat) return;
-
-            if (fileContents.hasOwnProperty(file)) {
-                return;
-            }
+            if (!textFormat || fileContents.hasOwnProperty(file)) return;
 
             if (!(file in urisByFilePath)) {
                 console.error(`Files: something went wrong while trying to load ${file}`);
@@ -141,9 +144,14 @@ const FileDisplay = ({file, tree, treeLoading}) => {
 
             try {
                 setLoadingFileContents(true);
-                const r = await fetch(urisByFilePath[file]);
+                const r = await fetch(urisByFilePath[file], {headers});
                 if (r.ok) {
-                    setFileContents({...fileContents, [file]: await r.text()});
+                    const text = await r.text();
+                    const content = (fileExt === "json" ? JSON.parse(text) : text);
+                    setFileContents({
+                        ...fileContents,
+                        [file]: content,
+                    });
                 } else {
                     setFileLoadError(`Could not load file: ${r.content}`);
                 }
@@ -183,7 +191,7 @@ const FileDisplay = ({file, tree, treeLoading}) => {
                 const uri = urisByFilePath[file];
                 if (!uri) return <div />;
                 return (
-                    <Document file={uri} onLoadSuccess={onPdfLoad} onLoadError={onPdfFail} options={PDF_OPTIONS}>
+                    <Document file={uri} onLoadSuccess={onPdfLoad} onLoadError={onPdfFail} options={pdfOptions}>
                         {(() => {
                             const pages = [];
                             for (let i = 1; i <= pdfPageCounts[file] ?? 1; i++) {
@@ -194,15 +202,9 @@ const FileDisplay = ({file, tree, treeLoading}) => {
                     </Document>
                 );
             } else if (fileExt === "json") {
-                return (
-                    <ReactJson
-                        src={JSON.parse(fileContents[file] || "{}")}
-                        displayDataTypes={false}
-                        enableClipboard={false}
-                        name={null}
-                        collapsed={true}
-                    />
-                );
+                const jsonSrc = fileContents[file];
+                if (loadingFileContents || !jsonSrc) return <div />;
+                return (<JsonDisplay jsonSrc={jsonSrc}/>);
             } else {  // if (textFormat)
                 return (
                     <SyntaxHighlighter
@@ -298,7 +300,7 @@ const ManagerDropBoxContent = () => {
             step: STEP_INPUT,
             workflowSelectionValues: {selectedTable: tableKey},
             selectedWorkflow,
-            initialInputValues: getWorkflowFit(selectedWorkflow)[1]
+            initialInputValues: getWorkflowFit(selectedWorkflow)[1],
         });
     }, [history, selectedWorkflow]);
 

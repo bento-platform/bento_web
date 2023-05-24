@@ -13,6 +13,7 @@ import {beginProjectEditing, endProjectEditing} from "../../../modules/manager/a
 import {withBasePath} from "../../../utils/url";
 import {FORM_MODE_ADD, FORM_MODE_EDIT} from "../../../constants";
 import {chordServicePropTypesMixin, projectPropTypesShape, serviceInfoPropTypesShape} from "../../../propTypes";
+import ProjectJsonSchemaModal from "./ProjectJsonSchemaModal";
 
 class RoutedProject extends Component {
     constructor(props) {
@@ -20,7 +21,8 @@ class RoutedProject extends Component {
         this.state = {
             datasetAdditionModal: false,
             datasetEditModal: false,
-            selectedDataset: null
+            jsonSchemaModal: false,
+            selectedDataset: null,
         };
     }
 
@@ -59,6 +61,10 @@ class RoutedProject extends Component {
 
     hideDatasetEditModal() {
         this.setState({datasetEditModal: false});
+    }
+
+    setJsonSchemaModalVisible(visible) {
+        this.setState({jsonSchemaModal: visible});
     }
 
     handleDeleteProject(project) {
@@ -136,7 +142,7 @@ class RoutedProject extends Component {
             ...this.props.serviceTables.filter(t2 =>
                 !this.props.projectTables.map(to => to.table_id).includes(t2.id) &&
                 manageableDataTypes.includes(t2.data_type)).map(t => ({...t, table_id: t.id})),
-            ...this.props.projectTables.filter(to => !this.props.servicesByID.hasOwnProperty(to.service_id))
+            ...this.props.projectTables.filter(to => !this.props.servicesByID.hasOwnProperty(to.service_id)),
         ];
 
         return <>
@@ -153,6 +159,11 @@ class RoutedProject extends Component {
                               onCancel={this.hideDatasetEditModal}
                               onOk={this.hideDatasetEditModal} />
 
+            <ProjectJsonSchemaModal projectId={project.identifier}
+                                    visible={this.state.jsonSchemaModal}
+                                    onOk={() => this.setJsonSchemaModalVisible(false)}
+                                    onCancel={() => this.setJsonSchemaModalVisible(false)} />
+
             <Project value={project}
                      tables={tableList}
                      strayTables={strayTables}
@@ -165,9 +176,10 @@ class RoutedProject extends Component {
                      onAddDataset={() => this.showDatasetAdditionModal()}
                      onEditDataset={dataset => this.setState({
                          selectedDataset: dataset,
-                         datasetEditModal: true
+                         datasetEditModal: true,
                      })}
-                     onTableIngest={(p, t) => this.ingestIntoTable(p, t)} />
+                     onAddJsonSchema={() => this.setJsonSchemaModalVisible(true)}
+                     onTableIngest={(p, t) => this.ingestIntoTable(p, t)}/>
         </>;
     }
 }

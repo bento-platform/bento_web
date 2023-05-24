@@ -40,7 +40,7 @@ const VariantSearchHeader = ({dataType, addVariantSearchValues}) => {
         "assemblyId": assemblySchema?.description,
         "genotype": genotypeSchema?.description,
         "locus": "Enter gene name (eg \"BRCA1\") or position (\"chr17:41195311-41278381\")",
-        "ref/alt": "Combination of nucleotides A, C, T, and G, including N as a wildcard - i.e. AATG, CG, TNN"
+        "ref/alt": "Combination of nucleotides A, C, T, and G, including N as a wildcard - i.e. AATG, CG, TNN",
     };
 
     // custom validation since this form isn't submitted, it's just used to fill fields in hidden form
@@ -198,7 +198,7 @@ const VariantSearchHeader = ({dataType, addVariantSearchValues}) => {
       <Input
         onChange={handleRefChange}
         value={activeRefValue} style={{
-            borderColor: refFormReceivedValidKeystroke ? "" : "red"
+            borderColor: refFormReceivedValidKeystroke ? "" : "red",
         }} />
     </Form.Item>
     <Form.Item
@@ -210,7 +210,7 @@ const VariantSearchHeader = ({dataType, addVariantSearchValues}) => {
       <Input
         onChange={handleAltChange}
         value={activeAltValue} style={{
-            borderColor: altFormReceivedValidKeystroke ? "" : "red"
+            borderColor: altFormReceivedValidKeystroke ? "" : "red",
         }} />
     </Form.Item>
     </>

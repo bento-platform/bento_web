@@ -8,7 +8,7 @@ import {
     DATA_USE_INFO,
     DATA_USE_PROP_TYPE_SHAPE,
     PRIMARY_CONSENT_CODE_INFO,
-    SECONDARY_CONSENT_CODE_INFO
+    SECONDARY_CONSENT_CODE_INFO,
 } from "../duo";
 
 
@@ -16,11 +16,11 @@ const TAG_LABEL_STYLING = {
     fontSize: "0.65rem",
     color: "#777",
     marginTop: "-4px",
-    marginBottom: "4px"
+    marginBottom: "4px",
 };
 
 const TAG_STYLING = {
-    fontFamily: "monospace"
+    fontFamily: "monospace",
 };
 
 
@@ -86,7 +86,7 @@ class DataUseDisplay extends Component {
 }
 
 DataUseDisplay.propTypes = {
-    dataUse: DATA_USE_PROP_TYPE_SHAPE
+    dataUse: DATA_USE_PROP_TYPE_SHAPE,
 };
 
 export default DataUseDisplay;

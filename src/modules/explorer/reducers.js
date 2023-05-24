@@ -51,7 +51,7 @@ export const explorer = (
             readFromLocalStorage("otherThresholdPercentage") ?? DEFAULT_OTHER_THRESHOLD_PERCENTAGE,
         igvPosition: undefined,
     },
-    action
+    action,
 ) => {
     switch (action.type) {
         case PERFORM_GET_GOHAN_VARIANTS_OVERVIEW.RECEIVE:
@@ -172,7 +172,7 @@ export const explorer = (
                     ...state.dataTypeFormsByDatasetID,
                     [action.datasetID]: addDataTypeFormIfPossible(
                         state.dataTypeFormsByDatasetID[action.datasetID] || [],
-                        action.dataType
+                        action.dataType,
                     ),
                 },
             };
@@ -184,7 +184,7 @@ export const explorer = (
                     [action.datasetID]: updateDataTypeFormIfPossible(
                         state.dataTypeFormsByDatasetID[action.datasetID] || [],
                         action.dataType,
-                        action.fields
+                        action.fields,
                     ),
                 },
             };
@@ -195,7 +195,7 @@ export const explorer = (
                     ...state.dataTypeFormsByDatasetID,
                     [action.datasetID]: removeDataTypeFormIfPossible(
                         state.dataTypeFormsByDatasetID[action.datasetID] || [],
-                        action.dataType
+                        action.dataType,
                     ),
                 },
             };

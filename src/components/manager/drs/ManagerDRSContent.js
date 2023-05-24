@@ -6,6 +6,7 @@ import {throttle} from "lodash";
 import {Layout, Input, Table, Button, Descriptions, message} from "antd";
 
 import {LAYOUT_CONTENT_STYLE} from "../../../styles/layoutContent";
+import {makeAuthorizationHeader} from "../../../lib/auth/utils";
 
 const DRS_COLUMNS = [
     {
@@ -35,11 +36,12 @@ const DRS_COLUMNS = [
                 window.open(url);
             }}>Download</Button>;
         },
-    }
+    },
 ];
 
 const ManagerDRSContent = () => {
     const drsUrl = useSelector(state => state.services.drsService?.url);
+    const accessToken = useSelector(state => state.auth.accessToken);
 
     const [searchResults, setSearchResults] = useState([]);
     const [doneSearch, setDoneSearch] = useState(false);
@@ -58,7 +60,8 @@ const ManagerDRSContent = () => {
 
         setLoading(true);
 
-        fetch(`${drsUrl}/search?` + new URLSearchParams({q: sv}))
+        const authHeaders = makeAuthorizationHeader(accessToken);
+        fetch(`${drsUrl}/search?` + new URLSearchParams({q: sv}), {method: "GET", headers: authHeaders})
             .then(r => Promise.all([Promise.resolve(r.ok), r.json()]))
             .then(([ok, data]) => {
                 if (ok) {
@@ -106,7 +109,7 @@ const ManagerDRSContent = () => {
                                     <div key={type} style={{display: "flex", gap: "0.8em", alignItems: "baseline"}}>
                                         <span style={{fontWeight: "bold"}}>{type.toLocaleUpperCase()}:</span>
                                         <span style={{fontFamily: "monospace"}}>{checksum}</span>
-                                    </div>
+                                    </div>,
                                 )}
                             </Descriptions.Item>
                             <Descriptions.Item label="Access Methods" span={3}>
@@ -118,7 +121,7 @@ const ManagerDRSContent = () => {
                                                 ? <a href={url?.url} target="_blank" rel="noreferrer">{url?.url}</a>
                                                 : url?.url}
                                         </span>
-                                    </div>
+                                    </div>,
                                 )}
                             </Descriptions.Item>
                             {description && <Descriptions.Item label="Description" span={3}>

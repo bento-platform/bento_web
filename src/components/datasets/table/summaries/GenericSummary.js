@@ -9,7 +9,7 @@ const GenericSummary = ({summary}) => summary
     : "No summary available";
 
 GenericSummary.propTypes = {
-    summary: summaryPropTypesShape
+    summary: summaryPropTypesShape,
 };
 
 export default GenericSummary;
