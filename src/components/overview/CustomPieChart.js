@@ -1,4 +1,5 @@
 import React from "react";
+import { connect } from "react-redux";
 import PropTypes from "prop-types";
 import { withRouter } from "react-router-dom";
 import PieChart from "recharts/es6/chart/PieChart";
@@ -8,6 +9,7 @@ import Curve from "recharts/es6/shape/Curve";
 import Tooltip from "recharts/es6/component/Tooltip";
 import Sector from "recharts/es6/shape/Sector";
 import { polarToCartesian } from "recharts/es6/util/PolarUtils";
+import { Empty } from "antd";
 import COLORS from "../../utils/colors";
 import { withBasePath } from "../../utils/url";
 
@@ -33,6 +35,10 @@ class CustomPieChart extends React.Component {
         chartAspectRatio: PropTypes.number,
         setAutoQueryPageTransition: PropTypes.func,
         autoQueryDataType: PropTypes.string,
+        sort: PropTypes.bool,
+        useGlobalThreshold: PropTypes.bool,
+        globalThreshold: PropTypes.number,
+        showNoData: PropTypes.bool,
     };
 
     state = {
@@ -61,27 +67,21 @@ class CustomPieChart extends React.Component {
             return;
         }
 
-        setAutoQueryPageTransition(
-            window.location.href,
-            autoQueryDataType,
-            this.props.fieldLabel,
-            data.name,
-        );
+        setAutoQueryPageTransition(window.location.href, autoQueryDataType, this.props.fieldLabel, data.name);
 
         // Navigate to Explorer
         history.push(withBasePath("/data/explorer/search"));
     };
 
     /*
-    * This ugly hack prevents the Pie labels from not appearing
-    * when Pie props change before the end of the animation.
-    */
+     * This ugly hack prevents the Pie labels from not appearing
+     * when Pie props change before the end of the animation.
+     */
     labelTimeout = () => {
         setTimeout(() => this.setState({ canUpdate: true }), 0);
     };
 
     componentDidMount() {
-
         this.labelTimeout();
     }
 
@@ -90,8 +90,7 @@ class CustomPieChart extends React.Component {
     }
 
     shouldComponentUpdate(props, state) {
-        if (this.state !== state && state.canUpdate)
-            return true;
+        if (this.state !== state && state.canUpdate) return true;
 
         return this.props.data !== props.data;
     }
@@ -114,20 +113,12 @@ class CustomPieChart extends React.Component {
     }
 
     renderLabel(state, params) {
-        const {
-            cx,
-            cy,
-            midAngle,
-            outerRadius,
-            fill,
-            payload,
-            index,
-        } = params;
+        const { cx, cy, midAngle, outerRadius, fill, payload, index } = params;
 
         // skip rendering this static label if the sector is selected.
         // this will let the 'renderActiveState' draw without overlapping.
         // also, skip rendering if segment is too small a percentage (avoids label clutter)
-        if (index === state.activeIndex || params.percent < LABEL_THRESHOLD ) {
+        if (index === state.activeIndex || params.percent < LABEL_THRESHOLD) {
             return;
         }
 
@@ -151,7 +142,7 @@ class CustomPieChart extends React.Component {
 
         const offsetRadius = 20;
         const startPoint = polarToCartesian(params.cx, params.cy, params.outerRadius, midAngle);
-        const endPoint   = polarToCartesian(params.cx, params.cy, params.outerRadius + offsetRadius, midAngle);
+        const endPoint = polarToCartesian(params.cx, params.cy, params.outerRadius + offsetRadius, midAngle);
         const lineProps = {
             ...params,
             fill: "none",
@@ -160,31 +151,18 @@ class CustomPieChart extends React.Component {
         };
 
         return (
-        <g>
-          <Curve
-            { ...lineProps }
-            type='linear'
-            className='recharts-pie-label-line'
-          />
+            <g>
+                <Curve {...lineProps} type="linear" className="recharts-pie-label-line" />
 
-          <path d={`M${sx},${sy}L${mx},${my}L${ex},${ey}`} stroke={fill} fill='none'/>
-          <circle cx={ex} cy={ey} r={2} fill={fill} stroke='none'/>
-          <text x={ex + (cos >= 0 ? 1 : -1) * 12} y={ey + 3}
-                textAnchor={textAnchor}
-                style={currentTextStyle}
-          >
-            { this.labelShortName(name) }
-          </text>
-          <text
-            x={ex + (cos >= 0 ? 1 : -1) * 12}
-            y={ey}
-            dy={14}
-            textAnchor={textAnchor}
-            style={countTextStyle}
-          >
-            {`(${ payload.value })`}
-          </text>
-        </g>
+                <path d={`M${sx},${sy}L${mx},${my}L${ex},${ey}`} stroke={fill} fill="none" />
+                <circle cx={ex} cy={ey} r={2} fill={fill} stroke="none" />
+                <text x={ex + (cos >= 0 ? 1 : -1) * 12} y={ey + 3} textAnchor={textAnchor} style={currentTextStyle}>
+                    {this.labelShortName(name)}
+                </text>
+                <text x={ex + (cos >= 0 ? 1 : -1) * 12} y={ey} dy={14} textAnchor={textAnchor} style={countTextStyle}>
+                    {`(${payload.value})`}
+                </text>
+            </g>
         );
     }
 
@@ -209,122 +187,158 @@ class CustomPieChart extends React.Component {
             fontStyle: payload.name === "null" ? "italic" : "normal",
         };
 
-      // if segment too small, render coloured highlight curve but skip label
+        // if segment too small, render coloured highlight curve but skip label
         if (params.percent < LABEL_THRESHOLD) {
             return (
-          <g>
-            <Sector
-              cx={cx}
-              cy={cy}
-              startAngle={startAngle}
-              endAngle={endAngle}
-              innerRadius={innerRadius}
-              outerRadius={outerRadius}
-              fill={fill}
-            />
-            <Sector
-              cx={cx}
-              cy={cy}
-              startAngle={startAngle}
-              endAngle={endAngle}
-              innerRadius={outerRadius + 6}
-              outerRadius={outerRadius + 10}
-              fill={fill}
-            />
-          </g>
+                <g>
+                    <Sector
+                        cx={cx}
+                        cy={cy}
+                        startAngle={startAngle}
+                        endAngle={endAngle}
+                        innerRadius={innerRadius}
+                        outerRadius={outerRadius}
+                        fill={fill}
+                    />
+                    <Sector
+                        cx={cx}
+                        cy={cy}
+                        startAngle={startAngle}
+                        endAngle={endAngle}
+                        innerRadius={outerRadius + 6}
+                        outerRadius={outerRadius + 10}
+                        fill={fill}
+                    />
+                </g>
             );
         }
 
         return (
-        <g>
-          <Sector
-            cx={cx}
-            cy={cy}
-            startAngle={startAngle}
-            endAngle={endAngle}
-            innerRadius={innerRadius}
-            outerRadius={outerRadius}
-            fill={fill}
-          />
-          <Sector
-            cx={cx}
-            cy={cy}
-            startAngle={startAngle}
-            endAngle={endAngle}
-            innerRadius={outerRadius + 6}
-            outerRadius={outerRadius + 10}
-            fill={fill}
-          />
-          <path d={`M${sx},${sy}L${mx},${my}L${ex},${ey}`} stroke={fill} fill="none" />
-          <circle cx={ex} cy={ey} r={2} fill={fill} stroke="none" />
-          <text x={ex + (cos >= 0 ? 1 : -1) * 12} y={ey + 3} textAnchor={textAnchor} style={currentTextStyle}>
-            {this.labelShortName(name)}
-          </text>
-          <text
-            x={ex + (cos >= 0 ? 1 : -1) * 12}
-            y={ey}
-            dy={14}
-            textAnchor={textAnchor}
-            style={countTextStyle}
-          >
-            {`(${payload.value})`}
-          </text>
-        </g>
+            <g>
+                <Sector
+                    cx={cx}
+                    cy={cy}
+                    startAngle={startAngle}
+                    endAngle={endAngle}
+                    innerRadius={innerRadius}
+                    outerRadius={outerRadius}
+                    fill={fill}
+                />
+                <Sector
+                    cx={cx}
+                    cy={cy}
+                    startAngle={startAngle}
+                    endAngle={endAngle}
+                    innerRadius={outerRadius + 6}
+                    outerRadius={outerRadius + 10}
+                    fill={fill}
+                />
+                <path d={`M${sx},${sy}L${mx},${my}L${ex},${ey}`} stroke={fill} fill="none" />
+                <circle cx={ex} cy={ey} r={2} fill={fill} stroke="none" />
+                <text x={ex + (cos >= 0 ? 1 : -1) * 12} y={ey + 3} textAnchor={textAnchor} style={currentTextStyle}>
+                    {this.labelShortName(name)}
+                </text>
+                <text x={ex + (cos >= 0 ? 1 : -1) * 12} y={ey} dy={14} textAnchor={textAnchor} style={countTextStyle}>
+                    {`(${payload.value})`}
+                </text>
+            </g>
         );
     }
 
     render() {
-        const { data, chartHeight, chartAspectRatio, title } = this.props;
+        const { data: tempData, chartHeight, chartAspectRatio, title, sort, useGlobalThreshold } = this.props;
         const titleHeaderHeight = 31;
-        const totalCount = data.reduce((sum, e) => sum + e.value, 0);
+        const totalCount = tempData.reduce((sum, e) => sum + e.value, 0);
 
-        return (<>
-        <div style={this.style}>
-        <h2 style={this.titleStyle}>{title}</h2>
-          <PieChart height={chartHeight - titleHeaderHeight}
-                    width={(chartHeight - titleHeaderHeight) * chartAspectRatio}>
-              <Pie data={data}
-                   dataKey="value"
-                   cx="50%"
-                   cy="50%"
-                   innerRadius={35}
-                   outerRadius={80}
-                   label={this.renderLabel.bind(this, this.state)}
-                   labelLine={false}
-                   isAnimationActive={false}
-                   onClick={this.onClick}
-                   onMouseEnter={this.onEnter}
-                   onMouseLeave={this.onLeave}
-                   onMouseOver={this.onHover}
-                   activeIndex={this.state.activeIndex}
-                   activeShape={this.renderActiveLabel.bind(this, this.state)}
-              >
-                {
-                  data.map((entry, index) =>
-                  <Cell key={index} fill={COLORS[index % COLORS.length]}/>)
-                }
-              </Pie>
-              <Tooltip
-                content={<CustomTooltip totalCount={totalCount}/>}
-                isAnimationActive={false}
-                allowEscapeViewBox={{x: true, y: true}}
-              />
-          </PieChart>
-          </div>
-        </>
+        let data = [...tempData];
+
+        if (sort) {
+            data.sort((a, b) => b.value - a.value);
+        }
+
+        if (useGlobalThreshold) {
+            console.log("Using global threshold: " + this.props.globalThreshold);
+            console.log("title: " + title);
+            // combine all segments below threshold into "Other" and modify data
+            const threshold = totalCount * this.props.globalThreshold * 0.01;
+            const otherData = data.filter((e) => e.value < threshold);
+            const otherCount = otherData.reduce((sum, e) => sum + e.value, 0);
+            const other = { name: "Other", value: otherCount };
+            data = data.filter((e) => e.value >= threshold);
+            data.push(other);
+        }
+
+        data = data.filter((e) => e.value > 0);
+
+        return (
+            <>
+                <div style={this.style}>
+                    <h2 style={this.titleStyle}>{title}</h2>
+                    {!(this.props.showNoData && data.length === 0) ? (
+                        <PieChart
+                            height={chartHeight - titleHeaderHeight}
+                            width={(chartHeight - titleHeaderHeight) * chartAspectRatio}
+                        >
+                            <Pie
+                                data={data}
+                                dataKey="value"
+                                cx="50%"
+                                cy="50%"
+                                innerRadius={35}
+                                outerRadius={80}
+                                label={this.renderLabel.bind(this, this.state)}
+                                labelLine={false}
+                                isAnimationActive={false}
+                                onClick={this.onClick}
+                                onMouseEnter={this.onEnter}
+                                onMouseLeave={this.onLeave}
+                                onMouseOver={this.onHover}
+                                activeIndex={this.state.activeIndex}
+                                activeShape={this.renderActiveLabel.bind(this, this.state)}
+                            >
+                                {data.map((entry, index) => (
+                                    <Cell key={index} fill={COLORS[index % COLORS.length]} />
+                                ))}
+                            </Pie>
+                            <Tooltip
+                                content={<CustomTooltip totalCount={totalCount} />}
+                                isAnimationActive={false}
+                                allowEscapeViewBox={{ x: true, y: true }}
+                            />
+                        </PieChart>
+                    ) : (
+                        <div
+                            style={{
+                                display: "flex",
+                                alignItems: "center",
+                                justifyContent: "center",
+                                height: `${chartHeight - titleHeaderHeight}px`,
+                                width: `${(chartHeight - titleHeaderHeight) * chartAspectRatio}px`,
+                            }}
+                        >
+                            <Empty />
+                        </div>
+                    )}
+                </div>
+            </>
         );
     }
 }
 
-const CustomTooltip = ({active, payload, totalCount }) => {
+CustomPieChart.defaultProps = {
+    useGlobalThreshold: false,
+    sort: true,
+    showNoData: true,
+};
 
+const CustomTooltip = ({ active, payload, totalCount }) => {
     if (!active) {
         return null;
     }
 
     const name = payload[0]?.name || "";
     const value = payload[0]?.value || 0;
-    const percentage = totalCount ? Math.round(value / totalCount * 100) : 0;
+    const percentage = totalCount ? Math.round((value / totalCount) * 100) : 0;
 
     // inline style for now
     const toolTipStyle = {
@@ -350,11 +364,16 @@ const CustomTooltip = ({active, payload, totalCount }) => {
         margin: "0",
     };
 
-    return <div style={toolTipStyle}>
-        {/* <p style={labelStyle}>{name}</p><p style={countStyle}>{value} {`donor${value ==1 ? "" : "s"}`}</p> */}
-        <p style={labelStyle}>{name}</p><p style={countStyle}> {value} ({percentage}%)</p>
-
-    </div>;
+    return (
+        <div style={toolTipStyle}>
+            {/* <p style={labelStyle}>{name}</p><p style={countStyle}>{value} {`donor${value ==1 ? "" : "s"}`}</p> */}
+            <p style={labelStyle}>{name}</p>
+            <p style={countStyle}>
+                {" "}
+                {value} ({percentage}%)
+            </p>
+        </div>
+    );
 };
 
 CustomTooltip.propTypes = {
@@ -363,4 +382,8 @@ CustomTooltip.propTypes = {
     totalCount: PropTypes.number,
 };
 
-export default withRouter(CustomPieChart);
+const mapStateToProps = (state) => ({
+    globalThreshold: state.explorer.otherThresholdPercentage,
+});
+
+export default withRouter(connect(mapStateToProps, (_) => ({}))(CustomPieChart));

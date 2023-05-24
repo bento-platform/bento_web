@@ -16,6 +16,44 @@ const MODAL_WIDTH = 1000;
 const serializePieChartData = (data) => Object.entries(data).map(([key, value]) => ({ name: key, value }));
 const serializeBarChartData = (data) => Object.entries(data).map(([key, value]) => ({ ageBin: key, count: value }));
 
+const createChart = (chartData) => {
+    const { type, title, data, ...rest } = chartData;
+
+    switch (type) {
+        case "PieChart":
+            return (
+                <CustomPieChart
+                    title={title}
+                    data={serializePieChartData(data)}
+                    chartHeight={CHART_HEIGHT}
+                    chartAspectRatio={CHART_ASPECT_RATIO}
+                    useGlobalThreshold
+                    {...rest}
+                />
+            );
+        case "BarChart":
+            return (
+                <Histogram
+                    title={title}
+                    data={serializeBarChartData(data)}
+                    chartHeight={CHART_HEIGHT}
+                    chartAspectRatio={CHART_ASPECT_RATIO}
+                    {...rest}
+                />
+            );
+        default:
+            return null;
+    }
+};
+
+const renderCharts = (chartsData) => {
+    return chartsData.map((chartData, index) => (
+        <Col key={index} span={12} style={{ textAlign: "center" }}>
+            {createChart(chartData)}
+        </Col>
+    ));
+};
+
 const SearchSummaryModal = ({ searchResults, ...props }) => {
     const [data, setData] = useState(null);
 
@@ -23,8 +61,7 @@ const SearchSummaryModal = ({ searchResults, ...props }) => {
     const accessToken = useSelector((state) => state.auth.accessToken);
 
     useEffect(() => {
-
-        const ids = searchResults.results.results.map(({ subject_id }) => subject_id);
+        const ids = searchResults.searchFormattedResults.map(({ key }) => key);
 
         const raw = JSON.stringify({
             id: ids,
@@ -42,8 +79,52 @@ const SearchSummaryModal = ({ searchResults, ...props }) => {
             .then((result) => {
                 setData(result);
             })
-            .catch((error) => console.log("error", error));
+            .catch((error) => console.error("error", error));
     }, [searchResults]);
+
+    const individualsCharts = [
+        {
+            type: "PieChart",
+            title: "Sex",
+            data: data?.individuals?.sex,
+        },
+        {
+            type: "PieChart",
+            title: "Diseases",
+            data: data?.diseases?.term,
+        },
+        {
+            type: "PieChart",
+            title: "Phenotypic Features",
+            data: data?.phenotypic_features?.type,
+        },
+        {
+            type: "BarChart",
+            title: "Ages",
+            data: data?.individuals?.age,
+        },
+    ];
+
+    const biosamplesCharts = [
+        {
+            type: "PieChart",
+            title: "Biosamples by Tissue",
+            data: data?.biosamples?.sampled_tissue,
+        },
+        {
+            type: "PieChart",
+            title: "Biosamples by Diagnosis",
+            data: data?.biosamples?.histological_diagnosis,
+        },
+    ];
+
+    const experimentsCharts = [
+        {
+            type: "PieChart",
+            title: "Experiment Types",
+            data: data?.experiments?.experiment_type,
+        },
+    ];
 
     return (
         <Modal title="Search Results" {...props} width={MODAL_WIDTH} footer={null} style={{ padding: "10px" }}>
@@ -63,72 +144,13 @@ const SearchSummaryModal = ({ searchResults, ...props }) => {
                     <Divider />
                     <>
                         <Typography.Title level={4}>Individuals</Typography.Title>
-                        <Row gutter={[0, 16]}>
-                            <Col span={12} style={{ textAlign: "center" }}>
-                                <CustomPieChart
-                                    title="Sex"
-                                    data={serializePieChartData(data.individuals.sex)}
-                                    chartHeight={CHART_HEIGHT}
-                                    chartAspectRatio={CHART_ASPECT_RATIO}
-                                />
-                            </Col>
-                            <Col span={12} style={{ textAlign: "center" }}>
-                                <CustomPieChart
-                                    title="Diseases"
-                                    data={serializePieChartData(data.diseases.term)}
-                                    chartHeight={CHART_HEIGHT}
-                                    chartAspectRatio={CHART_ASPECT_RATIO}
-                                />
-                            </Col>
-                            <Col span={12} style={{ textAlign: "center" }}>
-                                <CustomPieChart
-                                    title="Phenotypic Features"
-                                    data={serializePieChartData(data.phenotypic_features.type)}
-                                    chartHeight={CHART_HEIGHT}
-                                    chartAspectRatio={CHART_ASPECT_RATIO}
-                                />
-                            </Col>
-                            <Col span={12} style={{ textAlign: "center" }}>
-                                <Histogram
-                                    title="Ages"
-                                    data={serializeBarChartData(data.individuals.age)}
-                                    chartHeight={CHART_HEIGHT}
-                                    chartAspectRatio={CHART_ASPECT_RATIO}
-                                />
-                            </Col>
-                        </Row>
+                        <Row gutter={[0, 16]}>{renderCharts(individualsCharts)}</Row>
                         <Divider />
                         <Typography.Title level={4}>Biosamples</Typography.Title>
-                        <Row gutter={[0, 16]}>
-                            <Col span={12} style={{ textAlign: "center" }}>
-                                <CustomPieChart
-                                    title="Biosamples by Tissue"
-                                    data={serializePieChartData(data.biosamples.sampled_tissue)}
-                                    chartHeight={CHART_HEIGHT}
-                                    chartAspectRatio={CHART_ASPECT_RATIO}
-                                />
-                            </Col>
-                            <Col span={12} style={{ textAlign: "center" }}>
-                                <CustomPieChart
-                                    title="Biosamples by Diagnosis"
-                                    data={serializePieChartData(data.biosamples.histological_diagnosis)}
-                                    chartHeight={CHART_HEIGHT}
-                                    chartAspectRatio={CHART_ASPECT_RATIO}
-                                />
-                            </Col>
-                        </Row>
+                        <Row gutter={[0, 16]}>{renderCharts(biosamplesCharts)}</Row>
                         <Divider />
                         <Typography.Title level={4}>Experiments</Typography.Title>
-                        <Row gutter={[0, 16]}>
-                            <Col span={12} style={{ textAlign: "center" }}>
-                                <CustomPieChart
-                                    title="Study Types"
-                                    data={serializePieChartData(data.experiments.experiment_type)}
-                                    chartHeight={CHART_HEIGHT}
-                                    chartAspectRatio={CHART_ASPECT_RATIO}
-                                />
-                            </Col>
-                        </Row>
+                        <Row gutter={[0, 16]}>{renderCharts(experimentsCharts)}</Row>
                     </>
                 </>
             ) : (
