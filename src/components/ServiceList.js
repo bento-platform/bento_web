@@ -9,7 +9,6 @@ import { getIsAuthenticated } from "../lib/auth/utils";
 import { withBasePath } from "../utils/url";
 
 const SERVICE_KIND_STYLING = { fontFamily: "monospace" };
-const MAX_TABLE_PAGE_SIZE = 15;
 
 // noinspection JSUnresolvedFunction
 const getServiceTags = serviceInfo => [
@@ -126,11 +125,12 @@ const ServiceList = () => {
     return (
         <Table
             bordered
+            style={{marginBottom: 24}}
             size="middle"
             columns={columns}
             dataSource={dataSource}
             rowKey="key"
-            pagination={{ defaultPageSize: MAX_TABLE_PAGE_SIZE }}
+            pagination={false}
             loading={isLoading}
         />
     );
