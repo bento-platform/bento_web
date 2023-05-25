@@ -31,31 +31,42 @@ const buildKeyFromRecord = (record) => `${record.dataType}-${record.tableId}`;
 const processIngestions = (data, currentTables) => {
     const currentTableIds = (currentTables || []).map((table) => table.table_id);
 
-    const ingestionsByDataType = data.reduce((acc, obj) => {
-        if (obj.state === "COMPLETE") {
-            const dataType = obj.details.request.tags.workflow_metadata.data_type;
-            const tableId = obj.details.request.tags.table_id;
-
-            if (tableId === undefined || !currentTableIds.includes(tableId)) {
-                return acc;
-            }
-
-            const fileNameKey = Object.keys(obj.details.request.workflow_params)[0];
-            const filePath = obj.details.request.workflow_params[fileNameKey];
-            const fileName = filePath.split("/").pop();
-            const dateStr = obj.details.run_log.end_time.split("T")[0];
-            const date = Date.parse(dateStr);
-
-            const currentIngestion = { date: dateStr, dataType, tableId, fileNames: [fileName] };
-
-            const dataTypeAndTableId = buildKeyFromRecord(currentIngestion);
-
-            if (!acc[dataTypeAndTableId] || date > Date.parse(acc[dataTypeAndTableId].date)) {
-                acc[dataTypeAndTableId] = currentIngestion;
-            } else if (date === Date.parse(acc[dataTypeAndTableId].date)) {
-                acc[dataTypeAndTableId].fileNames.push(fileName);
-            }
+    const ingestionsByDataType = data.reduce((acc, {state, details}) => {
+        if (state !== "COMPLETE") {
+            return;
         }
+
+        const {workflow_params: workflowParams, tags} = details.request;
+
+        const dataType = tags.workflow_metadata.data_type;
+        const tableId = tags.table_id;
+
+        if (tableId === undefined || !currentTableIds.includes(tableId)) {
+            return acc;
+        }
+
+        const fileNameKey = Object.keys(workflowParams)[0];
+        const filePath = workflowParams[fileNameKey];
+
+        if (!filePath) {
+            console.warn(`could not get parameter ${fileNameKey} from workflow params`, )
+            return;
+        }
+
+        const fileName = filePath.split("/").pop();
+        const dateStr = details.run_log.end_time.split("T")[0];
+        const date = Date.parse(dateStr);
+
+        const currentIngestion = { date: dateStr, dataType, tableId, fileNames: [fileName] };
+
+        const dataTypeAndTableId = buildKeyFromRecord(currentIngestion);
+
+        if (!acc[dataTypeAndTableId] || date > Date.parse(acc[dataTypeAndTableId].date)) {
+            acc[dataTypeAndTableId] = currentIngestion;
+        } else if (date === Date.parse(acc[dataTypeAndTableId].date)) {
+            acc[dataTypeAndTableId].fileNames.push(fileName);
+        }
+
         return acc;
     }, {});
 
