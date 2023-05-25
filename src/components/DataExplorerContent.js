@@ -6,8 +6,6 @@ import ExplorerIndividualContent from "./explorer/ExplorerIndividualContent";
 import ExplorerSearchContent from "./explorer/ExplorerSearchContent";
 
 import {SITE_NAME} from "../constants";
-import {withBasePath} from "../utils/url";
-
 
 
 const DataExplorerContent = () => {
@@ -16,14 +14,10 @@ const DataExplorerContent = () => {
     }, []);
 
     return <Switch>
-        <Route path={withBasePath("data/explorer/search")}
-               component={ExplorerSearchContent} />
-        <Route path={withBasePath("data/explorer/individuals/:individual")}
-               component={ExplorerIndividualContent} />
-        <Route path={withBasePath("data/explorer/genome")}
-               component={ExplorerGenomeBrowserContent} />
-        <Redirect from={withBasePath("data/explorer")}
-                  to={withBasePath("data/explorer/search")} />
+        <Route path="/data/explorer/search" component={ExplorerSearchContent} />
+        <Route path="/data/explorer/individuals/:individual" component={ExplorerIndividualContent} />
+        <Route path="/data/explorer/genome" component={ExplorerGenomeBrowserContent} />
+        <Redirect from="/data/explorer" to="/data/explorer/search" />
     </Switch>;
 };
 export default DataExplorerContent;

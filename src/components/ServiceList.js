@@ -6,7 +6,6 @@ import { Link } from "react-router-dom";
 import { Table, Typography, Tag, Icon} from "antd";
 
 import { getIsAuthenticated } from "../lib/auth/utils";
-import { withBasePath } from "../utils/url";
 
 const SERVICE_KIND_STYLING = { fontFamily: "monospace" };
 const MAX_TABLE_PAGE_SIZE = 15;
@@ -57,7 +56,7 @@ const serviceColumns = (isAuthenticated) => [
         render: (serviceKind) =>
             serviceKind ? (
                 isAuthenticated ? (
-                    <Link style={SERVICE_KIND_STYLING} to={withBasePath(`admin/services/${serviceKind}`)}>
+                    <Link style={SERVICE_KIND_STYLING} to={`/admin/services/${serviceKind}`}>
                         {serviceKind}
                     </Link>
                 ) : (

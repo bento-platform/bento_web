@@ -21,7 +21,6 @@ import {
     setTableSortOrder,
     performIndividualsDownloadCSVIfPossible,
 } from "../../modules/explorer/actions";
-import {withBasePath} from "../../utils/url";
 import SearchTracksModal from "./SearchTracksModal";
 
 
@@ -29,7 +28,7 @@ const individualRender = (individual) => {
     const alternateIds = individual.alternate_ids ?? [];
     const listRender = alternateIds.length ? " (" + alternateIds.join(", ") + ")" : "";
     return <><Link to={location => ({
-        pathname: withBasePath(`data/explorer/individuals/${individual.id}/overview`),
+        pathname: `/data/explorer/individuals/${individual.id}/overview`,
         state: {backUrl: location.pathname},
     })}>{individual.id}</Link> {listRender}</>;
 };

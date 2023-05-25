@@ -8,11 +8,10 @@ import SitePageHeader from "../SitePageHeader";
 import ServiceOverview from "./ServiceOverview";
 
 import {matchingMenuKeys, renderMenuItem} from "../../utils/menu";
-import {withBasePath} from "../../utils/url";
 import {Redirect, Route, Switch} from "react-router-dom";
 
 const pageMenu = artifact => [
-    {url: withBasePath(`admin/services/${artifact}/overview`), style: {marginLeft: "4px"}, text: "Overview"},
+    {url: `/admin/services/${artifact}/overview`, style: {marginLeft: "4px"}, text: "Overview"},
 ];
 
 // TODO: Deduplicate with data manager
@@ -38,13 +37,13 @@ class ServiceDetail extends Component {
                                 {menuItems.map(renderMenuItem)}
                             </Menu>}
                             withTabBar={true}
-                            onBack={() => this.props.history.push(withBasePath("admin/services"))} />
+                            onBack={() => this.props.history.push("/admin/services")} />
             <Suspense fallback={<div style={{padding: "24px", backgroundColor: "white"}}><Skeleton active /></div>}>
                 <Switch>
-                    <Route exact path={withBasePath("admin/services/:kind/overview")}
+                    <Route exact path="/admin/services/:kind/overview"
                            component={ServiceOverview} />
-                    <Redirect from={withBasePath(`admin/services/${kind}`)}
-                              to={withBasePath(`admin/services/${kind}/overview`)} />
+                    <Redirect from={`/admin/services/${kind}`}
+                              to={`/admin/services/${kind}/overview`} />
                 </Switch>
             </Suspense>
         </>;
