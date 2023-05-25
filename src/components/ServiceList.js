@@ -81,13 +81,6 @@ const serviceColumns = (isAuthenticated) => [
         },
     },
     {
-        title: "URL",
-        dataIndex: "url",
-        // url is undefined when service-registry does not receive replies from
-        // the container.
-        render: (url) => url ? <a href={`${url}/service-info`}>{`${url}/service-info`}</a> : "N/A",
-    },
-    {
         title: "Status",
         dataIndex: "status",
         render: ({ status, dataService }, service) =>
