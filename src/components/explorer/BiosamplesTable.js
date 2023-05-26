@@ -2,7 +2,10 @@ import React from "react";
 import PropTypes from "prop-types";
 import { Link } from "react-router-dom";
 import { withBasePath } from "../../utils/url";
+import { countNonNullElements } from "../../utils/misc";
 import ExplorerSearchResultsTable from "./ExplorerSearchResultsTable";
+
+const NO_EXPERIMENTS_VALUE = -Infinity;
 
 const BiosampleRender = ({ biosample, alternateIds, individualId }) => {
     const alternateIdsList = alternateIds ?? [];
@@ -71,11 +74,7 @@ ExperimentsRender.propTypes = {
 };
 
 const experimentsSorter = (a, b) => {
-    const countExperiments = (studiesType) => {
-        return studiesType.filter((s) => s !== null).length;
-    };
-
-    return countExperiments(a.studyTypes) - countExperiments(b.studyTypes);
+    return countNonNullElements(a.studyTypes) - countNonNullElements(b.studyTypes);
 };
 
 const sampledTissuesRender = (sampledTissues) => sampledTissues.map((m) => m.label)[0];
@@ -102,7 +101,6 @@ const availableExperimentsRender = (experimentsType) => {
     }
 };
 
-const NO_EXPERIMENTS_VALUE = -Infinity;
 
 const availableExperimentsSorter = (a, b) => {
     const highestValue = (experimentsType) => {
