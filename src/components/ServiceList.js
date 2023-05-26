@@ -3,7 +3,7 @@ import { useSelector } from "react-redux";
 
 import { Link } from "react-router-dom";
 
-import {Table, Typography, Tag, Icon, Button, Modal, Form, Input, Divider} from "antd";
+import {Table, Typography, Tag, Icon, Button, Modal, Form, Input, Divider, Skeleton} from "antd";
 
 import {getIsAuthenticated, makeAuthorizationHeader} from "../lib/auth/utils";
 import { withBasePath } from "../utils/url";
@@ -115,6 +115,7 @@ const ServiceRequestModal = ({service, onCancel}) => {
     const serviceUrl = useMemo(() => bentoServicesByKind[service]?.url, [bentoServicesByKind, service]);
 
     const [requestPath, setRequestPath] = useState("service-info");
+    const [requestLoading, setRequestLoading] = useState(false);
     const [requestData, setRequestData] = useState(null);
     const [requestIsJSON, setRequestIsJSON] = useState(false);
 
@@ -123,20 +124,29 @@ const ServiceRequestModal = ({service, onCancel}) => {
     const accessToken = useSelector((state) => state.auth.accessToken);
 
     const performRequestModalGet = useCallback(() => {
-        if (!serviceUrl) return;
+        if (!serviceUrl) {
+            setRequestData(null);
+            return;
+        }
         (async () => {
-            const res = await fetch(`${serviceUrl}/${requestPath}`, {
-                headers: makeAuthorizationHeader(accessToken),
-            });
+            setRequestLoading(true);
 
-            if ((res.headers.get("content-type") ?? "").includes("application/json")) {
-                const data = await res.json();
-                setRequestIsJSON(true);
-                setRequestData(data);
-            } else {
-                const data = await res.text();
-                setRequestIsJSON(false);
-                setRequestData(data);
+            try {
+                const res = await fetch(`${serviceUrl}/${requestPath}`, {
+                    headers: makeAuthorizationHeader(accessToken),
+                });
+
+                if ((res.headers.get("content-type") ?? "").includes("application/json")) {
+                    const data = await res.json();
+                    setRequestIsJSON(true);
+                    setRequestData(data);
+                } else {
+                    const data = await res.text();
+                    setRequestIsJSON(false);
+                    setRequestData(data);
+                }
+            } finally {
+                setRequestLoading(false);
             }
         })();
     }, [serviceUrl, requestPath, accessToken]);
@@ -176,17 +186,19 @@ const ServiceRequestModal = ({service, onCancel}) => {
             </Form.Item>
         </Form>
         <Divider />
-        {requestIsJSON
-            ? <JsonDisplay jsonSrc={requestData} />
-            : (
-                <div style={{maxWidth: "100%", overflowX: "auto"}}>
+        {requestLoading ? <Skeleton loading={true} /> : (
+            requestIsJSON
+                ? <JsonDisplay jsonSrc={requestData} />
+                : (
+                    <div style={{maxWidth: "100%", overflowX: "auto"}}>
                     <pre>
                         {((typeof requestData) === "string" || requestData === null)
                             ? requestData
                             : JSON.stringify(requestData)}
                     </pre>
-                </div>
-            )}
+                    </div>
+                )
+        )}
     </Modal>;
 }
 
