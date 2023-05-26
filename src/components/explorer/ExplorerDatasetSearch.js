@@ -30,7 +30,6 @@ const TAB_KEYS = {
 };
 
 const ExplorerDatasetSearch = () => {
-    const [, setCurrentPage] = useState(1);
     const [activeKey, setActiveKey] = useState(TAB_KEYS.INDIVIDUAL);
     const dispatch = useDispatch();
     const { dataset } = useParams();
@@ -44,7 +43,7 @@ const ExplorerDatasetSearch = () => {
     const fetchingSearch = useSelector((state) => state.explorer.fetchingSearchByDatasetID[dataset] || false);
     const fetchingTextSearch = useSelector((state) => state.explorer.fetchingTextSearch || false);
     const searchResults = useSelector((state) => state.explorer.searchResultsByDatasetID[dataset] || null);
-    console.log("search results: ", searchResults);
+    console.debug("search results: ", searchResults);
 
     const handleSetSelectedRows = (...args) => dispatch(setSelectedRows(dataset, ...args));
 
@@ -59,15 +58,14 @@ const ExplorerDatasetSearch = () => {
     };
 
     const resetPageNumber = () => {
-        setCurrentPage(1);
         dispatch(performSearchIfPossible(dataset));
     };
 
-    if (!dataset) return null; // TODO
+    if (!dataset) return null;
 
     const selectedDataset = datasetsByID[dataset];
 
-    if (!selectedDataset) return null; // TODO
+    if (!selectedDataset) return null;
 
     const isFetchingSearchResults = fetchingSearch || fetchingTextSearch;
 
@@ -98,17 +96,17 @@ const ExplorerDatasetSearch = () => {
             {hasIndividuals &&
                 !isFetchingSearchResults &&
                 (showTabs ? (
-                    <Tabs defaultActiveKey="1" onChange={onTabChange} activeKey={activeKey}>
-                        <TabPane tab="Individual" key="1">
+                    <Tabs defaultActiveKey={TAB_KEYS.INDIVIDUAL} onChange={onTabChange} activeKey={activeKey}>
+                        <TabPane tab="Individual" key={TAB_KEYS.INDIVIDUAL}>
                             <IndividualsTable data={searchResults.searchFormattedResults} />
                         </TabPane>
                         {hasBiosamples && (
-                            <TabPane tab="Biosamples" key="2">
+                            <TabPane tab="Biosamples" key={TAB_KEYS.BIOSAMPLES}>
                                 <BiosamplesTable data={searchResults.searchFormattedResultsBiosamples} />
                             </TabPane>
                         )}
                         {hasExperiments && (
-                            <TabPane tab="Experiments" key="3">
+                            <TabPane tab="Experiments" key={TAB_KEYS.EXPERIMENTS}>
                                 <ExperimentsTable data={searchResults.searchFormattedResultsExperiment} />
                             </TabPane>
                         )}
