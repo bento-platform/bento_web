@@ -400,8 +400,6 @@ class DiscoverySearchForm extends Component {
             </Form.Item>
         ));
 
-        //console.log({ formItems: formItems });
-
         return (
             <Form onSubmit={this.onSubmit}>
                 {this.props.dataType.id === "variant" && (
