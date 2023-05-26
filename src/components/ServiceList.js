@@ -1,12 +1,13 @@
-import React from "react";
+import React, {useCallback, useEffect, useMemo, useState} from "react";
 import { useSelector } from "react-redux";
 
 import { Link } from "react-router-dom";
 
-import { Table, Typography, Tag, Icon} from "antd";
+import {Table, Typography, Tag, Icon, Button, Modal, Form, Input, Divider} from "antd";
 
-import { getIsAuthenticated } from "../lib/auth/utils";
+import {getIsAuthenticated, makeAuthorizationHeader} from "../lib/auth/utils";
 import { withBasePath } from "../utils/url";
+import JsonDisplay from "./JsonDisplay";
 
 const SERVICE_KIND_STYLING = { fontFamily: "monospace" };
 
@@ -49,7 +50,7 @@ const renderGitInfo = (tag, record, key) => <Tag key={key} color={tag.color}>{ta
 
 
 /* eslint-disable react/prop-types */
-const serviceColumns = (isAuthenticated) => [
+const serviceColumns = (isAuthenticated, setRequestModalService) => [
     {
         title: "Kind",
         dataIndex: "service_kind",
@@ -98,10 +99,100 @@ const serviceColumns = (isAuthenticated) => [
                 ]
             ),
     },
+    {
+        title: "Actions",
+        render: (service) => {
+            const onClick = () =>
+                setRequestModalService(service.serviceInfo?.bento?.serviceKind ?? service.key ?? null);
+            return <Button size="small" onClick={onClick}>Make Request</Button>;
+        },
+    },
 ];
 /* eslint-enable react/prop-types */
 
+const ServiceRequestModal = ({service, onCancel}) => {
+    const bentoServicesByKind = useSelector(state => state.chordServices.itemsByKind);
+    const serviceUrl = useMemo(() => bentoServicesByKind[service]?.url, [bentoServicesByKind, service]);
+
+    const [requestPath, setRequestPath] = useState("service-info");
+    const [requestData, setRequestData] = useState(null);
+    const [requestIsJSON, setRequestIsJSON] = useState(false);
+
+    const [hasAttempted, setHasAttempted] = useState(false);
+
+    const accessToken = useSelector((state) => state.auth.accessToken);
+
+    const performRequestModalGet = useCallback(() => {
+        if (!serviceUrl) return;
+        (async () => {
+            const res = await fetch(`${serviceUrl}/${requestPath}`, {
+                headers: makeAuthorizationHeader(accessToken),
+            });
+
+            if ((res.headers.get("content-type") ?? "").includes("application/json")) {
+                const data = await res.json();
+                setRequestIsJSON(true);
+                setRequestData(data);
+            } else {
+                const data = await res.text();
+                setRequestIsJSON(false);
+                setRequestData(data);
+            }
+        })();
+    }, [serviceUrl, requestPath, accessToken]);
+
+    useEffect(() => {
+        if (!hasAttempted) {
+            performRequestModalGet();
+            setHasAttempted(true);
+        }
+    }, [hasAttempted, performRequestModalGet]);
+
+    useEffect(() => {
+        setRequestData(null);
+        setRequestIsJSON(false);
+        setRequestPath("service-info");
+        setHasAttempted(false);
+    }, [service]);
+
+    return <Modal visible={service !== null}
+                  title={`${service}: make a request`}
+                  footer={null}
+                  width={960}
+                  onCancel={onCancel}>
+        <Form layout="inline" style={{display: "flex"}}>
+            <Form.Item style={{flex: 1}} wrapperCol={{span: 24}}>
+                <Input
+                    addonBefore={(serviceUrl ?? "ERROR") + "/"}
+                    value={requestPath}
+                    onChange={e => setRequestPath(e.target.value)}
+                />
+            </Form.Item>
+            <Form.Item>
+                <Button type="primary" htmlFor="submit" onClick={e => {
+                    performRequestModalGet();
+                    e.preventDefault();
+                }}>GET</Button>
+            </Form.Item>
+        </Form>
+        <Divider />
+        {requestIsJSON
+            ? <JsonDisplay jsonSrc={requestData} />
+            : (
+                <div style={{maxWidth: "100%", overflowX: "auto"}}>
+                    <pre>
+                        {((typeof requestData) === "string" || requestData === null)
+                            ? requestData
+                            : JSON.stringify(requestData)}
+                    </pre>
+                </div>
+            )}
+    </Modal>;
+}
+
 const ServiceList = () => {
+    const [requestModalService, setRequestModalService] = useState(null);
+
     const dataSource = useSelector((state) =>
         Object.entries(state.chordServices.itemsByKind).map(([kind, service]) => ({
             ...service,
@@ -115,14 +206,21 @@ const ServiceList = () => {
         })),
     );
 
-    const columns = serviceColumns(
-        useSelector((state) => state.auth.hasAttempted && getIsAuthenticated(state.auth.idTokenContents)),
-    );
+    const isAuthenticated = useSelector(
+        (state) => state.auth.hasAttempted && getIsAuthenticated(state.auth.idTokenContents));
+
+    const columns = useMemo(
+        () => serviceColumns(isAuthenticated, setRequestModalService),
+        [isAuthenticated]);
 
     /** @type boolean */
     const isLoading = useSelector((state) => state.chordServices.isFetching || state.services.isFetching);
 
-    return (
+    return <>
+        <ServiceRequestModal
+            visible={requestModalService !== null}
+            service={requestModalService}
+            onCancel={() => setRequestModalService(null)} />
         <Table
             bordered
             style={{marginBottom: 24}}
@@ -133,7 +231,7 @@ const ServiceList = () => {
             pagination={false}
             loading={isLoading}
         />
-    );
+    </>;
 };
 
 export default ServiceList;
