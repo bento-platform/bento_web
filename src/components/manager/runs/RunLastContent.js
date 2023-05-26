@@ -29,6 +29,8 @@ const modalListStyle = {
 function FileNamesCell({fileNames, dataType}) {
     const [isModalVisible, setIsModalVisible] = useState(false);
 
+    // If fileNames exceed 4, truncates list for initial display
+    // with the middle replaced by an 'more' icon.
     const isTruncated = fileNames.length > 4;
     const truncatedFileNames = isTruncated
         ? [...fileNames.slice(0, 2), <Icon type="more" key="more-icon"/>, ...fileNames.slice(-2)]
@@ -83,6 +85,7 @@ const fileNameFromPath = (path) => path.split("/").at(-1);
 
 const getFileInputsFromWorkflowMetadata = (workflowMetadata) => {
     return workflowMetadata.inputs
+        .filter(input => input.type === "file" || input.type === "file[]")
         .map(input => `${workflowMetadata.id}.${input.id}`);
 };
 
@@ -100,7 +103,11 @@ const processIngestions = (data, currentTables) => {
                 return ingestions;
             }
             const fileNameKey = getFileInputsFromWorkflowMetadata(run.details.request.tags.workflow_metadata);
-            const filePaths = run.details.request.workflow_params[fileNameKey[0]];
+            const filePaths = fileNameKey.flatMap(key =>
+                Array.isArray(run.details.request.workflow_params[key])
+                    ? run.details.request.workflow_params[key]
+                    : [run.details.request.workflow_params[key]],
+            );
             const fileNames = Array.isArray(filePaths)
                 ? filePaths.map(fileNameFromPath)
                 : [fileNameFromPath(filePaths)];
