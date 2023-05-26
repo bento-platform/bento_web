@@ -21,6 +21,11 @@ const COLUMNS_LAST_CONTENT = [
     },
 ];
 
+const modalListStyle = {
+    whiteSpace: "nowrap",
+    overflow: "hidden",
+    textOverflow: "ellipsis",
+};
 function FileNamesCell({fileNames, dataType}) {
     const [isModalVisible, setIsModalVisible] = useState(false);
 
@@ -38,12 +43,6 @@ function FileNamesCell({fileNames, dataType}) {
             cursor: "pointer",
         }
         : {};
-
-    const modalListStyle = {
-        whiteSpace: "nowrap",
-        overflow: "hidden",
-        textOverflow: "ellipsis",
-    };
 
     const openModal = () => isTruncated && setIsModalVisible(true);
 
@@ -82,10 +81,10 @@ const buildKeyFromRecord = (record) => `${record.dataType}-${record.tableId}`;
 
 const fileNameFromPath = (path) => path.split("/").at(-1);
 
-const getFileNameKey = (dataType, workflowParams) =>
-    dataType === "variant"
-        ? "vcf_gz.vcf_gz_file_names" // vcf_gz file names
-        : Object.keys(workflowParams)[0];
+const getFileInputsFromWorkflowMetadata = (workflowMetadata) => {
+    return workflowMetadata.inputs
+        .map(input => `${workflowMetadata.id}.${input.id}`);
+};
 
 const getDateFromEndTime = (endTime) => endTime.split("T")[0];
 
@@ -100,9 +99,8 @@ const processIngestions = (data, currentTables) => {
             if (tableId === undefined || !currentTableIds.has(tableId)) {
                 return ingestions;
             }
-
-            const fileNameKey = getFileNameKey(dataType, run.details.request.workflow_params);
-            const filePaths = run.details.request.workflow_params[fileNameKey];
+            const fileNameKey = getFileInputsFromWorkflowMetadata(run.details.request.tags.workflow_metadata);
+            const filePaths = run.details.request.workflow_params[fileNameKey[0]];
             const fileNames = Array.isArray(filePaths)
                 ? filePaths.map(fileNameFromPath)
                 : [fileNameFromPath(filePaths)];
