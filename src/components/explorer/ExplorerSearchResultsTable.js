@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo } from "react";
+import React, { useState, useMemo } from "react";
 import PropTypes from "prop-types";
 import { useParams } from "react-router-dom";
 import { useSelector, useDispatch } from "react-redux";
@@ -14,20 +14,21 @@ import {
     performExperimentsDownloadCSVIfPossible,
 } from "../../modules/explorer/actions";
 
+const PAGE_SIZE = 25;
+
 const ExplorerSearchResultsTable = ({ data, activeTab, ...props }) => {
     const { dataset } = useParams();
     const [currentPage, setCurrentPage] = useState(1);
-    const [pageSize] = useState(25);
-    const [numResults, setNumResults] = useState(0);
+    const [numResults] = useState(data.length);
 
     const [summaryModalVisible, setSummaryModalVisible] = useState(false);
     const [tracksModalVisible, setTracksModalVisible] = useState(false);
 
     const showingResults = useMemo(() => {
-        const start = numResults > 0 ? currentPage * pageSize - pageSize + 1 : 0;
-        const end = Math.min(currentPage * pageSize, numResults);
+        const start = numResults > 0 ? currentPage * PAGE_SIZE - PAGE_SIZE + 1 : 0;
+        const end = Math.min(currentPage * PAGE_SIZE, numResults);
         return `Showing results ${start}-${end} of ${numResults}`;
-    }, [currentPage, pageSize, numResults]);
+    }, [currentPage, PAGE_SIZE, numResults]);
 
     const searchResults = useSelector((state) => state.explorer.searchResultsByDatasetID[dataset] || null);
     const selectedRows = useSelector((state) => state.explorer.selectedRowsByDatasetID[dataset] || []);
@@ -58,9 +59,6 @@ const ExplorerSearchResultsTable = ({ data, activeTab, ...props }) => {
         pointerEvents: fetchingSearch ? "none" : "auto",
     };
 
-    useEffect(() => {
-        setNumResults(data.length);
-    }, [currentPage, pageSize]);
 
     const rowSelection = {
         type: "checkbox",
@@ -138,7 +136,7 @@ const ExplorerSearchResultsTable = ({ data, activeTab, ...props }) => {
                     dataSource={data || []}
                     onChange={onPageChange}
                     pagination={{
-                        pageSize: pageSize,
+                        pageSize: PAGE_SIZE,
                         defaultCurrent: currentPage,
                         showQuickJumper: true,
                     }}
