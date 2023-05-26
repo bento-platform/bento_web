@@ -126,7 +126,7 @@ export const explorer = (
                 ...state,
                 isFetchingDownload: false,
             };
-        // ---
+
         case PERFORM_BIOSAMPLE_CSV_DOWNLOAD.REQUEST:
             return {
                 ...state,
@@ -144,7 +144,6 @@ export const explorer = (
                 ...state,
                 isFetchingDownload: false,
             };
-        // ---
 
         case PERFORM_EXPERIMENT_CSV_DOWNLOAD.REQUEST:
             return {
@@ -163,7 +162,6 @@ export const explorer = (
                 ...state,
                 isFetchingDownload: false,
             };
-        // ---
 
         case ADD_DATA_TYPE_QUERY_FORM:
             return {

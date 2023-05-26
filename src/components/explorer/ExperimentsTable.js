@@ -6,7 +6,7 @@ import ExplorerSearchResultsTable from "./ExplorerSearchResultsTable";
 
 const ExperimentRender = ({ experimentId, individual }) => {
     const alternateIds = individual.alternate_ids ?? [];
-    const listRender = alternateIds.length ? ` (${alternateIds.join(", ")})` : "";
+    const listRender = alternateIds.length ? `(${alternateIds.join(", ")})` : "";
 
     return (
         <>
