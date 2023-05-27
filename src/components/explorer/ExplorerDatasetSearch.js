@@ -29,6 +29,10 @@ const TAB_KEYS = {
     EXPERIMENTS: "3",
 };
 
+const hasNonEmptyArrayProperty = (targetObject, propertyKey) => {
+    return targetObject && Array.isArray(targetObject[propertyKey]) && targetObject[propertyKey].length;
+};
+
 const ExplorerDatasetSearch = () => {
     const [activeKey, setActiveKey] = useState(TAB_KEYS.INDIVIDUAL);
     const dispatch = useDispatch();
@@ -69,15 +73,9 @@ const ExplorerDatasetSearch = () => {
 
     const isFetchingSearchResults = fetchingSearch || fetchingTextSearch;
 
-    const hasIndividuals = searchResults && searchResults.searchFormattedResults;
-    const hasExperiments =
-        searchResults &&
-        searchResults.searchFormattedResultsExperiment &&
-        searchResults.searchFormattedResultsExperiment.length > 0;
-    const hasBiosamples =
-        searchResults &&
-        searchResults.searchFormattedResultsBiosamples &&
-        searchResults.searchFormattedResultsBiosamples.length > 0;
+    const hasIndividuals = hasNonEmptyArrayProperty(searchResults, "searchFormattedResults");
+    const hasExperiments = hasNonEmptyArrayProperty(searchResults, "searchFormattedResultsExperiment");
+    const hasBiosamples = hasNonEmptyArrayProperty(searchResults, "searchFormattedResultsBiosamples");
     const showTabs = hasIndividuals && (hasExperiments || hasBiosamples);
 
     return (
