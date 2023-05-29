@@ -58,6 +58,7 @@ const NotificationList = ({notifications, small}) => {
                         type="link"
                         icon="read"
                         style={{padding: 0}}
+                        loading={n.isMarkingAsRead ?? false}
                         onClick={() => markAsRead(n.id)}>
                     Mark as Read
                 </Button>,
