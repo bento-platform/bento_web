@@ -61,7 +61,7 @@ const ExplorerDatasetSearch = () => {
         handleSetSelectedRows([]);
     };
 
-    const resetPageNumber = () => {
+    const performSearch = () => {
         dispatch(performSearchIfPossible(dataset));
     };
 
@@ -85,7 +85,7 @@ const ExplorerDatasetSearch = () => {
             <DiscoveryQueryBuilder
                 isInternal={true}
                 dataTypeForms={dataTypeForms}
-                onSubmit={resetPageNumber}
+                onSubmit={performSearch}
                 searchLoading={fetchingSearch}
                 addDataTypeQueryForm={(form) => dispatch(addDataTypeQueryForm(dataset, form))}
                 updateDataTypeQueryForm={(index, form) => dispatch(updateDataTypeQueryForm(dataset, index, form))}
