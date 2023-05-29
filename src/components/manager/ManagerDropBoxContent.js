@@ -245,10 +245,6 @@ const ManagerDropBoxContent = () => {
     const [selectedWorkflow, setSelectedWorkflow] = useState(null);
     const [tableSelectionModal, setTableSelectionModal] = useState(false);
 
-    const handleSelect = useCallback(keys => {
-        setSelectedFiles(keys.filter(k => k !== "root"));
-    }, []);
-
     const showFileInfoModal = useCallback(() => setFileInfoModal(true), []);
     const hideFileInfoModal = useCallback(() => setFileInfoModal(false), []);
     const showFileContentsModal = useCallback(() => setFileContentsModal(true), []);
@@ -325,7 +321,9 @@ const ManagerDropBoxContent = () => {
         </Menu>
     );
 
-    const selectedFileViewable = selectedFiles.length === 1 &&
+    const selectedFolder = selectedFiles.length === 1 && filesByPath[selectedFiles[0]] === undefined;
+
+    const selectedFileViewable = selectedFiles.length === 1 && !selectedFolder &&
         VIEWABLE_FILE_EXTENSIONS.filter(e => selectedFiles[0].endsWith(e)).length > 0;
 
     const selectedFileInfoAvailable = selectedFiles.length === 1 && selectedFiles[0] in filesByPath;
@@ -391,6 +389,8 @@ const ManagerDropBoxContent = () => {
 
             <div style={{display: "flex", flexDirection: "column", gap: "1em"}}>
                 <div style={{display: "flex", gap: "12px"}}>
+                    {/* TODO: only if (nothing or folder) selected */}
+                    <Button icon="upload" disabled={!selectedFolder}>Upload</Button>
                     <Dropdown.Button overlay={workflowMenu}
                                      disabled={!dropBoxService
                                          || selectedFiles.length === 0
@@ -412,15 +412,14 @@ const ManagerDropBoxContent = () => {
                     {/*<Button type="danger" icon="delete" disabled={this.state.selectedFiles.length === 0}>*/}
                     {/*    Delete*/}
                     {/*</Button>*/}
-                    {/* TODO: Implement v0.2 */}
-                    {/*<Button type="primary" icon="upload" style={{float: "right"}}>Upload</Button>*/}
                 </div>
 
                 <Spin spinning={treeLoading}>
                     {(treeLoading || dropBoxService) ? (
                         <Tree.DirectoryTree defaultExpandAll={true}
                                             multiple={true}
-                                            onSelect={keys => handleSelect(keys)}
+                                            expandAction="doubleClick"
+                                            onSelect={setSelectedFiles}
                                             selectedKeys={selectedFiles}>
                             <Tree.TreeNode title="Drop Box" key="root">
                                 {generateFileTree(tree)}
