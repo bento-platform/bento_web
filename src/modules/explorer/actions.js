@@ -1,11 +1,13 @@
-import {createNetworkActionTypes, networkAction} from "../../utils/actions";
-import {jsonRequest} from "../../utils/requests";
-import {extractQueriesFromDataTypeForms} from "../../utils/search";
+import { createNetworkActionTypes, networkAction } from "../../utils/actions";
+import { jsonRequest } from "../../utils/requests";
+import { extractQueriesFromDataTypeForms } from "../../utils/search";
 
 export const PERFORM_GET_GOHAN_VARIANTS_OVERVIEW = createNetworkActionTypes("GET_GOHAN_VARIANTS_OVERVIEW");
 export const PERFORM_SEARCH = createNetworkActionTypes("EXPLORER.PERFORM_SEARCH");
 export const SET_IS_SUBMITTING_SEARCH = "EXPLORER.SET_IS_SUBMITTING_SEARCH";
 export const PERFORM_INDIVIDUAL_CSV_DOWNLOAD = createNetworkActionTypes("EXPLORER.PERFORM_INDIVIDUAL_CSV_DOWNLOAD");
+export const PERFORM_BIOSAMPLE_CSV_DOWNLOAD = createNetworkActionTypes("EXPLORER.PERFORM_BIOSAMPLE_CSV_DOWNLOAD");
+export const PERFORM_EXPERIMENT_CSV_DOWNLOAD = createNetworkActionTypes("EXPLORER.PERFORM_EXPERIMENT_CSV_DOWNLOAD");
 export const ADD_DATA_TYPE_QUERY_FORM = "EXPLORER.ADD_DATA_TYPE_QUERY_FORM";
 export const UPDATE_DATA_TYPE_QUERY_FORM = "EXPLORER.UPDATE_DATA_TYPE_QUERY_FORM";
 export const REMOVE_DATA_TYPE_QUERY_FORM = "EXPLORER.REMOVE_DATA_TYPE_QUERY_FORM";
@@ -17,18 +19,20 @@ export const SET_OTHER_THRESHOLD_PERCENTAGE = "EXPLORER.SET_OTHER_THRESHOLD_PERC
 export const SET_TABLE_SORT_ORDER = "EXPLORER.SET_TABLE_SORT_ORDER";
 export const SET_IGV_POSITION = "EXPLORER.SET_IGV_POSITION";
 
-const performSearch = networkAction((datasetID, dataTypeQueries, excludeFromAutoJoin = []) =>
-    (dispatch, getState) => ({
-        types: PERFORM_SEARCH,
-        url: `${getState().services.aggregationService.url}/private/dataset-search/${datasetID}`,
-        params: {datasetID},
-        req: jsonRequest({
+const performSearch = networkAction((datasetID, dataTypeQueries, excludeFromAutoJoin = []) => (dispatch, getState) => ({
+    types: PERFORM_SEARCH,
+    url: `${getState().services.aggregationService.url}/private/dataset-search/${datasetID}`,
+    params: { datasetID },
+    req: jsonRequest(
+        {
             data_type_queries: dataTypeQueries,
-            join_query: null,  // Will be autofilled by the aggregation service
+            join_query: null, // Will be autofilled by the aggregation service
             exclude_from_auto_join: excludeFromAutoJoin,
-        }, "POST"),
-        err: "Error performing search",
-    }));
+        },
+        "POST",
+    ),
+    err: "Error performing search",
+}));
 
 export const performSearchIfPossible = (datasetID) => (dispatch, getState) => {
     if (getState().explorer.fetchingSearchByDatasetID[datasetID]) return;
@@ -58,26 +62,49 @@ export const setIsSubmittingSearch = (isSubmittingSearch) => ({
     isSubmittingSearch,
 });
 
-
-const performIndividualsDownloadCSV = networkAction((ids) =>
-    (dispatch, getState) => ({
-        types: PERFORM_INDIVIDUAL_CSV_DOWNLOAD,
-        url: `${getState().services.itemsByArtifact.metadata.url}/api/batch/individuals`,
-        req: jsonRequest({
-            id: ids,
-            format: "csv",
-        }, "POST"),
-        parse: r => r.blob(),
-        err: "Error fetching individuals CSV",
+// Helper function for CSV download functions
+const performCSVDownloadHelper = (actionTypes, urlPath) =>
+    networkAction((ids) => (dispatch, getState) => ({
+        types: actionTypes,
+        url: `${getState().services.itemsByArtifact.metadata.url}/api/batch/${urlPath}`,
+        req: jsonRequest(
+            {
+                id: ids,
+                format: "csv",
+            },
+            "POST",
+        ),
+        parse: (r) => r.blob(),
+        err: `Error fetching ${urlPath} CSV`,
     }));
 
-export const performIndividualsDownloadCSVIfPossible = (datasetId, individualIds, allSearchResults) =>
-    (dispatch, _getState) => {
-        const ids = individualIds.length ? individualIds : allSearchResults.map(sr => sr.key);
+const performIndividualsDownloadCSV = performCSVDownloadHelper(PERFORM_INDIVIDUAL_CSV_DOWNLOAD, "individuals");
+
+export const performIndividualsDownloadCSVIfPossible =
+    (datasetId, individualIds, allSearchResults) => (dispatch, _getState) => {
+        const ids = individualIds.length ? individualIds : allSearchResults.map((sr) => sr.key);
         return dispatch(performIndividualsDownloadCSV(ids));
     };
 
+// Action to perform the request to download biosamples CSV
+const performBiosamplesDownloadCSV = performCSVDownloadHelper(PERFORM_BIOSAMPLE_CSV_DOWNLOAD, "biosamples");
 
+// Function to download biosamples CSV if possible
+export const performBiosamplesDownloadCSVIfPossible =
+    (datasetId, biosampleIds, allSearchResults) => (dispatch, _getState) => {
+        const ids = biosampleIds.length ? biosampleIds : allSearchResults.map((sr) => sr.key);
+        return dispatch(performBiosamplesDownloadCSV(ids));
+    };
+
+// Action to perform the request to download experiments CSV
+const performExperimentsDownloadCSV = performCSVDownloadHelper(PERFORM_EXPERIMENT_CSV_DOWNLOAD, "experiments");
+
+// Function to download experiments CSV if possible
+export const performExperimentsDownloadCSVIfPossible =
+    (datasetId, experimentIds, allSearchResults) => (dispatch, _getState) => {
+        const ids = experimentIds.length ? experimentIds : allSearchResults.map((sr) => sr.key);
+        return dispatch(performExperimentsDownloadCSV(ids));
+    };
 
 export const addDataTypeQueryForm = (datasetID, dataType) => ({
     type: ADD_DATA_TYPE_QUERY_FORM,
@@ -131,13 +158,19 @@ export const neutralizeAutoQueryPageTransition = () => ({
 
 // free-text search
 // search unpaginated for now, since that's how standard queries are currently handled
-const performFreeTextSearch = networkAction((datasetID, term) => (dispatch, getState) => ({
-    types: FREE_TEXT_SEARCH,
-    params: {datasetID},
-    url: `${getState().services.metadataService.url}/api/individuals?search=${term}&page_size=10000` +
-        "&format=bento_search_result",
-    err: `Error searching in all records with term ${term}`,
-}));
+const performFreeTextSearch = networkAction(
+    (datasetID, term) => (dispatch, getState) => (
+        console.log("performFreeTextSearch", datasetID, term),
+        {
+            types: FREE_TEXT_SEARCH,
+            params: { datasetID },
+            url:
+                `${getState().services.metadataService.url}/api/individuals?search=${term}&page_size=10000` +
+                "&format=bento_search_result",
+            err: `Error searching in all records with term ${term}`,
+        }
+    ),
+);
 
 export const performFreeTextSearchIfPossible = (datasetID, term) => (dispatch, _getState) => {
     return dispatch(performFreeTextSearch(datasetID, term));
