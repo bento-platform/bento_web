@@ -73,10 +73,10 @@ const ExplorerDatasetSearch = () => {
 
     const isFetchingSearchResults = fetchingSearch || fetchingTextSearch;
 
-    const hasIndividuals = searchResults && searchResults.searchFormattedResults;
+    const hasResults = searchResults && searchResults.searchFormattedResults;
     const hasExperiments = hasNonEmptyArrayProperty(searchResults, "searchFormattedResultsExperiment");
     const hasBiosamples = hasNonEmptyArrayProperty(searchResults, "searchFormattedResultsBiosamples");
-    const showTabs = hasIndividuals && (hasExperiments || hasBiosamples);
+    const showTabs = hasResults && (hasExperiments || hasBiosamples);
 
     return (
         <>
@@ -91,7 +91,7 @@ const ExplorerDatasetSearch = () => {
                 updateDataTypeQueryForm={(index, form) => dispatch(updateDataTypeQueryForm(dataset, index, form))}
                 removeDataTypeQueryForm={(index) => dispatch(removeDataTypeQueryForm(dataset, index))}
             />
-            {hasIndividuals &&
+            {hasResults &&
                 !isFetchingSearchResults &&
                 (showTabs ? (
                     <Tabs defaultActiveKey={TAB_KEYS.INDIVIDUAL} onChange={onTabChange} activeKey={activeKey}>
