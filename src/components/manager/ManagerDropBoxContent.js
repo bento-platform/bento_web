@@ -66,6 +66,22 @@ const LANGUAGE_HIGHLIGHTERS = {
 
 const VIEWABLE_FILE_EXTENSIONS = [...Object.keys(LANGUAGE_HIGHLIGHTERS), ".pdf"];
 
+
+const TREE_DROP_ZONE_OVERLAY_STYLE = {
+    position: "absolute",
+    left: 0, top: 0, right: 0, bottom: 0,
+    backgroundColor: "rgba(176,223,255,0.6)",
+    border: "2px dashed rgb(145, 213, 255)",
+    zIndex: 10,
+    padding: 12,
+
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
+};
+const TREE_DROP_ZONE_OVERLAY_ICON_STYLE = {fontSize: 48, color: "#1890ff"};
+
+
 const sortByName = (a, b) => a.name.localeCompare(b.name);
 const generateFileTree = directory => [...directory].sort(sortByName).map(entry =>
     <Tree.TreeNode title={entry.name} key={entry.filePath} isLeaf={!entry.hasOwnProperty("contents")}>
@@ -253,6 +269,18 @@ const FileUploadModal = ({...props}) => {
 };
 
 
+const InfoDownloadButton = ({disabled, uri}) => (
+    <Button key="download" icon="download" disabled={disabled} onClick={() => {
+        if (uri) {
+            window.open(uri, "_blank");
+        }
+    }}>Download</Button>
+);
+InfoDownloadButton.propTypes = {
+    disabled: PropTypes.bool,
+};
+
+
 const ManagerDropBoxContent = () => {
     const history = useHistory();
 
@@ -265,6 +293,8 @@ const ManagerDropBoxContent = () => {
         recursivelyFlattenFileTree([], tree).map(f => [f.filePath, f])), [tree]);
 
     const [selectedFiles, setSelectedFiles] = useState([]);
+
+    const [draggingOver, setDraggingOver] = useState(false);
 
     const [uploadModal, setUploadModal] = useState(false);
 
@@ -356,24 +386,10 @@ const ManagerDropBoxContent = () => {
 
     const selectedFileViewable = selectedFiles.length === 1 && !selectedFolder &&
         VIEWABLE_FILE_EXTENSIONS.filter(e => selectedFiles[0].endsWith(e)).length > 0;
-
-    const selectedFileInfoAvailable = selectedFiles.length === 1 && selectedFiles[0] in filesByPath;
-
     const viewableFile = selectedFileViewable ? selectedFiles[0] : "";
 
+    const selectedFileInfoAvailable = selectedFiles.length === 1 && selectedFiles[0] in filesByPath;
     const fileForInfo = selectedFileInfoAvailable ? selectedFiles[0] : "";
-
-    const InfoDownloadButton = ({disabled}) => (
-        <Button key="download" icon="download" disabled={disabled} onClick={() => {
-            const uri = filesByPath[fileForInfo]?.uri;
-            if (uri) {
-                window.open(uri, "_blank");
-            }
-        }}>Download</Button>
-    );
-    InfoDownloadButton.propTypes = {
-        disabled: PropTypes.bool,
-    };
 
     return <Layout>
         <Layout.Content style={LAYOUT_CONTENT_STYLE}>
@@ -440,7 +456,7 @@ const ManagerDropBoxContent = () => {
                     <Button icon="file-text" onClick={handleViewFile} disabled={!selectedFileViewable}>
                         View
                     </Button>
-                    <InfoDownloadButton disabled={!selectedFileInfoAvailable} />
+                    <InfoDownloadButton disabled={!selectedFileInfoAvailable} uri={filesByPath[fileForInfo]?.uri} />
                     {/* TODO: Implement v0.2 */}
                     {/*<Button type="danger" icon="delete" disabled={this.state.selectedFiles.length === 0}>*/}
                     {/*    Delete*/}
@@ -450,17 +466,20 @@ const ManagerDropBoxContent = () => {
                 <Spin spinning={treeLoading}>
                     {(treeLoading || dropBoxService) ? (
                         <div
-                            onDragOver={event => {
-                                console.log("dragover", event);
-                            }}
+                            onDragEnter={() => setDraggingOver(true)}
+                            onDragEnd={() => setDraggingOver(false)}
                             onDrop={event => {
+                                setDraggingOver(false);
                                 console.log("drop", event);
                                 // TODO
-                                //  - how to pass through hover?
-                                //  - how to select folder?
+                                //  - how to pass through file?
                                 showUploadModal();
                             }}
+                            style={{position: "relative", minHeight: 72}}
                         >
+                            {draggingOver && <div style={TREE_DROP_ZONE_OVERLAY_STYLE}>
+                                <Icon type="plus-circle" style={TREE_DROP_ZONE_OVERLAY_ICON_STYLE} />
+                            </div>}
                             <Tree.DirectoryTree
                                 defaultExpandAll={true}
                                 multiple={true}
