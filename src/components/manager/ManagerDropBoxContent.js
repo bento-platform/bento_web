@@ -98,10 +98,19 @@ const TREE_DROP_ZONE_OVERLAY_ICON_STYLE = {fontSize: 48, color: "#1890ff"};
 
 
 const sortByName = (a, b) => a.name.localeCompare(b.name);
-const generateFileTree = directory => [...directory].sort(sortByName).map(entry =>
-    <Tree.TreeNode title={entry.name} key={entry.filePath} isLeaf={!entry.hasOwnProperty("contents")}>
-        {entry?.contents ? generateFileTree(entry.contents) : null}
-    </Tree.TreeNode>);
+const generateFileTree = (directory, basePrefix) =>
+    [...directory]
+        .sort(sortByName)
+        .map(entry => {
+            const {name, contents} = entry;
+            const isFolder = contents !== undefined;
+            const itemSlashPath = `${basePrefix}/${name}`;
+            return (
+                <Tree.TreeNode title={name} key={itemSlashPath} isLeaf={!isFolder}>
+                    {isFolder ? generateFileTree(contents) : null}
+                </Tree.TreeNode>
+            );
+        });
 
 const generateURIsByFilePath = (entry, acc) => {
     if (Array.isArray(entry)) {
@@ -409,7 +418,7 @@ const ManagerDropBoxContent = () => {
     const filesByPath = useMemo(() => Object.fromEntries(
         recursivelyFlattenFileTree([], tree).map(f => [f.filePath, f])), [tree]);
 
-    const [selectedEntries, setSelectedEntries] = useState([]);
+    const [selectedEntries, setSelectedEntries] = useState(["/"]);
 
     const [draggingOver, setDraggingOver] = useState(false);
 
@@ -616,7 +625,7 @@ const ManagerDropBoxContent = () => {
                                 selectedKeys={selectedEntries}
                             >
                                 <Tree.TreeNode title="Drop Box" key="/">
-                                    {generateFileTree(tree)}
+                                    {generateFileTree(tree, "")}
                                 </Tree.TreeNode>
                             </Tree.DirectoryTree>
                         </div>
