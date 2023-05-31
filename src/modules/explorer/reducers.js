@@ -16,6 +16,8 @@ import {
     PERFORM_SEARCH,
     SET_IS_SUBMITTING_SEARCH,
     PERFORM_INDIVIDUAL_CSV_DOWNLOAD,
+    PERFORM_BIOSAMPLE_CSV_DOWNLOAD,
+    PERFORM_EXPERIMENT_CSV_DOWNLOAD,
     ADD_DATA_TYPE_QUERY_FORM,
     REMOVE_DATA_TYPE_QUERY_FORM,
     UPDATE_DATA_TYPE_QUERY_FORM,
@@ -83,6 +85,8 @@ export const explorer = (
                     [action.datasetID]: {
                         results: action.data,
                         searchFormattedResults: tableSearchResults(action.data),
+                        searchFormattedResultsExperiment: tableSearchResultsExperiments(action.data),
+                        searchFormattedResultsBiosamples: generateBiosampleObjects(action.data),
                     },
                 },
                 selectedRowsByDatasetID: {
@@ -122,7 +126,42 @@ export const explorer = (
                 ...state,
                 isFetchingDownload: false,
             };
-    // ---
+
+        case PERFORM_BIOSAMPLE_CSV_DOWNLOAD.REQUEST:
+            return {
+                ...state,
+                isFetchingDownload: true,
+            };
+        case PERFORM_BIOSAMPLE_CSV_DOWNLOAD.RECEIVE:
+            FileSaver.saveAs(action.data, "biosamples.csv");
+
+            return {
+                ...state,
+                isFetchingDownload: false,
+            };
+        case PERFORM_BIOSAMPLE_CSV_DOWNLOAD.FINISH:
+            return {
+                ...state,
+                isFetchingDownload: false,
+            };
+
+        case PERFORM_EXPERIMENT_CSV_DOWNLOAD.REQUEST:
+            return {
+                ...state,
+                isFetchingDownload: true,
+            };
+        case PERFORM_EXPERIMENT_CSV_DOWNLOAD.RECEIVE:
+            FileSaver.saveAs(action.data, "experiments.csv");
+
+            return {
+                ...state,
+                isFetchingDownload: false,
+            };
+        case PERFORM_EXPERIMENT_CSV_DOWNLOAD.FINISH:
+            return {
+                ...state,
+                isFetchingDownload: false,
+            };
 
         case ADD_DATA_TYPE_QUERY_FORM:
             return {
@@ -180,7 +219,7 @@ export const explorer = (
                 },
             };
 
-    // Auto-Queries start here ----
+        // Auto-Queries start here ----
         case SET_AUTO_QUERY_PAGE_TRANSITION:
             return {
                 ...state,
@@ -204,9 +243,9 @@ export const explorer = (
                     autoQueryValue: undefined,
                 },
             };
-    //.. and end here.. ----
+        //.. and end here.. ----
 
-    // free-text search
+        // free-text search
         case FREE_TEXT_SEARCH.REQUEST:
             return {
                 ...state,
@@ -220,6 +259,8 @@ export const explorer = (
                     [action.datasetID]: {
                         results: freeTextResults(action.data),
                         searchFormattedResults: tableSearchResults(action.data),
+                        searchFormattedResultsExperiments: tableSearchResultsExperiments(action.data),
+                        searchFormattedResultsBiosamples: generateBiosampleObjects(action.data),
                     },
                 },
             };
@@ -245,6 +286,81 @@ export const explorer = (
 };
 
 // helpers
+const tableSearchResultsExperiments = (searchResults) => {
+    const results = searchResults.results || [];
+
+    return results.flatMap((result) => {
+        if (!result.experiments_with_biosamples) {
+            return [];
+        }
+
+        return result.experiments_with_biosamples.flatMap((sample) => {
+            const experiment = sample.experiment;
+            if (!experiment || experiment.experiment_id === null) {
+                return [];
+            }
+
+            const formattedResult = {
+                subjectId: result.subject_id,
+                key: experiment.experiment_id,
+                alternateIds: result.alternate_ids,
+                experimentId: experiment.experiment_id,
+                experimentType: experiment.experiment_type,
+                studyType: experiment.study_type,
+                biosampleId: sample.biosample_id,
+                individual: {
+                    id: result.subject_id,
+                    alternate_ids: result.alternate_ids ?? [],
+                },
+            };
+
+            return formattedResult;
+        });
+    });
+};
+
+function generateBiosampleObjects(searchResults) {
+    return (searchResults?.results ?? [])
+        .flatMap((result) => {
+            if (!result["experiments_with_biosamples"]) {
+                return [];
+            }
+
+            const biosampleIdToIndex = {};
+
+            return result["experiments_with_biosamples"].reduce((objects, biosample) => {
+                const biosampleId = biosample["biosample_id"];
+
+                if (biosampleId) {
+                    const index =
+                        biosampleId in biosampleIdToIndex
+                            ? biosampleIdToIndex[biosampleId]
+                            : (biosampleIdToIndex[biosampleId] = objects.length);
+
+                    objects[index] = objects[index] || {
+                        subjectId: result["subject_id"],
+                        key: biosampleId,
+                        biosample: biosampleId,
+                        alternateIds: result["alternate_ids"],
+                        individual: {
+                            id: result["subject_id"],
+                            alternateIds: result["alternate_ids"] || [],
+                        },
+                        experimentIds: [],
+                        experimentTypes: [],
+                        studyTypes: [],
+                        sampledTissues: [],
+                    };
+                    objects[index].experimentIds.push(biosample.experiment["experiment_id"]);
+                    objects[index].experimentTypes.push(biosample.experiment["experiment_type"]);
+                    objects[index].studyTypes.push(biosample.experiment["study_type"]);
+                    objects[index].sampledTissues.push(biosample["sampled_tissue"]);
+                }
+                return objects;
+            }, []);
+        })
+        .filter((entry) => entry.key !== null && entry.key !== undefined);
+}
 
 const tableSearchResults = (searchResults) => {
     const results = (searchResults || {}).results || [];
@@ -262,7 +378,6 @@ const tableSearchResults = (searchResults) => {
     });
 };
 
-
 // free-text search helpers
 
 // several components expect results in this format:
@@ -270,7 +385,6 @@ const tableSearchResults = (searchResults) => {
 // but free-text results are not in the same format as regular queries,
 // so need their own formatting functions
 function freeTextResults(_searchResults) {
-
     // TODO:
     // most information expected here is missing in free-text search response
     // can be added in a future katsu version
@@ -278,7 +392,7 @@ function freeTextResults(_searchResults) {
 
     return {
         results: {
-            variant: [],   //TODO
+            variant: [], //TODO
         },
     };
 }

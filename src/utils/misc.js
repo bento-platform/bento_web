@@ -5,6 +5,10 @@ export const constFn = x => () => x;  // constFn(null) creates a function that a
 export const getFalse = constFn(false);
 export const getTrue = constFn(true);
 
+export const countNonNullElements = (arr) => {
+    return arr.filter((item) => item !== null).length;
+}; // counts the non-null elements in any array
+
 // Object utilities
 export const simpleDeepCopy = o => JSON.parse(JSON.stringify(o));
 export const objectWithoutProps = (o, ps) => Object.fromEntries(Object.entries(o).filter(([p2]) => !ps.includes(p2)));
