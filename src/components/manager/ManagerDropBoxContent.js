@@ -67,6 +67,11 @@ const LANGUAGE_HIGHLIGHTERS = {
 const VIEWABLE_FILE_EXTENSIONS = [...Object.keys(LANGUAGE_HIGHLIGHTERS), ".pdf"];
 
 
+const DROP_BOX_CONTENT_CONTAINER_STYLE = {display: "flex", flexDirection: "column", gap: "1em"};
+const DROP_BOX_ACTION_CONTAINER_STYLE = {display: "flex", gap: "12px"};
+
+const TREE_CONTAINER_STYLE = {position: "relative", minHeight: 72};
+
 const TREE_DROP_ZONE_OVERLAY_STYLE = {
     position: "absolute",
     left: 0, top: 0, right: 0, bottom: 0,
@@ -374,22 +379,26 @@ const ManagerDropBoxContent = () => {
         showFileContentsModal();
     }, []);
 
-    const workflowsSupported = [];
+    const workflowsSupported = useMemo(
+        () => ingestionWorkflows.filter(w => getWorkflowFit(w)[0]),
+        [ingestionWorkflows]);
+
     const workflowMenu = (
         <Menu>
-            {ingestionWorkflows.map(w => {
-                const workflowSupported = getWorkflowFit(w)[0];
-                if (workflowSupported) workflowsSupported.push(w);
-                return (
-                    <Menu.Item key={w.id}
-                               disabled={!workflowSupported}
-                               onClick={() => showTableSelectionModal(w)}>
-                        Ingest with Workflow &ldquo;{w.name}&rdquo;
-                    </Menu.Item>
-                );
-            })}
+            {ingestionWorkflows.map(w => (
+                <Menu.Item key={w.id}
+                           disabled={workflowsSupported.findIndex(w2 => w2.id === w.id) === -1}
+                           onClick={() => showTableSelectionModal(w)}>
+                    Ingest with Workflow &ldquo;{w.name}&rdquo;
+                </Menu.Item>
+            ))}
         </Menu>
     );
+
+    const handleIngest = useCallback(() => {
+        if (workflowsSupported.length !== 1) return;
+        showTableSelectionModal(workflowsSupported[0]);
+    }, [workflowsSupported]);
 
     const selectedFolder = selectedFiles.length === 1 && filesByPath[selectedFiles[0]] === undefined;
 
@@ -445,18 +454,14 @@ const ManagerDropBoxContent = () => {
 
             {/* ------------------------------ End of modals section ------------------------------ */}
 
-            <div style={{display: "flex", flexDirection: "column", gap: "1em"}}>
-                <div style={{display: "flex", gap: "12px"}}>
-                    {/* TODO: only if (nothing or folder) selected */}
+            <div style={DROP_BOX_CONTENT_CONTAINER_STYLE}>
+                <div style={DROP_BOX_ACTION_CONTAINER_STYLE}>
                     <Button icon="upload" onClick={showUploadModal} disabled={!selectedFolder}>Upload</Button>
-                    <Dropdown.Button overlay={workflowMenu}
-                                     disabled={!dropBoxService
-                                         || selectedFiles.length === 0
-                                         || workflowsSupported.length === 0}
-                                     onClick={() => {
-                                         if (workflowsSupported.length !== 1) return;
-                                         showTableSelectionModal(workflowsSupported[0]);
-                                     }}>
+                    <Dropdown.Button
+                        overlay={workflowMenu}
+                        disabled={!dropBoxService || selectedFiles.length === 0 || workflowsSupported.length === 0}
+                        onClick={handleIngest}
+                    >
                         <Icon type="import" /> Ingest
                     </Dropdown.Button>
                     <Button icon="info-circle" onClick={showFileInfoModal} disabled={!selectedFileInfoAvailable}>
@@ -484,7 +489,7 @@ const ManagerDropBoxContent = () => {
                                 //  - how to pass through file?
                                 showUploadModal();
                             }}
-                            style={{position: "relative", minHeight: 72}}
+                            style={TREE_CONTAINER_STYLE}
                         >
                             {draggingOver && <div style={TREE_DROP_ZONE_OVERLAY_STYLE}>
                                 <Icon type="plus-circle" style={TREE_DROP_ZONE_OVERLAY_ICON_STYLE} />
