@@ -50,10 +50,10 @@ const _paginatedNetworkFetch = async (url, baseUrl, req, parse) => {
 
 
 const _networkAction = (fn, ...args) => async (dispatch, getState) => {
-    let fnResult = fn(...args);
+    let fnResult = await fn(...args);
     if (typeof fnResult === "function") {
         // Needs dispatch / getState, resolve those.
-        fnResult = fnResult(dispatch, getState);
+        fnResult = await fnResult(dispatch, getState);
     }
 
     const {types, params, url, baseUrl, req, err, onSuccess, onError, paginated} = fnResult;
