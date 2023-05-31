@@ -2,6 +2,8 @@
 export const id = x => x;  // id is a function that returns its first passed parameter
 export const nop = () => {};
 export const constFn = x => () => x;  // constFn(null) creates a function that always returns null
+export const getFalse = constFn(false);
+export const getTrue = constFn(true);
 
 // Object utilities
 export const simpleDeepCopy = o => JSON.parse(JSON.stringify(o));

@@ -4,6 +4,7 @@ import {TreeSelect} from "antd";
 import {useSelector} from "react-redux";
 
 import {dropBoxTreeStateToPropsMixin} from "../../propTypes";
+import {getTrue} from "../../utils/misc";
 
 const sortByName = (a, b) => a.name.localeCompare(b.name);
 const generateFileTree = (directory, valid, folderMode) =>
@@ -34,8 +35,6 @@ const generateFileTree = (directory, valid, folderMode) =>
                 </TreeSelect.TreeNode>
             );
         });
-
-const getTrue = () => true;
 
 const DropBoxTreeSelect = React.forwardRef(({folderMode, nodeEnabled, ...props}, ref) => {
     const {tree} = useSelector(dropBoxTreeStateToPropsMixin);

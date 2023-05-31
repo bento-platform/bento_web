@@ -1,4 +1,4 @@
-import React, {useCallback, useEffect, useMemo, useState} from "react";
+import React, {useCallback, useEffect, useMemo, useRef, useState} from "react";
 import {useSelector} from "react-redux";
 import {useHistory} from "react-router-dom";
 
@@ -21,7 +21,8 @@ import {
     Button,
     Descriptions,
     Dropdown,
-    Empty, Form,
+    Empty,
+    Form,
     Icon,
     Layout,
     Menu,
@@ -29,9 +30,11 @@ import {
     Spin,
     Statistic,
     Tree,
+    Upload,
 } from "antd";
 
 import {LAYOUT_CONTENT_STYLE} from "../../styles/layoutContent";
+import DropBoxTreeSelect from "./DropBoxTreeSelect";
 import TableSelectionModal from "./TableSelectionModal";
 import JsonDisplay from "../JsonDisplay";
 
@@ -39,7 +42,7 @@ import {STEP_INPUT} from "./workflowCommon";
 import {withBasePath} from "../../utils/url";
 import {dropBoxTreeStateToPropsMixinPropTypes, workflowsStateToPropsMixin} from "../../propTypes";
 import {makeAuthorizationHeader} from "../../lib/auth/utils";
-import {useDropzone} from "react-dropzone";
+import {getFalse} from "../../utils/misc";
 
 
 SyntaxHighlighter.registerLanguage("json", json);
@@ -116,6 +119,11 @@ const recursivelyFlattenFileTree = (acc, contents) => {
 };
 
 const formatTimestamp = timestamp => (new Date(timestamp * 1000)).toLocaleString();
+
+const stopEvent = event => {
+    event.preventDefault();
+    event.stopPropagation();
+};
 
 
 const FileDisplay = ({file, tree, treeLoading}) => {
@@ -247,30 +255,74 @@ FileDisplay.propTypes = {
     ...dropBoxTreeStateToPropsMixinPropTypes,
 };
 
+const FileUploadForm = Form.create()(({initialUploadFolder, initialUploadFiles, form}) => {
+    const getFileListFromEvent = useCallback(e => Array.isArray(e) ? e : e && e.fileList, []);
 
-const FileUploadModal = ({...props}) => {
-    const onDrop = useCallback((files) => {
-        files.forEach((file) => {
-            // TODO
+    useEffect(() => {
+        if (!initialUploadFolder) return;
+        form.setFieldsValue({"parent": initialUploadFolder});
+    }, [initialUploadFolder]);
+
+    useEffect(() => {
+        if (!initialUploadFiles?.length) return;
+        form.setFieldsValue({
+            "files": initialUploadFiles.map((u, i) => ({
+                // ...u doesn't work for File object
+                lastModified: u.lastModified,
+                name: u.name,
+                size: u.size,
+                type: u.type,
+
+                uid: (-1 * (i + 1)).toString(),
+                originFileObj: u,
+            })),
         });
-    }, []);
+    }, [initialUploadFiles])
 
-    const { getRootProps, getInputProps } = useDropzone({
-        onDrop,
-        maxFiles: 0,  // unlimited
-    });
+    return <Form>
+        <Form.Item label="Parent Folder">
+            {form.getFieldDecorator("parent", {
+                rules: [{required: true, message: "Please select a folder to upload into."}],
+            })(<DropBoxTreeSelect folderMode={true} />)}
+        </Form.Item>
+        <Form.Item label="File">
+            {form.getFieldDecorator("files", {
+                valuePropName: "fileList",
+                getValueFromEvent: getFileListFromEvent,
+                rules: [{required: true, message: "Please specify at least one file to upload."}],
+            })(<Upload beforeUpload={getFalse}><Button><Icon type="upload" /> Upload</Button></Upload>)}
+        </Form.Item>
+    </Form>;
+});
 
-    return <Modal title="Upload" {...props}>
-        <Form>
-            <Form.Item label="Parent Folder">
-                {/* TODO: tree view */}
-                TODO
-            </Form.Item>
-            <Form.Item label="File">
-                TODO
-            </Form.Item>
-        </Form>
+const FileUploadModal = ({initialUploadFolder, initialUploadFiles, ...props}) => {
+    const form = useRef(null);
+    return <Modal title="Upload" onOk={() => {
+        if (!form.current) {
+            console.error("missing form ref");
+            return;
+        }
+
+        form.current.validateFields((err, values) => {
+            if (err) {
+                console.error(err);
+                return;
+            }
+
+            // TODO
+            console.log(values);
+        });
+    }} {...props}>
+        <FileUploadForm
+            initialUploadFolder={initialUploadFolder}
+            initialUploadFiles={initialUploadFiles}
+            ref={ref => form.current = ref}
+        />
     </Modal>;
+};
+FileUploadModal.propTypes = {
+    initialUploadFolder: PropTypes.string,
+    initialUploadFiles: PropTypes.arrayOf(PropTypes.instanceOf(File)),
 };
 
 
@@ -281,8 +333,12 @@ const InfoDownloadButton = ({disabled, uri}) => (
         }
     }}>Download</Button>
 );
+InfoDownloadButton.defaultProps = {
+    disabled: false,
+};
 InfoDownloadButton.propTypes = {
     disabled: PropTypes.bool,
+    uri: PropTypes.string,
 };
 
 
@@ -306,10 +362,12 @@ const ManagerDropBoxContent = () => {
     const filesByPath = useMemo(() => Object.fromEntries(
         recursivelyFlattenFileTree([], tree).map(f => [f.filePath, f])), [tree]);
 
-    const [selectedFiles, setSelectedFiles] = useState([]);
+    const [selectedEntries, setSelectedEntries] = useState([]);
 
     const [draggingOver, setDraggingOver] = useState(false);
 
+    const [initialUploadFolder, setInitialUploadFolder] = useState(null);
+    const [initialUploadFiles, setInitialUploadFiles] = useState([]);
     const [uploadModal, setUploadModal] = useState(false);
 
     const [fileInfoModal, setFileInfoModal] = useState(false);
@@ -333,7 +391,7 @@ const ManagerDropBoxContent = () => {
 
     const getWorkflowFit = useCallback(w => {
         let workflowSupported = true;
-        let filesLeft = [...selectedFiles];
+        let filesLeft = [...selectedEntries];
         const inputs = {};
 
         for (const i of w.inputs.filter(i => i.type.startsWith("file"))) {
@@ -364,7 +422,7 @@ const ManagerDropBoxContent = () => {
         }
 
         return [workflowSupported, inputs];
-    }, [selectedFiles]);
+    }, [selectedEntries]);
 
     const ingestIntoTable = useCallback(tableKey => {
         history.push(withBasePath("admin/data/manager/ingestion"), {
@@ -400,18 +458,23 @@ const ManagerDropBoxContent = () => {
         showTableSelectionModal(workflowsSupported[0]);
     }, [workflowsSupported]);
 
-    const selectedFolder = selectedFiles.length === 1 && filesByPath[selectedFiles[0]] === undefined;
+    const selectedFolder = selectedEntries.length === 1 && filesByPath[selectedEntries[0]] === undefined;
 
-    const selectedFileViewable = selectedFiles.length === 1 && !selectedFolder &&
-        VIEWABLE_FILE_EXTENSIONS.filter(e => selectedFiles[0].endsWith(e)).length > 0;
-    const viewableFile = selectedFileViewable ? selectedFiles[0] : "";
+    const selectedFileViewable = selectedEntries.length === 1 && !selectedFolder &&
+        VIEWABLE_FILE_EXTENSIONS.filter(e => selectedEntries[0].endsWith(e)).length > 0;
+    const viewableFile = selectedFileViewable ? selectedEntries[0] : "";
 
-    const selectedFileInfoAvailable = selectedFiles.length === 1 && selectedFiles[0] in filesByPath;
-    const fileForInfo = selectedFileInfoAvailable ? selectedFiles[0] : "";
+    const selectedFileInfoAvailable = selectedEntries.length === 1 && selectedEntries[0] in filesByPath;
+    const fileForInfo = selectedFileInfoAvailable ? selectedEntries[0] : "";
 
     return <Layout>
         <Layout.Content style={LAYOUT_CONTENT_STYLE}>
-            <FileUploadModal visible={uploadModal} onCancel={hideUploadModal} />
+            <FileUploadModal
+                initialUploadFolder={initialUploadFolder}
+                initialUploadFiles={initialUploadFiles}
+                visible={uploadModal}
+                onCancel={hideUploadModal}
+            />
 
             <TableSelectionModal
                 dataType={selectedWorkflow?.data_type || null}
@@ -427,7 +490,7 @@ const ManagerDropBoxContent = () => {
                    footer={null}
                    onCancel={hideFileContentsModal}>
                 <FileDisplay
-                    file={selectedFiles.length === 1 ? selectedFiles[0] : null}
+                    file={selectedEntries.length === 1 ? selectedEntries[0] : null}
                     tree={tree}
                     treeLoading={treeLoading}
                 />
@@ -456,10 +519,13 @@ const ManagerDropBoxContent = () => {
 
             <div style={DROP_BOX_CONTENT_CONTAINER_STYLE}>
                 <div style={DROP_BOX_ACTION_CONTAINER_STYLE}>
-                    <Button icon="upload" onClick={showUploadModal} disabled={!selectedFolder}>Upload</Button>
+                    <Button icon="upload" onClick={() => {
+                        if (selectedFolder) setInitialUploadFolder(selectedEntries[0]);
+                        showUploadModal();
+                    }} disabled={!selectedFolder}>Upload</Button>
                     <Dropdown.Button
                         overlay={workflowMenu}
-                        disabled={!dropBoxService || selectedFiles.length === 0 || workflowsSupported.length === 0}
+                        disabled={!dropBoxService || selectedEntries.length === 0 || workflowsSupported.length === 0}
                         onClick={handleIngest}
                     >
                         <Icon type="import" /> Ingest
@@ -482,11 +548,12 @@ const ManagerDropBoxContent = () => {
                         <div
                             onDragEnter={() => setDraggingOver(true)}
                             onDragEnd={() => setDraggingOver(false)}
+                            onDragOver={stopEvent}
                             onDrop={event => {
+                                stopEvent(event);
                                 setDraggingOver(false);
-                                console.log("drop", event);
-                                // TODO
-                                //  - how to pass through file?
+                                setInitialUploadFolder("/");  // Root by default
+                                setInitialUploadFiles(Array.from(event.dataTransfer.files));
                                 showUploadModal();
                             }}
                             style={TREE_CONTAINER_STYLE}
@@ -498,10 +565,10 @@ const ManagerDropBoxContent = () => {
                                 defaultExpandAll={true}
                                 multiple={true}
                                 expandAction="doubleClick"
-                                onSelect={setSelectedFiles}
-                                selectedKeys={selectedFiles}
+                                onSelect={setSelectedEntries}
+                                selectedKeys={selectedEntries}
                             >
-                                <Tree.TreeNode title="Drop Box" key="root">
+                                <Tree.TreeNode title="Drop Box" key="/">
                                     {generateFileTree(tree)}
                                 </Tree.TreeNode>
                             </Tree.DirectoryTree>
