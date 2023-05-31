@@ -281,6 +281,15 @@ InfoDownloadButton.propTypes = {
 };
 
 
+const DropBoxInformation = () => (
+    <Alert type="info" showIcon={true} message="About the drop box" description={`
+        The drop box contains files which are not yet ingested into this Bento instance. They are not
+        organized in any particular structure; instead, this serves as a place for incoming data files to be
+        deposited and examined.
+    `} />
+);
+
+
 const ManagerDropBoxContent = () => {
     const history = useHistory();
 
@@ -503,11 +512,7 @@ const ManagerDropBoxContent = () => {
                         : filesize(Object.values(filesByPath).reduce((acc, f) => acc + f.size, 0))}
                 />
 
-                <Alert type="info" showIcon={true} message="About the drop box" description={`
-                    The drop box contains files which are not yet ingested into this Bento instance. They are not
-                    organized in any particular structure; instead, this serves as a place for incoming data files to be
-                    deposited and examined.
-                `} />
+                <DropBoxInformation />
             </div>
         </Layout.Content>
     </Layout>;
