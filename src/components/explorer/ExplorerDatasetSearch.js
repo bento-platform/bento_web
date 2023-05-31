@@ -73,7 +73,7 @@ const ExplorerDatasetSearch = () => {
 
     const isFetchingSearchResults = fetchingSearch || fetchingTextSearch;
 
-    const hasIndividuals = hasNonEmptyArrayProperty(searchResults, "searchFormattedResults");
+    const hasIndividuals = searchResults && searchResults.searchFormattedResults;
     const hasExperiments = hasNonEmptyArrayProperty(searchResults, "searchFormattedResultsExperiment");
     const hasBiosamples = hasNonEmptyArrayProperty(searchResults, "searchFormattedResultsBiosamples");
     const showTabs = hasIndividuals && (hasExperiments || hasBiosamples);
