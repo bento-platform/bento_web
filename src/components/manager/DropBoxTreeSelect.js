@@ -1,4 +1,4 @@
-import React from "react";
+import React, {useMemo} from "react";
 import PropTypes from "prop-types";
 import {TreeSelect} from "antd";
 import {useSelector} from "react-redux";
@@ -7,12 +7,12 @@ import {dropBoxTreeStateToPropsMixin} from "../../propTypes";
 import {getTrue} from "../../utils/misc";
 
 const sortByName = (a, b) => a.name.localeCompare(b.name);
-const generateFileTree = (directory, valid, folderMode) =>
+const generateFileTree = (directory, valid, folderMode, basePrefix) =>
     [...directory]
         .sort(sortByName)
         .filter(entry => !folderMode || entry.contents !== undefined)  // Don't show files in folder mode
         .map(entry => {
-            const {name, filePath, contents} = entry;
+            const {name, contents} = entry;
             const isValid = valid(entry);
             const isFolder = contents !== undefined;
 
@@ -22,26 +22,32 @@ const generateFileTree = (directory, valid, folderMode) =>
                 renderAsLeaf = contents.findIndex(c => c.contents !== undefined) === -1;
             }
 
+            const itemSlashPath = `${basePrefix}/${name}`;
             return (
                 <TreeSelect.TreeNode
                     title={name}
-                    key={filePath}
-                    value={filePath}
+                    key={itemSlashPath}
+                    value={itemSlashPath}
                     disabled={!isValid}
                     isLeaf={renderAsLeaf}
                     selectable={folderMode ? isFolder : !isFolder}
                 >
-                    {isFolder ? generateFileTree(contents, valid, folderMode) : null}
+                    {isFolder ? generateFileTree(contents, valid, folderMode, itemSlashPath) : null}
                 </TreeSelect.TreeNode>
             );
         });
 
-const DropBoxTreeSelect = React.forwardRef(({folderMode, nodeEnabled, ...props}, ref) => {
+const DropBoxTreeSelect = React.forwardRef(({folderMode, nodeEnabled, basePrefix, ...props}, ref) => {
     const {tree} = useSelector(dropBoxTreeStateToPropsMixin);
 
+    const fileTree = useMemo(
+        () => generateFileTree(tree, nodeEnabled ?? getTrue, folderMode, ""),
+        [tree, nodeEnabled, folderMode]
+    );
+
     return <TreeSelect ref={ref} showSearch={true} treeDefaultExpandAll={true} {...props}>
-        <TreeSelect.TreeNode title="Drop Box" key="root" value="/" selectable={folderMode}>
-            {generateFileTree(tree, nodeEnabled ?? getTrue, folderMode)}
+        <TreeSelect.TreeNode title="Drop Box" key="root" value={basePrefix ?? "/"} selectable={folderMode}>
+            {fileTree}
         </TreeSelect.TreeNode>
     </TreeSelect>;
 });

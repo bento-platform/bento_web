@@ -22,7 +22,12 @@ const getInputComponent = ({type, extensions, values}) => {
         case "file":
         case "file[]":
             // TODO: What about non-unique files?
-            return <DropBoxTreeSelect nodeEnabled={dropBoxTreeNodeEnabled} multiple={type === "file[]"} />;
+            // TODO: Don't hard-code configured filesystem path for input files
+            return <DropBoxTreeSelect
+                nodeEnabled={dropBoxTreeNodeEnabled}
+                multiple={type === "file[]"}
+                basePrefix="/data"
+            />;
 
         case "enum":
             // TODO: enum[]
