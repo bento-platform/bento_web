@@ -48,7 +48,7 @@ import {
     beginDropBoxPuttingObjects,
     endDropBoxPuttingObjects,
     fetchDropBoxTreeOrFail,
-    putDropBoxObject
+    putDropBoxObject,
 } from "../../modules/manager/actions";
 
 
@@ -284,7 +284,7 @@ const FileUploadForm = Form.create()(({initialUploadFolder, initialUploadFiles, 
                 originFileObj: u,
             })),
         });
-    }, [initialUploadFiles])
+    }, [initialUploadFiles]);
 
     return <Form>
         <Form.Item label="Parent Folder">
@@ -329,7 +329,7 @@ const FileUploadModal = ({initialUploadFolder, initialUploadFiles, onCancel, vis
                         continue;
                     }
 
-                    const path = `${values.parent.replace(/\/$/, "")}/${file.name}`
+                    const path = `${values.parent.replace(/\/$/, "")}/${file.name}`;
 
                     try {
                         await dispatch(putDropBoxObject(path, file.originFileObj));
