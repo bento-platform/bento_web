@@ -41,7 +41,7 @@ const DropBoxTreeSelect = React.forwardRef(({folderMode, nodeEnabled, basePrefix
     const {tree} = useSelector(dropBoxTreeStateToPropsMixin);
 
     const fileTree = useMemo(
-        () => generateFileTree(tree, nodeEnabled ?? getTrue, folderMode, ""),
+        () => generateFileTree(tree, nodeEnabled ?? getTrue, folderMode, basePrefix),
         [tree, nodeEnabled, folderMode],
     );
 

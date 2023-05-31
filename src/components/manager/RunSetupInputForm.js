@@ -7,6 +7,7 @@ import {
     FORM_LABEL_COL,
     FORM_WRAPPER_COL,
     FORM_BUTTON_COL,
+    DROP_BOX_BASE_FS_PATH,
 } from "./workflowCommon";
 
 import {nop} from "../../utils/misc";
@@ -26,7 +27,7 @@ const getInputComponent = ({type, extensions, values}) => {
             return <DropBoxTreeSelect
                 nodeEnabled={dropBoxTreeNodeEnabled}
                 multiple={type === "file[]"}
-                basePrefix="/data"
+                basePrefix={DROP_BOX_BASE_FS_PATH}
             />;
 
         case "enum":

@@ -39,7 +39,7 @@ import DropBoxTreeSelect from "./DropBoxTreeSelect";
 import TableSelectionModal from "./TableSelectionModal";
 import JsonDisplay from "../JsonDisplay";
 
-import {STEP_INPUT} from "./workflowCommon";
+import {DROP_BOX_BASE_FS_PATH, STEP_INPUT} from "./workflowCommon";
 import {withBasePath} from "../../utils/url";
 import {dropBoxTreeStateToPropsMixinPropTypes, workflowsStateToPropsMixin} from "../../propTypes";
 import {makeAuthorizationHeader} from "../../lib/auth/utils";
@@ -467,7 +467,7 @@ const ManagerDropBoxContent = () => {
             const filesToTake = filesLeft.filter(f =>
                 isFileArray ? compatibleFiles.includes(f) : f === compatibleFiles[0]);
 
-            inputs[i.id] = isFileArray ? filesToTake : filesToTake[0];
+            inputs[i.id] = DROP_BOX_BASE_FS_PATH + (isFileArray ? filesToTake : filesToTake[0]);
             filesLeft = filesLeft.filter(f => !filesToTake.includes(f));
         }
 
