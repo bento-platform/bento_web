@@ -24,7 +24,7 @@ export const endProjectEditing = basicAction(PROJECT_EDITING.END);
 const fetchDropBoxTree = networkAction(() => (dispatch, getState) => ({
     types: FETCH_DROP_BOX_TREE,
     url: `${getState().services.dropBoxService.url}/tree`,
-    err: "Error fetching drop box tree",  // TODO: More user-friendly error
+    err: "Error fetching drop box file tree",
 }));
 
 // TODO: If needed
