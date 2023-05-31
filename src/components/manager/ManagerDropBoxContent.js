@@ -1,5 +1,5 @@
 import React, {useCallback, useEffect, useMemo, useRef, useState} from "react";
-import {useSelector} from "react-redux";
+import {useDispatch, useSelector} from "react-redux";
 import {useHistory} from "react-router-dom";
 
 import PropTypes from "prop-types";
@@ -31,6 +31,7 @@ import {
     Statistic,
     Tree,
     Upload,
+    message,
 } from "antd";
 
 import {LAYOUT_CONTENT_STYLE} from "../../styles/layoutContent";
@@ -43,6 +44,12 @@ import {withBasePath} from "../../utils/url";
 import {dropBoxTreeStateToPropsMixinPropTypes, workflowsStateToPropsMixin} from "../../propTypes";
 import {makeAuthorizationHeader} from "../../lib/auth/utils";
 import {getFalse} from "../../utils/misc";
+import {
+    beginDropBoxPuttingObjects,
+    endDropBoxPuttingObjects,
+    fetchDropBoxTreeOrFail,
+    putDropBoxObject
+} from "../../modules/manager/actions";
 
 
 SyntaxHighlighter.registerLanguage("json", json);
@@ -295,9 +302,13 @@ const FileUploadForm = Form.create()(({initialUploadFolder, initialUploadFiles, 
     </Form>;
 });
 
-const FileUploadModal = ({initialUploadFolder, initialUploadFiles, ...props}) => {
+const FileUploadModal = ({initialUploadFolder, initialUploadFiles, onCancel, visible}) => {
+    const dispatch = useDispatch();
     const form = useRef(null);
-    return <Modal title="Upload" onOk={() => {
+
+    const isPutting = useSelector(state => state.dropBox.isPuttingFlow);
+
+    const onOk = () => {
         if (!form.current) {
             console.error("missing form ref");
             return;
@@ -309,10 +320,44 @@ const FileUploadModal = ({initialUploadFolder, initialUploadFiles, ...props}) =>
                 return;
             }
 
-            // TODO
-            console.log(values);
+            (async () => {
+                dispatch(beginDropBoxPuttingObjects());
+
+                for (const file of values.files) {
+                    if (!file.name) {
+                        console.error("Cannot upload file with no name", file);
+                        continue;
+                    }
+
+                    const path = `${values.parent.replace(/\/$/, "")}/${file.name}`
+
+                    try {
+                        await dispatch(putDropBoxObject(path, file.originFileObj));
+                    } catch (e) {
+                        console.error(e);
+                        message.error(`Error uploading file to drop box path: ${path}`);
+                    }
+                }
+
+                // Reload the file tree with the newly-uploaded file(s)
+                await dispatch(fetchDropBoxTreeOrFail());
+
+                // Finish the object-putting flow
+                dispatch(endDropBoxPuttingObjects());
+
+                // Close ourselves (the upload modal)
+                onCancel();
+            })();
         });
-    }} {...props}>
+    };
+
+    return <Modal
+        title="Upload"
+        okButtonProps={{loading: isPutting}}
+        onCancel={onCancel}
+        visible={visible}
+        onOk={onOk}
+    >
         <FileUploadForm
             initialUploadFolder={initialUploadFolder}
             initialUploadFiles={initialUploadFiles}
@@ -323,6 +368,8 @@ const FileUploadModal = ({initialUploadFolder, initialUploadFiles, ...props}) =>
 FileUploadModal.propTypes = {
     initialUploadFolder: PropTypes.string,
     initialUploadFiles: PropTypes.arrayOf(PropTypes.instanceOf(File)),
+    onCancel: PropTypes.func,
+    visible: PropTypes.bool,
 };
 
 

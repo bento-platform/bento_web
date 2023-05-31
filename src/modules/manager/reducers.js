@@ -2,6 +2,8 @@ import {
     TOGGLE_PROJECT_CREATION_MODAL,
     PROJECT_EDITING,
     FETCH_DROP_BOX_TREE,
+    PUT_DROP_BOX_OBJECT,
+    DROP_BOX_PUTTING_OBJECTS,
 } from "./actions";
 
 
@@ -31,6 +33,8 @@ export const manager = (
 export const dropBox = (
     state = {
         isFetching: true,
+        isPutting: false,
+        isPuttingFlow: false,
         tree: [],
     },
     action,
@@ -42,6 +46,17 @@ export const dropBox = (
             return {...state, tree: action.data};
         case FETCH_DROP_BOX_TREE.FINISH:
             return {...state, isFetching: false};
+
+        case PUT_DROP_BOX_OBJECT.REQUEST:
+            return {...state, isPutting: true};
+        case PUT_DROP_BOX_OBJECT.FINISH:
+            return {...state, isPutting: false};
+
+        case DROP_BOX_PUTTING_OBJECTS.BEGIN:
+            return {...state, isPuttingFlow: true};
+        case DROP_BOX_PUTTING_OBJECTS.END:
+        case DROP_BOX_PUTTING_OBJECTS.TERMINATE:
+            return {...state, isPuttingFlow: false};
 
         default:
             return state;

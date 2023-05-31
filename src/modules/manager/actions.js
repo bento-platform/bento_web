@@ -1,3 +1,5 @@
+import {message} from "antd";
+
 import {
     basicAction,
     createNetworkActionTypes,
@@ -11,11 +13,12 @@ export const TOGGLE_PROJECT_CREATION_MODAL = "TOGGLE_PROJECT_CREATION_MODAL";
 export const PROJECT_EDITING = createFlowActionTypes("PROJECT_EDITING");
 
 export const FETCH_DROP_BOX_TREE = createNetworkActionTypes("FETCH_DROP_BOX_TREE");
+export const PUT_DROP_BOX_OBJECT = createNetworkActionTypes("PUT_DROP_BOX_OBJECT");
+
+export const DROP_BOX_PUTTING_OBJECTS = createFlowActionTypes("DROP_BOX_PUTTING_OBJECTS");
 
 
 export const toggleProjectCreationModal = basicAction(TOGGLE_PROJECT_CREATION_MODAL);
-
-export const toggleJsonSchemaCreationModal = basicAction(TOGGLE_PROJECT_JSON_SCHEMA_CREATION_MODAL);
 
 export const beginProjectEditing = basicAction(PROJECT_EDITING.BEGIN);
 export const endProjectEditing = basicAction(PROJECT_EDITING.END);
@@ -37,3 +40,19 @@ export const fetchDropBoxTreeOrFail = () => async dispatch => {
         return await dispatch({type: FETCH_DROP_BOX_TREE.FINISH});
     }
 };
+
+export const putDropBoxObject = networkAction((path, file) => async (dispatch, getState) => ({
+    types: PUT_DROP_BOX_OBJECT,
+    url: `${getState().services.dropBoxService.url}/objects/${path.replace(/^\//, "")}`,
+    req: {
+        method: "PUT",
+        body: await file.arrayBuffer(),
+    },
+    onSuccess: () => {
+        message.success(`Successfully uploaded file to drop box path: ${path}`);
+    },
+    err: `Error uploading file to drop box path: ${path}`,
+}));
+
+export const beginDropBoxPuttingObjects = basicAction(DROP_BOX_PUTTING_OBJECTS.BEGIN);
+export const endDropBoxPuttingObjects = basicAction(DROP_BOX_PUTTING_OBJECTS.END);
