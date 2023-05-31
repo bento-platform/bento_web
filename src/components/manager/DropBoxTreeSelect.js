@@ -42,7 +42,7 @@ const DropBoxTreeSelect = React.forwardRef(({folderMode, nodeEnabled, basePrefix
 
     const fileTree = useMemo(
         () => generateFileTree(tree, nodeEnabled ?? getTrue, folderMode, ""),
-        [tree, nodeEnabled, folderMode]
+        [tree, nodeEnabled, folderMode],
     );
 
     return <TreeSelect ref={ref} showSearch={true} treeDefaultExpandAll={true} {...props}>
@@ -55,6 +55,7 @@ const DropBoxTreeSelect = React.forwardRef(({folderMode, nodeEnabled, basePrefix
 DropBoxTreeSelect.propTypes = {
     folderMode: PropTypes.bool,
     nodeEnabled: PropTypes.func,
+    basePrefix: PropTypes.string,
 };
 
 DropBoxTreeSelect.defaultProps = {
