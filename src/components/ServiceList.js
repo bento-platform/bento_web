@@ -1,5 +1,6 @@
 import React, {useCallback, useEffect, useMemo, useState} from "react";
 import { useSelector } from "react-redux";
+import PropTypes from "prop-types";
 
 import { Link } from "react-router-dom";
 
@@ -201,7 +202,11 @@ const ServiceRequestModal = ({service, onCancel}) => {
                 )
         )}
     </Modal>;
-}
+};
+ServiceRequestModal.propTypes = {
+    service: PropTypes.string,
+    onCancel: PropTypes.func,
+};
 
 const ServiceList = () => {
     const [requestModalService, setRequestModalService] = useState(null);

@@ -126,7 +126,11 @@ JsonDisplay.propTypes = {
     jsonSrc: PropTypes.oneOfType([
         PropTypes.object,
         PropTypes.array,
+        PropTypes.string,
+        PropTypes.bool,
+        PropTypes.number,
     ]),
+    showObjectWithReactJson: PropTypes.bool,
 };
 
 export default JsonDisplay;
