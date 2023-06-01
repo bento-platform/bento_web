@@ -12,7 +12,7 @@ const generateFileTree = (directory, valid, folderMode, basePrefix) =>
         .sort(sortByName)
         .filter(entry => !folderMode || entry.contents !== undefined)  // Don't show files in folder mode
         .map(entry => {
-            const {name, contents} = entry;
+            const {name, contents, relativePath} = entry;
             const isValid = valid(entry);
             const isFolder = contents !== undefined;
 
@@ -22,17 +22,18 @@ const generateFileTree = (directory, valid, folderMode, basePrefix) =>
                 renderAsLeaf = contents.findIndex(c => c.contents !== undefined) === -1;
             }
 
-            const itemSlashPath = `${basePrefix}/${name}`;
+            const k = (basePrefix ?? "") + relativePath;
+
             return (
                 <TreeSelect.TreeNode
                     title={name}
-                    key={itemSlashPath}
-                    value={itemSlashPath}
+                    key={k}
+                    value={k}
                     disabled={!isValid}
                     isLeaf={renderAsLeaf}
                     selectable={folderMode ? isFolder : !isFolder}
                 >
-                    {isFolder ? generateFileTree(contents, valid, folderMode, itemSlashPath) : null}
+                    {isFolder ? generateFileTree(contents, valid, folderMode, basePrefix) : null}
                 </TreeSelect.TreeNode>
             );
         });

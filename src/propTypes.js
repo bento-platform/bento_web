@@ -55,9 +55,11 @@ export const dropBoxTreeStateToPropsMixinPropTypes = {
     tree: PropTypes.arrayOf(PropTypes.shape({
         name: PropTypes.string.isRequired,
         filePath: PropTypes.string.isRequired,
+        relativePath: PropTypes.string.isRequired,
         uri: PropTypes.string,
         lastModified: PropTypes.number,
         lastMetadataChange: PropTypes.number,
+        contents: PropTypes.arrayOf(PropTypes.object),
     })),  // TODO: This is going to change
     treeLoading: PropTypes.bool,
 };

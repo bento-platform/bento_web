@@ -98,34 +98,33 @@ const TREE_DROP_ZONE_OVERLAY_ICON_STYLE = {fontSize: 48, color: "#1890ff"};
 
 
 const sortByName = (a, b) => a.name.localeCompare(b.name);
-const generateFileTree = (directory, basePrefix) =>
+const generateFileTree = (directory) =>
     [...directory]
         .sort(sortByName)
         .map(entry => {
-            const {name, contents} = entry;
+            const {name, contents, relativePath} = entry;
             const isFolder = contents !== undefined;
-            const itemSlashPath = `${basePrefix}/${name}`;
             return (
-                <Tree.TreeNode title={name} key={itemSlashPath} isLeaf={!isFolder}>
+                <Tree.TreeNode title={name} key={relativePath} isLeaf={!isFolder}>
                     {isFolder ? generateFileTree(contents) : null}
                 </Tree.TreeNode>
             );
         });
 
-const generateURIsByFilePath = (entry, acc) => {
+const generateURIsByRelPath = (entry, acc) => {
     if (Array.isArray(entry)) {
-        entry.forEach(e => generateURIsByFilePath(e, acc));
+        entry.forEach(e => generateURIsByRelPath(e, acc));
     } else if (entry.uri) {
-        acc[entry.filePath] = entry.uri;
+        acc[entry.relativePath] = entry.uri;
     } else if (entry.contents) {
-        entry.contents.forEach(e => generateURIsByFilePath(e, acc));
+        entry.contents.forEach(e => generateURIsByRelPath(e, acc));
     }
     return acc;
 };
 
 const recursivelyFlattenFileTree = (acc, contents) => {
     contents.forEach(c => {
-        if (c.contents) {
+        if (c.contents !== undefined) {
             recursivelyFlattenFileTree(acc, c.contents);
         } else {
             acc.push(c);
@@ -143,7 +142,7 @@ const stopEvent = event => {
 
 
 const FileDisplay = ({file, tree, treeLoading}) => {
-    const urisByFilePath = useMemo(() => generateURIsByFilePath(tree, {}), [tree]);
+    const urisByFilePath = useMemo(() => generateURIsByRelPath(tree, {}), [tree]);
 
     const accessToken = useSelector(state => state.auth.accessToken);
     const headers = useMemo(() => makeAuthorizationHeader(accessToken), [accessToken]);
@@ -416,7 +415,7 @@ const ManagerDropBoxContent = () => {
     const ingestionWorkflows = useSelector(state => workflowsStateToPropsMixin(state).workflows.ingestion);
 
     const filesByPath = useMemo(() => Object.fromEntries(
-        recursivelyFlattenFileTree([], tree).map(f => [f.filePath, f])), [tree]);
+        recursivelyFlattenFileTree([], tree).map(f => [f.relativePath, f])), [tree]);
 
     const [selectedEntries, setSelectedEntries] = useState(["/"]);
 
