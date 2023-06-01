@@ -619,13 +619,13 @@ const ManagerDropBoxContent = () => {
 
                                     if (typeof dti?.webkitGetAsEntry === "function") {
                                         if (dti?.webkitGetAsEntry().isDirectory) {
-                                            message.error("Uploading a directory is not supported!")
+                                            message.error("Uploading a directory is not supported!");
                                             return;
                                         }
                                     } else if (typeof dti?.getAsEntry === "function") {
                                         // noinspection JSUnresolvedReference
                                         if (dti?.getAsEntry().isDirectory) {
-                                            message.error("Uploading a directory is not supported!")
+                                            message.error("Uploading a directory is not supported!");
                                             return;
                                         }
                                     }
