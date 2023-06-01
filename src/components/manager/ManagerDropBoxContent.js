@@ -400,6 +400,11 @@ const FileContentsModal = ({selectedFilePath, visible, onCancel}) => {
         <FileDisplay file={selectedFilePath} tree={tree} treeLoading={treeLoading} />
     </Modal>;
 };
+FileContentsModal.propTypes = {
+    selectedFilePath: PropTypes.string,
+    visible: PropTypes.bool,
+    onCancel: PropTypes.func,
+};
 
 
 const InfoDownloadButton = ({disabled, uri}) => (
