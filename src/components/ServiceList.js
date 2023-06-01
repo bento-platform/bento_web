@@ -152,18 +152,18 @@ const ServiceRequestModal = ({service, onCancel}) => {
     }, [serviceUrl, requestPath, accessToken]);
 
     useEffect(() => {
-        if (!hasAttempted) {
-            performRequestModalGet();
-            setHasAttempted(true);
-        }
-    }, [hasAttempted, performRequestModalGet]);
-
-    useEffect(() => {
         setRequestData(null);
         setRequestIsJSON(false);
         setRequestPath("service-info");
         setHasAttempted(false);
     }, [service]);
+
+    useEffect(() => {
+        if (!hasAttempted) {
+            performRequestModalGet();
+            setHasAttempted(true);
+        }
+    }, [hasAttempted, performRequestModalGet]);
 
     return <Modal visible={service !== null}
                   title={`${service}: make a request`}
@@ -175,6 +175,7 @@ const ServiceRequestModal = ({service, onCancel}) => {
                 <Input
                     addonBefore={(serviceUrl ?? "ERROR") + "/"}
                     value={requestPath}
+                    disabled={!hasAttempted || requestLoading}
                     onChange={e => setRequestPath(e.target.value)}
                 />
             </Form.Item>
@@ -191,11 +192,11 @@ const ServiceRequestModal = ({service, onCancel}) => {
                 ? <JsonDisplay jsonSrc={requestData} />
                 : (
                     <div style={{maxWidth: "100%", overflowX: "auto"}}>
-                    <pre>
-                        {((typeof requestData) === "string" || requestData === null)
-                            ? requestData
-                            : JSON.stringify(requestData)}
-                    </pre>
+                        <pre>
+                            {((typeof requestData) === "string" || requestData === null)
+                                ? requestData
+                                : JSON.stringify(requestData)}
+                        </pre>
                     </div>
                 )
         )}
