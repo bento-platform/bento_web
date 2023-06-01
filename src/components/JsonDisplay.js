@@ -93,7 +93,7 @@ const JsonObjectDisplay = ({ doc }) => {
             <Collapse accordion>
                 {entries.map(([key, value]) =>
                     <Panel header={<span style={{fontFamily: "monospace"}}>{key}</span>} key={key}>
-                        <JsonDisplay jsonSrc={value} />
+                        <JsonDisplay jsonSrc={value} showObjectWithReactJson={true} />
                     </Panel>,
                 )}
             </Collapse>
