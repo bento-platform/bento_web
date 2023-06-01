@@ -568,7 +568,7 @@ const ManagerDropBoxContent = () => {
         setInitialUploadFolder("/");  // Root by default
         setInitialUploadFiles(Array.from(event.dataTransfer.files));
         showUploadModal();
-    }, [showUploadModal])
+    }, [showUploadModal]);
 
     const selectedFolder = selectedEntries.length === 1 && filesByPath[selectedEntries[0]] === undefined;
 
