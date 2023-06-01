@@ -586,13 +586,16 @@ const ManagerDropBoxContent = () => {
                     >
                         <Icon type="import" /> Ingest
                     </Dropdown.Button>
-                    <Button icon="info-circle" onClick={showFileInfoModal} disabled={!selectedFileInfoAvailable}>
-                        File Info
-                    </Button>
-                    <Button icon="file-text" onClick={handleViewFile} disabled={!selectedFileViewable}>
-                        View
-                    </Button>
-                    <InfoDownloadButton disabled={!selectedFileInfoAvailable} uri={filesByPath[fileForInfo]?.uri} />
+
+                    <Button.Group>
+                        <Button icon="info-circle" onClick={showFileInfoModal} disabled={!selectedFileInfoAvailable}>
+                            File Info
+                        </Button>
+                        <Button icon="file-text" onClick={handleViewFile} disabled={!selectedFileViewable}>
+                            View
+                        </Button>
+                        <InfoDownloadButton disabled={!selectedFileInfoAvailable} uri={filesByPath[fileForInfo]?.uri} />
+                    </Button.Group>
                     {/* TODO: Implement v0.2 */}
                     {/*<Button type="danger" icon="delete" disabled={this.state.selectedFiles.length === 0}>*/}
                     {/*    Delete*/}
