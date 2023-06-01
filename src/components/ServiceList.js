@@ -135,6 +135,7 @@ const ServiceRequestModal = ({service, onCancel}) => {
             try {
                 const res = await fetch(`${serviceUrl}/${requestPath}`, {
                     headers: makeAuthorizationHeader(accessToken),
+                    credentials: "include",
                 });
 
                 if ((res.headers.get("content-type") ?? "").includes("application/json")) {
