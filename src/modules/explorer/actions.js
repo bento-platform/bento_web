@@ -187,7 +187,7 @@ export const setIgvPosition = (igvPosition) => ({
 });
 
 export const performGetGohanVariantsOverviewIfPossible = () => (dispatch, getState) => {
-    const gohanUrl = getState()?.services?.gohan?.url;
+    const gohanUrl = getState()?.services?.itemsByKind?.gohan?.url;
     if (!gohanUrl) return;
     const overviewPath = "/variants/overview";
     const getUrl = `${gohanUrl}${overviewPath}`;
