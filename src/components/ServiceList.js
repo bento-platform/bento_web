@@ -166,42 +166,46 @@ const ServiceRequestModal = ({service, onCancel}) => {
         }
     }, [hasAttempted, performRequestModalGet]);
 
-    return <Modal visible={service !== null}
-                  title={`${service}: make a request`}
-                  footer={null}
-                  width={960}
-                  onCancel={onCancel}>
-        <Form layout="inline" style={{display: "flex"}}>
-            <Form.Item style={{flex: 1}} wrapperCol={{span: 24}}>
-                <Input
-                    addonBefore={(serviceUrl ?? "ERROR") + "/"}
-                    value={requestPath}
-                    disabled={!hasAttempted || requestLoading}
-                    onChange={e => setRequestPath(e.target.value)}
-                />
-            </Form.Item>
-            <Form.Item>
-                <Button type="primary" htmlFor="submit" onClick={e => {
-                    performRequestModalGet();
-                    e.preventDefault();
-                }}>GET</Button>
-            </Form.Item>
-        </Form>
-        <Divider />
-        {requestLoading ? <Skeleton loading={true} /> : (
-            requestIsJSON
-                ? <JsonDisplay jsonSrc={requestData} />
-                : (
-                    <div style={{maxWidth: "100%", overflowX: "auto"}}>
-                        <pre>
-                            {((typeof requestData) === "string" || requestData === null)
-                                ? requestData
-                                : JSON.stringify(requestData)}
-                        </pre>
-                    </div>
-                )
-        )}
-    </Modal>;
+    return (
+        <Modal
+            visible={service !== null}
+            title={`${service}: make a request`}
+            footer={null}
+            width={960}
+            onCancel={onCancel}
+        >
+            <Form layout="inline" style={{display: "flex"}}>
+                <Form.Item style={{flex: 1}} wrapperCol={{span: 24}}>
+                    <Input
+                        addonBefore={(serviceUrl ?? "ERROR") + "/"}
+                        value={requestPath}
+                        disabled={!hasAttempted || requestLoading}
+                        onChange={e => setRequestPath(e.target.value)}
+                    />
+                </Form.Item>
+                <Form.Item>
+                    <Button type="primary" htmlFor="submit" onClick={e => {
+                        performRequestModalGet();
+                        e.preventDefault();
+                    }}>GET</Button>
+                </Form.Item>
+            </Form>
+            <Divider />
+            {requestLoading ? <Skeleton loading={true} /> : (
+                requestIsJSON
+                    ? <JsonDisplay jsonSrc={requestData} />
+                    : (
+                        <div style={{maxWidth: "100%", overflowX: "auto"}}>
+                            <pre>
+                                {((typeof requestData) === "string" || requestData === null)
+                                    ? requestData
+                                    : JSON.stringify(requestData)}
+                            </pre>
+                        </div>
+                    )
+            )}
+        </Modal>
+    );
 };
 ServiceRequestModal.propTypes = {
     service: PropTypes.string,
