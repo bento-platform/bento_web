@@ -610,6 +610,27 @@ const ManagerDropBoxContent = () => {
                             onDrop={event => {
                                 stopEvent(event);
                                 setDraggingOver(false);
+
+                                const items = event.dataTransfer?.items ?? [];
+
+                                for (const dti of items) {
+                                    // If we have the webkitGetAsEntry() or getAsEntry() function, we can validate
+                                    // if the dropped item is a folder and show a nice error.
+
+                                    if (typeof dti?.webkitGetAsEntry === "function") {
+                                        if (dti?.webkitGetAsEntry().isDirectory) {
+                                            message.error("Uploading a directory is not supported!")
+                                            return;
+                                        }
+                                    } else if (typeof dti?.getAsEntry === "function") {
+                                        // noinspection JSUnresolvedReference
+                                        if (dti?.getAsEntry().isDirectory) {
+                                            message.error("Uploading a directory is not supported!")
+                                            return;
+                                        }
+                                    }
+                                }
+
                                 setInitialUploadFolder("/");  // Root by default
                                 setInitialUploadFiles(Array.from(event.dataTransfer.files));
                                 showUploadModal();
