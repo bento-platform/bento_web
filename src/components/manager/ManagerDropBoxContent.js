@@ -387,6 +387,21 @@ FileUploadModal.propTypes = {
 };
 
 
+const FileContentsModal = ({selectedFilePath, visible, onCancel}) => {
+    const {tree, isFetching: treeLoading} = useSelector(state => state.dropBox);
+
+    return <Modal
+        visible={visible}
+        title={selectedFilePath ? `${selectedFilePath.split("/").at(-1)} - contents` : ""}
+        width={960}
+        footer={null}
+        onCancel={onCancel}
+    >
+        <FileDisplay file={selectedFilePath} tree={tree} treeLoading={treeLoading} />
+    </Modal>;
+};
+
+
 const InfoDownloadButton = ({disabled, uri}) => (
     <Button key="download" icon="download" disabled={disabled} onClick={() => {
         if (uri) {
@@ -416,8 +431,7 @@ const ManagerDropBoxContent = () => {
     const history = useHistory();
 
     const dropBoxService = useSelector(state => state.services.dropBoxService);
-    const tree = useSelector(state => state.dropBox.tree);
-    const treeLoading = useSelector(state => state.dropBox.isFetching);
+    const {tree, isFetching: treeLoading} = useSelector(state => state.dropBox);
     const ingestionWorkflows = useSelector(state => workflowsStateToPropsMixin(state).workflows.ingestion);
 
     const filesByPath = useMemo(() => Object.fromEntries(
@@ -519,17 +533,50 @@ const ManagerDropBoxContent = () => {
         showTableSelectionModal(workflowsSupported[0]);
     }, [workflowsSupported]);
 
+    const handleDragStart = useCallback(() => setDraggingOver(true), []);
+    const handleDragEnd = useCallback(() => setDraggingOver(false), []);
+
+    const handleDrop = useCallback(event => {
+        stopEvent(event);
+        setDraggingOver(false);
+
+        const items = event.dataTransfer?.items ?? [];
+
+        for (const dti of items) {
+            // If we have the webkitGetAsEntry() or getAsEntry() function, we can validate
+            // if the dropped item is a folder and show a nice error.
+
+            if (typeof dti?.webkitGetAsEntry === "function") {
+                if (dti?.webkitGetAsEntry().isDirectory) {
+                    message.error("Uploading a directory is not supported!");
+                    return;
+                }
+            } else if (typeof dti?.getAsEntry === "function") {
+                // noinspection JSUnresolvedReference
+                if (dti?.getAsEntry().isDirectory) {
+                    message.error("Uploading a directory is not supported!");
+                    return;
+                }
+            }
+        }
+
+        setInitialUploadFolder("/");  // Root by default
+        setInitialUploadFiles(Array.from(event.dataTransfer.files));
+        showUploadModal();
+    }, [showUploadModal])
+
     const selectedFolder = selectedEntries.length === 1 && filesByPath[selectedEntries[0]] === undefined;
 
     const selectedFileViewable = selectedEntries.length === 1 && !selectedFolder &&
         VIEWABLE_FILE_EXTENSIONS.filter(e => selectedEntries[0].endsWith(e)).length > 0;
-    const viewableFile = selectedFileViewable ? selectedEntries[0] : "";
 
     const selectedFileInfoAvailable = selectedEntries.length === 1 && selectedEntries[0] in filesByPath;
     const fileForInfo = selectedFileInfoAvailable ? selectedEntries[0] : "";
 
     return <Layout>
         <Layout.Content style={LAYOUT_CONTENT_STYLE}>
+            {/* ----------------------------- Start of modals section ----------------------------- */}
+
             <FileUploadModal
                 initialUploadFolder={initialUploadFolder}
                 initialUploadFiles={initialUploadFiles}
@@ -545,17 +592,11 @@ const ManagerDropBoxContent = () => {
                 onOk={tableKey => ingestIntoTable(tableKey)}
             />
 
-            <Modal visible={fileContentsModal}
-                   title={`${viewableFile.split("/").at(-1)} - contents`}
-                   width={960}
-                   footer={null}
-                   onCancel={hideFileContentsModal}>
-                <FileDisplay
-                    file={selectedEntries.length === 1 ? selectedEntries[0] : null}
-                    tree={tree}
-                    treeLoading={treeLoading}
-                />
-            </Modal>
+            <FileContentsModal
+                selectedFilePath={selectedEntries.length === 1 ? selectedEntries[0] : null}
+                visible={fileContentsModal}
+                onCancel={hideFileContentsModal}
+            />
 
             <Modal visible={fileInfoModal}
                    title={`${fileForInfo.split("/").at(-1)} - information`}
@@ -610,37 +651,10 @@ const ManagerDropBoxContent = () => {
                 <Spin spinning={treeLoading}>
                     {(treeLoading || dropBoxService) ? (
                         <div
-                            onDragEnter={() => setDraggingOver(true)}
-                            onDragEnd={() => setDraggingOver(false)}
+                            onDragEnter={handleDragStart}
+                            onDragEnd={handleDragEnd}
                             onDragOver={stopEvent}
-                            onDrop={event => {
-                                stopEvent(event);
-                                setDraggingOver(false);
-
-                                const items = event.dataTransfer?.items ?? [];
-
-                                for (const dti of items) {
-                                    // If we have the webkitGetAsEntry() or getAsEntry() function, we can validate
-                                    // if the dropped item is a folder and show a nice error.
-
-                                    if (typeof dti?.webkitGetAsEntry === "function") {
-                                        if (dti?.webkitGetAsEntry().isDirectory) {
-                                            message.error("Uploading a directory is not supported!");
-                                            return;
-                                        }
-                                    } else if (typeof dti?.getAsEntry === "function") {
-                                        // noinspection JSUnresolvedReference
-                                        if (dti?.getAsEntry().isDirectory) {
-                                            message.error("Uploading a directory is not supported!");
-                                            return;
-                                        }
-                                    }
-                                }
-
-                                setInitialUploadFolder("/");  // Root by default
-                                setInitialUploadFiles(Array.from(event.dataTransfer.files));
-                                showUploadModal();
-                            }}
+                            onDrop={handleDrop}
                             style={TREE_CONTAINER_STYLE}
                         >
                             {draggingOver && <div style={TREE_DROP_ZONE_OVERLAY_STYLE}>
