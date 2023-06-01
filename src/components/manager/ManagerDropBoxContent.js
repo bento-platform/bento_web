@@ -65,11 +65,17 @@ const BASE_PDF_OPTIONS = {
 
 
 const LANGUAGE_HIGHLIGHTERS = {
+    ".bash": "bash",
     ".json": "json",
     ".md": "markdown",
     ".txt": "plaintext",
+    ".py": "python",
+    ".R": "r",
+    ".sh": "shell",
+    ".xml": "xml",
 
     // Special files
+    "Dockerfile": "dockerfile",
     "README": "plaintext",
     "CHANGELOG": "plaintext",
 };
