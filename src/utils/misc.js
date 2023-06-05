@@ -2,6 +2,9 @@
 export const id = x => x;  // id is a function that returns its first passed parameter
 export const nop = () => {};
 export const constFn = x => () => x;  // constFn(null) creates a function that always returns null
+export const countNonNullElements = (arr) => {
+    return arr.filter((item) => item !== null).length;
+}; // counts the non-null elements in any array
 
 // Object utilities
 export const simpleDeepCopy = o => JSON.parse(JSON.stringify(o));

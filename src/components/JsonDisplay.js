@@ -85,27 +85,6 @@ JsonArrayDisplay.defaultProps = {
     standalone: false,
 };
 
-const JsonPropertyDisplay = ({ value }) => {
-    console.debug("JsonPropertyDisplay", value);
-
-    if (Array.isArray(value) && value.length > 100) {
-        // Display property as an array with custom nav
-        return <JsonArrayDisplay doc={value} />;
-    }
-
-    if (typeof value === "object") {
-        // Display property as an object
-        return <ReactJson src={value} collapsed={true} {...DEFAULT_REACT_JSON_OPTIONS} />;
-    }
-
-    // Display primitive
-    return <span style={{fontFamily: "monospace"}}>{JSON.stringify(value)}</span>;
-};
-
-JsonPropertyDisplay.propTypes = {
-    value: PropTypes.any,
-};
-
 const JsonObjectDisplay = ({ doc }) => {
     const entries = Object.entries(doc);
     return (
@@ -114,7 +93,7 @@ const JsonObjectDisplay = ({ doc }) => {
             <Collapse accordion>
                 {entries.map(([key, value]) =>
                     <Panel header={<span style={{fontFamily: "monospace"}}>{key}</span>} key={key}>
-                        <JsonPropertyDisplay value={value} />
+                        <JsonDisplay jsonSrc={value} showObjectWithReactJson={true} />
                     </Panel>,
                 )}
             </Collapse>
@@ -126,21 +105,32 @@ JsonObjectDisplay.propTypes = {
     doc: PropTypes.object,
 };
 
-const JsonDisplay = ({ jsonSrc }) => {
+const JsonDisplay = ({ jsonSrc, showObjectWithReactJson }) => {
     if (Array.isArray(jsonSrc)) {
         // Special display for array nav
         return <JsonArrayDisplay doc={jsonSrc || []} standalone />;
     }
 
-    // Display for objects and primitives
-    return <JsonObjectDisplay doc={jsonSrc || {}} />;
+    if (typeof jsonSrc === "object") {
+        // Display for objects
+        return showObjectWithReactJson
+            ? <ReactJson src={jsonSrc || {}} collapsed={true} {...DEFAULT_REACT_JSON_OPTIONS} />
+            : <JsonObjectDisplay doc={jsonSrc || {}} />;
+    }
+
+    // Display primitive
+    return <span style={{fontFamily: "monospace"}}>{JSON.stringify(jsonSrc)}</span>;
 };
 
 JsonDisplay.propTypes = {
     jsonSrc: PropTypes.oneOfType([
         PropTypes.object,
         PropTypes.array,
+        PropTypes.string,
+        PropTypes.bool,
+        PropTypes.number,
     ]),
+    showObjectWithReactJson: PropTypes.bool,
 };
 
 export default JsonDisplay;
