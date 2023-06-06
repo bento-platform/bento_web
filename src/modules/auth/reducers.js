@@ -7,7 +7,9 @@ import {
     FETCHING_USER_DEPENDENT_DATA,
     REFRESH_TOKENS,
     SIGN_OUT,
+    FETCH_RESOURCE_PERMISSIONS,
 } from "./actions";
+import {recursiveOrderedObject} from "../../utils/misc";
 
 const nullSession = {
     sessionExpiry: null,
@@ -35,6 +37,10 @@ export const auth = (
         //  - NEVER dehydrate the below items to localStorage; it is a security risk!
         accessToken: null,
         refreshToken: null,
+
+        // Below is permissions caching for controlling how the UI appears for different resources
+        //  - It's in this reducer since signing out / losing a token will clear permissions caches.
+        resourcePermissions: {},
     },
     action,
 ) => {
@@ -84,6 +90,7 @@ export const auth = (
                 ...state,
                 ...nullSession,
                 handoffError,
+                resourcePermissions: {},
             };
         }
         case TOKEN_HANDOFF.FINISH:
@@ -102,6 +109,7 @@ export const auth = (
                 ...state,
                 ...nullSession,
                 tokensRefreshError,
+                resourcePermissions: {},
             };
         }
         case REFRESH_TOKENS.FINISH: {
@@ -115,7 +123,66 @@ export const auth = (
                 ...state,
                 ...nullSession,
                 tokensRefreshError: "",
+                resourcePermissions: {},
             };
+
+        // FETCH_RESOURCE_PERMISSIONS
+        case FETCH_RESOURCE_PERMISSIONS.REQUEST: {
+            const resourceKey = JSON.stringify(recursiveOrderedObject(action.resource));
+            return {
+                ...state,
+                resourcePermissions: {
+                    ...state.resourcePermissions,
+                    [resourceKey]: {
+                        ...(state.resourcePermissions[resourceKey] ?? {}),
+                        isFetching: true,
+                        hasAttempted: false,
+                        permissions: [],
+                        error: "",
+                    },
+                },
+            };
+        }
+        case FETCH_RESOURCE_PERMISSIONS.RECEIVE: {
+            const resourceKey = JSON.stringify(recursiveOrderedObject(action.resource));
+            return {
+                ...state,
+                resourcePermissions: {
+                    ...state.resourcePermissions,
+                    [resourceKey]: {
+                        ...(state.resourcePermissions[resourceKey] ?? {}),
+                        permissions: action.data?.result ?? [],
+                    },
+                },
+            };
+        }
+        case FETCH_RESOURCE_PERMISSIONS.ERROR: {
+            const resourceKey = JSON.stringify(recursiveOrderedObject(action.resource));
+            return {
+                ...state,
+                resourcePermissions: {
+                    ...state.resourcePermissions,
+                    [resourceKey]: {
+                        ...(state.resourcePermissions[resourceKey] ?? {}),
+                        error: action.caughtError ?? "An error occurred while fetching permissions for a resource",
+                    },
+                },
+            };
+        }
+        case FETCH_RESOURCE_PERMISSIONS.FINISH: {
+            const resourceKey = JSON.stringify(recursiveOrderedObject(action.resource));
+            return {
+                ...state,
+                resourcePermissions: {
+                    ...state.resourcePermissions,
+                    [resourceKey]: {
+                        ...(state.resourcePermissions[resourceKey] ?? {}),
+                        isFetching: false,
+                        hasAttempted: true,
+                    },
+                },
+            };
+        }
 
         default:
             return state;

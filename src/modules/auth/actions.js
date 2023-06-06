@@ -22,7 +22,7 @@ import { performGetGohanVariantsOverviewIfPossible } from "../explorer/actions";
 
 import { LS_BENTO_WAS_SIGNED_IN, setLSNotSignedIn } from "../../lib/auth/performAuth";
 import { buildUrlEncodedData } from "../../lib/auth/utils";
-import { nop } from "../../utils/misc";
+import { nop, recursiveOrderedObject } from "../../utils/misc";
 
 
 export const FETCHING_USER_DEPENDENT_DATA = createFlowActionTypes("FETCHING_USER_DEPENDENT_DATA");
@@ -153,3 +153,28 @@ export const signOut = () => {
     setLSNotSignedIn();
     return {type: SIGN_OUT};
 };
+
+export const FETCH_RESOURCE_PERMISSIONS = createNetworkActionTypes("FETCH_RESOURCE_PERMISSIONS");
+const fetchResourcePermissions = networkAction((resource) => (_dispatch, getState) => ({
+    types: FETCH_RESOURCE_PERMISSIONS,
+    url: `${getState().itemsByKind.authorization.url}/policy/permissions`,
+    req: {
+        method: "POST",
+        body: JSON.stringify({requested_resource: resource}),
+    },
+    params: {resource},
+}));
+export const fetchResourcePermissionsIfPossibleAndNeeded = (resource) => (dispatch, getState) => {
+    if (getState().itemsByKind.authorization?.url) {
+        console.error("Missing authorization service");
+        return;
+    }
+    // TODO: use records instead of JSON string (when formalized)
+    const key = JSON.stringify(recursiveOrderedObject(resource));
+    if (getState().auth.resourcePermissions[key]?.permissions) {
+        return;
+    }
+    return dispatch(fetchResourcePermissions(resource));
+};
+
+// TODO: invalidation action for specific resource permissions
