@@ -10,7 +10,6 @@ import ProjectSkeleton from "./ProjectSkeleton";
 
 import {deleteProjectIfPossible, saveProjectIfPossible} from "../../../modules/metadata/actions";
 import {beginProjectEditing, endProjectEditing} from "../../../modules/manager/actions";
-import {withBasePath} from "../../../utils/url";
 import {FORM_MODE_ADD, FORM_MODE_EDIT} from "../../../constants";
 import {chordServicePropTypesMixin, projectPropTypesShape, serviceInfoPropTypesShape} from "../../../propTypes";
 import ProjectJsonSchemaModal from "./ProjectJsonSchemaModal";
@@ -37,12 +36,12 @@ class RoutedProject extends Component {
     // noinspection JSCheckFunctionSignatures
     componentDidUpdate() {
         if (!this.props.projectsByID[this.props.match.params.project] && !this.props.loadingProjects) {
-            this.props.history.push(withBasePath("admin/data/manager/projects/"));
+            this.props.history.push("/admin/data/manager/projects/");
         }
     }
 
     ingestIntoTable(p, t) {
-        this.props.history.push(withBasePath("admin/data/manager/ingestion"),
+        this.props.history.push("/admin/data/manager/ingestion",
             {workflowSelectionValues: {selectedTable: `${p.identifier}:${t.data_type}:${t.id}`}});
     }
 

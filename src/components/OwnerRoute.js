@@ -6,7 +6,6 @@ import PropTypes from "prop-types";
 import {Button, Empty, Icon, Layout} from "antd";
 
 import {LS_BENTO_WAS_SIGNED_IN, performAuth, setLSNotSignedIn} from "../lib/auth/performAuth";
-import {withBasePath} from "../utils/url";
 
 import SitePageLoading from "./SitePageLoading";
 import {getIsAuthenticated} from "../lib/auth/utils";
@@ -51,8 +50,7 @@ const OwnerRoute = ({component: Component, path, ...rest}) => {
         return <SitePageLoading />;
     }
 
-    const cleanedPath = path.length > 0 ? path.replace(/^\//, "") : path;
-    return <Route {...rest} path={withBasePath(cleanedPath)} render={props => !isAuthenticated
+    return <Route {...rest} path={path} render={props => !isAuthenticated
         ? (
             <Layout.Content style={{background: "white", padding: "48px 24px"}}>
                 <Empty image={signInIcon}

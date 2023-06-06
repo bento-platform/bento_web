@@ -5,7 +5,6 @@ import PropTypes from "prop-types";
 import {Skeleton} from "antd";
 
 import Run from "./Run";
-import {withBasePath} from "../../../utils/url";
 import {runPropTypesShape} from "../../../propTypes";
 
 class RunDetailContent extends Component {
@@ -18,8 +17,8 @@ class RunDetailContent extends Component {
             : <Run run={run}
                    tab={this.props.match.params.tab}
                    onChangeTab={key =>
-                       this.props.history.push(withBasePath(`admin/data/manager/runs/${run.run_id}/${key}`))}
-                   onBack={() => this.props.history.push(withBasePath("admin/data/manager/runs"))} />;
+                       this.props.history.push(`/admin/data/manager/runs/${run.run_id}/${key}`)}
+                   onBack={() => this.props.history.push("/admin/data/manager/runs")} />;
     }
 }
 

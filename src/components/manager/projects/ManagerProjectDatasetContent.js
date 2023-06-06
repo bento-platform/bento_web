@@ -15,14 +15,13 @@ import {toggleProjectCreationModal} from "../../../modules/manager/actions";
 
 import {LAYOUT_CONTENT_STYLE} from "../../../styles/layoutContent";
 import {matchingMenuKeys, renderMenuItem} from "../../../utils/menu";
-import {withBasePath} from "../../../utils/url";
 import {projectPropTypesShape} from "../../../propTypes";
 
 
 class ManagerProjectDatasetContent extends Component {
     render() {
         const projectMenuItems = this.props.projects.map(project => ({
-            url: withBasePath(`admin/data/manager/projects/${project.identifier}`),
+            url: `/admin/data/manager/projects/${project.identifier}`,
             text: project.title,
         }));
 
@@ -70,11 +69,10 @@ class ManagerProjectDatasetContent extends Component {
                         {/* TODO: Fix project datasets */}
                         {projectMenuItems.length > 0 ? (
                             <Switch>
-                                <Route path={withBasePath("admin/data/manager/projects/:project")}
+                                <Route path="/admin/data/manager/projects/:project"
                                        component={RoutedProject} />
-                                <Redirect from={withBasePath("admin/data/manager/projects")}
-                                          to={withBasePath(`admin/data/manager/projects/${
-                                              this.props.projects[0].identifier}`)} />
+                                <Redirect from="admin/data/manager/projects"
+                                          to={`/admin/data/manager/projects/${this.props.projects[0].identifier}`} />
                             </Switch>
                         ) : (
                             this.props.loadingAuthDependentData ? (

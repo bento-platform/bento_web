@@ -9,17 +9,16 @@ import SitePageHeader from "../SitePageHeader";
 import {LAYOUT_CONTENT_STYLE} from "../../styles/layoutContent";
 import ExplorerDatasetSearch from "./ExplorerDatasetSearch";
 import {matchingMenuKeys, renderMenuItem} from "../../utils/menu";
-import {withBasePath} from "../../utils/url";
 import {projectPropTypesShape} from "../../propTypes";
 
 class ExplorerSearchContent extends Component {
     render() {
         const menuItems = this.props.projects.map(project => ({
-            // url: withBasePath(`data/explorer/projects/${project.identifier}`),
+            // url: `/data/explorer/projects/${project.identifier}`,
             key: project.identifier,
             text: project.title,
             children: project.datasets.map(dataset => ({
-                url: withBasePath(`data/explorer/search/${dataset.identifier}`),
+                url: `/data/explorer/search/${dataset.identifier}`,
                 text: dataset.title,
             })),
         }));
@@ -42,10 +41,10 @@ class ExplorerSearchContent extends Component {
                 <Layout.Content style={LAYOUT_CONTENT_STYLE}>
                     {datasets.length > 0 ? (
                         <Switch>
-                            <Route path={withBasePath("data/explorer/search/:dataset")}
-                                   component={ExplorerDatasetSearch} />
-                            <Redirect from={withBasePath("data/explorer/search")}
-                                      to={withBasePath(`data/explorer/search/${datasets[0].identifier}`)} />
+                            <Route path="/data/explorer/search/:dataset" component={ExplorerDatasetSearch} />
+                            <Redirect
+                                from="/data/explorer/search"
+                                to={`/data/explorer/search/${datasets[0].identifier}`} />
                         </Switch>
                     ) : (this.props.isFetchingDependentData ? <Skeleton /> : "No datasets available")}
                 </Layout.Content>
