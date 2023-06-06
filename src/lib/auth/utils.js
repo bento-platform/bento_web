@@ -1,5 +1,7 @@
-import {useMemo} from "react";
-import {useSelector} from "react-redux";
+import {useEffect, useMemo} from "react";
+import {useDispatch, useSelector} from "react-redux";
+import {fetchResourcePermissionsIfPossibleAndNeeded} from "../../modules/auth/actions";
+import {makeResourceKey} from "./resources";
 
 export const buildUrlEncodedData = obj =>
     Object.entries(obj).reduce((params, [k, v]) => {
@@ -13,9 +15,26 @@ export const getIsAuthenticated = idTokenContents =>
 
 export const makeAuthorizationHeader = token => token ? {"Authorization": `Bearer ${token}`} : {};
 
+// TODO: move hooks to own file
+
 export const useAuthorizationHeader = () => {
     const {accessToken} = useSelector(state => state.auth);
     return useMemo(
         () => accessToken => accessToken ? {"Authorization": `Bearer ${accessToken}`} : {},
         [accessToken]);
+};
+
+export const useResourcePermissions = (resource) => {
+    const dispatch = useDispatch();
+
+    const haveAuthorizationService = !!useSelector(state => state.services.itemsByKind.authorization);
+
+    useEffect(() => {
+        if (!haveAuthorizationService) return;
+        dispatch(fetchResourcePermissionsIfPossibleAndNeeded(resource));
+    }, [haveAuthorizationService, resource]);
+
+    const key = useMemo(() => makeResourceKey(resource), [resource]);
+
+    return useSelector(state => state.auth.resourcePermissions[key]);
 };

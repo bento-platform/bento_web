@@ -1,5 +1,4 @@
 import React, {Suspense, lazy, useEffect, useMemo} from "react";
-import {useDispatch, useSelector} from "react-redux";
 import {Redirect, Route, Switch} from "react-router-dom";
 
 import {Menu, Skeleton} from "antd";
@@ -8,10 +7,11 @@ import {SITE_NAME} from "../constants";
 import {matchingMenuKeys, renderMenuItem} from "../utils/menu";
 
 import SitePageHeader from "./SitePageHeader";
+import {viewDropBox} from "../lib/auth/permissions";
 import {RESOURCE_EVERYTHING} from "../lib/auth/resources";
 import ManagerDRSContent from "./manager/drs/ManagerDRSContent";
 import ManagerAnalysisContent from "./manager/ManagerAnalysisContent";
-import {fetchResourcePermissionsIfPossibleAndNeeded} from "../modules/auth/actions";
+import {useResourcePermissions} from "../lib/auth/utils";
 
 const ManagerProjectDatasetContent = lazy(() => import("./manager/projects/ManagerProjectDatasetContent"));
 const ManagerAccessContent = lazy(() => import("./manager/ManagerAccessContent"));
@@ -30,31 +30,29 @@ const styles = {
 };
 
 const DataManagerContent = () => {
-    const dispatch = useDispatch();
-
     useEffect(() => {
         document.title = `${SITE_NAME}: Admin / Data Manager`;
     }, []);
 
-    const haveAuthorizationService = !!useSelector(state => state.services.itemsByKind.authorization);
-
-    useEffect(() => {
-        if (!haveAuthorizationService) return;
-        dispatch(fetchResourcePermissionsIfPossibleAndNeeded(RESOURCE_EVERYTHING));
-    }, [haveAuthorizationService])
+    const everythingPermissions = useResourcePermissions(RESOURCE_EVERYTHING);
 
     const menuItems = useMemo(() => [
         {url: "/admin/data/manager/projects", style: {marginLeft: "4px"}, text: "Projects and Datasets"},
         // {url: "/data/manager/access", text: "Access Management"},  // TODO: Re-enable for v0.2
-        {url: "/admin/data/manager/files", text: "Drop Box"},
+        {
+            url: "/admin/data/manager/files",
+            text: "Drop Box",
+            disabled: everythingPermissions?.isFetching ||
+                !(everythingPermissions?.permissions ?? []).includes(viewDropBox),
+        },
         {url: "/admin/data/manager/ingestion", text: "Ingestion"},
         {url: "/admin/data/manager/analysis", text: "Analysis"},
         {url: "/admin/data/manager/workflows", text: "Workflows"},
         {url: "/admin/data/manager/runs", text: "Workflow Runs"},
         {url: "/admin/data/manager/drs", text: "DRS Objects"},
-    ], []);
+    ], [everythingPermissions]);
 
-    const selectedKeys = useMemo(() => matchingMenuKeys(menuItems), [menuItems]);
+    const selectedKeys = useMemo(() => matchingMenuKeys(menuItems), [menuItems, window.location.pathname]);
 
     return <>
         <SitePageHeader
