@@ -27,6 +27,7 @@ import {
     Layout,
     Menu,
     Modal,
+    Result,
     Spin,
     Statistic,
     Tree,
@@ -596,6 +597,14 @@ const ManagerDropBoxContent = () => {
         if (selectedFolder) setInitialUploadFolder(selectedEntries[0]);
         showUploadModal();
     }, [selectedFolder, selectedEntries]);
+
+    if (everythingPermissions?.hasAttempted && !hasUploadPermission) {
+        return <Layout>
+            <Layout.Content style={LAYOUT_CONTENT_STYLE}>
+                <Result status="error" title="Forbidden" subTitle="You do not have permission to view the drop box." />
+            </Layout.Content>
+        </Layout>;
+    }
 
     return <Layout>
         <Layout.Content style={LAYOUT_CONTENT_STYLE}>
