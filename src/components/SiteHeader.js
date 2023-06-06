@@ -110,6 +110,12 @@ const SiteHeader = () => {
                     text: idTokenContents?.preferred_username,
                     children: [
                         {
+                            key: "user-profile",
+                            url: "/profile",
+                            icon: <Icon type="user" />,
+                            text: "Profile",
+                        },
+                        {
                             key: "sign-out-link",
                             onClick: () => dispatch(signOut()),
                             icon: <Icon type="logout" />,
