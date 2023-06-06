@@ -11,7 +11,6 @@ import Sector from "recharts/es6/shape/Sector";
 import { polarToCartesian } from "recharts/es6/util/PolarUtils";
 import { Empty } from "antd";
 import COLORS from "../../utils/colors";
-import { withBasePath } from "../../utils/url";
 
 const MAX_LABEL_CHARS = 16;
 const RADIAN = Math.PI / 180;
@@ -70,7 +69,7 @@ class CustomPieChart extends React.Component {
         setAutoQueryPageTransition(window.location.href, autoQueryDataType, this.props.fieldLabel, data.name);
 
         // Navigate to Explorer
-        history.push(withBasePath("/data/explorer/search"));
+        history.push("/data/explorer/search");
     };
 
     /*

@@ -40,7 +40,6 @@ import TableSelectionModal from "./TableSelectionModal";
 import JsonDisplay from "../JsonDisplay";
 
 import {DROP_BOX_BASE_FS_PATH, STEP_INPUT} from "./workflowCommon";
-import {withBasePath} from "../../utils/url";
 import {dropBoxTreeStateToPropsMixinPropTypes, workflowsStateToPropsMixin} from "../../propTypes";
 import {makeAuthorizationHeader} from "../../lib/auth/utils";
 import {getFalse} from "../../utils/misc";
@@ -505,7 +504,7 @@ const ManagerDropBoxContent = () => {
     }, [selectedEntries]);
 
     const ingestIntoTable = useCallback(tableKey => {
-        history.push(withBasePath("admin/data/manager/ingestion"), {
+        history.push("/admin/data/manager/ingestion", {
             step: STEP_INPUT,
             workflowSelectionValues: {selectedTable: tableKey},
             selectedWorkflow,

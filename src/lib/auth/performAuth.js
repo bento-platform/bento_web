@@ -8,7 +8,6 @@ import {useDispatch, useSelector} from "react-redux";
 import {useHistory, useLocation} from "react-router-dom";
 
 import {fetchUserDependentData, tokenHandoff} from "../../modules/auth/actions";
-import {withBasePath} from "../../utils/url";
 import {nop} from "../../utils/misc";
 import {buildUrlEncodedData, getIsAuthenticated} from "./utils";
 import {popLocalStorageItem} from "../../utils/localStorageUtils";
@@ -36,7 +35,7 @@ export const createAuthURL = async (authorizationEndpoint, scope = "openid email
     }).toString();
 };
 
-const DEFAULT_REDIRECT = withBasePath("/overview");
+const DEFAULT_REDIRECT = "/overview";
 
 export const performAuth = async (authorizationEndpoint, scope = "openid email") => {
     window.location = await createAuthURL(authorizationEndpoint, scope);

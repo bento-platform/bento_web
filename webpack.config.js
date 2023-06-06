@@ -3,9 +3,6 @@ const path = require("node:path");
 const CopyPlugin = require("copy-webpack-plugin");
 const HtmlWebpackPlugin = require("html-webpack-plugin");
 
-const BENTO_URL = process.env.BENTO_URL || process.env.CHORD_URL || null;
-const BASE_PATH = BENTO_URL ? (new URL(BENTO_URL)).pathname : "/";
-
 const createServiceInfo = require("./create_service_info");
 
 const PDF_CMAPS_DIR = path.join(path.dirname(require.resolve("pdfjs-dist/package.json")), "cmaps");
@@ -42,7 +39,7 @@ module.exports = {
     },
     output: {
         path: path.resolve(__dirname, "dist"),
-        publicPath: BASE_PATH,
+        publicPath: "/",
         filename: "[name].js",
         chunkFilename: "[name].[contenthash].bundle.js",
     },
