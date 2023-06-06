@@ -1,4 +1,5 @@
-import React, {Suspense, lazy, useEffect} from "react";
+import React, {Suspense, lazy, useEffect, useMemo} from "react";
+import {useDispatch, useSelector} from "react-redux";
 import {Redirect, Route, Switch} from "react-router-dom";
 
 import {Menu, Skeleton} from "antd";
@@ -8,8 +9,10 @@ import {matchingMenuKeys, renderMenuItem} from "../utils/menu";
 import {withBasePath} from "../utils/url";
 
 import SitePageHeader from "./SitePageHeader";
+import {RESOURCE_EVERYTHING} from "../lib/auth/resources";
 import ManagerDRSContent from "./manager/drs/ManagerDRSContent";
 import ManagerAnalysisContent from "./manager/ManagerAnalysisContent";
+import {fetchResourcePermissionsIfPossibleAndNeeded} from "../modules/auth/actions";
 
 const ManagerProjectDatasetContent = lazy(() => import("./manager/projects/ManagerProjectDatasetContent"));
 const ManagerAccessContent = lazy(() => import("./manager/ManagerAccessContent"));
@@ -17,18 +20,6 @@ const ManagerDropBoxContent = lazy(() => import("./manager/ManagerDropBoxContent
 const ManagerIngestionContent = lazy(() => import("./manager/ManagerIngestionContent"));
 const ManagerWorkflowsContent = lazy(() => import("./manager/ManagerWorkflowsContent"));
 const ManagerRunsContent = lazy(() => import("./manager/runs/ManagerRunsContent"));
-
-
-const PAGE_MENU = [
-    {url: withBasePath("admin/data/manager/projects"), style: {marginLeft: "4px"}, text: "Projects and Datasets"},
-    // {url: "/data/manager/access", text: "Access Management"},  // TODO: Re-enable for v0.2
-    {url: withBasePath("admin/data/manager/files"), text: "Drop Box"},
-    {url: withBasePath("admin/data/manager/ingestion"), text: "Ingestion"},
-    {url: withBasePath("admin/data/manager/analysis"), text: "Analysis"},
-    {url: withBasePath("admin/data/manager/workflows"), text: "Workflows"},
-    {url: withBasePath("admin/data/manager/runs"), text: "Workflow Runs"},
-    {url: withBasePath("admin/data/manager/drs"), text: "DRS Objects"},
-];
 
 const styles = {
     menu: {
@@ -40,18 +31,39 @@ const styles = {
 };
 
 const DataManagerContent = () => {
+    const dispatch = useDispatch();
+
     useEffect(() => {
         document.title = `${SITE_NAME}: Admin / Data Manager`;
-    });
+    }, []);
 
-    const selectedKeys = matchingMenuKeys(PAGE_MENU);
+    const haveAuthorizationService = !!useSelector(state => state.services.itemsByKind.authorization);
+
+    useEffect(() => {
+        if (!haveAuthorizationService) return;
+        dispatch(fetchResourcePermissionsIfPossibleAndNeeded(RESOURCE_EVERYTHING));
+    }, [haveAuthorizationService])
+
+    const menuItems = useMemo(() => [
+        {url: withBasePath("admin/data/manager/projects"), style: {marginLeft: "4px"}, text: "Projects and Datasets"},
+        // {url: "/data/manager/access", text: "Access Management"},  // TODO: Re-enable for v0.2
+        {url: withBasePath("admin/data/manager/files"), text: "Drop Box"},
+        {url: withBasePath("admin/data/manager/ingestion"), text: "Ingestion"},
+        {url: withBasePath("admin/data/manager/analysis"), text: "Analysis"},
+        {url: withBasePath("admin/data/manager/workflows"), text: "Workflows"},
+        {url: withBasePath("admin/data/manager/runs"), text: "Workflow Runs"},
+        {url: withBasePath("admin/data/manager/drs"), text: "DRS Objects"},
+    ], []);
+
+    const selectedKeys = useMemo(() => matchingMenuKeys(menuItems), [menuItems]);
+
     return <>
         <SitePageHeader
             title="Admin › Data Manager"
             withTabBar={true}
             footer={
                 <Menu mode="horizontal" style={styles.menu} selectedKeys={selectedKeys}>
-                    {PAGE_MENU.map(renderMenuItem)}
+                    {menuItems.map(renderMenuItem)}
                 </Menu>
             }
         />
