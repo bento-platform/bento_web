@@ -42,7 +42,7 @@ import JsonDisplay from "../JsonDisplay";
 import {DROP_BOX_BASE_FS_PATH, STEP_INPUT} from "./workflowCommon";
 import {withBasePath} from "../../utils/url";
 import {dropBoxTreeStateToPropsMixinPropTypes, workflowsStateToPropsMixin} from "../../propTypes";
-import {makeAuthorizationHeader} from "../../lib/auth/utils";
+import {useAuthorizationHeader} from "../../lib/auth/utils";
 import {getFalse} from "../../utils/misc";
 import {
     beginDropBoxPuttingObjects,
@@ -150,8 +150,7 @@ const stopEvent = event => {
 const FileDisplay = ({file, tree, treeLoading}) => {
     const urisByFilePath = useMemo(() => generateURIsByRelPath(tree, {}), [tree]);
 
-    const accessToken = useSelector(state => state.auth.accessToken);
-    const headers = useMemo(() => makeAuthorizationHeader(accessToken), [accessToken]);
+    const authHeader = useAuthorizationHeader();
 
     const [fileLoadError, setFileLoadError] = useState("");
     const [loadingFileContents, setLoadingFileContents] = useState(false);
@@ -160,8 +159,8 @@ const FileDisplay = ({file, tree, treeLoading}) => {
 
     const pdfOptions = useMemo(() => ({
         ...BASE_PDF_OPTIONS,
-        httpHeaders: headers,
-    }), [headers]);
+        httpHeaders: authHeader,
+    }), [authHeader]);
 
     let textFormat = false;
     if (file) {
@@ -195,7 +194,7 @@ const FileDisplay = ({file, tree, treeLoading}) => {
 
             try {
                 setLoadingFileContents(true);
-                const r = await fetch(urisByFilePath[file], {headers});
+                const r = await fetch(urisByFilePath[file], {headers: authHeader});
                 if (r.ok) {
                     const text = await r.text();
                     const content = (fileExt === "json" ? JSON.parse(text) : text);
