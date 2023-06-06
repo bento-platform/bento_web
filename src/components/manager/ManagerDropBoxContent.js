@@ -41,7 +41,7 @@ import JsonDisplay from "../JsonDisplay";
 
 import {DROP_BOX_BASE_FS_PATH, STEP_INPUT} from "./workflowCommon";
 import {dropBoxTreeStateToPropsMixinPropTypes, workflowsStateToPropsMixin} from "../../propTypes";
-import {useAuthorizationHeader} from "../../lib/auth/utils";
+import {useAuthorizationHeader, useResourcePermissions} from "../../lib/auth/utils";
 import {getFalse} from "../../utils/misc";
 import {
     beginDropBoxPuttingObjects,
@@ -49,6 +49,8 @@ import {
     fetchDropBoxTreeOrFail,
     putDropBoxObject,
 } from "../../modules/manager/actions";
+import {RESOURCE_EVERYTHING} from "../../lib/auth/resources";
+import {ingestDropBox} from "../../lib/auth/permissions";
 
 
 SyntaxHighlighter.registerLanguage("json", json);
@@ -433,6 +435,8 @@ const DropBoxInformation = () => (
 const ManagerDropBoxContent = () => {
     const history = useHistory();
 
+    const everythingPermissions = useResourcePermissions(RESOURCE_EVERYTHING);
+
     const dropBoxService = useSelector(state => state.services.dropBoxService);
     const {tree, isFetching: treeLoading} = useSelector(state => state.dropBox);
     const ingestionWorkflows = useSelector(state => workflowsStateToPropsMixin(state).workflows.ingestion);
@@ -536,11 +540,18 @@ const ManagerDropBoxContent = () => {
         showTableSelectionModal(workflowsSupported[0]);
     }, [workflowsSupported]);
 
-    const handleDragStart = useCallback(() => setDraggingOver(true), []);
+    const hasUploadPermission = (everythingPermissions?.permissions ?? []).includes(ingestDropBox);
+
+    const handleDragStart = useCallback(() => {
+        if (!hasUploadPermission) return;
+        setDraggingOver(true);
+    }, [hasUploadPermission]);
     const handleDragEnd = useCallback(() => setDraggingOver(false), []);
 
     const handleDrop = useCallback(event => {
         stopEvent(event);
+        if (!hasUploadPermission) return;
+
         setDraggingOver(false);
 
         const items = event.dataTransfer?.items ?? [];
@@ -566,7 +577,7 @@ const ManagerDropBoxContent = () => {
         setInitialUploadFolder("/");  // Root by default
         setInitialUploadFiles(Array.from(event.dataTransfer.files));
         showUploadModal();
-    }, [showUploadModal]);
+    }, [showUploadModal, hasUploadPermission]);
 
     const selectedFolder = selectedEntries.length === 1 && filesByPath[selectedEntries[0]] === undefined;
 
@@ -575,6 +586,16 @@ const ManagerDropBoxContent = () => {
 
     const selectedFileInfoAvailable = selectedEntries.length === 1 && selectedEntries[0] in filesByPath;
     const fileForInfo = selectedFileInfoAvailable ? selectedEntries[0] : "";
+
+    const uploadDisabled = !selectedFolder || !hasUploadPermission;
+    // TODO: at least one ingest:data on all datasets vvv
+    const ingestIntoDatasetDisabled = !dropBoxService ||
+        selectedEntries.length === 0 || workflowsSupported.length === 0;
+
+    const handleUpload = useCallback(() => {
+        if (selectedFolder) setInitialUploadFolder(selectedEntries[0]);
+        showUploadModal();
+    }, [selectedFolder, selectedEntries]);
 
     return <Layout>
         <Layout.Content style={LAYOUT_CONTENT_STYLE}>
@@ -624,15 +645,8 @@ const ManagerDropBoxContent = () => {
 
             <div style={DROP_BOX_CONTENT_CONTAINER_STYLE}>
                 <div style={DROP_BOX_ACTION_CONTAINER_STYLE}>
-                    <Button icon="upload" onClick={() => {
-                        if (selectedFolder) setInitialUploadFolder(selectedEntries[0]);
-                        showUploadModal();
-                    }} disabled={!selectedFolder}>Upload</Button>
-                    <Dropdown.Button
-                        overlay={workflowMenu}
-                        disabled={!dropBoxService || selectedEntries.length === 0 || workflowsSupported.length === 0}
-                        onClick={handleIngest}
-                    >
+                    <Button icon="upload" onClick={handleUpload} disabled={uploadDisabled}>Upload</Button>
+                    <Dropdown.Button overlay={workflowMenu} disabled={ingestIntoDatasetDisabled} onClick={handleIngest}>
                         <Icon type="import" /> Ingest
                     </Dropdown.Button>
 
