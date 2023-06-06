@@ -9,6 +9,13 @@ import {
     SIGN_OUT,
 } from "./actions";
 
+const nullSession = {
+    sessionExpiry: null,
+    idTokenContents: null,
+    accessToken: null,
+    refreshToken: null,
+};
+
 export const auth = (
     state = {
         hasAttempted: false,
@@ -32,12 +39,14 @@ export const auth = (
     action,
 ) => {
     switch (action.type) {
+        // FETCHING_USER_DEPENDENT_DATA
         case FETCHING_USER_DEPENDENT_DATA.BEGIN:
             return {...state, isFetchingDependentData: true};
         case FETCHING_USER_DEPENDENT_DATA.END:
         case FETCHING_USER_DEPENDENT_DATA.TERMINATE:
             return {...state, isFetchingDependentData: false, hasAttempted: true};
 
+        // TOKEN_HANDOFF
         case TOKEN_HANDOFF.REQUEST:
             return {...state, isHandingOffCodeForToken: true};
         case TOKEN_HANDOFF.RECEIVE:
@@ -73,16 +82,14 @@ export const auth = (
             console.error(handoffError);
             return {
                 ...state,
-                sessionExpiry: null,
-                idTokenContents: null,
-                accessToken: null,
-                refreshToken: null,
+                ...nullSession,
                 handoffError,
             };
         }
         case TOKEN_HANDOFF.FINISH:
             return {...state, isHandingOffCodeForToken: false};
 
+        // REFRESH_TOKENS
         case REFRESH_TOKENS.REQUEST:
             return {...state, isRefreshingTokens: true};
         case REFRESH_TOKENS.ERROR: {
@@ -93,10 +100,7 @@ export const auth = (
             console.error(tokensRefreshError);
             return {
                 ...state,
-                sessionExpiry: null,
-                idTokenContents: null,
-                accessToken: null,
-                refreshToken: null,
+                ...nullSession,
                 tokensRefreshError,
             };
         }
@@ -104,14 +108,12 @@ export const auth = (
             return {...state, isRefreshingTokens: false};
         }
 
+        // SIGN_OUT
         case SIGN_OUT:
             // TODO: sign out of Keycloak too? (in action, not in reducer)
             return {
                 ...state,
-                sessionExpiry: null,
-                idTokenContents: null,
-                accessToken: null,
-                refreshToken: null,
+                ...nullSession,
                 tokensRefreshError: "",
             };
 
