@@ -3,8 +3,6 @@ import {Link} from "react-router-dom";
 
 import {Tag} from "antd";
 
-import {withBasePath} from "../../../utils/url";
-
 
 export const RUN_REFRESH_TIMEOUT = 7500;
 
@@ -37,7 +35,7 @@ export const RUN_TABLE_COLUMNS = [
         title: "Run ID",
         dataIndex: "run_id",
         sorter: (a, b) => a.run_id.localeCompare(b.run_id),
-        render: runID => <Link to={withBasePath(`admin/data/manager/runs/${runID}`)}
+        render: runID => <Link to={`/admin/data/manager/runs/${runID}`}
                                style={{fontFamily: "monospace"}}>{runID}</Link>,
     },
     {

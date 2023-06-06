@@ -6,7 +6,6 @@ import {Menu, Skeleton} from "antd";
 
 import {SITE_NAME} from "../constants";
 import {matchingMenuKeys, renderMenuItem} from "../utils/menu";
-import {withBasePath} from "../utils/url";
 
 import SitePageHeader from "./SitePageHeader";
 import {RESOURCE_EVERYTHING} from "../lib/auth/resources";
@@ -45,14 +44,14 @@ const DataManagerContent = () => {
     }, [haveAuthorizationService])
 
     const menuItems = useMemo(() => [
-        {url: withBasePath("admin/data/manager/projects"), style: {marginLeft: "4px"}, text: "Projects and Datasets"},
+        {url: "/admin/data/manager/projects", style: {marginLeft: "4px"}, text: "Projects and Datasets"},
         // {url: "/data/manager/access", text: "Access Management"},  // TODO: Re-enable for v0.2
-        {url: withBasePath("admin/data/manager/files"), text: "Drop Box"},
-        {url: withBasePath("admin/data/manager/ingestion"), text: "Ingestion"},
-        {url: withBasePath("admin/data/manager/analysis"), text: "Analysis"},
-        {url: withBasePath("admin/data/manager/workflows"), text: "Workflows"},
-        {url: withBasePath("admin/data/manager/runs"), text: "Workflow Runs"},
-        {url: withBasePath("admin/data/manager/drs"), text: "DRS Objects"},
+        {url: "/admin/data/manager/files", text: "Drop Box"},
+        {url: "/admin/data/manager/ingestion", text: "Ingestion"},
+        {url: "/admin/data/manager/analysis", text: "Analysis"},
+        {url: "/admin/data/manager/workflows", text: "Workflows"},
+        {url: "/admin/data/manager/runs", text: "Workflow Runs"},
+        {url: "/admin/data/manager/drs", text: "DRS Objects"},
     ], []);
 
     const selectedKeys = useMemo(() => matchingMenuKeys(menuItems), [menuItems]);
@@ -69,20 +68,18 @@ const DataManagerContent = () => {
         />
         <Suspense fallback={<div style={styles.suspenseFallback}><Skeleton active /></div>}>
             <Switch>
-                <Route path={withBasePath("admin/data/manager/projects")}
-                       component={ManagerProjectDatasetContent} />
-                <Route exact path={withBasePath("admin/data/manager/access")} component={ManagerAccessContent} />
-                <Route exact path={withBasePath("admin/data/manager/files")} component={ManagerDropBoxContent} />
-                <Route exact path={withBasePath("admin/data/manager/ingestion")}
+                <Route path="/admin/data/manager/projects" component={ManagerProjectDatasetContent} />
+                <Route exact path="/admin/data/manager/access" component={ManagerAccessContent} />
+                <Route exact path="/admin/data/manager/files" component={ManagerDropBoxContent} />
+                <Route exact path="/admin/data/manager/ingestion"
                        component={ManagerIngestionContent} />
-                <Route exact path={withBasePath("admin/data/manager/analysis")}
+                <Route exact path="/admin/data/manager/analysis"
                        component={ManagerAnalysisContent} />
-                <Route exact path={withBasePath("admin/data/manager/workflows")}
+                <Route exact path="/admin/data/manager/workflows"
                        component={ManagerWorkflowsContent} />
-                <Route exact path={withBasePath("admin/data/manager/drs")} component={ManagerDRSContent} />
-                <Route path={withBasePath("admin/data/manager/runs")} component={ManagerRunsContent} />
-                <Redirect from={withBasePath("admin/data/manager")}
-                          to={withBasePath("admin/data/manager/projects")} />
+                <Route exact path="/admin/data/manager/drs" component={ManagerDRSContent} />
+                <Route path="/admin/data/manager/runs" component={ManagerRunsContent} />
+                <Redirect from="/admin/data/manager" to="/admin/data/manager/projects" />
             </Switch>
         </Suspense>
     </>;

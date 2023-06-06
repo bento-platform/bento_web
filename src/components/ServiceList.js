@@ -7,7 +7,6 @@ import { Link } from "react-router-dom";
 import {Table, Typography, Tag, Icon, Button, Modal, Form, Input, Divider, Skeleton} from "antd";
 
 import {getIsAuthenticated, useAuthorizationHeader} from "../lib/auth/utils";
-import { withBasePath } from "../utils/url";
 import JsonDisplay from "./JsonDisplay";
 
 const SERVICE_KIND_STYLING = { fontFamily: "monospace" };
@@ -58,7 +57,7 @@ const serviceColumns = (isAuthenticated, setRequestModalService) => [
         render: (serviceKind) =>
             serviceKind ? (
                 isAuthenticated ? (
-                    <Link style={SERVICE_KIND_STYLING} to={withBasePath(`admin/services/${serviceKind}`)}>
+                    <Link style={SERVICE_KIND_STYLING} to={`/admin/services/${serviceKind}`}>
                         {serviceKind}
                     </Link>
                 ) : (

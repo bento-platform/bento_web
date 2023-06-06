@@ -11,7 +11,7 @@ import {fetchIndividualIfNecessary} from "../../modules/metadata/actions";
 import {individualPropTypesShape} from "../../propTypes";
 import {LAYOUT_CONTENT_STYLE} from "../../styles/layoutContent";
 import {matchingMenuKeys, renderMenuItem} from "../../utils/menu";
-import {urlPath, withBasePath} from "../../utils/url";
+import {urlPath} from "../../utils/url";
 
 import SitePageHeader from "../SitePageHeader";
 import IndividualOverview from "./IndividualOverview";
@@ -25,7 +25,7 @@ import IndividualGenes from "./IndividualGenes";
 import IndividualTracks from "./IndividualTracks";
 import {BENTO_URL} from "../../config";
 
-const withURLPrefix = (individual, page) => withBasePath(`data/explorer/individuals/${individual}/${page}`);
+const withURLPrefix = (individual, page) => `/data/explorer/individuals/${individual}/${page}`;
 
 const MENU_STYLE = {
     marginLeft: "-24px",

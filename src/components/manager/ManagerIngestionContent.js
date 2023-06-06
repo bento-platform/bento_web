@@ -17,7 +17,6 @@ import {
 
 import TableTreeSelect from "./TableTreeSelect";
 
-import {withBasePath} from "../../utils/url";
 import {workflowsStateToPropsMixin} from "../../propTypes";
 import RunSetupWizard from "./RunSetupWizard";
 import RunSetupInputsTable from "./RunSetupInputsTable";
@@ -157,7 +156,7 @@ const ManagerIngestionContent = () => {
                 tableID,
                 selectedWorkflow,
                 inputs,
-                withBasePath("admin/data/manager/runs"),
+                "/admin/data/manager/runs",
                 history,
             ));
         }}
