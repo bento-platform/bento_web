@@ -22,9 +22,9 @@ import { performGetGohanVariantsOverviewIfPossible } from "../explorer/actions";
 
 import { LS_BENTO_WAS_SIGNED_IN, setLSNotSignedIn } from "../../lib/auth/performAuth";
 import { buildUrlEncodedData } from "../../lib/auth/utils";
-import { nop, recursiveOrderedObject } from "../../utils/misc";
-import {jsonRequest} from "../../utils/requests";
-import {makeResourceKey} from "../../lib/auth/resources";
+import { nop } from "../../utils/misc";
+import { jsonRequest } from "../../utils/requests";
+import { makeResourceKey } from "../../lib/auth/resources";
 
 
 export const FETCHING_USER_DEPENDENT_DATA = createFlowActionTypes("FETCHING_USER_DEPENDENT_DATA");

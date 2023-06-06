@@ -69,12 +69,9 @@ const DataManagerContent = () => {
                 <Route path="/admin/data/manager/projects" component={ManagerProjectDatasetContent} />
                 <Route exact path="/admin/data/manager/access" component={ManagerAccessContent} />
                 <Route exact path="/admin/data/manager/files" component={ManagerDropBoxContent} />
-                <Route exact path="/admin/data/manager/ingestion"
-                       component={ManagerIngestionContent} />
-                <Route exact path="/admin/data/manager/analysis"
-                       component={ManagerAnalysisContent} />
-                <Route exact path="/admin/data/manager/workflows"
-                       component={ManagerWorkflowsContent} />
+                <Route exact path="/admin/data/manager/ingestion" component={ManagerIngestionContent} />
+                <Route exact path="/admin/data/manager/analysis" component={ManagerAnalysisContent} />
+                <Route exact path="/admin/data/manager/workflows" component={ManagerWorkflowsContent} />
                 <Route exact path="/admin/data/manager/drs" component={ManagerDRSContent} />
                 <Route path="/admin/data/manager/runs" component={ManagerRunsContent} />
                 <Redirect from="/admin/data/manager" to="/admin/data/manager/projects" />
