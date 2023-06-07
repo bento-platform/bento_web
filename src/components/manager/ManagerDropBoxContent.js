@@ -364,7 +364,7 @@ const FileUploadModal = ({initialUploadFolder, initialUploadFiles, onCancel, vis
 
                 // Finish the object-putting flow
                 dispatch(endDropBoxPuttingObjects());
-                
+
                 // Close ourselves (the upload modal)
                 onCancel();
             })();
