@@ -321,6 +321,13 @@ const FileUploadModal = ({initialUploadFolder, initialUploadFiles, onCancel, vis
 
     const isPutting = useSelector(state => state.dropBox.isPuttingFlow);
 
+    useEffect(() => {
+        if (visible && form.current) {
+            // If we just re-opened the model, reset the fields
+            form.current.resetFields();
+        }
+    }, [visible]);
+
     const onOk = () => {
         if (!form.current) {
             console.error("missing form ref");
@@ -357,7 +364,7 @@ const FileUploadModal = ({initialUploadFolder, initialUploadFiles, onCancel, vis
 
                 // Finish the object-putting flow
                 dispatch(endDropBoxPuttingObjects());
-
+                
                 // Close ourselves (the upload modal)
                 onCancel();
             })();
