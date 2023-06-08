@@ -548,8 +548,14 @@ const ManagerDropBoxContent = () => {
         showTableSelectionModal(workflowsSupported[0]);
     }, [workflowsSupported]);
 
-    const handleDragStart = useCallback(() => setDraggingOver(true), []);
-    const handleDragEnd = useCallback(() => setDraggingOver(false), []);
+    const handleContainerDragLeave = useCallback(() => setDraggingOver(false), []);
+    const handleDragEnter = useCallback(() => setDraggingOver(true), []);
+    const handleDragLeave = useCallback((e) => {
+        // Drag end is a bit weird - it's fired when the drag leaves any CHILD element (or the element itself).
+        // So we set a parent event on the layout, and stop propagation here - that way the parent's dragLeave
+        // only fires if we leave the drop zone.
+        stopEvent(e);
+    }, []);
 
     const handleDrop = useCallback(event => {
         stopEvent(event);
@@ -561,8 +567,12 @@ const ManagerDropBoxContent = () => {
             // If we have the webkitGetAsEntry() or getAsEntry() function, we can validate
             // if the dropped item is a folder and show a nice error.
 
-            if (typeof dti?.webkitGetAsEntry === "function") {
-                if (dti?.webkitGetAsEntry().isDirectory) {
+            if ((typeof dti?.webkitGetAsEntry) === "function") {
+                const entry = dti.webkitGetAsEntry();
+                if (!entry) {
+                    return;  // Not a file at all, some random element from the page maybe - exit silently
+                }
+                if (entry.isDirectory) {
                     message.error("Uploading a directory is not supported!");
                     return;
                 }
@@ -589,7 +599,7 @@ const ManagerDropBoxContent = () => {
     const fileForInfo = selectedFileInfoAvailable ? selectedEntries[0] : "";
 
     return <Layout>
-        <Layout.Content style={LAYOUT_CONTENT_STYLE}>
+        <Layout.Content style={LAYOUT_CONTENT_STYLE} onDragLeave={handleContainerDragLeave}>
             {/* ----------------------------- Start of modals section ----------------------------- */}
 
             <FileUploadModal
@@ -666,8 +676,8 @@ const ManagerDropBoxContent = () => {
                 <Spin spinning={treeLoading}>
                     {(treeLoading || dropBoxService) ? (
                         <div
-                            onDragEnter={handleDragStart}
-                            onDragEnd={handleDragEnd}
+                            onDragEnter={handleDragEnter}
+                            onDragLeave={handleDragLeave}
                             onDragOver={stopEvent}
                             onDrop={handleDrop}
                             style={TREE_CONTAINER_STYLE}
