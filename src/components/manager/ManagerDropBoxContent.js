@@ -437,6 +437,8 @@ const DropBoxInformation = () => (
     `} />
 );
 
+const DROP_BOX_ROOT_KEY = "/";
+
 
 const ManagerDropBoxContent = () => {
     const history = useHistory();
@@ -448,7 +450,9 @@ const ManagerDropBoxContent = () => {
     const filesByPath = useMemo(() => Object.fromEntries(
         recursivelyFlattenFileTree([], tree).map(f => [f.relativePath, f])), [tree]);
 
-    const [selectedEntries, setSelectedEntries] = useState(["/"]);
+    // Start with drop box root selected at first
+    //  - Will enable the upload button so that users can quickly upload from initial page load
+    const [selectedEntries, setSelectedEntries] = useState([DROP_BOX_ROOT_KEY]);
 
     const [draggingOver, setDraggingOver] = useState(false);
 
@@ -571,7 +575,7 @@ const ManagerDropBoxContent = () => {
             }
         }
 
-        setInitialUploadFolder("/");  // Root by default
+        setInitialUploadFolder(DROP_BOX_ROOT_KEY);  // Root by default
         setInitialUploadFiles(Array.from(event.dataTransfer.files));
         showUploadModal();
     }, [showUploadModal]);
@@ -678,7 +682,7 @@ const ManagerDropBoxContent = () => {
                                 onSelect={setSelectedEntries}
                                 selectedKeys={selectedEntries}
                             >
-                                <Tree.TreeNode title="Drop Box" key="/">
+                                <Tree.TreeNode title="Drop Box" key={DROP_BOX_ROOT_KEY}>
                                     {generateFileTree(tree, "")}
                                 </Tree.TreeNode>
                             </Tree.DirectoryTree>
