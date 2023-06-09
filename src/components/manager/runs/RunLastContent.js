@@ -4,12 +4,7 @@ import {useSelector} from "react-redux";
 import PropTypes from "prop-types";
 
 const COLUMNS_LAST_CONTENT = [
-    {
-        title: "Date",
-        dataIndex: "date",
-        key: "date",
-        render: (date) => formatDate(date),
-    },
+    {title: "Date", dataIndex: "date", key: "date"},
     {title: "Data Type", dataIndex: "dataType", key: "dataType"},
     {title: "Table ID", dataIndex: "tableId", key: "tableId"},
     {
@@ -31,20 +26,6 @@ const modalListStyle = {
     overflow: "hidden",
     textOverflow: "ellipsis",
 };
-
-const formatDate = (date) => {
-    const dateObj = new Date(date);
-    return dateObj.toLocaleString("en-CA", {
-        weekday: "long",
-        year: "numeric",
-        month: "long",
-        day: "numeric",
-        hour: "2-digit",
-        minute: "2-digit",
-        hour12: true,
-    });
-};
-
 function FileNamesCell({fileNames, dataType}) {
     const [isModalVisible, setIsModalVisible] = useState(false);
 
@@ -108,6 +89,8 @@ const getFileInputsFromWorkflowMetadata = (workflowMetadata) => {
         .map(input => `${workflowMetadata.id}.${input.id}`);
 };
 
+const getDateFromEndTime = (endTime) => endTime.split("T")[0];
+
 const processIngestions = (data, currentTables) => {
     const currentTableIds = new Set((currentTables || []).map((table) => table.table_id));
 
@@ -129,15 +112,16 @@ const processIngestions = (data, currentTables) => {
                 ? filePaths.map(fileNameFromPath)
                 : [fileNameFromPath(filePaths)];
 
-            const date = Date.parse(run.details.run_log.end_time);
+            const dateStr = getDateFromEndTime(run.details.run_log.end_time);
+            const date = Date.parse(dateStr);
 
-            const currentIngestion = { date, dataType, tableId, fileNames };
+            const currentIngestion = { date: dateStr, dataType, tableId, fileNames };
             const dataTypeAndTableId = buildKeyFromRecord(currentIngestion);
 
             if (ingestions[dataTypeAndTableId]) {
-                const existingDate = ingestions[dataTypeAndTableId].date;
+                const existingDate = Date.parse(ingestions[dataTypeAndTableId].date);
                 if (date > existingDate) {
-                    ingestions[dataTypeAndTableId].date = date;
+                    ingestions[dataTypeAndTableId].date = dateStr;
                 }
                 ingestions[dataTypeAndTableId].fileNames.push(...fileNames);
             } else {
