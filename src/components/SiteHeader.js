@@ -3,13 +3,13 @@ import { useDispatch, useSelector } from "react-redux";
 import { Link, withRouter } from "react-router-dom";
 import { Badge, Icon, Layout, Menu } from "antd";
 
-import { BENTO_CBIOPORTAL_ENABLED, CUSTOM_HEADER } from "../config";
+import { BENTO_CBIOPORTAL_ENABLED, BENTO_URL_NO_TRAILING_SLASH, CLIENT_ID, CUSTOM_HEADER } from "../config";
 import { showNotificationDrawer } from "../modules/notifications/actions";
 import { matchingMenuKeys, renderMenuItem } from "../utils/menu";
 import { BASE_PATH, withBasePath } from "../utils/url";
 
 import OverviewSettingsControl from "./overview/OverviewSettingsControl";
-import { performAuth } from "../lib/auth/performAuth";
+import { performAuth, setLSNotSignedIn } from "../lib/auth/performAuth";
 import { getIsAuthenticated } from "../lib/auth/utils";
 import { signOut } from "../modules/auth/actions";
 
@@ -42,6 +42,7 @@ const SiteHeader = () => {
 
     const unreadNotifications = useSelector(state => state.notifications.items.filter(n => !n.read));
     const {
+        idToken,
         idTokenContents,
         isHandingOffCodeForToken,
         hasAttempted: authHasAttempted,
@@ -110,7 +111,23 @@ const SiteHeader = () => {
                     children: [
                         {
                             key: "sign-out-link",
-                            onClick: () => dispatch(signOut()),
+                            onClick: () => {
+                                const endSessionEndpoint = openIdConfig?.["end_session_endpoint"];
+                                if (!endSessionEndpoint) {
+                                    dispatch(signOut());
+                                } else {
+                                    // Sign-out supported, so do that.
+                                    const endSessionUrl = new URL(endSessionEndpoint);
+                                    if (idToken) {
+                                        endSessionUrl.searchParams.append("id_token_hint", idToken);
+                                    }
+                                    endSessionUrl.searchParams.append("client_id", CLIENT_ID);
+                                    endSessionUrl.searchParams.append(
+                                        "post_logout_redirect_uri", BENTO_URL_NO_TRAILING_SLASH + "/");
+                                    setLSNotSignedIn();  // Make sure we don't immediately try to sign in again
+                                    window.location.href = endSessionUrl.toString();
+                                }
+                            },
                             icon: <Icon type="logout" />,
                             text: <span className="nav-text">Sign Out</span>,
                         },
