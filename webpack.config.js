@@ -13,7 +13,7 @@ const PDF_STANDARD_FONTS_DIR = path.join(
     path.dirname(require.resolve("pdfjs-dist/package.json")), "standard_fonts");
 
 module.exports = {
-    devtool: 'source-map',
+    devtool: "source-map",
     entry: ["babel-polyfill", path.resolve(__dirname, "./src/index.js")],
     module: {
         rules: [
