@@ -131,7 +131,7 @@ const processIngestions = (data, currentTables) => {
 
             const date = Date.parse(run.details.run_log.end_time);
 
-            const currentIngestion = { date: date, dataType, tableId, fileNames };
+            const currentIngestion = { date, dataType, tableId, fileNames };
             const dataTypeAndTableId = buildKeyFromRecord(currentIngestion);
 
             if (ingestions[dataTypeAndTableId]) {
