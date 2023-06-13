@@ -1,8 +1,6 @@
-import React, {Component} from "react";
-import {Redirect, Route, Switch, withRouter} from "react-router-dom";
-import {connect} from "react-redux";
-
-import PropTypes from "prop-types";
+import React, {useCallback, useMemo} from "react";
+import {Redirect, Route, Switch} from "react-router-dom";
+import {useDispatch, useSelector} from "react-redux";
 
 import {Button, Empty, Layout, Menu, Typography} from "antd";
 
@@ -10,99 +8,96 @@ import ProjectCreationModal from "./ProjectCreationModal";
 import ProjectSkeleton from "./ProjectSkeleton";
 import RoutedProject from "./RoutedProject";
 
-import {toggleProjectCreationModal} from "../../../modules/manager/actions";
-
-
+import {toggleProjectCreationModal as toggleProjectCreationModalAction} from "../../../modules/manager/actions";
 import {LAYOUT_CONTENT_STYLE} from "../../../styles/layoutContent";
 import {matchingMenuKeys, renderMenuItem} from "../../../utils/menu";
-import {projectPropTypesShape} from "../../../propTypes";
 
 
-class ManagerProjectDatasetContent extends Component {
-    render() {
-        const projectMenuItems = this.props.projects.map(project => ({
-            url: `/admin/data/manager/projects/${project.identifier}`,
-            text: project.title,
-        }));
-
-        return <>
-            <ProjectCreationModal />
-            <Layout>
-                {(!this.props.loadingAuthDependentData && projectMenuItems.length === 0) ? (
-                    <Layout.Content style={LAYOUT_CONTENT_STYLE}>
-                        <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} description={false}>
-                            <Typography.Title level={3}>No Projects</Typography.Title>
-                            <Typography.Paragraph style={{
-                                maxWidth: "600px",
-                                marginLeft: "auto",
-                                marginRight: "auto",
-                            }}>
-                                To create datasets and ingest data, you have to create a Bento project
-                                first. Bento projects have a name and description, and let you group related
-                                datasets together. You can then specify project-wide consent codes and data use
-                                restrictions to control data access.
-                            </Typography.Paragraph>
-                            <Button type="primary" icon="plus"
-                                    onClick={this.props.toggleProjectCreationModal}>Create Project</Button>
-                        </Empty>
-                    </Layout.Content>
-                ) : <>
-                    <Layout.Sider style={{background: "white"}} width={256} breakpoint="lg" collapsedWidth={0}>
-                        <div style={{display: "flex", height: "100%", flexDirection: "column"}}>
-                            <Menu style={{flex: 1, paddingTop: "8px"}}
-                                  mode="inline"
-                                  selectedKeys={matchingMenuKeys(projectMenuItems)}>
-                                {projectMenuItems.map(renderMenuItem)}
-                            </Menu>
-                            <div style={{borderRight: "1px solid #e8e8e8", padding: "24px"}}>
-                                <Button type="primary" style={{width: "100%"}}
-                                        onClick={this.props.toggleProjectCreationModal}
-                                        loading={this.props.loadingAuthDependentData}
-                                        disabled={this.props.loadingAuthDependentData}
-                                        icon="plus">
-                                    Create Project
-                                </Button>
-                            </div>
-                        </div>
-                    </Layout.Sider>
-                    <Layout.Content style={LAYOUT_CONTENT_STYLE}>
-                        {/* TODO: Fix project datasets */}
-                        {projectMenuItems.length > 0 ? (
-                            <Switch>
-                                <Route path="/admin/data/manager/projects/:project"
-                                       component={RoutedProject} />
-                                <Redirect from="admin/data/manager/projects"
-                                          to={`/admin/data/manager/projects/${this.props.projects[0].identifier}`} />
-                            </Switch>
-                        ) : (
-                            this.props.loadingAuthDependentData ? (
-                                <ProjectSkeleton />
-                            ) : (
-                                <Empty image={Empty.PRESENTED_IMAGE_SIMPLE}
-                                       description="Select a project from the menu on the left to manage it." />
-                            )
-                        )}
-                    </Layout.Content>
-                </>}
-            </Layout>
-        </>;
-    }
-}
-
-ManagerProjectDatasetContent.propTypes = {
-    projects: PropTypes.arrayOf(projectPropTypesShape),
-    projectsByID: PropTypes.objectOf(projectPropTypesShape),
-    loadingAuthDependentData: PropTypes.bool,
-
-    toggleProjectCreationModal: PropTypes.func,
+const PROJECT_HELP_TEXT_STYLE = {
+    maxWidth: "600px",
+    marginLeft: "auto",
+    marginRight: "auto",
 };
 
-const mapStateToProps = state => ({
-    projects: state.projects.items,
-    projectsByID: state.projects.itemsByID,
-    loadingAuthDependentData: state.auth.isFetchingDependentData,
-});
+const SIDEBAR_STYLE = {background: "white"};
+const SIDEBAR_INNER_STYLE = {display: "flex", height: "100%", flexDirection: "column"};
+const SIDEBAR_MENU_STYLE = {flex: 1, paddingTop: "8px"};
+const SIDEBAR_BUTTON_CONTAINER = {borderRight: "1px solid #e8e8e8", padding: "24px"};
+const SIDEBAR_BUTTON_STYLE = {width: "100%"};
 
-export default withRouter(connect(mapStateToProps, {
-    toggleProjectCreationModal,
-})(ManagerProjectDatasetContent));
+
+const ManagerProjectDatasetContent = () => {
+    const dispatch = useDispatch();
+
+    const {items} = useSelector(state => state.projects);
+    const {isFetchingDependentData} = useSelector(state => state.auth);
+
+    const projectMenuItems = useMemo(() => items.map(project => ({
+        url: `/admin/data/manager/projects/${project.identifier}`,
+        text: project.title,
+    })), [items]);
+
+    const toggleProjectCreationModal = useCallback(
+        () => dispatch(toggleProjectCreationModalAction()), [dispatch]);
+
+    if (!isFetchingDependentData && projectMenuItems.length === 0) {
+        return <Layout>
+            <Layout.Content style={LAYOUT_CONTENT_STYLE}>
+                <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} description={false}>
+                    <Typography.Title level={3}>No Projects</Typography.Title>
+                    <Typography.Paragraph style={PROJECT_HELP_TEXT_STYLE}>
+                        To create datasets and ingest data, you have to create a Bento project
+                        first. Bento projects have a name and description, and let you group related
+                        datasets together. You can then specify project-wide consent codes and data use
+                        restrictions to control data access.
+                    </Typography.Paragraph>
+                    <Button type="primary" icon="plus" onClick={toggleProjectCreationModal}>Create Project</Button>
+                </Empty>
+            </Layout.Content>
+        </Layout>;
+    }
+
+    return <>
+        <ProjectCreationModal />
+        <Layout>
+            <Layout.Sider style={SIDEBAR_STYLE} width={256} breakpoint="lg" collapsedWidth={0}>
+                <div style={SIDEBAR_INNER_STYLE}>
+                    <Menu style={SIDEBAR_MENU_STYLE}
+                          mode="inline"
+                          selectedKeys={matchingMenuKeys(projectMenuItems)}>
+                        {projectMenuItems.map(renderMenuItem)}
+                    </Menu>
+                    <div style={SIDEBAR_BUTTON_CONTAINER}>
+                        <Button type="primary"
+                                style={SIDEBAR_BUTTON_STYLE}
+                                onClick={toggleProjectCreationModal}
+                                loading={isFetchingDependentData}
+                                disabled={isFetchingDependentData}
+                                icon="plus">
+                            Create Project
+                        </Button>
+                    </div>
+                </div>
+            </Layout.Sider>
+            <Layout.Content style={LAYOUT_CONTENT_STYLE}>
+                {/* TODO: Fix project datasets */}
+                {projectMenuItems.length > 0 ? (
+                    <Switch>
+                        <Route path="/admin/data/manager/projects/:project" component={RoutedProject} />
+                        <Redirect from="/admin/data/manager/projects"
+                                  to={`/admin/data/manager/projects/${items[0].identifier}`} />
+                    </Switch>
+                ) : (
+                    isFetchingDependentData ? (
+                        <ProjectSkeleton />
+                    ) : (
+                        <Empty image={Empty.PRESENTED_IMAGE_SIMPLE}
+                               description="Select a project from the menu on the left to manage it." />
+                    )
+                )}
+            </Layout.Content>
+        </Layout>
+    </>;
+};
+
+export default ManagerProjectDatasetContent;
