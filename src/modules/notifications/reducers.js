@@ -18,6 +18,15 @@ export const notifications = (
     },
     action,
 ) => {
+    const replaceNotificationInArray = (rp) => state.items.map(i => i.id === action.notificationID ? rp(i) : i);
+    const replaceNotificationInObject = (rp) => ({
+        ...state.itemsByID,
+        [action.notificationID]: {
+            ...(state.itemsByID[action.notificationID] ?? {}),
+            ...rp(state.itemsByID[action.notificationID] ?? {}),
+        },
+    });
+
     switch (action.type) {
         case ADD_NOTIFICATION:
             return {
@@ -40,22 +49,32 @@ export const notifications = (
         case FETCH_NOTIFICATIONS.FINISH:
             return {...state, isFetching: false};
 
-        case MARK_NOTIFICATION_AS_READ.REQUEST:
-            return {...state, isMarkingAsRead: true};
-        case MARK_NOTIFICATION_AS_READ.RECEIVE:
+        case MARK_NOTIFICATION_AS_READ.REQUEST: {
+            const rp = i => ({...i, isMarkingAsRead: true});
             return {
                 ...state,
-                items: state.items.map(i => i.id === action.notificationID ? {...i, read: true} : i),
-                itemsByID: {
-                    ...state.itemsByID,
-                    [action.notificationID]: {
-                        ...(state.itemsByID[action.notificationID] || {}),
-                        read: true,
-                    },
-                },
+                isMarkingAsRead: true,
+                items: replaceNotificationInArray(rp),
+                itemsByID: replaceNotificationInObject(rp),
             };
-        case MARK_NOTIFICATION_AS_READ.FINISH:
-            return {...state, isMarkingAsRead: false};
+        }
+        case MARK_NOTIFICATION_AS_READ.RECEIVE: {
+            const rp = i => ({...i, read: true});
+            return {
+                ...state,
+                items: replaceNotificationInArray(rp),
+                itemsByID: replaceNotificationInObject(rp),
+            };
+        }
+        case MARK_NOTIFICATION_AS_READ.FINISH: {
+            const rp = i => ({...i, isMarkingAsRead: false});
+            return {
+                ...state,
+                isMarkingAsRead: false,
+                items: replaceNotificationInArray(rp),
+                itemsByID: replaceNotificationInObject(rp),
+            };
+        }
 
         case MARK_ALL_NOTIFICATIONS_AS_READ.REQUEST:
             return {...state, isMarkingAllAsRead: true};

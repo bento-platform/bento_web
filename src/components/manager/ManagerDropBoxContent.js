@@ -323,6 +323,13 @@ const FileUploadModal = ({initialUploadFolder, initialUploadFiles, onCancel, vis
 
     const isPutting = useSelector(state => state.dropBox.isPuttingFlow);
 
+    useEffect(() => {
+        if (visible && form.current) {
+            // If we just re-opened the model, reset the fields
+            form.current.resetFields();
+        }
+    }, [visible]);
+
     const onOk = () => {
         if (!form.current) {
             console.error("missing form ref");
@@ -432,6 +439,8 @@ const DropBoxInformation = () => (
     `} />
 );
 
+const DROP_BOX_ROOT_KEY = "/";
+
 
 const ManagerDropBoxContent = () => {
     const history = useHistory();
@@ -445,7 +454,9 @@ const ManagerDropBoxContent = () => {
     const filesByPath = useMemo(() => Object.fromEntries(
         recursivelyFlattenFileTree([], tree).map(f => [f.relativePath, f])), [tree]);
 
-    const [selectedEntries, setSelectedEntries] = useState(["/"]);
+    // Start with drop box root selected at first
+    //  - Will enable the upload button so that users can quickly upload from initial page load
+    const [selectedEntries, setSelectedEntries] = useState([DROP_BOX_ROOT_KEY]);
 
     const [draggingOver, setDraggingOver] = useState(false);
 
@@ -543,12 +554,14 @@ const ManagerDropBoxContent = () => {
 
     const hasUploadPermission = (everythingPermissions?.permissions ?? []).includes(ingestDropBox);
 
-    const handleDragStart = useCallback(() => {
-        if (!hasUploadPermission) return;
-        setDraggingOver(true);
-    }, [hasUploadPermission]);
-    const handleDragEnd = useCallback(() => setDraggingOver(false), []);
-
+    const handleContainerDragLeave = useCallback(() => setDraggingOver(false), []);
+    const handleDragEnter = useCallback(() => setDraggingOver(true), []);
+    const handleDragLeave = useCallback((e) => {
+        // Drag end is a bit weird - it's fired when the drag leaves any CHILD element (or the element itself).
+        // So we set a parent event on the layout, and stop propagation here - that way the parent's dragLeave
+        // only fires if we leave the drop zone.
+        stopEvent(e);
+    }, []);
     const handleDrop = useCallback(event => {
         stopEvent(event);
         if (!hasUploadPermission) return;
@@ -561,8 +574,12 @@ const ManagerDropBoxContent = () => {
             // If we have the webkitGetAsEntry() or getAsEntry() function, we can validate
             // if the dropped item is a folder and show a nice error.
 
-            if (typeof dti?.webkitGetAsEntry === "function") {
-                if (dti?.webkitGetAsEntry().isDirectory) {
+            if ((typeof dti?.webkitGetAsEntry) === "function") {
+                const entry = dti.webkitGetAsEntry();
+                if (!entry) {
+                    return;  // Not a file at all, some random element from the page maybe - exit silently
+                }
+                if (entry.isDirectory) {
                     message.error("Uploading a directory is not supported!");
                     return;
                 }
@@ -575,7 +592,7 @@ const ManagerDropBoxContent = () => {
             }
         }
 
-        setInitialUploadFolder("/");  // Root by default
+        setInitialUploadFolder(DROP_BOX_ROOT_KEY);  // Root by default
         setInitialUploadFiles(Array.from(event.dataTransfer.files));
         showUploadModal();
     }, [showUploadModal, hasUploadPermission]);
@@ -607,7 +624,7 @@ const ManagerDropBoxContent = () => {
     }
 
     return <Layout>
-        <Layout.Content style={LAYOUT_CONTENT_STYLE}>
+        <Layout.Content style={LAYOUT_CONTENT_STYLE} onDragLeave={handleContainerDragLeave}>
             {/* ----------------------------- Start of modals section ----------------------------- */}
 
             <FileUploadModal
@@ -677,8 +694,8 @@ const ManagerDropBoxContent = () => {
                 <Spin spinning={treeLoading}>
                     {(treeLoading || dropBoxService) ? (
                         <div
-                            onDragEnter={handleDragStart}
-                            onDragEnd={handleDragEnd}
+                            onDragEnter={handleDragEnter}
+                            onDragLeave={handleDragLeave}
                             onDragOver={stopEvent}
                             onDrop={handleDrop}
                             style={TREE_CONTAINER_STYLE}
@@ -693,7 +710,7 @@ const ManagerDropBoxContent = () => {
                                 onSelect={setSelectedEntries}
                                 selectedKeys={selectedEntries}
                             >
-                                <Tree.TreeNode title="Drop Box" key="/">
+                                <Tree.TreeNode title="Drop Box" key={DROP_BOX_ROOT_KEY}>
                                     {generateFileTree(tree, "")}
                                 </Tree.TreeNode>
                             </Tree.DirectoryTree>

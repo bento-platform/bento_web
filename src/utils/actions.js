@@ -63,9 +63,9 @@ const _networkAction = (fn, ...args) => async (dispatch, getState) => {
 
     const token = (
         url.startsWith("/") ||
-        (BENTO_URL !== null && url.startsWith(BENTO_URL)) ||
-        (BENTO_PUBLIC_URL !== null && url.startsWith(BENTO_PUBLIC_URL)) ||
-        (IDP_BASE_URL !== null && url.startsWith(IDP_BASE_URL))
+        (BENTO_URL && url.startsWith(BENTO_URL)) ||
+        (BENTO_PUBLIC_URL && url.startsWith(BENTO_PUBLIC_URL)) ||
+        (IDP_BASE_URL && url.startsWith(IDP_BASE_URL))
     ) ? getState().auth.accessToken : null;
 
     const finalReq = {

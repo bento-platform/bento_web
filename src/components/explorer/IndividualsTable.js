@@ -1,7 +1,6 @@
 import React from "react";
 import PropTypes from "prop-types";
 import { Link } from "react-router-dom";
-import { withBasePath } from "../../utils/url";
 import ExplorerSearchResultsTable from "./ExplorerSearchResultsTable";
 
 const IndividualRender = ({individual}) => {
@@ -11,7 +10,7 @@ const IndividualRender = ({individual}) => {
         <>
             <Link
                 to={(location) => ({
-                    pathname: withBasePath(`data/explorer/individuals/${individual.id}/overview`),
+                    pathname: `/data/explorer/individuals/${individual.id}/overview`,
                     state: { backUrl: location.pathname },
                 })}
             >

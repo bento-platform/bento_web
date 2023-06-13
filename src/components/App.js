@@ -35,6 +35,7 @@ const DataExplorerContent = lazy(() => import("./DataExplorerContent"));
 const CBioPortalContent = lazy(() => import("./CBioPortalContent"));
 const AdminContent = lazy(() => import("./AdminContent"));
 const NotificationsContent = lazy(() => import("./notifications/NotificationsContent"));
+const UserProfileContent = lazy(() => import("./UserProfileContent"));
 
 const LS_SIGN_IN_POPUP = "BENTO_DID_CREATE_SIGN_IN_POPUP";
 const SIGN_IN_WINDOW_FEATURES = "scrollbars=no, toolbar=no, menubar=no, width=800, height=600";
@@ -274,6 +275,7 @@ const App = () => {
                         <OwnerRoute path="/cbioportal" component={CBioPortalContent} />
                         <OwnerRoute path="/admin" component={AdminContent} />
                         <OwnerRoute path="/notifications" component={NotificationsContent} />
+                        <OwnerRoute path="/profile" component={UserProfileContent} />
                         <Redirect from="/" to="/overview" />
                     </Switch>
                 </Suspense>
