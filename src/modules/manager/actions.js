@@ -14,6 +14,7 @@ export const PROJECT_EDITING = createFlowActionTypes("PROJECT_EDITING");
 
 export const FETCH_DROP_BOX_TREE = createNetworkActionTypes("FETCH_DROP_BOX_TREE");
 export const PUT_DROP_BOX_OBJECT = createNetworkActionTypes("PUT_DROP_BOX_OBJECT");
+export const DELETE_DROP_BOX_OBJECT = createNetworkActionTypes("DELETE_DROP_BOX_OBJECT");
 
 export const DROP_BOX_PUTTING_OBJECTS = createFlowActionTypes("DROP_BOX_PUTTING_OBJECTS");
 
@@ -41,9 +42,12 @@ export const fetchDropBoxTreeOrFail = () => async dispatch => {
     }
 };
 
+const dropBoxObjectPath = (getState, path) =>
+    `${getState().services.dropBoxService.url}/objects/${path.replace(/^\//, "")}`;
+
 export const putDropBoxObject = networkAction((path, file) => async (dispatch, getState) => ({
     types: PUT_DROP_BOX_OBJECT,
-    url: `${getState().services.dropBoxService.url}/objects/${path.replace(/^\//, "")}`,
+    url: dropBoxObjectPath(getState, path),
     req: {
         method: "PUT",
         body: await file.arrayBuffer(),
@@ -56,3 +60,14 @@ export const putDropBoxObject = networkAction((path, file) => async (dispatch, g
 
 export const beginDropBoxPuttingObjects = basicAction(DROP_BOX_PUTTING_OBJECTS.BEGIN);
 export const endDropBoxPuttingObjects = basicAction(DROP_BOX_PUTTING_OBJECTS.END);
+
+export const deleteDropBoxObject = networkAction(path => async (dispatch, getState) => ({
+    types: DELETE_DROP_BOX_OBJECT,
+    url: dropBoxObjectPath(getState, path),
+    req: {method: "DELETE"},
+    onSuccess: () => {
+        message.success(`Successfully deleted file at drop box path: ${path}`);
+        return dispatch(fetchDropBoxTreeOrFail());
+    },
+    err: `Error deleting file at drop box path: ${path}`,
+}));

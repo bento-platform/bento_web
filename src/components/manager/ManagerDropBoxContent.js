@@ -49,9 +49,10 @@ import {
     endDropBoxPuttingObjects,
     fetchDropBoxTreeOrFail,
     putDropBoxObject,
+    deleteDropBoxObject,
 } from "../../modules/manager/actions";
 import {RESOURCE_EVERYTHING} from "../../lib/auth/resources";
-import {ingestDropBox} from "../../lib/auth/permissions";
+import {deleteDropBox, ingestDropBox} from "../../lib/auth/permissions";
 
 
 SyntaxHighlighter.registerLanguage("json", json);
@@ -443,12 +444,13 @@ const DROP_BOX_ROOT_KEY = "/";
 
 
 const ManagerDropBoxContent = () => {
+    const dispatch = useDispatch();
     const history = useHistory();
 
     const everythingPermissions = useResourcePermissions(RESOURCE_EVERYTHING);
 
     const dropBoxService = useSelector(state => state.services.dropBoxService);
-    const {tree, isFetching: treeLoading} = useSelector(state => state.dropBox);
+    const {tree, isFetching: treeLoading, isDeleting} = useSelector(state => state.dropBox);
     const ingestionWorkflows = useSelector(state => workflowsStateToPropsMixin(state).workflows.ingestion);
 
     const filesByPath = useMemo(() => Object.fromEntries(
@@ -457,6 +459,7 @@ const ManagerDropBoxContent = () => {
     // Start with drop box root selected at first
     //  - Will enable the upload button so that users can quickly upload from initial page load
     const [selectedEntries, setSelectedEntries] = useState([DROP_BOX_ROOT_KEY]);
+    const firstSelectedEntry = useMemo(() => selectedEntries[0], [selectedEntries]);
 
     const [draggingOver, setDraggingOver] = useState(false);
 
@@ -466,6 +469,8 @@ const ManagerDropBoxContent = () => {
 
     const [fileInfoModal, setFileInfoModal] = useState(false);
     const [fileContentsModal, setFileContentsModal] = useState(false);
+
+    const [fileDeleteModal, setFileDeleteModal] = useState(false);
 
     const [selectedWorkflow, setSelectedWorkflow] = useState(null);
     const [tableSelectionModal, setTableSelectionModal] = useState(false);
@@ -553,6 +558,7 @@ const ManagerDropBoxContent = () => {
     }, [workflowsSupported]);
 
     const hasUploadPermission = (everythingPermissions?.permissions ?? []).includes(ingestDropBox);
+    const hasDeletePermission = (everythingPermissions?.permissions ?? []).includes(deleteDropBox);
 
     const handleContainerDragLeave = useCallback(() => setDraggingOver(false), []);
     const handleDragEnter = useCallback(() => setDraggingOver(true), []);
@@ -597,13 +603,26 @@ const ManagerDropBoxContent = () => {
         showUploadModal();
     }, [showUploadModal, hasUploadPermission]);
 
-    const selectedFolder = selectedEntries.length === 1 && filesByPath[selectedEntries[0]] === undefined;
+    const selectedFolder = selectedEntries.length === 1 && filesByPath[firstSelectedEntry] === undefined;
+
+    const hideFileDeleteModal = useCallback(() => setFileDeleteModal(false), []);
+    const showFileDeleteModal = useCallback(() => {
+        if (selectedEntries.length !== 1 || selectedFolder) return;
+        setFileDeleteModal(true);
+    }, [selectedEntries, selectedFolder]);
+    const handleDelete = useCallback(() => {
+        if (selectedEntries.length !== 1 || selectedFolder) return;
+        (async () => {
+            await dispatch(deleteDropBoxObject(firstSelectedEntry));
+            hideFileDeleteModal();
+        })();
+    }, [dispatch, selectedEntries]);
 
     const selectedFileViewable = selectedEntries.length === 1 && !selectedFolder &&
-        VIEWABLE_FILE_EXTENSIONS.filter(e => selectedEntries[0].endsWith(e)).length > 0;
+        VIEWABLE_FILE_EXTENSIONS.filter(e => firstSelectedEntry.endsWith(e)).length > 0;
 
-    const selectedFileInfoAvailable = selectedEntries.length === 1 && selectedEntries[0] in filesByPath;
-    const fileForInfo = selectedFileInfoAvailable ? selectedEntries[0] : "";
+    const selectedFileInfoAvailable = selectedEntries.length === 1 && firstSelectedEntry in filesByPath;
+    const fileForInfo = selectedFileInfoAvailable ? firstSelectedEntry : "";
 
     const uploadDisabled = !selectedFolder || !hasUploadPermission;
     // TODO: at least one ingest:data on all datasets vvv
@@ -614,6 +633,8 @@ const ManagerDropBoxContent = () => {
         if (selectedFolder) setInitialUploadFolder(selectedEntries[0]);
         showUploadModal();
     }, [selectedFolder, selectedEntries]);
+
+    const deleteDisabled = !dropBoxService || selectedFolder || selectedEntries.length !== 1 || !hasDeletePermission;
 
     if (everythingPermissions?.hasAttempted && !hasUploadPermission) {
         return <Layout>
@@ -643,7 +664,7 @@ const ManagerDropBoxContent = () => {
             />
 
             <FileContentsModal
-                selectedFilePath={selectedEntries.length === 1 ? selectedEntries[0] : null}
+                selectedFilePath={selectedEntries.length === 1 ? firstSelectedEntry : null}
                 visible={fileContentsModal}
                 onCancel={hideFileContentsModal}
             />
@@ -667,6 +688,17 @@ const ManagerDropBoxContent = () => {
                 </Descriptions>
             </Modal>
 
+            <Modal visible={fileDeleteModal}
+                   title={`Are you sure you want to delete '${firstSelectedEntry.split("/").at(-1)}'?`}
+                   okType="danger"
+                   okText="Delete"
+                   okButtonProps={{loading: isDeleting}}
+                   onOk={handleDelete}
+                   onCancel={hideFileDeleteModal}>
+                Doing so will permanently and irrevocably remove this file from the drop box. It will then be
+                unavailable for any ingestion or analysis.
+            </Modal>
+
             {/* ------------------------------ End of modals section ------------------------------ */}
 
             <div style={DROP_BOX_CONTENT_CONTAINER_STYLE}>
@@ -685,10 +717,13 @@ const ManagerDropBoxContent = () => {
                         </Button>
                         <InfoDownloadButton disabled={!selectedFileInfoAvailable} uri={filesByPath[fileForInfo]?.uri} />
                     </Button.Group>
-                    {/* TODO: Implement v0.2 */}
-                    {/*<Button type="danger" icon="delete" disabled={this.state.selectedFiles.length === 0}>*/}
-                    {/*    Delete*/}
-                    {/*</Button>*/}
+
+                    <Button type="danger"
+                            icon="delete"
+                            disabled={deleteDisabled}
+                            loading={isDeleting}
+                            onClick={showFileDeleteModal}>
+                        Delete</Button>
                 </div>
 
                 <Spin spinning={treeLoading}>
