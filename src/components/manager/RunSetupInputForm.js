@@ -7,11 +7,12 @@ import {
     FORM_LABEL_COL,
     FORM_WRAPPER_COL,
     FORM_BUTTON_COL,
-    DROP_BOX_BASE_FS_PATH,
 } from "./workflowCommon";
 
-import {nop} from "../../utils/misc";
+import {BENTO_DROP_BOX_FS_BASE_PATH} from "../../config";
 import {workflowPropTypesShape} from "../../propTypes";
+import {nop} from "../../utils/misc";
+
 import DropBoxTreeSelect from "./DropBoxTreeSelect";
 
 
@@ -27,7 +28,7 @@ const getInputComponent = ({type, extensions, values}) => {
             return <DropBoxTreeSelect
                 nodeEnabled={dropBoxTreeNodeEnabled}
                 multiple={type === "file[]"}
-                basePrefix={DROP_BOX_BASE_FS_PATH}
+                basePrefix={BENTO_DROP_BOX_FS_BASE_PATH}
             />;
 
         case "enum":

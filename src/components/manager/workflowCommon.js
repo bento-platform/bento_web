@@ -10,6 +10,3 @@ export const FORM_BUTTON_COL = {
 export const STEP_WORKFLOW_SELECTION = 0;
 export const STEP_INPUT = 1;
 export const STEP_CONFIRM = 2;
-
-// TODO: Don't hard-code this
-export const DROP_BOX_BASE_FS_PATH = "/data";
