@@ -1,7 +1,7 @@
 import React, {useCallback} from "react";
 import PropTypes from "prop-types";
 
-import {Button, Form, Icon, Input, Select, TreeSelect} from "antd";
+import {Button, Form, Icon, Input, Select} from "antd";
 
 import {
     FORM_LABEL_COL,
@@ -9,41 +9,31 @@ import {
     FORM_BUTTON_COL,
 } from "./workflowCommon";
 
-import {nop} from "../../utils/misc";
+import {BENTO_DROP_BOX_FS_BASE_PATH} from "../../config";
 import {workflowPropTypesShape} from "../../propTypes";
+import {nop} from "../../utils/misc";
+
+import DropBoxTreeSelect from "./DropBoxTreeSelect";
 
 
-const sortByName = (a, b) => a.name.localeCompare(b.name);
-const generateFileTree = (directory, valid) => [...directory].sort(sortByName).map(entry =>
-    <TreeSelect.TreeNode
-        title={entry.name}
-        key={entry.filePath}
-        value={entry.filePath}
-        disabled={!valid(entry)}
-        isLeaf={!entry.hasOwnProperty("contents")}
-        selectable={!entry.hasOwnProperty("contents")}
-    >
-        {entry?.contents ? generateFileTree(entry.contents, valid) : null}
-    </TreeSelect.TreeNode>);
+const getInputComponent = ({type, extensions, values}) => {
+    const dropBoxTreeNodeEnabled = ({name, contents}) => contents !== undefined ||
+        extensions.find(e => name.endsWith(e)) !== undefined;
 
-const getInputComponent = (input, tree) => {
-    switch (input.type) {
+    switch (type) {
         case "file":
         case "file[]":
             // TODO: What about non-unique files?
-            return <TreeSelect showSearch={true} treeDefaultExpandAll={true} multiple={input.type === "file[]"}>
-                <TreeSelect.TreeNode title="Drop Box" key="root">
-                    {generateFileTree(
-                        tree,
-                        entry => entry.hasOwnProperty("contents") ||
-                            input.extensions.find(e => entry.name.endsWith(e)) !== undefined,
-                    )}
-                </TreeSelect.TreeNode>
-            </TreeSelect>;
+            // TODO: Don't hard-code configured filesystem path for input files
+            return <DropBoxTreeSelect
+                nodeEnabled={dropBoxTreeNodeEnabled}
+                multiple={type === "file[]"}
+                basePrefix={BENTO_DROP_BOX_FS_BASE_PATH}
+            />;
 
         case "enum":
             // TODO: enum[]
-            return <Select>{input.values.map(v => <Select.Option key={v}>{v}</Select.Option>)}</Select>;
+            return <Select>{values.map(v => <Select.Option key={v}>{v}</Select.Option>)}</Select>;
 
         case "number":
             return <Input type="number" />;
@@ -55,7 +45,7 @@ const getInputComponent = (input, tree) => {
     }
 };
 
-const RunSetupInputForm = ({initialValues, form, onSubmit, tree, workflow, onBack}) => {
+const RunSetupInputForm = ({initialValues, form, onSubmit, workflow, onBack}) => {
     const handleSubmit = useCallback((e) => {
         e.preventDefault();
         form.validateFieldsAndScroll((err, values) => {
@@ -63,6 +53,8 @@ const RunSetupInputForm = ({initialValues, form, onSubmit, tree, workflow, onBac
             (onSubmit || nop)(values);
         });
     }, [form, onSubmit]);
+
+    const handleBack = useCallback(() => onBack(), [onBack]);
 
     return <Form labelCol={FORM_LABEL_COL} wrapperCol={FORM_WRAPPER_COL} onSubmit={handleSubmit}>
         {[
@@ -72,12 +64,12 @@ const RunSetupInputForm = ({initialValues, form, onSubmit, tree, workflow, onBac
                         initialValue: initialValues[i.id],  // undefined if not set
                         // Default to requiring the field unless the "required" property is set on the input
                         rules: [{required: i.required === undefined ? true : i.required}],
-                    })(getInputComponent(i, tree))}
+                    })(getInputComponent(i))}
                 </Form.Item>
             )),
 
             <Form.Item key="_submit" wrapperCol={FORM_BUTTON_COL}>
-                {onBack ? <Button icon="left" onClick={() => onBack()}>Back</Button> : null}
+                {onBack ? <Button icon="left" onClick={handleBack}>Back</Button> : null}
                 <Button type="primary" htmlType="submit" style={{float: "right"}}>
                     Next <Icon type="right" />
                 </Button>

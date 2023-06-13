@@ -2,7 +2,7 @@ import fetch from "cross-fetch";
 
 import {message} from "antd";
 
-import {BENTO_URL, IDP_BASE_URL} from "../config";
+import {BENTO_PUBLIC_URL, BENTO_URL, IDP_BASE_URL} from "../config";
 
 export const basicAction = t => () => ({type: t});
 
@@ -50,10 +50,10 @@ const _paginatedNetworkFetch = async (url, baseUrl, req, parse) => {
 
 
 const _networkAction = (fn, ...args) => async (dispatch, getState) => {
-    let fnResult = fn(...args);
+    let fnResult = await fn(...args);
     if (typeof fnResult === "function") {
         // Needs dispatch / getState, resolve those.
-        fnResult = fnResult(dispatch, getState);
+        fnResult = await fnResult(dispatch, getState);
     }
 
     const {types, params, url, baseUrl, req, err, onSuccess, onError, paginated} = fnResult;
@@ -61,9 +61,12 @@ const _networkAction = (fn, ...args) => async (dispatch, getState) => {
     // Only include access token when we are making a request to this Bento node or the IdP!
     // Otherwise, we could leak it to external sites.
 
-    const token = (url.startsWith("/") || url.startsWith(BENTO_URL) || url.startsWith(IDP_BASE_URL))
-        ? getState().auth.accessToken
-        : null;
+    const token = (
+        url.startsWith("/") ||
+        (BENTO_URL && url.startsWith(BENTO_URL)) ||
+        (BENTO_PUBLIC_URL && url.startsWith(BENTO_PUBLIC_URL)) ||
+        (IDP_BASE_URL && url.startsWith(IDP_BASE_URL))
+    ) ? getState().auth.accessToken : null;
 
     const finalReq = {
         ...(req ?? {
