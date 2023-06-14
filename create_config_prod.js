@@ -8,6 +8,10 @@ const siteConfig = {
     // OAuth/OIDC stuff
     CLIENT_ID: process.env.CLIENT_ID || null,
     OPENID_CONFIG_URL: process.env.OPENID_CONFIG_URL || null,
+    AUTH_CALLBACK_URL: process.env.AUTH_CALLBACK_URL || null,
+    IDP_BASE_URL: process.env.IDP_BASE_URL || null,
+
+    BENTO_DROP_BOX_FS_BASE_PATH: process.env.BENTO_DROP_BOX_FS_BASE_PATH || null,
 };
 
 if (typeof require !== "undefined" && require.main === module) {
