@@ -1,3 +1,5 @@
+import {BENTO_PUBLIC_URL} from "../../config";
+
 import {
     createNetworkActionTypes,
     createFlowActionTypes,
@@ -54,15 +56,15 @@ export const endDeletingServiceTable = (serviceInfo, dataTypeID, tableID) => ({
 });
 
 
-export const fetchCHORDServices = networkAction(() => ({
-    types: FETCH_CHORD_SERVICES,
-    url: "/api/service-registry/chord-services",
-    err: "Error fetching CHORD services",
+export const fetchBentoServices = networkAction(() => ({
+    types: FETCH_BENTO_SERVICES,
+    url: `${BENTO_PUBLIC_URL}/api/service-registry/bento-services`,
+    err: "Error fetching Bento services list",
 }));
 
 export const fetchServices = networkAction(() => ({
     types: FETCH_SERVICES,
-    url: "/api/service-registry/services",
+    url: `${BENTO_PUBLIC_URL}/api/service-registry/services`,
     err: "Error fetching services",
 }));
 
