@@ -1,5 +1,5 @@
 const siteConfig = {
-    BENTO_URL: process.env.BENTO_URL || process.env.CHORD_URL || null,
+    BENTO_URL: process.env.BENTO_URL || null,
     BENTO_CBIOPORTAL_ENABLED: ["true", "1", "yes"].includes((process.env.BENTO_CBIOPORTAL_ENABLED || "").toLowerCase()),
     BENTO_CBIOPORTAL_PUBLIC_URL: process.env.BENTO_CBIOPORTAL_PUBLIC_URL || null,
     CUSTOM_HEADER: (process.env.CUSTOM_HEADER || "").trim(),

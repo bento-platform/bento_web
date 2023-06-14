@@ -44,7 +44,7 @@ TableForm.propTypes = {
 
 const mapStateToProps = state => ({
     dataTypes: Object.entries(state.serviceDataTypes.dataTypesByServiceKind)
-        .filter(([k, _]) => state.chordServices.itemsByKind[k]?.manageable_tables ?? false)
+        .filter(([k, _]) => state.bentoServices.itemsByKind[k]?.manageable_tables ?? false)
         .flatMap(([serviceKind, dts]) =>
             (dts.items || []).map(dataType => ({dataType, serviceKind}))),
 });

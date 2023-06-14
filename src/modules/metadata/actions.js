@@ -430,8 +430,8 @@ export const deleteProjectTableIfPossible = (project, table) => (dispatch, getSt
     }
 
     const serviceKind = service.bento?.serviceKind ?? service.type.artifact;
-    const chordServiceInfo = getState().chordServices.itemsByKind[serviceKind];
-    if (!chordServiceInfo.manageable_tables) {
+    const bentoServiceInfo = getState().bentoServices.itemsByKind[serviceKind];
+    if (!bentoServiceInfo.manageable_tables) {
         // If manageable_tables is set and not true, we can't delete the table.
         return;
     }
