@@ -19,9 +19,7 @@ export const makeAuthorizationHeader = token => token ? {"Authorization": `Beare
 
 export const useAuthorizationHeader = () => {
     const {accessToken} = useSelector(state => state.auth);
-    return useMemo(
-        () => accessToken => accessToken ? {"Authorization": `Bearer ${accessToken}`} : {},
-        [accessToken]);
+    return useMemo(() => accessToken ? {"Authorization": `Bearer ${accessToken}`} : {}, [accessToken]);
 };
 
 export const useResourcePermissions = (resource) => {
