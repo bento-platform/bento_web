@@ -11,7 +11,7 @@ import {viewDropBox} from "../lib/auth/permissions";
 import {RESOURCE_EVERYTHING} from "../lib/auth/resources";
 import ManagerDRSContent from "./manager/drs/ManagerDRSContent";
 import ManagerAnalysisContent from "./manager/ManagerAnalysisContent";
-import {useResourcePermissions} from "../lib/auth/utils";
+import {useHasResourcePermission} from "../lib/auth/utils";
 
 const ManagerProjectDatasetContent = lazy(() => import("./manager/projects/ManagerProjectDatasetContent"));
 const ManagerAccessContent = lazy(() => import("./manager/ManagerAccessContent"));
@@ -34,7 +34,7 @@ const DataManagerContent = () => {
         document.title = `${SITE_NAME}: Admin / Data Manager`;
     }, []);
 
-    const everythingPermissions = useResourcePermissions(RESOURCE_EVERYTHING);
+    const {isFetching: fetchingPermission, hasPermission} = useHasResourcePermission(RESOURCE_EVERYTHING, viewDropBox);
 
     const menuItems = useMemo(() => [
         {url: "/admin/data/manager/projects", style: {marginLeft: "4px"}, text: "Projects and Datasets"},
@@ -42,15 +42,14 @@ const DataManagerContent = () => {
         {
             url: "/admin/data/manager/files",
             text: "Drop Box",
-            disabled: everythingPermissions?.isFetching ||
-                !(everythingPermissions?.permissions ?? []).includes(viewDropBox),
+            disabled: fetchingPermission || !hasPermission,
         },
         {url: "/admin/data/manager/ingestion", text: "Ingestion"},
         {url: "/admin/data/manager/analysis", text: "Analysis"},
         {url: "/admin/data/manager/workflows", text: "Workflows"},
         {url: "/admin/data/manager/runs", text: "Workflow Runs"},
         {url: "/admin/data/manager/drs", text: "DRS Objects"},
-    ], [everythingPermissions]);
+    ], [fetchingPermission, hasPermission]);
 
     const selectedKeys = useMemo(() => matchingMenuKeys(menuItems), [menuItems, window.location.pathname]);
 

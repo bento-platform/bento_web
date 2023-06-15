@@ -417,13 +417,28 @@ FileContentsModal.propTypes = {
 };
 
 
-const InfoDownloadButton = ({disabled, uri}) => (
-    <Button key="download" icon="download" disabled={disabled} onClick={() => {
-        if (uri) {
-            window.open(uri, "_blank");
+const InfoDownloadButton = ({disabled, uri}) => {
+    const {accessToken} = useSelector(state => state.auth);
+
+    const onClick = useCallback(() => {
+        if (!uri) return;
+
+        const form = document.createElement("form");
+        form.method = "post";
+        form.target = "_blank";
+        form.action = uri;
+        form.innerHTML = `<input type="hidden" name="token" value="${accessToken}" />`;
+        document.body.appendChild(form);
+        try {
+            form.submit();
+        } finally {
+            // Even if submit raises for some reason, we still need to clean this up; it has a token in it!
+            document.body.removeChild(form);
         }
-    }}>Download</Button>
-);
+    }, [uri, accessToken]);
+
+    return <Button key="download" icon="download" disabled={disabled} onClick={onClick}>Download</Button>;
+};
 InfoDownloadButton.defaultProps = {
     disabled: false,
 };
@@ -448,7 +463,7 @@ const ManagerDropBoxContent = () => {
     const dispatch = useDispatch();
     const history = useHistory();
 
-    const everythingPermissions = useResourcePermissions(RESOURCE_EVERYTHING);
+    const {permissions, hasAttempted} = useResourcePermissions(RESOURCE_EVERYTHING) ?? {};
 
     const dropBoxService = useSelector(state => state.services.dropBoxService);
     const {tree, isFetching: treeLoading, isDeleting} = useSelector(state => state.dropBox);
@@ -558,8 +573,8 @@ const ManagerDropBoxContent = () => {
         showTableSelectionModal(workflowsSupported[0]);
     }, [workflowsSupported]);
 
-    const hasUploadPermission = (everythingPermissions?.permissions ?? []).includes(ingestDropBox);
-    const hasDeletePermission = (everythingPermissions?.permissions ?? []).includes(deleteDropBox);
+    const hasUploadPermission = permissions.includes(ingestDropBox);
+    const hasDeletePermission = permissions.includes(deleteDropBox);
 
     const handleContainerDragLeave = useCallback(() => setDraggingOver(false), []);
     const handleDragEnter = useCallback(() => setDraggingOver(true), []);
@@ -637,7 +652,7 @@ const ManagerDropBoxContent = () => {
 
     const deleteDisabled = !dropBoxService || selectedFolder || selectedEntries.length !== 1 || !hasDeletePermission;
 
-    if (everythingPermissions?.hasAttempted && !hasUploadPermission) {
+    if (hasAttempted && !hasUploadPermission) {
         return <Layout>
             <Layout.Content style={LAYOUT_CONTENT_STYLE}>
                 <Result status="error" title="Forbidden" subTitle="You do not have permission to view the drop box." />

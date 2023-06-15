@@ -19,9 +19,7 @@ export const makeAuthorizationHeader = token => token ? {"Authorization": `Beare
 
 export const useAuthorizationHeader = () => {
     const {accessToken} = useSelector(state => state.auth);
-    return useMemo(
-        () => accessToken => accessToken ? {"Authorization": `Bearer ${accessToken}`} : {},
-        [accessToken]);
+    return useMemo(() => accessToken ? {"Authorization": `Bearer ${accessToken}`} : {}, [accessToken]);
 };
 
 export const useResourcePermissions = (resource) => {
@@ -36,5 +34,22 @@ export const useResourcePermissions = (resource) => {
 
     const key = useMemo(() => makeResourceKey(resource), [resource]);
 
-    return useSelector(state => state.auth.resourcePermissions[key]);
+    const {
+        permissions,
+        isFetching,
+        hasAttempted,
+        error,
+    } = useSelector(state => state.auth.resourcePermissions[key]) ?? {};
+
+    return {
+        permissions: permissions ?? [],
+        isFetching: isFetching ?? false,
+        hasAttempted: hasAttempted ?? false,
+        error: error ?? "",
+    };
+};
+
+export const useHasResourcePermission = (resource, permission) => {
+    const {permissions, isFetching} = useResourcePermissions(resource) ?? {};
+    return {isFetching, hasPermission: permissions.includes(permission)};
 };
