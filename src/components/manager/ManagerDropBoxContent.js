@@ -27,6 +27,7 @@ import {
     Layout,
     Menu,
     Modal,
+    Result,
     Spin,
     Statistic,
     Tree,
@@ -42,14 +43,17 @@ import JsonDisplay from "../JsonDisplay";
 import {BENTO_DROP_BOX_FS_BASE_PATH} from "../../config";
 import {STEP_INPUT} from "./workflowCommon";
 import {dropBoxTreeStateToPropsMixinPropTypes, workflowsStateToPropsMixin} from "../../propTypes";
-import {makeAuthorizationHeader} from "../../lib/auth/utils";
+import {useAuthorizationHeader, useResourcePermissions} from "../../lib/auth/utils";
 import {getFalse} from "../../utils/misc";
 import {
     beginDropBoxPuttingObjects,
     endDropBoxPuttingObjects,
     fetchDropBoxTreeOrFail,
     putDropBoxObject,
+    deleteDropBoxObject,
 } from "../../modules/manager/actions";
+import {RESOURCE_EVERYTHING} from "../../lib/auth/resources";
+import {deleteDropBox, ingestDropBox} from "../../lib/auth/permissions";
 
 
 SyntaxHighlighter.registerLanguage("json", json);
@@ -150,8 +154,7 @@ const stopEvent = event => {
 const FileDisplay = ({file, tree, treeLoading}) => {
     const urisByFilePath = useMemo(() => generateURIsByRelPath(tree, {}), [tree]);
 
-    const accessToken = useSelector(state => state.auth.accessToken);
-    const headers = useMemo(() => makeAuthorizationHeader(accessToken), [accessToken]);
+    const authHeader = useAuthorizationHeader();
 
     const [fileLoadError, setFileLoadError] = useState("");
     const [loadingFileContents, setLoadingFileContents] = useState(false);
@@ -160,8 +163,8 @@ const FileDisplay = ({file, tree, treeLoading}) => {
 
     const pdfOptions = useMemo(() => ({
         ...BASE_PDF_OPTIONS,
-        httpHeaders: headers,
-    }), [headers]);
+        httpHeaders: authHeader,
+    }), [authHeader]);
 
     let textFormat = false;
     if (file) {
@@ -195,7 +198,7 @@ const FileDisplay = ({file, tree, treeLoading}) => {
 
             try {
                 setLoadingFileContents(true);
-                const r = await fetch(urisByFilePath[file], {headers});
+                const r = await fetch(urisByFilePath[file], {headers: authHeader});
                 if (r.ok) {
                     const text = await r.text();
                     const content = (fileExt === "json" ? JSON.parse(text) : text);
@@ -414,13 +417,28 @@ FileContentsModal.propTypes = {
 };
 
 
-const InfoDownloadButton = ({disabled, uri}) => (
-    <Button key="download" icon="download" disabled={disabled} onClick={() => {
-        if (uri) {
-            window.open(uri, "_blank");
+const InfoDownloadButton = ({disabled, uri}) => {
+    const {accessToken} = useSelector(state => state.auth);
+
+    const onClick = useCallback(() => {
+        if (!uri) return;
+
+        const form = document.createElement("form");
+        form.method = "post";
+        form.target = "_blank";
+        form.action = uri;
+        form.innerHTML = `<input type="hidden" name="token" value="${accessToken}" />`;
+        document.body.appendChild(form);
+        try {
+            form.submit();
+        } finally {
+            // Even if submit raises for some reason, we still need to clean this up; it has a token in it!
+            document.body.removeChild(form);
         }
-    }}>Download</Button>
-);
+    }, [uri, accessToken]);
+
+    return <Button key="download" icon="download" disabled={disabled} onClick={onClick}>Download</Button>;
+};
 InfoDownloadButton.defaultProps = {
     disabled: false,
 };
@@ -442,10 +460,13 @@ const DROP_BOX_ROOT_KEY = "/";
 
 
 const ManagerDropBoxContent = () => {
+    const dispatch = useDispatch();
     const history = useHistory();
 
+    const {permissions, hasAttempted} = useResourcePermissions(RESOURCE_EVERYTHING) ?? {};
+
     const dropBoxService = useSelector(state => state.services.dropBoxService);
-    const {tree, isFetching: treeLoading} = useSelector(state => state.dropBox);
+    const {tree, isFetching: treeLoading, isDeleting} = useSelector(state => state.dropBox);
     const ingestionWorkflows = useSelector(state => workflowsStateToPropsMixin(state).workflows.ingestion);
 
     const filesByPath = useMemo(() => Object.fromEntries(
@@ -454,6 +475,7 @@ const ManagerDropBoxContent = () => {
     // Start with drop box root selected at first
     //  - Will enable the upload button so that users can quickly upload from initial page load
     const [selectedEntries, setSelectedEntries] = useState([DROP_BOX_ROOT_KEY]);
+    const firstSelectedEntry = useMemo(() => selectedEntries[0], [selectedEntries]);
 
     const [draggingOver, setDraggingOver] = useState(false);
 
@@ -463,6 +485,8 @@ const ManagerDropBoxContent = () => {
 
     const [fileInfoModal, setFileInfoModal] = useState(false);
     const [fileContentsModal, setFileContentsModal] = useState(false);
+
+    const [fileDeleteModal, setFileDeleteModal] = useState(false);
 
     const [selectedWorkflow, setSelectedWorkflow] = useState(null);
     const [tableSelectionModal, setTableSelectionModal] = useState(false);
@@ -549,6 +573,9 @@ const ManagerDropBoxContent = () => {
         showTableSelectionModal(workflowsSupported[0]);
     }, [workflowsSupported]);
 
+    const hasUploadPermission = permissions.includes(ingestDropBox);
+    const hasDeletePermission = permissions.includes(deleteDropBox);
+
     const handleContainerDragLeave = useCallback(() => setDraggingOver(false), []);
     const handleDragEnter = useCallback(() => setDraggingOver(true), []);
     const handleDragLeave = useCallback((e) => {
@@ -557,9 +584,10 @@ const ManagerDropBoxContent = () => {
         // only fires if we leave the drop zone.
         stopEvent(e);
     }, []);
-
     const handleDrop = useCallback(event => {
         stopEvent(event);
+        if (!hasUploadPermission) return;
+
         setDraggingOver(false);
 
         const items = event.dataTransfer?.items ?? [];
@@ -589,15 +617,48 @@ const ManagerDropBoxContent = () => {
         setInitialUploadFolder(DROP_BOX_ROOT_KEY);  // Root by default
         setInitialUploadFiles(Array.from(event.dataTransfer.files));
         showUploadModal();
-    }, [showUploadModal]);
+    }, [showUploadModal, hasUploadPermission]);
 
-    const selectedFolder = selectedEntries.length === 1 && filesByPath[selectedEntries[0]] === undefined;
+    const selectedFolder = selectedEntries.length === 1 && filesByPath[firstSelectedEntry] === undefined;
+
+    const hideFileDeleteModal = useCallback(() => setFileDeleteModal(false), []);
+    const showFileDeleteModal = useCallback(() => {
+        if (selectedEntries.length !== 1 || selectedFolder) return;
+        setFileDeleteModal(true);
+    }, [selectedEntries, selectedFolder]);
+    const handleDelete = useCallback(() => {
+        if (selectedEntries.length !== 1 || selectedFolder) return;
+        (async () => {
+            await dispatch(deleteDropBoxObject(firstSelectedEntry));
+            hideFileDeleteModal();
+        })();
+    }, [dispatch, selectedEntries]);
 
     const selectedFileViewable = selectedEntries.length === 1 && !selectedFolder &&
-        VIEWABLE_FILE_EXTENSIONS.filter(e => selectedEntries[0].endsWith(e)).length > 0;
+        VIEWABLE_FILE_EXTENSIONS.filter(e => firstSelectedEntry.endsWith(e)).length > 0;
 
-    const selectedFileInfoAvailable = selectedEntries.length === 1 && selectedEntries[0] in filesByPath;
-    const fileForInfo = selectedFileInfoAvailable ? selectedEntries[0] : "";
+    const selectedFileInfoAvailable = selectedEntries.length === 1 && firstSelectedEntry in filesByPath;
+    const fileForInfo = selectedFileInfoAvailable ? firstSelectedEntry : "";
+
+    const uploadDisabled = !selectedFolder || !hasUploadPermission;
+    // TODO: at least one ingest:data on all datasets vvv
+    const ingestIntoDatasetDisabled = !dropBoxService ||
+        selectedEntries.length === 0 || workflowsSupported.length === 0;
+
+    const handleUpload = useCallback(() => {
+        if (selectedFolder) setInitialUploadFolder(selectedEntries[0]);
+        showUploadModal();
+    }, [selectedFolder, selectedEntries]);
+
+    const deleteDisabled = !dropBoxService || selectedFolder || selectedEntries.length !== 1 || !hasDeletePermission;
+
+    if (hasAttempted && !hasUploadPermission) {
+        return <Layout>
+            <Layout.Content style={LAYOUT_CONTENT_STYLE}>
+                <Result status="error" title="Forbidden" subTitle="You do not have permission to view the drop box." />
+            </Layout.Content>
+        </Layout>;
+    }
 
     return <Layout>
         <Layout.Content style={LAYOUT_CONTENT_STYLE} onDragLeave={handleContainerDragLeave}>
@@ -619,7 +680,7 @@ const ManagerDropBoxContent = () => {
             />
 
             <FileContentsModal
-                selectedFilePath={selectedEntries.length === 1 ? selectedEntries[0] : null}
+                selectedFilePath={selectedEntries.length === 1 ? firstSelectedEntry : null}
                 visible={fileContentsModal}
                 onCancel={hideFileContentsModal}
             />
@@ -643,19 +704,23 @@ const ManagerDropBoxContent = () => {
                 </Descriptions>
             </Modal>
 
+            <Modal visible={fileDeleteModal}
+                   title={`Are you sure you want to delete '${firstSelectedEntry.split("/").at(-1)}'?`}
+                   okType="danger"
+                   okText="Delete"
+                   okButtonProps={{loading: isDeleting}}
+                   onOk={handleDelete}
+                   onCancel={hideFileDeleteModal}>
+                Doing so will permanently and irrevocably remove this file from the drop box. It will then be
+                unavailable for any ingestion or analysis.
+            </Modal>
+
             {/* ------------------------------ End of modals section ------------------------------ */}
 
             <div style={DROP_BOX_CONTENT_CONTAINER_STYLE}>
                 <div style={DROP_BOX_ACTION_CONTAINER_STYLE}>
-                    <Button icon="upload" onClick={() => {
-                        if (selectedFolder) setInitialUploadFolder(selectedEntries[0]);
-                        showUploadModal();
-                    }} disabled={!selectedFolder}>Upload</Button>
-                    <Dropdown.Button
-                        overlay={workflowMenu}
-                        disabled={!dropBoxService || selectedEntries.length === 0 || workflowsSupported.length === 0}
-                        onClick={handleIngest}
-                    >
+                    <Button icon="upload" onClick={handleUpload} disabled={uploadDisabled}>Upload</Button>
+                    <Dropdown.Button overlay={workflowMenu} disabled={ingestIntoDatasetDisabled} onClick={handleIngest}>
                         <Icon type="import" /> Ingest
                     </Dropdown.Button>
 
@@ -668,10 +733,13 @@ const ManagerDropBoxContent = () => {
                         </Button>
                         <InfoDownloadButton disabled={!selectedFileInfoAvailable} uri={filesByPath[fileForInfo]?.uri} />
                     </Button.Group>
-                    {/* TODO: Implement v0.2 */}
-                    {/*<Button type="danger" icon="delete" disabled={this.state.selectedFiles.length === 0}>*/}
-                    {/*    Delete*/}
-                    {/*</Button>*/}
+
+                    <Button type="danger"
+                            icon="delete"
+                            disabled={deleteDisabled}
+                            loading={isDeleting}
+                            onClick={showFileDeleteModal}>
+                        Delete</Button>
                 </div>
 
                 <Spin spinning={treeLoading}>

@@ -6,7 +6,7 @@ import {throttle} from "lodash";
 import {Layout, Input, Table, Button, Descriptions, message} from "antd";
 
 import {LAYOUT_CONTENT_STYLE} from "../../../styles/layoutContent";
-import {makeAuthorizationHeader} from "../../../lib/auth/utils";
+import {makeAuthorizationHeader, useAuthorizationHeader} from "../../../lib/auth/utils";
 
 const DRS_COLUMNS = [
     {
@@ -41,7 +41,8 @@ const DRS_COLUMNS = [
 
 const ManagerDRSContent = () => {
     const drsUrl = useSelector(state => state.services.drsService?.url);
-    const accessToken = useSelector(state => state.auth.accessToken);
+
+    const authHeader = useAuthorizationHeader();
 
     const [searchResults, setSearchResults] = useState([]);
     const [doneSearch, setDoneSearch] = useState(false);
@@ -60,7 +61,7 @@ const ManagerDRSContent = () => {
 
         setLoading(true);
 
-        const authHeaders = makeAuthorizationHeader(accessToken);
+        const authHeaders = makeAuthorizationHeader(authHeader);
         fetch(`${drsUrl}/search?` + new URLSearchParams({q: sv}), {method: "GET", headers: authHeaders})
             .then(r => Promise.all([Promise.resolve(r.ok), r.json()]))
             .then(([ok, data]) => {
@@ -78,7 +79,7 @@ const ManagerDRSContent = () => {
                 message.error(`Encountered error while fetching DRS objects: ${e}`);
                 console.error(e);
             });
-    }, 250, {leading: true, trailing: true}), [drsUrl]);
+    }, 250, {leading: true, trailing: true}), [drsUrl, authHeader]);
 
     return <Layout>
         <Layout.Content style={LAYOUT_CONTENT_STYLE}>

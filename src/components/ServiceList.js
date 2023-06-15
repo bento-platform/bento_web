@@ -6,7 +6,7 @@ import { Link } from "react-router-dom";
 
 import {Table, Typography, Tag, Icon, Button, Modal, Form, Input, Divider, Skeleton} from "antd";
 
-import {getIsAuthenticated, makeAuthorizationHeader} from "../lib/auth/utils";
+import {getIsAuthenticated, useAuthorizationHeader} from "../lib/auth/utils";
 import JsonDisplay from "./JsonDisplay";
 
 const SERVICE_KIND_STYLING = { fontFamily: "monospace" };
@@ -121,7 +121,7 @@ const ServiceRequestModal = ({service, onCancel}) => {
 
     const [hasAttempted, setHasAttempted] = useState(false);
 
-    const accessToken = useSelector((state) => state.auth.accessToken);
+    const authHeader = useAuthorizationHeader();
 
     const performRequestModalGet = useCallback(() => {
         if (!serviceUrl) {
@@ -133,7 +133,7 @@ const ServiceRequestModal = ({service, onCancel}) => {
 
             try {
                 const res = await fetch(`${serviceUrl}/${requestPath}`, {
-                    headers: makeAuthorizationHeader(accessToken),
+                    headers: authHeader,
                 });
 
                 if ((res.headers.get("content-type") ?? "").includes("application/json")) {
@@ -149,7 +149,7 @@ const ServiceRequestModal = ({service, onCancel}) => {
                 setRequestLoading(false);
             }
         })();
-    }, [serviceUrl, requestPath, accessToken]);
+    }, [serviceUrl, requestPath, authHeader]);
 
     useEffect(() => {
         setRequestData(null);
