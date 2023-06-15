@@ -38,3 +38,9 @@ export const useResourcePermissions = (resource) => {
 
     return useSelector(state => state.auth.resourcePermissions[key]);
 };
+
+export const useHasResourcePermission = (resource, permission) => {
+    const {permissions, isFetching} = useResourcePermissions(resource) ?? {};
+    const hasPermission = (permissions ?? []).includes(permission);
+    return {isFetching, hasPermission};
+};
