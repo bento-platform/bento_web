@@ -34,11 +34,22 @@ export const useResourcePermissions = (resource) => {
 
     const key = useMemo(() => makeResourceKey(resource), [resource]);
 
-    return useSelector(state => state.auth.resourcePermissions[key]);
+    const {
+        permissions,
+        isFetching,
+        hasAttempted,
+        error,
+    } = useSelector(state => state.auth.resourcePermissions[key]) ?? {};
+
+    return {
+        permissions: permissions ?? [],
+        isFetching: isFetching ?? false,
+        hasAttempted: hasAttempted ?? false,
+        error: error ?? "",
+    };
 };
 
 export const useHasResourcePermission = (resource, permission) => {
     const {permissions, isFetching} = useResourcePermissions(resource) ?? {};
-    const hasPermission = (permissions ?? []).includes(permission);
-    return {isFetching, hasPermission};
+    return {isFetching, hasPermission: permissions.includes(permission)};
 };
