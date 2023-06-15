@@ -417,13 +417,28 @@ FileContentsModal.propTypes = {
 };
 
 
-const InfoDownloadButton = ({disabled, uri}) => (
-    <Button key="download" icon="download" disabled={disabled} onClick={() => {
-        if (uri) {
-            window.open(uri, "_blank");
+const InfoDownloadButton = ({disabled, uri}) => {
+    const {accessToken} = useSelector(state => state.auth);
+
+    const onClick = useCallback(() => {
+        if (!uri) return;
+
+        const form = document.createElement("form");
+        form.method = "post";
+        form.target = "_blank";
+        form.action = uri;
+        form.innerHTML = `<input type="hidden" name="token" value="${accessToken}" />`;
+        document.body.appendChild(form);
+        try {
+            form.submit();
+        } finally {
+            // Even if submit raises for some reason, we still need to clean this up; it has a token in it!
+            document.body.removeChild(form);
         }
-    }}>Download</Button>
-);
+    }, [uri, accessToken]);
+
+    return <Button key="download" icon="download" disabled={disabled} onClick={onClick}>Download</Button>;
+};
 InfoDownloadButton.defaultProps = {
     disabled: false,
 };
