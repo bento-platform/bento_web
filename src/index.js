@@ -15,7 +15,7 @@ import {readFromLocalStorage, writeToLocalStorage} from "./utils/localStorageUti
 
 const LS_OPENID_CONFIG_KEY = "BENTO_OPENID_CONFIG";
 
-let persistedState = {};
+const persistedState = {};
 const persistedOpenIDConfig = readFromLocalStorage(LS_OPENID_CONFIG_KEY);
 if (persistedOpenIDConfig) {
     persistedState.openIdConfiguration = persistedOpenIDConfig;
