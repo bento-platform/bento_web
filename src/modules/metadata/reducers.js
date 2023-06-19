@@ -9,6 +9,7 @@ import {
     DELETE_PROJECT,
     SAVE_PROJECT,
 
+    FETCH_EXTRA_PROPERTIES_SCHEMA_TYPES,
     ADD_PROJECT_DATASET,
     SAVE_PROJECT_DATASET,
     DELETE_PROJECT_DATASET,
@@ -41,10 +42,12 @@ export const projects = (
         isAddingDataset: false,
         isSavingDataset: false,
         isDeletingDataset: false,
+        isFetchingExtraPropertiesSchemaInfo: false,
 
         isCreatingJsonSchema: false,
         isDeletingJsonSchema: false,
 
+        extraPropertiesSchemaTypes: {},
         items: [],
         itemsByID: {},
     },
@@ -203,7 +206,16 @@ export const projects = (
         case DELETE_PROJECT_DATASET.FINISH:
             return {...state, isDeletingDataset: false};
 
-        // CREATE_PROJECT_JSON_SCHEMA
+
+            // FETCH_EXTRA_PROPERTIES_SCHEMA_TYPES
+        case FETCH_EXTRA_PROPERTIES_SCHEMA_TYPES.REQUEST:
+            return {...state, isFetchingExtraPropertiesSchemaInfo: true};
+        case FETCH_EXTRA_PROPERTIES_SCHEMA_TYPES.RECEIVE:
+            return {...state, extraPropertiesSchemaTypes: action.data};
+        case FETCH_EXTRA_PROPERTIES_SCHEMA_TYPES.FINISH:
+            return {...state, isFetchingExtraPropertiesSchemaInfo: false};
+
+            // CREATE_PROJECT_JSON_SCHEMA
         case CREATE_PROJECT_JSON_SCHEMA.REQUEST:
             return {...state, isCreatingJsonSchema: true};
         case CREATE_PROJECT_JSON_SCHEMA.RECEIVE:
