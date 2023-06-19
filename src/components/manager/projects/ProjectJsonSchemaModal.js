@@ -8,6 +8,7 @@ import PropTypes from "prop-types";
 const ProjectJsonSchemaModal = ({projectId, visible, onOk, onCancel}) => {
     const dispatch = useDispatch();
     const isCreatingJsonSchema = useSelector((state) => state.projects.isCreatingJsonSchema);
+    const extraPropertiesSchemaTypes = useSelector((state) => state.projects.extraPropertiesSchemaTypes);
     const [inputFormFields, setInputFormFields] = useState({});
     const [fileContent, setFileContent] = useState(null);
 
@@ -50,7 +51,7 @@ const ProjectJsonSchemaModal = ({projectId, visible, onOk, onCancel}) => {
             ]}
         >
             <ProjectJsonSchemaForm
-                schemaTypes={["PHENOPACKET", "BIOSAMPLE", "INDIVIDUAL"]}
+                schemaTypes={extraPropertiesSchemaTypes ? Object.keys(extraPropertiesSchemaTypes) : []}
                 initialValues={{}}
                 formValues={inputFormFields}
                 onChange={setInputFormFields}
@@ -67,6 +68,7 @@ ProjectJsonSchemaModal.propTypes = {
 
     onOk: PropTypes.func,
     onCancel: PropTypes.func,
+    extraPropertiesSchemaTypes: PropTypes.object.isRequired,
 };
 
 export default ProjectJsonSchemaModal;
