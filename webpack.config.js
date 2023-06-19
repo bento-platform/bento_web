@@ -9,8 +9,8 @@ const PDF_CMAPS_DIR = path.join(path.dirname(require.resolve("pdfjs-dist/package
 const PDF_STANDARD_FONTS_DIR = path.join(
     path.dirname(require.resolve("pdfjs-dist/package.json")), "standard_fonts");
 
-// noinspection JSUnusedGlobalSymbols
 module.exports = {
+    devtool: "source-map",
     entry: ["babel-polyfill", path.resolve(__dirname, "./src/index.js")],
     module: {
         rules: [
@@ -31,7 +31,7 @@ module.exports = {
             {
                 test: /\.(png|jpe?g|gif|svg)$/i,
                 use: ["file-loader"],
-            },            
+            },
         ],
     },
     resolve: {
@@ -42,6 +42,7 @@ module.exports = {
         publicPath: "/",
         filename: "[name].js",
         chunkFilename: "[name].[contenthash].bundle.js",
+        sourceMapFilename: "[file].map",
     },
     optimization: {
         splitChunks: {

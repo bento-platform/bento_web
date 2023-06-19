@@ -13,6 +13,7 @@ import {recursiveOrderedObject} from "../../utils/misc";
 
 const nullSession = {
     sessionExpiry: null,
+    idToken: null,
     idTokenContents: null,
     accessToken: null,
     refreshToken: null,
@@ -32,6 +33,7 @@ export const auth = (
         // Below is token/token-derived data
 
         sessionExpiry: null,
+        idToken: null,
         idTokenContents: null,
 
         //  - NEVER dehydrate the below items to localStorage; it is a security risk!
@@ -71,6 +73,7 @@ export const auth = (
                 ...state,
                 hasAttempted,
                 sessionExpiry: (new Date()).getTime() / 1000 + exp,
+                idToken,
                 idTokenContents: decodeJwt(idToken),  // OK to decode ID token
                 accessToken,  // A client (i.e., the web app) MUST not decode the access token
                 refreshToken: refreshToken ?? state.refreshToken,
