@@ -1,3 +1,5 @@
+import {BENTO_PUBLIC_URL} from "../../config";
+
 import {
     createNetworkActionTypes,
     createFlowActionTypes,
@@ -12,7 +14,7 @@ import {createURLSearchParams} from "../../utils/requests";
 
 
 /**
- * @typedef {Object} CHORDService
+ * @typedef {Object} BentoService
  * @property {string} artifact
  * @property {string} url
  * @property {boolean} data_service
@@ -22,7 +24,7 @@ import {createURLSearchParams} from "../../utils/requests";
 
 export const LOADING_ALL_SERVICE_DATA = createFlowActionTypes("LOADING_ALL_SERVICE_DATA");
 
-export const FETCH_CHORD_SERVICES = createNetworkActionTypes("FETCH_CHORD_SERVICES");
+export const FETCH_BENTO_SERVICES = createNetworkActionTypes("FETCH_BENTO_SERVICES");
 export const FETCH_SERVICES = createNetworkActionTypes("FETCH_SERVICES");
 
 export const FETCH_SERVICE_DATA_TYPES = createNetworkActionTypes("FETCH_SERVICE_DATA_TYPES");
@@ -54,15 +56,15 @@ export const endDeletingServiceTable = (serviceInfo, dataTypeID, tableID) => ({
 });
 
 
-export const fetchCHORDServices = networkAction(() => ({
-    types: FETCH_CHORD_SERVICES,
-    url: "/api/service-registry/chord-services",
-    err: "Error fetching CHORD services",
+export const fetchBentoServices = networkAction(() => ({
+    types: FETCH_BENTO_SERVICES,
+    url: `${BENTO_PUBLIC_URL}/api/service-registry/bento-services`,
+    err: "Error fetching Bento services list",
 }));
 
 export const fetchServices = networkAction(() => ({
     types: FETCH_SERVICES,
-    url: "/api/service-registry/services",
+    url: `${BENTO_PUBLIC_URL}/api/service-registry/services`,
     err: "Error fetching services",
 }));
 
@@ -91,7 +93,7 @@ export const fetchServicesWithMetadataAndDataTypesAndTables = (onServiceFetchFin
     dispatch(beginFlow(LOADING_ALL_SERVICE_DATA));
 
     // Fetch Services
-    await Promise.all([dispatch(fetchCHORDServices()), dispatch(fetchServices())]);
+    await Promise.all([dispatch(fetchBentoServices()), dispatch(fetchServices())]);
     if (!getState().services.items) {
         // Something went wrong, terminate early
         dispatch(terminateFlow(LOADING_ALL_SERVICE_DATA));
@@ -109,9 +111,9 @@ export const fetchServicesWithMetadataAndDataTypesAndTables = (onServiceFetchFin
         const serviceKind = s.bento?.serviceKind ?? s.type.artifact;
         return {
             ...s,
-            chordService: getState().chordServices.itemsByKind[serviceKind] ?? null,
+            bentoService: getState().bentoServices.itemsByKind[serviceKind] ?? null,
         };
-    }).filter(s => s.chordService?.data_service ?? false);
+    }).filter(s => s.bentoService?.data_service ?? false);
 
     // - Custom stuff to start - explicitly don't wait for this promise to finish since it runs parallel to this flow.
     if (onServiceFetchFinish) onServiceFetchFinish();
@@ -145,7 +147,7 @@ export const fetchServicesWithMetadataAndDataTypesAndTables = (onServiceFetchFin
 export const fetchServicesWithMetadataAndDataTypesAndTablesIfNeeded = (onServiceFetchFinish) =>
     (dispatch, getState) => {
         const state = getState();
-        if ((Object.keys(state.chordServices.itemsByArtifact).length === 0 || state.services.items.length === 0 ||
+        if ((Object.keys(state.bentoServices.itemsByArtifact).length === 0 || state.services.items.length === 0 ||
                 Object.keys(state.serviceDataTypes.dataTypesByServiceID).length === 0) &&
                 !state.services.isFetchingAll) {
             return dispatch(fetchServicesWithMetadataAndDataTypesAndTables(onServiceFetchFinish));

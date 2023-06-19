@@ -111,7 +111,7 @@ const serviceColumns = (isAuthenticated, setRequestModalService) => [
 /* eslint-enable react/prop-types */
 
 const ServiceRequestModal = ({service, onCancel}) => {
-    const bentoServicesByKind = useSelector(state => state.chordServices.itemsByKind);
+    const bentoServicesByKind = useSelector(state => state.bentoServices.itemsByKind);
     const serviceUrl = useMemo(() => bentoServicesByKind[service]?.url, [bentoServicesByKind, service]);
 
     const [requestPath, setRequestPath] = useState("service-info");
@@ -215,7 +215,7 @@ const ServiceList = () => {
     const [requestModalService, setRequestModalService] = useState(null);
 
     const dataSource = useSelector((state) =>
-        Object.entries(state.chordServices.itemsByKind).map(([kind, service]) => ({
+        Object.entries(state.bentoServices.itemsByKind).map(([kind, service]) => ({
             ...service,
             key: kind,
             serviceInfo: state.services.itemsByKind[kind] ?? null,
@@ -235,7 +235,7 @@ const ServiceList = () => {
         [isAuthenticated]);
 
     /** @type boolean */
-    const isLoading = useSelector((state) => state.chordServices.isFetching || state.services.isFetching);
+    const isLoading = useSelector((state) => state.bentoServices.isFetching || state.services.isFetching);
 
     return <>
         <ServiceRequestModal

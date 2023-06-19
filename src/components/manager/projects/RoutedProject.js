@@ -11,7 +11,7 @@ import ProjectSkeleton from "./ProjectSkeleton";
 import {deleteProjectIfPossible, saveProjectIfPossible} from "../../../modules/metadata/actions";
 import {beginProjectEditing, endProjectEditing} from "../../../modules/manager/actions";
 import {FORM_MODE_ADD, FORM_MODE_EDIT} from "../../../constants";
-import {chordServicePropTypesMixin, projectPropTypesShape, serviceInfoPropTypesShape} from "../../../propTypes";
+import {bentoServicePropTypesMixin, projectPropTypesShape, serviceInfoPropTypesShape} from "../../../propTypes";
 import ProjectJsonSchemaModal from "./ProjectJsonSchemaModal";
 
 class RoutedProject extends Component {
@@ -109,12 +109,12 @@ class RoutedProject extends Component {
          */
         const projectTableRecords = this.props.projectTablesByProjectID[selectedProjectID] || [];
 
-        const chordServicesByKind = this.props.chordServicesByKind;
+        const bentoServicesByKind = this.props.bentoServicesByKind;
         const serviceDataTypesByServiceID = this.props.serviceDataTypesByServiceID;
 
         const manageableDataTypes = this.props.services
             .filter(s => {
-                const cs = chordServicesByKind[s.bento?.serviceKind ?? s.type.artifact] ?? {};
+                const cs = bentoServicesByKind[s.bento?.serviceKind ?? s.type.artifact] ?? {};
                 return (
                     cs.data_service &&  // Service in question must be a data service to have manageable tables ...
                     cs.manageable_tables &&  // ... and it must have manageable tables specified ...
@@ -187,7 +187,7 @@ RoutedProject.propTypes = {
     editingProject: PropTypes.bool,
     savingProject: PropTypes.bool,
 
-    chordServicesByKind: PropTypes.objectOf(PropTypes.shape(chordServicePropTypesMixin)),
+    bentoServicesByKind: PropTypes.objectOf(PropTypes.shape(bentoServicePropTypesMixin)),
 
     services: PropTypes.arrayOf(serviceInfoPropTypesShape),
     servicesByID: PropTypes.objectOf(serviceInfoPropTypesShape),
@@ -221,7 +221,7 @@ const mapStateToProps = state => ({
     editingProject: state.manager.editingProject,
     savingProject: state.projects.isSaving,
 
-    chordServicesByKind: state.chordServices.itemsByKind,
+    bentoServicesByKind: state.bentoServices.itemsByKind,
 
     services: state.services.items,
     servicesByID: state.services.itemsByID,

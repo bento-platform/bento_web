@@ -1,6 +1,6 @@
 /* global BENTO_WEB_CONFIG:false */
 
-export const BENTO_URL = BENTO_WEB_CONFIG.BENTO_URL ?? process.env.BENTO_URL ?? process.env.CHORD_URL ?? null;
+export const BENTO_URL = BENTO_WEB_CONFIG.BENTO_URL ?? process.env.BENTO_URL ?? null;
 export const BENTO_PUBLIC_URL = BENTO_WEB_CONFIG.BENTO_PUBLIC_URL ?? process.env.BENTO_PUBLIC_URL ?? null;
 export const BENTO_URL_NO_TRAILING_SLASH = BENTO_URL.replace(/\/$/g, "");
 
