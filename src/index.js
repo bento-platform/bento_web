@@ -11,10 +11,27 @@ import "antd/es/message/style/css";
 import rootReducer from "./reducers";
 
 import App from "./components/App";
+import {readFromLocalStorage, writeToLocalStorage} from "./utils/localStorageUtils";
+
+const LS_OPENID_CONFIG_KEY = "BENTO_OPENID_CONFIG";
+
+let persistedState = {};
+const persistedOpenIDConfig = readFromLocalStorage(LS_OPENID_CONFIG_KEY);
+if (persistedOpenIDConfig) {
+    persistedState.openIdConfiguration = persistedOpenIDConfig;
+}
 
 // noinspection JSUnresolvedVariable
 const composeEnhancers = window.__REDUX_DEVTOOLS_EXTENSION_COMPOSE__ || compose;
-export const store = createStore(rootReducer, composeEnhancers(applyMiddleware(thunkMiddleware)));
+export const store = createStore(rootReducer, persistedState, composeEnhancers(applyMiddleware(thunkMiddleware)));
+
+store.subscribe(() => {
+    // noinspection JSUnresolvedReference
+    const {data, expiry, isFetching} = store.getState().openIdConfiguration;
+    if (data && expiry && !isFetching) {
+        writeToLocalStorage(LS_OPENID_CONFIG_KEY, {data, expiry, isFetching});
+    }
+});
 
 document.addEventListener("DOMContentLoaded", () => {
     const root = document.getElementById("root");

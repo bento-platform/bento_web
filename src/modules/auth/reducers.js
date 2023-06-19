@@ -195,6 +195,7 @@ export const auth = (
 export const openIdConfiguration = (
     state = {
         data: null,
+        expiry: null,
         isFetching: false,
     },
     action,
@@ -203,9 +204,9 @@ export const openIdConfiguration = (
         case FETCH_OPENID_CONFIGURATION.REQUEST:
             return {...state, isFetching: true};
         case FETCH_OPENID_CONFIGURATION.RECEIVE:
-            return {...state, data: action.data};
+            return {...state, data: action.data, expiry: Date.now() / 1000 + (3 * 60 * 60)};  // Cache for 3 hours
         case FETCH_OPENID_CONFIGURATION.ERROR:
-            return {...state, data: null};
+            return {...state, data: null, expiry: null};
         case FETCH_OPENID_CONFIGURATION.FINISH:
             return {...state, isFetching: false};
         default:

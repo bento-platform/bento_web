@@ -69,8 +69,8 @@ export const fetchUserDependentData = (servicesCb) => async (dispatch, getState)
 
 export const FETCH_OPENID_CONFIGURATION = createNetworkActionTypes("FETCH_OPENID_CONFIGURATION");
 export const fetchOpenIdConfigurationIfNeeded = () => async (dispatch, getState) => {
-    const {isFetching, data: existingData} = getState().openIdConfiguration;
-    if (isFetching || !!existingData) return;
+    const {isFetching, data: existingData, expiry} = getState().openIdConfiguration;
+    if (isFetching || (!!existingData && expiry && Date.now() < expiry * 1000)) return;
 
     const err = () => {
         message.error("Could not fetch identity provider configuration");
