@@ -56,9 +56,9 @@ const ProjectJsonSchemaForm = ({ style, schemaTypes, initialValues, setFileConte
                     rules: [{ required: true }],
                 })(
                     <Select>
-                        {schemaTypes.map(option => (
+                        {Object.entries(schemaTypes).map(([option, value]) => (
                             <Select.Option key={option} value={option}>
-                                {option}
+                                {value.toUpperCase()}
                             </Select.Option>
                         ))}
                     </Select>,
@@ -110,7 +110,7 @@ const JSON_SCHEMA_FORM_SHAPE = PropTypes.shape({
 
 ProjectJsonSchemaForm.propTypes = {
     style: PropTypes.object,
-    schemaTypes: PropTypes.arrayOf(PropTypes.string).isRequired,
+    schemaTypes: PropTypes.objectOf(PropTypes.string).isRequired,
     initialValues: JSON_SCHEMA_FORM_SHAPE,
     formValues: JSON_SCHEMA_FORM_SHAPE,
     fileContent: PropTypes.object,
