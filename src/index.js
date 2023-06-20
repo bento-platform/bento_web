@@ -18,6 +18,7 @@ const LS_OPENID_CONFIG_KEY = "BENTO_OPENID_CONFIG";
 const persistedState = {};
 const persistedOpenIDConfig = readFromLocalStorage(LS_OPENID_CONFIG_KEY);
 if (persistedOpenIDConfig) {
+    console.debug("attempting to load OpenID configuration from localStorage");
     persistedState.openIdConfiguration = persistedOpenIDConfig;
 }
 
