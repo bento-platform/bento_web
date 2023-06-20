@@ -1,7 +1,6 @@
-import React, {useCallback, useRef, useEffect} from "react";
+import React, { useCallback, useRef } from "react";
 import { useSelector, useDispatch } from "react-redux";
-import { withRouter, useHistory } from "react-router-dom";
-import PropTypes from "prop-types";
+import { useHistory } from "react-router-dom";
 
 import { Button, Modal } from "antd";
 
@@ -39,15 +38,15 @@ const ProjectCreationModal = () => {
             form.current.resetFields();
             dispatch(toggleProjectCreationModal());
         });
-    }, [dispatch])
+    }, [dispatch]);
 
     return <Modal visible={showCreationModal} title="Create Project" width={600} footer={[
         <Button key="cancel" onClick={handleCreateCancel}>Cancel</Button>,
         <Button key="create"
-            icon="plus"
-            type="primary"
-            onClick={handleCreateSubmit}
-            loading={isCreatingProject}>Create</Button>,
+                icon="plus"
+                type="primary"
+                onClick={handleCreateSubmit}
+                loading={isCreatingProject}>Create</Button>,
     ]} onCancel={handleCreateCancel}><ProjectForm ref={ref => form.current = ref} /></Modal>;
 
 };

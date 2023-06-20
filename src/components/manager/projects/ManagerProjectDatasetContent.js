@@ -57,7 +57,7 @@ const ManagerProjectDatasetContent = () => {
                     </Empty>
                 </Layout.Content>
             </Layout>
-        </>
+        </>;
     }
 
     return <>
