@@ -7,6 +7,7 @@ import {Button, Card, Col, Divider, Empty, Icon, Modal, Row, Typography} from "a
 import DataUseDisplay from "../DataUseDisplay";
 
 import {
+    addDatasetLinkedFieldSetIfPossible,
     deleteProjectDatasetIfPossible,
     deleteDatasetLinkedFieldSetIfPossible,
 } from "../../modules/metadata/actions";
@@ -27,6 +28,26 @@ const DATASET_CARD_TABS = [
     {key: "linked_field_sets", tab: "Linked Field Sets"},
     {key: "data_use", tab: "Consent Codes and Data Use"},
 ];
+
+
+const DEFAULT_BIOSAMPLE_LFS = {
+    name: "BIO_SAMPLE_LFS",
+    fields: {
+        variant: [
+            "calls",
+            "[item]",
+            "sample_id",
+        ],
+        experiment: [
+            "biosample",
+        ],
+        phenopacket: [
+            "biosamples",
+            "[item]",
+            "id",
+        ],
+    },
+};
 
 
 class Dataset extends Component {
@@ -112,12 +133,18 @@ class Dataset extends Component {
                     <Typography.Title level={4}>
                         Linked Field Sets
                         {isPrivate ? (
-                            <div style={{float: "right"}}>
+                            <div style={{float: "right", display: "flex", flexDirection: "column", gap: "10px"}}>
                                 <Button icon="plus"
                                         style={{verticalAlign: "top"}}
                                         type="primary"
                                         onClick={() => this.setState({fieldSetAdditionModalVisible: true})}>
                                     Add Linked Field Set
+                                </Button>
+                                <Button icon="plus"
+                                        style={{verticalAlign: "top"}}
+                                        type="primary"
+                                        onClick={() => this.props.addLinkedFieldSet(this.state, DEFAULT_BIOSAMPLE_LFS)}>
+                                    Default Biosample Field Set
                                 </Button>
                             </div>
                         ) : null}
@@ -260,6 +287,7 @@ Dataset.propTypes = {
     onEdit: PropTypes.func,
     onTableIngest: PropTypes.func,
 
+    addLinkedFieldSet: PropTypes.func,
     deleteProjectDataset: PropTypes.func,
     deleteLinkedFieldSet: PropTypes.func,
 };
@@ -273,6 +301,8 @@ const mapStateToProps = state => ({
 });
 
 const mapDispatchToProps = (dispatch, ownProps) => ({
+    addLinkedFieldSet: (dataset, newLinkedFieldSet, onSuccess) =>
+        dispatch(addDatasetLinkedFieldSetIfPossible(dataset, newLinkedFieldSet, onSuccess)),
     deleteProjectDataset: dataset => dispatch(deleteProjectDatasetIfPossible(ownProps.project, dataset)),
     deleteLinkedFieldSet: (dataset, linkedFieldSet, linkedFieldSetIndex) =>
         dispatch(deleteDatasetLinkedFieldSetIfPossible(dataset, linkedFieldSet, linkedFieldSetIndex)),
