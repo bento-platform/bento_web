@@ -41,20 +41,23 @@ const ManagerProjectDatasetContent = () => {
         () => dispatch(toggleProjectCreationModalAction()), [dispatch]);
 
     if (!isFetchingDependentData && projectMenuItems.length === 0) {
-        return <Layout>
-            <Layout.Content style={LAYOUT_CONTENT_STYLE}>
-                <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} description={false}>
-                    <Typography.Title level={3}>No Projects</Typography.Title>
-                    <Typography.Paragraph style={PROJECT_HELP_TEXT_STYLE}>
-                        To create datasets and ingest data, you have to create a Bento project
-                        first. Bento projects have a name and description, and let you group related
-                        datasets together. You can then specify project-wide consent codes and data use
-                        restrictions to control data access.
-                    </Typography.Paragraph>
-                    <Button type="primary" icon="plus" onClick={toggleProjectCreationModal}>Create Project</Button>
-                </Empty>
-            </Layout.Content>
-        </Layout>;
+        return  <>
+            <ProjectCreationModal />
+            <Layout>
+                <Layout.Content style={LAYOUT_CONTENT_STYLE}>
+                    <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} description={false}>
+                        <Typography.Title level={3}>No Projects</Typography.Title>
+                        <Typography.Paragraph style={PROJECT_HELP_TEXT_STYLE}>
+                            To create datasets and ingest data, you have to create a Bento project
+                            first. Bento projects have a name and description, and let you group related
+                            datasets together. You can then specify project-wide consent codes and data use
+                            restrictions to control data access.
+                        </Typography.Paragraph>
+                        <Button type="primary" icon="plus" onClick={toggleProjectCreationModal}>Create Project</Button>
+                    </Empty>
+                </Layout.Content>
+            </Layout>
+        </>
     }
 
     return <>
