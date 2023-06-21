@@ -131,7 +131,7 @@ export const generateSchemaTableData = treeData =>
 export const getFieldSchema = (schema, fieldString) => {
     const components = fieldString.split(".");
     if (components.length === 0 || components[0] !== ROOT_SCHEMA_ID) {
-        // Field string doesn't correspond to the format mandated by the CHORD front end.
+        // Field string doesn't correspond to the format mandated by the Bento front end.
         throw new Error("Invalid format for field string.");
     }
 

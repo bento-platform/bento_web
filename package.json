@@ -1,6 +1,6 @@
 {
   "name": "bento_web",
-  "version": "2.0.0",
+  "version": "2.1.0",
   "description": "Bento platform front-end",
   "main": "src/index.js",
   "dependencies": {
@@ -65,14 +65,14 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/c3g/chord_web.git"
+    "url": "git+https://github.com/bento-platform/bento_web.git"
   },
   "author": "David Lougheed <david.lougheed@mail.mcgill.ca>",
   "license": "LGPL-3.0-only",
   "bugs": {
-    "url": "https://github.com/c3g/chord_web/issues"
+    "url": "https://github.com/bento-platform/bento_web/issues"
   },
-  "homepage": "https://github.com/c3g/chord_web#readme",
+  "homepage": "https://github.com/bento-platform/bento_web#readme",
   "prettier": {
     "trailingComma": "es5",
     "tabWidth": 4,

@@ -1,5 +1,4 @@
 import React, {useCallback, useEffect, useState} from "react";
-import {useSelector} from "react-redux";
 import {useLocation} from "react-router-dom";
 import PropTypes from "prop-types";
 
@@ -8,7 +7,6 @@ import {Layout, Steps} from "antd";
 import RunSetupInputForm from "./RunSetupInputForm";
 
 import {LAYOUT_CONTENT_STYLE} from "../../styles/layoutContent";
-import {dropBoxTreeStateToPropsMixin} from "../../propTypes";
 import {
     STEP_WORKFLOW_SELECTION,
     STEP_INPUT,
@@ -23,8 +21,6 @@ const RunSetupWizard = ({
     onSubmit,
 }) => {
     const location = useLocation();
-
-    const {tree} = useSelector(dropBoxTreeStateToPropsMixin);
 
     const [step, setStep] = useState(STEP_WORKFLOW_SELECTION);
     const [selectedWorkflow, setSelectedWorkflow] = useState(null);
@@ -83,7 +79,6 @@ const RunSetupWizard = ({
             case STEP_INPUT:
                 return <RunSetupInputForm
                     workflow={selectedWorkflow}
-                    tree={tree}
                     initialValues={initialInputValues}
                     formValues={inputFormFields}
                     onChange={setInputFormFields}
@@ -100,7 +95,6 @@ const RunSetupWizard = ({
         workflowSelectionValues,
         inputs,
         selectedWorkflow,
-        tree,
         initialInputValues,
         inputFormFields,
         handleInputSubmit,

@@ -11,7 +11,6 @@ import {useHistory} from "react-router-dom";
 import RunSetupWizard from "./RunSetupWizard";
 import RunSetupInputsTable from "./RunSetupInputsTable";
 import {submitAnalysisWorkflowRun} from "../../modules/wes/actions";
-import {withBasePath} from "../../utils/url";
 
 const AnalysisWorkflowSelection = ({handleWorkflowClick}) => {
     const {workflows, workflowsLoading} = useSelector(workflowsStateToPropsMixin);
@@ -90,7 +89,7 @@ const ManagerAnalysisContent = () => {
                 serviceInfo,
                 selectedWorkflow,
                 inputs,
-                withBasePath("admin/data/manager/runs"),
+                "/admin/data/manager/runs",
                 history,
             ));
         }}

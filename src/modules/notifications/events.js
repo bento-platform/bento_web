@@ -31,7 +31,7 @@ export default {
 
         const wesClickAction = () => {
             dispatch(markNotificationAsRead(notificationData.id));
-            dispatch(navigateToWESRun(notificationData.action_target, dispatch, history));
+            dispatch(navigateToWESRun(notificationData.action_target, history));
         };
 
         switch (message.data.notification_type) {

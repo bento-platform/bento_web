@@ -20,7 +20,6 @@ import {
 } from "../../utils/actions";
 import {nop, objectWithoutProps} from "../../utils/misc";
 import {jsonRequest} from "../../utils/requests";
-import {withBasePath} from "../../utils/url";
 import {makeAuthorizationHeader} from "../../lib/auth/utils";
 
 
@@ -91,7 +90,7 @@ const createProject = networkAction((project, history) => (dispatch, getState) =
     req: jsonRequest(project, "POST"),
     err: "Error creating project",
     onSuccess: data => {
-        if (history) history.push(withBasePath(`admin/data/manager/projects/${data.identifier}`));
+        if (history) history.push(`/admin/data/manager/projects/${data.identifier}`);
         message.success(`Project '${data.title}' created!`);
     },
 }));
@@ -431,8 +430,8 @@ export const deleteProjectTableIfPossible = (project, table) => (dispatch, getSt
     }
 
     const serviceKind = service.bento?.serviceKind ?? service.type.artifact;
-    const chordServiceInfo = getState().chordServices.itemsByKind[serviceKind];
-    if (!chordServiceInfo.manageable_tables) {
+    const bentoServiceInfo = getState().bentoServices.itemsByKind[serviceKind];
+    if (!bentoServiceInfo.manageable_tables) {
         // If manageable_tables is set and not true, we can't delete the table.
         return;
     }

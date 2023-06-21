@@ -6,7 +6,7 @@ import { Col, Divider, Modal, Row, Skeleton, Statistic, Typography } from "antd"
 import CustomPieChart from "../overview/CustomPieChart";
 import Histogram from "../overview/Histogram";
 
-import { makeAuthorizationHeader } from "../../lib/auth/utils";
+import { useAuthorizationHeader } from "../../lib/auth/utils";
 import { explorerSearchResultsPropTypesShape } from "../../propTypes";
 
 const CHART_HEIGHT = 300;
@@ -58,7 +58,7 @@ const SearchSummaryModal = ({ searchResults, ...props }) => {
     const [data, setData] = useState(null);
 
     const katsuUrl = useSelector((state) => state.services.itemsByArtifact.metadata.url);
-    const accessToken = useSelector((state) => state.auth.accessToken);
+    const authorizationHeader = useAuthorizationHeader();
 
     useEffect(() => {
         const ids = searchResults.searchFormattedResults.map(({ key }) => key);
@@ -69,7 +69,7 @@ const SearchSummaryModal = ({ searchResults, ...props }) => {
 
         const requestOptions = {
             method: "POST",
-            headers: new Headers({"Content-Type": "application/json", ...makeAuthorizationHeader(accessToken)}),
+            headers: new Headers({"Content-Type": "application/json", ...authorizationHeader}),
             body: raw,
             redirect: "follow",
         };

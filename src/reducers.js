@@ -16,7 +16,7 @@ import {
 import {manager, dropBox} from "./modules/manager/reducers";
 import {notifications} from "./modules/notifications/reducers";
 import {
-    chordServices,
+    bentoServices,
     services,
     serviceDataTypes,
     serviceTables,
@@ -55,7 +55,7 @@ const rootReducer = combineReducers({
     notifications,
 
     // Services module
-    chordServices,
+    bentoServices,
     services,
     serviceDataTypes,
     serviceTables,

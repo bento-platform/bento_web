@@ -49,7 +49,7 @@ ServiceOverview.propTypes = {
 
 const mapStateToProps = state => ({
     serviceInfoByKind: state.services.itemsByKind,
-    bentoServicesByKind: state.chordServices.itemsByKind,
+    bentoServicesByKind: state.bentoServices.itemsByKind,
 });
 
 export default connect(mapStateToProps)(ServiceOverview);

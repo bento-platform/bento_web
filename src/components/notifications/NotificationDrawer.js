@@ -7,7 +7,6 @@ import {Button, Divider, Drawer} from "antd";
 import NotificationList from "./NotificationList";
 
 import {hideNotificationDrawer, markAllNotificationsAsRead} from "../../modules/notifications/actions";
-import {withBasePath} from "../../utils/url";
 
 
 const NotificationDrawer = React.memo(() => {
@@ -19,7 +18,7 @@ const NotificationDrawer = React.memo(() => {
     }, []);
     const seeAllNotifications = useCallback(() => {
         dispatch(hideNotificationDrawer());
-        history.push(withBasePath("notifications"));
+        history.push("/notifications");
     }, [dispatch, history]);
     const hideNotificationDrawer_ = useCallback(() => {
         dispatch(hideNotificationDrawer());

@@ -6,7 +6,6 @@ import { Badge, Icon, Layout, Menu } from "antd";
 import { BENTO_CBIOPORTAL_ENABLED, BENTO_URL_NO_TRAILING_SLASH, CLIENT_ID, CUSTOM_HEADER } from "../config";
 import { showNotificationDrawer } from "../modules/notifications/actions";
 import { matchingMenuKeys, renderMenuItem } from "../utils/menu";
-import { BASE_PATH, withBasePath } from "../utils/url";
 
 import OverviewSettingsControl from "./overview/OverviewSettingsControl";
 import { performAuth, setLSNotSignedIn } from "../lib/auth/performAuth";
@@ -15,11 +14,13 @@ import { signOut } from "../modules/auth/actions";
 
 
 const LinkedLogo = React.memo(() =>
-    <Link to={BASE_PATH}>
+    <Link to="/">
         <div style={{ margin: "0 20px 0 0", float: "left" }}>
-            <img style={{ height: "32px", verticalAlign: "top", marginTop: "15px" }}
-                 src={withBasePath("static/branding.png")}
-                 alt={CUSTOM_HEADER || "Bento"} />
+            <img
+                style={{ height: "32px", verticalAlign: "top", marginTop: "15px" }}
+                src="/static/branding.png"
+                alt={CUSTOM_HEADER || "Bento"}
+            />
         </div>
     </Link>,
 );
@@ -57,13 +58,13 @@ const SiteHeader = () => {
 
     const menuItems = useMemo(() => [
         {
-            url: withBasePath("overview"),
+            url: "/overview",
             icon: <Icon type="user" />,
             text: "Overview",
             key: "overview",
         },
         {
-            url: withBasePath("data/explorer"),
+            url: "/data/explorer",
             icon: <Icon type="bar-chart" />,
             text: "Explorer",
             disabled: !isAuthenticated,
@@ -72,7 +73,7 @@ const SiteHeader = () => {
         // TODO: Only if cBioPortal access is enabled for any project/dataset or something like that...
         ...(BENTO_CBIOPORTAL_ENABLED ? [
             {
-                url: withBasePath("cbioportal"),
+                url: "/cbioportal",
                 icon: <Icon type="dot-chart" />,
                 text: "cBioPortal",
                 key: "cbioportal",
@@ -80,21 +81,21 @@ const SiteHeader = () => {
         ] : []),
         // TODO: Only show if admin / can data manage anything
         {
-            url: withBasePath("admin"),
+            url: "/admin",
             icon: <Icon type="user" />,
             text: "Admin",
             disabled: !isAuthenticated,
             children: [
                 {
                     key: "admin-services",
-                    url: withBasePath("admin/services"),
+                    url: "/admin/services",
                     icon: <Icon type="dashboard" />,
                     text: "Services",
                     disabled: !isAuthenticated,
                 },
                 {
                     key: "admin-data-manager",
-                    url: withBasePath("admin/data/manager"),
+                    url: "/admin/data/manager",
                     icon: <Icon type="folder-open" />,
                     text: "Data Manager",
                     disabled: !isAuthenticated,
@@ -109,6 +110,12 @@ const SiteHeader = () => {
                     icon: <Icon type="user" />,
                     text: idTokenContents?.preferred_username,
                     children: [
+                        {
+                            key: "user-profile",
+                            url: "/profile",
+                            icon: <Icon type="user" />,
+                            text: "Profile",
+                        },
                         {
                             key: "sign-out-link",
                             onClick: () => {
@@ -146,7 +153,7 @@ const SiteHeader = () => {
                 },
             ]),
         {
-            url: withBasePath("notifications"),
+            url: "/notifications",
             style: { float: "right" },
             disabled: !isAuthenticated,
             icon: (

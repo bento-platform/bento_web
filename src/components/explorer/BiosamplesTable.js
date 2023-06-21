@@ -1,7 +1,6 @@
 import React from "react";
 import PropTypes from "prop-types";
 import { Link } from "react-router-dom";
-import { withBasePath } from "../../utils/url";
 import { countNonNullElements } from "../../utils/misc";
 import ExplorerSearchResultsTable from "./ExplorerSearchResultsTable";
 
@@ -14,7 +13,7 @@ const BiosampleRender = ({ biosample, alternateIds, individualId }) => {
         <>
             <Link
                 to={{
-                    pathname: withBasePath(`data/explorer/individuals/${individualId}/biosamples`),
+                    pathname: `/data/explorer/individuals/${individualId}/biosamples`,
                     state: { backUrl: location.pathname },
                 }}
             >
