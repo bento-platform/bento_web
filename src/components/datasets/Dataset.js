@@ -118,6 +118,8 @@ class Dataset extends Component {
 
         const isPrivate = this.props.mode === "private";
 
+        const defaultBiosampleLFSDisabled = this.state.linked_field_sets.length !== 0;
+
         const tabContents = {
             overview: <DatasetOverview dataset={this.state}
                                        project={this.props.project}
@@ -142,7 +144,8 @@ class Dataset extends Component {
                                 </Button>
                                 <Button icon="plus"
                                         style={{verticalAlign: "top"}}
-                                        type="primary"
+                                        type="default"
+                                        disabled={defaultBiosampleLFSDisabled}
                                         onClick={() => this.props.addLinkedFieldSet(this.state, DEFAULT_BIOSAMPLE_LFS)}>
                                     Default Biosample Field Set
                                 </Button>
