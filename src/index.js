@@ -1,17 +1,17 @@
 import React from "react";
-import {render} from "react-dom";
+import { createRoot } from "react-dom/client";
 
-import {applyMiddleware, createStore, compose} from "redux";
+import { applyMiddleware, createStore, compose } from "redux";
 import thunkMiddleware from "redux-thunk";
-import {Provider} from "react-redux";
-import {BrowserRouter} from "react-router-dom";
+import { Provider } from "react-redux";
+import { BrowserRouter } from "react-router-dom";
 
 import "antd/es/message/style/css";
 
 import rootReducer from "./reducers";
 
 import App from "./components/App";
-import {readFromLocalStorage, writeToLocalStorage} from "./utils/localStorageUtils";
+import { readFromLocalStorage, writeToLocalStorage } from "./utils/localStorageUtils";
 
 const LS_OPENID_CONFIG_KEY = "BENTO_OPENID_CONFIG";
 
@@ -28,20 +28,21 @@ export const store = createStore(rootReducer, persistedState, composeEnhancers(a
 
 store.subscribe(() => {
     // noinspection JSUnresolvedReference
-    const {data, expiry, isFetching} = store.getState().openIdConfiguration;
+    const { data, expiry, isFetching } = store.getState().openIdConfiguration;
     if (data && expiry && !isFetching) {
-        writeToLocalStorage(LS_OPENID_CONFIG_KEY, {data, expiry, isFetching});
+        writeToLocalStorage(LS_OPENID_CONFIG_KEY, { data, expiry, isFetching });
     }
 });
 
+/* eslint-disable */
 document.addEventListener("DOMContentLoaded", () => {
-    const root = document.getElementById("root");
-    render(
+    const container = document.getElementById("app");
+    const root = createRoot(container);
+    root.render(
         <Provider store={store}>
             <BrowserRouter>
-                <App/>
+                <App />
             </BrowserRouter>
-        </Provider>,
-        root,
+        </Provider>
     );
 });
