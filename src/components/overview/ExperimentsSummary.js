@@ -2,7 +2,7 @@ import React, {Component} from "react";
 import {connect} from "react-redux";
 import PropTypes from "prop-types";
 import {Col, Row, Spin, Statistic, Typography} from "antd";
-import CustomPieChart from "./CustomPieChart";
+import CustomPieChart from "../charts/CustomPieChart";
 import { setAutoQueryPageTransition } from "../../modules/explorer/actions";
 import {
     overviewSummaryPropTypesShape,

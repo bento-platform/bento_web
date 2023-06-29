@@ -1,8 +1,8 @@
 import React from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { Col, Row, Spin, Statistic, Typography } from "antd";
-import CustomPieChart from "./CustomPieChart";
-import Histogram from "./Histogram";
+import CustomPieChart from "../charts/CustomPieChart";
+import Histogram from "../charts/Histogram";
 import { setAutoQueryPageTransition } from "../../modules/explorer/actions";
 import { mapNameValueFields } from "../../utils/mapNameValueFields";
 
