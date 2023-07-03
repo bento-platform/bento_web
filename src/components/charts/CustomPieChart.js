@@ -11,7 +11,15 @@ const titleStyle = {
     marginBottom: "-15px",
 };
 
-const CustomPieChart = ({ title, data, chartHeight, setAutoQueryPageTransition, autoQueryDataType, sort = true }) => {
+const CustomPieChart = ({
+    title,
+    data,
+    chartHeight,
+    setAutoQueryPageTransition,
+    autoQueryDataType,
+    fieldLabel,
+    sort = true,
+}) => {
     const history = useHistory();
 
     const onClick = (data) => {
@@ -19,7 +27,7 @@ const CustomPieChart = ({ title, data, chartHeight, setAutoQueryPageTransition, 
             return;
         }
         console.log("data", data);
-        setAutoQueryPageTransition(window.location.href, autoQueryDataType, data.name);
+        setAutoQueryPageTransition(window.location.href, autoQueryDataType, fieldLabel, data.name);
 
         // Navigate to Explorer
         history.push("/data/explorer/search");
@@ -55,6 +63,7 @@ CustomPieChart.propTypes = {
     setAutoQueryPageTransition: PropTypes.func,
     autoQueryDataType: PropTypes.string,
     sort: PropTypes.bool,
+    fieldLabel: PropTypes.string,
 };
 
 export default CustomPieChart;
