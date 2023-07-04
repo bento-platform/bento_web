@@ -16,14 +16,14 @@ import {simpleDeepCopy, nop} from "../../utils/misc";
 import LinkedFieldSetTable from "./linked_field_set/LinkedFieldSetTable";
 import LinkedFieldSetModal from "./linked_field_set/LinkedFieldSetModal";
 import DatasetOverview from "./DatasetOverview";
-import DatasetTables from "./DatasetTables";
 import {FORM_MODE_ADD, FORM_MODE_EDIT} from "../../constants";
 import {datasetPropTypesShape, projectPropTypesShape} from "../../propTypes";
+import DatasetDataTypes from "./DatasetDataTypes";
 
 
 const DATASET_CARD_TABS = [
     {key: "overview", tab: "Overview"},
-    {key: "tables", tab: "Data Tables"},
+    {key: "data_types", tab: "Data Types"},
     {key: "linked_field_sets", tab: "Linked Field Sets"},
     {key: "data_use", tab: "Consent Codes and Data Use"},
 ];
@@ -102,11 +102,16 @@ class Dataset extends Component {
                                        project={this.props.project}
                                        isPrivate={isPrivate}
                                        isFetchingTables={this.props.isFetchingTables} />,
-            tables: <DatasetTables dataset={this.state}
-                                   project={this.props.project}
-                                   isPrivate={isPrivate}
-                                   isFetchingTables={this.props.isFetchingTables}
-                                   onTableIngest={this.props.onTableIngest || nop} />,
+            // tables: <DatasetTables dataset={this.state}
+            //                        project={this.props.project}
+            //                        isPrivate={isPrivate}
+            //                        isFetchingTables={this.props.isFetchingTables}
+            //                        onTableIngest={this.props.onTableIngest || nop} />,
+            data_types: <DatasetDataTypes dataset={this.state} 
+                                          project={this.props.project} 
+                                          isPrivate={isPrivate}
+                                          isFetchingDatasets={this.props.isFetchingDatasets} 
+                                          onIngest={this.props.onTableIngest}/>,
             linked_field_sets: (
                 <>
                     <Typography.Title level={4}>

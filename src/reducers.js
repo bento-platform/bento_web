@@ -22,7 +22,7 @@ import {
     serviceTables,
     serviceWorkflows,
 } from "./modules/services/reducers";
-import {tableSummaries} from "./modules/tables/reducers";
+import {datasetSummaries} from "./modules/datasets/reducers";
 import {runs} from "./modules/wes/reducers";
 
 const rootReducer = combineReducers({
@@ -61,8 +61,8 @@ const rootReducer = combineReducers({
     serviceTables,
     serviceWorkflows,
 
-    // Table module
-    tableSummaries,
+    // Dataset module
+    datasetSummaries,
 
     // WES module
     runs,

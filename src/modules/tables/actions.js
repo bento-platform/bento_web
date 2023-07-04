@@ -2,6 +2,7 @@ import {createNetworkActionTypes, networkAction} from "../../utils/actions";
 
 export const FETCH_TABLE_SUMMARY = createNetworkActionTypes("FETCH_TABLE_SUMMARY");
 
+// TODO: remove
 const fetchTableSummary = networkAction((serviceInfo, tableID) => ({
     types: FETCH_TABLE_SUMMARY,
     params: {serviceInfo, tableID},

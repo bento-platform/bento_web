@@ -16,7 +16,7 @@ import {
     fetchOverviewSummary,
 } from "../metadata/actions";
 import { fetchNotifications } from "../notifications/actions";
-import { fetchServicesWithMetadataAndDataTypesAndTablesIfNeeded } from "../services/actions";
+import { fetchServicesWithMetadataAndDataTypesIfNeeded } from "../services/actions";
 import { fetchRuns } from "../wes/actions";
 import { performGetGohanVariantsOverviewIfPossible } from "../explorer/actions";
 
@@ -55,7 +55,8 @@ export const fetchUserDependentData = (servicesCb) => async (dispatch, getState)
     try {
         if (idTokenContents) {
             // If we're newly authenticated as an owner, we run all actions that need authentication (via the callback).
-            await dispatch(fetchServicesWithMetadataAndDataTypesAndTablesIfNeeded(
+            // TODO: refactor to remove tables
+            await dispatch(fetchServicesWithMetadataAndDataTypesIfNeeded(
                 () => dispatch(fetchServiceDependentData())));
             await (servicesCb || nop)();
             await dispatch(fetchProjectsWithDatasetsAndTables());  // TODO: If needed, remove if !hasAttempted

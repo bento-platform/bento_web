@@ -20,6 +20,7 @@ import { datasetPropTypesShape, projectPropTypesShape } from "../../propTypes";
 
 const NA_TEXT = <span style={{ color: "#999", fontStyle: "italic" }}>N/A</span>;
 
+// TODO: refactor to remove tables
 const DatasetTables = ({ isPrivate, project, dataset, onTableIngest, isFetchingTables }) => {
     const dispatch = useDispatch();
 
