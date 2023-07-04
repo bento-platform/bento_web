@@ -688,7 +688,7 @@ const ManagerDropBoxContent = () => {
             <Modal visible={fileInfoModal}
                    title={`${fileForInfo.split("/").at(-1)} - information`}
                    width={960}
-                   footer={[<InfoDownloadButton key="download" />]}
+                   footer={[<InfoDownloadButton key="download" uri={filesByPath[fileForInfo]?.uri} />]}
                    onCancel={hideFileInfoModal}>
                 <Descriptions bordered={true}>
                     <Descriptions.Item label="Name" span={3}>
