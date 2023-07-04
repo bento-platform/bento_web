@@ -9,6 +9,9 @@ import {
     FETCH_SERVICE_DATA_TYPES,
     LOADING_SERVICE_DATA_TYPES,
 
+    FETCH_SERVICE_DATA_TYPES_BY_DATASET,
+    LOADING_SERVICE_DATA_TYPES_BY_DATASET,
+
     FETCH_SERVICE_TABLES,
     LOADING_SERVICE_TABLES,
 
@@ -230,6 +233,107 @@ export const serviceDataTypes = (
                     ...state.dataTypesByServiceArtifact,
                     [kind]: {
                         ...(state.dataTypesByServiceArtifact[kind] ?? {items: null, itemsByID: null}),
+                        isFetching: false,
+                    },
+                },
+            };
+        }
+
+        default:
+            return state;
+    }
+};
+
+export const serviceDataTypesByDataset = (
+    state = {
+        isFetchingAll: false,
+        itemsByDatasetID: {},
+    },
+    action,
+) => {
+    switch (action.type) {
+        case LOADING_SERVICE_DATA_TYPES_BY_DATASET.BEGIN:
+            return {...state, isFetchingAll: true};
+
+        case LOADING_SERVICE_DATA_TYPES_BY_DATASET.END:
+        case LOADING_SERVICE_DATA_TYPES_BY_DATASET.TERMINATE:
+            return {...state, isFetchingAll: false};
+
+        /* case FETCH_SERVICE_DATA_TYPES_BY_DATASET.REQUEST: {
+            const {datasetID} = action;
+            console.log("FETCH_SERVICE_DATA_TYPES_BY_DATASET.REQUEST", datasetID);
+            return {
+                ...state,
+                itemsByDatasetID: {
+                    ...state.itemsByDatasetID,
+                    [datasetID]: {
+                        ...(state.itemsByDatasetID[datasetID] ?? {items: null, itemsByID: null}),
+                        isFetching: true,
+                    },
+                },
+            };
+        } */
+
+        /* case FETCH_SERVICE_DATA_TYPES_BY_DATASET.RECEIVE: {
+            const {datasetID} = action;
+            const itemsByID = Object.fromEntries(action.data.map(d => [d.id, d]));
+            console.log("FETCH_SERVICE_DATA_TYPES_BY_DATASET.RECEIVE", datasetID, itemsByID);
+            return {
+                ...state,
+                itemsByDatasetID: {
+                    ...state.itemsByDatasetID,
+                    [datasetID]: {items: action.data, itemsByID, isFetching: false},
+                },
+                lastUpdated: action.receivedAt,
+            };
+        } */
+        /* case FETCH_SERVICE_DATA_TYPES_BY_DATASET.RECEIVE: {
+            const { datasetID, data } = action;
+            const updatedDatasetItems = {...state.itemsByDatasetID[datasetID] || {}};
+
+            data.forEach(item => {
+                updatedDatasetItems[item.id] = item;
+            });
+
+            return {
+                ...state,
+                itemsByDatasetID: {
+                    ...state.itemsByDatasetID,
+                    [datasetID]: updatedDatasetItems,
+                },
+                lastUpdated: action.receivedAt,
+            };
+        } */
+
+        case FETCH_SERVICE_DATA_TYPES_BY_DATASET.RECEIVE: {
+            const { datasetID, data } = action;
+
+            // Construct a new object mapping each data item's id to the data item itself
+            const newItems = Object.fromEntries(data.map(d => [d.id, d]));
+
+            // Add these new items to the current items for this datasetID
+            const currentItems = state.itemsByDatasetID[datasetID] || {};
+            const mergedItems = { ...currentItems, ...newItems };
+
+            return {
+                ...state,
+                itemsByDatasetID: {
+                    ...state.itemsByDatasetID,
+                    [datasetID]: mergedItems,
+                },
+                lastUpdated: action.receivedAt,
+            };
+        }
+
+
+        case FETCH_SERVICE_DATA_TYPES_BY_DATASET.ERROR: {
+            const {datasetID} = action;
+            return {
+                ...state,
+                itemsByDatasetID: {
+                    ...state.itemsByDatasetID,
+                    [datasetID]: {
+                        ...(state.itemsByDatasetID[datasetID] ?? {items: null, itemsByID: null}),
                         isFetching: false,
                     },
                 },

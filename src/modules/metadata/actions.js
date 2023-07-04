@@ -9,6 +9,8 @@ import {
 } from "../services/actions";
 import {endProjectEditing} from "../manager/actions";
 
+import {fetchServicesByDataset} from "../services/actions";
+
 import {
     createNetworkActionTypes,
     createFlowActionTypes,
@@ -80,6 +82,7 @@ export const fetchProjectsWithDatasetsAndTables = () => async (dispatch, getStat
     dispatch(beginFlow(FETCHING_PROJECTS_WITH_TABLES));
     await dispatch(fetchProjects());
     await dispatch(fetchProjectTables(getState().projects.itemsByID));
+    await dispatch(fetchServicesByDataset());
     dispatch(endFlow(FETCHING_PROJECTS_WITH_TABLES));
 };
 

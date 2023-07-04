@@ -39,6 +39,13 @@ export const DELETING_SERVICE_TABLE = createFlowActionTypes("DELETING_SERVICE_TA
 export const FETCH_SERVICE_WORKFLOWS = createNetworkActionTypes("FETCH_SERVICE_WORKFLOWS");
 export const LOADING_SERVICE_WORKFLOWS = createFlowActionTypes("LOADING_SERVICE_WORKFLOWS");
 
+export const  FETCH_SERVICE_DATA_TYPES_BY_DATASET = createNetworkActionTypes(
+    " FETCH_SERVICE_DATA_TYPES_BY_DATASET");
+
+export const LOADING_SERVICE_DATA_TYPES_BY_DATASET = createNetworkActionTypes(
+    "LOADING_SERVICE_DATA_TYPES_BY_DATASET");
+
+// LOADING_SERVICE_DATA_TYPES_BY_DATASET
 
 export const endAddingServiceTable = (serviceInfo, dataTypeID, table) => ({
     type: ADDING_SERVICE_TABLE.END,
@@ -72,6 +79,13 @@ export const fetchDataServiceDataTypes = networkAction((serviceInfo) => ({
     types: FETCH_SERVICE_DATA_TYPES,
     params: {serviceInfo},
     url: `${serviceInfo.url}/data-types`,
+    err: `Error fetching data types from service '${serviceInfo.name}'`,
+}));
+
+export const fetchDataServiceDataTypesById = networkAction((serviceInfo, datasetID) => ({
+    types:  FETCH_SERVICE_DATA_TYPES_BY_DATASET,
+    params: {serviceInfo, datasetID},
+    url: `${serviceInfo.url}/data-types?dataset=${encodeURIComponent(datasetID)}`,
     err: `Error fetching data types from service '${serviceInfo.name}'`,
 }));
 
@@ -143,6 +157,34 @@ export const fetchServicesWithMetadataAndDataTypesAndTables = (onServiceFetchFin
 
     dispatch(endFlow(LOADING_ALL_SERVICE_DATA));
 };
+
+export const fetchServicesByDataset = () => async (dispatch, getState) => {
+    dispatch(beginFlow(LOADING_SERVICE_DATA_TYPES_BY_DATASET));
+    const datasetIdentifiers = Object.values(getState().projects.itemsByID).flatMap(
+        project => project.datasets?.map(d => d.identifier) || []);
+
+    console.log("datasetIdentifiers", datasetIdentifiers);
+
+    const dataServicesInfo = getState().services.items.filter(s => s?.type).map(s => {
+        const serviceKind = s.bento?.serviceKind ?? s.type.artifact;
+        console.log("serviceKind", serviceKind);
+        return {
+            ...s,
+            bentoService: getState().bentoServices.itemsByKind[serviceKind] ?? null,
+        };
+    }).filter(s => s.bentoService?.data_service ?? false);
+
+    // datasetIdentifiers is an array of unique dataset identifiers
+    if (datasetIdentifiers.length > 0 && dataServicesInfo.length > 0) {
+        // Dispatch fetchDataServiceDataTypesById for each datasetIdentifier
+        await Promise.all(dataServicesInfo.flatMap(s =>
+            datasetIdentifiers.map(id => dispatch(fetchDataServiceDataTypesById(s, id))),
+        ));
+    }
+
+    dispatch(endFlow(LOADING_SERVICE_DATA_TYPES_BY_DATASET));
+};
+
 
 export const fetchServicesWithMetadataAndDataTypesAndTablesIfNeeded = (onServiceFetchFinish) =>
     (dispatch, getState) => {

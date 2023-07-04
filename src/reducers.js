@@ -19,6 +19,7 @@ import {
     bentoServices,
     services,
     serviceDataTypes,
+    serviceDataTypesByDataset,
     serviceTables,
     serviceWorkflows,
 } from "./modules/services/reducers";
@@ -58,6 +59,7 @@ const rootReducer = combineReducers({
     bentoServices,
     services,
     serviceDataTypes,
+    serviceDataTypesByDataset,
     serviceTables,
     serviceWorkflows,
 
