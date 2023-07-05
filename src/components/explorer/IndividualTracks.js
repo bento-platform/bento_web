@@ -6,7 +6,7 @@ import { getIgvUrlsFromDrs } from "../../modules/drs/actions";
 import { guessFileType } from "../../utils/guessFileType";
 import { setIgvPosition } from "../../modules/explorer/actions";
 import { debounce } from "lodash";
-import igv from "igv";
+import igv from "igv/dist/igv.esm";
 
 const SQUISHED_CALL_HEIGHT = 10;
 const EXPANDED_CALL_HEIGHT = 50;
