@@ -1,14 +1,15 @@
 import React, { useEffect, useRef, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { individualPropTypesShape } from "../../propTypes";
 import { Button, Divider, Modal, Switch, Table, Empty } from "antd";
-import { getIgvUrlsFromDrs } from "../../modules/drs/actions";
-import { guessFileType } from "../../utils/guessFileType";
-import { setIgvPosition } from "../../modules/explorer/actions";
 import { debounce } from "lodash";
 import igv from "igv/dist/igv.esm";
 
 import { BENTO_PUBLIC_URL, BENTO_URL } from "../../config";
+import { individualPropTypesShape } from "../../propTypes";
+import { getIgvUrlsFromDrs } from "../../modules/drs/actions";
+import { setIgvPosition } from "../../modules/explorer/actions";
+import { guessFileType } from "../../utils/guessFileType";
+
 const SQUISHED_CALL_HEIGHT = 10;
 const EXPANDED_CALL_HEIGHT = 50;
 const DISPLAY_MODE = "expanded";
