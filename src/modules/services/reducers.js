@@ -262,17 +262,13 @@ export const serviceDataTypesByDataset = (
         case FETCH_SERVICE_DATA_TYPES_BY_DATASET.RECEIVE: {
             const { datasetID, data } = action;
 
-            // Check if a datasetInfo object for the current datasetID already exists in itemsByDatasetID
             const existingDatasetInfo = state.itemsByDatasetID.find(
                 datasetInfo => datasetInfo.datasetIdentifier === datasetID);
 
-            // Merge the existing and new data
             const mergedData = existingDatasetInfo ? [...existingDatasetInfo.items, ...data] : data;
 
-            // Construct a new datasetInfo object for the current datasetID
             const newDatasetInfo = { datasetIdentifier: datasetID, items: mergedData };
 
-            // If a datasetInfo object for the current datasetID exists, replace it, else append the new one
             const itemsByDatasetID = existingDatasetInfo
                 ? state.itemsByDatasetID.map(
                     datasetInfo => datasetInfo.datasetIdentifier === datasetID ? newDatasetInfo : datasetInfo)
