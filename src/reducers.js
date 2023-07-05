@@ -6,7 +6,6 @@ import {discovery} from "./modules/discovery/reducers";
 import {explorer} from "./modules/explorer/reducers";
 import {
     projects,
-    projectTables,
 
     biosamples,
     individuals,
@@ -41,7 +40,6 @@ const rootReducer = combineReducers({
 
     // Metadata module
     projects,
-    projectTables,
 
     biosamples,
     individuals,

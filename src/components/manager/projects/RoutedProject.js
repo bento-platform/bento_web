@@ -107,7 +107,6 @@ class RoutedProject extends Component {
          * @property {string} sample
          * @type {ProjectTable[]}
          */
-        const projectTableRecords = this.props.projectTablesByProjectID[selectedProjectID] || [];
 
         const bentoServicesByKind = this.props.bentoServicesByKind;
         const serviceDataTypesByServiceID = this.props.serviceDataTypesByServiceID;
@@ -122,27 +121,6 @@ class RoutedProject extends Component {
                 );
             })
             .flatMap(s => serviceDataTypesByServiceID[s.id].items.map(dt => dt.id));
-
-        console.log("ptr", projectTableRecords);
-        console.log("tbl", tables);
-
-        const tableList = projectTableRecords
-            .filter(tableOwnership =>
-                tableOwnership.table_id in (tables[tableOwnership.service_id]?.tablesByID ?? {}))
-            .map(tableOwnership => ({
-                ...tableOwnership,
-                ...tables[tableOwnership.service_id].tablesByID[tableOwnership.table_id],
-            }));
-
-        console.log("tll", tableList);
-
-        // TODO: Inconsistent schemas
-        const strayTables = [
-            ...this.props.serviceTables.filter(t2 =>
-                !this.props.projectTables.map(to => to.table_id).includes(t2.id) &&
-                manageableDataTypes.includes(t2.data_type)).map(t => ({...t, table_id: t.id})),
-            ...this.props.projectTables.filter(to => !this.props.servicesByID.hasOwnProperty(to.service_id)),
-        ];
 
         return <>
             <DatasetFormModal mode={FORM_MODE_ADD}
@@ -164,8 +142,6 @@ class RoutedProject extends Component {
                                     onCancel={() => this.setJsonSchemaModalVisible(false)} />
 
             <Project value={project}
-                     tables={tableList}
-                     strayTables={strayTables}
                      editing={this.props.editingProject}
                      saving={this.props.savingProject}
                      onDelete={() => this.handleDeleteProject(project)}
@@ -233,9 +209,6 @@ const mapStateToProps = state => ({
 
     projects: state.projects.items,
     projectsByID: state.projects.itemsByID,
-
-    projectTables: state.projectTables.items,
-    projectTablesByProjectID: state.projectTables.itemsByProjectID,
 
     loadingProjects: state.projects.isAdding || state.projects.isFetching,
 

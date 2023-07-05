@@ -141,9 +141,7 @@ class Project extends Component {
                                         project={this.props.value}
                                         value={{
                                             ...d,
-                                            tables: this.props.tables.filter(t => t.dataset === d.identifier),
                                         }}
-                                        strayTables={this.props.strayTables}
                                         onEdit={() => (this.props.onEditDataset || nop)(d)}
                                         onTableIngest={this.props.onTableIngest || nop}
                                     />

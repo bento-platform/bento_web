@@ -6,6 +6,7 @@ import {Spin, Tag, TreeSelect} from "antd";
 
 import {nop} from "../../utils/misc";
 
+// TODO: refactor to dataset select or remove?
 class TableTreeSelect extends Component {
     static getDerivedStateFromProps(nextProps) {
         if ("value" in nextProps) {
@@ -47,27 +48,6 @@ class TableTreeSelect extends Component {
                 key: `dataset:${d.identifier}`,
                 value: `dataset:${d.identifier}`,
                 data: d,
-                children: (this.props.projectTables[p.identifier] ?? [])
-                    .filter(t => t.dataset === d.identifier &&
-                        ((this.props.tablesByServiceID?.[t.service_id]?.tablesByID ?? {})
-                            .hasOwnProperty(t.table_id)))
-                    .map(t => ({
-                        ...t,
-                        tableName: getTableName(t.service_id, t.table_id) ?? "",
-                        dataType: this.props.tablesByServiceID[t.service_id].tablesByID[t.table_id].data_type,
-                    }))
-                    .map(t => ({
-                        title: <>
-                            <Tag style={{marginRight: "1em"}}>{t.dataType}</Tag>
-                            {t.tableName}&nbsp;
-                            (<span style={{fontFamily: "monospace"}}>{t.table_id}</span>)
-                        </>,
-                        disabled: !(dataType === null || dataType === t.dataType),
-                        isLeaf: true,
-                        key: `${p.identifier}:${t.dataType}:${t.table_id}`,
-                        value: `${p.identifier}:${t.dataType}:${t.table_id}`,
-                        data: t,
-                    })),
             })),
         }));
 
@@ -107,8 +87,6 @@ TableTreeSelect.propTypes = {
 
 const mapStateToProps = state => ({
     projects: state.projects.items,
-    projectTables: state.projectTables.itemsByProjectID,
-    tablesByServiceID: state.serviceTables.itemsByServiceID,
     servicesLoading: state.services.isFetchingAll,
     projectsLoading: state.projects.isFetching,
 });

@@ -54,15 +54,6 @@ export const fetchProjects = networkAction(() => (dispatch, getState) => ({
     err: "Error fetching projects",
 }));
 
-// TODO: remove
-// export const fetchProjectTables = networkAction(projectsByID => (dispatch, getState) => ({
-//     types: FETCH_PROJECT_TABLES,
-//     params: {projectsByID},
-//     url: `${getState().services.metadataService.url}/api/table_ownership`,
-//     paginated: true,
-//     err: "Error fetching tables",
-// }));
-
 
 // TODO: if needed fetching + invalidation
 export const fetchProjectsWithDatasetsAndTables = () => async (dispatch, getState) => {
@@ -74,7 +65,6 @@ export const fetchProjectsWithDatasetsAndTables = () => async (dispatch, getStat
 
     dispatch(beginFlow(FETCHING_PROJECTS_WITH_TABLES));
     await dispatch(fetchProjects());
-    // await dispatch(fetchProjectTables(getState().projects.itemsByID));
     dispatch(endFlow(FETCHING_PROJECTS_WITH_TABLES));
 };
 

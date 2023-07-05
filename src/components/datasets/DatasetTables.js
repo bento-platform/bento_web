@@ -14,8 +14,6 @@ import {
     fetchProjectsWithDatasetsAndTables,
 } from "../../modules/metadata/actions";
 import { nop } from "../../utils/misc";
-import { fetchTableSummaryIfPossible } from "../../modules/tables/actions";
-import TableSummaryModal from "./table/TableSummaryModal";
 import { datasetPropTypesShape, projectPropTypesShape } from "../../propTypes";
 
 const NA_TEXT = <span style={{ color: "#999", fontStyle: "italic" }}>N/A</span>;
@@ -36,7 +34,6 @@ const DatasetTables = ({ isPrivate, project, dataset, onTableIngest, isFetchingT
 
     const [additionModalVisible, setAdditionModalVisible] = useState(false);
     const [deletionModalVisible, setDeletionModalVisible] = useState(false);
-    const [tableSummaryModalVisible, setTableSummaryModalVisible] = useState(false);
     const [selectedTable, setSelectedTable] = useState(null);
 
     const handleAdditionSubmit = async (values) => {
@@ -62,19 +59,13 @@ const DatasetTables = ({ isPrivate, project, dataset, onTableIngest, isFetchingT
         setDeletionModalVisible(false);
     };
 
-    const showTableSummaryModal = (table) => {
-        dispatch(fetchTableSummaryIfPossible(serviceInfoByKind[table.service_artifact], table.table_id));
-        setTableSummaryModalVisible(true);
-        setSelectedTable(table);
-    };
-
     const tableListColumns = [
         {
             title: "ID",
             dataIndex: "table_id",
             render: (tableID, t) =>
                 isPrivate ? (
-                    <a style={{ fontFamily: "monospace" }} onClick={() => showTableSummaryModal(t)}>
+                    <a style={{ fontFamily: "monospace" }} >
                         {tableID}
                     </a>
                 ) : (
@@ -167,12 +158,6 @@ const DatasetTables = ({ isPrivate, project, dataset, onTableIngest, isFetchingT
                 // expandedRowRender={() => (<span>TODO: List of files</span>)} TODO: Implement v0.2
                 columns={tableListColumns}
                 loading={isFetchingTables}
-            />
-
-            <TableSummaryModal
-                visible={tableSummaryModalVisible}
-                table={selectedTable}
-                onCancel={() => setTableSummaryModalVisible(false)}
             />
 
             <TableAdditionModal
