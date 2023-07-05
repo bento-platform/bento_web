@@ -39,8 +39,8 @@ export const DELETING_SERVICE_TABLE = createFlowActionTypes("DELETING_SERVICE_TA
 export const FETCH_SERVICE_WORKFLOWS = createNetworkActionTypes("FETCH_SERVICE_WORKFLOWS");
 export const LOADING_SERVICE_WORKFLOWS = createFlowActionTypes("LOADING_SERVICE_WORKFLOWS");
 
-export const  FETCH_SERVICE_DATA_TYPES_BY_DATASET = createNetworkActionTypes(
-    " FETCH_SERVICE_DATA_TYPES_BY_DATASET");
+export const FETCH_SERVICE_DATA_TYPES_BY_DATASET = createNetworkActionTypes(
+    "FETCH_SERVICE_DATA_TYPES_BY_DATASET");
 
 export const LOADING_SERVICE_DATA_TYPES_BY_DATASET = createNetworkActionTypes(
     "LOADING_SERVICE_DATA_TYPES_BY_DATASET");
@@ -145,6 +145,7 @@ export const fetchServicesWithMetadataAndDataTypesAndTables = (onServiceFetchFin
             await Promise.all(dataServicesInfo.map(s => dispatch(fetchDataServiceWorkflows(s))));
             dispatch(endFlow(LOADING_SERVICE_WORKFLOWS));
         })(),
+        // add here the logic for fetching data types by dataset
     ]);
 
     // Fetch Data Service Local Tables
@@ -162,8 +163,6 @@ export const fetchServicesByDataset = () => async (dispatch, getState) => {
     dispatch(beginFlow(LOADING_SERVICE_DATA_TYPES_BY_DATASET));
     const datasetIdentifiers = Object.values(getState().projects.itemsByID).flatMap(
         project => project.datasets?.map(d => d.identifier) || []);
-
-    console.log("datasetIdentifiers", datasetIdentifiers);
 
     const dataServicesInfo = getState().services.items.filter(s => s?.type).map(s => {
         const serviceKind = s.bento?.serviceKind ?? s.type.artifact;

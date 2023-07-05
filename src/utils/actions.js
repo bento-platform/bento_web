@@ -80,7 +80,7 @@ const _networkAction = (fn, ...args) => async (dispatch, getState) => {
 
     let {parse} = fnResult;
     if (!parse) parse = r => r.json();
-
+    console.log("types:", types);
     dispatch({type: types.REQUEST, ...params});
     try {
         const data = await (paginated ? _paginatedNetworkFetch : _unpaginatedNetworkFetch)(
