@@ -25,7 +25,6 @@ import {createAuthURL, useHandleCallback} from "../lib/auth/performAuth";
 import {getIsAuthenticated} from "../lib/auth/utils";
 import SessionWorker from "../session.worker";
 import {nop} from "../utils/misc";
-import {BASE_PATH, withBasePath} from "../utils/url";
 
 // Lazy-load notification drawer
 const NotificationDrawer = lazy(() => import("./notifications/NotificationDrawer"));
@@ -36,11 +35,12 @@ const DataExplorerContent = lazy(() => import("./DataExplorerContent"));
 const CBioPortalContent = lazy(() => import("./CBioPortalContent"));
 const AdminContent = lazy(() => import("./AdminContent"));
 const NotificationsContent = lazy(() => import("./notifications/NotificationsContent"));
+const UserProfileContent = lazy(() => import("./UserProfileContent"));
 
 const LS_SIGN_IN_POPUP = "BENTO_DID_CREATE_SIGN_IN_POPUP";
 const SIGN_IN_WINDOW_FEATURES = "scrollbars=no, toolbar=no, menubar=no, width=800, height=600";
 
-const CALLBACK_PATH = withBasePath("callback");
+const CALLBACK_PATH = "/callback";
 
 const popupOpenerAuthCallback = async (dispatch, _history, code, verifier) => {
     if (!window.opener) return;
@@ -270,12 +270,13 @@ const App = () => {
                 <Suspense fallback={<SitePageLoading />}>
                     <Switch>
                         <Route path={CALLBACK_PATH} component={SitePageLoading} />
-                        <OwnerRoute path={withBasePath("overview")} component={OverviewContent} />
-                        <OwnerRoute path={withBasePath("data/explorer")} component={DataExplorerContent} />
-                        <OwnerRoute path={withBasePath("cbioportal")} component={CBioPortalContent} />
-                        <OwnerRoute path={withBasePath("admin")} component={AdminContent} />
-                        <OwnerRoute path={withBasePath("notifications")} component={NotificationsContent} />
-                        <Redirect from={BASE_PATH} to={withBasePath("overview")} />
+                        <OwnerRoute path="/overview" component={OverviewContent} />
+                        <OwnerRoute path="/data/explorer" component={DataExplorerContent} />
+                        <OwnerRoute path="/cbioportal" component={CBioPortalContent} />
+                        <OwnerRoute path="/admin" component={AdminContent} />
+                        <OwnerRoute path="/notifications" component={NotificationsContent} />
+                        <OwnerRoute path="/profile" component={UserProfileContent} />
+                        <Redirect from="/" to="/overview" />
                     </Switch>
                 </Suspense>
             </Layout.Content>

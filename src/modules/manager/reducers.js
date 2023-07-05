@@ -2,7 +2,9 @@ import {
     TOGGLE_PROJECT_CREATION_MODAL,
     PROJECT_EDITING,
     FETCH_DROP_BOX_TREE,
-    TOGGLE_PROJECT_JSON_SCHEMA_CREATION_MODAL,
+    PUT_DROP_BOX_OBJECT,
+    DROP_BOX_PUTTING_OBJECTS,
+    DELETE_DROP_BOX_OBJECT,
 } from "./actions";
 
 
@@ -24,9 +26,6 @@ export const manager = (
         case PROJECT_EDITING.END:
             return {...state, editingProject: false};
 
-        case TOGGLE_PROJECT_JSON_SCHEMA_CREATION_MODAL:
-            return {...state, jsonSchemaCreationModal: !state.jsonSchemaCreationModal};
-
         default:
             return state;
     }
@@ -35,6 +34,9 @@ export const manager = (
 export const dropBox = (
     state = {
         isFetching: true,
+        isPutting: false,
+        isPuttingFlow: false,
+        isDeleting: false,
         tree: [],
     },
     action,
@@ -46,6 +48,22 @@ export const dropBox = (
             return {...state, tree: action.data};
         case FETCH_DROP_BOX_TREE.FINISH:
             return {...state, isFetching: false};
+
+        case PUT_DROP_BOX_OBJECT.REQUEST:
+            return {...state, isPutting: true};
+        case PUT_DROP_BOX_OBJECT.FINISH:
+            return {...state, isPutting: false};
+
+        case DROP_BOX_PUTTING_OBJECTS.BEGIN:
+            return {...state, isPuttingFlow: true};
+        case DROP_BOX_PUTTING_OBJECTS.END:
+        case DROP_BOX_PUTTING_OBJECTS.TERMINATE:
+            return {...state, isPuttingFlow: false};
+
+        case DELETE_DROP_BOX_OBJECT.REQUEST:
+            return {...state, isDeleting: true};
+        case DELETE_DROP_BOX_OBJECT.FINISH:
+            return {...state, isDeleting: false};
 
         default:
             return state;

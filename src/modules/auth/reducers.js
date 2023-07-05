@@ -7,7 +7,17 @@ import {
     FETCHING_USER_DEPENDENT_DATA,
     REFRESH_TOKENS,
     SIGN_OUT,
+    FETCH_RESOURCE_PERMISSIONS,
 } from "./actions";
+import {recursiveOrderedObject} from "../../utils/misc";
+
+const nullSession = {
+    sessionExpiry: null,
+    idToken: null,
+    idTokenContents: null,
+    accessToken: null,
+    refreshToken: null,
+};
 
 export const auth = (
     state = {
@@ -29,16 +39,22 @@ export const auth = (
         //  - NEVER dehydrate the below items to localStorage; it is a security risk!
         accessToken: null,
         refreshToken: null,
+
+        // Below is permissions caching for controlling how the UI appears for different resources
+        //  - It's in this reducer since signing out / losing a token will clear permissions caches.
+        resourcePermissions: {},
     },
     action,
 ) => {
     switch (action.type) {
+        // FETCHING_USER_DEPENDENT_DATA
         case FETCHING_USER_DEPENDENT_DATA.BEGIN:
             return {...state, isFetchingDependentData: true};
         case FETCHING_USER_DEPENDENT_DATA.END:
         case FETCHING_USER_DEPENDENT_DATA.TERMINATE:
             return {...state, isFetchingDependentData: false, hasAttempted: true};
 
+        // TOKEN_HANDOFF
         case TOKEN_HANDOFF.REQUEST:
             return {...state, isHandingOffCodeForToken: true};
         case TOKEN_HANDOFF.RECEIVE:
@@ -75,17 +91,15 @@ export const auth = (
             console.error(handoffError);
             return {
                 ...state,
-                sessionExpiry: null,
-                idToken: null,
-                idTokenContents: null,
-                accessToken: null,
-                refreshToken: null,
+                ...nullSession,
                 handoffError,
+                resourcePermissions: {},
             };
         }
         case TOKEN_HANDOFF.FINISH:
             return {...state, isHandingOffCodeForToken: false};
 
+        // REFRESH_TOKENS
         case REFRESH_TOKENS.REQUEST:
             return {...state, isRefreshingTokens: true};
         case REFRESH_TOKENS.ERROR: {
@@ -96,29 +110,82 @@ export const auth = (
             console.error(tokensRefreshError);
             return {
                 ...state,
-                sessionExpiry: null,
-                idToken: null,
-                idTokenContents: null,
-                accessToken: null,
-                refreshToken: null,
+                ...nullSession,
                 tokensRefreshError,
+                resourcePermissions: {},
             };
         }
         case REFRESH_TOKENS.FINISH: {
             return {...state, isRefreshingTokens: false};
         }
 
+        // SIGN_OUT
         case SIGN_OUT:
             // TODO: sign out of Keycloak too? (in action, not in reducer)
             return {
                 ...state,
-                sessionExpiry: null,
-                idToken: null,
-                idTokenContents: null,
-                accessToken: null,
-                refreshToken: null,
+                ...nullSession,
                 tokensRefreshError: "",
+                resourcePermissions: {},
             };
+
+        // FETCH_RESOURCE_PERMISSIONS
+        case FETCH_RESOURCE_PERMISSIONS.REQUEST: {
+            const resourceKey = JSON.stringify(recursiveOrderedObject(action.resource));
+            return {
+                ...state,
+                resourcePermissions: {
+                    ...state.resourcePermissions,
+                    [resourceKey]: {
+                        ...(state.resourcePermissions[resourceKey] ?? {}),
+                        isFetching: true,
+                        hasAttempted: false,
+                        permissions: [],
+                        error: "",
+                    },
+                },
+            };
+        }
+        case FETCH_RESOURCE_PERMISSIONS.RECEIVE: {
+            const resourceKey = JSON.stringify(recursiveOrderedObject(action.resource));
+            return {
+                ...state,
+                resourcePermissions: {
+                    ...state.resourcePermissions,
+                    [resourceKey]: {
+                        ...(state.resourcePermissions[resourceKey] ?? {}),
+                        permissions: action.data?.result ?? [],
+                    },
+                },
+            };
+        }
+        case FETCH_RESOURCE_PERMISSIONS.ERROR: {
+            const resourceKey = JSON.stringify(recursiveOrderedObject(action.resource));
+            return {
+                ...state,
+                resourcePermissions: {
+                    ...state.resourcePermissions,
+                    [resourceKey]: {
+                        ...(state.resourcePermissions[resourceKey] ?? {}),
+                        error: action.caughtError ?? "An error occurred while fetching permissions for a resource",
+                    },
+                },
+            };
+        }
+        case FETCH_RESOURCE_PERMISSIONS.FINISH: {
+            const resourceKey = JSON.stringify(recursiveOrderedObject(action.resource));
+            return {
+                ...state,
+                resourcePermissions: {
+                    ...state.resourcePermissions,
+                    [resourceKey]: {
+                        ...(state.resourcePermissions[resourceKey] ?? {}),
+                        isFetching: false,
+                        hasAttempted: true,
+                    },
+                },
+            };
+        }
 
         default:
             return state;
@@ -128,6 +195,7 @@ export const auth = (
 export const openIdConfiguration = (
     state = {
         data: null,
+        expiry: null,
         isFetching: false,
     },
     action,
@@ -136,9 +204,9 @@ export const openIdConfiguration = (
         case FETCH_OPENID_CONFIGURATION.REQUEST:
             return {...state, isFetching: true};
         case FETCH_OPENID_CONFIGURATION.RECEIVE:
-            return {...state, data: action.data};
+            return {...state, data: action.data, expiry: Date.now() / 1000 + (3 * 60 * 60)};  // Cache for 3 hours
         case FETCH_OPENID_CONFIGURATION.ERROR:
-            return {...state, data: null};
+            return {...state, data: null, expiry: null};
         case FETCH_OPENID_CONFIGURATION.FINISH:
             return {...state, isFetching: false};
         default:

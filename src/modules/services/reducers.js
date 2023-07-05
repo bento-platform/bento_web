@@ -3,7 +3,7 @@ import {objectWithoutProp} from "../../utils/misc";
 import {
     LOADING_ALL_SERVICE_DATA,
 
-    FETCH_CHORD_SERVICES,
+    FETCH_BENTO_SERVICES,
     FETCH_SERVICES,
 
     FETCH_SERVICE_DATA_TYPES,
@@ -21,7 +21,7 @@ import {
 import {normalizeServiceInfo} from "../../utils/serviceInfo";
 
 
-export const chordServices = (
+export const bentoServices = (
     state = {
         isFetching: false,
         itemsByArtifact: {},
@@ -30,9 +30,9 @@ export const chordServices = (
     action,
 ) => {
     switch (action.type) {
-        case FETCH_CHORD_SERVICES.REQUEST:
+        case FETCH_BENTO_SERVICES.REQUEST:
             return {...state, isFetching: true};
-        case FETCH_CHORD_SERVICES.RECEIVE:
+        case FETCH_BENTO_SERVICES.RECEIVE:
             if (Array.isArray(action.data)) {
                 // Handle old CHORD services format
                 // TODO: Remove when no longer relevant
@@ -45,7 +45,7 @@ export const chordServices = (
                 };
             }
 
-            // Handle the new CHORD services format: an object with the docker-compose service ID as the key
+            // Handle the new Bento services format: an object with the docker-compose service ID as the key
             return {
                 ...state,
                 itemsByArtifact: Object.fromEntries(Object.entries(action.data).map(([composeID, service]) => ([
@@ -57,7 +57,7 @@ export const chordServices = (
                     {...service, composeID},
                 ]))),
             };
-        case FETCH_CHORD_SERVICES.FINISH:
+        case FETCH_BENTO_SERVICES.FINISH:
             return {...state, isFetching: false};
 
         default:

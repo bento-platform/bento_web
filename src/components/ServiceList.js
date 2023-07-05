@@ -6,8 +6,7 @@ import { Link } from "react-router-dom";
 
 import {Table, Typography, Tag, Icon, Button, Modal, Form, Input, Divider, Skeleton} from "antd";
 
-import {getIsAuthenticated, makeAuthorizationHeader} from "../lib/auth/utils";
-import { withBasePath } from "../utils/url";
+import {getIsAuthenticated, useAuthorizationHeader} from "../lib/auth/utils";
 import JsonDisplay from "./JsonDisplay";
 
 const SERVICE_KIND_STYLING = { fontFamily: "monospace" };
@@ -58,7 +57,7 @@ const serviceColumns = (isAuthenticated, setRequestModalService) => [
         render: (serviceKind) =>
             serviceKind ? (
                 isAuthenticated ? (
-                    <Link style={SERVICE_KIND_STYLING} to={withBasePath(`admin/services/${serviceKind}`)}>
+                    <Link style={SERVICE_KIND_STYLING} to={`/admin/services/${serviceKind}`}>
                         {serviceKind}
                     </Link>
                 ) : (
@@ -112,7 +111,7 @@ const serviceColumns = (isAuthenticated, setRequestModalService) => [
 /* eslint-enable react/prop-types */
 
 const ServiceRequestModal = ({service, onCancel}) => {
-    const bentoServicesByKind = useSelector(state => state.chordServices.itemsByKind);
+    const bentoServicesByKind = useSelector(state => state.bentoServices.itemsByKind);
     const serviceUrl = useMemo(() => bentoServicesByKind[service]?.url, [bentoServicesByKind, service]);
 
     const [requestPath, setRequestPath] = useState("service-info");
@@ -122,7 +121,7 @@ const ServiceRequestModal = ({service, onCancel}) => {
 
     const [hasAttempted, setHasAttempted] = useState(false);
 
-    const accessToken = useSelector((state) => state.auth.accessToken);
+    const authHeader = useAuthorizationHeader();
 
     const performRequestModalGet = useCallback(() => {
         if (!serviceUrl) {
@@ -134,7 +133,7 @@ const ServiceRequestModal = ({service, onCancel}) => {
 
             try {
                 const res = await fetch(`${serviceUrl}/${requestPath}`, {
-                    headers: makeAuthorizationHeader(accessToken),
+                    headers: authHeader,
                 });
 
                 if ((res.headers.get("content-type") ?? "").includes("application/json")) {
@@ -150,7 +149,7 @@ const ServiceRequestModal = ({service, onCancel}) => {
                 setRequestLoading(false);
             }
         })();
-    }, [serviceUrl, requestPath, accessToken]);
+    }, [serviceUrl, requestPath, authHeader]);
 
     useEffect(() => {
         setRequestData(null);
@@ -216,7 +215,7 @@ const ServiceList = () => {
     const [requestModalService, setRequestModalService] = useState(null);
 
     const dataSource = useSelector((state) =>
-        Object.entries(state.chordServices.itemsByKind).map(([kind, service]) => ({
+        Object.entries(state.bentoServices.itemsByKind).map(([kind, service]) => ({
             ...service,
             key: kind,
             serviceInfo: state.services.itemsByKind[kind] ?? null,
@@ -236,7 +235,7 @@ const ServiceList = () => {
         [isAuthenticated]);
 
     /** @type boolean */
-    const isLoading = useSelector((state) => state.chordServices.isFetching || state.services.isFetching);
+    const isLoading = useSelector((state) => state.bentoServices.isFetching || state.services.isFetching);
 
     return <>
         <ServiceRequestModal
