@@ -8,6 +8,7 @@ import { setIgvPosition } from "../../modules/explorer/actions";
 import { debounce } from "lodash";
 import igv from "igv/dist/igv.esm";
 
+import { BENTO_PUBLIC_URL, BENTO_URL } from "../../config";
 const SQUISHED_CALL_HEIGHT = 10;
 const EXPANDED_CALL_HEIGHT = 50;
 const DISPLAY_MODE = "expanded";
