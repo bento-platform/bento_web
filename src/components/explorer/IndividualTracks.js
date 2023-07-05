@@ -38,7 +38,6 @@ const DEBOUNCE_WAIT = 500;
 const IndividualTracks = ({individual}) => {
     const {accessToken} = useSelector(state => state.auth);
 
-    const igvAccessTokenRef = useRef(accessToken);
     const igvRef = useRef(null);
     const igvRendered = useRef(false);
     const igvUrls = useSelector((state) => state.drs.igvUrlsByFilename);
@@ -95,7 +94,6 @@ const IndividualTracks = ({individual}) => {
                 expandedCallHeight: EXPANDED_CALL_HEIGHT,
                 displayMode: DISPLAY_MODE,
                 visibilityWindow: VISIBILITY_WINDOW,
-                oauthToken: () => igvAccessTokenRef.current,
             });
         }
     };
@@ -117,9 +115,14 @@ const IndividualTracks = ({individual}) => {
         }
     }, []);
 
-    // update access token ref whenever necessary
+    // update access token whenever necessary
     useEffect(() => {
-        igvAccessTokenRef.current = accessToken;
+        if (BENTO_URL) {
+            igv.setOauthToken(accessToken, (new URL(BENTO_URL)).host);
+        }
+        if (BENTO_PUBLIC_URL) {
+            igv.setOauthToken(accessToken, (new URL(BENTO_PUBLIC_URL)).host);
+        }
     }, [accessToken]);
 
     // render igv when track urls ready
