@@ -36,6 +36,9 @@ const DEBOUNCE_WAIT = 500;
 
 
 const IndividualTracks = ({individual}) => {
+    const {accessToken} = useSelector(state => state.auth);
+
+    const igvAccessTokenRef = useRef(accessToken);
     const igvRef = useRef(null);
     const igvRendered = useRef(false);
     const igvUrls = useSelector((state) => state.drs.igvUrlsByFilename);
@@ -74,7 +77,7 @@ const IndividualTracks = ({individual}) => {
     // verify url set is for this individual (may have stale urls from previous request)
     const hasFreshUrls = (files, urls) => files.every((f) => urls.hasOwnProperty(f.filename));
 
-    const toggleView = (track) => {
+    const toggleView = async (track) => {
         const wasViewing = track.viewInIgv;
         const updatedTrackObject = { ...track, viewInIgv: !wasViewing };
         setAllTracks(allTracks.map((t) => (t.filename === track.filename ? updatedTrackObject : t)));
@@ -82,7 +85,8 @@ const IndividualTracks = ({individual}) => {
         if (wasViewing) {
             igv.browser.removeTrackByName(track.filename);
         } else {
-            igv.browser.loadTrack({
+            // noinspection JSUnusedGlobalSymbols
+            await igv.browser.loadTrack({
                 format: track.file_format,
                 url: igvUrls[track.filename].dataUrl,
                 indexURL: igvUrls[track.filename].indexUrl,
@@ -91,6 +95,7 @@ const IndividualTracks = ({individual}) => {
                 expandedCallHeight: EXPANDED_CALL_HEIGHT,
                 displayMode: DISPLAY_MODE,
                 visibilityWindow: VISIBILITY_WINDOW,
+                oauthToken: () => igvAccessTokenRef.current,
             });
         }
     };
@@ -111,6 +116,11 @@ const IndividualTracks = ({individual}) => {
             dispatch(getIgvUrlsFromDrs(allTracks));
         }
     }, []);
+
+    // update access token ref whenever necessary
+    useEffect(() => {
+        igvAccessTokenRef.current = accessToken;
+    }, [accessToken]);
 
     // render igv when track urls ready
     useEffect(() => {
