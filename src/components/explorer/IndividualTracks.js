@@ -1,5 +1,6 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
+import PropTypes from "prop-types";
 import { Button, Divider, Modal, Switch, Table, Empty } from "antd";
 import { debounce } from "lodash";
 import igv from "igv/dist/igv.esm";
@@ -71,6 +72,10 @@ const TrackControlTable = React.memo(({toggleView, allFoundFiles}) => {
         style={{display: "inline-block"}}
     />;
 });
+TrackControlTable.propTypes = {
+    toggleView: PropTypes.func,
+    allFoundFiles: PropTypes.arrayOf(PropTypes.object),
+};
 
 
 const IndividualTracks = ({individual}) => {
@@ -105,7 +110,7 @@ const IndividualTracks = ({individual}) => {
 
     const allFoundFiles = useMemo(
         () => allTracks.filter(
-            (t) => (igvUrls[t.filename]?.dataUrl && igvUrls[t.filename]?.indexUrl) || igvUrls[t.filename]?.url
+            (t) => (igvUrls[t.filename]?.dataUrl && igvUrls[t.filename]?.indexUrl) || igvUrls[t.filename]?.url,
         ),
         [allTracks, igvUrls]);
 
