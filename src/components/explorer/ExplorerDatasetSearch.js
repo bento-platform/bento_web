@@ -83,6 +83,7 @@ const ExplorerDatasetSearch = () => {
             <Typography.Title level={4}>Explore Dataset {selectedDataset.title}</Typography.Title>
             <SearchAllRecords datasetID={dataset} />
             <DiscoveryQueryBuilder
+                activeDataset={dataset}
                 isInternal={true}
                 dataTypeForms={dataTypeForms}
                 onSubmit={performSearch}
