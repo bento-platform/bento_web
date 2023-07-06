@@ -86,7 +86,6 @@ const IndividualTracks = ({individual}) => {
         if (wasViewing) {
             igv.browser.removeTrackByName(track.filename);
         } else {
-            // noinspection JSUnusedGlobalSymbols
             igv.browser.loadTrack({
                 format: track.file_format,
                 url: igvUrls[track.filename].dataUrl,
