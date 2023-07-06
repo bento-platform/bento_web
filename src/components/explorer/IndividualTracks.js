@@ -60,7 +60,7 @@ const TrackControlTable = React.memo(({ toggleView, allFoundFiles }) => {
                 render: (_, track) => <Switch checked={track.viewInIgv} onChange={() => toggleView(track)} />,
             },
         ],
-        [toggleView]
+        [toggleView],
     );
 
     return (
@@ -91,7 +91,7 @@ const IndividualTracks = ({ individual }) => {
     // read stored position only on first render
     const igvPosition = useSelector(
         (state) => state.explorer.igvPosition,
-        () => true
+        () => true,
     );
 
     const dispatch = useDispatch();
@@ -110,15 +110,15 @@ const IndividualTracks = ({ individual }) => {
     });
 
     const [allTracks, setAllTracks] = useState(
-        viewableResults.sort((r1, r2) => (r1.file_format > r2.file_format ? 1 : -1))
+        viewableResults.sort((r1, r2) => (r1.file_format > r2.file_format ? 1 : -1)),
     );
 
     const allFoundFiles = useMemo(
         () =>
             allTracks.filter(
-                (t) => (igvUrls[t.filename]?.dataUrl && igvUrls[t.filename]?.indexUrl) || igvUrls[t.filename]?.url
+                (t) => (igvUrls[t.filename]?.dataUrl && igvUrls[t.filename]?.indexUrl) || igvUrls[t.filename]?.url,
             ),
-        [allTracks, igvUrls]
+        [allTracks, igvUrls],
     );
 
     const [modalVisible, setModalVisible] = useState(false);
@@ -190,7 +190,7 @@ const IndividualTracks = ({ individual }) => {
         }
 
         const indexedTracks = allFoundFiles.filter(
-            (t) => t.viewInIgv && igvUrls[t.filename].dataUrl && igvUrls[t.filename].indexUrl
+            (t) => t.viewInIgv && igvUrls[t.filename].dataUrl && igvUrls[t.filename].indexUrl,
         );
 
         const unindexedTracks = allFoundFiles.filter((t) => t.viewInIgv && igvUrls[t.filename].url);
@@ -232,7 +232,7 @@ const IndividualTracks = ({ individual }) => {
                 "locuschange",
                 debounce((referenceFrame) => {
                     storeIgvPosition(referenceFrame);
-                }, DEBOUNCE_WAIT)
+                }, DEBOUNCE_WAIT),
             );
         });
     }, [igvUrls]);
