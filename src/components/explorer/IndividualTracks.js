@@ -78,7 +78,7 @@ const IndividualTracks = ({individual}) => {
     // verify url set is for this individual (may have stale urls from previous request)
     const hasFreshUrls = (files, urls) => files.every((f) => urls.hasOwnProperty(f.filename));
 
-    const toggleView = async (track) => {
+    const toggleView = (track) => {
         const wasViewing = track.viewInIgv;
         const updatedTrackObject = { ...track, viewInIgv: !wasViewing };
         setAllTracks(allTracks.map((t) => (t.filename === track.filename ? updatedTrackObject : t)));
@@ -87,7 +87,7 @@ const IndividualTracks = ({individual}) => {
             igv.browser.removeTrackByName(track.filename);
         } else {
             // noinspection JSUnusedGlobalSymbols
-            await igv.browser.loadTrack({
+            igv.browser.loadTrack({
                 format: track.file_format,
                 url: igvUrls[track.filename].dataUrl,
                 indexURL: igvUrls[track.filename].indexUrl,
