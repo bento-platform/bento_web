@@ -37,49 +37,51 @@ const DEBOUNCE_WAIT = 500;
 
 // reduce VISIBILITY_WINDOW above for better performance
 
-
 // verify url set is for this individual (may have stale urls from previous request)
 const hasFreshUrls = (files, urls) => files.every((f) => urls.hasOwnProperty(f.filename));
 
+const TrackControlTable = React.memo(({ toggleView, allFoundFiles }) => {
+    const trackTableColumns = useMemo(
+        () => [
+            {
+                title: "File",
+                key: "filename",
+                render: (_, track) => track.filename,
+            },
+            {
+                title: "File type",
+                key: "fileType",
+                render: (_, track) => track.description,
+            },
+            {
+                title: "View track",
+                key: "view",
+                align: "center",
+                render: (_, track) => <Switch checked={track.viewInIgv} onChange={() => toggleView(track)} />,
+            },
+        ],
+        [toggleView]
+    );
 
-const TrackControlTable = React.memo(({toggleView, allFoundFiles}) => {
-    const trackTableColumns = useMemo(() => [
-        {
-            title: "File",
-            key: "filename",
-            render: (_, track) => track.filename,
-        },
-        {
-            title: "File type",
-            key: "fileType",
-            render: (_, track) => track.description,
-        },
-        {
-            title: "View track",
-            key: "view",
-            align: "center",
-            render: (_, track) => <Switch checked={track.viewInIgv} onChange={() => toggleView(track)} />,
-        },
-    ], [toggleView]);
-
-    return <Table
-        bordered
-        size="small"
-        pagination={false}
-        columns={trackTableColumns}
-        rowKey="filename"
-        dataSource={allFoundFiles}
-        style={{display: "inline-block"}}
-    />;
+    return (
+        <Table
+            bordered
+            size="small"
+            pagination={false}
+            columns={trackTableColumns}
+            rowKey="filename"
+            dataSource={allFoundFiles}
+            style={{ display: "inline-block" }}
+        />
+    );
 });
 TrackControlTable.propTypes = {
     toggleView: PropTypes.func,
     allFoundFiles: PropTypes.arrayOf(PropTypes.object),
 };
 
-
-const IndividualTracks = ({individual}) => {
-    const {accessToken} = useSelector(state => state.auth);
+const IndividualTracks = ({ individual }) => {
+    const { accessToken } = useSelector((state) => state.auth);
 
     const igvRef = useRef(null);
     const igvRendered = useRef(false);
@@ -87,7 +89,10 @@ const IndividualTracks = ({individual}) => {
     const isFetchingIgvUrls = useSelector((state) => state.drs.isFetchingIgvUrls);
 
     // read stored position only on first render
-    const igvPosition = useSelector((state) => state.explorer.igvPosition, () => true);
+    const igvPosition = useSelector(
+        (state) => state.explorer.igvPosition,
+        () => true
+    );
 
     const dispatch = useDispatch();
     const biosamplesData = (individual?.phenopackets ?? []).flatMap((p) => p.biosamples);
@@ -101,18 +106,20 @@ const IndividualTracks = ({individual}) => {
 
     // by default, don't view crams (user can turn them on in track controls)
     viewableResults = viewableResults.map((v) => {
-        return v.file_format.toLowerCase() === "cram" ? {...v, viewInIgv: false} : v;
+        return v.file_format.toLowerCase() === "cram" ? { ...v, viewInIgv: false } : v;
     });
 
     const [allTracks, setAllTracks] = useState(
-        viewableResults.sort((r1, r2) => (r1.file_format > r2.file_format ? 1 : -1)),
+        viewableResults.sort((r1, r2) => (r1.file_format > r2.file_format ? 1 : -1))
     );
 
     const allFoundFiles = useMemo(
-        () => allTracks.filter(
-            (t) => (igvUrls[t.filename]?.dataUrl && igvUrls[t.filename]?.indexUrl) || igvUrls[t.filename]?.url,
-        ),
-        [allTracks, igvUrls]);
+        () =>
+            allTracks.filter(
+                (t) => (igvUrls[t.filename]?.dataUrl && igvUrls[t.filename]?.indexUrl) || igvUrls[t.filename]?.url
+            ),
+        [allTracks, igvUrls]
+    );
 
     const [modalVisible, setModalVisible] = useState(false);
     const closeModal = useCallback(() => setModalVisible(false), []);
@@ -142,7 +149,7 @@ const IndividualTracks = ({individual}) => {
     };
 
     const storeIgvPosition = (referenceFrame) => {
-        const {chr, start, end} = referenceFrame[0];
+        const { chr, start, end } = referenceFrame[0];
         const position = `${chr}:${start}-${end}`;
         dispatch(setIgvPosition(position));
     };
@@ -161,10 +168,10 @@ const IndividualTracks = ({individual}) => {
     // update access token whenever necessary
     useEffect(() => {
         if (BENTO_URL) {
-            igv.setOauthToken(accessToken, (new URL(BENTO_URL)).host);
+            igv.setOauthToken(accessToken, new URL(BENTO_URL).host);
         }
         if (BENTO_PUBLIC_URL) {
-            igv.setOauthToken(accessToken, (new URL(BENTO_PUBLIC_URL)).host);
+            igv.setOauthToken(accessToken, new URL(BENTO_PUBLIC_URL).host);
         }
     }, [accessToken]);
 
@@ -183,12 +190,10 @@ const IndividualTracks = ({individual}) => {
         }
 
         const indexedTracks = allFoundFiles.filter(
-            (t) => t.viewInIgv && igvUrls[t.filename].dataUrl && igvUrls[t.filename].indexUrl,
+            (t) => t.viewInIgv && igvUrls[t.filename].dataUrl && igvUrls[t.filename].indexUrl
         );
 
-        const unindexedTracks = allFoundFiles.filter(
-            (t) => t.viewInIgv && igvUrls[t.filename].url,
-        );
+        const unindexedTracks = allFoundFiles.filter((t) => t.viewInIgv && igvUrls[t.filename].url);
 
         const igvIndexedTracks = indexedTracks.map((t) => ({
             format: t.file_format,
@@ -219,34 +224,35 @@ const IndividualTracks = ({individual}) => {
             tracks: igvTracks,
         };
 
-        igv.createBrowser(igvRef.current, igvOptions).then( (browser) => {
+        igv.createBrowser(igvRef.current, igvOptions).then((browser) => {
             igv.browser = browser;
             igvRendered.current = true;
 
-            igv.browser.on("locuschange", debounce((referenceFrame) => {
-                storeIgvPosition(referenceFrame);
-            }, DEBOUNCE_WAIT));
+            igv.browser.on(
+                "locuschange",
+                debounce((referenceFrame) => {
+                    storeIgvPosition(referenceFrame);
+                }, DEBOUNCE_WAIT)
+            );
         });
     }, [igvUrls]);
 
-    return <>
-        {allFoundFiles.length ? (
-          <Button icon="setting" style={{ marginRight: "8px" }} onClick={() => setModalVisible(true)}>
-            Configure Tracks
-          </Button>
-        ) : <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} />}
-        <div ref={igvRef} />
-        <Divider />
-        <Modal
-          visible={modalVisible}
-          onOk={closeModal}
-          onCancel={closeModal}
-          zIndex={MODAL_Z_INDEX}
-          width={600}
-        >
-          <TrackControlTable toggleView={toggleView} allFoundFiles={allFoundFiles} />
-        </Modal>
-    </>;
+    return (
+        <>
+            {allFoundFiles.length ? (
+                <Button icon="setting" style={{ marginRight: "8px" }} onClick={() => setModalVisible(true)}>
+                    Configure Tracks
+                </Button>
+            ) : (
+                <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} />
+            )}
+            <div ref={igvRef} />
+            <Divider />
+            <Modal visible={modalVisible} onOk={closeModal} onCancel={closeModal} zIndex={MODAL_Z_INDEX} width={600}>
+                <TrackControlTable toggleView={toggleView} allFoundFiles={allFoundFiles} />
+            </Modal>
+        </>
+    );
 };
 
 IndividualTracks.propTypes = {
