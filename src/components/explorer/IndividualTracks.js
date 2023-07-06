@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from "react";
+import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { Button, Divider, Modal, Switch, Table, Empty } from "antd";
 import { debounce } from "lodash";
@@ -27,14 +27,50 @@ const DEBOUNCE_WAIT = 500;
 
 // minimal documentation here: https://github.com/igvteam/igv.js/wiki/Tracks-2.0
 
-// tracks should have a "format" value: "vcf", "cram", "bigWig", etc
+// tracks should have a "format" value: "vcf", "cram", "bigWig", etc.
 // There is no default value. "If not specified format is inferred from file name extension"
-// works if not specified, even from a url where the filename is obscured, but is much slower
+// works if not specified, even from a URL where the filename is obscured, but is much slower
 // appears to be case-insensitive
 
 // tracks can also have a "type" property, but this is inferred from the format value
 
 // reduce VISIBILITY_WINDOW above for better performance
+
+
+// verify url set is for this individual (may have stale urls from previous request)
+const hasFreshUrls = (files, urls) => files.every((f) => urls.hasOwnProperty(f.filename));
+
+
+const TrackControlTable = React.memo(({toggleView, allFoundFiles}) => {
+    const trackTableColumns = useMemo(() => [
+        {
+            title: "File",
+            key: "filename",
+            render: (_, track) => track.filename,
+        },
+        {
+            title: "File type",
+            key: "fileType",
+            render: (_, track) => track.description,
+        },
+        {
+            title: "View track",
+            key: "view",
+            align: "center",
+            render: (_, track) => <Switch checked={track.viewInIgv} onChange={() => toggleView(track)} />,
+        },
+    ], [toggleView]);
+
+    return <Table
+        bordered
+        size="small"
+        pagination={false}
+        columns={trackTableColumns}
+        rowKey="filename"
+        dataSource={allFoundFiles}
+        style={{display: "inline-block"}}
+    />;
+});
 
 
 const IndividualTracks = ({individual}) => {
@@ -67,16 +103,17 @@ const IndividualTracks = ({individual}) => {
         viewableResults.sort((r1, r2) => (r1.file_format > r2.file_format ? 1 : -1)),
     );
 
-    const allFoundFiles = allTracks.filter(
-        (t) => (igvUrls[t.filename]?.dataUrl && igvUrls[t.filename]?.indexUrl) || igvUrls[t.filename]?.url);
+    const allFoundFiles = useMemo(
+        () => allTracks.filter(
+            (t) => (igvUrls[t.filename]?.dataUrl && igvUrls[t.filename]?.indexUrl) || igvUrls[t.filename]?.url
+        ),
+        [allTracks, igvUrls]);
 
     const [modalVisible, setModalVisible] = useState(false);
+    const closeModal = useCallback(() => setModalVisible(false), []);
 
     // hardcode for hg19/GRCh37, fix requires updates elsewhere in Bento
     const genome = "hg19";
-
-    // verify url set is for this individual (may have stale urls from previous request)
-    const hasFreshUrls = (files, urls) => files.every((f) => urls.hasOwnProperty(f.filename));
 
     const toggleView = (track) => {
         const wasViewing = track.viewInIgv;
@@ -108,7 +145,7 @@ const IndividualTracks = ({individual}) => {
     // retrieve urls on mount
     useEffect(() => {
         if (allTracks.length) {
-      // don't search if all urls already known
+            // don't search if all urls already known
             if (hasFreshUrls(allTracks, igvUrls)) {
                 return;
             }
@@ -187,39 +224,7 @@ const IndividualTracks = ({individual}) => {
         });
     }, [igvUrls]);
 
-    const trackTableColumns = [
-        {
-            title: "File",
-            key: "filename",
-            render: (_, track) => track.filename,
-        },
-        {
-            title: "File type",
-            key: "fileType",
-            render: (_, track) => track.description,
-        },
-        {
-            title: "View track",
-            key: "view",
-            align: "center",
-            render: (_, track) => <Switch checked={track.viewInIgv} onChange={() => toggleView(track)} />,
-        },
-    ];
-
-    const TrackControlTable = () => {
-        return <Table
-        bordered
-        size="small"
-        pagination={false}
-        columns={trackTableColumns}
-        rowKey="filename"
-        dataSource={allFoundFiles}
-        style={{ display: "inline-block" }}
-      />;
-    };
-
-    return (
-        <>
+    return <>
         {allFoundFiles.length ? (
           <Button icon="setting" style={{ marginRight: "8px" }} onClick={() => setModalVisible(true)}>
             Configure Tracks
@@ -229,15 +234,14 @@ const IndividualTracks = ({individual}) => {
         <Divider />
         <Modal
           visible={modalVisible}
-          onOk={() => setModalVisible(false)}
-          onCancel={() => setModalVisible(false)}
+          onOk={closeModal}
+          onCancel={closeModal}
           zIndex={MODAL_Z_INDEX}
           width={600}
         >
-          <TrackControlTable />
+          <TrackControlTable toggleView={toggleView} allFoundFiles={allFoundFiles} />
         </Modal>
-        </>
-    );
+    </>;
 };
 
 IndividualTracks.propTypes = {
@@ -246,10 +250,7 @@ IndividualTracks.propTypes = {
 
 function isViewable(file) {
     const viewable = ["vcf", "cram", "bigwig", "bw"];
-    if (viewable.includes(file.file_format?.toLowerCase()) || viewable.includes(guessFileType(file.filename))) {
-        return true;
-    }
-    return false;
+    return viewable.includes(file.file_format?.toLowerCase()) || viewable.includes(guessFileType(file.filename));
 }
 
 export default IndividualTracks;
