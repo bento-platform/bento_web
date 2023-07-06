@@ -78,14 +78,6 @@ export const fetchDataServiceDataTypes = networkAction((serviceInfo) => ({
     err: `Error fetching data types from service '${serviceInfo.name}'`,
 }));
 
-// TODO: remove
-export const fetchDataServiceDataTypeDatasets = networkAction((serviceInfo, dataType) => ({
-    types: FETCH_SERVICE_DATASETS,
-    params: {serviceInfo, dataTypeID: dataType.id},
-    url: `${serviceInfo.url}/datasets?${createURLSearchParams({"data-type": dataType.id}).toString()}`,
-    err: `Error fetching datasets from service '${serviceInfo.name}' (data type ${dataType.id})`,
-}));
-
 export const fetchDataServiceWorkflows = networkAction((serviceInfo) => ({
     types: FETCH_SERVICE_WORKFLOWS,
     params: {serviceInfo},
@@ -137,20 +129,6 @@ export const fetchServicesWithMetadataAndDataTypes = (onServiceFetchFinish) => a
             dispatch(endFlow(LOADING_SERVICE_WORKFLOWS));
         })(),
     ]);
-
-    // Fetch Data Service Local Tables
-    // - skip services that don't provide data or don't have data types
-    // dispatch(beginFlow(LOADING_SERVICE_TABLES));
-    // await Promise.all(dataServicesInfo.flatMap(s =>
-    //     (getState().serviceDataTypes.dataTypesByServiceID[s.id]?.items ?? [])
-    //         .map(dt => dispatch(fetchDataServiceDataTypeTables(s, dt)))));
-    // dispatch(endFlow(LOADING_SERVICE_TABLES));
-
-    dispatch(beginFlow(LOADING_SERVICE_DATASETS));
-    await Promise.all(dataServicesInfo.flatMap(s =>
-        (getState().serviceDataTypes.dataTypesByServiceID[s.id]?.items ?? [])
-            .map(dt => dispatch(fetchDataServiceDataTypeDatasets(s, dt)))));
-    dispatch(endFlow(LOADING_SERVICE_DATASETS));
 
     dispatch(endFlow(LOADING_ALL_SERVICE_DATA));
 };

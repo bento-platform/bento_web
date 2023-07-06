@@ -1,26 +1,15 @@
-import fetch from "cross-fetch";
 import {message} from "antd";
 
-import {
-    ADDING_SERVICE_TABLE,
-    DELETING_SERVICE_TABLE,
-    endAddingServiceTable,
-    endDeletingServiceTable,
-} from "../services/actions";
 import {endProjectEditing} from "../manager/actions";
-
 import {
     createNetworkActionTypes,
     createFlowActionTypes,
     networkAction,
-
     beginFlow,
     endFlow,
-    terminateFlow,
 } from "../../utils/actions";
 import {nop, objectWithoutProps} from "../../utils/misc";
 import {jsonRequest} from "../../utils/requests";
-import {makeAuthorizationHeader} from "../../lib/auth/utils";
 
 
 export const FETCH_PROJECTS = createNetworkActionTypes("FETCH_PROJECTS");

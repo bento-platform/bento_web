@@ -35,7 +35,8 @@ class RunListContent extends Component {
         return (
             <>
                 <Typography.Title level={2}>Latest Ingested Files</Typography.Title>
-                <LastIngestionTable />
+                {/* TODO: organize last ingestions by datasets */}
+                {/* <LastIngestionTable /> */}
                 <Typography.Title level={2}>Workflow Runs</Typography.Title>
                 <Table
                     bordered={true}
