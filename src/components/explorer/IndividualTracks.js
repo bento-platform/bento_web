@@ -1,12 +1,14 @@
 import React, { useEffect, useRef, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { individualPropTypesShape } from "../../propTypes";
 import { Button, Divider, Modal, Switch, Table, Empty } from "antd";
-import { getIgvUrlsFromDrs } from "../../modules/drs/actions";
-import { guessFileType } from "../../utils/guessFileType";
-import { setIgvPosition } from "../../modules/explorer/actions";
 import { debounce } from "lodash";
-import igv from "igv";
+import igv from "igv/dist/igv.esm";
+
+import { BENTO_PUBLIC_URL, BENTO_URL } from "../../config";
+import { individualPropTypesShape } from "../../propTypes";
+import { getIgvUrlsFromDrs } from "../../modules/drs/actions";
+import { setIgvPosition } from "../../modules/explorer/actions";
+import { guessFileType } from "../../utils/guessFileType";
 
 const SQUISHED_CALL_HEIGHT = 10;
 const EXPANDED_CALL_HEIGHT = 50;
@@ -36,6 +38,8 @@ const DEBOUNCE_WAIT = 500;
 
 
 const IndividualTracks = ({individual}) => {
+    const {accessToken} = useSelector(state => state.auth);
+
     const igvRef = useRef(null);
     const igvRendered = useRef(false);
     const igvUrls = useSelector((state) => state.drs.igvUrlsByFilename);
@@ -111,6 +115,16 @@ const IndividualTracks = ({individual}) => {
             dispatch(getIgvUrlsFromDrs(allTracks));
         }
     }, []);
+
+    // update access token whenever necessary
+    useEffect(() => {
+        if (BENTO_URL) {
+            igv.setOauthToken(accessToken, (new URL(BENTO_URL)).host);
+        }
+        if (BENTO_PUBLIC_URL) {
+            igv.setOauthToken(accessToken, (new URL(BENTO_PUBLIC_URL)).host);
+        }
+    }, [accessToken]);
 
     // render igv when track urls ready
     useEffect(() => {
