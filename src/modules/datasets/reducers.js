@@ -1,4 +1,4 @@
-import {FETCH_DATASET_SUMMARY} from "./actions";
+import {FETCH_DATASET_SUMMARY, FETCH_DATASETS_DATA_TYPES} from "./actions";
 
 export const datasetSummaries = (
     state = {
@@ -8,9 +8,9 @@ export const datasetSummaries = (
     action,
 ) => {
     switch (action.type) {
-        case FETCH_DATASET_SUMMARY.REQUEST:
+        case FETCH_DATASETS_DATA_TYPES.REQUEST:
             return {...state, isFetching: true};
-        case FETCH_DATASET_SUMMARY.RECEIVE: {
+        case FETCH_DATASETS_DATA_TYPES.RECEIVE:
             const {serviceInfo: {type: {artifact}}, datasetID, data} = action;
             return {
                 ...state,
@@ -19,11 +19,11 @@ export const datasetSummaries = (
                     [artifact]: {
                         ...(state.summariesByServiceArtifactAndDatasetID[artifact] || {}),
                         [datasetID]: data,
-                    },
-                },
-            };
-        }
-        case FETCH_DATASET_SUMMARY.FINISH:
+                    }
+                }
+            }
+
+        case FETCH_DATASETS_DATA_TYPES.FINISH:
             return {...state, isFetching: false};
         default:
             return state;

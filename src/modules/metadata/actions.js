@@ -36,6 +36,13 @@ export const PROJECT_TABLE_DELETION = createFlowActionTypes("PROJECT_TABLE_DELET
 export const FETCH_INDIVIDUAL = createNetworkActionTypes("FETCH_INDIVIDUAL");
 export const FETCH_OVERVIEW_SUMMARY = createNetworkActionTypes("FETCH_OVERVIEW_SUMMARY");
 
+export const DELETE_DATASET_DATA_TYPE = createNetworkActionTypes("DELETE_DATASET_DATA_TYPE");
+
+export const deleteDatasetDataType = networkAction((datasetId, dataType) => (dispatch, getState) => ({
+    types: DELETE_DATASET_DATA_TYPE,
+    url: `${getState().services.metadataService.url}/api/data-types/${dataType}/dataset/${datasetId}`
+}))
+
 export const fetchProjects = networkAction(() => (dispatch, getState) => ({
     types: FETCH_PROJECTS,
     url: `${getState().services.metadataService.url}/api/projects`,

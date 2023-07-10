@@ -10,6 +10,8 @@ import {
     terminateFlow,
 } from "../../utils/actions";
 
+import { fetchDatasetsDataTypes } from "../datasets/actions"
+
 import {createURLSearchParams} from "../../utils/requests";
 
 
@@ -124,6 +126,15 @@ export const fetchServicesWithMetadataAndDataTypes = (onServiceFetchFinish) => a
         })(),
 
         (async () => {
+            await Promise.all(dataServicesInfo.flatMap(s => 
+                {
+                    return (getState().serviceDataTypes.dataTypesByServiceID[s.id]?.items ?? [])
+                        .map(dt => dispatch(fetchDatasetsDataTypes(s, dt)));
+                }
+            ));
+        })(),
+
+        (async () => {
             dispatch(beginFlow(LOADING_SERVICE_WORKFLOWS));
             await Promise.all(dataServicesInfo.map(s => dispatch(fetchDataServiceWorkflows(s))));
             dispatch(endFlow(LOADING_SERVICE_WORKFLOWS));
@@ -136,6 +147,7 @@ export const fetchServicesWithMetadataAndDataTypes = (onServiceFetchFinish) => a
 export const fetchServicesWithMetadataAndDataTypesIfNeeded = (onServiceFetchFinish) =>
     (dispatch, getState) => {
         const state = getState();
+        console.debug("AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAH");
         if ((Object.keys(state.bentoServices.itemsByArtifact).length === 0 || state.services.items.length === 0 ||
                 Object.keys(state.serviceDataTypes.dataTypesByServiceID).length === 0) &&
                 !state.services.isFetchingAll) {

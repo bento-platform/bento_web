@@ -4,6 +4,7 @@ import { Button, Col, Row, Table, Typography } from "antd";
 
 import PropTypes from "prop-types";
 import { datasetPropTypesShape, projectPropTypesShape } from "../../propTypes";
+import { deleteDatasetDataType } from "../../modules/metadata/actions";
 
 const NA_TEXT = <span style={{ color: "#999", fontStyle: "italic" }}>N/A</span>;
 
@@ -21,8 +22,9 @@ const DatasetDataTypes = ({isPrivate, project, dataset, onIngest, isFetchingData
     
     dataset = dataset || {};
 
-    const handleDeleteDataType = async () => {
-        console.debug("TODO: delete data type on click.")
+    const handleDeleteDataType = async (dataType) => {
+        console.debug(dataset, dataType);
+        dispatch(deleteDatasetDataType(dataset.identifier, dataType.id));
     }
     
     useEffect(() => {
@@ -67,7 +69,7 @@ const DatasetDataTypes = ({isPrivate, project, dataset, onIngest, isFetchingData
                             <Button
                                 type="danger"
                                 icon="delete"
-                                onClick={() => handleDeleteDataType()}
+                                onClick={() => handleDeleteDataType(t)}
                                 style={{ width: "100%" }}
                             >
                                 Delete
@@ -80,6 +82,7 @@ const DatasetDataTypes = ({isPrivate, project, dataset, onIngest, isFetchingData
     ];
     
     const dataTypes = Object.values(dataTypesByID).map(dt => {
+        
         return {
             ...dt,
             name: dt.label
