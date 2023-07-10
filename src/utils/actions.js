@@ -33,8 +33,12 @@ const _paginatedNetworkFetch = async (url, baseUrl, req, parse) => {
     const _fetchNext = async (pageUrl) => {
         const response = await fetch(pageUrl, req);
         if (!response.ok) {
-            const errorData = await parse(response);
-            throw new Error(errorData.message || "Invalid response encountered");
+            try {
+                const errorData = await parse(response);
+                throw new Error(errorData.message);
+            } catch (_) {
+                throw new Error("Invalid response encountered");
+            }
         }
 
         const data = await parse(response);
@@ -100,7 +104,7 @@ const _networkAction =
                 });
                 if (onSuccess) await onSuccess(data);
             } catch (e) {
-                const errorMsg = e.message || err;
+                const errorMsg = err + (e.message ? `: ${e.message}` : "");
                 console.error(e, errorMsg);
                 message.error(errorMsg);
                 dispatch({ type: types.ERROR, ...params, caughtError: e });
