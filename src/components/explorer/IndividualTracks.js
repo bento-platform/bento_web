@@ -41,27 +41,24 @@ const DEBOUNCE_WAIT = 500;
 const hasFreshUrls = (files, urls) => files.every((f) => urls.hasOwnProperty(f.filename));
 
 const TrackControlTable = React.memo(({ toggleView, allFoundFiles }) => {
-    const trackTableColumns = useMemo(
-        () => [
-            {
-                title: "File",
-                key: "filename",
-                render: (_, track) => track.filename,
-            },
-            {
-                title: "File type",
-                key: "fileType",
-                render: (_, track) => track.description,
-            },
-            {
-                title: "View track",
-                key: "view",
-                align: "center",
-                render: (_, track) => <Switch checked={track.viewInIgv} onChange={() => toggleView(track)} />,
-            },
-        ],
-        [toggleView],
-    );
+    const trackTableColumns = [
+        {
+            title: "File",
+            key: "filename",
+            render: (_, track) => track.filename,
+        },
+        {
+            title: "File type",
+            key: "fileType",
+            render: (_, track) => track.description,
+        },
+        {
+            title: "View track",
+            key: "view",
+            align: "center",
+            render: (_, track) => <Switch checked={track.viewInIgv} onChange={() => toggleView(track)} />,
+        },
+    ];  // Don't bother memoizing since toggleView and allFoundFiles both change with allTracks anyway
 
     return (
         <Table
@@ -127,7 +124,7 @@ const IndividualTracks = ({ individual }) => {
     // hardcode for hg19/GRCh37, fix requires updates elsewhere in Bento
     const genome = "hg19";
 
-    const toggleView = (track) => {
+    const toggleView = useCallback((track) => {
         const wasViewing = track.viewInIgv;
         const updatedTrackObject = { ...track, viewInIgv: !wasViewing };
         setAllTracks(allTracks.map((t) => (t.filename === track.filename ? updatedTrackObject : t)));
@@ -146,7 +143,7 @@ const IndividualTracks = ({ individual }) => {
                 visibilityWindow: VISIBILITY_WINDOW,
             });
         }
-    };
+    }, [allTracks]);
 
     const storeIgvPosition = (referenceFrame) => {
         const { chr, start, end } = referenceFrame[0];
