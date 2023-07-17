@@ -5,20 +5,17 @@ import { Button, Col, Row, Table, Typography } from "antd";
 import PropTypes from "prop-types";
 import { datasetPropTypesShape, projectPropTypesShape } from "../../propTypes";
 import { deleteDatasetDataType } from "../../modules/metadata/actions";
+import { useAuthorizationHeader } from "../../lib/auth/utils";
 
 const NA_TEXT = <span style={{ color: "#999", fontStyle: "italic" }}>N/A</span>;
 
 const DatasetDataTypes = ({isPrivate, project, dataset, onIngest, isFetchingDatasets}) => {
     const dispatch = useDispatch();
 
-    const serviceInfoByKind = useSelector((state) => state.services.itemsByKind);
-    const dataTypesByKind = useSelector(state => state.serviceDataTypes.dataTypesByServiceKind);
-    const dataTypesByID = useMemo(
-        () => Object.fromEntries(
-            Object.values(dataTypesByKind ?? {})
-                .flatMap(v => (v?.items ?? []))
-                .map(dt => [dt.id, dt])),
-        [dataTypesByKind]);
+    const katsuUrl = useSelector((state) => state.services.itemsByArtifact.metadata.url);
+    const authorizationHeader = useAuthorizationHeader();
+
+    const [summaryData, setSummaryData] = useState({});
     
     dataset = dataset || {};
 
@@ -28,12 +25,19 @@ const DatasetDataTypes = ({isPrivate, project, dataset, onIngest, isFetchingData
     }
     
     useEffect(() => {
-        console.debug({
-            dataset,
-            dataTypesByID,
-            dataTypesByKind
-        });
-    }, [])
+        const fetchDataTypeDetails = async () => {
+            const options = {
+                method: "GET",
+                headers: new Headers({"Content-Type": "application/json", ...authorizationHeader}),
+            }
+            const response = await fetch(`${katsuUrl}/datasets/${dataset.identifier}/summary`, options)
+            const data = await response.json();
+            setSummaryData(data);
+            console.debug(data);
+        }
+
+        fetchDataTypeDetails().catch(console.error)
+    }, [project, dataset])
 
     const dataTypesColumns = [
         {
@@ -60,7 +64,7 @@ const DatasetDataTypes = ({isPrivate, project, dataset, onIngest, isFetchingData
                             <Button
                                 icon="import"
                                 style={{width: "100%"}}
-                                onClick={() => (onIngest || nop)(project, dt)}
+                                onClick={() => (onIngest || nop)(project, t)}
                             >
                                 Ingest
                             </Button>
@@ -81,11 +85,10 @@ const DatasetDataTypes = ({isPrivate, project, dataset, onIngest, isFetchingData
         ] : null)
     ];
     
-    const dataTypes = Object.values(dataTypesByID).map(dt => {
-        
+    const dataTypes = Object.keys(summaryData).map(key => {
         return {
-            ...dt,
-            name: dt.label
+            ...summaryData[key],
+            name: key,
         }
     });
 
@@ -98,7 +101,7 @@ const DatasetDataTypes = ({isPrivate, project, dataset, onIngest, isFetchingData
             <Table
                 bordered
                 dataSource={dataTypes}
-                rowKey="date_type"
+                rowKey="name"
                 columns={dataTypesColumns}
                 loading={isFetchingDatasets}
             />

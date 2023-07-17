@@ -147,7 +147,6 @@ export const fetchServicesWithMetadataAndDataTypes = (onServiceFetchFinish) => a
 export const fetchServicesWithMetadataAndDataTypesIfNeeded = (onServiceFetchFinish) =>
     (dispatch, getState) => {
         const state = getState();
-        console.debug("AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAH");
         if ((Object.keys(state.bentoServices.itemsByArtifact).length === 0 || state.services.items.length === 0 ||
                 Object.keys(state.serviceDataTypes.dataTypesByServiceID).length === 0) &&
                 !state.services.isFetchingAll) {
