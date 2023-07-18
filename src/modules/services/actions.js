@@ -10,11 +10,6 @@ import {
     terminateFlow,
 } from "../../utils/actions";
 
-import { fetchDatasetsDataTypes } from "../datasets/actions"
-
-import {createURLSearchParams} from "../../utils/requests";
-
-
 /**
  * @typedef {Object} BentoService
  * @property {string} artifact
@@ -123,15 +118,6 @@ export const fetchServicesWithMetadataAndDataTypes = (onServiceFetchFinish) => a
             dispatch(beginFlow(LOADING_SERVICE_DATA_TYPES));
             await Promise.all(dataServicesInfo.map(s => dispatch(fetchDataServiceDataTypes(s))));
             dispatch(endFlow(LOADING_SERVICE_DATA_TYPES));
-        })(),
-
-        (async () => {
-            await Promise.all(dataServicesInfo.flatMap(s => 
-                {
-                    return (getState().serviceDataTypes.dataTypesByServiceID[s.id]?.items ?? [])
-                        .map(dt => dispatch(fetchDatasetsDataTypes(s, dt)));
-                }
-            ));
         })(),
 
         (async () => {

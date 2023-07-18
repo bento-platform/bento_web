@@ -1,57 +1,51 @@
-import React, {useEffect, useMemo, useState} from "react";
+import React, { useEffect } from "react";
 import { useSelector, useDispatch } from "react-redux";
 import { Button, Col, Row, Table, Typography } from "antd";
 
 import PropTypes from "prop-types";
 import { datasetPropTypesShape, projectPropTypesShape } from "../../propTypes";
 import { deleteDatasetDataType } from "../../modules/metadata/actions";
-import { useAuthorizationHeader } from "../../lib/auth/utils";
+import { fetchDatasetSummaryIfPossible } from "../../modules/datasets/actions";
+import confirmDataTypeDelete from "./DatatypeDeletionModal";
+import { nop } from "../../utils/misc";
 
 const NA_TEXT = <span style={{ color: "#999", fontStyle: "italic" }}>N/A</span>;
 
-const DatasetDataTypes = ({isPrivate, project, dataset, onIngest, isFetchingDatasets}) => {
+const DatasetDataTypes = ({ isPrivate, project, dataset, onIngest, isFetchingDatasets }) => {
+
     const dispatch = useDispatch();
+    const datasetDataTypes = useSelector((state) => state.datasetSummaries.datasetDatatypesSummaries);
 
-    const katsuUrl = useSelector((state) => state.services.itemsByArtifact.metadata.url);
-    const authorizationHeader = useAuthorizationHeader();
-
-    const [summaryData, setSummaryData] = useState({});
-    
     dataset = dataset || {};
-
     const handleDeleteDataType = async (dataType) => {
-        console.debug(dataset, dataType);
-        dispatch(deleteDatasetDataType(dataset.identifier, dataType.id));
-    }
-    
-    useEffect(() => {
-        const fetchDataTypeDetails = async () => {
-            const options = {
-                method: "GET",
-                headers: new Headers({"Content-Type": "application/json", ...authorizationHeader}),
-            }
-            const response = await fetch(`${katsuUrl}/datasets/${dataset.identifier}/summary`, options)
-            const data = await response.json();
-            setSummaryData(data);
-            console.debug(data);
-        }
+        confirmDataTypeDelete(
+            dataType,
+            async () => {
+                await dispatch(deleteDatasetDataType(dataset.identifier, dataType.id));
+                await dispatch(fetchDatasetSummaryIfPossible(dataset.identifier));
+            },
+        );
+    };
 
-        fetchDataTypeDetails().catch(console.error)
-    }, [project, dataset])
+    useEffect(() => {
+        (async () => {
+            await dispatch(fetchDatasetSummaryIfPossible(dataset.identifier));
+        })();
+    }, []);
 
     const dataTypesColumns = [
         {
             title: "Name",
-            dataIndex: "name",
+            dataIndex: "label",
             // TODO: click to see dataType summary charts
             render: (n) => (n ?? NA_TEXT),
             defaultSortOrder: "ascend",
-            sorter: (a, b) => a.name.localeCompare(b.name),
+            sorter: (a, b) => a.label.localeCompare(b.label),
         },
         {
             title: "Count",
             dataIndex: "count",
-            render: (c) => (c ?? NA_TEXT)
+            render: (c) => (c ?? NA_TEXT),
         },
         ...(isPrivate ? [
             {
@@ -63,7 +57,7 @@ const DatasetDataTypes = ({isPrivate, project, dataset, onIngest, isFetchingData
                         <Col span={12}>
                             <Button
                                 icon="import"
-                                style={{width: "100%"}}
+                                style={{ width: "100%" }}
                                 onClick={() => (onIngest || nop)(project, t)}
                             >
                                 Ingest
@@ -80,17 +74,10 @@ const DatasetDataTypes = ({isPrivate, project, dataset, onIngest, isFetchingData
                             </Button>
                         </Col>
                     </Row>
-                )
-            }
-        ] : null)
+                ),
+            },
+        ] : null),
     ];
-    
-    const dataTypes = Object.keys(summaryData).map(key => {
-        return {
-            ...summaryData[key],
-            name: key,
-        }
-    });
 
     return (
         <>
@@ -100,8 +87,8 @@ const DatasetDataTypes = ({isPrivate, project, dataset, onIngest, isFetchingData
 
             <Table
                 bordered
-                dataSource={dataTypes}
-                rowKey="name"
+                dataSource={datasetDataTypes}
+                rowKey="id"
                 columns={dataTypesColumns}
                 loading={isFetchingDatasets}
             />

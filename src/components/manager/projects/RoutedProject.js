@@ -96,8 +96,6 @@ class RoutedProject extends Component {
         const project = this.props.projectsByID[this.props.match.params.project];
         if (!project) return <ProjectSkeleton />;
 
-        const tables = this.props.serviceTablesByServiceID;
-
         /**
          * @typedef {Object} ProjectTable
          * @property {string} table_id
@@ -107,20 +105,6 @@ class RoutedProject extends Component {
          * @property {string} sample
          * @type {ProjectTable[]}
          */
-
-        const bentoServicesByKind = this.props.bentoServicesByKind;
-        const serviceDataTypesByServiceID = this.props.serviceDataTypesByServiceID;
-
-        const manageableDataTypes = this.props.services
-            .filter(s => {
-                const cs = bentoServicesByKind[s.bento?.serviceKind ?? s.type.artifact] ?? {};
-                return (
-                    cs.data_service &&  // Service in question must be a data service to have manageable tables ...
-                    cs.manageable_tables &&  // ... and it must have manageable tables specified ...
-                    serviceDataTypesByServiceID[s.id]?.items?.length  // ... and it must have >=1 data type.
-                );
-            })
-            .flatMap(s => serviceDataTypesByServiceID[s.id].items.map(dt => dt.id));
 
         return <>
             <DatasetFormModal mode={FORM_MODE_ADD}

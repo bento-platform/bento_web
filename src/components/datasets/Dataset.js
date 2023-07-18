@@ -124,16 +124,11 @@ class Dataset extends Component {
             overview: <DatasetOverview dataset={this.state}
                                        project={this.props.project}
                                        isPrivate={isPrivate}
-                                       isFetchingTables={this.props.isFetchingTables} />,
-            // tables: <DatasetTables dataset={this.state}
-            //                        project={this.props.project}
-            //                        isPrivate={isPrivate}
-            //                        isFetchingTables={this.props.isFetchingTables}
-            //                        onTableIngest={this.props.onTableIngest || nop} />,
-            data_types: <DatasetDataTypes dataset={this.state} 
-                                          project={this.props.project} 
+                                       isFetchingDatasets={this.props.isFetchingDatasets} />,
+            data_types: <DatasetDataTypes dataset={this.state}
+                                          project={this.props.project}
                                           isPrivate={isPrivate}
-                                          isFetchingDatasets={this.props.isFetchingDatasets} 
+                                          isFetchingDatasets={this.props.isFetchingDatasets}
                                           onIngest={this.props.onTableIngest}/>,
             linked_field_sets: (
                 <>
@@ -290,7 +285,7 @@ Dataset.propTypes = {
 
     value: datasetPropTypesShape,
 
-    isFetchingTables: PropTypes.bool,
+    isFetchingDatasets: PropTypes.bool,
 
     onEdit: PropTypes.func,
     onTableIngest: PropTypes.func,
@@ -301,8 +296,8 @@ Dataset.propTypes = {
 };
 
 const mapStateToProps = state => ({
-    isFetchingTables: state.services.isFetchingAll
-        || state.projects.isFetchingWithTables,  // TODO: remove
+    isFetchingDatasets: state.services.isFetchingAll
+        || state.datasetSummaries.isFetching,
     isSavingDataset: state.projects.isSavingDataset,
     isDeletingDataset: state.projects.isDeletingDataset,
 });

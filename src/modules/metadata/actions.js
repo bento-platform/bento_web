@@ -40,8 +40,11 @@ export const DELETE_DATASET_DATA_TYPE = createNetworkActionTypes("DELETE_DATASET
 
 export const deleteDatasetDataType = networkAction((datasetId, dataType) => (dispatch, getState) => ({
     types: DELETE_DATASET_DATA_TYPE,
-    url: `${getState().services.metadataService.url}/api/data-types/${dataType}/dataset/${datasetId}`
-}))
+    url: `${getState().services.metadataService.url}/datasets/${datasetId}/data-types/${dataType}`,
+    req: {
+        method: "DELETE",
+    },
+}));
 
 export const fetchProjects = networkAction(() => (dispatch, getState) => ({
     types: FETCH_PROJECTS,

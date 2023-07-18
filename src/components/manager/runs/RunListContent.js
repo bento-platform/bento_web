@@ -8,8 +8,6 @@ import { fetchAllRunDetailsIfNeeded } from "../../../modules/wes/actions";
 
 import { RUN_REFRESH_TIMEOUT, RUN_TABLE_COLUMNS } from "./utils";
 
-import LastIngestionTable from "./RunLastContent";
-
 class RunListContent extends Component {
     constructor(props) {
         super(props);

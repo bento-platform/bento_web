@@ -2,7 +2,7 @@ import React, {Component} from "react";
 import {connect} from "react-redux";
 import PropTypes from "prop-types";
 
-import {Spin, Tag, TreeSelect} from "antd";
+import {Spin, TreeSelect} from "antd";
 
 import {nop} from "../../utils/misc";
 
@@ -29,13 +29,6 @@ class TableTreeSelect extends Component {
     }
 
     render() {
-        // TODO: Handle table loading better
-
-        const getTableName = (serviceID, tableID) =>
-            this.props.tablesByServiceID[serviceID]?.tablesByID?.[tableID]?.name;
-
-        const dataType = this.props.dataType ?? null;
-
         const selectTreeData = this.props.projects.map(p => ({
             title: p.title,
             selectable: false,

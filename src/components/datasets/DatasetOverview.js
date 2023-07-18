@@ -37,9 +37,9 @@ class DatasetOverview extends Component {
                                value={(new Date(Date.parse(dataset.created))).toLocaleString()} />
                 </Col>
                 <Col span={this.props.isPrivate ? 12 : 8}>
-                    <Spin spinning={this.props.isFetchingTables}>
-                        <Statistic title="Tables"
-                                   value={this.props.isFetchingTables ? EM_DASH : dataset.tables.length} />
+                    <Spin spinning={this.props.isFetchingDatasets}>
+                        <Statistic title="Data types"
+                                   value={this.props.isFetchingDatasets ? EM_DASH : dataset.tables.length} />
                     </Spin>
                 </Col>
             </Row>
@@ -51,7 +51,7 @@ DatasetOverview.propTypes = {
     isPrivate: PropTypes.bool,
     project: projectPropTypesShape,
     dataset: datasetPropTypesShape,
-    isFetchingTables: PropTypes.bool,
+    isFetchingDatasets: PropTypes.bool,
 };
 
 export default DatasetOverview;

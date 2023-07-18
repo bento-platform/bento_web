@@ -63,7 +63,7 @@ const DatasetTables = ({ isPrivate, project, dataset, onTableIngest, isFetchingT
         {
             title: "ID",
             dataIndex: "table_id",
-            render: (tableID, t) =>
+            render: (tableID) =>
                 isPrivate ? (
                     <a style={{ fontFamily: "monospace" }} >
                         {tableID}
