@@ -92,16 +92,16 @@ const ManagerDRSContent = () => {
                     });
             },
             250,
-            { leading: true, trailing: true }
+            { leading: true, trailing: true },
         ),
-        [drsUrl, authHeader]
+        [drsUrl, authHeader],
     );
 
     const tableLocale = useMemo(
         () => ({
             emptyText: doneSearch ? "No matching objects" : "Search to see matching objects",
         }),
-        [doneSearch]
+        [doneSearch],
     );
 
     return (
