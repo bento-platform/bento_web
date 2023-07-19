@@ -22,5 +22,5 @@ const fetchDatasetSummary = networkAction((serviceInfo, datasetID) => ({
 
 export const fetchDatsetSummaryIfPossible = (datasetID) => (dispatch, getState) => {
     if (getState().datasetSummaries.isFetching) return;
-    return dispatch(fetchDatasetSummary(getState().services.itemsByArtifact.metadata, datasetID))
+    return dispatch(fetchDatasetSummary(getState().services.itemsByArtifact.metadata, datasetID));
 };

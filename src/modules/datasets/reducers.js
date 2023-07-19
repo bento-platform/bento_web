@@ -33,7 +33,7 @@ export const datasetDataTypes = (
 export const datasetSummaries = (
     state = {
         isFetching: false,
-        items: {}
+        items: {},
     },
     action,
 ) => {
@@ -42,19 +42,19 @@ export const datasetSummaries = (
             return {
                 ...state,
                 isFetching: true,
-            }
+            };
         case FETCH_DATASET_SUMMARY.RECEIVE:
             return {
                 ...state,
                 items: action.data,
-            }
+            };
         case FETCH_DATASET_SUMMARY.FINISH:
         case FETCH_DATASET_SUMMARY.ERROR:
             return {
                 ...state,
                 isFetching: false,
-            }
+            };
         default:
             return state;
     }
-}
+};

@@ -9,7 +9,7 @@ const genericConfirm = ({title, content, onOk, onCancel, ...rest}) => {
         onOk: onOk,
         onCancel,
         ...rest,
-    })
-}
+    });
+};
 
 export default genericConfirm;

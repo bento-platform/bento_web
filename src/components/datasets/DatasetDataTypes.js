@@ -24,8 +24,8 @@ const DatasetDataTypes = ({ isPrivate, project, dataset, onIngest, isFetchingDat
     const [selectedDataType, setSelectedDataType] = useState(null);
 
     const selectedSummary = useMemo(() => {
-        return (selectedDataType !== null && datasetSummaries) 
-            ? datasetSummaries[selectedDataType.id] 
+        return (selectedDataType !== null && datasetSummaries)
+            ? datasetSummaries[selectedDataType.id]
             : {};
     }, [selectedDataType, datasetSummaries]);
 
@@ -38,7 +38,7 @@ const DatasetDataTypes = ({ isPrivate, project, dataset, onIngest, isFetchingDat
                 await dispatch(deleteDatasetDataType(dataset.identifier, dataType.id));
                 await dispatch(fetchDatasetDataTypesSummaryIfPossible(dataset.identifier));
             },
-        })
+        });
     };
 
     const showDatatypeSummary = (dataType) => {

@@ -12,7 +12,7 @@ const DataTypeSummaryModal = ({dataType, summary, onCancel, visible}) => {
     dataType = dataType || {};
 
     const isFetchingSummaries = useSelector((state) => state.datasetDataTypes.isFetching);
-    
+
     let Summary = GenericSummary;
     switch (dataType.id) {
         case "variant":
@@ -27,13 +27,13 @@ const DataTypeSummaryModal = ({dataType, summary, onCancel, visible}) => {
     return (
         <>
             <Modal visible={visible}
-                onCancel={onCancel}
-                onOk={onCancel}
-                title={<>
+                   onCancel={onCancel}
+                   onOk={onCancel}
+                   title={<>
                     <Tag>{dataType.id}</Tag>
-                </>}
+                   </>}
             >
-                {(!summary || isFetchingSummaries) 
+                {(!summary || isFetchingSummaries)
                     ? <Skeleton/>
                     : <Summary summary={summary}/>}
             </Modal>

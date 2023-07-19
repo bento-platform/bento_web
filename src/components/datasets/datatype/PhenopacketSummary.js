@@ -2,7 +2,7 @@ import React from "react";
 import { Col, Divider, Row, Statistic, Typography } from "antd";
 
 import { VictoryLabel, VictoryPie } from "victory";
-import VictoryPieWrapSVG from "../../VictoryPieWrapSVG"
+import VictoryPieWrapSVG from "../../VictoryPieWrapSVG";
 
 import { summaryPropTypesShape } from "../../../propTypes";
 import { VICTORY_PIE_LABEL_PROPS, VICTORY_PIE_PROPS } from "../../../styles/victory";
@@ -48,6 +48,6 @@ const PhenopacketSummary = ({ summary }) => {
 
 PhenopacketSummary.propTypes = {
     summary: summaryPropTypesShape,
-}
+};
 
 export default PhenopacketSummary;
