@@ -297,7 +297,7 @@ Dataset.propTypes = {
 
 const mapStateToProps = state => ({
     isFetchingDatasets: state.services.isFetchingAll
-        || state.datasetSummaries.isFetching,
+        || state.datasetDataTypes.isFetching,
     isSavingDataset: state.projects.isSavingDataset,
     isDeletingDataset: state.projects.isDeletingDataset,
 });
