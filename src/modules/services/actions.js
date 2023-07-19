@@ -141,7 +141,6 @@ export const fetchServicesWithMetadataAndDataTypesAndTables = (onServiceFetchFin
             await Promise.all(dataServicesInfo.map(s => dispatch(fetchDataServiceWorkflows(s))));
             dispatch(endFlow(LOADING_SERVICE_WORKFLOWS));
         })(),
-        // add here the logic for fetching data types by dataset
     ]);
 
     // Fetch Data Service Local Tables
@@ -154,28 +153,6 @@ export const fetchServicesWithMetadataAndDataTypesAndTables = (onServiceFetchFin
 
     dispatch(endFlow(LOADING_ALL_SERVICE_DATA));
 };
-
-/* export const fetchServicesByDataset = () => async (dispatch, getState) => {
-    dispatch(beginFlow(LOADING_SERVICE_DATA_TYPES_BY_DATASET));
-    const datasetIdentifiers = Object.values(getState().projects.itemsByID).flatMap(
-        project => project.datasets?.map(d => d.identifier) || []);
-
-    const dataServicesInfo = getState().services.items.filter(s => s?.type).map(s => {
-        const serviceKind = s.bento?.serviceKind ?? s.type.artifact;
-        return {
-            ...s,
-            bentoService: getState().bentoServices.itemsByKind[serviceKind] ?? null,
-        };
-    }).filter(s => s.bentoService?.data_service ?? false);
-
-    if (datasetIdentifiers.length > 0 && dataServicesInfo.length > 0) {
-        await Promise.all(dataServicesInfo.flatMap(s =>
-            datasetIdentifiers.map(id => dispatch(fetchDataServiceDataTypesById(s, id))),
-        ));
-    }
-
-    dispatch(endFlow(LOADING_SERVICE_DATA_TYPES_BY_DATASET));
-}; */
 
 export const fetchServicesByDataset = () => async (dispatch, getState) => {
     dispatch(beginFlow(LOADING_SERVICE_DATA_TYPES_BY_DATASET));
