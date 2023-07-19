@@ -1,10 +1,10 @@
-import {useSelector} from "react-redux";
-import React, {useCallback} from "react";
-import {Button} from "antd";
+import { useSelector } from "react-redux";
+import React, { useCallback } from "react";
+import { Button } from "antd";
 import PropTypes from "prop-types";
 
-const DownloadButton = ({disabled, uri, children}) => {
-    const {accessToken} = useSelector(state => state.auth);
+const DownloadButton = ({ disabled, uri, children }) => {
+    const { accessToken } = useSelector((state) => state.auth);
 
     const onClick = useCallback(() => {
         if (!uri) return;
@@ -23,7 +23,11 @@ const DownloadButton = ({disabled, uri, children}) => {
         }
     }, [uri, accessToken]);
 
-    return <Button key="download" icon="download" disabled={disabled} onClick={onClick}>{children}</Button>;
+    return (
+        <Button key="download" icon="download" disabled={disabled} onClick={onClick}>
+            {children}
+        </Button>
+    );
 };
 
 DownloadButton.defaultProps = {
