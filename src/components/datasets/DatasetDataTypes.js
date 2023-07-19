@@ -4,17 +4,15 @@ import { Button, Col, Row, Table, Typography } from "antd";
 
 import PropTypes from "prop-types";
 import { datasetPropTypesShape, projectPropTypesShape } from "../../propTypes";
-import { deleteDatasetDataType } from "../../modules/metadata/actions";
-import { fetchDatasetDataTypesSummaryIfPossible, fetchDatsetSummaryIfPossible } from "../../modules/datasets/actions";
+import { clearDatasetDataType } from "../../modules/metadata/actions";
+import { fetchDatasetDataTypesSummaryIfPossible, fetchDatasetSummaryIfPossible } from "../../modules/datasets/actions";
 import genericConfirm from "../ConfirmationModal";
 import { nop } from "../../utils/misc";
 import DataTypeSummaryModal from "./datatype/DataTypeSummaryModal";
 
 const NA_TEXT = <span style={{ color: "#999", fontStyle: "italic" }}>N/A</span>;
 
-const DatasetDataTypes = ({ isPrivate, project, dataset, onIngest, isFetchingDatasets }) => {
-    dataset = dataset || {};
-
+const DatasetDataTypes = React.memo(({ isPrivate, project, dataset, onIngest, isFetchingDatasets }) => {
     const dispatch = useDispatch();
 
     const datasetDataTypes = useSelector((state) => state.datasetDataTypes.datasetDatatypesSummaries);
@@ -35,7 +33,7 @@ const DatasetDataTypes = ({ isPrivate, project, dataset, onIngest, isFetchingDat
             content: "Deleting this means all instances of this data type contained in the dataset " +
                 "will be deleted permanently, and will no longer be available for exploration.",
             onOk: async () => {
-                await dispatch(deleteDatasetDataType(dataset.identifier, dataType.id));
+                await dispatch(clearDatasetDataType(dataset.identifier, dataType.id));
                 await dispatch(fetchDatasetDataTypesSummaryIfPossible(dataset.identifier));
             },
         });
@@ -49,7 +47,7 @@ const DatasetDataTypes = ({ isPrivate, project, dataset, onIngest, isFetchingDat
     useEffect(() => {
         (async () => {
             await dispatch(fetchDatasetDataTypesSummaryIfPossible(dataset.identifier));
-            await dispatch(fetchDatsetSummaryIfPossible(dataset.identifier));
+            await dispatch(fetchDatasetSummaryIfPossible(dataset.identifier));
         })();
     }, []);
 
@@ -125,7 +123,7 @@ const DatasetDataTypes = ({ isPrivate, project, dataset, onIngest, isFetchingDat
             />
         </>
     );
-};
+});
 
 DatasetDataTypes.propTypes = {
     isPrivate: PropTypes.bool,

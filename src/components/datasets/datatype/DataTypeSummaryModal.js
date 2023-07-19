@@ -24,21 +24,19 @@ const DataTypeSummaryModal = ({dataType, summary, onCancel, visible}) => {
             break;
     }
 
-    return (
-        <>
-            <Modal visible={visible}
-                   onCancel={onCancel}
-                   onOk={onCancel}
-                   title={<>
-                    <Tag>{dataType.id}</Tag>
-                   </>}
-            >
-                {(!summary || isFetchingSummaries)
-                    ? <Skeleton/>
-                    : <Summary summary={summary}/>}
-            </Modal>
-        </>
-    );
+    return <>
+        <Modal visible={visible}
+               onCancel={onCancel}
+               onOk={onCancel}
+               title={<>
+            <Tag>{dataType.id}</Tag>
+               </>}
+        >
+            {(!summary || isFetchingSummaries)
+                ? <Skeleton/>
+                : <Summary summary={summary}/>}
+        </Modal>
+    </>;
 };
 
 DataTypeSummaryModal.propTypes = {

@@ -20,7 +20,7 @@ const fetchDatasetSummary = networkAction((serviceInfo, datasetID) => ({
     url: `${serviceInfo.url}/datasets/${datasetID}/summary`,
 }));
 
-export const fetchDatsetSummaryIfPossible = (datasetID) => (dispatch, getState) => {
+export const fetchDatasetSummaryIfPossible = (datasetID) => (dispatch, getState) => {
     if (getState().datasetSummaries.isFetching) return;
     return dispatch(fetchDatasetSummary(getState().services.itemsByArtifact.metadata, datasetID));
 };

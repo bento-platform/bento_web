@@ -139,9 +139,7 @@ class Project extends Component {
                                         key={d.identifier}
                                         mode="private"
                                         project={this.props.value}
-                                        value={{
-                                            ...d,
-                                        }}
+                                        value={d}
                                         onEdit={() => (this.props.onEditDataset || nop)(d)}
                                         onTableIngest={this.props.onTableIngest || nop}
                                     />

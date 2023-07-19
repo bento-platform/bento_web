@@ -5,8 +5,6 @@ import {
     createNetworkActionTypes,
     createFlowActionTypes,
     networkAction,
-    beginFlow,
-    endFlow,
 } from "../../utils/actions";
 import {nop, objectWithoutProps} from "../../utils/misc";
 import {jsonRequest} from "../../utils/requests";
@@ -14,7 +12,6 @@ import {jsonRequest} from "../../utils/requests";
 
 export const FETCH_PROJECTS = createNetworkActionTypes("FETCH_PROJECTS");
 export const FETCH_PROJECT_TABLES = createNetworkActionTypes("FETCH_PROJECT_TABLES");
-export const FETCHING_PROJECTS_WITH_TABLES = createFlowActionTypes("FETCHING_PROJECTS_WITH_TABLES");
 
 export const CREATE_PROJECT = createNetworkActionTypes("CREATE_PROJECT");
 export const DELETE_PROJECT = createNetworkActionTypes("DELETE_PROJECT");
@@ -38,7 +35,7 @@ export const FETCH_OVERVIEW_SUMMARY = createNetworkActionTypes("FETCH_OVERVIEW_S
 
 export const DELETE_DATASET_DATA_TYPE = createNetworkActionTypes("DELETE_DATASET_DATA_TYPE");
 
-export const deleteDatasetDataType = networkAction((datasetId, dataType) => (dispatch, getState) => ({
+export const clearDatasetDataType = networkAction((datasetId, dataType) => (dispatch, getState) => ({
     types: DELETE_DATASET_DATA_TYPE,
     url: `${getState().services.metadataService.url}/datasets/${datasetId}/data-types/${dataType}`,
     req: {
@@ -55,16 +52,14 @@ export const fetchProjects = networkAction(() => (dispatch, getState) => ({
 
 
 // TODO: if needed fetching + invalidation
-export const fetchProjectsWithDatasetsAndTables = () => async (dispatch, getState) => {
+export const fetchProjectsWithDatasets = () => async (dispatch, getState) => {
     const state = getState();
     if (state.projects.isFetching ||
         state.projects.isCreating ||
         state.projects.isDeleting ||
         state.projects.isSaving) return;
 
-    dispatch(beginFlow(FETCHING_PROJECTS_WITH_TABLES));
     await dispatch(fetchProjects());
-    dispatch(endFlow(FETCHING_PROJECTS_WITH_TABLES));
 };
 
 

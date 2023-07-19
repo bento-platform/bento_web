@@ -3,7 +3,6 @@ import {objectWithoutProp} from "../../utils/misc";
 import {
     FETCH_PROJECTS,
     FETCH_PROJECT_TABLES,
-    FETCHING_PROJECTS_WITH_TABLES,
 
     CREATE_PROJECT,
     DELETE_PROJECT,
@@ -63,15 +62,6 @@ export const projects = (
 
         case FETCH_PROJECTS.FINISH:
             return {...state, isFetching: false};
-
-
-        case FETCHING_PROJECTS_WITH_TABLES.BEGIN:
-            return {...state, isFetchingWithTables: true};
-
-        case FETCHING_PROJECTS_WITH_TABLES.END:
-        case FETCHING_PROJECTS_WITH_TABLES.TERMINATE:
-            return {...state, isFetchingWithTables: false};
-
 
         case CREATE_PROJECT.REQUEST:
             return {...state, isCreating: true};

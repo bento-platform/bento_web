@@ -12,7 +12,7 @@ import {
 
 import { fetchDropBoxTreeOrFail } from "../manager/actions";
 import {
-    fetchProjectsWithDatasetsAndTables,
+    fetchProjectsWithDatasets,
     fetchOverviewSummary,
 } from "../metadata/actions";
 import { fetchNotifications } from "../notifications/actions";
@@ -61,7 +61,7 @@ export const fetchUserDependentData = (servicesCb) => async (dispatch, getState)
             await dispatch(fetchServicesWithMetadataAndDataTypesIfNeeded(
                 () => dispatch(fetchServiceDependentData())));
             await (servicesCb || nop)();
-            await dispatch(fetchProjectsWithDatasetsAndTables());  // TODO: If needed, remove if !hasAttempted
+            await dispatch(fetchProjectsWithDatasets());  // TODO: If needed, remove if !hasAttempted
         }
     } finally {
         dispatch(endFlow(FETCHING_USER_DEPENDENT_DATA));
