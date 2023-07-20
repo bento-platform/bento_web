@@ -1,11 +1,11 @@
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useState } from "react";
 import { useSelector, useDispatch } from "react-redux";
 import { Button, Col, Row, Table, Typography } from "antd";
 
 import PropTypes from "prop-types";
 import { datasetPropTypesShape, projectPropTypesShape } from "../../propTypes";
 import { clearDatasetDataType } from "../../modules/metadata/actions";
-import { fetchDatasetDataTypesSummaryIfPossible, fetchDatasetSummaryIfPossible } from "../../modules/datasets/actions";
+import { fetchDatasetDataTypesSummaryIfPossible } from "../../modules/datasets/actions";
 import genericConfirm from "../ConfirmationModal";
 import { nop } from "../../utils/misc";
 import DataTypeSummaryModal from "./datatype/DataTypeSummaryModal";
@@ -22,8 +22,8 @@ const DatasetDataTypes = React.memo(({ isPrivate, project, dataset, onIngest, is
     const [selectedDataType, setSelectedDataType] = useState(null);
 
     const selectedSummary = (selectedDataType !== null && datasetSummaries)
-            ? datasetSummaries[selectedDataType.id]
-            : {};
+        ? datasetSummaries[selectedDataType.id]
+        : {};
 
     const handleDeleteDataType = async (dataType) => {
         genericConfirm({

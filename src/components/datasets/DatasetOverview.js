@@ -9,10 +9,10 @@ import {EM_DASH} from "../../constants";
 import { useSelector } from "react-redux";
 
 const DatasetOverview = ({isPrivate, project, dataset, isFetchingDatasets}) => {
-    
+
     const datasetDatatypesSummaries = useSelector((state) => state.datasetDataTypes.itemsById);
     const dataTypesSummary = datasetDatatypesSummaries[dataset.identifier] || [];
-    
+
 
     const datatypeCount = useMemo(() => {
         const notEmpty = dataTypesSummary.filter((value) => value.count && value.count > 0);
