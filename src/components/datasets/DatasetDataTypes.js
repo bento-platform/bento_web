@@ -15,17 +15,15 @@ const NA_TEXT = <span style={{ color: "#999", fontStyle: "italic" }}>N/A</span>;
 const DatasetDataTypes = React.memo(({ isPrivate, project, dataset, onIngest, isFetchingDatasets }) => {
     const dispatch = useDispatch();
 
-    const datasetDataTypes = useSelector((state) => state.datasetDataTypes.datasetDatatypesSummaries);
-    const datasetSummaries = useSelector((state) => state.datasetSummaries.items);
+    const datasetDataTypes = useSelector((state) => state.datasetDataTypes.itemsById[dataset.identifier]);
+    const datasetSummaries = useSelector((state) => state.datasetSummaries.itemsById[dataset.identifier]);
 
     const [datatypeSummaryVisible, setDatatypeSummaryVisible] = useState(false);
     const [selectedDataType, setSelectedDataType] = useState(null);
 
-    const selectedSummary = useMemo(() => {
-        return (selectedDataType !== null && datasetSummaries)
+    const selectedSummary = (selectedDataType !== null && datasetSummaries)
             ? datasetSummaries[selectedDataType.id]
             : {};
-    }, [selectedDataType, datasetSummaries]);
 
     const handleDeleteDataType = async (dataType) => {
         genericConfirm({
@@ -43,13 +41,6 @@ const DatasetDataTypes = React.memo(({ isPrivate, project, dataset, onIngest, is
         setSelectedDataType(dataType);
         setDatatypeSummaryVisible(true);
     };
-
-    useEffect(() => {
-        (async () => {
-            await dispatch(fetchDatasetDataTypesSummaryIfPossible(dataset.identifier));
-            await dispatch(fetchDatasetSummaryIfPossible(dataset.identifier));
-        })();
-    }, []);
 
     const dataTypesColumns = [
         {

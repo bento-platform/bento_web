@@ -12,6 +12,11 @@ import {
     deleteDatasetLinkedFieldSetIfPossible,
 } from "../../modules/metadata/actions";
 
+import {
+    fetchDatasetDataTypesSummaryIfPossible,
+    fetchDatasetSummaryIfPossible,
+} from "../../modules/datasets/actions";
+
 import {INITIAL_DATA_USE_VALUE} from "../../duo";
 import {simpleDeepCopy, nop} from "../../utils/misc";
 import LinkedFieldSetTable from "./linked_field_set/LinkedFieldSetTable";
@@ -86,6 +91,14 @@ class Dataset extends Component {
         };
 
         this.handleFieldSetDeletion = this.handleFieldSetDeletion.bind(this);
+    }
+
+
+    componentDidMount() {
+        if (this.state.identifier) {
+            this.props.fetchDatasetSummary(this.state.identifier);
+            this.props.fetchDatasetDataTypesSummary(this.state.identifier);
+        }
     }
 
 
@@ -293,6 +306,9 @@ Dataset.propTypes = {
     addLinkedFieldSet: PropTypes.func,
     deleteProjectDataset: PropTypes.func,
     deleteLinkedFieldSet: PropTypes.func,
+
+    fetchDatasetSummary: PropTypes.func,
+    fetchDatasetDataTypesSummary: PropTypes.func,
 };
 
 const mapStateToProps = state => ({
@@ -308,6 +324,8 @@ const mapDispatchToProps = (dispatch, ownProps) => ({
     deleteProjectDataset: dataset => dispatch(deleteProjectDatasetIfPossible(ownProps.project, dataset)),
     deleteLinkedFieldSet: (dataset, linkedFieldSet, linkedFieldSetIndex) =>
         dispatch(deleteDatasetLinkedFieldSetIfPossible(dataset, linkedFieldSet, linkedFieldSetIndex)),
+    fetchDatasetSummary: (datasetId) => dispatch(fetchDatasetSummaryIfPossible(datasetId)),
+    fetchDatasetDataTypesSummary: (datasetId) => dispatch(fetchDatasetDataTypesSummaryIfPossible(datasetId)),
 });
 
 export default connect(mapStateToProps, mapDispatchToProps)(Dataset);

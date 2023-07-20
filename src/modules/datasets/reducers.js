@@ -3,7 +3,7 @@ import {FETCH_DATASET_DATATYPE, FETCH_DATASET_SUMMARY} from "./actions";
 export const datasetDataTypes = (
     state = {
         isFetching: false,
-        datasetDatatypesSummaries: [],
+        itemsById: {}
     },
     action,
 ) => {
@@ -16,7 +16,10 @@ export const datasetDataTypes = (
         case FETCH_DATASET_DATATYPE.RECEIVE:
             return {
                 ...state,
-                datasetDatatypesSummaries: action.data,
+                itemsById: {
+                    ...state.itemsById,
+                    [action.datasetID]: action.data,
+                }
             };
         case FETCH_DATASET_DATATYPE.FINISH:
         case FETCH_DATASET_DATATYPE.ERROR:
@@ -33,7 +36,7 @@ export const datasetDataTypes = (
 export const datasetSummaries = (
     state = {
         isFetching: false,
-        items: {},
+        itemsById: {}
     },
     action,
 ) => {
@@ -46,7 +49,10 @@ export const datasetSummaries = (
         case FETCH_DATASET_SUMMARY.RECEIVE:
             return {
                 ...state,
-                items: action.data,
+                itemsById: {
+                    ...state.itemsById,
+                    [action.datasetID]: action.data,
+                }
             };
         case FETCH_DATASET_SUMMARY.FINISH:
         case FETCH_DATASET_SUMMARY.ERROR:

@@ -9,15 +9,16 @@ import {EM_DASH} from "../../constants";
 import { useSelector } from "react-redux";
 
 const DatasetOverview = ({isPrivate, project, dataset, isFetchingDatasets}) => {
-    const datasetDatatypesSummaries = useSelector((state) => state.datasetDataTypes.datasetDatatypesSummaries);
+    
+    const datasetDatatypesSummaries = useSelector((state) => state.datasetDataTypes.itemsById);
+    const dataTypesSummary = datasetDatatypesSummaries[dataset.identifier] || [];
+    
 
     const datatypeCount = useMemo(() => {
-        // TODO: organize dataset redux stores by dataset id
-        const notEmpty = datasetDatatypesSummaries.filter((value) => value.count && value.count > 0);
+        const notEmpty = dataTypesSummary.filter((value) => value.count && value.count > 0);
         return notEmpty.length;
-    }, [datasetDatatypesSummaries]);
+    }, [dataTypesSummary]);
 
-    console.log(datatypeCount);
 
     return <>
         {(dataset.description ?? "").length > 0
