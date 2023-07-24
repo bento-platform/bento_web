@@ -1,41 +1,41 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-    <link rel="icon" href="/static/icon_small.png" type="image/png" />
-    <script type="text/javascript">
-        // I separated this definition from static/config.js for backwards
-        // compatibility for older BentoV2 instances.
-        //     - David L, 2023-01-03
-        // - define an empty global as a fallback for what ends up in the BENTO_WEB_CONFIG global
-        // - leave it mutable so static/config.js can override it
-        let BENTO_WEB_CONFIG = {};
-    </script>
-    <script src="<%= webpackConfig.output.publicPath %>static/config.js"></script>
-    <title><%= htmlWebpackPlugin.options.title %></title>
-    <style>
-        /* Special Override styles */
-        .ant-table .table-nested-ant-descriptions table {
-            border-collapse: collapse;
-        }
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
+        <link rel="icon" href="/static/icon_small.png" type="image/png" />
+        <script type="text/javascript">
+            // I separated this definition from static/config.js for backwards
+            // compatibility for older BentoV2 instances.
+            //     - David L, 2023-01-03
+            // - define an empty global as a fallback for what ends up in the BENTO_WEB_CONFIG global
+            // - leave it mutable so static/config.js can override it
+            let BENTO_WEB_CONFIG = {};
+        </script>
+        <script src="<%= webpackConfig.output.publicPath %>static/config.js"></script>
+        <title><%= htmlWebpackPlugin.options.title %></title>
+        <style>
+            /* Special Override styles */
+            .ant-table .table-nested-ant-descriptions table {
+                border-collapse: collapse;
+            }
 
-        /* react-pdf document styling */
-        .react-pdf__Document {
-            border: 1px solid #C6C6C6;
-            border-radius: 3px;
-            background-color: #DFDFDF;
-            display: flex;
-            flex-direction: column;
-            padding: 16px;
-            gap: 16px;
+            /* react-pdf document styling */
+            .react-pdf__Document {
+                border: 1px solid #c6c6c6;
+                border-radius: 3px;
+                background-color: #dfdfdf;
+                display: flex;
+                flex-direction: column;
+                padding: 16px;
+                gap: 16px;
 
-            max-height: calc(100vh - 250px);
-            overflow-y: auto;
-        }
-    </style>
-</head>
-<body>
-    <div id="root"></div>
-</body>
+                max-height: calc(100vh - 250px);
+                overflow-y: auto;
+            }
+        </style>
+    </head>
+    <body>
+        <div id="root"></div>
+    </body>
 </html>
