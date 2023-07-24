@@ -3,43 +3,36 @@ import PropTypes from "prop-types";
 import { Empty } from "antd";
 import { BarChart } from "bento-charts";
 
-const titleStyle = {
+const TITLE_STYLE = {
     fontStyle: "italic",
     padding: "0",
     marginBottom: "-15px",
 };
-const titleHeaderHeight = 31;
 
+const Histogram = ({ title = "Histogram", data = [], chartHeight = 300 }) => {
+    const transformedData = useMemo(() => transformData(data), [data]);
 
-const Histogram = ({ title, data, chartHeight, chartAspectRatio }) => {
-    data = data.map(({ ageBin, count }) => ({ x: ageBin, y: count }));
+    if (!transformedData.length) {
+        return <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} description="No available data" />;
+    }
+
     return (
         <div style={{ marginBottom: "20px" }}>
-            <h2 style={titleStyle}>{title}</h2>
-            {data.length !== 0 ? (
-                <BarChart data={data} height={chartHeight} />
-            ) : (
-                <div
-                    style={{
-                        display: "flex",
-                        alignItems: "center",
-                        justifyContent: "center",
-                        height: `${chartHeight - titleHeaderHeight}px`,
-                        width: `${(chartHeight - titleHeaderHeight) * chartAspectRatio}px`,
-                    }}
-                >
-                    <Empty />
-                </div>
-            )}
+            <h2 style={TITLE_STYLE}>{title}</h2>
+            <BarChart data={transformedData} height={chartHeight} />
         </div>
     );
 };
 
 Histogram.propTypes = {
     title: PropTypes.string,
-    data: PropTypes.array,
+    data: PropTypes.arrayOf(
+        PropTypes.shape({
+            ageBin: PropTypes.string,
+            count: PropTypes.number,
+        })
+    ),
     chartHeight: PropTypes.number,
-    chartAspectRatio: PropTypes.number,
 };
 
 export default Histogram;

@@ -15,9 +15,7 @@ const ClinicalSummary = () => {
         dispatch(setAutoQueryPageTransition(priorPageUrl, type, field, value));
 
     const { data, isFetching } = useSelector((state) => state.overviewSummary);
-    const otherThresholdPercentage = useSelector(
-        (state) => state.explorer.otherThresholdPercentage,
-    );
+    const otherThresholdPercentage = useSelector((state) => state.explorer.otherThresholdPercentage);
 
     const statistics = [
         {
@@ -45,19 +43,13 @@ const ClinicalSummary = () => {
     const charts = [
         {
             title: "Individuals",
-            data: mapNameValueFields(
-                data.data_type_specific?.individuals?.sex,
-                -1,
-            ),
+            data: mapNameValueFields(data.data_type_specific?.individuals?.sex, -1),
             fieldLabel: "[dataset item].subject.sex",
             type: "PIE",
         },
         {
             title: "Diseases",
-            data: mapNameValueFields(
-                data.data_type_specific?.diseases?.term,
-                otherThresholdPercentage / 100,
-            ),
+            data: mapNameValueFields(data.data_type_specific?.diseases?.term, otherThresholdPercentage / 100),
             fieldLabel: "[dataset item].diseases.[item].term.label",
             type: "PIE",
         },
@@ -70,7 +62,7 @@ const ClinicalSummary = () => {
             title: "Biosamples",
             data: mapNameValueFields(
                 data.data_type_specific?.biosamples?.sampled_tissue,
-                otherThresholdPercentage / 100,
+                otherThresholdPercentage / 100
             ),
             fieldLabel: "[dataset item].biosamples.[item].sampled_tissue.label",
             type: "PIE",
@@ -79,7 +71,7 @@ const ClinicalSummary = () => {
             title: "Phenotypic Features",
             data: mapNameValueFields(
                 data.data_type_specific?.phenotypic_features?.type,
-                otherThresholdPercentage / 100,
+                otherThresholdPercentage / 100
             ),
             fieldLabel: "[dataset item].phenotypic_features.[item].type.label",
             type: "PIE",
@@ -91,9 +83,7 @@ const ClinicalSummary = () => {
     return (
         <>
             <Row>
-                <Typography.Title level={4}>
-                    Clinical/Phenotypic Data
-                </Typography.Title>
+                <Typography.Title level={4}>Clinical/Phenotypic Data</Typography.Title>
                 <Row style={{ marginBottom: "24px" }} gutter={[0, 16]}>
                     {statistics.map((s, i) => (
                         <Col key={i} xl={2} lg={3} md={5} sm={6} xs={10}>
@@ -115,13 +105,9 @@ const ClinicalSummary = () => {
                                             data={c.data}
                                             chartHeight={chartHeight}
                                             chartAspectRatio={chartAspectRatio}
-                                            fieldLabel={c.fieldLabel}
-                                            setAutoQueryPageTransition={
-                                                setAutoQueryPageTransitionFunc
-                                            }
-                                            autoQueryDataType={
-                                                autoQueryDataType
-                                            }
+                                            labelKey={c.fieldLabel}
+                                            onAutoQueryTransition={setAutoQueryPageTransitionFunc}
+                                            dataType={autoQueryDataType}
                                         />
                                     ) : (
                                         <Histogram
