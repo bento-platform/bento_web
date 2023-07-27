@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useMemo } from "react";
 import PropTypes from "prop-types";
 import { Empty } from "antd";
 import { BarChart } from "bento-charts";
@@ -8,6 +8,8 @@ const TITLE_STYLE = {
     padding: "0",
     marginBottom: "-15px",
 };
+
+const transformData = (data) => data.map(({ ageBin, count }) => ({ x: ageBin, y: count }));
 
 const Histogram = ({ title = "Histogram", data = [], chartHeight = 300 }) => {
     const transformedData = useMemo(() => transformData(data), [data]);
