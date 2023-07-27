@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useMemo } from "react";
 import {useDispatch, useSelector} from "react-redux";
 import {useHistory} from "react-router-dom";
 import PropTypes from "prop-types";
@@ -27,7 +27,7 @@ const IngestWorkflowSelection = ({values, setValues, handleWorkflowClick}) => {
     const {selectedDataset} = values;
 
     const workflowItems = workflows.ingestion
-        .filter(w => w.data_type === (selectedDataset ? selectedDataset.split(":")[1] : null))
+        .filter(w => w.data_type === (selectedDataset ? selectedDataset.split(":")[2] : null))
         .map(w =>
             <WorkflowListItem
                 key={w.id}
@@ -39,7 +39,7 @@ const IngestWorkflowSelection = ({values, setValues, handleWorkflowClick}) => {
     return <Form labelCol={FORM_LABEL_COL} wrapperCol={FORM_WRAPPER_COL}>
         <Form.Item label="Dataset">
             <DatasetTreeSelect
-                onChange={t => setValues({selectedDataset: t})}
+                onChange={d => setValues({selectedDataset: d})}
                 value={selectedDataset}
             />
         </Form.Item>
@@ -68,13 +68,18 @@ const IngestConfirmDisplay = ({selectedDataset, selectedWorkflow, inputs, handle
     const projectsByID = useSelector(state => state.projects.itemsByID);
 
     const isSubmittingIngestionRun = useSelector(state => state.runs.isSubmittingIngestionRun);
+    const datasetsByID = useSelector((state) =>
+        Object.fromEntries(
+            state.projects.items.flatMap((p) => p.datasets.map((d) => [d.identifier, { ...d, project: p.identifier }])),
+        ),
+    );
 
     const formatWithNameIfPossible = (name, id) => name ? `${name} (${id})` : id;
 
-    const [projectID, datasetID] = selectedDataset.split(":");
+    const [projectID, datasetID, dataType] = selectedDataset.split(":");
 
     const projectTitle = projectsByID[projectID]?.title || null;
-    const datasetTitle = projectsByID[projectID]?.datasetsByID[datasetID]?.title || null;
+    const datasetTitle = datasetsByID[datasetID]?.title || null;
 
     return (
         <Form labelCol={FORM_LABEL_COL} wrapperCol={FORM_WRAPPER_COL}>
@@ -146,7 +151,7 @@ const ManagerIngestionContent = () => {
             }
 
             const serviceInfo = servicesByID[selectedWorkflow.serviceID];
-            const [projectID, datasetID] = selectedDataset.split(":");
+            const [projectID, datasetID, dataType] = selectedDataset.split(":");
 
             dispatch(submitIngestionWorkflowRun(
                 serviceInfo,

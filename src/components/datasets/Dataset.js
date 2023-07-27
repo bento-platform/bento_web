@@ -142,7 +142,7 @@ class Dataset extends Component {
                                           project={this.props.project}
                                           isPrivate={isPrivate}
                                           isFetchingDatasets={this.props.isFetchingDatasets}
-                                          onIngest={this.props.onTableIngest}/>,
+                                          onDatasetIngest={this.props.onDatasetIngest}/>,
             linked_field_sets: (
                 <>
                     <Typography.Title level={4}>
@@ -301,7 +301,7 @@ Dataset.propTypes = {
     isFetchingDatasets: PropTypes.bool,
 
     onEdit: PropTypes.func,
-    onTableIngest: PropTypes.func,
+    onDatasetIngest: PropTypes.func,
 
     addLinkedFieldSet: PropTypes.func,
     deleteProjectDataset: PropTypes.func,

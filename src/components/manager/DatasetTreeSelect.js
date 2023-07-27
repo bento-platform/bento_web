@@ -15,12 +15,10 @@ const DatasetTreeSelect = ({value, onChange, style}) => {
     }, [value]);
 
     const onChangeInner = useCallback((newSelected) => {
+        setSelected(newSelected);
         // Update the change handler bound to the component if one exists
         if (onChange) {
             onChange(selected);
-        } else if (value === undefined) {
-            // Set the state directly unless value is bound
-            setSelected(newSelected);
         }
     }, [value, onChange]);
 
@@ -36,6 +34,22 @@ const DatasetTreeSelect = ({value, onChange, style}) => {
             key: `${p.identifier}:${d.identifier}`,
             value: `${p.identifier}:${d.identifier}`,
             data: d,
+            children: [
+                {
+                    titles: "phenopacket",
+                    selectable: true,
+                    key: `${p.identifier}:${d.identifier}:phenopacket`,
+                    value: `${p.identifier}:${d.identifier}:phenopacket`,
+                    data: "phenopacket",
+                },
+                {
+                    titles: "experiments",
+                    selectable: true,
+                    key: `${p.identifier}:${d.identifier}:experiments`,
+                    value: `${p.identifier}:${d.identifier}:experiments`,
+                    data: "experiments",
+                }
+            ]
         })),
     })), [projectItems]);
 

@@ -40,9 +40,9 @@ class RoutedProject extends Component {
         }
     }
 
-    ingestIntoTable(p, t) {
+    ingestIntoTable(p, d, dt) {
         this.props.history.push("/admin/data/manager/ingestion",
-            {workflowSelectionValues: {selectedTable: `${p.identifier}:${t.data_type}:${t.id}`}});
+            {workflowSelectionValues: {selectedDataset: `${p.identifier}:${d.identifier}:${dt.id}`}});
     }
 
     handleProjectSave(project) {
@@ -138,7 +138,7 @@ class RoutedProject extends Component {
                          datasetEditModal: true,
                      })}
                      onAddJsonSchema={() => this.setJsonSchemaModalVisible(true)}
-                     onTableIngest={(p, t) => this.ingestIntoTable(p, t)}/>
+                     onDatasetIngest={(p, d, dt) => this.ingestIntoTable(p, d, dt)}/>
         </>;
     }
 }
