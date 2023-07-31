@@ -6,7 +6,7 @@ import { throttle } from "lodash";
 import { Layout, Input, Table, Descriptions, message } from "antd";
 
 import { LAYOUT_CONTENT_STYLE } from "../../../styles/layoutContent";
-import { makeAuthorizationHeader, useAuthorizationHeader } from "../../../lib/auth/utils";
+import { useAuthorizationHeader } from "../../../lib/auth/utils";
 
 import DownloadButton from "../DownloadButton";
 
@@ -72,8 +72,7 @@ const ManagerDRSContent = () => {
 
                 setLoading(true);
 
-                const authHeaders = makeAuthorizationHeader(authHeader);
-                fetch(`${drsUrl}/search?` + new URLSearchParams({ q: sv }), { method: "GET", headers: authHeaders })
+                fetch(`${drsUrl}/search?` + new URLSearchParams({ q: sv }), { method: "GET", headers: authHeader })
                     .then((r) => Promise.all([Promise.resolve(r.ok), r.json()]))
                     .then(([ok, data]) => {
                         if (ok) {
