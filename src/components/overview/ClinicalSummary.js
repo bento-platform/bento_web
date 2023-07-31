@@ -95,7 +95,6 @@ const ClinicalSummary = () => {
                 </Row>
                 <Row style={{ display: "flex", flexWrap: "wrap" }}>
                     {charts
-                        .filter((e) => e.data?.length > 0)
                         .map((c, i) => (
                             <Col key={i} style={{ textAlign: "center" }}>
                                 <Spin spinning={isFetching}>
