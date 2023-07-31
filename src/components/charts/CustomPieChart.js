@@ -3,6 +3,7 @@ import PropTypes from "prop-types";
 import { useHistory } from "react-router-dom";
 import { PieChart } from "bento-charts";
 import { Empty } from "antd";
+import ChartContainer from "./ChartContainer";
 
 const CustomPieChart = ({
     title,
@@ -26,16 +27,21 @@ const CustomPieChart = ({
     );
 
     if (!data.length) {
-        return <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} description="No available data" />;
+        return (
+            <ChartContainer title={title}>
+                <div style={{ height: chartHeight, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                    <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} description="No available data" />
+                </div>
+            </ChartContainer>
+        );
     }
 
     const pieChartData = data.map(({ name, value }) => ({ x: name, y: value }));
 
     return (
-        <div style={{ marginBottom: "20px" }}>
-            <h2 style={{ fontStyle: "italic", padding: "0", marginBottom: "-15px" }}>{title}</h2>
+        <ChartContainer title={title}>
             <PieChart data={pieChartData} height={chartHeight} onClick={handleChartClick} sort={sortData} />
-        </div>
+        </ChartContainer>
     );
 };
 
@@ -46,7 +52,7 @@ CustomPieChart.propTypes = {
             name: PropTypes.string,
             value: PropTypes.number,
         })
-    ),
+    ).isRequired,
     chartHeight: PropTypes.number,
     onAutoQueryTransition: PropTypes.func,
     dataType: PropTypes.string,
