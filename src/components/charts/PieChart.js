@@ -1,4 +1,4 @@
-import React, { useCallback } from "react";
+import React, {useCallback, useMemo} from "react";
 import PropTypes from "prop-types";
 import { useHistory } from "react-router-dom";
 import { PieChart as BentoPie } from "bento-charts";
@@ -36,7 +36,7 @@ const PieChart = ({
         );
     }
 
-    const pieChartData = data.map(({ name, value }) => ({ x: name, y: value }));
+    const pieChartData = useMemo(data.map(({ name, value }) => ({ x: name, y: value })), data);
 
     return (
         <ChartContainer title={title}>
