@@ -104,7 +104,7 @@ const _networkAction =
                 });
                 if (onSuccess) await onSuccess(data);
             } catch (e) {
-                const errorMsg = err + (e.message ? `: ${e.message}` : "");
+                const errorMsg = err ? (err + (e.message ? `: ${e.message}` : "") ) : e.message;
                 console.error(e, errorMsg);
                 message.error(errorMsg);
                 dispatch({ type: types.ERROR, ...params, caughtError: e });
