@@ -100,6 +100,7 @@ export const fetchRunLogStreamsIfPossibleAndNeeded = runID => (dispatch, getStat
 
 export const submitWorkflowRun = networkAction(
     (types, serviceInfo, workflow, params, inputs, tags, onSuccess, errorMessage) => (dispatch, getState) => {
+        console.log(workflow);
         const runRequest = {
             workflow_params: Object.fromEntries(Object.entries(inputs)
                 .map(([k, v]) => [`${workflow.id}.${k}`, v])),
@@ -128,18 +129,19 @@ export const submitWorkflowRun = networkAction(
     });
 
 
-export const submitIngestionWorkflowRun = (serviceInfo, projectID, datasetID, workflow, inputs, redirect, hist) =>
+export const submitIngestionWorkflowRun = (serviceInfo, projectID, datasetID, dataType, workflow, inputs, redirect, hist) =>
     (dispatch) =>
         dispatch(submitWorkflowRun(
             SUBMIT_INGESTION_RUN,
             serviceInfo,
             workflow,
-            {projectID, datasetID},  // params
+            {projectID, datasetID, dataType},  // params
             inputs,
             {  // tags
                 ingestion_url: `${serviceInfo.url}/private/ingest`,
                 project_id: projectID,
                 dataset_id: datasetID,
+                data_type: dataType,
             },
             run => {  // onSuccess
                 message.success(`Ingestion with run ID "${run.run_id}" submitted!`);

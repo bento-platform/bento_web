@@ -15,39 +15,33 @@ const DatasetTreeSelect = ({value, onChange, style}) => {
     }, [value]);
 
     const onChangeInner = useCallback((newSelected) => {
-        setSelected(newSelected);
+        if (!value) setSelected(newSelected);
+
         // Update the change handler bound to the component if one exists
         if (onChange) {
-            onChange(selected);
+            onChange(newSelected);
         }
-    }, [value, onChange]);
+    }, [value, onChange, selected]);
 
     const selectTreeData = useMemo(() => projectItems.map(p => ({
         title: p.title,
         selectable: false,
         key: p.identifier,
         value: p.identifier,
-        data: p,
         children: p.datasets.map(d => ({
             title: d.title,
-            selectable: true,
             key: `${p.identifier}:${d.identifier}`,
             value: `${p.identifier}:${d.identifier}`,
-            data: d,
             children: [
                 {
-                    titles: "phenopacket",
-                    selectable: true,
+                    title: `${p.title}:${d.title}:phenopacket`,
                     key: `${p.identifier}:${d.identifier}:phenopacket`,
                     value: `${p.identifier}:${d.identifier}:phenopacket`,
-                    data: "phenopacket",
                 },
                 {
-                    titles: "experiments",
-                    selectable: true,
-                    key: `${p.identifier}:${d.identifier}:experiments`,
-                    value: `${p.identifier}:${d.identifier}:experiments`,
-                    data: "experiments",
+                    title: `${p.title}:${d.title}:experiment`,
+                    key: `${p.identifier}:${d.identifier}:experiment`,
+                    value: `${p.identifier}:${d.identifier}:experiment`,
                 }
             ]
         })),
@@ -57,13 +51,13 @@ const DatasetTreeSelect = ({value, onChange, style}) => {
         <TreeSelect
             style={style ?? {}}
             showSearch={true}
-            filterTreeNode={(v, n) => {
-                const filter = v.toLocaleLowerCase().trim();
-                if (filter === "") return true;
-                return n.key.toLocaleLowerCase().includes(filter)
-                    || n.props.data.title.toLocaleLowerCase().includes(filter)
-                    || (n.props.data.dataType || "").toLocaleLowerCase().includes(filter);
-            }}
+            // filterTreeNode={(v, n) => {
+            //     const filter = v.toLocaleLowerCase().trim();
+            //     if (filter === "") return true;
+            //     return n.key.toLocaleLowerCase().includes(filter)
+            //         || n.props.data.title.toLocaleLowerCase().includes(filter)
+            //         || (n.props.data.dataType || "").toLocaleLowerCase().includes(filter);
+            // }}
             onChange={onChangeInner}
             value={selected}
             treeData={selectTreeData}

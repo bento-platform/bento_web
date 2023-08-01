@@ -143,6 +143,7 @@ const ManagerIngestionContent = () => {
             />
         )}
         onSubmit={({workflowSelectionValues, selectedWorkflow, inputs}) => {
+            console.log(workflowSelectionValues);
             const {selectedDataset} = workflowSelectionValues;
 
             if (!selectedDataset || !selectedWorkflow) {
@@ -157,6 +158,7 @@ const ManagerIngestionContent = () => {
                 serviceInfo,
                 projectID,
                 datasetID,
+                dataType,
                 selectedWorkflow,
                 inputs,
                 "/admin/data/manager/runs",

@@ -76,7 +76,7 @@ const DatasetDataTypes = React.memo(({ isPrivate, project, dataset, onDatasetIng
                                 Ingest
                             </Button>
                         </Col>
-                        {dt.queryable !== false ? <Col span={12}>
+                        <Col span={12}>
                             <Button
                                 type="danger"
                                 icon="delete"
@@ -85,7 +85,7 @@ const DatasetDataTypes = React.memo(({ isPrivate, project, dataset, onDatasetIng
                             >
                                 Delete
                             </Button>
-                        </Col> : null}
+                        </Col>
                     </Row>
                 ),
             },
