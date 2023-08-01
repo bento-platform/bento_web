@@ -1,7 +1,7 @@
 import React from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { Col, Row, Spin, Statistic, Typography } from "antd";
-import CustomPieChart from "../charts/CustomPieChart";
+import PieChart from "../charts/PieChart";
 import Histogram from "../charts/Histogram";
 import { setAutoQueryPageTransition } from "../../modules/explorer/actions";
 import { mapNameValueFields } from "../../utils/mapNameValueFields";
@@ -99,7 +99,7 @@ const ClinicalSummary = () => {
                             <Col key={i} style={{ textAlign: "center" }}>
                                 <Spin spinning={isFetching}>
                                     {c.type === "PIE" ? (
-                                        <CustomPieChart
+                                        <PieChart
                                             title={c.title}
                                             data={c.data}
                                             chartHeight={chartHeight}

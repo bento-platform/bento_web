@@ -2,7 +2,7 @@ import React, { Component } from "react";
 import { connect } from "react-redux";
 import PropTypes from "prop-types";
 import { Col, Row, Spin, Statistic, Typography } from "antd";
-import CustomPieChart from "../charts/CustomPieChart";
+import PieChart from "../charts/PieChart";
 import { setAutoQueryPageTransition } from "../../modules/explorer/actions";
 import { overviewSummaryPropTypesShape } from "../../propTypes";
 import { mapNameValueFields } from "../../utils/mapNameValueFields";
@@ -106,7 +106,7 @@ class ExperimentsSummary2 extends Component {
                     <Row style={pieRowStyle}>
                         <Col style={{ textAlign: "center" }}>
                             <Spin spinning={isFetching}>
-                                <CustomPieChart
+                                <PieChart
                                     title="Study Types"
                                     style={{ cursor: "pointer" }}
                                     data={studyTypeData}
@@ -121,7 +121,7 @@ class ExperimentsSummary2 extends Component {
 
                         <Col style={{ textAlign: "center" }}>
                             <Spin spinning={isFetching}>
-                                <CustomPieChart
+                                <PieChart
                                     title="Experiment Types"
                                     style={{ cursor: "pointer" }}
                                     data={experimentTypeData}
@@ -135,7 +135,7 @@ class ExperimentsSummary2 extends Component {
 
                         <Col style={{ textAlign: "center" }}>
                             <Spin spinning={isFetching}>
-                                <CustomPieChart
+                                <PieChart
                                     title="Molecules Used"
                                     style={{ cursor: "pointer" }}
                                     data={moleculeData}
@@ -149,7 +149,7 @@ class ExperimentsSummary2 extends Component {
 
                         <Col style={{ textAlign: "center" }}>
                             <Spin spinning={isFetching}>
-                                <CustomPieChart
+                                <PieChart
                                     title="Library Strategies"
                                     style={{ cursor: "pointer" }}
                                     data={libraryStrategyData}
@@ -163,7 +163,7 @@ class ExperimentsSummary2 extends Component {
 
                         <Col style={{ textAlign: "center" }}>
                             <Spin spinning={isFetching}>
-                                <CustomPieChart
+                                <PieChart
                                     title="Library Selections"
                                     style={{ cursor: "pointer" }}
                                     data={librarySelectionData}

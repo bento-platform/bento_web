@@ -3,7 +3,7 @@ import React, { useEffect, useState } from "react";
 import { useSelector } from "react-redux";
 
 import { Col, Divider, Modal, Row, Skeleton, Statistic, Typography } from "antd";
-import CustomPieChart from "../charts/CustomPieChart";
+import PieChart from "../charts/PieChart";
 import Histogram from "../charts/Histogram";
 
 import { useAuthorizationHeader } from "../../lib/auth/utils";
@@ -21,7 +21,7 @@ const createChart = (chartData) => {
     switch (type) {
         case "PieChart":
             return (
-                <CustomPieChart
+                <PieChart
                     title={title}
                     data={serializePieChartData(data)}
                     chartHeight={CHART_HEIGHT}

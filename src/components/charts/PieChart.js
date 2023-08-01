@@ -5,7 +5,7 @@ import { PieChart } from "bento-charts";
 import { Empty } from "antd";
 import ChartContainer from "./ChartContainer";
 
-const CustomPieChart = ({
+const PieChart = ({
     title,
     data = [],
     chartHeight = 300,
@@ -45,7 +45,7 @@ const CustomPieChart = ({
     );
 };
 
-CustomPieChart.propTypes = {
+PieChart.propTypes = {
     title: PropTypes.string.isRequired,
     data: PropTypes.arrayOf(
         PropTypes.shape({
@@ -60,4 +60,4 @@ CustomPieChart.propTypes = {
     sortData: PropTypes.bool,
 };
 
-export default CustomPieChart;
+export default PieChart;
