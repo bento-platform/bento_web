@@ -1,7 +1,7 @@
 import React, { useCallback } from "react";
 import PropTypes from "prop-types";
 import { useHistory } from "react-router-dom";
-import { PieChart } from "bento-charts";
+import { PieChart as BentoPie } from "bento-charts";
 import { Empty } from "antd";
 import ChartContainer from "./ChartContainer";
 
@@ -23,13 +23,13 @@ const PieChart = ({
             onAutoQueryTransition(window.location.href, dataType, labelKey, pointData.name);
             history.push("/data/explorer/search");
         },
-        [onAutoQueryTransition, dataType, labelKey, history]
+        [onAutoQueryTransition, dataType, labelKey, history],
     );
 
     if (!data.length) {
         return (
             <ChartContainer title={title}>
-                <div style={{ height: chartHeight, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                <div style={{ height: chartHeight, display: "flex", alignItems: "center", justifyContent: "center" }}>
                     <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} description="No available data" />
                 </div>
             </ChartContainer>
@@ -40,7 +40,7 @@ const PieChart = ({
 
     return (
         <ChartContainer title={title}>
-            <PieChart data={pieChartData} height={chartHeight} onClick={handleChartClick} sort={sortData} />
+            <BentoPie data={pieChartData} height={chartHeight} onClick={handleChartClick} sort={sortData} />
         </ChartContainer>
     );
 };
@@ -51,7 +51,7 @@ PieChart.propTypes = {
         PropTypes.shape({
             name: PropTypes.string,
             value: PropTypes.number,
-        })
+        }),
     ).isRequired,
     chartHeight: PropTypes.number,
     onAutoQueryTransition: PropTypes.func,

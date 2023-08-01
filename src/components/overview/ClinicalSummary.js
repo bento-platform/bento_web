@@ -62,7 +62,7 @@ const ClinicalSummary = () => {
             title: "Biosamples",
             data: mapNameValueFields(
                 data.data_type_specific?.biosamples?.sampled_tissue,
-                otherThresholdPercentage / 100
+                otherThresholdPercentage / 100,
             ),
             fieldLabel: "[dataset item].biosamples.[item].sampled_tissue.label",
             type: "PIE",
@@ -71,7 +71,7 @@ const ClinicalSummary = () => {
             title: "Phenotypic Features",
             data: mapNameValueFields(
                 data.data_type_specific?.phenotypic_features?.type,
-                otherThresholdPercentage / 100
+                otherThresholdPercentage / 100,
             ),
             fieldLabel: "[dataset item].phenotypic_features.[item].type.label",
             type: "PIE",

@@ -16,7 +16,7 @@ const Histogram = ({
     if (!data || !data.length) {
         return (
             <ChartContainer title={title}>
-                <div style={{ height: chartHeight, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                <div style={{ height: chartHeight, display: "flex", alignItems: "center", justifyContent: "center" }}>
                     <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} description="No available data" />
                 </div>
             </ChartContainer>
@@ -38,7 +38,7 @@ Histogram.propTypes = {
         PropTypes.shape({
             ageBin: PropTypes.string.isRequired,
             count: PropTypes.number.isRequired,
-        })
+        }),
     ),
     chartHeight: PropTypes.number,
 };
