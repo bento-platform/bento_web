@@ -1,4 +1,4 @@
-import React, {useCallback, useMemo} from "react";
+import React, { useCallback, useMemo } from "react";
 import PropTypes from "prop-types";
 import { useHistory } from "react-router-dom";
 import { PieChart as BentoPie } from "bento-charts";
@@ -23,7 +23,7 @@ const PieChart = ({
             onAutoQueryTransition(window.location.href, dataType, labelKey, pointData.name);
             history.push("/data/explorer/search");
         },
-        [onAutoQueryTransition, dataType, labelKey, history],
+        [onAutoQueryTransition, dataType, labelKey, history]
     );
 
     if (!data.length) {
@@ -36,7 +36,10 @@ const PieChart = ({
         );
     }
 
-    const pieChartData = useMemo(data.map(({ name, value }) => ({ x: name, y: value })), data);
+    const pieChartData = useMemo(
+        data.map(({ name, value }) => ({ x: name, y: value })),
+        [data]
+    );
 
     return (
         <ChartContainer title={title}>
@@ -51,7 +54,7 @@ PieChart.propTypes = {
         PropTypes.shape({
             name: PropTypes.string,
             value: PropTypes.number,
-        }),
+        })
     ).isRequired,
     chartHeight: PropTypes.number,
     onAutoQueryTransition: PropTypes.func,
