@@ -138,7 +138,7 @@ export const submitIngestionWorkflowRun = (serviceInfo, projectID, datasetID, da
             {projectID, datasetID, dataType},  // params
             inputs,
             {  // tags
-                ingestion_url: `${serviceInfo.url}/private/ingest`,
+                service_url: serviceInfo.url,
                 project_id: projectID,
                 dataset_id: datasetID,
                 data_type: dataType,
