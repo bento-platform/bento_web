@@ -22,7 +22,7 @@ const PieChart = ({
                 history.push("/data/explorer/search");
             }
         },
-        [onAutoQueryTransition, dataType, labelKey, history]
+        [onAutoQueryTransition, dataType, labelKey, history],
     );
 
     const pieChartData = useMemo(() => data.map(({ name, value }) => ({ x: name, y: value })), [data]);
@@ -39,7 +39,7 @@ PieChart.propTypes = {
         PropTypes.shape({
             name: PropTypes.string,
             value: PropTypes.number,
-        })
+        }),
     ).isRequired,
     chartHeight: PropTypes.number,
     onAutoQueryTransition: PropTypes.func,

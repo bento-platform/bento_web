@@ -21,7 +21,7 @@ Histogram.propTypes = {
         PropTypes.shape({
             ageBin: PropTypes.string.isRequired,
             count: PropTypes.number.isRequired,
-        })
+        }),
     ),
     chartHeight: PropTypes.number,
 };
