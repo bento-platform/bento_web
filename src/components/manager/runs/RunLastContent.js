@@ -166,7 +166,7 @@ const LastIngestionTable = () => {
     const {
         items: currentTables,
         isFetching: projectTablesFetching,
-    } = useSelector((state) => state.projectTables.items);
+    } = useSelector((state) => state.projectTables);
     const ingestions = useMemo(() => processIngestions(runs, currentTables), [runs, currentTables]);
 
     return <Table
