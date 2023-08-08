@@ -160,11 +160,18 @@ const processIngestions = (data, currentTables) => {
 };
 
 const LastIngestionTable = () => {
-    const runs = useSelector((state) => state.runs.items);
+    const servicesFetching = useSelector(state => state.services.isFetchingAll);
+    const {items: runs, isFetching: runsFetching} = useSelector((state) => state.runs);
     const currentTables = useSelector((state) => state.projectTables.items);
     const ingestions = useMemo(() => processIngestions(runs, currentTables), [runs, currentTables]);
 
-    return <Table bordered={true} columns={COLUMNS_LAST_CONTENT} dataSource={ingestions} rowKey={buildKeyFromRecord} />;
+    return <Table
+        bordered={true}
+        columns={COLUMNS_LAST_CONTENT}
+        loading={servicesFetching || runsFetching}
+        dataSource={ingestions}
+        rowKey={buildKeyFromRecord}
+    />;
 };
 
 export default LastIngestionTable;
