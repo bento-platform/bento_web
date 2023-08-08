@@ -129,6 +129,7 @@ const processIngestions = (data, currentTables) => {
             getFileInputsFromWorkflow(workflowId ?? workflowMetadata.id, workflowMetadata)
                 .flatMap(key => {
                     const paramValue = run.details.request.workflow_params[key];
+                    console.log(key, paramValue);
                     if (!paramValue) {
                         // Key isn't in workflow params or is null
                         // - possibly optional field or something else going wrong
