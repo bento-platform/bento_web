@@ -102,48 +102,57 @@ const buildKeyFromRecord = (record) => `${record.dataType}-${record.tableId}`;
 
 const fileNameFromPath = (path) => path.split("/").at(-1);
 
-const getFileInputsFromWorkflowMetadata = (workflowMetadata) => {
-    return workflowMetadata.inputs
-        .filter(input => input.type === "file" || input.type === "file[]")
-        .map(input => `${workflowMetadata.id}.${input.id}`);
-};
+const getFileInputsFromWorkflow = (workflowId, {inputs}) =>
+    inputs
+        .filter(input => ["file", "file[]"].includes(input.type))
+        .map(input => `${workflowId}.${input.id}`);
 
 const processIngestions = (data, currentTables) => {
     const currentTableIds = new Set((currentTables || []).map((table) => table.table_id));
 
     const ingestionsByDataType = data.reduce((ingestions, run) => {
-        if (run.state === "COMPLETE") {
-            const dataType = run.details.request.tags.workflow_metadata.data_type;
-            const tableId = run.details.request.tags.table_id;
-
-            if (tableId === undefined || !currentTableIds.has(tableId)) {
-                return ingestions;
-            }
-            const fileNameKey = getFileInputsFromWorkflowMetadata(run.details.request.tags.workflow_metadata);
-            const filePaths = fileNameKey.flatMap(key =>
-                Array.isArray(run.details.request.workflow_params[key])
-                    ? run.details.request.workflow_params[key]
-                    : [run.details.request.workflow_params[key]],
-            );
-            const fileNames = Array.isArray(filePaths)
-                ? filePaths.map(fileNameFromPath)
-                : [fileNameFromPath(filePaths)];
-
-            const date = Date.parse(run.details.run_log.end_time);
-
-            const currentIngestion = { date, dataType, tableId, fileNames };
-            const dataTypeAndTableId = buildKeyFromRecord(currentIngestion);
-
-            if (ingestions[dataTypeAndTableId]) {
-                const existingDate = ingestions[dataTypeAndTableId].date;
-                if (date > existingDate) {
-                    ingestions[dataTypeAndTableId].date = date;
-                }
-                ingestions[dataTypeAndTableId].fileNames.push(...fileNames);
-            } else {
-                ingestions[dataTypeAndTableId] = currentIngestion;
-            }
+        if (run.state !== "COMPLETE") {
+            return ingestions;
         }
+
+        const {
+            workflow_id: workflowId,
+            workflow_metadata: workflowMetadata,
+            table_id: tableId,
+        } = run.details.request.tags;
+
+        if (tableId === undefined || !currentTableIds.has(tableId)) {
+            return ingestions;
+        }
+
+        const fileNames =
+            getFileInputsFromWorkflow(workflowId ?? workflowMetadata.id, workflowMetadata)
+                .flatMap(key => {
+                    const paramValue = run.details.request.workflow_params[key];
+                    if (!paramValue) {
+                        // Key isn't in workflow params or is null
+                        // - possibly optional field or something else going wrong
+                        return [];
+                    }
+                    return Array.isArray(paramValue) ? paramValue : [paramValue];
+                })
+                .map(fileNameFromPath);
+
+        const date = Date.parse(run.details.run_log.end_time);
+
+        const currentIngestion = { date, dataType: workflowMetadata.data_type, tableId, fileNames };
+        const dataTypeAndTableId = buildKeyFromRecord(currentIngestion);
+
+        if (ingestions[dataTypeAndTableId]) {
+            const existingDate = ingestions[dataTypeAndTableId].date;
+            if (date > existingDate) {
+                ingestions[dataTypeAndTableId].date = date;
+            }
+            ingestions[dataTypeAndTableId].fileNames.push(...fileNames);
+        } else {
+            ingestions[dataTypeAndTableId] = currentIngestion;
+        }
+
         return ingestions;
     }, {});
 
@@ -151,11 +160,21 @@ const processIngestions = (data, currentTables) => {
 };
 
 const LastIngestionTable = () => {
-    const runs = useSelector((state) => state.runs.items);
-    const currentTables = useSelector((state) => state.projectTables.items);
+    const servicesFetching = useSelector(state => state.services.isFetchingAll);
+    const {items: runs, isFetching: runsFetching} = useSelector((state) => state.runs);
+    const {
+        items: currentTables,
+        isFetching: projectTablesFetching,
+    } = useSelector((state) => state.projectTables);
     const ingestions = useMemo(() => processIngestions(runs, currentTables), [runs, currentTables]);
 
-    return <Table bordered={true} columns={COLUMNS_LAST_CONTENT} dataSource={ingestions} rowKey={buildKeyFromRecord} />;
+    return <Table
+        bordered={true}
+        columns={COLUMNS_LAST_CONTENT}
+        loading={servicesFetching || runsFetching || projectTablesFetching}
+        dataSource={ingestions}
+        rowKey={buildKeyFromRecord}
+    />;
 };
 
 export default LastIngestionTable;
