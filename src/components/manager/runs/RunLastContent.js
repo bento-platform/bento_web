@@ -112,38 +112,44 @@ const processIngestions = (data, currentTables) => {
     const currentTableIds = new Set((currentTables || []).map((table) => table.table_id));
 
     const ingestionsByDataType = data.reduce((ingestions, run) => {
-        if (run.state === "COMPLETE") {
-            const dataType = run.details.request.tags.workflow_metadata.data_type;
-            const tableId = run.details.request.tags.table_id;
-
-            if (tableId === undefined || !currentTableIds.has(tableId)) {
-                return ingestions;
-            }
-            const fileNameKey = getFileInputsFromWorkflowMetadata(run.details.request.tags.workflow_metadata);
-            const filePaths = fileNameKey.flatMap(key =>
-                Array.isArray(run.details.request.workflow_params[key])
-                    ? run.details.request.workflow_params[key]
-                    : [run.details.request.workflow_params[key]],
-            );
-            const fileNames = Array.isArray(filePaths)
-                ? filePaths.map(fileNameFromPath)
-                : [fileNameFromPath(filePaths)];
-
-            const date = Date.parse(run.details.run_log.end_time);
-
-            const currentIngestion = { date, dataType, tableId, fileNames };
-            const dataTypeAndTableId = buildKeyFromRecord(currentIngestion);
-
-            if (ingestions[dataTypeAndTableId]) {
-                const existingDate = ingestions[dataTypeAndTableId].date;
-                if (date > existingDate) {
-                    ingestions[dataTypeAndTableId].date = date;
-                }
-                ingestions[dataTypeAndTableId].fileNames.push(...fileNames);
-            } else {
-                ingestions[dataTypeAndTableId] = currentIngestion;
-            }
+        if (run.state !== "COMPLETE") {
+            return ingestions;
         }
+
+        const { workflow_metadata: workflowMetadata, table_id: tableId } = run.details.request.tags;
+
+        if (tableId === undefined || !currentTableIds.has(tableId)) {
+            return ingestions;
+        }
+
+        const fileNames =
+            getFileInputsFromWorkflowMetadata(run.details.request.tags.workflow_metadata)
+                .flatMap(key => {
+                    const paramValue = run.details.request.workflow_params[key];
+                    if (!paramValue) {
+                        // Key isn't in workflow params or is null
+                        // - possibly optional field or something else going wrong
+                        return [];
+                    }
+                    return Array.isArray(paramValue) ? paramValue : [paramValue];
+                })
+                .map(fileNameFromPath);
+
+        const date = Date.parse(run.details.run_log.end_time);
+
+        const currentIngestion = { date, dataType: workflowMetadata.data_type, tableId, fileNames };
+        const dataTypeAndTableId = buildKeyFromRecord(currentIngestion);
+
+        if (ingestions[dataTypeAndTableId]) {
+            const existingDate = ingestions[dataTypeAndTableId].date;
+            if (date > existingDate) {
+                ingestions[dataTypeAndTableId].date = date;
+            }
+            ingestions[dataTypeAndTableId].fileNames.push(...fileNames);
+        } else {
+            ingestions[dataTypeAndTableId] = currentIngestion;
+        }
+
         return ingestions;
     }, {});
 
