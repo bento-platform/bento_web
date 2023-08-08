@@ -102,11 +102,10 @@ const buildKeyFromRecord = (record) => `${record.dataType}-${record.tableId}`;
 
 const fileNameFromPath = (path) => path.split("/").at(-1);
 
-const getFileInputsFromWorkflowMetadata = (workflowMetadata) => {
-    return workflowMetadata.inputs
-        .filter(input => input.type === "file" || input.type === "file[]")
-        .map(input => `${workflowMetadata.id}.${input.id}`);
-};
+const getFileInputsFromWorkflow = (workflowId, {inputs}) =>
+    inputs
+        .filter(input => ["file", "file[]"].includes(input.type))
+        .map(input => `${workflowId}.${input.id}`);
 
 const processIngestions = (data, currentTables) => {
     const currentTableIds = new Set((currentTables || []).map((table) => table.table_id));
@@ -116,14 +115,18 @@ const processIngestions = (data, currentTables) => {
             return ingestions;
         }
 
-        const { workflow_metadata: workflowMetadata, table_id: tableId } = run.details.request.tags;
+        const {
+            workflow_id: workflowId,
+            workflow_metadata: workflowMetadata,
+            table_id: tableId,
+        } = run.details.request.tags;
 
         if (tableId === undefined || !currentTableIds.has(tableId)) {
             return ingestions;
         }
 
         const fileNames =
-            getFileInputsFromWorkflowMetadata(run.details.request.tags.workflow_metadata)
+            getFileInputsFromWorkflow(workflowId ?? workflowMetadata.id, workflowMetadata)
                 .flatMap(key => {
                     const paramValue = run.details.request.workflow_params[key];
                     if (!paramValue) {
