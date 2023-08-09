@@ -1,4 +1,4 @@
-import React, { useMemo } from "react";
+import React, { useCallback, useMemo } from "react";
 import {useDispatch, useSelector} from "react-redux";
 import {useHistory} from "react-router-dom";
 import PropTypes from "prop-types";
@@ -17,17 +17,18 @@ import {
 
 import DatasetTreeSelect from "./DatasetTreeSelect";
 
-import {workflowsStateToPropsMixin} from "../../propTypes";
+import {workflowTarget, workflowsStateToPropsMixin} from "../../propTypes";
 import RunSetupWizard from "./RunSetupWizard";
 import RunSetupInputsTable from "./RunSetupInputsTable";
+import DataTypeSelect from "./DataTypeSelect";
 
 
 const IngestWorkflowSelection = ({values, setValues, handleWorkflowClick}) => {
     const {workflows, workflowsLoading} = useSelector(workflowsStateToPropsMixin);
-    const {selectedDataset} = values;
+    const {selectedProject, selectedDataset, selectedDataType} = values;
 
     const workflowItems = workflows.ingestion
-        .filter(w => w.data_type === (selectedDataset ? selectedDataset.split(":")[2] : null))
+        .filter(w => selectedDataset && selectedDataType && w.data_type === selectedDataType)
         .map(w =>
             <WorkflowListItem
                 key={w.id}
@@ -36,37 +37,49 @@ const IngestWorkflowSelection = ({values, setValues, handleWorkflowClick}) => {
             />,
         );
 
+    const onChange = useCallback(({project=selectedProject, dataset=selectedDataset, dataType=selectedDataType}) => {
+        setValues({
+            selectedProject: project,
+            selectedDataset: dataset,
+            selectedDataType: dataType,
+        });
+    }, [selectedDataset, selectedDataType, setValues]);
+
     return <Form labelCol={FORM_LABEL_COL} wrapperCol={FORM_WRAPPER_COL}>
         <Form.Item label="Dataset">
             <DatasetTreeSelect
-                onChange={d => setValues({selectedDataset: d})}
+                onChange={(p, d) => onChange({project: p, dataset: d})}
                 value={selectedDataset}
             />
         </Form.Item>
+        <Form.Item label="Data-Type">
+            <DataTypeSelect
+                workflows={workflows?.ingestion ?? []}
+                onChange={dt => onChange({dataType: dt})}
+                value={selectedDataType}
+            />
+        </Form.Item>
         <Form.Item label="Workflows">
-            {selectedDataset
+            {selectedDataset && selectedDataType
                 ? <Spin spinning={workflowsLoading}>
                     {workflowsLoading
                         ? <Skeleton/>
                         : <List itemLayout="vertical">{workflowItems}</List>}
                 </Spin>
                 : <Empty image={Empty.PRESENTED_IMAGE_SIMPLE}
-                         description="Select a dataset to see available workflows"/>
+                         description="Select a dataset and data type to see available workflows"/>
             }
         </Form.Item>
     </Form>;
 };
 IngestWorkflowSelection.propTypes = {
-    values: PropTypes.shape({
-        selectedDataset: PropTypes.string,
-    }),
+    values: workflowTarget,
     setValues: PropTypes.func,
     handleWorkflowClick: PropTypes.func,
 };
 
-const IngestConfirmDisplay = ({selectedDataset, selectedWorkflow, inputs, handleRunWorkflow}) => {
+const IngestConfirmDisplay = ({target, selectedWorkflow, inputs, handleRunWorkflow}) => {
     const projectsByID = useSelector(state => state.projects.itemsByID);
-
     const isSubmittingIngestionRun = useSelector(state => state.runs.isSubmittingIngestionRun);
     const datasetsByID = useSelector((state) =>
         Object.fromEntries(
@@ -76,18 +89,16 @@ const IngestConfirmDisplay = ({selectedDataset, selectedWorkflow, inputs, handle
 
     const formatWithNameIfPossible = (name, id) => name ? `${name} (${id})` : id;
 
-    const [projectID, datasetID, dataType] = selectedDataset.split(":");
-
-    const projectTitle = projectsByID[projectID]?.title || null;
-    const datasetTitle = datasetsByID[datasetID]?.title || null;
+    const projectTitle = projectsByID[target.selectedProject]?.title || null;
+    const datasetTitle = datasetsByID[target.selectedDataset]?.title || null;
 
     return (
         <Form labelCol={FORM_LABEL_COL} wrapperCol={FORM_WRAPPER_COL}>
             <Form.Item label="Project">
-                {formatWithNameIfPossible(projectTitle, projectID)}
+                {formatWithNameIfPossible(projectTitle, target.selectedProject)}
             </Form.Item>
             <Form.Item label="Dataset">
-                {formatWithNameIfPossible(datasetTitle, datasetID)}
+                {formatWithNameIfPossible(datasetTitle, target.selectedDataset)}
             </Form.Item>
             <Form.Item label="Workflow">
                 <List itemLayout="vertical" style={{marginBottom: "14px"}}>
@@ -110,7 +121,7 @@ const IngestConfirmDisplay = ({selectedDataset, selectedWorkflow, inputs, handle
     );
 };
 IngestConfirmDisplay.propTypes = {
-    selectedDataset: PropTypes.string,  // format: <project id>:<dataset id>
+    target: workflowTarget,
     selectedWorkflow: PropTypes.object,
     inputs: PropTypes.object,
     handleRunWorkflow: PropTypes.func,
@@ -136,15 +147,15 @@ const ManagerIngestionContent = () => {
         }
         confirmDisplay={({selectedWorkflow, workflowSelectionValues, inputs, handleRunWorkflow}) => (
             <IngestConfirmDisplay
-                selectedDataset={workflowSelectionValues.selectedDataset}
+                // selectedDataset={workflowSelectionValues.selectedDataset}
+                target={workflowSelectionValues}
                 selectedWorkflow={selectedWorkflow}
                 inputs={inputs}
                 handleRunWorkflow={handleRunWorkflow}
             />
         )}
         onSubmit={({workflowSelectionValues, selectedWorkflow, inputs}) => {
-            console.log(workflowSelectionValues);
-            const {selectedDataset} = workflowSelectionValues;
+            const {selectedProject, selectedDataset, selectedDataType} = workflowSelectionValues;
 
             if (!selectedDataset || !selectedWorkflow) {
                 message.error(`Missing ${selectedDataset ? "workflow" : "dataset"} selection; cannot submit run!`);
@@ -152,13 +163,12 @@ const ManagerIngestionContent = () => {
             }
 
             const serviceInfo = servicesByID[selectedWorkflow.serviceID];
-            const [projectID, datasetID, dataType] = selectedDataset.split(":");
 
             dispatch(submitIngestionWorkflowRun(
                 serviceInfo,
-                projectID,
-                datasetID,
-                dataType,
+                selectedProject,
+                selectedDataset,
+                selectedDataType,
                 selectedWorkflow,
                 inputs,
                 "/admin/data/manager/runs",

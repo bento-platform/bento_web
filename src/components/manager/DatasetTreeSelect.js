@@ -16,10 +16,9 @@ const DatasetTreeSelect = ({value, onChange, style}) => {
 
     const onChangeInner = useCallback((newSelected) => {
         if (!value) setSelected(newSelected);
-
-        // Update the change handler bound to the component if one exists
         if (onChange) {
-            onChange(newSelected);
+            const [project, dataset] = newSelected.split(":");
+            onChange(project, dataset);
         }
     }, [value, onChange, selected]);
 
@@ -32,18 +31,6 @@ const DatasetTreeSelect = ({value, onChange, style}) => {
             title: d.title,
             key: `${p.identifier}:${d.identifier}`,
             value: `${p.identifier}:${d.identifier}`,
-            children: [
-                {
-                    title: `${p.title}:${d.title}:phenopacket`,
-                    key: `${p.identifier}:${d.identifier}:phenopacket`,
-                    value: `${p.identifier}:${d.identifier}:phenopacket`,
-                },
-                {
-                    title: `${p.title}:${d.title}:experiment`,
-                    key: `${p.identifier}:${d.identifier}:experiment`,
-                    value: `${p.identifier}:${d.identifier}:experiment`,
-                }
-            ]
         })),
     })), [projectItems]);
 
@@ -51,13 +38,6 @@ const DatasetTreeSelect = ({value, onChange, style}) => {
         <TreeSelect
             style={style ?? {}}
             showSearch={true}
-            // filterTreeNode={(v, n) => {
-            //     const filter = v.toLocaleLowerCase().trim();
-            //     if (filter === "") return true;
-            //     return n.key.toLocaleLowerCase().includes(filter)
-            //         || n.props.data.title.toLocaleLowerCase().includes(filter)
-            //         || (n.props.data.dataType || "").toLocaleLowerCase().includes(filter);
-            // }}
             onChange={onChangeInner}
             value={selected}
             treeData={selectTreeData}

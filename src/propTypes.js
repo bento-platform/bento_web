@@ -147,6 +147,13 @@ export const runPropTypesShape = PropTypes.shape({
 // Prop types object shape for a single table summary object.
 export const summaryPropTypesShape = PropTypes.object;
 
+// Prop types object shape describing the target of a workflow (project, dataset and data-type)
+export const workflowTarget = PropTypes.shape({
+    selectedProject: PropTypes.string,
+    selectedDataset: PropTypes.string,
+    selectedDataType: PropTypes.string,
+})
+
 // Gives components which include this in their state to props connection access to workflows and loading status.
 export const workflowsStateToPropsMixin = state => {
     const workflowsByType = {

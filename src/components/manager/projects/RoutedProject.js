@@ -29,7 +29,7 @@ class RoutedProject extends Component {
         this.showDatasetAdditionModal = this.showDatasetAdditionModal.bind(this);
         this.hideDatasetAdditionModal = this.hideDatasetAdditionModal.bind(this);
         this.hideDatasetEditModal = this.hideDatasetEditModal.bind(this);
-        this.ingestIntoTable = this.ingestIntoTable.bind(this);
+        this.ingestIntoTable = this.ingestIntoDataset.bind(this);
         this.handleDeleteProject = this.handleDeleteProject.bind(this);
     }
 
@@ -40,9 +40,14 @@ class RoutedProject extends Component {
         }
     }
 
-    ingestIntoTable(p, d, dt) {
+    ingestIntoDataset(p, d, dt) {
         this.props.history.push("/admin/data/manager/ingestion",
-            {workflowSelectionValues: {selectedDataset: `${p.identifier}:${d.identifier}:${dt.id}`}});
+            {workflowSelectionValues: {
+                    selectedProject: p.identifier,
+                    selectedDataset: d.identifier,
+                    selectedDataType: dt.id,
+                }
+            });
     }
 
     handleProjectSave(project) {
@@ -138,7 +143,7 @@ class RoutedProject extends Component {
                          datasetEditModal: true,
                      })}
                      onAddJsonSchema={() => this.setJsonSchemaModalVisible(true)}
-                     onDatasetIngest={(p, d, dt) => this.ingestIntoTable(p, d, dt)}/>
+                     onDatasetIngest={(p, d, dt) => this.ingestIntoDataset(p, d, dt)}/>
         </>;
     }
 }
