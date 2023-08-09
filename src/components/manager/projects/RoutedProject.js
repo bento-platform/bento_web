@@ -111,7 +111,6 @@ class RoutedProject extends Component {
 
         const bentoServicesByKind = this.props.bentoServicesByKind;
         const serviceDataTypesByServiceID = this.props.serviceDataTypesByServiceID;
-        console.log("setvicesjul", this.props.services);
         const manageableDataTypes = this.props.services
             .filter(s => {
                 const cs = bentoServicesByKind[s.bento?.serviceKind ?? s.type.artifact] ?? {};
@@ -136,7 +135,6 @@ class RoutedProject extends Component {
 
         console.log("tll", tableList);
 
-        console.log("julithis.props.servicesByID", this.props.servicesByID);
 
         // TODO: Inconsistent schemas
         const strayTables = [
