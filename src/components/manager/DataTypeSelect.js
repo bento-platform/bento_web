@@ -7,10 +7,10 @@ const DataTypeSelect = ({value, workflows, onChange}) => {
     const [selected, setSelected] = useState(value ?? undefined);
     const servicesFetching = useSelector((state) => state.services.isFetchingAll);
     const workflowsFetching = useSelector((state) => state.serviceWorkflows.isFetchingAll);
-    
+
     useEffect(() => {
         setSelected(value);
-    }, [value])
+    }, [value]);
 
     const onChangeInner = useCallback((newSelected) => {
         if (!value) setSelected(newSelected);
@@ -25,8 +25,8 @@ const DataTypeSelect = ({value, workflows, onChange}) => {
             return Array.from(dataTypes).map((dt) =>
                 <Select.Option value={dt} key={dt}>
                     {dt}
-                </Select.Option>
-            )
+                </Select.Option>,
+            );
         }
         return [];
     }, [workflows]);
@@ -37,14 +37,14 @@ const DataTypeSelect = ({value, workflows, onChange}) => {
                 {options}
             </Select>
         </Spin>
-        
+
     );
 };
 
 DataTypeSelect.propTypes = {
     workflows: PropTypes.array,
     onChange: PropTypes.func,
-    value: PropTypes.string
+    value: PropTypes.string,
 };
 
 export default DataTypeSelect;

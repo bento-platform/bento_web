@@ -43,10 +43,10 @@ class RoutedProject extends Component {
     ingestIntoDataset(p, d, dt) {
         this.props.history.push("/admin/data/manager/ingestion",
             {workflowSelectionValues: {
-                    selectedProject: p.identifier,
-                    selectedDataset: d.identifier,
-                    selectedDataType: dt.id,
-                }
+                selectedProject: p.identifier,
+                selectedDataset: d.identifier,
+                selectedDataType: dt.id,
+            },
             });
     }
 

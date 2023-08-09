@@ -1,4 +1,4 @@
-import React, { useCallback, useMemo } from "react";
+import React, {useCallback} from "react";
 import {useDispatch, useSelector} from "react-redux";
 import {useHistory} from "react-router-dom";
 import PropTypes from "prop-types";
@@ -37,7 +37,11 @@ const IngestWorkflowSelection = ({values, setValues, handleWorkflowClick}) => {
             />,
         );
 
-    const onChange = useCallback(({project=selectedProject, dataset=selectedDataset, dataType=selectedDataType}) => {
+    const onChange = useCallback(({
+        project = selectedProject,
+        dataset = selectedDataset,
+        dataType = selectedDataType,
+    }) => {
         setValues({
             selectedProject: project,
             selectedDataset: dataset,

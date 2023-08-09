@@ -12,7 +12,8 @@ import DataTypeSummaryModal from "./datatype/DataTypeSummaryModal";
 
 const NA_TEXT = <span style={{ color: "#999", fontStyle: "italic" }}>N/A</span>;
 
-const DatasetDataTypes = React.memo(({ isPrivate, project, dataset, onDatasetIngest: onDatasetIngest, isFetchingDatasets }) => {
+const DatasetDataTypes = React.memo(({isPrivate, project, dataset, onDatasetIngest:
+    onDatasetIngest, isFetchingDatasets }) => {
     const dispatch = useDispatch();
 
     const datasetDataTypes = useSelector((state) => state.datasetDataTypes.itemsById[dataset.identifier]);

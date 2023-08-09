@@ -152,7 +152,7 @@ export const workflowTarget = PropTypes.shape({
     selectedProject: PropTypes.string,
     selectedDataset: PropTypes.string,
     selectedDataType: PropTypes.string,
-})
+});
 
 // Gives components which include this in their state to props connection access to workflows and loading status.
 export const workflowsStateToPropsMixin = state => {
