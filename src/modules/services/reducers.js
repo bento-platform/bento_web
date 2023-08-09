@@ -247,7 +247,7 @@ export const serviceDataTypes = (
 export const serviceDataTypesByDataset = (
     state = {
         isFetchingAll: false,
-        itemsByDatasetID: [],
+        itemsByDatasetID: {},
     },
     action,
 ) => {
@@ -262,22 +262,14 @@ export const serviceDataTypesByDataset = (
         case FETCH_SERVICE_DATA_TYPES_BY_DATASET.RECEIVE: {
             const { datasetID, data } = action;
 
-            const existingDatasetInfo = state.itemsByDatasetID.find(
-                datasetInfo => datasetInfo.datasetIdentifier === datasetID);
-
-            const mergedData = existingDatasetInfo ? [...existingDatasetInfo.items, ...data] : data;
-
-            const newDatasetInfo = { datasetIdentifier: datasetID, items: mergedData };
-
-            const itemsByDatasetID = existingDatasetInfo
-                ? state.itemsByDatasetID.map(
-                    datasetInfo => datasetInfo.datasetIdentifier === datasetID ? newDatasetInfo : datasetInfo)
-                : [...state.itemsByDatasetID, newDatasetInfo];
+            const existingItems = state.itemsByDatasetID[datasetID] || [];
 
             return {
                 ...state,
-                itemsByDatasetID,
-                lastUpdated: action.receivedAt,
+                itemsByDatasetID: {
+                    ...state.itemsByDatasetID,
+                    [datasetID]: [...existingItems, ...data],
+                },
             };
         }
 
@@ -288,7 +280,7 @@ export const serviceDataTypesByDataset = (
                 itemsByDatasetID: {
                     ...state.itemsByDatasetID,
                     [datasetID]: {
-                        ...(state.itemsByDatasetID[datasetID] ?? {items: null, itemsByID: null}),
+                        ...(state.itemsByDatasetID[datasetID] || {items: null}),
                         isFetching: false,
                     },
                 },
