@@ -131,21 +131,24 @@ class DiscoveryQueryBuilder extends Component {
     }
 
     render() {
-        // Filter out services without data types and then flat-map the service's data types to make the dropdown.
+        const variantDatasetIds = this.props.serviceTables.items
+            .filter(item => item.data_type === "variant")
+            .map(item => item.dataset);
+
+        const { activeDataset, dataTypesByDataset } = this.props;
+        const items = dataTypesByDataset.itemsByDatasetID[activeDataset] || [];
+
+        const filteredItems = items
+            .filter(dt => (dt.queryable ?? true) && dt.count > 0)
+            .filter(dt => dt.data_type === "variant" || variantDatasetIds.includes(activeDataset));
+
         const dataTypeMenu = (
             <Menu onClick={this.handleAddDataTypeQueryForm}>
-                {this.props.dataTypesByDataset.itemsByDatasetID
-                    .filter(s => s.items?.length > 0 && s.datasetIdentifier === this.props.activeDataset)
-                    .flatMap(s =>
-                        s.items
-                            .filter(dt => (dt.queryable ?? true) && dt.count > 0)
-                            .map(dt =>
-                                <Menu.Item key={`${s.datasetIdentifier}:${dt.id}`}>{dt.label ?? dt.id}</Menu.Item>,
-                            ),
-                    )
-                }
-            </Menu>);
-
+                {filteredItems.map(dt => (
+                    <Menu.Item key={`${activeDataset}:${dt.id}`}>{dt.label ?? dt.id}</Menu.Item>
+                ))}
+            </Menu>
+        );
 
         const dataTypeTabPanes = this.props.dataTypeForms.map(({dataType, formValues}) => {
             // Use data type label for tab name, unless it isn't specified - then fall back to ID.
@@ -177,11 +180,9 @@ class DiscoveryQueryBuilder extends Component {
 
         return <Card style={{marginBottom: "1.5em"}}>
             <DataTypeExplorationModal
-                dataTypes={this.props.dataTypes}
-                dataTypesByDataset={this.props.dataTypesByDataset}
                 visible={this.state.schemasModalShown}
                 onCancel={this.handleHelpAndSchemasToggle}
-                activeDataset={this.props.activeDataset}
+                filteredItems={filteredItems}
             />
 
             <Typography.Title level={3} style={{marginBottom: "1.5rem"}}>
@@ -229,6 +230,7 @@ DiscoveryQueryBuilder.propTypes = {
     dataTypesByID: PropTypes.object,
     dataTypesLoading: PropTypes.bool,
     dataTypesByDataset: PropTypes.object,
+    serviceTables: PropTypes.object,
 
     searchLoading: PropTypes.bool,
     formValues: PropTypes.object,
@@ -252,6 +254,7 @@ const mapStateToProps = state => ({
     dataTypes: state.serviceDataTypes.dataTypesByServiceID,
     dataTypesByID: state.serviceDataTypes.itemsByID,
     dataTypesByDataset: state.serviceDataTypesByDataset,
+    serviceTables: state.serviceTables,
 
     autoQuery: state.explorer.autoQuery,
     isFetchingTextSearch: state.explorer.fetchingTextSearch || false,
