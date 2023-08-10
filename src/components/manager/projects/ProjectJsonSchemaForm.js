@@ -15,7 +15,7 @@ const ajv = new Ajv({
 const validateSchema = ajv.getSchema("http://json-schema.org/draft-07/schema");
 
 const getSchemaTypeOptions = (schemaTypes) => {
-    if (schemaTypes instanceof Object) {
+    if (typeof schemaTypes === "object" && schemaTypes !== null) {
         return Object.entries(schemaTypes).map(([key, value]) => ({
             key,
             value: key,
