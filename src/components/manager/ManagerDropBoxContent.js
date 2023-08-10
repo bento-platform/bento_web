@@ -39,7 +39,7 @@ import {LAYOUT_CONTENT_STYLE} from "../../styles/layoutContent";
 import DownloadButton from "./DownloadButton";
 import DropBoxTreeSelect from "./DropBoxTreeSelect";
 import JsonDisplay from "../JsonDisplay";
-import TableSelectionModal from "./TableSelectionModal";
+import DatasetSelectionModal from "./DatasetSelectionModal";
 
 import {BENTO_DROP_BOX_FS_BASE_PATH} from "../../config";
 import {STEP_INPUT} from "./workflowCommon";
@@ -509,10 +509,14 @@ const ManagerDropBoxContent = () => {
         return [workflowSupported, inputs];
     }, [selectedEntries]);
 
-    const ingestIntoTable = useCallback(tableKey => {
+    const ingestIntoDataset = useCallback((project, dataset, dataType) => {
         history.push("/admin/data/manager/ingestion", {
             step: STEP_INPUT,
-            workflowSelectionValues: {selectedTable: tableKey},
+            workflowSelectionValues: {
+                selectedProject: project,
+                selectedDataset: dataset,
+                selectedDataType: dataType,
+            },
             selectedWorkflow,
             initialInputValues: getWorkflowFit(selectedWorkflow)[1],
         });
@@ -641,12 +645,12 @@ const ManagerDropBoxContent = () => {
                 onCancel={hideUploadModal}
             />
 
-            <TableSelectionModal
+            <DatasetSelectionModal
                 dataType={selectedWorkflow?.data_type || null}
                 visible={tableSelectionModal}
                 title="Select a Table to Ingest Into"
                 onCancel={hideTableSelectionModal}
-                onOk={tableKey => ingestIntoTable(tableKey)}
+                onOk={ingestIntoDataset}
             />
 
             <FileContentsModal
