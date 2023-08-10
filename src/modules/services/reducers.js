@@ -137,10 +137,12 @@ export const services = (
 export const serviceDataTypes = (
     state = {
         isFetchingAll: false,
+        isFetchingItemsByDatasetID: false,
         itemsByID: {},
         dataTypesByServiceID: {},
         dataTypesByServiceArtifact: {},
         dataTypesByServiceKind: {},
+        itemsByDatasetID: {},
     },
     action,
 ) => {
@@ -239,31 +241,17 @@ export const serviceDataTypes = (
             };
         }
 
-        default:
-            return state;
-    }
-};
-
-export const serviceDataTypesByDataset = (
-    state = {
-        isFetchingAll: false,
-        itemsByDatasetID: {},
-    },
-    action,
-) => {
-    switch (action.type) {
+        // Handle itemsByDatasetID
         case LOADING_SERVICE_DATA_TYPES_BY_DATASET.BEGIN:
-            return {...state, isFetchingAll: true};
+            return {...state, isFetchingItemsByDatasetID: true};
 
         case LOADING_SERVICE_DATA_TYPES_BY_DATASET.END:
         case LOADING_SERVICE_DATA_TYPES_BY_DATASET.TERMINATE:
-            return {...state, isFetchingAll: false};
+            return {...state, isFetchingItemsByDatasetID: false};
 
         case FETCH_SERVICE_DATA_TYPES_BY_DATASET.RECEIVE: {
             const { datasetID, data } = action;
-
             const existingItems = state.itemsByDatasetID[datasetID] || [];
-
             return {
                 ...state,
                 itemsByDatasetID: {
@@ -291,6 +279,7 @@ export const serviceDataTypesByDataset = (
             return state;
     }
 };
+
 
 export const serviceTables = (
     state = {
