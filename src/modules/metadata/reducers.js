@@ -9,7 +9,6 @@ import {
     DELETE_PROJECT,
     SAVE_PROJECT,
 
-    FETCH_EXTRA_PROPERTIES_SCHEMA_TYPES,
     ADD_PROJECT_DATASET,
     SAVE_PROJECT_DATASET,
     DELETE_PROJECT_DATASET,
@@ -24,6 +23,8 @@ import {
     FETCH_INDIVIDUAL,
 
     FETCH_OVERVIEW_SUMMARY,
+
+    FETCH_EXTRA_PROPERTIES_SCHEMA_TYPES,
 
     CREATE_PROJECT_JSON_SCHEMA,
     DELETE_PROJECT_JSON_SCHEMA,
@@ -44,6 +45,7 @@ export const projects = (
         isDeletingDataset: false,
 
         extraPropertiesSchemaTypes: {},
+        isFetchingExtraPropertiesSchemaInfo: false,
         isCreatingJsonSchema: false,
         isDeletingJsonSchema: false,
 
