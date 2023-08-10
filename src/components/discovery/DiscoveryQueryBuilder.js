@@ -253,7 +253,7 @@ const mapStateToProps = state => ({
     servicesInfo: state.services.items,
     dataTypes: state.serviceDataTypes.dataTypesByServiceID,
     dataTypesByID: state.serviceDataTypes.itemsByID,
-    dataTypesByDataset: state.serviceDataTypesByDataset,
+    dataTypesByDataset: state.serviceDataTypes,
     serviceTables: state.serviceTables,
 
     autoQuery: state.explorer.autoQuery,
