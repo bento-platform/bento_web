@@ -8,20 +8,23 @@ import VariantSummary from "./VariantSummary";
 import { useSelector } from "react-redux";
 
 const DataTypeSummaryModal = ({dataType, summary, onCancel, visible}) => {
-    summary = summary || {};
-    dataType = dataType || {};
+    if (!dataType) {
+        return <></>;
+    }
 
     const isFetchingSummaries = useSelector((state) => state.datasetDataTypes.isFetching);
 
     let Summary = GenericSummary;
+    let summaryData = summary;
     switch (dataType.id) {
         case "variant":
-            // TODO: variant summary
             Summary = VariantSummary;
             break;
         case "phenopacket":
             Summary = PhenopacketSummary;
             break;
+        default:
+            summaryData = summary ?? dataType;
     }
 
     return <>
@@ -32,9 +35,9 @@ const DataTypeSummaryModal = ({dataType, summary, onCancel, visible}) => {
             <Tag>{dataType.id}</Tag>
                </>}
         >
-            {(!summary || isFetchingSummaries)
+            {(!summaryData || isFetchingSummaries)
                 ? <Skeleton/>
-                : <Summary summary={summary}/>}
+                : <Summary summary={summaryData}/>}
         </Modal>
     </>;
 };
