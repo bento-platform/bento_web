@@ -12,13 +12,15 @@ import {
     performIndividualsDownloadCSVIfPossible,
     performBiosamplesDownloadCSVIfPossible,
     performExperimentsDownloadCSVIfPossible,
+    setTableSortOrder,
 } from "../../modules/explorer/actions";
 
 const PAGE_SIZE = 25;
 
-const ExplorerSearchResultsTable = ({ data, activeTab, ...props }) => {
+const ExplorerSearchResultsTable = ({ data, activeTab, columns, currentPage: initialCurrentPage, ...props }) => {
     const { dataset } = useParams();
-    const [currentPage, setCurrentPage] = useState(1);
+    //const [currentPage, setCurrentPage] = useState(1);
+    const [currentPage, setCurrentPage] = useState(initialCurrentPage || 1);
     const [numResults] = useState(data.length);
 
     const [summaryModalVisible, setSummaryModalVisible] = useState(false);
@@ -50,8 +52,9 @@ const ExplorerSearchResultsTable = ({ data, activeTab, ...props }) => {
         }
     };
 
-    const onPageChange = (pageObj) => {
+    const onPageChange = (pageObj, filters, sorter) => {
         setCurrentPage(pageObj.current);
+        dispatch(setTableSortOrder(dataset, sorter.field, sorter.order, activeTab, pageObj.current));
     };
 
     const tableStyle = {
@@ -82,6 +85,13 @@ const ExplorerSearchResultsTable = ({ data, activeTab, ...props }) => {
             },
         ],
     };
+
+    const sortedInfo = useMemo(() => {
+        return {
+            order: props.sortOrder,
+            columnKey: props.sortColumnKey,
+        };
+    }, [props.sortOrder, props.sortColumnKey]);
 
     return (
         <div>
@@ -132,8 +142,9 @@ const ExplorerSearchResultsTable = ({ data, activeTab, ...props }) => {
                     bordered
                     disabled={fetchingSearch}
                     size="middle"
-                    columns={props.dataStructure}
+                    columns={columns}
                     dataSource={data || []}
+                    sortedInfo={sortedInfo}
                     onChange={onPageChange}
                     pagination={{
                         pageSize: PAGE_SIZE,
@@ -173,6 +184,10 @@ ExplorerSearchResultsTable.propTypes = {
     type: PropTypes.string,
     data: PropTypes.arrayOf(PropTypes.object),
     activeTab: PropTypes.string.isRequired,
+    columns: PropTypes.arrayOf(PropTypes.object).isRequired,
+    sortOrder: PropTypes.string,
+    sortColumnKey: PropTypes.string,
+    currentPage: PropTypes.number,
 };
 
 export default ExplorerSearchResultsTable;
