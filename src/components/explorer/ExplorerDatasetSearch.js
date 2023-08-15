@@ -15,6 +15,7 @@ import {
     removeDataTypeQueryForm,
     updateDataTypeQueryForm,
     setSelectedRows,
+    resetTableSortOrder,
 } from "../../modules/explorer/actions";
 
 import IndividualsTable from "./IndividualsTable";
@@ -68,6 +69,7 @@ const ExplorerDatasetSearch = () => {
     };
 
     const performSearch = () => {
+        dispatch(resetTableSortOrder(dataset));
         dispatch(performSearchIfPossible(dataset));
     };
 
