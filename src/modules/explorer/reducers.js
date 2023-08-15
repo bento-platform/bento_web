@@ -225,8 +225,6 @@ export const explorer = (
             };
 
         case RESET_TABLE_SORT_ORDER: {
-            console.log("RESET_TABLE_SORT_ORDER action:", action);
-
             const updatedTableSortOrder = { ...state.tableSortOrderByDatasetID };
             delete updatedTableSortOrder[action.datasetID];
 
