@@ -1,18 +1,21 @@
 import React from "react";
 import PropTypes from "prop-types";
+import { useSortedColumns, useCurrentTab} from "./hooks/explorerHooks";
 import { Link } from "react-router-dom";
+import { useSelector } from "react-redux";
 import ExplorerSearchResultsTable from "./ExplorerSearchResultsTable";
 
 const IndividualRender = ({individual}) => {
+    const { currentTab } = useCurrentTab();
     const alternateIds = individual.alternate_ids ?? [];
     const listRender = alternateIds.length ? " (" + alternateIds.join(", ") + ")" : "";
     return (
         <>
             <Link
-                to={(location) => ({
+                to={{
                     pathname: `/data/explorer/individuals/${individual.id}/overview`,
-                    state: { backUrl: location.pathname },
-                })}
+                    state: { backUrl: location.pathname, currentTab },
+                }}
             >
                 {individual.id}
             </Link>{" "}
@@ -59,18 +62,34 @@ const SEARCH_RESULT_COLUMNS = [
     },
 ];
 
-const IndividualsTable = ({ data }) => {
+const IndividualsTable = ({ data, datasetID }) => {
+    const tableSortOrder = useSelector(
+        (state) => state.explorer.tableSortOrderByDatasetID[datasetID]?.["individuals"],
+    );
+    console.log("IndividualsTableXOXOXO", tableSortOrder);
+
+    const { sortedData, columnsWithSortOrder } = useSortedColumns(
+        data,
+        tableSortOrder,
+        SEARCH_RESULT_COLUMNS,
+    );
+
     return (
         <ExplorerSearchResultsTable
             dataStructure={SEARCH_RESULT_COLUMNS}
-            data={data}
+            data={sortedData}
+            sortColumnKey={tableSortOrder?.sortColumnKey}
+            sortOrder={tableSortOrder?.sortOrder}
             activeTab="individuals"
+            columns={columnsWithSortOrder}
+            currentPage={tableSortOrder?.currentPage}
         />
     );
 };
 
 IndividualsTable.propTypes = {
     data: PropTypes.array.isRequired,
+    datasetID: PropTypes.string.isRequired,
 };
 
 export default IndividualsTable;
