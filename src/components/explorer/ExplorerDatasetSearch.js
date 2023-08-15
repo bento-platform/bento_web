@@ -102,16 +102,22 @@ const ExplorerDatasetSearch = () => {
                 (showTabs ? (
                     <Tabs defaultActiveKey={TAB_KEYS.INDIVIDUAL} onChange={onTabChange} activeKey={activeKey}>
                         <TabPane tab="Individual" key={TAB_KEYS.INDIVIDUAL}>
-                            <IndividualsTable data={searchResults.searchFormattedResults} />
+                            <IndividualsTable
+                                data={searchResults.searchFormattedResults}
+                                datasetID={dataset}/>
                         </TabPane>
                         {hasBiosamples && (
                             <TabPane tab="Biosamples" key={TAB_KEYS.BIOSAMPLES}>
-                                <BiosamplesTable data={searchResults.searchFormattedResultsBiosamples} />
+                                <BiosamplesTable
+                                    data={searchResults.searchFormattedResultsBiosamples}
+                                    datasetID={dataset}/>
                             </TabPane>
                         )}
                         {hasExperiments && (
                             <TabPane tab="Experiments" key={TAB_KEYS.EXPERIMENTS}>
-                                <ExperimentsTable data={searchResults.searchFormattedResultsExperiment} />
+                                <ExperimentsTable
+                                    data={searchResults.searchFormattedResultsExperiment}
+                                    datasetID={dataset}/>
                             </TabPane>
                         )}
                     </Tabs>
