@@ -42,6 +42,7 @@ class ExplorerIndividualContent extends Component {
 
         this.state = {
             backUrl: null,
+            currentTab: null,
             selectedTab: "overview",
         };
     }
@@ -61,8 +62,10 @@ class ExplorerIndividualContent extends Component {
     }
 
     componentDidMount() {
-        const backUrl = (this.props.location.state || {}).backUrl;
-        if (backUrl) this.setState({backUrl});
+        const { location } = this.props;
+        const { backUrl, currentTab } = location.state || {};
+        if (backUrl) this.setState({ backUrl });
+        if (currentTab) this.setState({ currentTab });
         this.fetchIndividualData();
     }
 
@@ -108,8 +111,11 @@ class ExplorerIndividualContent extends Component {
         return <>
             <SitePageHeader title={headerTitle(individual) || "Loading..."}
                             withTabBar={true}
-                            onBack={this.state.backUrl
-                                ? (() => this.props.history.push(this.state.backUrl)) : undefined}
+                            onBack={() => {
+                                const urlToNavigate = this.state.currentTab ?
+                                    `${this.state.backUrl}${this.state.currentTab}` : this.state.backUrl;
+                                this.props.history.push(urlToNavigate);
+                            }}
                             footer={
                                 <Menu mode="horizontal" style={MENU_STYLE} selectedKeys={selectedKeys}>
                                     {individualMenu.map(renderMenuItem)}
