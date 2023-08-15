@@ -23,6 +23,7 @@ import {
     UPDATE_DATA_TYPE_QUERY_FORM,
     SET_SELECTED_ROWS,
     SET_TABLE_SORT_ORDER,
+    RESET_TABLE_SORT_ORDER,
     SET_AUTO_QUERY_PAGE_TRANSITION,
     NEUTRALIZE_AUTO_QUERY_PAGE_TRANSITION,
     FREE_TEXT_SEARCH,
@@ -213,11 +214,27 @@ export const explorer = (
                 tableSortOrderByDatasetID: {
                     ...state.tableSortOrderByDatasetID,
                     [action.datasetID]: {
-                        sortColumnKey: action.sortColumnKey,
-                        sortOrder: action.sortOrder,
+                        ...state.tableSortOrderByDatasetID[action.datasetID],
+                        [action.activeTab]: {
+                            sortColumnKey: action.sortColumnKey,
+                            sortOrder: action.sortOrder,
+                            currentPage: action.currentPage,
+                        },
                     },
                 },
             };
+
+        case RESET_TABLE_SORT_ORDER: {
+            console.log("RESET_TABLE_SORT_ORDER action:", action);
+
+            const updatedTableSortOrder = { ...state.tableSortOrderByDatasetID };
+            delete updatedTableSortOrder[action.datasetID];
+
+            return {
+                ...state,
+                tableSortOrderByDatasetID: updatedTableSortOrder,
+            };
+        }
 
         // Auto-Queries start here ----
         case SET_AUTO_QUERY_PAGE_TRANSITION:
