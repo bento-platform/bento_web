@@ -66,6 +66,7 @@ const ExplorerDatasetSearch = () => {
     };
 
     const performSearch = () => {
+        dispatch(setActiveTab(dataset, TAB_KEYS.INDIVIDUAL));
         dispatch(resetTableSortOrder(dataset));
         dispatch(performSearchIfPossible(dataset));
     };
