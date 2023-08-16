@@ -24,6 +24,7 @@ import {
     SET_SELECTED_ROWS,
     SET_TABLE_SORT_ORDER,
     RESET_TABLE_SORT_ORDER,
+    SET_ACTIVE_TAB,
     SET_AUTO_QUERY_PAGE_TRANSITION,
     NEUTRALIZE_AUTO_QUERY_PAGE_TRANSITION,
     FREE_TEXT_SEARCH,
@@ -41,6 +42,7 @@ export const explorer = (
         searchResultsByDatasetID: {},
         selectedRowsByDatasetID: {},
         tableSortOrderByDatasetID: {},
+        activeTabByDatasetID: {},
         isFetchingDownload: false,
         fetchingTextSearch: false,
         isSubmittingSearch: false,
@@ -232,6 +234,17 @@ export const explorer = (
                 ...state,
                 tableSortOrderByDatasetID: updatedTableSortOrder,
             };
+        }
+
+        case SET_ACTIVE_TAB: {
+            return {
+                ...state,
+                activeTabByDatasetID: {
+                    ...state.activeTabByDatasetID,
+                    [action.datasetID]: action.activeTab,
+                },
+            };
+
         }
 
         // Auto-Queries start here ----

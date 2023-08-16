@@ -1,6 +1,6 @@
 import React from "react";
 import PropTypes from "prop-types";
-import { useSortedColumns, useCurrentTab} from "./hooks/explorerHooks";
+import { useSortedColumns } from "./hooks/explorerHooks";
 import { Link } from "react-router-dom";
 import { useSelector } from "react-redux";
 import { countNonNullElements } from "../../utils/misc";
@@ -9,7 +9,6 @@ import ExplorerSearchResultsTable from "./ExplorerSearchResultsTable";
 const NO_EXPERIMENTS_VALUE = -Infinity;
 
 const BiosampleRender = ({ biosample, alternateIds, individualId }) => {
-    const { currentTab } = useCurrentTab();
     const alternateIdsList = alternateIds ?? [];
     const listRender = alternateIdsList.length ? ` (${alternateIdsList.join(", ")})` : "";
     return (
@@ -17,7 +16,7 @@ const BiosampleRender = ({ biosample, alternateIds, individualId }) => {
             <Link
                 to={{
                     pathname: `/data/explorer/individuals/${individualId}/biosamples`,
-                    state: { backUrl: location.pathname, currentTab },
+                    state: { backUrl: location.pathname },
                 }}
             >
                 {biosample}
