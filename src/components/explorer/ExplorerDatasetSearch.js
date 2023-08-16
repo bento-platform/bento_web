@@ -1,6 +1,6 @@
-import React, { useState, useEffect } from "react";
+import React, { useEffect } from "react";
 import { useSelector, useDispatch } from "react-redux";
-import {useHistory, useLocation, useParams } from "react-router-dom";
+import { useParams } from "react-router-dom";
 
 import { Typography, Tabs } from "antd";
 
@@ -16,6 +16,7 @@ import {
     updateDataTypeQueryForm,
     setSelectedRows,
     resetTableSortOrder,
+    setActiveTab,
 } from "../../modules/explorer/actions";
 
 import IndividualsTable from "./IndividualsTable";
@@ -35,22 +36,21 @@ const hasNonEmptyArrayProperty = (targetObject, propertyKey) => {
 };
 
 const ExplorerDatasetSearch = () => {
-    const location = useLocation();
-    const history = useHistory();
-    const initialActiveKey = new URLSearchParams(location.search).get("tab") || TAB_KEYS.INDIVIDUAL;
-    const [activeKey, setActiveKey] = useState(initialActiveKey);
-    const dispatch = useDispatch();
     const { dataset } = useParams();
+    const dispatch = useDispatch();
 
     const datasetsByID = useSelector((state) =>
         Object.fromEntries(
             state.projects.items.flatMap((p) => p.datasets.map((d) => [d.identifier, { ...d, project: p.identifier }])),
         ),
     );
+
+    const activeKey = useSelector((state) => state.explorer.activeTabByDatasetID[dataset]) || TAB_KEYS.INDIVIDUAL;
     const dataTypeForms = useSelector((state) => state.explorer.dataTypeFormsByDatasetID[dataset] || []);
     const fetchingSearch = useSelector((state) => state.explorer.fetchingSearchByDatasetID[dataset] || false);
     const fetchingTextSearch = useSelector((state) => state.explorer.fetchingTextSearch || false);
     const searchResults = useSelector((state) => state.explorer.searchResultsByDatasetID[dataset] || null);
+
     console.debug("search results: ", searchResults);
 
     const handleSetSelectedRows = (...args) => dispatch(setSelectedRows(dataset, ...args));
@@ -61,11 +61,8 @@ const ExplorerDatasetSearch = () => {
     }, []);
 
     const onTabChange = (newActiveKey) => {
-        setActiveKey(newActiveKey);
+        dispatch(setActiveTab(dataset, newActiveKey));
         handleSetSelectedRows([]);
-        const params = new URLSearchParams(location.search);
-        params.set("tab", newActiveKey);
-        history.replace({ ...location, search: params.toString() });
     };
 
     const performSearch = () => {
@@ -109,7 +106,7 @@ const ExplorerDatasetSearch = () => {
                                 datasetID={dataset}/>
                         </TabPane>
                         {hasBiosamples && (
-                            <TabPane tab="Biosamples" key={TAB_KEYS.BIOSAMPLES}>
+                            <TabPane tab="Biosamplesx" key={TAB_KEYS.BIOSAMPLES}>
                                 <BiosamplesTable
                                     data={searchResults.searchFormattedResultsBiosamples}
                                     datasetID={dataset}/>
