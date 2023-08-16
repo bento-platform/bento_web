@@ -71,7 +71,6 @@ ProjectJsonSchemaModal.propTypes = {
 
     onOk: PropTypes.func,
     onCancel: PropTypes.func,
-    extraPropertiesSchemaTypes: PropTypes.object.isRequired,
 };
 
 export default ProjectJsonSchemaModal;
