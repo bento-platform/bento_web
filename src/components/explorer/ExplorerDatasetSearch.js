@@ -106,7 +106,7 @@ const ExplorerDatasetSearch = () => {
                                 datasetID={dataset}/>
                         </TabPane>
                         {hasBiosamples && (
-                            <TabPane tab="Biosamplesx" key={TAB_KEYS.BIOSAMPLES}>
+                            <TabPane tab="Biosamples" key={TAB_KEYS.BIOSAMPLES}>
                                 <BiosamplesTable
                                     data={searchResults.searchFormattedResultsBiosamples}
                                     datasetID={dataset}/>
