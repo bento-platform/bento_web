@@ -1,12 +1,11 @@
 import React from "react";
 import PropTypes from "prop-types";
-import { useSortedColumns, useCurrentTab} from "./hooks/explorerHooks";
+import { useSortedColumns } from "./hooks/explorerHooks";
 import { Link } from "react-router-dom";
 import { useSelector } from "react-redux";
 import ExplorerSearchResultsTable from "./ExplorerSearchResultsTable";
 
 const IndividualRender = ({individual}) => {
-    const { currentTab } = useCurrentTab();
     const alternateIds = individual.alternate_ids ?? [];
     const listRender = alternateIds.length ? " (" + alternateIds.join(", ") + ")" : "";
     return (
@@ -14,7 +13,7 @@ const IndividualRender = ({individual}) => {
             <Link
                 to={{
                     pathname: `/data/explorer/individuals/${individual.id}/overview`,
-                    state: { backUrl: location.pathname, currentTab },
+                    state: { backUrl: location.pathname },
                 }}
             >
                 {individual.id}
@@ -66,7 +65,6 @@ const IndividualsTable = ({ data, datasetID }) => {
     const tableSortOrder = useSelector(
         (state) => state.explorer.tableSortOrderByDatasetID[datasetID]?.["individuals"],
     );
-    console.log("IndividualsTableXOXOXO", tableSortOrder);
 
     const { sortedData, columnsWithSortOrder } = useSortedColumns(
         data,

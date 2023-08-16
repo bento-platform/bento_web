@@ -2,11 +2,10 @@ import React from "react";
 import { Link } from "react-router-dom";
 import { useSelector } from "react-redux";
 import PropTypes from "prop-types";
-import { useSortedColumns, useCurrentTab } from "./hooks/explorerHooks";
+import { useSortedColumns } from "./hooks/explorerHooks";
 import ExplorerSearchResultsTable from "./ExplorerSearchResultsTable";
 
 const ExperimentRender = ({ experimentId, individual }) => {
-    const { currentTab } = useCurrentTab();
     const alternateIds = individual.alternate_ids ?? [];
     const listRender = alternateIds.length ? `(${alternateIds.join(", ")})` : "";
 
@@ -16,7 +15,7 @@ const ExperimentRender = ({ experimentId, individual }) => {
                 to={{
                     pathname: `/data/explorer/individuals/${individual.id}/experiments`,
                     hash: "#" + experimentId,
-                    state: { backUrl: location.pathname, currentTab },
+                    state: { backUrl: location.pathname },
                 }}
             >
                 {experimentId}
