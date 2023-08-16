@@ -1,5 +1,4 @@
 import { useMemo } from "react";
-import { useLocation } from "react-router-dom";
 
 export const useSortedColumns = (data, tableSortOrder, columnsDefinition) => {
     const sortColumnKey = tableSortOrder?.sortColumnKey;
@@ -29,14 +28,4 @@ export const useSortedColumns = (data, tableSortOrder, columnsDefinition) => {
     }, [sortColumnKey, sortOrder, columnsDefinition]);
 
     return { sortedData, columnsWithSortOrder };
-};
-
-
-export const useCurrentTab = (defaultTab = "1") => {
-    const location = useLocation();
-    const { search } = location;
-    const params = new URLSearchParams(search);
-    const currentTabNum = params.get("tab") || defaultTab;
-    return { currentTab: `?tab=${currentTabNum}` };
-
 };
