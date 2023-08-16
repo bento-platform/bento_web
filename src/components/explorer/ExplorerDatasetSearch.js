@@ -35,10 +35,7 @@ const hasNonEmptyArrayProperty = (targetObject, propertyKey) => {
 };
 
 const ExplorerDatasetSearch = () => {
-    const location = useLocation();
-    const history = useHistory();
-    const initialActiveKey = new URLSearchParams(location.search).get("tab") || TAB_KEYS.INDIVIDUAL;
-    const [activeKey, setActiveKey] = useState(initialActiveKey);
+    const [activeKey, setActiveKey] = useState(TAB_KEYS.INDIVIDUAL);
     const dispatch = useDispatch();
     const { dataset } = useParams();
 
@@ -63,9 +60,6 @@ const ExplorerDatasetSearch = () => {
     const onTabChange = (newActiveKey) => {
         setActiveKey(newActiveKey);
         handleSetSelectedRows([]);
-        const params = new URLSearchParams(location.search);
-        params.set("tab", newActiveKey);
-        history.replace({ ...location, search: params.toString() });
     };
 
     const performSearch = () => {
