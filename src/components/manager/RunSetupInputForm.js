@@ -13,7 +13,7 @@ import {BENTO_DROP_BOX_FS_BASE_PATH} from "../../config";
 import {workflowPropTypesShape} from "../../propTypes";
 import {nop} from "../../utils/misc";
 
-import DatasetTreeSelect from "./DatasetTreeSelect";
+import DatasetTreeSelect, {ID_FORMAT_DATASET} from "./DatasetTreeSelect";
 import DropBoxTreeSelect from "./DropBoxTreeSelect";
 
 
@@ -35,7 +35,7 @@ const getInputComponent = ({type, extensions, values}) => {
         // TODO: directory
 
         case "dataset":
-            return <DatasetTreeSelect />;
+            return <DatasetTreeSelect idFormat={ID_FORMAT_DATASET} />;
 
         case "enum":
             // TODO: enum[] - need to be able to reselect

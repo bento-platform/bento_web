@@ -4,7 +4,10 @@ import PropTypes from "prop-types";
 
 import {Spin, TreeSelect} from "antd";
 
-const DatasetTreeSelect = ({value, onChange, style}) => {
+export const ID_FORMAT_PROJECT_DATASET = "project:dataset";
+export const ID_FORMAT_DATASET = "dataset";
+
+const DatasetTreeSelect = ({value, onChange, style, idFormat}) => {
     const {items: projectItems, isFetching: projectsFetching} = useSelector((state) => state.projects);
     const servicesFetching = useSelector((state) => state.services.isFetchingAll);
 
@@ -27,12 +30,15 @@ const DatasetTreeSelect = ({value, onChange, style}) => {
         selectable: false,
         key: p.identifier,
         value: p.identifier,
-        children: p.datasets.map(d => ({
-            title: d.title,
-            key: `${p.identifier}:${d.identifier}`,
-            value: `${p.identifier}:${d.identifier}`,
-        })),
-    })), [projectItems]);
+        children: p.datasets.map(d => {
+            const key = idFormat === ID_FORMAT_PROJECT_DATASET ? `${p.identifier}:${d.identifier}` : d.identifier;
+            return {
+                title: d.title,
+                key,
+                value: key,
+            };
+        }),
+    })), [idFormat, projectItems]);
 
     return <Spin spinning={servicesFetching || projectsFetching}>
         <TreeSelect
@@ -46,10 +52,15 @@ const DatasetTreeSelect = ({value, onChange, style}) => {
     </Spin>;
 };
 
+DatasetTreeSelect.defaultProps = {
+    idFormat: ID_FORMAT_PROJECT_DATASET,
+}
+
 DatasetTreeSelect.propTypes = {
     style: PropTypes.object,
     value: PropTypes.string,
     onChange: PropTypes.func,
+    valueFormat: PropTypes.oneOf([ID_FORMAT_PROJECT_DATASET, ID_FORMAT_DATASET]),
 };
 
 export default DatasetTreeSelect;
