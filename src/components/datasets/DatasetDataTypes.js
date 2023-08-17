@@ -1,4 +1,4 @@
-import React, {useCallback, useState} from "react";
+import React, {useCallback, useMemo, useState} from "react";
 import { useSelector, useDispatch } from "react-redux";
 import { Button, Col, Row, Table, Typography } from "antd";
 
@@ -12,8 +12,8 @@ import { nop } from "../../utils/misc";
 
 const NA_TEXT = <span style={{ color: "#999", fontStyle: "italic" }}>N/A</span>;
 
-const DatasetDataTypes = React.memo(({isPrivate, project, dataset, onDatasetIngest:
-    onDatasetIngest, isFetchingDatasets }) => {
+const DatasetDataTypes = React.memo(
+    ({isPrivate, project, dataset, onDatasetIngest, isFetchingDatasets }) => {
     const dispatch = useDispatch();
 
     const datasetDataTypes = useSelector((state) => state.datasetDataTypes.itemsById[dataset.identifier]);
@@ -38,12 +38,12 @@ const DatasetDataTypes = React.memo(({isPrivate, project, dataset, onDatasetInge
         });
     }, [dispatch, dataset]);
 
-    const showDatatypeSummary = (dataType) => {
+    const showDatatypeSummary = useCallback((dataType) => {
         setSelectedDataType(dataType);
         setDatatypeSummaryVisible(true);
-    };
+    }, []);
 
-    const dataTypesColumns = [
+    const dataTypesColumns = useMemo(() => [
         {
             title: "Name",
             key: "label",
@@ -92,7 +92,7 @@ const DatasetDataTypes = React.memo(({isPrivate, project, dataset, onDatasetInge
                 ),
             },
         ] : null),
-    ];
+    ], [isPrivate, project, dataset, onDatasetIngest]);
 
     const onDataTypeSummaryModalCancel = useCallback(() => setDatatypeSummaryVisible(false), []);
 
