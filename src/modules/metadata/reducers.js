@@ -45,7 +45,7 @@ export const projects = (
         isDeletingDataset: false,
 
         extraPropertiesSchemaTypes: {},
-        isFetchingExtraPropertiesSchemaInfo: false,
+        isFetchingExtraPropertiesSchemaTypes: false,
         isCreatingJsonSchema: false,
         isDeletingJsonSchema: false,
 
@@ -209,11 +209,11 @@ export const projects = (
 
         // FETCH_EXTRA_PROPERTIES_SCHEMA_TYPES
         case FETCH_EXTRA_PROPERTIES_SCHEMA_TYPES.REQUEST:
-            return {...state, isFetchingExtraPropertiesSchemaInfo: true};
+            return {...state, isFetchingExtraPropertiesSchemaTypes: true};
         case FETCH_EXTRA_PROPERTIES_SCHEMA_TYPES.RECEIVE:
             return {...state, extraPropertiesSchemaTypes: action.data};
         case FETCH_EXTRA_PROPERTIES_SCHEMA_TYPES.FINISH:
-            return {...state, isFetchingExtraPropertiesSchemaInfo: false};
+            return {...state, isFetchingExtraPropertiesSchemaTypes: false};
 
         // CREATE_PROJECT_JSON_SCHEMA
         case CREATE_PROJECT_JSON_SCHEMA.REQUEST:
