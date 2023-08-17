@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, {useCallback, useState} from "react";
 import { useSelector, useDispatch } from "react-redux";
 import { Button, Col, Row, Table, Typography } from "antd";
 
@@ -7,8 +7,8 @@ import { datasetPropTypesShape, projectPropTypesShape } from "../../propTypes";
 import { clearDatasetDataType } from "../../modules/metadata/actions";
 import { fetchDatasetDataTypesSummaryIfPossible } from "../../modules/datasets/actions";
 import genericConfirm from "../ConfirmationModal";
-import { nop } from "../../utils/misc";
 import DataTypeSummaryModal from "./datatype/DataTypeSummaryModal";
+import { nop } from "../../utils/misc";
 
 const NA_TEXT = <span style={{ color: "#999", fontStyle: "italic" }}>N/A</span>;
 
@@ -26,9 +26,9 @@ const DatasetDataTypes = React.memo(({isPrivate, project, dataset, onDatasetInge
         ? datasetSummaries[selectedDataType.id]
         : {};
 
-    const handleDeleteDataType = async (dataType) => {
+    const handleClearDataType = useCallback((dataType) => {
         genericConfirm({
-            title: `Are you sure you want to delete the "${dataType.label || ""}" data type?`,
+            title: `Are you sure you want to delete the "${dataType.label || dataType.id}" data type?`,
             content: "Deleting this means all instances of this data type contained in the dataset " +
                 "will be deleted permanently, and will no longer be available for exploration.",
             onOk: async () => {
@@ -36,7 +36,7 @@ const DatasetDataTypes = React.memo(({isPrivate, project, dataset, onDatasetInge
                 await dispatch(fetchDatasetDataTypesSummaryIfPossible(dataset.identifier));
             },
         });
-    };
+    }, [dispatch, dataset]);
 
     const showDatatypeSummary = (dataType) => {
         setSelectedDataType(dataType);
@@ -81,10 +81,10 @@ const DatasetDataTypes = React.memo(({isPrivate, project, dataset, onDatasetInge
                             <Button
                                 type="danger"
                                 icon="delete"
-                                onClick={() => handleDeleteDataType(dt)}
+                                onClick={() => handleClearDataType(dt)}
                                 style={{ width: "100%" }}
                             >
-                                Delete
+                                Clear Data
                             </Button>
                         </Col>
                     </Row>
