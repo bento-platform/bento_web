@@ -14,59 +14,59 @@ const NA_TEXT = <span style={{ color: "#999", fontStyle: "italic" }}>N/A</span>;
 
 const DatasetDataTypes = React.memo(
     ({isPrivate, project, dataset, onDatasetIngest, isFetchingDatasets }) => {
-    const dispatch = useDispatch();
+        const dispatch = useDispatch();
 
-    const datasetDataTypes = useSelector((state) => state.datasetDataTypes.itemsById[dataset.identifier]);
-    const datasetSummaries = useSelector((state) => state.datasetSummaries.itemsById[dataset.identifier]);
+        const datasetDataTypes = useSelector((state) => state.datasetDataTypes.itemsById[dataset.identifier]);
+        const datasetSummaries = useSelector((state) => state.datasetSummaries.itemsById[dataset.identifier]);
 
-    const [datatypeSummaryVisible, setDatatypeSummaryVisible] = useState(false);
-    const [selectedDataType, setSelectedDataType] = useState(null);
+        const [datatypeSummaryVisible, setDatatypeSummaryVisible] = useState(false);
+        const [selectedDataType, setSelectedDataType] = useState(null);
 
-    const selectedSummary = (selectedDataType !== null && datasetSummaries)
-        ? datasetSummaries[selectedDataType.id]
-        : {};
+        const selectedSummary = (selectedDataType !== null && datasetSummaries)
+            ? datasetSummaries[selectedDataType.id]
+            : {};
 
-    const handleClearDataType = useCallback((dataType) => {
-        genericConfirm({
-            title: `Are you sure you want to delete the "${dataType.label || dataType.id}" data type?`,
-            content: "Deleting this means all instances of this data type contained in the dataset " +
+        const handleClearDataType = useCallback((dataType) => {
+            genericConfirm({
+                title: `Are you sure you want to delete the "${dataType.label || dataType.id}" data type?`,
+                content: "Deleting this means all instances of this data type contained in the dataset " +
                 "will be deleted permanently, and will no longer be available for exploration.",
-            onOk: async () => {
-                await dispatch(clearDatasetDataType(dataset.identifier, dataType.id));
-                await dispatch(fetchDatasetDataTypesSummaryIfPossible(dataset.identifier));
-            },
-        });
-    }, [dispatch, dataset]);
+                onOk: async () => {
+                    await dispatch(clearDatasetDataType(dataset.identifier, dataType.id));
+                    await dispatch(fetchDatasetDataTypesSummaryIfPossible(dataset.identifier));
+                },
+            });
+        }, [dispatch, dataset]);
 
-    const showDatatypeSummary = useCallback((dataType) => {
-        setSelectedDataType(dataType);
-        setDatatypeSummaryVisible(true);
-    }, []);
+        const showDatatypeSummary = useCallback((dataType) => {
+            setSelectedDataType(dataType);
+            setDatatypeSummaryVisible(true);
+        }, []);
 
-    const dataTypesColumns = useMemo(() => [
-        {
-            title: "Name",
-            key: "label",
-            render: (dt) =>
-                isPrivate ? (
+        const dataTypesColumns = useMemo(() => [
+            {
+                title: "Name",
+                key: "label",
+                render: (dt) =>
+                    isPrivate ? (
                     <a onClick={() => showDatatypeSummary(dt)}>
                         {dt.label ?? NA_TEXT}
                     </a>
-                ) : dt.label ?? NA_TEXT,
-            defaultSortOrder: "ascend",
-            sorter: (a, b) => a.label.localeCompare(b.label),
-        },
-        {
-            title: "Count",
-            dataIndex: "count",
-            render: (c) => (c ?? NA_TEXT),
-        },
-        ...(isPrivate ? [
+                    ) : dt.label ?? NA_TEXT,
+                defaultSortOrder: "ascend",
+                sorter: (a, b) => a.label.localeCompare(b.label),
+            },
             {
-                title: "Actions",
-                key: "actions",
-                width: 230,
-                render: (dt) => (
+                title: "Count",
+                dataIndex: "count",
+                render: (c) => (c ?? NA_TEXT),
+            },
+            ...(isPrivate ? [
+                {
+                    title: "Actions",
+                    key: "actions",
+                    width: 230,
+                    render: (dt) => (
                     <Row gutter={10}>
                         <Col span={12}>
                             <Button
@@ -89,15 +89,15 @@ const DatasetDataTypes = React.memo(
                             </Button>
                         </Col>
                     </Row>
-                ),
-            },
-        ] : null),
-    ], [isPrivate, project, dataset, onDatasetIngest]);
+                    ),
+                },
+            ] : null),
+        ], [isPrivate, project, dataset, onDatasetIngest]);
 
-    const onDataTypeSummaryModalCancel = useCallback(() => setDatatypeSummaryVisible(false), []);
+        const onDataTypeSummaryModalCancel = useCallback(() => setDatatypeSummaryVisible(false), []);
 
-    return (
-        <>
+        return (
+            <>
             <DataTypeSummaryModal
                 dataType={selectedDataType}
                 summary={selectedSummary}
@@ -116,9 +116,9 @@ const DatasetDataTypes = React.memo(
                 columns={dataTypesColumns}
                 loading={isFetchingDatasets}
             />
-        </>
-    );
-});
+            </>
+        );
+    });
 
 DatasetDataTypes.propTypes = {
     isPrivate: PropTypes.bool,
