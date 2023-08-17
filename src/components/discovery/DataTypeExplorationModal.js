@@ -46,7 +46,7 @@ class DataTypeExplorationModal extends Component {
     }
 
     render() {
-        const filteredItems = this.props.dataTypes || [];
+        const filteredDataTypes = this.props.dataTypes || [];
 
         return <Modal title="Help"
                       visible={this.props.visible}
@@ -78,7 +78,7 @@ class DataTypeExplorationModal extends Component {
                     <Radio.Button value="table"><Icon type="table" /> Table Detail View</Radio.Button>
                 </Radio.Group>
                 <Tabs>
-                {filteredItems.map(dataType => {
+                {filteredDataTypes.map(dataType => {
                     return (
                         <Tabs.TabPane tab={dataType.label ?? dataType.id} key={dataType.id}>
                             {this.state.view === "tree" ? (

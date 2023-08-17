@@ -138,13 +138,13 @@ class DiscoveryQueryBuilder extends Component {
         const { activeDataset, dataTypesByDataset } = this.props;
         const items = dataTypesByDataset.itemsByDatasetID[activeDataset] || [];
 
-        const filteredItems = items
+        const filteredDataTypes = items
             .filter(dt => (dt.queryable ?? true) && dt.count > 0)
             .filter(dt => dt.data_type === "variant" || variantDatasetIds.includes(activeDataset));
 
         const dataTypeMenu = (
             <Menu onClick={this.handleAddDataTypeQueryForm}>
-                {filteredItems.map(dt => (
+                {filteredDataTypes.map(dt => (
                     <Menu.Item key={`${activeDataset}:${dt.id}`}>{dt.label ?? dt.id}</Menu.Item>
                 ))}
             </Menu>
@@ -182,7 +182,7 @@ class DiscoveryQueryBuilder extends Component {
             <DataTypeExplorationModal
                 visible={this.state.schemasModalShown}
                 onCancel={this.handleHelpAndSchemasToggle}
-                dataTypes={filteredItems}
+                dataTypes={filteredDataTypes}
             />
 
             <Typography.Title level={3} style={{marginBottom: "1.5rem"}}>
