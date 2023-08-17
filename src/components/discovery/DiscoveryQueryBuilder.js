@@ -136,9 +136,9 @@ class DiscoveryQueryBuilder extends Component {
             .map(item => item.dataset);
 
         const { activeDataset, dataTypesByDataset } = this.props;
-        const items = dataTypesByDataset.itemsByDatasetID[activeDataset] || [];
+        const dataTypesForActiveDataset = dataTypesByDataset.itemsByDatasetID[activeDataset] || [];
 
-        const filteredDataTypes = items
+        const filteredDataTypes = dataTypesForActiveDataset
             .filter(dt => (dt.queryable ?? true) && dt.count > 0)
             .filter(dt => dt.data_type === "variant" || variantDatasetIds.includes(activeDataset));
 
