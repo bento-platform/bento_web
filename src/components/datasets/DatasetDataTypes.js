@@ -81,6 +81,7 @@ const DatasetDataTypes = React.memo(({isPrivate, project, dataset, onDatasetInge
                             <Button
                                 type="danger"
                                 icon="delete"
+                                disabled={dt.count !== null && dt.count > 0}
                                 onClick={() => handleClearDataType(dt)}
                                 style={{ width: "100%" }}
                             >
