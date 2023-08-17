@@ -46,7 +46,7 @@ class DataTypeExplorationModal extends Component {
     }
 
     render() {
-        const filteredItems = this.props.filteredItems || [];
+        const filteredItems = this.props.dataTypes || [];
 
         return <Modal title="Help"
                       visible={this.props.visible}
@@ -108,7 +108,7 @@ class DataTypeExplorationModal extends Component {
 }
 
 DataTypeExplorationModal.propTypes = {
-    filteredItems: PropTypes.array,
+    dataTypes: PropTypes.array,
     visible: PropTypes.bool,
     onCancel: PropTypes.func,
 };

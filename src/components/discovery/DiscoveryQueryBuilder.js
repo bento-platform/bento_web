@@ -182,7 +182,7 @@ class DiscoveryQueryBuilder extends Component {
             <DataTypeExplorationModal
                 visible={this.state.schemasModalShown}
                 onCancel={this.handleHelpAndSchemasToggle}
-                filteredItems={filteredItems}
+                dataTypes={filteredItems}
             />
 
             <Typography.Title level={3} style={{marginBottom: "1.5rem"}}>
