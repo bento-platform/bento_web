@@ -7,6 +7,8 @@ import PropTypes from "prop-types";
 
 const ProjectJsonSchemaModal = ({projectId, visible, onOk, onCancel}) => {
     const dispatch = useDispatch();
+    const isFetchingExtraPropertiesSchemaTypes = useSelector((state) =>
+        state.projects.isFetchingExtraPropertiesSchemaTypes);
     const extraPropertiesSchemaTypes = useSelector((state) => state.projects.extraPropertiesSchemaTypes);
     const isCreatingJsonSchema = useSelector((state) => state.projects.isCreatingJsonSchema);
     const [inputFormFields, setInputFormFields] = useState({});
@@ -47,7 +49,7 @@ const ProjectJsonSchemaModal = ({projectId, visible, onOk, onCancel}) => {
                         icon="plus"
                         type="primary"
                         onClick={handleCreateSubmit}
-                        loading={isCreatingJsonSchema}
+                        loading={isCreatingJsonSchema || isFetchingExtraPropertiesSchemaTypes}
                         disabled={!extraPropertiesSchemaTypes || Object.keys(
                             extraPropertiesSchemaTypes).length === 0}
                         >Create</Button>,
