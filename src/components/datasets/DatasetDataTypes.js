@@ -94,13 +94,15 @@ const DatasetDataTypes = React.memo(({isPrivate, project, dataset, onDatasetInge
         ] : null),
     ];
 
+    const onDataTypeSummaryModalCancel = useCallback(() => setDatatypeSummaryVisible(false), []);
+
     return (
         <>
             <DataTypeSummaryModal
                 dataType={selectedDataType}
                 summary={selectedSummary}
                 visible={datatypeSummaryVisible}
-                onCancel={() => setDatatypeSummaryVisible(false)}
+                onCancel={onDataTypeSummaryModalCancel}
             />
 
             <Typography.Title level={4}>
