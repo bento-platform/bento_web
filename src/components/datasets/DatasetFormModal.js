@@ -120,5 +120,5 @@ const mapStateToProps = state => ({
 export default connect(mapStateToProps, {
     addProjectDataset,
     saveProjectDataset,
-    fetchProjectsWithDatasets: fetchProjectsWithDatasets,
+    fetchProjectsWithDatasets,
 })(DatasetFormModal);
