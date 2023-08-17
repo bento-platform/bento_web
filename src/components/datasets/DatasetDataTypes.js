@@ -49,7 +49,7 @@ const DatasetDataTypes = React.memo(({isPrivate, project, dataset, onDatasetInge
             key: "label",
             render: (dt) =>
                 isPrivate ? (
-                    <a style={{ fontFamily: "monospace" }} onClick={() => showDatatypeSummary(dt)}>
+                    <a onClick={() => showDatatypeSummary(dt)}>
                         {dt.label ?? NA_TEXT}
                     </a>
                 ) : dt.label ?? NA_TEXT,
