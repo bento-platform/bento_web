@@ -13,7 +13,7 @@ import {BENTO_DROP_BOX_FS_BASE_PATH} from "../../config";
 import {workflowPropTypesShape} from "../../propTypes";
 import {nop} from "../../utils/misc";
 
-import DatasetTreeSelect, {ID_FORMAT_DATASET} from "./DatasetTreeSelect";
+import DatasetTreeSelect, {ID_FORMAT_DATASET, ID_FORMAT_PROJECT_DATASET} from "./DatasetTreeSelect";
 import DropBoxTreeSelect from "./DropBoxTreeSelect";
 
 
@@ -33,6 +33,9 @@ const getInputComponent = ({type, extensions, values}) => {
             />;
 
         // TODO: directory
+
+        case "project:dataset":
+            return <DatasetTreeSelect idFormat={ID_FORMAT_PROJECT_DATASET} />;
 
         case "dataset":
             return <DatasetTreeSelect idFormat={ID_FORMAT_DATASET} />;
