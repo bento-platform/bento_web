@@ -1,8 +1,8 @@
 import React from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { Col, Row, Spin, Statistic, Typography } from "antd";
-import CustomPieChart from "./CustomPieChart";
-import Histogram from "./Histogram";
+import PieChart from "../charts/PieChart";
+import Histogram from "../charts/Histogram";
 import { setAutoQueryPageTransition } from "../../modules/explorer/actions";
 import { mapNameValueFields } from "../../utils/mapNameValueFields";
 
@@ -15,9 +15,7 @@ const ClinicalSummary = () => {
         dispatch(setAutoQueryPageTransition(priorPageUrl, type, field, value));
 
     const { data, isFetching } = useSelector((state) => state.overviewSummary);
-    const otherThresholdPercentage = useSelector(
-        (state) => state.explorer.otherThresholdPercentage,
-    );
+    const otherThresholdPercentage = useSelector((state) => state.explorer.otherThresholdPercentage);
 
     const statistics = [
         {
@@ -45,19 +43,13 @@ const ClinicalSummary = () => {
     const charts = [
         {
             title: "Individuals",
-            data: mapNameValueFields(
-                data.data_type_specific?.individuals?.sex,
-                -1,
-            ),
+            data: mapNameValueFields(data.data_type_specific?.individuals?.sex, -1),
             fieldLabel: "[dataset item].subject.sex",
             type: "PIE",
         },
         {
             title: "Diseases",
-            data: mapNameValueFields(
-                data.data_type_specific?.diseases?.term,
-                otherThresholdPercentage / 100,
-            ),
+            data: mapNameValueFields(data.data_type_specific?.diseases?.term, otherThresholdPercentage / 100),
             fieldLabel: "[dataset item].diseases.[item].term.label",
             type: "PIE",
         },
@@ -91,9 +83,7 @@ const ClinicalSummary = () => {
     return (
         <>
             <Row>
-                <Typography.Title level={4}>
-                    Clinical/Phenotypic Data
-                </Typography.Title>
+                <Typography.Title level={4}>Clinical/Phenotypic Data</Typography.Title>
                 <Row style={{ marginBottom: "24px" }} gutter={[0, 16]}>
                     {statistics.map((s, i) => (
                         <Col key={i} xl={2} lg={3} md={5} sm={6} xs={10}>
@@ -105,23 +95,18 @@ const ClinicalSummary = () => {
                 </Row>
                 <Row style={{ display: "flex", flexWrap: "wrap" }}>
                     {charts
-                        .filter((e) => e.data?.length > 0)
                         .map((c, i) => (
                             <Col key={i} style={{ textAlign: "center" }}>
                                 <Spin spinning={isFetching}>
                                     {c.type === "PIE" ? (
-                                        <CustomPieChart
+                                        <PieChart
                                             title={c.title}
                                             data={c.data}
                                             chartHeight={chartHeight}
                                             chartAspectRatio={chartAspectRatio}
-                                            fieldLabel={c.fieldLabel}
-                                            setAutoQueryPageTransition={
-                                                setAutoQueryPageTransitionFunc
-                                            }
-                                            autoQueryDataType={
-                                                autoQueryDataType
-                                            }
+                                            labelKey={c.fieldLabel}
+                                            onAutoQueryTransition={setAutoQueryPageTransitionFunc}
+                                            dataType={autoQueryDataType}
                                         />
                                     ) : (
                                         <Histogram
