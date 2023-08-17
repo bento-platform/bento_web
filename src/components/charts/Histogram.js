@@ -5,12 +5,12 @@ import ChartContainer from "./ChartContainer";
 
 const transformData = (data) => data && data.map(({ ageBin, count }) => ({ x: ageBin, y: count }));
 
-const Histogram = ({ title = "Histogram", data = [], chartHeight = 300 }) => {
+const Histogram = ({ title = "Histogram", data = [], chartHeight = 300, unit = "" }) => {
     const transformedData = useMemo(() => transformData(data), [data]);
 
     return (
         <ChartContainer title={title} empty={!Array.isArray(data) || !data.length}>
-            <BarChart data={transformedData} height={chartHeight} units="" />
+            <BarChart data={transformedData} height={chartHeight} removeEmpty={false} units={unit} />
         </ChartContainer>
     );
 };
@@ -24,6 +24,7 @@ Histogram.propTypes = {
         }),
     ),
     chartHeight: PropTypes.number,
+    unit: PropTypes.string,
 };
 
 export default Histogram;
