@@ -36,9 +36,10 @@ import {
 } from "antd";
 
 import {LAYOUT_CONTENT_STYLE} from "../../styles/layoutContent";
+import DownloadButton from "./DownloadButton";
 import DropBoxTreeSelect from "./DropBoxTreeSelect";
-import TableSelectionModal from "./TableSelectionModal";
 import JsonDisplay from "../JsonDisplay";
+import TableSelectionModal from "./TableSelectionModal";
 
 import {BENTO_DROP_BOX_FS_BASE_PATH} from "../../config";
 import {STEP_INPUT} from "./workflowCommon";
@@ -417,37 +418,6 @@ FileContentsModal.propTypes = {
 };
 
 
-const InfoDownloadButton = ({disabled, uri}) => {
-    const {accessToken} = useSelector(state => state.auth);
-
-    const onClick = useCallback(() => {
-        if (!uri) return;
-
-        const form = document.createElement("form");
-        form.method = "post";
-        form.target = "_blank";
-        form.action = uri;
-        form.innerHTML = `<input type="hidden" name="token" value="${accessToken}" />`;
-        document.body.appendChild(form);
-        try {
-            form.submit();
-        } finally {
-            // Even if submit raises for some reason, we still need to clean this up; it has a token in it!
-            document.body.removeChild(form);
-        }
-    }, [uri, accessToken]);
-
-    return <Button key="download" icon="download" disabled={disabled} onClick={onClick}>Download</Button>;
-};
-InfoDownloadButton.defaultProps = {
-    disabled: false,
-};
-InfoDownloadButton.propTypes = {
-    disabled: PropTypes.bool,
-    uri: PropTypes.string,
-};
-
-
 const DropBoxInformation = () => (
     <Alert type="info" showIcon={true} message="About the drop box" description={`
         The drop box contains files which are not yet ingested into this Bento instance. They are not
@@ -688,7 +658,7 @@ const ManagerDropBoxContent = () => {
             <Modal visible={fileInfoModal}
                    title={`${fileForInfo.split("/").at(-1)} - information`}
                    width={960}
-                   footer={[<InfoDownloadButton key="download" />]}
+                   footer={[<DownloadButton key="download" uri={filesByPath[fileForInfo]?.uri} />]}
                    onCancel={hideFileInfoModal}>
                 <Descriptions bordered={true}>
                     <Descriptions.Item label="Name" span={3}>
@@ -731,7 +701,7 @@ const ManagerDropBoxContent = () => {
                         <Button icon="file-text" onClick={handleViewFile} disabled={!selectedFileViewable}>
                             View
                         </Button>
-                        <InfoDownloadButton disabled={!selectedFileInfoAvailable} uri={filesByPath[fileForInfo]?.uri} />
+                        <DownloadButton disabled={!selectedFileInfoAvailable} uri={filesByPath[fileForInfo]?.uri} />
                     </Button.Group>
 
                     <Button type="danger"

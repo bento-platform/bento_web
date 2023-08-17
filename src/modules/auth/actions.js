@@ -14,6 +14,7 @@ import { fetchDropBoxTreeOrFail } from "../manager/actions";
 import {
     fetchProjectsWithDatasetsAndTables,
     fetchOverviewSummary,
+    fetchExtraPropertiesSchemaTypes,
 } from "../metadata/actions";
 import { fetchNotifications } from "../notifications/actions";
 import { fetchServicesWithMetadataAndDataTypesAndTablesIfNeeded } from "../services/actions";
@@ -35,6 +36,7 @@ export const fetchServiceDependentData = () => dispatch => Promise.all([
     fetchNotifications,
     fetchOverviewSummary,
     performGetGohanVariantsOverviewIfPossible,
+    fetchExtraPropertiesSchemaTypes,
 ].map(a => dispatch(a())));
 
 export const fetchUserDependentData = (servicesCb) => async (dispatch, getState) => {

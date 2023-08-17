@@ -14,6 +14,18 @@ const ajv = new Ajv({
 // Does not actually query over http, the URI is the key to the draft-07 meta-schema
 const validateSchema = ajv.getSchema("http://json-schema.org/draft-07/schema");
 
+const getSchemaTypeOptions = (schemaTypes) => {
+    if (typeof schemaTypes === "object" && schemaTypes !== null) {
+        return Object.entries(schemaTypes).map(([key, value]) => ({
+            key,
+            value: key,
+            text: value.toUpperCase(),
+        }));
+    } else {
+        return [];
+    }
+};
+
 const ProjectJsonSchemaForm = ({ style, schemaTypes, initialValues, setFileContent, fileContent, form }) => {
 
     const onDrop = useCallback((files) => {
@@ -56,9 +68,9 @@ const ProjectJsonSchemaForm = ({ style, schemaTypes, initialValues, setFileConte
                     rules: [{ required: true }],
                 })(
                     <Select>
-                        {schemaTypes.map(option => (
-                            <Select.Option key={option} value={option}>
-                                {option}
+                        {getSchemaTypeOptions(schemaTypes).map((option) => (
+                            <Select.Option key={option.key} value={option.value}>
+                                {option.text}
                             </Select.Option>
                         ))}
                     </Select>,
@@ -110,7 +122,7 @@ const JSON_SCHEMA_FORM_SHAPE = PropTypes.shape({
 
 ProjectJsonSchemaForm.propTypes = {
     style: PropTypes.object,
-    schemaTypes: PropTypes.arrayOf(PropTypes.string).isRequired,
+    schemaTypes: PropTypes.objectOf(PropTypes.string).isRequired,
     initialValues: JSON_SCHEMA_FORM_SHAPE,
     formValues: JSON_SCHEMA_FORM_SHAPE,
     fileContent: PropTypes.object,

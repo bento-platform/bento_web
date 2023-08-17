@@ -33,6 +33,7 @@ export const CREATE_PROJECT = createNetworkActionTypes("CREATE_PROJECT");
 export const DELETE_PROJECT = createNetworkActionTypes("DELETE_PROJECT");
 export const SAVE_PROJECT = createNetworkActionTypes("SAVE_PROJECT");
 
+export const FETCH_EXTRA_PROPERTIES_SCHEMA_TYPES = createNetworkActionTypes("FETCH_EXTRA_PROPERTIES_SCHEMA_TYPES");
 export const CREATE_PROJECT_JSON_SCHEMA = createNetworkActionTypes("CREATE_PROJECT_JSON_SCHEMA");
 export const DELETE_PROJECT_JSON_SCHEMA = createNetworkActionTypes("DELETE_PROJECT_JSON_SCHEMA");
 
@@ -104,6 +105,13 @@ export const createProjectIfPossible = (project, history) => (dispatch, getState
     if (getState().projects.isCreating) return;
     return dispatch(createProject(project, history));
 };
+
+
+export const fetchExtraPropertiesSchemaTypes = networkAction(() => (dispatch, getState) => ({
+    types: FETCH_EXTRA_PROPERTIES_SCHEMA_TYPES,
+    url: `${getState().services.metadataService.url}/api/extra_properties_schema_types`,
+    error: "Error fetching extra properties schema types",
+}));
 
 
 const createProjectJsonSchema = networkAction(projectJsonSchema => (dispatch, getState) => ({
