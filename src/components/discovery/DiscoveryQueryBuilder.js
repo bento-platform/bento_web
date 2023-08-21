@@ -189,8 +189,12 @@ class DiscoveryQueryBuilder extends Component {
             <Typography.Title level={3} style={{marginBottom: "1.5rem"}}>
                 Advanced Search
                 {addConditionsOnDataType()}
-                <Button style={{float: "right", marginRight: "1em"}}
-                        onClick={this.handleHelpAndSchemasToggle}><Icon type="question-circle" /> Help</Button>
+                <Button
+                    style={{float: "right", marginRight: "1em"}}
+                    disabled={filteredDataTypes?.length === 0}
+                    onClick={this.handleHelpAndSchemasToggle}
+                    ><Icon type="question-circle" /> Help
+                </Button>
             </Typography.Title>
 
             {this.props.dataTypeForms.length > 0
