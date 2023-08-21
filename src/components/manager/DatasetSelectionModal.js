@@ -3,7 +3,6 @@ import PropTypes from "prop-types";
 
 import {Form, Modal} from "antd";
 
-// import TableTreeSelect from "./TableTreeSelect";
 import DatasetTreeSelect from "./DatasetTreeSelect";
 
 import {nop} from "../../utils/misc";
