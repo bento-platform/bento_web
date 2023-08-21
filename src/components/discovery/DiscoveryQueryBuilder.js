@@ -138,6 +138,9 @@ class DiscoveryQueryBuilder extends Component {
         const { activeDataset, dataTypesByDataset } = this.props;
         const dataTypesForActiveDataset = dataTypesByDataset.itemsByDatasetID[activeDataset] || [];
 
+        // The second filter condition is a temporary workaround given that
+        // gohan_does not yet support the 'queryable' flag for data types by dataset.
+        // TODO: Remove this once gohan_does supports the 'queryable' flag and variant count by dataset.
         const filteredDataTypes = dataTypesForActiveDataset
             .filter(dt => (dt.queryable ?? true) && dt.count > 0)
             .filter(dt => dt.data_type === "variant" || variantDatasetIds.includes(activeDataset));
