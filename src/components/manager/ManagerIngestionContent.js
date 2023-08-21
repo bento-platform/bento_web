@@ -56,7 +56,7 @@ const IngestWorkflowSelection = ({values, setValues, handleWorkflowClick}) => {
                 value={selectedDataset}
             />
         </Form.Item>
-        <Form.Item label="Data-Type">
+        <Form.Item label="Data Type">
             <DataTypeSelect
                 workflows={workflows?.ingestion ?? []}
                 onChange={dt => onChange({dataType: dt})}
