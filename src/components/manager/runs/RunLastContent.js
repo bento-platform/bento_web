@@ -11,7 +11,7 @@ const COLUMNS_LAST_CONTENT = [
         render: (date) => formatDate(date),
     },
     {title: "Data Type", dataIndex: "dataType", key: "dataType"},
-    {title: "Table ID", dataIndex: "tableId", key: "tableId"},
+    {title: "Dataset ID", dataIndex: "datasetId", key: "datasetId"},
     {
         title: "Ingested Files",
         dataIndex: "fileNames",
@@ -98,7 +98,7 @@ FileNamesCell.propTypes = {
     dataType: PropTypes.string.isRequired,
 };
 
-const buildKeyFromRecord = (record) => `${record.dataType}-${record.tableId}`;
+const buildKeyFromRecord = (record) => `${record.dataType}-${record.datasetId}`;
 
 const fileNameFromPath = (path) => path.split("/").at(-1);
 
@@ -108,15 +108,15 @@ const getFileInputsFromWorkflowMetadata = (workflowMetadata) => {
         .map(input => `${workflowMetadata.id}.${input.id}`);
 };
 
-const processIngestions = (data, currentTables) => {
-    const currentTableIds = new Set((currentTables || []).map((table) => table.table_id));
+const processIngestions = (data, currentDatasets) => {
+    const currentDatasetIds = new Set((currentDatasets || []).map((ds) => ds.identifier));
 
     const ingestionsByDataType = data.reduce((ingestions, run) => {
         if (run.state === "COMPLETE") {
             const dataType = run.details.request.tags.workflow_metadata.data_type;
-            const tableId = run.details.request.tags.table_id;
+            const datasetId = run.details.request.tags.dataset_id;
 
-            if (tableId === undefined || !currentTableIds.has(tableId)) {
+            if (datasetId === undefined || !currentDatasetIds.has(datasetId)) {
                 return ingestions;
             }
             const fileNameKey = getFileInputsFromWorkflowMetadata(run.details.request.tags.workflow_metadata);
@@ -131,17 +131,17 @@ const processIngestions = (data, currentTables) => {
 
             const date = Date.parse(run.details.run_log.end_time);
 
-            const currentIngestion = { date, dataType, tableId, fileNames };
-            const dataTypeAndTableId = buildKeyFromRecord(currentIngestion);
+            const currentIngestion = { date, dataType, datasetId, fileNames };
+            const dataTypeAndDatasetId = buildKeyFromRecord(currentIngestion);
 
-            if (ingestions[dataTypeAndTableId]) {
-                const existingDate = ingestions[dataTypeAndTableId].date;
+            if (ingestions[dataTypeAndDatasetId]) {
+                const existingDate = ingestions[dataTypeAndDatasetId].date;
                 if (date > existingDate) {
-                    ingestions[dataTypeAndTableId].date = date;
+                    ingestions[dataTypeAndDatasetId].date = date;
                 }
-                ingestions[dataTypeAndTableId].fileNames.push(...fileNames);
+                ingestions[dataTypeAndDatasetId].fileNames.push(...fileNames);
             } else {
-                ingestions[dataTypeAndTableId] = currentIngestion;
+                ingestions[dataTypeAndDatasetId] = currentIngestion;
             }
         }
         return ingestions;
@@ -152,8 +152,8 @@ const processIngestions = (data, currentTables) => {
 
 const LastIngestionTable = () => {
     const runs = useSelector((state) => state.runs.items);
-    const currentTables = useSelector((state) => state.projectTables.items);
-    const ingestions = useMemo(() => processIngestions(runs, currentTables), [runs, currentTables]);
+    const currentDatasets = useSelector((state) => state.projects.flatMap(p => p.datasets));
+    const ingestions = useMemo(() => processIngestions(runs, currentDatasets), [runs, currentDatasets]);
 
     return <Table bordered={true} columns={COLUMNS_LAST_CONTENT} dataSource={ingestions} rowKey={buildKeyFromRecord} />;
 };
