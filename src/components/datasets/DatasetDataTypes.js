@@ -85,7 +85,7 @@ const DatasetDataTypes = React.memo(
                                 onClick={() => handleClearDataType(dt)}
                                 style={{ width: "100%" }}
                             >
-                                Clear Data
+                                Clear
                             </Button>
                         </Col>
                     </Row>
@@ -98,24 +98,24 @@ const DatasetDataTypes = React.memo(
 
         return (
             <>
-            <DataTypeSummaryModal
-                dataType={selectedDataType}
-                summary={selectedSummary}
-                visible={datatypeSummaryVisible}
-                onCancel={onDataTypeSummaryModalCancel}
-            />
+                <DataTypeSummaryModal
+                    dataType={selectedDataType}
+                    summary={selectedSummary}
+                    visible={datatypeSummaryVisible}
+                    onCancel={onDataTypeSummaryModalCancel}
+                />
 
-            <Typography.Title level={4}>
-                Data Types
-            </Typography.Title>
+                <Typography.Title level={4}>
+                    Data Types
+                </Typography.Title>
 
-            <Table
-                bordered
-                dataSource={datasetDataTypes}
-                rowKey="id"
-                columns={dataTypesColumns}
-                loading={isFetchingDatasets}
-            />
+                <Table
+                    bordered
+                    dataSource={datasetDataTypes}
+                    rowKey="id"
+                    columns={dataTypesColumns}
+                    loading={isFetchingDatasets}
+                />
             </>
         );
     });
