@@ -9,16 +9,15 @@ import {EM_DASH} from "../../constants";
 import { useSelector } from "react-redux";
 
 const DatasetOverview = ({isPrivate, project, dataset, isFetchingDatasets}) => {
+    const datasetDataTypesSummaries = useSelector((state) => state.datasetDataTypes.itemsById);
+    const dataTypesSummary = datasetDataTypesSummaries[dataset.identifier] || [];
 
-    const datasetDatatypesSummaries = useSelector((state) => state.datasetDataTypes.itemsById);
-    const dataTypesSummary = datasetDatatypesSummaries[dataset.identifier] || [];
-
-
-    const datatypeCount = useMemo(() => {
-        const notEmpty = dataTypesSummary.filter((value) => value.count && value.count > 0);
-        return notEmpty.length;
-    }, [dataTypesSummary]);
-
+    // Count data types which actually have data in them for showing in the overview
+    const dataTypeCount = useMemo(
+        () => dataTypesSummary
+            .filter((value) => (value.count || 0) > 0)
+            .length,
+        [dataTypesSummary]);
 
     return <>
         {(dataset.description ?? "").length > 0
@@ -48,7 +47,7 @@ const DatasetOverview = ({isPrivate, project, dataset, isFetchingDatasets}) => {
             <Col span={isPrivate ? 12 : 8}>
                 <Spin spinning={isFetchingDatasets}>
                     <Statistic title="Data types"
-                               value={isFetchingDatasets ? EM_DASH : datatypeCount} />
+                               value={isFetchingDatasets ? EM_DASH : dataTypeCount} />
                 </Spin>
             </Col>
         </Row>
