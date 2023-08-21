@@ -155,7 +155,13 @@ const LastIngestionTable = () => {
     const currentDatasets = useSelector((state) => state.projects.items.flatMap(p => p.datasets));
     const ingestions = useMemo(() => processIngestions(runs, currentDatasets), [runs, currentDatasets]);
 
-    return <Table bordered={true} columns={COLUMNS_LAST_CONTENT} dataSource={ingestions} rowKey={buildKeyFromRecord} />;
+    return <Table
+        bordered={true}
+        columns={COLUMNS_LAST_CONTENT}
+        dataSource={ingestions}
+        rowKey={buildKeyFromRecord}
+        pagination={false}
+    />;
 };
 
 export default LastIngestionTable;
