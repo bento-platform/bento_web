@@ -139,7 +139,6 @@ export const submitIngestionWorkflowRun =
                 {projectID, datasetID, dataType},  // params
                 inputs,
                 {  // tags
-                    service_url: serviceInfo.url,
                     project_id: projectID,
                     dataset_id: datasetID,
                     data_type: dataType,
