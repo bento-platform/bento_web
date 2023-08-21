@@ -15,7 +15,6 @@ import {
  * @property {string} artifact
  * @property {string} url
  * @property {boolean} data_service
- * @property {?boolean} manageable_tables
  */
 
 
@@ -27,33 +26,8 @@ export const FETCH_SERVICES = createNetworkActionTypes("FETCH_SERVICES");
 export const FETCH_SERVICE_DATA_TYPES = createNetworkActionTypes("FETCH_SERVICE_DATA_TYPES");
 export const LOADING_SERVICE_DATA_TYPES = createFlowActionTypes("LOADING_SERVICE_DATA_TYPES");
 
-export const FETCH_SERVICE_TABLES = createNetworkActionTypes("FETCH_SERVICE_TABLES");
-export const LOADING_SERVICE_TABLES = createFlowActionTypes("LOADING_SERVICE_TABLES");
-
-export const FETCH_SERVICE_DATASETS = createNetworkActionTypes("FETCH_SERVICE_DATASETS");
-export const LOADING_SERVICE_DATASETS = createFlowActionTypes("LOADING_SERVICE_DATASETS");
-
-export const ADDING_SERVICE_TABLE = createFlowActionTypes("ADDING_SERVICE_TABLE");
-export const DELETING_SERVICE_TABLE = createFlowActionTypes("DELETING_SERVICE_TABLE");
-
 export const FETCH_SERVICE_WORKFLOWS = createNetworkActionTypes("FETCH_SERVICE_WORKFLOWS");
 export const LOADING_SERVICE_WORKFLOWS = createFlowActionTypes("LOADING_SERVICE_WORKFLOWS");
-
-
-export const endAddingServiceTable = (serviceInfo, dataTypeID, table) => ({
-    type: ADDING_SERVICE_TABLE.END,
-    serviceInfo,
-    dataTypeID,
-    table,
-});
-
-
-export const endDeletingServiceTable = (serviceInfo, dataTypeID, tableID) => ({
-    type: DELETING_SERVICE_TABLE.END,
-    serviceInfo,
-    dataTypeID,
-    tableID,
-});
 
 
 export const fetchBentoServices = networkAction(() => ({
@@ -82,7 +56,6 @@ export const fetchDataServiceWorkflows = networkAction((serviceInfo) => ({
 }));
 
 
-// TODO: remove tables
 export const fetchServicesWithMetadataAndDataTypes = (onServiceFetchFinish) => async (dispatch, getState) => {
     dispatch(beginFlow(LOADING_ALL_SERVICE_DATA));
 

@@ -11,7 +11,6 @@ import {jsonRequest} from "../../utils/requests";
 
 
 export const FETCH_PROJECTS = createNetworkActionTypes("FETCH_PROJECTS");
-export const FETCH_PROJECT_TABLES = createNetworkActionTypes("FETCH_PROJECT_TABLES");
 
 export const CREATE_PROJECT = createNetworkActionTypes("CREATE_PROJECT");
 export const DELETE_PROJECT = createNetworkActionTypes("DELETE_PROJECT");
@@ -26,9 +25,6 @@ export const DELETE_PROJECT_DATASET = createNetworkActionTypes("DELETE_PROJECT_D
 export const ADD_DATASET_LINKED_FIELD_SET = createNetworkActionTypes("ADD_DATASET_LINKED_FIELD_SET");
 export const SAVE_DATASET_LINKED_FIELD_SET = createNetworkActionTypes("SAVE_DATASET_LINKED_FIELD_SET");
 export const DELETE_DATASET_LINKED_FIELD_SET = createNetworkActionTypes("DELETE_DATASET_LINKED_FIELD_SET");
-
-export const PROJECT_TABLE_ADDITION = createFlowActionTypes("PROJECT_TABLE_ADDITION");
-export const PROJECT_TABLE_DELETION = createFlowActionTypes("PROJECT_TABLE_DELETION");
 
 export const FETCH_INDIVIDUAL = createNetworkActionTypes("FETCH_INDIVIDUAL");
 export const FETCH_OVERVIEW_SUMMARY = createNetworkActionTypes("FETCH_OVERVIEW_SUMMARY");
@@ -121,8 +117,6 @@ export const deleteProject = networkAction(project => (dispatch, getState) => ({
 export const deleteProjectIfPossible = project => (dispatch, getState) => {
     if (getState().projects.isDeleting) return;
     return dispatch(deleteProject(project));
-
-    // TODO: Do we need to delete project tables as well? What to do here??
 };
 
 
@@ -174,7 +168,6 @@ export const deleteProjectDataset = networkAction((project, dataset) => (dispatc
     url: `${getState().services.metadataService.url}/api/datasets/${dataset.identifier}`,
     req: {method: "DELETE"},
     err: `Error deleting dataset '${dataset.title}'`,
-    // TODO: Do we need to delete project tables as well? What to do here??
 }));
 
 export const deleteProjectDatasetIfPossible = (project, dataset) => (dispatch, getState) => {

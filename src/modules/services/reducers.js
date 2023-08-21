@@ -1,5 +1,3 @@
-import {objectWithoutProp} from "../../utils/misc";
-
 import {
     LOADING_ALL_SERVICE_DATA,
 
@@ -8,12 +6,6 @@ import {
 
     FETCH_SERVICE_DATA_TYPES,
     LOADING_SERVICE_DATA_TYPES,
-
-    FETCH_SERVICE_TABLES,
-    LOADING_SERVICE_TABLES,
-
-    ADDING_SERVICE_TABLE,
-    DELETING_SERVICE_TABLE,
 
     FETCH_SERVICE_WORKFLOWS,
     LOADING_SERVICE_WORKFLOWS,
@@ -235,138 +227,6 @@ export const serviceDataTypes = (
                 },
             };
         }
-
-        default:
-            return state;
-    }
-};
-
-export const serviceTables = (
-    state = {
-        isFetchingAll: false,
-        isCreating: false,
-        isDeleting: false,
-        items: [],
-        itemsByServiceID: {},
-    },
-    action,
-) => {
-    switch (action.type) {
-        case LOADING_SERVICE_TABLES.BEGIN:
-            return {...state, isFetchingAll: true};
-
-        case LOADING_SERVICE_TABLES.END:
-        case LOADING_SERVICE_TABLES.TERMINATE:
-            return {...state, isFetchingAll: false};
-
-        case FETCH_SERVICE_TABLES.REQUEST: {
-            const {serviceInfo} = action;
-            return {
-                ...state,
-                itemsByServiceID: {
-                    ...state.itemsByServiceID,
-                    [serviceInfo.id]: {
-                        ...(state.itemsByServiceID[serviceInfo.id] ?? {}),
-                        isFetching: true,
-                    },
-                },
-            };
-        }
-
-        case FETCH_SERVICE_TABLES.RECEIVE: {
-            const {serviceInfo: {id: serviceID}, data, dataTypeID} = action;
-
-            const newTables = data.map(t => ({
-                ...t,
-                service_id: serviceID,
-                data_type: dataTypeID,
-            })).filter(t =>
-                !(state.itemsByServiceID[serviceID]?.tablesByID ?? {}).hasOwnProperty(t.id));
-
-            return {
-                ...state,
-                items: [...state.items, ...newTables],
-                itemsByServiceID: {
-                    ...state.itemsByServiceID,
-                    [serviceID]: {
-                        ...(state.itemsByServiceID[serviceID] ?? {}),
-                        isFetching: false,
-                        tables: [
-                            ...(state.itemsByServiceID[serviceID]?.tables ?? []),
-                            ...data,
-                        ],
-                        tablesByID: {
-                            ...(state.itemsByServiceID[serviceID]?.tablesByID ?? {}),
-                            ...Object.fromEntries(newTables.map(t => [t.id, t])),
-                        },
-                    },
-                },
-            };
-        }
-
-        case FETCH_SERVICE_TABLES.ERROR: {
-            const {serviceInfo: {id: serviceID}} = action;
-            return {
-                ...state,
-                itemsByServiceID: {
-                    ...state.itemsByServiceID,
-                    [serviceID]: {
-                        ...(state.itemsByServiceID[serviceID] ?? {}),
-                        isFetching: false,
-                    },
-                },
-            };
-        }
-
-        case ADDING_SERVICE_TABLE.BEGIN:
-            return {...state, isCreating: true};
-
-        case ADDING_SERVICE_TABLE.END: {
-            const {serviceInfo: {id: serviceID}, table} = action;
-            return {
-                ...state,
-                itemsByServiceID: {
-                    ...state.itemsByServiceID,
-                    [serviceID]: {
-                        ...(state.itemsByServiceID[serviceID] ?? {}),
-                        tables: [...(state.itemsByServiceID[serviceID]?.tables ?? []), table],
-                        tablesByID: {
-                            ...(state.itemsByServiceID[serviceID]?.tablesByID ?? {}),
-                            [table.id]: table,
-                        },
-                    },
-                },
-            };
-        }
-
-        case ADDING_SERVICE_TABLE.TERMINATE:
-            return {...state, isCreating: false};
-
-        case DELETING_SERVICE_TABLE.BEGIN:
-            return {...state, isDeleting: true};
-
-        case DELETING_SERVICE_TABLE.END: {
-            const {serviceInfo: {id: serviceID}, tableID} = action;
-            return {
-                ...state,
-                isDeleting: false,
-                itemsByServiceID: {
-                    ...state.itemsByServiceID,
-                    [serviceID]: {
-                        ...(state.itemsByServiceID[serviceID] ?? {}),
-                        tables: (state.itemsByServiceID[serviceID]?.tables ?? [])
-                            .filter(t => t.id !== tableID),
-                        tablesByID: objectWithoutProp(
-                            (state.itemsByServiceID[serviceID]?.tablesByID ?? {}),
-                            tableID,
-                        ),
-                    },
-                },
-            };
-        }
-
-        case DELETING_SERVICE_TABLE.TERMINATE:
-            return {...state, isDeleting: false};
 
         default:
             return state;

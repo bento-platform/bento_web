@@ -76,7 +76,6 @@ class Dataset extends Component {
             contact_info: value.contact_info || "",
             data_use: simpleDeepCopy(value.data_use || INITIAL_DATA_USE_VALUE),
             linked_field_sets: value.linked_field_sets || [],
-            tables: value.tables || [],
 
             fieldSetAdditionModalVisible: false,
 
@@ -87,7 +86,6 @@ class Dataset extends Component {
             },
 
             selectedTab: "overview",
-            selectedTable: null,
         };
 
         this.handleFieldSetDeletion = this.handleFieldSetDeletion.bind(this);
@@ -294,7 +292,6 @@ Dataset.propTypes = {
     mode: PropTypes.oneOf(["public", "private"]),
 
     project: projectPropTypesShape,
-    strayTables: PropTypes.arrayOf(PropTypes.object),
 
     value: datasetPropTypesShape,
 

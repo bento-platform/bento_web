@@ -459,7 +459,7 @@ const ManagerDropBoxContent = () => {
     const [fileDeleteModal, setFileDeleteModal] = useState(false);
 
     const [selectedWorkflow, setSelectedWorkflow] = useState(null);
-    const [tableSelectionModal, setTableSelectionModal] = useState(false);
+    const [datasetSelectionModal, setDatasetSelectionModal] = useState(false);
 
     const showUploadModal = useCallback(() => setUploadModal(true), []);
     const hideUploadModal = useCallback(() => setUploadModal(false), []);
@@ -468,11 +468,11 @@ const ManagerDropBoxContent = () => {
     const showFileContentsModal = useCallback(() => setFileContentsModal(true), []);
     const hideFileContentsModal = useCallback(() => setFileContentsModal(false), []);
 
-    const showTableSelectionModal = useCallback(workflow => {
+    const showDatasetSelectionModal = useCallback(workflow => {
         setSelectedWorkflow(workflow);
-        setTableSelectionModal(true);
+        setDatasetSelectionModal(true);
     }, []);
-    const hideTableSelectionModal = useCallback(() => setTableSelectionModal(false), []);
+    const hideDatasetSelectionModal = useCallback(() => setDatasetSelectionModal(false), []);
 
     const getWorkflowFit = useCallback(w => {
         let workflowSupported = true;
@@ -482,7 +482,7 @@ const ManagerDropBoxContent = () => {
         for (const i of w.inputs.filter(i => i.type.startsWith("file"))) {
             const isFileArray = i.type.endsWith("[]");
 
-            // Find tables that support the data type
+            // Find datasets that support the data type
             // TODO
 
             // Find files where 1+ of the valid extensions (e.g. jpeg or jpg) match.
@@ -535,7 +535,7 @@ const ManagerDropBoxContent = () => {
             {ingestionWorkflows.map(w => (
                 <Menu.Item key={w.id}
                            disabled={workflowsSupported.findIndex(w2 => w2.id === w.id) === -1}
-                           onClick={() => showTableSelectionModal(w)}>
+                           onClick={() => showDatasetSelectionModal(w)}>
                     Ingest with Workflow &ldquo;{w.name}&rdquo;
                 </Menu.Item>
             ))}
@@ -544,7 +544,7 @@ const ManagerDropBoxContent = () => {
 
     const handleIngest = useCallback(() => {
         if (workflowsSupported.length !== 1) return;
-        showTableSelectionModal(workflowsSupported[0]);
+        showDatasetSelectionModal(workflowsSupported[0]);
     }, [workflowsSupported]);
 
     const hasUploadPermission = permissions.includes(ingestDropBox);
@@ -647,9 +647,9 @@ const ManagerDropBoxContent = () => {
 
             <DatasetSelectionModal
                 dataType={selectedWorkflow?.data_type || null}
-                visible={tableSelectionModal}
-                title="Select a Table to Ingest Into"
-                onCancel={hideTableSelectionModal}
+                visible={datasetSelectionModal}
+                title="Select a Dataset to Ingest Into"
+                onCancel={hideDatasetSelectionModal}
                 onOk={ingestIntoDataset}
             />
 

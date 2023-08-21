@@ -38,7 +38,6 @@ export const bentoServicePropTypesMixin = {
     artifact: PropTypes.string,
     repository: PropTypes.string,
     data_service: PropTypes.bool,
-    manageable_tables: PropTypes.bool,
     disabled: PropTypes.bool,
     url_template: PropTypes.string,
     url: PropTypes.string,

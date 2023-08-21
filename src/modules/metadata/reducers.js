@@ -2,7 +2,6 @@ import {objectWithoutProp} from "../../utils/misc";
 
 import {
     FETCH_PROJECTS,
-    FETCH_PROJECT_TABLES,
 
     CREATE_PROJECT,
     DELETE_PROJECT,
@@ -15,9 +14,6 @@ import {
     ADD_DATASET_LINKED_FIELD_SET,
     SAVE_DATASET_LINKED_FIELD_SET,
     DELETE_DATASET_LINKED_FIELD_SET,
-
-    PROJECT_TABLE_ADDITION,
-    PROJECT_TABLE_DELETION,
 
     FETCH_INDIVIDUAL,
 
@@ -33,7 +29,6 @@ const projectSort = (a, b) => a.title.localeCompare(b.title);
 export const projects = (
     state = {
         isFetching: false,
-        isFetchingWithTables: false,
         isCreating: false,
         isDeleting: false,
         isSaving: false,
@@ -242,109 +237,6 @@ export const projects = (
         case DELETE_PROJECT_JSON_SCHEMA.FINISH:
             return {...state, isDeletingJsonSchema: false};
 
-
-        default:
-            return state;
-    }
-};
-
-
-export const projectTables = (
-    state = {
-        isFetching: false,
-        isFetchingAll: false,
-        isAdding: false,
-        isDeleting: false,
-        items: [],
-        itemsByProjectID: {},
-    },
-    action,
-) => {
-    switch (action.type) {
-        case CREATE_PROJECT.RECEIVE:
-            // TODO: Might want to re-fetch upon project creation instead...
-            return {
-                ...state,
-                itemsByProjectID: {
-                    ...state.itemsByProjectID,
-                    [action.data.id]: [],
-                },
-            };
-
-        case DELETE_PROJECT.RECEIVE:
-            return {
-                ...state,
-                items: state.items.filter(t => t.project_id !== action.project.identifier),
-                itemsByProjectID: objectWithoutProp(state.itemsByProjectID, action.project.identifier),
-            };
-
-        case FETCH_PROJECT_TABLES.REQUEST:
-            return {...state, isFetching: true};
-
-        case FETCH_PROJECT_TABLES.RECEIVE:
-            return {
-                ...state,
-                isFetching: false,
-                items: [
-                    ...state.items,
-                    ...action.data
-                        .map(t => ({
-                            ...t,
-                            project_id: (Object.entries(action.projectsByID)
-                                .filter(([_, project]) => project.datasets.map(d => d.identifier)
-                                    .includes(t.dataset))[0] || [])[0] || null,
-                        }))
-                        .filter(t => t.project_id !== null && !state.items.map(t => t.table_id).includes(t.table_id)),
-                ],
-                itemsByProjectID: {  // TODO: Improve performance by maybe returning project ID on server side?
-                    ...state.itemsByProjectID,
-                    ...Object.fromEntries(Object.entries(action.projectsByID).map(([projectID, project]) =>
-                        [projectID, action.data.filter(t => project.datasets
-                            .map(d => d.identifier)
-                            .includes(t.dataset))],
-                    )),
-                },
-            };
-
-        case FETCH_PROJECT_TABLES.FINISH:
-            return {...state, isFetching: false};
-
-        case PROJECT_TABLE_ADDITION.BEGIN:
-            return {...state, isAdding: true};
-
-        case PROJECT_TABLE_ADDITION.END:
-            // TODO
-            return {
-                ...state,
-                isAdding: false,
-                items: [...state.items, action.table],
-                itemsByProjectID: {
-                    ...state.itemsByProjectID,
-                    [action.project.identifier]: [...(state.itemsByProjectID[action.project.identifier] || []),
-                        action.table],
-                },
-            };
-
-        case PROJECT_TABLE_ADDITION.TERMINATE:
-            return {...state, isAdding: false};
-
-        case PROJECT_TABLE_DELETION.BEGIN:
-            return {...state, isDeleting: true};
-
-        case PROJECT_TABLE_DELETION.END:
-            return {
-                ...state,
-                isDeleting: false,
-                items: state.items.filter(t => t.table_id !== action.tableID),
-                itemsByProjectID: {
-                    ...state.itemsByProjectID,
-                    [action.project.identifier]: (state.itemsByProjectID[action.project.identifier] || [])
-                        .filter(t => t.id !== action.tableID),
-                },
-            };
-
-        case PROJECT_TABLE_DELETION.TERMINATE:
-            return {...state, isDeleting: false};
 
         default:
             return state;

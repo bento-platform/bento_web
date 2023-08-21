@@ -57,7 +57,6 @@ export const fetchUserDependentData = (servicesCb) => async (dispatch, getState)
     try {
         if (idTokenContents) {
             // If we're newly authenticated as an owner, we run all actions that need authentication (via the callback).
-            // TODO: refactor to remove tables
             await dispatch(fetchServicesWithMetadataAndDataTypesIfNeeded(
                 () => dispatch(fetchServiceDependentData())));
             await (servicesCb || nop)();

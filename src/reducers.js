@@ -18,7 +18,6 @@ import {
     bentoServices,
     services,
     serviceDataTypes,
-    serviceTables,
     serviceWorkflows,
 } from "./modules/services/reducers";
 import {datasetDataTypes, datasetSummaries} from "./modules/datasets/reducers";
@@ -56,7 +55,6 @@ const rootReducer = combineReducers({
     bentoServices,
     services,
     serviceDataTypes,
-    serviceTables,
     serviceWorkflows,
 
     // Dataset module
