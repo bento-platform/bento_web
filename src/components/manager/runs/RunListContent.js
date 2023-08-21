@@ -4,8 +4,9 @@ import PropTypes from "prop-types";
 
 import { Table, Typography } from "antd";
 
-import { fetchAllRunDetailsIfNeeded } from "../../../modules/wes/actions";
+import LastIngestionTable from "./RunLastContent";
 
+import { fetchAllRunDetailsIfNeeded } from "../../../modules/wes/actions";
 import { RUN_REFRESH_TIMEOUT, RUN_TABLE_COLUMNS } from "./utils";
 
 class RunListContent extends Component {
@@ -33,8 +34,7 @@ class RunListContent extends Component {
         return (
             <>
                 <Typography.Title level={2}>Latest Ingested Files</Typography.Title>
-                {/* TODO: organize last ingestions by datasets */}
-                {/* <LastIngestionTable /> */}
+                <LastIngestionTable />
                 <Typography.Title level={2}>Workflow Runs</Typography.Title>
                 <Table
                     bordered={true}
