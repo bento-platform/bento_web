@@ -262,15 +262,12 @@ export const serviceDataTypes = (
         }
 
         case FETCH_SERVICE_DATA_TYPES_BY_DATASET.ERROR: {
-            const {datasetID} = action;
+            const { datasetID } = action;
             return {
                 ...state,
                 itemsByDatasetID: {
                     ...state.itemsByDatasetID,
-                    [datasetID]: {
-                        ...(state.itemsByDatasetID[datasetID] || {items: null}),
-                        isFetching: false,
-                    },
+                    [datasetID]: state.itemsByDatasetID[datasetID] || [],
                 },
             };
         }
