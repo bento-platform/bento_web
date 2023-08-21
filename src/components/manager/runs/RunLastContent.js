@@ -152,7 +152,7 @@ const processIngestions = (data, currentDatasets) => {
 
 const LastIngestionTable = () => {
     const runs = useSelector((state) => state.runs.items);
-    const currentDatasets = useSelector((state) => state.projects.flatMap(p => p.datasets));
+    const currentDatasets = useSelector((state) => state.projects.items.flatMap(p => p.datasets));
     const ingestions = useMemo(() => processIngestions(runs, currentDatasets), [runs, currentDatasets]);
 
     return <Table bordered={true} columns={COLUMNS_LAST_CONTENT} dataSource={ingestions} rowKey={buildKeyFromRecord} />;
