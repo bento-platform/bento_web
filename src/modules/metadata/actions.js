@@ -1,11 +1,7 @@
 import {message} from "antd";
 
 import {endProjectEditing} from "../manager/actions";
-import {
-    createNetworkActionTypes,
-    createFlowActionTypes,
-    networkAction,
-} from "../../utils/actions";
+import { createNetworkActionTypes, networkAction } from "../../utils/actions";
 import {nop, objectWithoutProps} from "../../utils/misc";
 import {jsonRequest} from "../../utils/requests";
 
