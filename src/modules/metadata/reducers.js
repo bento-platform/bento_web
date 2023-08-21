@@ -19,6 +19,8 @@ import {
 
     FETCH_OVERVIEW_SUMMARY,
 
+    FETCH_EXTRA_PROPERTIES_SCHEMA_TYPES,
+
     CREATE_PROJECT_JSON_SCHEMA,
     DELETE_PROJECT_JSON_SCHEMA,
 } from "./actions";
@@ -36,6 +38,8 @@ export const projects = (
         isSavingDataset: false,
         isDeletingDataset: false,
 
+        extraPropertiesSchemaTypes: {},
+        isFetchingExtraPropertiesSchemaTypes: false,
         isCreatingJsonSchema: false,
         isDeletingJsonSchema: false,
 
@@ -187,6 +191,14 @@ export const projects = (
 
         case DELETE_PROJECT_DATASET.FINISH:
             return {...state, isDeletingDataset: false};
+
+        // FETCH_EXTRA_PROPERTIES_SCHEMA_TYPES
+        case FETCH_EXTRA_PROPERTIES_SCHEMA_TYPES.REQUEST:
+            return {...state, isFetchingExtraPropertiesSchemaTypes: true};
+        case FETCH_EXTRA_PROPERTIES_SCHEMA_TYPES.RECEIVE:
+            return {...state, extraPropertiesSchemaTypes: action.data};
+        case FETCH_EXTRA_PROPERTIES_SCHEMA_TYPES.FINISH:
+            return {...state, isFetchingExtraPropertiesSchemaTypes: false};
 
         // CREATE_PROJECT_JSON_SCHEMA
         case CREATE_PROJECT_JSON_SCHEMA.REQUEST:

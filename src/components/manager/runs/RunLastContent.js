@@ -102,47 +102,56 @@ const buildKeyFromRecord = (record) => `${record.dataType}-${record.datasetId}`;
 
 const fileNameFromPath = (path) => path.split("/").at(-1);
 
-const getFileInputsFromWorkflowMetadata = (workflowMetadata) => {
-    return workflowMetadata.inputs
-        .filter(input => input.type === "file" || input.type === "file[]")
-        .map(input => `${workflowMetadata.id}.${input.id}`);
-};
+const getFileInputsFromWorkflow = (workflowId, {inputs}) =>
+    inputs
+        .filter(input => ["file", "file[]"].includes(input.type))
+        .map(input => `${workflowId}.${input.id}`);
 
 const processIngestions = (data, currentDatasets) => {
     const currentDatasetIds = new Set((currentDatasets || []).map((ds) => ds.identifier));
 
     const ingestionsByDataType = data.reduce((ingestions, run) => {
-        if (run.state === "COMPLETE") {
-            const dataType = run.details.request.tags.workflow_metadata.data_type;
-            const datasetId = run.details.request.tags.dataset_id;
+        if (run.state !== "COMPLETE") {
+            return ingestions;
+        }
 
-            if (datasetId === undefined || !currentDatasetIds.has(datasetId)) {
-                return ingestions;
+        const {
+            workflow_id: workflowId,
+            workflow_metadata: workflowMetadata,
+            dataset_id: datasetId,
+        } = run.details.request.tags;
+
+
+        if (datasetId === undefined || !currentDatasetIds.has(datasetId)) {
+            return ingestions;
+        }
+
+        const fileNames =
+            getFileInputsFromWorkflow(workflowId ?? workflowMetadata.id, workflowMetadata)
+                .flatMap(key => {
+                    const paramValue = run.details.request.workflow_params[key];
+                    if (!paramValue) {
+                        // Key isn't in workflow params or is null
+                        // - possibly optional field or something else going wrong
+                        return [];
+                    }
+                    return Array.isArray(paramValue) ? paramValue : [paramValue];
+                })
+                .map(fileNameFromPath);
+
+        const date = Date.parse(run.details.run_log.end_time);
+
+        const currentIngestion = { date, dataType: workflowMetadata.data_type, datasetId, fileNames };
+        const dataTypeAndDatasetId = buildKeyFromRecord(currentIngestion);
+
+        if (ingestions[dataTypeAndDatasetId]) {
+            const existingDate = ingestions[dataTypeAndDatasetId].date;
+            if (date > existingDate) {
+                ingestions[dataTypeAndDatasetId].date = date;
             }
-            const fileNameKey = getFileInputsFromWorkflowMetadata(run.details.request.tags.workflow_metadata);
-            const filePaths = fileNameKey.flatMap(key =>
-                Array.isArray(run.details.request.workflow_params[key])
-                    ? run.details.request.workflow_params[key]
-                    : [run.details.request.workflow_params[key]],
-            );
-            const fileNames = Array.isArray(filePaths)
-                ? filePaths.map(fileNameFromPath)
-                : [fileNameFromPath(filePaths)];
-
-            const date = Date.parse(run.details.run_log.end_time);
-
-            const currentIngestion = { date, dataType, datasetId, fileNames };
-            const dataTypeAndDatasetId = buildKeyFromRecord(currentIngestion);
-
-            if (ingestions[dataTypeAndDatasetId]) {
-                const existingDate = ingestions[dataTypeAndDatasetId].date;
-                if (date > existingDate) {
-                    ingestions[dataTypeAndDatasetId].date = date;
-                }
-                ingestions[dataTypeAndDatasetId].fileNames.push(...fileNames);
-            } else {
-                ingestions[dataTypeAndDatasetId] = currentIngestion;
-            }
+            ingestions[dataTypeAndDatasetId].fileNames.push(...fileNames);
+        } else {
+            ingestions[dataTypeAndDatasetId] = currentIngestion;
         }
         return ingestions;
     }, {});
@@ -151,13 +160,15 @@ const processIngestions = (data, currentDatasets) => {
 };
 
 const LastIngestionTable = () => {
-    const runs = useSelector((state) => state.runs.items);
+    const servicesFetching = useSelector(state => state.services.isFetchingAll);
+    const {items: runs, isFetching: runsFetching} = useSelector((state) => state.runs);
     const currentDatasets = useSelector((state) => state.projects.items.flatMap(p => p.datasets));
     const ingestions = useMemo(() => processIngestions(runs, currentDatasets), [runs, currentDatasets]);
 
     return <Table
         bordered={true}
         columns={COLUMNS_LAST_CONTENT}
+        loading={servicesFetching || runsFetching}
         dataSource={ingestions}
         rowKey={buildKeyFromRecord}
         pagination={false}
