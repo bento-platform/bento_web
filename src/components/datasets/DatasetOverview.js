@@ -10,7 +10,7 @@ import { useSelector } from "react-redux";
 
 const DatasetOverview = ({isPrivate, project, dataset, isFetchingDatasets}) => {
     const datasetDataTypesSummaries = useSelector((state) => state.datasetDataTypes.itemsById);
-    const dataTypesSummary = Object.values(datasetDataTypesSummaries[dataset.identifier] || {})
+    const dataTypesSummary = Object.values(datasetDataTypesSummaries[dataset.identifier] || {});
     // Count data types which actually have data in them for showing in the overview
     const dataTypeCount = useMemo(
         () => dataTypesSummary

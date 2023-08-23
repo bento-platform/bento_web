@@ -17,8 +17,8 @@ export const datasetDataTypes = (
                     ...state.itemsById,
                     [datasetID]: {
                         ...(state.itemsById[datasetID] ?? {}),
-                    }
-                }
+                    },
+                },
             };
         }
         case FETCH_DATASET_DATATYPE.RECEIVE:{
@@ -30,7 +30,7 @@ export const datasetDataTypes = (
                     ...state.itemsById,
                     [datasetID]: {
                         ...state.itemsById[datasetID],
-                        ...itemsByID
+                        ...itemsByID,
                     },
                 },
             };
