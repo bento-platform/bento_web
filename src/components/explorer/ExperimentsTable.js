@@ -1,11 +1,12 @@
 import React from "react";
-import { Link } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
 import { useSelector } from "react-redux";
 import PropTypes from "prop-types";
 import { useSortedColumns } from "./hooks/explorerHooks";
 import ExplorerSearchResultsTable from "./ExplorerSearchResultsTable";
 
 const ExperimentRender = ({ experimentId, individual }) => {
+    const location = useLocation();
     const alternateIds = individual.alternate_ids ?? [];
     const listRender = alternateIds.length ? `(${alternateIds.join(", ")})` : "";
 
