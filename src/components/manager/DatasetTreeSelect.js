@@ -54,13 +54,13 @@ const DatasetTreeSelect = ({value, onChange, style, idFormat}) => {
 
 DatasetTreeSelect.defaultProps = {
     idFormat: ID_FORMAT_PROJECT_DATASET,
-}
+};
 
 DatasetTreeSelect.propTypes = {
     style: PropTypes.object,
     value: PropTypes.string,
     onChange: PropTypes.func,
-    valueFormat: PropTypes.oneOf([ID_FORMAT_PROJECT_DATASET, ID_FORMAT_DATASET]),
+    idFormat: PropTypes.oneOf([ID_FORMAT_PROJECT_DATASET, ID_FORMAT_DATASET]),
 };
 
 export default DatasetTreeSelect;
