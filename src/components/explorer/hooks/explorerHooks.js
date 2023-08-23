@@ -8,7 +8,7 @@ export const useSortedColumns = (data, tableSortOrder, columnsDefinition) => {
         const column = columnsDefinition.find((col) => col.dataIndex === sortKey);
         if (column && column.sorter) {
             return [...dataToSort].sort((a, b) => {
-                return order === "ascend" ? column.sorter(a, b) : -column.sorter(a, b);
+                return order === "ascend" ? column.sorter(a, b) : column.sorter(b, a);
             });
         }
         return dataToSort;
