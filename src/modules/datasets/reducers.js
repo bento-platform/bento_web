@@ -55,19 +55,32 @@ export const datasetSummaries = (
     action,
 ) => {
     switch (action.type) {
-        case FETCH_DATASET_SUMMARY.REQUEST:
+        case FETCH_DATASET_SUMMARY.REQUEST:{
+            const {datasetID} = action;
             return {
                 ...state,
                 isFetching: true,
+                itemsById: {
+                    ...state.itemsById,
+                    [datasetID]: {
+                        ...(state.itemsById[datasetID] ?? {}),
+                    },
+                },
             };
-        case FETCH_DATASET_SUMMARY.RECEIVE:
+        }
+        case FETCH_DATASET_SUMMARY.RECEIVE:{
+            const {datasetID} = action;
             return {
                 ...state,
                 itemsById: {
                     ...state.itemsById,
-                    [action.datasetID]: action.data,
+                    [datasetID]: {
+                        ...state.itemsById[datasetID],
+                        ...action.data,
+                    },
                 },
             };
+        }
         case FETCH_DATASET_SUMMARY.FINISH:
         case FETCH_DATASET_SUMMARY.ERROR:
             return {
