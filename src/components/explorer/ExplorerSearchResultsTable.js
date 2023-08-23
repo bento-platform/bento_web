@@ -17,7 +17,14 @@ import {
 
 const PAGE_SIZE = 25;
 
-const ExplorerSearchResultsTable = ({ data, activeTab, columns, currentPage: initialCurrentPage, ...props }) => {
+const ExplorerSearchResultsTable = ({
+    data,
+    activeTab,
+    columns,
+    currentPage: initialCurrentPage,
+    sortOrder,
+    sortColumnKey,
+}) => {
     const { dataset } = useParams();
     //const [currentPage, setCurrentPage] = useState(1);
     const [currentPage, setCurrentPage] = useState(initialCurrentPage || 1);
@@ -62,7 +69,6 @@ const ExplorerSearchResultsTable = ({ data, activeTab, columns, currentPage: ini
         pointerEvents: fetchingSearch ? "none" : "auto",
     };
 
-
     const rowSelection = {
         type: "checkbox",
         selectedRowKeys: selectedRows,
@@ -86,12 +92,13 @@ const ExplorerSearchResultsTable = ({ data, activeTab, columns, currentPage: ini
         ],
     };
 
-    const sortedInfo = useMemo(() => {
-        return {
-            order: props.sortOrder,
-            columnKey: props.sortColumnKey,
-        };
-    }, [props.sortOrder, props.sortColumnKey]);
+    const sortedInfo = useMemo(
+        () => ({
+            order: sortOrder,
+            columnKey: sortColumnKey,
+        }),
+        [sortOrder, sortColumnKey],
+    );
 
     return (
         <div>
