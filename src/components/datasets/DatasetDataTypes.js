@@ -15,8 +15,7 @@ const NA_TEXT = <span style={{ color: "#999", fontStyle: "italic" }}>N/A</span>;
 const DatasetDataTypes = React.memo(
     ({isPrivate, project, dataset, onDatasetIngest, isFetchingDatasets }) => {
         const dispatch = useDispatch();
-
-        const datasetDataTypes = useSelector((state) => state.datasetDataTypes.itemsById[dataset.identifier]);
+        const datasetDataTypes = useSelector((state) => Object.values(state.datasetDataTypes.itemsById[dataset.identifier]));
         const datasetSummaries = useSelector((state) => state.datasetSummaries.itemsById[dataset.identifier]);
 
         const [datatypeSummaryVisible, setDatatypeSummaryVisible] = useState(false);

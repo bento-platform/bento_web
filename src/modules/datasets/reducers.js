@@ -8,19 +8,33 @@ export const datasetDataTypes = (
     action,
 ) => {
     switch (action.type) {
-        case FETCH_DATASET_DATATYPE.REQUEST:
+        case FETCH_DATASET_DATATYPE.REQUEST:{
+            const {datasetID} = action;
             return {
                 ...state,
                 isFetching: true,
+                itemsById: {
+                    ...state.itemsById,
+                    [datasetID]: {
+                        ...(state.itemsById[datasetID] ?? {}),
+                    }
+                }
             };
-        case FETCH_DATASET_DATATYPE.RECEIVE:
+        }
+        case FETCH_DATASET_DATATYPE.RECEIVE:{
+            const {datasetID} = action;
+            const itemsByID = Object.fromEntries(action.data.map(d => [d.id, d]));
             return {
                 ...state,
                 itemsById: {
                     ...state.itemsById,
-                    [action.datasetID]: action.data,
+                    [datasetID]: {
+                        ...state.itemsById[datasetID],
+                        ...itemsByID
+                    },
                 },
             };
+        }
         case FETCH_DATASET_DATATYPE.FINISH:
         case FETCH_DATASET_DATATYPE.ERROR:
             return {

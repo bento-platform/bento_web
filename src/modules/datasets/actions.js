@@ -9,9 +9,10 @@ const fetchDatasetDataTypeSummary = networkAction((serviceInfo, datasetID) => ({
     url: `${serviceInfo.url}/datasets/${datasetID}/data-types`,
 }));
 
-export const fetchDatasetDataTypesSummaryIfPossible = (datasetID) => (dispatch, getState) => {
+export const fetchDatasetDataTypesSummaryIfPossible = (datasetID) => async (dispatch, getState) => {
     if (getState().datasetDataTypes.isFetching) return;
-    return dispatch(fetchDatasetDataTypeSummary(getState().services.itemsByArtifact.metadata, datasetID));
+    await dispatch(fetchDatasetDataTypeSummary(getState().services.itemsByArtifact.metadata, datasetID));
+    await dispatch(fetchDatasetDataTypeSummary(getState().services.itemsByArtifact.gohan, datasetID));
 };
 
 const fetchDatasetSummary = networkAction((serviceInfo, datasetID) => ({
