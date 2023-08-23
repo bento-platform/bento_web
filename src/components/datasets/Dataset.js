@@ -134,12 +134,10 @@ class Dataset extends Component {
         const tabContents = {
             overview: <DatasetOverview dataset={this.state}
                                        project={this.props.project}
-                                       isPrivate={isPrivate}
-                                       isFetchingDatasets={this.props.isFetchingDatasets} />,
+                                       isPrivate={isPrivate} />,
             data_types: <DatasetDataTypes dataset={this.state}
                                           project={this.props.project}
                                           isPrivate={isPrivate}
-                                          isFetchingDatasets={this.props.isFetchingDatasets}
                                           onDatasetIngest={this.props.onDatasetIngest}/>,
             linked_field_sets: (
                 <>
@@ -295,8 +293,6 @@ Dataset.propTypes = {
 
     value: datasetPropTypesShape,
 
-    isFetchingDatasets: PropTypes.bool,
-
     onEdit: PropTypes.func,
     onDatasetIngest: PropTypes.func,
 
@@ -309,8 +305,6 @@ Dataset.propTypes = {
 };
 
 const mapStateToProps = state => ({
-    isFetchingDatasets: state.services.isFetchingAll
-        || state.datasetDataTypes.isFetching,
     isSavingDataset: state.projects.isSavingDataset,
     isDeletingDataset: state.projects.isDeletingDataset,
 });

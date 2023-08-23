@@ -2,7 +2,6 @@ import {FETCH_DATASET_DATATYPE, FETCH_DATASET_SUMMARY} from "./actions";
 
 export const datasetDataTypes = (
     state = {
-        isFetching: false,
         itemsById: {},
     },
     action,
@@ -12,11 +11,11 @@ export const datasetDataTypes = (
             const {datasetID} = action;
             return {
                 ...state,
-                isFetching: true,
                 itemsById: {
                     ...state.itemsById,
                     [datasetID]: {
-                        ...(state.itemsById[datasetID] ?? {}),
+                        itemsById: {...(state.itemsById[datasetID]?.itemsById ?? {})},
+                        isFetching: true,
                     },
                 },
             };
@@ -29,18 +28,28 @@ export const datasetDataTypes = (
                 itemsById: {
                     ...state.itemsById,
                     [datasetID]: {
-                        ...state.itemsById[datasetID],
-                        ...itemsByID,
+                        itemsById: {
+                            ...state.itemsById[datasetID].itemsById,
+                            ...itemsByID,
+                        },
                     },
                 },
             };
         }
         case FETCH_DATASET_DATATYPE.FINISH:
-        case FETCH_DATASET_DATATYPE.ERROR:
+        case FETCH_DATASET_DATATYPE.ERROR:{
+            const {datasetID} = action;
             return {
                 ...state,
-                isFetching: false,
+                itemsById: {
+                    ...state.itemsById,
+                    [datasetID]: {
+                        ...state.itemsById[datasetID],
+                        isFetching: false,
+                    },
+                },
             };
+        }
         default:
             return state;
     }
@@ -49,7 +58,6 @@ export const datasetDataTypes = (
 
 export const datasetSummaries = (
     state = {
-        isFetching: false,
         itemsById: {},
     },
     action,
@@ -59,7 +67,6 @@ export const datasetSummaries = (
             const {datasetID} = action;
             return {
                 ...state,
-                isFetching: true,
                 itemsById: {
                     ...state.itemsById,
                     [datasetID]: {
@@ -85,7 +92,6 @@ export const datasetSummaries = (
         case FETCH_DATASET_SUMMARY.ERROR:
             return {
                 ...state,
-                isFetching: false,
             };
         default:
             return state;

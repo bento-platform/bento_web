@@ -13,11 +13,13 @@ import { nop } from "../../utils/misc";
 const NA_TEXT = <span style={{ color: "#999", fontStyle: "italic" }}>N/A</span>;
 
 const DatasetDataTypes = React.memo(
-    ({isPrivate, project, dataset, onDatasetIngest, isFetchingDatasets }) => {
+    ({isPrivate, project, dataset, onDatasetIngest}) => {
         const dispatch = useDispatch();
         const datasetDataTypes = useSelector((state) => Object.values(
-            state.datasetDataTypes.itemsById[dataset.identifier]));
+            state.datasetDataTypes.itemsById[dataset.identifier]?.itemsById));
         const datasetSummaries = useSelector((state) => state.datasetSummaries.itemsById[dataset.identifier]);
+        const isFetchingDataset = useSelector(
+            (state) => state.datasetDataTypes.itemsById[dataset.identifier]?.isFetching);
 
         const [datatypeSummaryVisible, setDatatypeSummaryVisible] = useState(false);
         const [selectedDataType, setSelectedDataType] = useState(null);
@@ -114,7 +116,7 @@ const DatasetDataTypes = React.memo(
                     dataSource={datasetDataTypes}
                     rowKey="id"
                     columns={dataTypesColumns}
-                    loading={isFetchingDatasets}
+                    loading={isFetchingDataset}
                 />
             </>
         );
@@ -125,7 +127,6 @@ DatasetDataTypes.propTypes = {
     project: projectPropTypesShape,
     dataset: datasetPropTypesShape,
     onDatasetIngest: PropTypes.func,
-    isFetchingDatasets: PropTypes.bool,
 };
 
 export default DatasetDataTypes;

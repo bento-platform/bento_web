@@ -8,9 +8,11 @@ import {datasetPropTypesShape, projectPropTypesShape} from "../../propTypes";
 import {EM_DASH} from "../../constants";
 import { useSelector } from "react-redux";
 
-const DatasetOverview = ({isPrivate, project, dataset, isFetchingDatasets}) => {
-    const datasetDataTypesSummaries = useSelector((state) => state.datasetDataTypes.itemsById);
-    const dataTypesSummary = Object.values(datasetDataTypesSummaries[dataset.identifier] || {});
+const DatasetOverview = ({isPrivate, project, dataset}) => {
+    const datasetsDataTypes = useSelector((state) => state.datasetDataTypes.itemsById);
+    const dataTypesSummary = Object.values(datasetsDataTypes[dataset.identifier]?.itemsById || {});
+    const isFetchingDataset = datasetsDataTypes[dataset.identifier]?.isFetching;
+
     // Count data types which actually have data in them for showing in the overview
     const dataTypeCount = useMemo(
         () => dataTypesSummary
@@ -44,9 +46,9 @@ const DatasetOverview = ({isPrivate, project, dataset, isFetchingDatasets}) => {
                            value={(new Date(Date.parse(dataset.created))).toLocaleString()} />
             </Col>
             <Col span={isPrivate ? 12 : 8}>
-                <Spin spinning={isFetchingDatasets}>
+                <Spin spinning={isFetchingDataset}>
                     <Statistic title="Data types"
-                               value={isFetchingDatasets ? EM_DASH : dataTypeCount} />
+                               value={isFetchingDataset ? EM_DASH : dataTypeCount} />
                 </Spin>
             </Col>
         </Row>
@@ -57,7 +59,6 @@ DatasetOverview.propTypes = {
     isPrivate: PropTypes.bool,
     project: projectPropTypesShape,
     dataset: datasetPropTypesShape,
-    isFetchingDatasets: PropTypes.bool,
 };
 
 export default DatasetOverview;

@@ -100,7 +100,6 @@ export const fetchRunLogStreamsIfPossibleAndNeeded = runID => (dispatch, getStat
 
 export const submitWorkflowRun = networkAction(
     (types, serviceInfo, workflow, params, inputs, tags, onSuccess, errorMessage) => (dispatch, getState) => {
-        console.log(workflow);
         const runRequest = {
             workflow_params: Object.fromEntries(Object.entries(inputs)
                 .map(([k, v]) => [`${workflow.id}.${k}`, v])),

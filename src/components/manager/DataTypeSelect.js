@@ -7,6 +7,17 @@ const DataTypeSelect = ({value, workflows, onChange}) => {
     const [selected, setSelected] = useState(value ?? undefined);
     const servicesFetching = useSelector((state) => state.services.isFetchingAll);
     const workflowsFetching = useSelector((state) => state.serviceWorkflows.isFetchingAll);
+    const {
+        itemsByID: dataTypes,
+        isFetchingAll: isFetchingDataTypes,
+    } = useSelector((state) => state.serviceDataTypes);
+
+    const labels = useMemo(() => {
+        if (!dataTypes) return {};
+        return Object.fromEntries(
+            Object.values(dataTypes).map(dt => [dt.id, dt.label]),
+        );
+    }, dataTypes);
 
     useEffect(() => {
         setSelected(value);
@@ -22,17 +33,20 @@ const DataTypeSelect = ({value, workflows, onChange}) => {
     const options = useMemo(() => {
         if (Array.isArray(workflows)) {
             const dataTypes = new Set(workflows.map((w) => w.data_type));
-            return Array.from(dataTypes).map((dt) =>
-                <Select.Option value={dt} key={dt}>
-                    {dt}
-                </Select.Option>,
-            );
+            return Array.from(dataTypes)
+                // filter out workflow types for which we have no labels (mcode)
+                .filter(dt => dt in labels)
+                .map((dt) =>
+                    <Select.Option value={dt} key={dt}>
+                        {labels[dt]} ({<span style={{fontFamily: "monospace"}}>{dt}</span>})
+                    </Select.Option>,
+                );
         }
         return [];
-    }, [workflows]);
+    }, [workflows, dataTypes, labels]);
 
     return (
-        <Spin spinning={servicesFetching || workflowsFetching}>
+        <Spin spinning={servicesFetching || workflowsFetching || isFetchingDataTypes}>
             <Select value={selected} onChange={onChangeInner}>
                 {options}
             </Select>
