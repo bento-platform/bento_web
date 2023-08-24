@@ -10,6 +10,7 @@ import {
     networkAction,
 } from "../../utils/actions";
 
+import { fetchDatasetDataTypesSummaryIfPossible } from "../../modules/datasets/actions";
 import { fetchDropBoxTreeOrFail } from "../manager/actions";
 import {
     fetchProjectsWithDatasets,
@@ -67,6 +68,11 @@ export const fetchUserDependentData = (servicesCb) => async (dispatch, getState)
                 () => dispatch(fetchServiceDependentData())));
             await (servicesCb || nop)();
             await dispatch(fetchProjectsWithDatasets());  // TODO: If needed, remove if !hasAttempted
+            const state = getState();
+            const datasetsByID = getDatasetsByID(state);
+            for (const datasetIdentifier of Object.keys(datasetsByID)) {
+                await dispatch(fetchDatasetDataTypesSummaryIfPossible(datasetIdentifier));
+            }
         }
     } finally {
         dispatch(endFlow(FETCHING_USER_DEPENDENT_DATA));
