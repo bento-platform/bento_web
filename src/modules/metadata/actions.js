@@ -28,13 +28,20 @@ export const FETCH_OVERVIEW_SUMMARY = createNetworkActionTypes("FETCH_OVERVIEW_S
 
 export const DELETE_DATASET_DATA_TYPE = createNetworkActionTypes("DELETE_DATASET_DATA_TYPE");
 
-export const clearDatasetDataType = networkAction((datasetId, dataType) => (dispatch, getState) => ({
-    types: DELETE_DATASET_DATA_TYPE,
-    url: `${getState().services.metadataService.url}/datasets/${datasetId}/data-types/${dataType}`,
-    req: {
-        method: "DELETE",
-    },
-}));
+export const clearDatasetDataType = networkAction((datasetId, dataType) => (dispatch, getState) => {
+    // TODO: more robust mapping from dataType to url.
+    const serviceUrl = dataType === "variant"
+        ? getState().services.itemsByKind.gohan.url
+        : getState().services.itemsByKind.metadata.url;
+    console.log(serviceUrl);
+    return {
+        types: DELETE_DATASET_DATA_TYPE,
+        url: `${serviceUrl}/datasets/${datasetId}/data-types/${dataType}`,
+        req: {
+            method: "DELETE",
+        },
+    }
+});
 
 export const fetchProjects = networkAction(() => (dispatch, getState) => ({
     types: FETCH_PROJECTS,
