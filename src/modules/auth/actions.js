@@ -41,7 +41,9 @@ export const fetchServiceDependentData = () => dispatch => Promise.all([
 ].map(a => dispatch(a())));
 
 const getDatasetsByID = (state) => Object.fromEntries(
-    state.projects.items.flatMap((p) => p.datasets.map((d) => [d.identifier, { ...d, project: p.identifier }])),
+    state.projects.items.flatMap((p) =>
+        p.datasets.map((d) => [d.identifier, { ...d, project: p.identifier }],
+        )),
 );
 
 export const fetchUserDependentData = (servicesCb) => async (dispatch, getState) => {
