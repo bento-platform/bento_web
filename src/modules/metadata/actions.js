@@ -40,7 +40,7 @@ export const clearDatasetDataType = networkAction((datasetId, dataType) => (disp
         req: {
             method: "DELETE",
         },
-    }
+    };
 });
 
 export const fetchProjects = networkAction(() => (dispatch, getState) => ({
