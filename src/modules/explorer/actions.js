@@ -21,7 +21,7 @@ export const SET_IGV_POSITION = "EXPLORER.SET_IGV_POSITION";
 
 const performSearch = networkAction((datasetID, dataTypeQueries, excludeFromAutoJoin = []) => (dispatch, getState) => ({
     types: PERFORM_SEARCH,
-    url: `${getState().services.aggregationService.url}/private/dataset-search/${datasetID}`,
+    url: `${getState().services.aggregationService.url}/dataset-search/${datasetID}`,
     params: { datasetID },
     req: jsonRequest(
         {
