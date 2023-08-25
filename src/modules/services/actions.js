@@ -14,7 +14,6 @@ import {
  * @typedef {Object} BentoService
  * @property {string} artifact
  * @property {string} url
- * @property {boolean} data_service
  */
 
 
@@ -80,7 +79,7 @@ export const fetchServicesWithMetadataAndDataTypes = (onServiceFetchFinish) => a
             ...s,
             bentoService: getState().bentoServices.itemsByKind[serviceKind] ?? null,
         };
-    }).filter(s => s.bentoService?.data_service ?? false);
+    }).filter(s => s.bento?.dataService ?? false);
 
     // - Custom stuff to start - explicitly don't wait for this promise to finish since it runs parallel to this flow.
     if (onServiceFetchFinish) onServiceFetchFinish();

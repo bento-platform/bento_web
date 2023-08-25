@@ -27,6 +27,7 @@ export const serviceInfoPropTypesShape = PropTypes.shape({
     git_branch: PropTypes.string,
     bento: PropTypes.shape({
         serviceKind: PropTypes.string,
+        dataService: PropTypes.bool,
         gitTag: PropTypes.string,
         gitBranch: PropTypes.string,
         gitCommit: PropTypes.string,
@@ -37,7 +38,6 @@ export const bentoServicePropTypesMixin = {
     service_kind: PropTypes.string,
     artifact: PropTypes.string,
     repository: PropTypes.string,
-    data_service: PropTypes.bool,
     disabled: PropTypes.bool,
     url_template: PropTypes.string,
     url: PropTypes.string,
