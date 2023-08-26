@@ -191,8 +191,8 @@ class DiscoveryQueryBuilder extends Component {
                 <Button
                     style={{float: "right", marginRight: "1em"}}
                     disabled={filteredDataTypes?.length === 0}
-                    onClick={this.handleHelpAndSchemasToggle}
-                    ><Icon type="question-circle" /> Help
+                    onClick={this.handleHelpAndSchemasToggle}>
+                    <Icon type="question-circle" /> Help
                 </Button>
             </Typography.Title>
 
