@@ -26,7 +26,6 @@ const ExplorerSearchResultsTable = ({
     sortColumnKey,
 }) => {
     const { dataset } = useParams();
-    //const [currentPage, setCurrentPage] = useState(1);
     const [currentPage, setCurrentPage] = useState(initialCurrentPage || 1);
     const [numResults] = useState(data.length);
 
