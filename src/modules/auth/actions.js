@@ -40,12 +40,6 @@ export const fetchServiceDependentData = () => dispatch => Promise.all([
     fetchExtraPropertiesSchemaTypes,
 ].map(a => dispatch(a())));
 
-const getDatasetsByID = (state) => Object.fromEntries(
-    state.projects.items.flatMap((p) =>
-        p.datasets.map((d) => [d.identifier, { ...d, project: p.identifier }],
-        )),
-);
-
 export const fetchUserDependentData = (servicesCb) => async (dispatch, getState) => {
     const {
         isFetchingDependentData,
@@ -70,11 +64,10 @@ export const fetchUserDependentData = (servicesCb) => async (dispatch, getState)
                 () => dispatch(fetchServiceDependentData())));
             await (servicesCb || nop)();
             await dispatch(fetchProjectsWithDatasets());  // TODO: If needed, remove if !hasAttempted
-            const state = getState();
-            const datasetsByID = getDatasetsByID(state);
-            const fetchAllDatasets = Object.keys(datasetsByID).map(datasetIdentifier =>
-                dispatch(fetchDatasetDataTypesSummaryIfPossible(datasetIdentifier)));
-            await Promise.all(fetchAllDatasets);
+            await Promise.all(
+                Object.keys(getState().projects.datasetsByID).map(datasetID =>
+                    dispatch(fetchDatasetDataTypesSummaryIfPossible(datasetID)))
+            );
         }
     } finally {
         dispatch(endFlow(FETCHING_USER_DEPENDENT_DATA));
