@@ -1,9 +1,12 @@
 import React from "react";
-import { Link } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
+import { useSelector } from "react-redux";
 import PropTypes from "prop-types";
+import { useSortedColumns } from "./hooks/explorerHooks";
 import ExplorerSearchResultsTable from "./ExplorerSearchResultsTable";
 
 const ExperimentRender = ({ experimentId, individual }) => {
+    const location = useLocation();
     const alternateIds = individual.alternate_ids ?? [];
     const listRender = alternateIds.length ? `(${alternateIds.join(", ")})` : "";
 
@@ -69,9 +72,26 @@ const SEARCH_RESULT_COLUMNS_EXP = [
     },
 ];
 
-const ExperimentsTable = ({ data }) => {
+const ExperimentsTable = ({ data, datasetID }) => {
+    const tableSortOrder = useSelector(
+        (state) => state.explorer.tableSortOrderByDatasetID[datasetID]?.["experiments"],
+    );
+
+    const { sortedData, columnsWithSortOrder } = useSortedColumns(
+        data,
+        tableSortOrder,
+        SEARCH_RESULT_COLUMNS_EXP,
+    );
     return (
-        <ExplorerSearchResultsTable dataStructure={SEARCH_RESULT_COLUMNS_EXP} data={data} activeTab="experiments" />
+        <ExplorerSearchResultsTable
+            dataStructure={SEARCH_RESULT_COLUMNS_EXP}
+            data={sortedData}
+            sortColumnKey={tableSortOrder?.sortColumnKey}
+            sortOrder={tableSortOrder?.sortOrder}
+            activeTab="experiments"
+            columns={columnsWithSortOrder}
+            currentPage={tableSortOrder?.currentPage}
+        />
     );
 };
 
@@ -88,6 +108,7 @@ ExperimentsTable.propTypes = {
             experimentType: PropTypes.string.isRequired,
         }),
     ).isRequired,
+    datasetID: PropTypes.string.isRequired,
 };
 
 export default ExperimentsTable;

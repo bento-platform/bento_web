@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useEffect } from "react";
 import { useSelector, useDispatch } from "react-redux";
 import { useParams } from "react-router-dom";
 
@@ -15,6 +15,8 @@ import {
     removeDataTypeQueryForm,
     updateDataTypeQueryForm,
     setSelectedRows,
+    resetTableSortOrder,
+    setActiveTab,
 } from "../../modules/explorer/actions";
 
 import IndividualsTable from "./IndividualsTable";
@@ -34,19 +36,21 @@ const hasNonEmptyArrayProperty = (targetObject, propertyKey) => {
 };
 
 const ExplorerDatasetSearch = () => {
-    const [activeKey, setActiveKey] = useState(TAB_KEYS.INDIVIDUAL);
-    const dispatch = useDispatch();
     const { dataset } = useParams();
+    const dispatch = useDispatch();
 
     const datasetsByID = useSelector((state) =>
         Object.fromEntries(
             state.projects.items.flatMap((p) => p.datasets.map((d) => [d.identifier, { ...d, project: p.identifier }])),
         ),
     );
+
+    const activeKey = useSelector((state) => state.explorer.activeTabByDatasetID[dataset]) || TAB_KEYS.INDIVIDUAL;
     const dataTypeForms = useSelector((state) => state.explorer.dataTypeFormsByDatasetID[dataset] || []);
     const fetchingSearch = useSelector((state) => state.explorer.fetchingSearchByDatasetID[dataset] || false);
     const fetchingTextSearch = useSelector((state) => state.explorer.fetchingTextSearch || false);
     const searchResults = useSelector((state) => state.explorer.searchResultsByDatasetID[dataset] || null);
+
     console.debug("search results: ", searchResults);
 
     const handleSetSelectedRows = (...args) => dispatch(setSelectedRows(dataset, ...args));
@@ -57,11 +61,13 @@ const ExplorerDatasetSearch = () => {
     }, []);
 
     const onTabChange = (newActiveKey) => {
-        setActiveKey(newActiveKey);
+        dispatch(setActiveTab(dataset, newActiveKey));
         handleSetSelectedRows([]);
     };
 
     const performSearch = () => {
+        dispatch(setActiveTab(dataset, TAB_KEYS.INDIVIDUAL));
+        dispatch(resetTableSortOrder(dataset));
         dispatch(performSearchIfPossible(dataset));
     };
 
@@ -96,16 +102,22 @@ const ExplorerDatasetSearch = () => {
                 (showTabs ? (
                     <Tabs defaultActiveKey={TAB_KEYS.INDIVIDUAL} onChange={onTabChange} activeKey={activeKey}>
                         <TabPane tab="Individual" key={TAB_KEYS.INDIVIDUAL}>
-                            <IndividualsTable data={searchResults.searchFormattedResults} />
+                            <IndividualsTable
+                                data={searchResults.searchFormattedResults}
+                                datasetID={dataset}/>
                         </TabPane>
                         {hasBiosamples && (
                             <TabPane tab="Biosamples" key={TAB_KEYS.BIOSAMPLES}>
-                                <BiosamplesTable data={searchResults.searchFormattedResultsBiosamples} />
+                                <BiosamplesTable
+                                    data={searchResults.searchFormattedResultsBiosamples}
+                                    datasetID={dataset}/>
                             </TabPane>
                         )}
                         {hasExperiments && (
                             <TabPane tab="Experiments" key={TAB_KEYS.EXPERIMENTS}>
-                                <ExperimentsTable data={searchResults.searchFormattedResultsExperiment} />
+                                <ExperimentsTable
+                                    data={searchResults.searchFormattedResultsExperiment}
+                                    datasetID={dataset}/>
                             </TabPane>
                         )}
                     </Tabs>

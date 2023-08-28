@@ -1,12 +1,15 @@
 import React from "react";
 import PropTypes from "prop-types";
-import { Link } from "react-router-dom";
+import { useSortedColumns } from "./hooks/explorerHooks";
+import { Link, useLocation } from "react-router-dom";
+import { useSelector } from "react-redux";
 import { countNonNullElements } from "../../utils/misc";
 import ExplorerSearchResultsTable from "./ExplorerSearchResultsTable";
 
 const NO_EXPERIMENTS_VALUE = -Infinity;
 
 const BiosampleRender = ({ biosample, alternateIds, individualId }) => {
+    const location = useLocation();
     const alternateIdsList = alternateIds ?? [];
     const listRender = alternateIdsList.length ? ` (${alternateIdsList.join(", ")})` : "";
     return (
@@ -166,12 +169,26 @@ const SEARCH_RESULT_COLUMNS_BIOSAMPLE = [
     },
 ];
 
-const BiosamplesTable = ({ data }) => {
+const BiosamplesTable = ({ data, datasetID }) => {
+    const tableSortOrder = useSelector(
+        (state) => state.explorer.tableSortOrderByDatasetID[datasetID]?.["biosamples"],
+    );
+
+    const { sortedData, columnsWithSortOrder } = useSortedColumns(
+        data,
+        tableSortOrder,
+        SEARCH_RESULT_COLUMNS_BIOSAMPLE,
+    );
+
     return (
         <ExplorerSearchResultsTable
             dataStructure={SEARCH_RESULT_COLUMNS_BIOSAMPLE}
-            data={data}
+            data={sortedData}
+            sortColumnKey={tableSortOrder?.sortColumnKey}
+            sortOrder={tableSortOrder?.sortOrder}
             activeTab="biosamples"
+            columns={columnsWithSortOrder}
+            currentPage={tableSortOrder?.currentPage}
         />
     );
 };
@@ -193,6 +210,7 @@ BiosamplesTable.propTypes = {
             experimentTypes: PropTypes.arrayOf(PropTypes.string).isRequired,
         }),
     ).isRequired,
+    datasetID: PropTypes.string.isRequired,
 };
 
 
