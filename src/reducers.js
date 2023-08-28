@@ -18,6 +18,7 @@ import { runs } from "./modules/wes/reducers";
 
 import openIdConfiguration from "./lib/auth/src/redux/openIdConfigSlice";
 import auth from "./lib/auth/src/redux/authSlice";
+import config from "./lib/auth/src/redux/configSlice";
 
 import { user } from "./modules/user/reducers";
 
@@ -25,6 +26,7 @@ const rootReducer = combineReducers({
     // Auth module
     auth,
     openIdConfiguration,
+    config,
     user,
 
     // DRS module

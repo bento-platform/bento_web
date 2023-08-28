@@ -1,5 +1,4 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
-import { OPENID_CONFIG_URL } from "../../../../config";
 
 // Async actions using createAsyncThunk
 export const fetchOpenIdConfiguration = createAsyncThunk(
@@ -8,7 +7,7 @@ export const fetchOpenIdConfiguration = createAsyncThunk(
         const { isFetching, data: existingData, expiry } = getState().openIdConfiguration;
         if (isFetching || (!!existingData && expiry && Date.now() < expiry * 1000)) return;
 
-        const response = await fetch(OPENID_CONFIG_URL);
+        const response = await fetch(getState().config.OPENID_CONFIG_URL);
         if (response.ok) {
             return await response.json();
         } else {

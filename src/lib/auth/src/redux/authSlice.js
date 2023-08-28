@@ -1,6 +1,5 @@
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 import { buildUrlEncodedData } from "../utils";
-import { AUTH_CALLBACK_URL, CLIENT_ID } from "../../../../config";
 import { LS_BENTO_WAS_SIGNED_IN, setLSNotSignedIn } from "../performAuth";
 import { decodeJwt } from "jose";
 import {makeResourceKey} from "../resources";
@@ -14,8 +13,8 @@ export const tokenHandoff = createAsyncThunk("auth/TOKEN_HANDOFF", async ({ code
         body: buildUrlEncodedData({
             grant_type: "authorization_code",
             code,
-            client_id: CLIENT_ID,
-            redirect_uri: AUTH_CALLBACK_URL,
+            client_id: getState().config.CLIENT_ID,
+            redirect_uri: getState().config.AUTH_CALLBACK_URL,
             code_verifier: verifier,
         }),
     });
@@ -34,7 +33,7 @@ export const refreshTokens = createAsyncThunk("auth/REFRESH_TOKENS", async (_arg
         headers: { "Content-Type": "application/x-www-form-urlencoded" },
         body: buildUrlEncodedData({
             grant_type: "refresh_token",
-            client_id: CLIENT_ID,
+            client_id: getState().config.CLIENT_ID,
             refresh_token: thunkAPI.getState().auth.refreshToken,
         }),
     });
