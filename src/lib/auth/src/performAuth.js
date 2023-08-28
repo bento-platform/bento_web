@@ -1,16 +1,17 @@
 import {useEffect} from "react";
 
-import {message} from "antd";
-
-import {AUTH_CALLBACK_URL, CLIENT_ID} from "../../config";
+import {AUTH_CALLBACK_URL, CLIENT_ID} from "../../../config";
 import {PKCE_LS_STATE, PKCE_LS_VERIFIER, pkceChallengeFromVerifier, secureRandomString} from "./pkce";
 import {useDispatch, useSelector} from "react-redux";
 import {useHistory, useLocation} from "react-router-dom";
 
-import {fetchUserDependentData, tokenHandoff} from "../../modules/auth/actions";
-import {nop} from "../../utils/misc";
+import {tokenHandoff} from "./redux/authSlice";
+import {nop} from "../../../utils/misc";
 import {buildUrlEncodedData, getIsAuthenticated} from "./utils";
-import {popLocalStorageItem} from "../../utils/localStorageUtils";
+import {popLocalStorageItem} from "../../../utils/localStorageUtils";
+
+// TODO: REMOVE LATER
+import { fetchUserDependentData } from "../../../modules/user/actions";
 
 export const LS_BENTO_WAS_SIGNED_IN = "BENTO_WAS_SIGNED_IN";
 export const LS_BENTO_POST_AUTH_REDIRECT = "BENTO_POST_AUTH_REDIRECT";
@@ -77,7 +78,6 @@ export const useHandleCallback = (callbackPath, authCodeCallback = undefined) =>
 
         const error = params.get("error");
         if (error) {
-            message.error(`Error encountered during sign-in: ${error}`);
             console.error(error);
             setLSNotSignedIn();
             return;

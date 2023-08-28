@@ -5,11 +5,11 @@ import PropTypes from "prop-types";
 
 import {Button, Empty, Icon, Layout} from "antd";
 
-import {LS_BENTO_WAS_SIGNED_IN, performAuth, setLSNotSignedIn} from "../lib/auth/performAuth";
+import {LS_BENTO_WAS_SIGNED_IN, performAuth, setLSNotSignedIn} from "../lib/auth/src/performAuth";
 
 import SitePageLoading from "./SitePageLoading";
-import {getIsAuthenticated} from "../lib/auth/utils";
-import {signOut} from "../modules/auth/actions";
+import {getIsAuthenticated} from "../lib/auth/src/utils";
+import {signOut} from "../lib/auth/src/redux/authSlice";
 
 const signInIcon = (
     <div style={{textAlign: "center"}}>

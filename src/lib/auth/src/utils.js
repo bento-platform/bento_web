@@ -1,6 +1,6 @@
 import {useEffect, useMemo} from "react";
 import {useDispatch, useSelector} from "react-redux";
-import {fetchResourcePermissionsIfPossibleAndNeeded} from "../../modules/auth/actions";
+import {fetchResourcePermissionsIfPossibleAndNeeded} from "./redux/authSlice";
 import {makeResourceKey} from "./resources";
 
 export const buildUrlEncodedData = obj =>

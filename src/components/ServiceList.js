@@ -6,7 +6,7 @@ import { Link } from "react-router-dom";
 
 import {Table, Typography, Tag, Icon, Button, Modal, Form, Input, Divider, Skeleton} from "antd";
 
-import {getIsAuthenticated, useAuthorizationHeader} from "../lib/auth/utils";
+import {getIsAuthenticated, useAuthorizationHeader} from "../lib/auth/src/utils";
 import JsonDisplay from "./JsonDisplay";
 
 const SERVICE_KIND_STYLING = { fontFamily: "monospace" };

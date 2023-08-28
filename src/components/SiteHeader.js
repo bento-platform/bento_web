@@ -8,9 +8,9 @@ import { showNotificationDrawer } from "../modules/notifications/actions";
 import { matchingMenuKeys, renderMenuItem } from "../utils/menu";
 
 import OverviewSettingsControl from "./overview/OverviewSettingsControl";
-import { performAuth, setLSNotSignedIn } from "../lib/auth/performAuth";
-import { getIsAuthenticated } from "../lib/auth/utils";
-import { signOut } from "../modules/auth/actions";
+import { performAuth, setLSNotSignedIn } from "../lib/auth/src/performAuth";
+import { getIsAuthenticated } from "../lib/auth/src/utils";
+import { signOut } from "../lib/auth/src/redux/authSlice";
 
 
 const LinkedLogo = React.memo(() =>

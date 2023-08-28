@@ -13,18 +13,19 @@ import SiteFooter from "./SiteFooter";
 import SitePageLoading from "./SitePageLoading";
 
 import {
-    fetchOpenIdConfigurationIfNeeded,
-    fetchUserDependentData,
-    refreshTokensIfPossible,
+    refreshTokens,
     tokenHandoff,
-} from "../modules/auth/actions";
+} from "../lib/auth/src/redux/authSlice";
+
+import {fetchUserDependentData} from "../modules/user/actions";
 
 import {BENTO_URL_NO_TRAILING_SLASH} from "../config";
 import eventHandler from "../events";
-import {createAuthURL, useHandleCallback} from "../lib/auth/performAuth";
-import {getIsAuthenticated} from "../lib/auth/utils";
+import {createAuthURL, useHandleCallback} from "../lib/auth/src/performAuth";
+import {getIsAuthenticated} from "../lib/auth/src/utils";
 import SessionWorker from "../session.worker";
 import {nop} from "../utils/misc";
+import {fetchOpenIdConfiguration} from "../lib/auth/src/redux/openIdConfigSlice";
 
 // Lazy-load notification drawer
 const NotificationDrawer = lazy(() => import("./notifications/NotificationDrawer"));
@@ -195,7 +196,7 @@ const App = () => {
     useEffect(() => {
         if (didPostLoadEffects) return;
         (async () => {
-            await dispatch(fetchOpenIdConfigurationIfNeeded());
+            await dispatch(fetchOpenIdConfiguration());
             await dispatch(fetchUserDependentData(createEventRelayConnectionIfNecessary));
             setDidPostLoadEffects(true);
         })();
@@ -207,7 +208,7 @@ const App = () => {
             // Use session worker to send pings to refresh the token set even when the tab is inactive.
             const sw = new SessionWorker();
             sw.addEventListener("message", () => {
-                dispatch(refreshTokensIfPossible());
+                dispatch(refreshTokens());
                 dispatch(fetchUserDependentData(nop));
             });
             sessionWorker.current = sw;

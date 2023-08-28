@@ -7,11 +7,11 @@ import {SITE_NAME} from "../constants";
 import {matchingMenuKeys, renderMenuItem} from "../utils/menu";
 
 import SitePageHeader from "./SitePageHeader";
-import {viewDropBox} from "../lib/auth/permissions";
-import {RESOURCE_EVERYTHING} from "../lib/auth/resources";
+import {viewDropBox} from "../lib/auth/src/permissions";
+import {RESOURCE_EVERYTHING} from "../lib/auth/src/resources";
 import ManagerDRSContent from "./manager/drs/ManagerDRSContent";
 import ManagerAnalysisContent from "./manager/ManagerAnalysisContent";
-import {useHasResourcePermission} from "../lib/auth/utils";
+import {useHasResourcePermission} from "../lib/auth/src/utils";
 
 const ManagerProjectDatasetContent = lazy(() => import("./manager/projects/ManagerProjectDatasetContent"));
 const ManagerAccessContent = lazy(() => import("./manager/ManagerAccessContent"));

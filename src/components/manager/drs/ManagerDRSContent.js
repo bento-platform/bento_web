@@ -6,7 +6,7 @@ import { throttle } from "lodash";
 import { Layout, Input, Table, Descriptions, message } from "antd";
 
 import { LAYOUT_CONTENT_STYLE } from "../../../styles/layoutContent";
-import { makeAuthorizationHeader, useAuthorizationHeader } from "../../../lib/auth/utils";
+import { makeAuthorizationHeader, useAuthorizationHeader } from "../../../lib/auth/src/utils";
 
 import DownloadButton from "../DownloadButton";
 

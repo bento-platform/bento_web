@@ -20,7 +20,7 @@ import {
 } from "../../utils/actions";
 import {nop, objectWithoutProps} from "../../utils/misc";
 import {jsonRequest} from "../../utils/requests";
-import {makeAuthorizationHeader} from "../../lib/auth/utils";
+import {makeAuthorizationHeader} from "../../lib/auth/src/utils";
 
 
 export const FETCH_PROJECTS = createNetworkActionTypes("FETCH_PROJECTS");

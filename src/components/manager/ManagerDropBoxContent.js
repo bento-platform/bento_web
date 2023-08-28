@@ -44,7 +44,7 @@ import TableSelectionModal from "./TableSelectionModal";
 import {BENTO_DROP_BOX_FS_BASE_PATH} from "../../config";
 import {STEP_INPUT} from "./workflowCommon";
 import {dropBoxTreeStateToPropsMixinPropTypes, workflowsStateToPropsMixin} from "../../propTypes";
-import {useAuthorizationHeader, useResourcePermissions} from "../../lib/auth/utils";
+import {useAuthorizationHeader, useResourcePermissions} from "../../lib/auth/src/utils";
 import {getFalse} from "../../utils/misc";
 import {
     beginDropBoxPuttingObjects,
@@ -53,8 +53,8 @@ import {
     putDropBoxObject,
     deleteDropBoxObject,
 } from "../../modules/manager/actions";
-import {RESOURCE_EVERYTHING} from "../../lib/auth/resources";
-import {deleteDropBox, ingestDropBox} from "../../lib/auth/permissions";
+import {RESOURCE_EVERYTHING} from "../../lib/auth/src/resources";
+import {deleteDropBox, ingestDropBox} from "../../lib/auth/src/permissions";
 
 
 SyntaxHighlighter.registerLanguage("json", json);

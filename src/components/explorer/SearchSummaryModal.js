@@ -6,7 +6,7 @@ import { Col, Divider, Modal, Row, Skeleton, Statistic, Typography } from "antd"
 import CustomPieChart from "../overview/CustomPieChart";
 import Histogram from "../overview/Histogram";
 
-import { useAuthorizationHeader } from "../../lib/auth/utils";
+import { useAuthorizationHeader } from "../../lib/auth/src/utils";
 import { explorerSearchResultsPropTypesShape } from "../../propTypes";
 
 const CHART_HEIGHT = 300;
