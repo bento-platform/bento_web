@@ -164,7 +164,7 @@ export const projects = (
                     },
                 },
                 datasetsByID: Object.fromEntries(
-                    Object.entries(state.datasetsByID).filter(([_, d]) => deleteDataset(d))
+                    Object.entries(state.datasetsByID).filter(([_, d]) => deleteDataset(d)),
                 ),
             };
         }

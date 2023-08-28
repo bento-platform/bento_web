@@ -66,7 +66,7 @@ export const fetchUserDependentData = (servicesCb) => async (dispatch, getState)
             await dispatch(fetchProjectsWithDatasets());  // TODO: If needed, remove if !hasAttempted
             await Promise.all(
                 Object.keys(getState().projects.datasetsByID).map(datasetID =>
-                    dispatch(fetchDatasetDataTypesSummaryIfPossible(datasetID)))
+                    dispatch(fetchDatasetDataTypesSummaryIfPossible(datasetID))),
             );
         }
     } finally {
