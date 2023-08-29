@@ -173,7 +173,7 @@ class DiscoveryQueryBuilder extends Component {
         const addConditionsOnDataType = (buttonProps = {style: {float: "right"}}) => (
             <Dropdown
                 overlay={dataTypeMenu}
-                disabled={this.props.searchLoading || filteredDataTypes?.length === 0 }>
+                disabled={this.props.dataTypesLoading || this.props.searchLoading || filteredDataTypes?.length === 0 }>
                 <Button {...buttonProps}> <Icon type="plus" /> Data Type <Icon type="down" /></Button>
             </Dropdown>
         );
@@ -261,8 +261,7 @@ const mapStateToProps = state => ({
     autoQuery: state.explorer.autoQuery,
     isFetchingTextSearch: state.explorer.fetchingTextSearch || false,
 
-    dataTypesLoading: state.services.isFetching
-        || Object.keys(state.serviceDataTypes.dataTypesByServiceID).length === 0,
+    dataTypesLoading: state.services.isFetching || state.datasetDataTypes.isFetchingAll,
 });
 
 const mapDispatchToProps = (dispatch) => ({

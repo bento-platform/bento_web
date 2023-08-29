@@ -1,12 +1,17 @@
-import {FETCH_DATASET_DATATYPE, FETCH_DATASET_SUMMARY} from "./actions";
+import {FETCHING_DATASETS_DATATYPE, FETCH_DATASET_DATATYPE, FETCH_DATASET_SUMMARY} from "./actions";
 
 export const datasetDataTypes = (
     state = {
         itemsById: {},
+        isFetchingAll: false,
     },
     action,
 ) => {
     switch (action.type) {
+        case FETCHING_DATASETS_DATATYPE.BEGIN:
+            return {...state, isFetchingAll: true};
+        case FETCHING_DATASETS_DATATYPE.END:
+            return {...state, isFetchingAll: false};
         case FETCH_DATASET_DATATYPE.REQUEST:{
             const {datasetID} = action;
             return {
