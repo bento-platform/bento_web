@@ -78,29 +78,27 @@ class DataTypeExplorationModal extends Component {
                     <Radio.Button value="table"><Icon type="table" /> Table Detail View</Radio.Button>
                 </Radio.Group>
                 <Tabs>
-                {filteredDataTypes.map(dataType => {
-                    return (
-                        <Tabs.TabPane tab={dataType.label ?? dataType.id} key={dataType.id}>
-                            {this.state.view === "tree" ? (
-                                <SchemaTree schema={dataType.schema} />
-                            ) : (
-                                <>
-                                    <Input.Search
-                                        allowClear={true}
-                                        onChange={e => this.onFilterChange(e.target.value)}
-                                        placeholder="Search for a field..."
-                                        style={{marginBottom: "16px"}}
-                                    />
-                                    <Table
-                                        bordered={true}
-                                        columns={FIELD_COLUMNS}
-                                        dataSource={this.getTableData(dataType)}
-                                    />
-                                </>
-                            )}
-                        </Tabs.TabPane>
-                    );
-                })}
+                {filteredDataTypes.map(dataType => (
+                    <Tabs.TabPane tab={dataType.label ?? dataType.id} key={dataType.id}>
+                        {this.state.view === "tree" ? (
+                            <SchemaTree schema={dataType.schema} />
+                        ) : (
+                            <>
+                                <Input.Search
+                                    allowClear={true}
+                                    onChange={e => this.onFilterChange(e.target.value)}
+                                    placeholder="Search for a field..."
+                                    style={{marginBottom: "16px"}}
+                                />
+                                <Table
+                                    bordered={true}
+                                    columns={FIELD_COLUMNS}
+                                    dataSource={this.getTableData(dataType)}
+                                />
+                            </>
+                        )}
+                    </Tabs.TabPane>
+                ))}
             </Tabs>
             </div>
         </Modal>;
