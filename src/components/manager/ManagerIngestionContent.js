@@ -155,7 +155,6 @@ const ManagerIngestionContent = () => {
         }
         confirmDisplay={({selectedWorkflow, workflowSelectionValues, inputs, handleRunWorkflow}) => (
             <IngestConfirmDisplay
-                // selectedDataset={workflowSelectionValues.selectedDataset}
                 target={workflowSelectionValues}
                 selectedWorkflow={selectedWorkflow}
                 inputs={inputs}
