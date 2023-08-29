@@ -23,7 +23,7 @@ export const fetchDatasetsDataTypes = () => async (dispatch, getState) => {
             dispatch(fetchDatasetDataTypesSummaryIfPossible(datasetID))),
     );
     dispatch(endFlow(FETCHING_DATASETS_DATATYPE));
-}
+};
 
 const fetchDatasetSummary = networkAction((serviceInfo, datasetID) => ({
     types: FETCH_DATASET_SUMMARY,
