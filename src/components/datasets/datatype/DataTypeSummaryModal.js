@@ -1,11 +1,14 @@
-import { Modal, Skeleton, Tag } from "antd";
 import React from "react";
+import { useSelector } from "react-redux";
 import PropTypes from "prop-types";
+
+import { Modal, Skeleton, Tag } from "antd";
+
 import { summaryPropTypesShape } from "../../../propTypes";
+
 import GenericSummary from "./GenericSummary";
 import PhenopacketSummary from "./PhenopacketSummary";
 import VariantSummary from "./VariantSummary";
-import { useSelector } from "react-redux";
 
 const DataTypeSummaryModal = ({dataType, summary, onCancel, visible}) => {
     if (!dataType) {
@@ -27,19 +30,16 @@ const DataTypeSummaryModal = ({dataType, summary, onCancel, visible}) => {
             summaryData = summary ?? dataType;
     }
 
-    return <>
-        <Modal visible={visible}
-               onCancel={onCancel}
-               onOk={onCancel}
-               title={<>
-            <Tag>{dataType.id}</Tag>
-               </>}
-        >
-            {(!summaryData || isFetchingSummaries)
-                ? <Skeleton/>
-                : <Summary summary={summaryData}/>}
-        </Modal>
-    </>;
+    return <Modal
+        visible={visible}
+        onCancel={onCancel}
+        onOk={onCancel}
+        title={<Tag>{dataType.id}</Tag>}
+    >
+        {(!summaryData || isFetchingSummaries)
+            ? <Skeleton/>
+            : <Summary summary={summaryData}/>}
+    </Modal>;
 };
 
 DataTypeSummaryModal.propTypes = {
