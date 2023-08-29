@@ -10,7 +10,7 @@ import {
     networkAction,
 } from "../../utils/actions";
 
-import { fetchDatasetDataTypesSummaryIfPossible } from "../../modules/datasets/actions";
+import { fetchDatasetDataTypesSummaryIfPossible, fetchDatasetsDataTypes } from "../../modules/datasets/actions";
 import { fetchDropBoxTreeOrFail } from "../manager/actions";
 import {
     fetchProjectsWithDatasets,
@@ -64,10 +64,7 @@ export const fetchUserDependentData = (servicesCb) => async (dispatch, getState)
                 () => dispatch(fetchServiceDependentData())));
             await (servicesCb || nop)();
             await dispatch(fetchProjectsWithDatasets());  // TODO: If needed, remove if !hasAttempted
-            await Promise.all(
-                Object.keys(getState().projects.datasetsByID).map(datasetID =>
-                    dispatch(fetchDatasetDataTypesSummaryIfPossible(datasetID))),
-            );
+            await dispatch(fetchDatasetsDataTypes());
         }
     } finally {
         dispatch(endFlow(FETCHING_USER_DEPENDENT_DATA));
