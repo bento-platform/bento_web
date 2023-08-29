@@ -85,11 +85,7 @@ IngestWorkflowSelection.propTypes = {
 const IngestConfirmDisplay = ({target, selectedWorkflow, inputs, handleRunWorkflow}) => {
     const projectsByID = useSelector(state => state.projects.itemsByID);
     const isSubmittingIngestionRun = useSelector(state => state.runs.isSubmittingIngestionRun);
-    const datasetsByID = useSelector((state) =>
-        Object.fromEntries(
-            state.projects.items.flatMap((p) => p.datasets.map((d) => [d.identifier, { ...d, project: p.identifier }])),
-        ),
-    );
+    const datasetsByID = useSelector((state) => state.projects.datasetsByID);
 
     const formatWithNameIfPossible = (name, id) => name ? `${name} (${id})` : id;
 
