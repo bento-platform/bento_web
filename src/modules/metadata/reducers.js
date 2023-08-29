@@ -45,6 +45,8 @@ export const projects = (
 
         items: [],
         itemsByID: {},
+
+        datasetsByID: {},
     },
     action,
 ) => {
@@ -57,6 +59,10 @@ export const projects = (
                 ...state,
                 items: action.data.sort(projectSort),
                 itemsByID: Object.fromEntries(action.data.map(p => [p.identifier, p])),
+                datasetsByID: Object.fromEntries(
+                    action.data.flatMap(p => p.datasets)
+                        .map(d => [d.identifier, d]),
+                ),
             };
 
         case FETCH_PROJECTS.FINISH:
@@ -112,25 +118,63 @@ export const projects = (
             return {...state, isSaving: false};
 
 
+        // ADD_PROJECT_DATASET
         case ADD_PROJECT_DATASET.REQUEST:
             return {...state, isAddingDataset: true};
 
-        case ADD_PROJECT_DATASET.RECEIVE:
+        case ADD_PROJECT_DATASET.RECEIVE: {
+            const newDataset = action.data;
+            const projectID = newDataset.project;
             return {
                 ...state,
                 isAddingDataset: false,
-                items: state.items.map(p => p.identifier === action.data.project
-                    ? {...p, datasets: [...p.datasets, action.data]}
+                items: state.items.map(p => p.identifier === newDataset.project
+                    ? {...p, datasets: [...p.datasets, newDataset]}
                     : p,
                 ),
                 itemsByID: {
                     ...state.itemsByID,
-                    [action.data.project]: {
-                        ...(state.itemsByID[action.data.project] || {}),
-                        datasets: [...((state.itemsByID[action.data.project] || {}).datasets || []), action.data],
+                    [projectID]: {
+                        ...(state.itemsByID[projectID] || {}),
+                        datasets: [...(state.itemsByID[projectID]?.datasets || []), newDataset],
                     },
                 },
+                datasetsByID: {
+                    ...state.datasetsByID,
+                    [newDataset.identifier]: action.data,
+                },
             };
+        }
+
+
+        // DELETE_PROJECT_DATASET
+        case DELETE_PROJECT_DATASET.REQUEST:
+            return {...state, isDeletingDataset: true};
+
+        case DELETE_PROJECT_DATASET.RECEIVE: {
+            const deleteDataset = d => d.identifier !== action.dataset.identifier;
+            return {
+                ...state,
+                items: state.items.map(p => p.identifier === action.project.identifier
+                    ? {...p, datasets: p.datasets.filter(deleteDataset)}
+                    : p,
+                ),
+                itemsByID: {
+                    ...state.itemsByID,
+                    [action.project.identifier]: {
+                        ...(state.itemsByID[action.project.identifier] || {}),
+                        datasets: ((state.itemsByID[action.project.identifier] || {}).datasets || [])
+                            .filter(deleteDataset),
+                    },
+                },
+                datasetsByID: Object.fromEntries(
+                    Object.entries(state.datasetsByID).filter(([_, d]) => deleteDataset(d)),
+                ),
+            };
+        }
+
+        case DELETE_PROJECT_DATASET.FINISH:
+            return {...state, isDeletingDataset: false};
 
 
         case SAVE_PROJECT_DATASET.REQUEST:
@@ -166,31 +210,6 @@ export const projects = (
         case DELETE_DATASET_LINKED_FIELD_SET.FINISH:
             return {...state, isSavingDataset: false};
 
-
-        case DELETE_PROJECT_DATASET.REQUEST:
-            return {...state, isDeletingDataset: true};
-
-        case DELETE_PROJECT_DATASET.RECEIVE: {
-            const deleteDataset = d => d.identifier !== action.dataset.identifier;
-            return {
-                ...state,
-                items: state.items.map(p => p.identifier === action.project.identifier
-                    ? {...p, datasets: p.datasets.filter(deleteDataset)}
-                    : p,
-                ),
-                itemsByID: {
-                    ...state.itemsByID,
-                    [action.project.identifier]: {
-                        ...(state.itemsByID[action.project.identifier] || {}),
-                        datasets: ((state.itemsByID[action.project.identifier] || {}).datasets || [])
-                            .filter(deleteDataset),
-                    },
-                },
-            };
-        }
-
-        case DELETE_PROJECT_DATASET.FINISH:
-            return {...state, isDeletingDataset: false};
 
         // FETCH_EXTRA_PROPERTIES_SCHEMA_TYPES
         case FETCH_EXTRA_PROPERTIES_SCHEMA_TYPES.REQUEST:

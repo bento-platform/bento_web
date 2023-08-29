@@ -131,19 +131,21 @@ class DiscoveryQueryBuilder extends Component {
     }
 
     render() {
+        const { activeDataset, dataTypesByDataset} = this.props;
+
+        const dataTypesForActiveDataset = Object.values(dataTypesByDataset.itemsById[activeDataset] || {})
+            .filter(dt => typeof dt === "object");
+
+        const filteredDataTypes = dataTypesForActiveDataset
+            .flatMap(Object.values)
+            .filter(dt => (dt.queryable ?? true) && dt.count > 0);
+
         // Filter out services without data types and then flat-map the service's data types to make the dropdown.
         const dataTypeMenu = (
             <Menu onClick={this.handleAddDataTypeQueryForm}>
-                {this.props.servicesInfo
-                    .filter(s => (this.props.dataTypes[s.id]?.items ?? []).length)
-                    .flatMap(s =>
-                        this.props.dataTypes[s.id].items
-                            .filter(dt => (dt.queryable ?? true) && dt.count > 0)
-                            .map(dt =>
-                                <Menu.Item key={`${s.id}:${dt.id}`}>{dt.label ?? dt.id}</Menu.Item>,
-                            ),
-                    )
-                }
+                {filteredDataTypes.map(dt => (
+                    <Menu.Item key={`${activeDataset}:${dt.id}`}>{dt.label ?? dt.id}</Menu.Item>
+                ))}
             </Menu>
         );
 
@@ -169,15 +171,16 @@ class DiscoveryQueryBuilder extends Component {
         });
 
         const addConditionsOnDataType = (buttonProps = {style: {float: "right"}}) => (
-            <Dropdown overlay={dataTypeMenu}
-                      disabled={this.props.dataTypesLoading || this.props.searchLoading}>
+            <Dropdown
+                overlay={dataTypeMenu}
+                disabled={this.props.dataTypesLoading || this.props.searchLoading || filteredDataTypes?.length === 0 }>
                 <Button {...buttonProps}> <Icon type="plus" /> Data Type <Icon type="down" /></Button>
             </Dropdown>
         );
 
         return <Card style={{marginBottom: "1.5em"}}>
             <DataTypeExplorationModal
-                dataTypes={this.props.dataTypes}
+                dataTypes={filteredDataTypes}
                 visible={this.state.schemasModalShown}
                 onCancel={this.handleHelpAndSchemasToggle}
             />
@@ -185,8 +188,12 @@ class DiscoveryQueryBuilder extends Component {
             <Typography.Title level={3} style={{marginBottom: "1.5rem"}}>
                 Advanced Search
                 {addConditionsOnDataType()}
-                <Button style={{float: "right", marginRight: "1em"}}
-                        onClick={this.handleHelpAndSchemasToggle}><Icon type="question-circle" /> Help</Button>
+                <Button
+                    style={{float: "right", marginRight: "1em"}}
+                    disabled={filteredDataTypes?.length === 0}
+                    onClick={this.handleHelpAndSchemasToggle}>
+                    <Icon type="question-circle" /> Help
+                </Button>
             </Typography.Title>
 
             {this.props.dataTypeForms.length > 0
@@ -218,6 +225,7 @@ class DiscoveryQueryBuilder extends Component {
 }
 
 DiscoveryQueryBuilder.propTypes = {
+    activeDataset: PropTypes.string,
     isInternal: PropTypes.bool,
     requiredDataTypes: PropTypes.arrayOf(PropTypes.string),
 
@@ -225,6 +233,7 @@ DiscoveryQueryBuilder.propTypes = {
     dataTypes: PropTypes.object,
     dataTypesByID: PropTypes.object,
     dataTypesLoading: PropTypes.bool,
+    dataTypesByDataset: PropTypes.object,
 
     searchLoading: PropTypes.bool,
     formValues: PropTypes.object,
@@ -247,12 +256,12 @@ const mapStateToProps = state => ({
     servicesInfo: state.services.items,
     dataTypes: state.serviceDataTypes.dataTypesByServiceID,
     dataTypesByID: state.serviceDataTypes.itemsByID,
+    dataTypesByDataset: state.datasetDataTypes,
 
     autoQuery: state.explorer.autoQuery,
     isFetchingTextSearch: state.explorer.fetchingTextSearch || false,
 
-    dataTypesLoading: state.services.isFetching || state.serviceDataTypes.isFetchingAll
-        || Object.keys(state.serviceDataTypes.dataTypesByServiceID).length === 0,
+    dataTypesLoading: state.services.isFetching || state.datasetDataTypes.isFetchingAll,
 });
 
 const mapDispatchToProps = (dispatch) => ({
