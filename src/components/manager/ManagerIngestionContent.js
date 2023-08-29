@@ -82,23 +82,31 @@ IngestWorkflowSelection.propTypes = {
     handleWorkflowClick: PropTypes.func,
 };
 
+const TitleAndID = React.memo(({title, id}) => title ? <span>{title} ({id})</span> : <span>{id}</span>);
+TitleAndID.propTypes = {
+    title: PropTypes.string,
+    id: PropTypes.string,
+};
+
+const STYLE_RUN_INGESTION = {marginTop: "16px", float: "right"};
+
 const IngestConfirmDisplay = ({target, selectedWorkflow, inputs, handleRunWorkflow}) => {
     const projectsByID = useSelector(state => state.projects.itemsByID);
     const isSubmittingIngestionRun = useSelector(state => state.runs.isSubmittingIngestionRun);
     const datasetsByID = useSelector((state) => state.projects.datasetsByID);
 
-    const formatWithNameIfPossible = (name, id) => name ? `${name} (${id})` : id;
+    const {selectedProject, selectedDataset} = target;
 
-    const projectTitle = projectsByID[target.selectedProject]?.title || null;
-    const datasetTitle = datasetsByID[target.selectedDataset]?.title || null;
+    const projectTitle = projectsByID[selectedProject]?.title || null;
+    const datasetTitle = datasetsByID[selectedDataset]?.title || null;
 
     return (
         <Form labelCol={FORM_LABEL_COL} wrapperCol={FORM_WRAPPER_COL}>
             <Form.Item label="Project">
-                {formatWithNameIfPossible(projectTitle, target.selectedProject)}
+                <TitleAndID title={projectTitle} id={selectedProject} />
             </Form.Item>
             <Form.Item label="Dataset">
-                {formatWithNameIfPossible(datasetTitle, target.selectedDataset)}
+                <TitleAndID title={datasetTitle} id={selectedDataset} />
             </Form.Item>
             <Form.Item label="Workflow">
                 <List itemLayout="vertical" style={{marginBottom: "14px"}}>
@@ -111,7 +119,7 @@ const IngestConfirmDisplay = ({target, selectedWorkflow, inputs, handleRunWorkfl
             <Form.Item wrapperCol={FORM_BUTTON_COL}>
                 {/* TODO: Back button like the last one */}
                 <Button type="primary"
-                        style={{marginTop: "16px", float: "right"}}
+                        style={STYLE_RUN_INGESTION}
                         loading={isSubmittingIngestionRun}
                         onClick={handleRunWorkflow}>
                     Run Ingestion
