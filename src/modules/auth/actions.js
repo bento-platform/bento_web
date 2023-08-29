@@ -10,7 +10,7 @@ import {
     networkAction,
 } from "../../utils/actions";
 
-import { fetchDatasetDataTypesSummaryIfPossible, fetchDatasetsDataTypes } from "../../modules/datasets/actions";
+import { fetchDatasetsDataTypes } from "../../modules/datasets/actions";
 import { fetchDropBoxTreeOrFail } from "../manager/actions";
 import {
     fetchProjectsWithDatasets,
