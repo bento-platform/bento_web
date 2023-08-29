@@ -28,21 +28,21 @@ const DataTypeSelect = ({value, workflows, onChange}) => {
         if (onChange) {
             onChange(newSelected);
         }
-    }, [value, onChange, selected]);
+    }, [value, onChange]);
 
     const options = useMemo(() => {
-        if (Array.isArray(workflows)) {
-            const dataTypes = new Set(workflows.map((w) => w.data_type));
-            return Array.from(dataTypes)
-                // filter out workflow types for which we have no labels (mcode)
-                .filter(dt => dt in labels)
-                .map((dt) =>
-                    <Select.Option value={dt} key={dt}>
-                        {labels[dt]} ({<span style={{fontFamily: "monospace"}}>{dt}</span>})
-                    </Select.Option>,
-                );
+        if (!Array.isArray(workflows)) {
+            return [];
         }
-        return [];
+        const dataTypes = new Set(workflows.map((w) => w.data_type));
+        return Array.from(dataTypes)
+            // filter out workflow types for which we have no labels (mcode)
+            .filter(dt => dt in labels)
+            .map((dt) =>
+                <Select.Option value={dt} key={dt}>
+                    {labels[dt]} ({<span style={{fontFamily: "monospace"}}>{dt}</span>})
+                </Select.Option>,
+            );
     }, [workflows, dataTypes, labels]);
 
     return (
@@ -51,7 +51,6 @@ const DataTypeSelect = ({value, workflows, onChange}) => {
                 {options}
             </Select>
         </Spin>
-
     );
 };
 
