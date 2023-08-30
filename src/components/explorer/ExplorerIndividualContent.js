@@ -42,7 +42,6 @@ class ExplorerIndividualContent extends Component {
 
         this.state = {
             backUrl: null,
-            selectedTab: "overview",
         };
     }
 
@@ -61,8 +60,9 @@ class ExplorerIndividualContent extends Component {
     }
 
     componentDidMount() {
-        const backUrl = (this.props.location.state || {}).backUrl;
-        if (backUrl) this.setState({backUrl});
+        const { location } = this.props;
+        const { backUrl } = location.state || {};
+        if (backUrl) this.setState({ backUrl });
         this.fetchIndividualData();
     }
 
