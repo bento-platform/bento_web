@@ -19,9 +19,9 @@ import {
     setActiveTab,
 } from "../../modules/explorer/actions";
 
-import IndividualsTable from "./IndividualsTable";
-import BiosamplesTable from "./BiosamplesTable";
-import ExperimentsTable from "./ExperimentsTable";
+import IndividualsTable from "./searchResultsTables/IndividualsTable";
+import BiosamplesTable from "./searchResultsTables/BiosamplesTable";
+import ExperimentsTable from "./searchResultsTables/ExperimentsTable";
 
 const { TabPane } = Tabs;
 

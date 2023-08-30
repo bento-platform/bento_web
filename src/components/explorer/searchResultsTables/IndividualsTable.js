@@ -1,9 +1,9 @@
 import React from "react";
 import PropTypes from "prop-types";
-import { useSortedColumns } from "./hooks/explorerHooks";
+import { useSortedColumns } from "../hooks/explorerHooks";
 import { Link, useLocation } from "react-router-dom";
 import { useSelector } from "react-redux";
-import ExplorerSearchResultsTable from "./ExplorerSearchResultsTable";
+import ExplorerSearchResultsTable from "../ExplorerSearchResultsTable";
 
 const IndividualRender = React.memo(({individual: {id, alternate_ids: alternateIds}}) => {
     const location = useLocation();

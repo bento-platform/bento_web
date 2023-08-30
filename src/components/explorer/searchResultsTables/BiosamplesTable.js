@@ -1,10 +1,10 @@
 import React from "react";
 import PropTypes from "prop-types";
-import { useSortedColumns } from "./hooks/explorerHooks";
+import { useSortedColumns } from "../hooks/explorerHooks";
 import { Link, useLocation } from "react-router-dom";
 import { useSelector } from "react-redux";
-import { countNonNullElements } from "../../utils/misc";
-import ExplorerSearchResultsTable from "./ExplorerSearchResultsTable";
+import { countNonNullElements } from "../../../utils/misc";
+import ExplorerSearchResultsTable from "../ExplorerSearchResultsTable";
 
 const NO_EXPERIMENTS_VALUE = -Infinity;
 
