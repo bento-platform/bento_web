@@ -1,9 +1,9 @@
-import React from "react";
+import React, {useCallback} from "react";
 import {useDispatch, useSelector} from "react-redux";
 import {useHistory} from "react-router-dom";
 import PropTypes from "prop-types";
 
-import {Button, Empty, Form, List, Skeleton, Spin, Tag, message} from "antd";
+import {Button, Empty, Form, List, Skeleton, Spin, message} from "antd";
 
 import WorkflowListItem from "./WorkflowListItem";
 
@@ -15,19 +15,20 @@ import {
     FORM_BUTTON_COL,
 } from "./workflowCommon";
 
-import TableTreeSelect from "./TableTreeSelect";
+import DatasetTreeSelect from "./DatasetTreeSelect";
 
-import {workflowsStateToPropsMixin} from "../../propTypes";
+import {workflowTarget, workflowsStateToPropsMixin} from "../../propTypes";
 import RunSetupWizard from "./RunSetupWizard";
 import RunSetupInputsTable from "./RunSetupInputsTable";
+import DataTypeSelect from "./DataTypeSelect";
 
 
 const IngestWorkflowSelection = ({values, setValues, handleWorkflowClick}) => {
     const {workflows, workflowsLoading} = useSelector(workflowsStateToPropsMixin);
-    const {selectedTable} = values;
+    const {selectedProject, selectedDataset, selectedDataType} = values;
 
     const workflowItems = workflows.ingestion
-        .filter(w => w.data_type === (selectedTable ? selectedTable.split(":")[1] : null))
+        .filter(w => selectedDataset && selectedDataType && w.data_type === selectedDataType)
         .map(w =>
             <WorkflowListItem
                 key={w.id}
@@ -36,56 +37,76 @@ const IngestWorkflowSelection = ({values, setValues, handleWorkflowClick}) => {
             />,
         );
 
+    const onChange = useCallback(({
+        project = selectedProject,
+        dataset = selectedDataset,
+        dataType = selectedDataType,
+    }) => {
+        setValues({
+            selectedProject: project,
+            selectedDataset: dataset,
+            selectedDataType: dataType,
+        });
+    }, [selectedDataset, selectedDataType, setValues]);
+
     return <Form labelCol={FORM_LABEL_COL} wrapperCol={FORM_WRAPPER_COL}>
-        <Form.Item label="Table">
-            <TableTreeSelect
-                onChange={t => setValues({selectedTable: t})}
-                value={selectedTable}
+        <Form.Item label="Dataset">
+            <DatasetTreeSelect
+                onChange={(p, d) => onChange({project: p, dataset: d})}
+                value={selectedDataset}
+            />
+        </Form.Item>
+        <Form.Item label="Data Type">
+            <DataTypeSelect
+                workflows={workflows?.ingestion ?? []}
+                onChange={dt => onChange({dataType: dt})}
+                value={selectedDataType}
             />
         </Form.Item>
         <Form.Item label="Workflows">
-            {selectedTable
+            {selectedDataset && selectedDataType
                 ? <Spin spinning={workflowsLoading}>
                     {workflowsLoading
                         ? <Skeleton/>
                         : <List itemLayout="vertical">{workflowItems}</List>}
                 </Spin>
                 : <Empty image={Empty.PRESENTED_IMAGE_SIMPLE}
-                         description="Select a table to see available workflows"/>
+                         description="Select a dataset and data type to see available workflows"/>
             }
         </Form.Item>
     </Form>;
 };
 IngestWorkflowSelection.propTypes = {
-    values: PropTypes.shape({
-        selectedTable: PropTypes.string,
-    }),
+    values: workflowTarget,
     setValues: PropTypes.func,
     handleWorkflowClick: PropTypes.func,
 };
 
-const IngestConfirmDisplay = ({selectedTable, selectedWorkflow, inputs, handleRunWorkflow}) => {
+const TitleAndID = React.memo(({title, id}) => title ? <span>{title} ({id})</span> : <span>{id}</span>);
+TitleAndID.propTypes = {
+    title: PropTypes.string,
+    id: PropTypes.string,
+};
+
+const STYLE_RUN_INGESTION = {marginTop: "16px", float: "right"};
+
+const IngestConfirmDisplay = ({target, selectedWorkflow, inputs, handleRunWorkflow}) => {
     const projectsByID = useSelector(state => state.projects.itemsByID);
-    const tablesByServiceID = useSelector(state => state.serviceTables.itemsByServiceID);
     const isSubmittingIngestionRun = useSelector(state => state.runs.isSubmittingIngestionRun);
+    const datasetsByID = useSelector((state) => state.projects.datasetsByID);
 
-    const getTableName = (serviceID, tableID) => tablesByServiceID[serviceID]?.tablesByID?.[tableID]?.name;
-    const formatWithNameIfPossible = (name, id) => name ? `${name} (${id})` : id;
+    const {selectedProject, selectedDataset} = target;
 
-    const [projectID, dataType, tableID] = selectedTable.split(":");
-    const projectTitle = projectsByID[projectID]?.title || null;
-    const tableName = getTableName(selectedWorkflow.serviceID, tableID);
+    const projectTitle = projectsByID[selectedProject]?.title || null;
+    const datasetTitle = datasetsByID[selectedDataset]?.title || null;
 
     return (
         <Form labelCol={FORM_LABEL_COL} wrapperCol={FORM_WRAPPER_COL}>
             <Form.Item label="Project">
-                {formatWithNameIfPossible(projectTitle, projectID)}
+                <TitleAndID title={projectTitle} id={selectedProject} />
             </Form.Item>
-            <Form.Item label="Data Type">
-                <Tag>{dataType}</Tag>
-            </Form.Item>
-            <Form.Item label="Table">
-                {formatWithNameIfPossible(tableName, tableID)}
+            <Form.Item label="Dataset">
+                <TitleAndID title={datasetTitle} id={selectedDataset} />
             </Form.Item>
             <Form.Item label="Workflow">
                 <List itemLayout="vertical" style={{marginBottom: "14px"}}>
@@ -98,7 +119,7 @@ const IngestConfirmDisplay = ({selectedTable, selectedWorkflow, inputs, handleRu
             <Form.Item wrapperCol={FORM_BUTTON_COL}>
                 {/* TODO: Back button like the last one */}
                 <Button type="primary"
-                        style={{marginTop: "16px", float: "right"}}
+                        style={STYLE_RUN_INGESTION}
                         loading={isSubmittingIngestionRun}
                         onClick={handleRunWorkflow}>
                     Run Ingestion
@@ -108,7 +129,7 @@ const IngestConfirmDisplay = ({selectedTable, selectedWorkflow, inputs, handleRu
     );
 };
 IngestConfirmDisplay.propTypes = {
-    selectedTable: PropTypes.string,
+    target: workflowTarget,
     selectedWorkflow: PropTypes.object,
     inputs: PropTypes.object,
     handleRunWorkflow: PropTypes.func,
@@ -128,32 +149,33 @@ const ManagerIngestionContent = () => {
                 handleWorkflowClick={handleWorkflowClick}
             />
         )}
-        workflowSelectionTitle="Table & Workflow"
+        workflowSelectionTitle="Dataset & Workflow"
         workflowSelectionDescription={
-            <span style={{letterSpacing: "-0.1px"}}>Choose a table and ingestion workflow.</span>
+            <span style={{letterSpacing: "-0.1px"}}>Choose a dataset and ingestion workflow.</span>
         }
         confirmDisplay={({selectedWorkflow, workflowSelectionValues, inputs, handleRunWorkflow}) => (
             <IngestConfirmDisplay
-                selectedTable={workflowSelectionValues.selectedTable}
+                target={workflowSelectionValues}
                 selectedWorkflow={selectedWorkflow}
                 inputs={inputs}
                 handleRunWorkflow={handleRunWorkflow}
             />
         )}
         onSubmit={({workflowSelectionValues, selectedWorkflow, inputs}) => {
-            const {selectedTable} = workflowSelectionValues;
+            const {selectedProject, selectedDataset, selectedDataType} = workflowSelectionValues;
 
-            if (!selectedTable || !selectedWorkflow) {
-                message.error(`Missing ${selectedTable ? "workflow" : "table"} selection; cannot submit run!`);
+            if (!selectedDataset || !selectedWorkflow) {
+                message.error(`Missing ${selectedDataset ? "workflow" : "dataset"} selection; cannot submit run!`);
                 return;
             }
 
             const serviceInfo = servicesByID[selectedWorkflow.serviceID];
-            const tableID = selectedTable.split(":")[2];
 
             dispatch(submitIngestionWorkflowRun(
                 serviceInfo,
-                tableID,
+                selectedProject,
+                selectedDataset,
+                selectedDataType,
                 selectedWorkflow,
                 inputs,
                 "/admin/data/manager/runs",

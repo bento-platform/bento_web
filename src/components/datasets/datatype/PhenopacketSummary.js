@@ -1,22 +1,19 @@
 import React from "react";
+import { Col, Divider, Row, Statistic, Typography } from "antd";
 
-import {Col, Divider, Row, Statistic, Typography} from "antd";
+import { VictoryLabel, VictoryPie } from "victory";
+import VictoryPieWrapSVG from "../../VictoryPieWrapSVG";
 
-import {VictoryLabel, VictoryPie} from "victory";
-import VictoryPieWrapSVG from "../../../VictoryPieWrapSVG";
+import { summaryPropTypesShape } from "../../../propTypes";
+import { VICTORY_PIE_LABEL_PROPS, VICTORY_PIE_PROPS } from "../../../styles/victory";
 
-import {summaryPropTypesShape} from "../../../../propTypes";
-import {VICTORY_PIE_LABEL_PROPS, VICTORY_PIE_PROPS} from "../../../../styles/victory";
-
-
-const PhenopacketSummary = ({summary}) => {
+const PhenopacketSummary = ({ summary }) => {
     const individualsBySex = Object.entries(summary.data_type_specific.individuals.sex)
         .filter(e => e[1] > 0)
-        .map(([x, y]) => ({x, y}));
+        .map(([x, y]) => ({ x, y }));
     const individualsByKaryotype = Object.entries(summary.data_type_specific.individuals.karyotypic_sex)
         .filter(e => e[1] > 0)
-        .map(([x, y]) => ({x, y}));
-
+        .map(([x, y]) => ({ x, y }));
     return <>
         <Typography.Title level={4}>Object Counts</Typography.Title>
         <Row gutter={16}>
@@ -46,10 +43,6 @@ const PhenopacketSummary = ({summary}) => {
                 </Row>
             </>
         ) : null}
-        {/*<Typography.Title level={4}>Overview: Biosamples</Typography.Title>*/}
-        {/*<Row gutter={16}>*/}
-
-        {/*</Row>*/}
     </>;
 };
 

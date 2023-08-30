@@ -215,16 +215,19 @@ const ServiceList = () => {
     const [requestModalService, setRequestModalService] = useState(null);
 
     const dataSource = useSelector((state) =>
-        Object.entries(state.bentoServices.itemsByKind).map(([kind, service]) => ({
-            ...service,
-            key: kind,
-            serviceInfo: state.services.itemsByKind[kind] ?? null,
-            status: {
-                status: kind in state.services.itemsByKind,
-                dataService: service.data_service,
-            },
-            loading: state.services.isFetching,
-        })),
+        Object.entries(state.bentoServices.itemsByKind).map(([kind, service]) => {
+            const serviceInfo = state.services.itemsByKind[kind] ?? null;
+            return {
+                ...service,
+                key: kind,
+                serviceInfo,
+                status: {
+                    status: kind in state.services.itemsByKind,
+                    dataService: serviceInfo?.bento?.dataService,
+                },
+                loading: state.services.isFetching,
+            };
+        }),
     );
 
     const isAuthenticated = useSelector(

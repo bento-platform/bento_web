@@ -12,19 +12,24 @@ import {
     deleteDatasetLinkedFieldSetIfPossible,
 } from "../../modules/metadata/actions";
 
+import {
+    fetchDatasetDataTypesSummaryIfPossible,
+    fetchDatasetSummaryIfPossible,
+} from "../../modules/datasets/actions";
+
 import {INITIAL_DATA_USE_VALUE} from "../../duo";
 import {simpleDeepCopy, nop} from "../../utils/misc";
 import LinkedFieldSetTable from "./linked_field_set/LinkedFieldSetTable";
 import LinkedFieldSetModal from "./linked_field_set/LinkedFieldSetModal";
 import DatasetOverview from "./DatasetOverview";
-import DatasetTables from "./DatasetTables";
 import {FORM_MODE_ADD, FORM_MODE_EDIT} from "../../constants";
 import {datasetPropTypesShape, projectPropTypesShape} from "../../propTypes";
+import DatasetDataTypes from "./DatasetDataTypes";
 
 
 const DATASET_CARD_TABS = [
     {key: "overview", tab: "Overview"},
-    {key: "tables", tab: "Data Tables"},
+    {key: "data_types", tab: "Data Types"},
     {key: "linked_field_sets", tab: "Linked Field Sets"},
     {key: "data_use", tab: "Consent Codes and Data Use"},
 ];
@@ -71,7 +76,6 @@ class Dataset extends Component {
             contact_info: value.contact_info || "",
             data_use: simpleDeepCopy(value.data_use || INITIAL_DATA_USE_VALUE),
             linked_field_sets: value.linked_field_sets || [],
-            tables: value.tables || [],
 
             fieldSetAdditionModalVisible: false,
 
@@ -82,10 +86,17 @@ class Dataset extends Component {
             },
 
             selectedTab: "overview",
-            selectedTable: null,
         };
 
         this.handleFieldSetDeletion = this.handleFieldSetDeletion.bind(this);
+    }
+
+
+    componentDidMount() {
+        if (this.state.identifier) {
+            this.props.fetchDatasetSummary(this.state.identifier);
+            this.props.fetchDatasetDataTypesSummary(this.state.identifier);
+        }
     }
 
 
@@ -123,13 +134,11 @@ class Dataset extends Component {
         const tabContents = {
             overview: <DatasetOverview dataset={this.state}
                                        project={this.props.project}
-                                       isPrivate={isPrivate}
-                                       isFetchingTables={this.props.isFetchingTables} />,
-            tables: <DatasetTables dataset={this.state}
-                                   project={this.props.project}
-                                   isPrivate={isPrivate}
-                                   isFetchingTables={this.props.isFetchingTables}
-                                   onTableIngest={this.props.onTableIngest || nop} />,
+                                       isPrivate={isPrivate} />,
+            data_types: <DatasetDataTypes dataset={this.state}
+                                          project={this.props.project}
+                                          isPrivate={isPrivate}
+                                          onDatasetIngest={this.props.onDatasetIngest}/>,
             linked_field_sets: (
                 <>
                     <Typography.Title level={4}>
@@ -281,24 +290,21 @@ Dataset.propTypes = {
     mode: PropTypes.oneOf(["public", "private"]),
 
     project: projectPropTypesShape,
-    strayTables: PropTypes.arrayOf(PropTypes.object),
 
     value: datasetPropTypesShape,
 
-    isFetchingTables: PropTypes.bool,
-
     onEdit: PropTypes.func,
-    onTableIngest: PropTypes.func,
+    onDatasetIngest: PropTypes.func,
 
     addLinkedFieldSet: PropTypes.func,
     deleteProjectDataset: PropTypes.func,
     deleteLinkedFieldSet: PropTypes.func,
+
+    fetchDatasetSummary: PropTypes.func,
+    fetchDatasetDataTypesSummary: PropTypes.func,
 };
 
 const mapStateToProps = state => ({
-    isFetchingTables: state.services.isFetchingAll
-        || state.projectTables.isFetching
-        || state.projects.isFetchingWithTables,  // TODO: Hiccup
     isSavingDataset: state.projects.isSavingDataset,
     isDeletingDataset: state.projects.isDeletingDataset,
 });
@@ -309,6 +315,8 @@ const mapDispatchToProps = (dispatch, ownProps) => ({
     deleteProjectDataset: dataset => dispatch(deleteProjectDatasetIfPossible(ownProps.project, dataset)),
     deleteLinkedFieldSet: (dataset, linkedFieldSet, linkedFieldSetIndex) =>
         dispatch(deleteDatasetLinkedFieldSetIfPossible(dataset, linkedFieldSet, linkedFieldSetIndex)),
+    fetchDatasetSummary: (datasetId) => dispatch(fetchDatasetSummaryIfPossible(datasetId)),
+    fetchDatasetDataTypesSummary: (datasetId) => dispatch(fetchDatasetDataTypesSummaryIfPossible(datasetId)),
 });
 
 export default connect(mapStateToProps, mapDispatchToProps)(Dataset);

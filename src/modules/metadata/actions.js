@@ -1,31 +1,12 @@
-import fetch from "cross-fetch";
 import {message} from "antd";
 
-import {
-    ADDING_SERVICE_TABLE,
-    DELETING_SERVICE_TABLE,
-    endAddingServiceTable,
-    endDeletingServiceTable,
-} from "../services/actions";
 import {endProjectEditing} from "../manager/actions";
-
-import {
-    createNetworkActionTypes,
-    createFlowActionTypes,
-    networkAction,
-
-    beginFlow,
-    endFlow,
-    terminateFlow,
-} from "../../utils/actions";
+import { createNetworkActionTypes, networkAction } from "../../utils/actions";
 import {nop, objectWithoutProps} from "../../utils/misc";
 import {jsonRequest} from "../../utils/requests";
-import {makeAuthorizationHeader} from "../../lib/auth/utils";
 
 
 export const FETCH_PROJECTS = createNetworkActionTypes("FETCH_PROJECTS");
-export const FETCH_PROJECT_TABLES = createNetworkActionTypes("FETCH_PROJECT_TABLES");
-export const FETCHING_PROJECTS_WITH_TABLES = createFlowActionTypes("FETCHING_PROJECTS_WITH_TABLES");
 
 export const CREATE_PROJECT = createNetworkActionTypes("CREATE_PROJECT");
 export const DELETE_PROJECT = createNetworkActionTypes("DELETE_PROJECT");
@@ -42,16 +23,25 @@ export const ADD_DATASET_LINKED_FIELD_SET = createNetworkActionTypes("ADD_DATASE
 export const SAVE_DATASET_LINKED_FIELD_SET = createNetworkActionTypes("SAVE_DATASET_LINKED_FIELD_SET");
 export const DELETE_DATASET_LINKED_FIELD_SET = createNetworkActionTypes("DELETE_DATASET_LINKED_FIELD_SET");
 
-export const PROJECT_TABLE_ADDITION = createFlowActionTypes("PROJECT_TABLE_ADDITION");
-export const PROJECT_TABLE_DELETION = createFlowActionTypes("PROJECT_TABLE_DELETION");
-
 export const FETCH_INDIVIDUAL = createNetworkActionTypes("FETCH_INDIVIDUAL");
 export const FETCH_OVERVIEW_SUMMARY = createNetworkActionTypes("FETCH_OVERVIEW_SUMMARY");
 
+export const DELETE_DATASET_DATA_TYPE = createNetworkActionTypes("DELETE_DATASET_DATA_TYPE");
 
-const endProjectTableAddition = (project, table) => ({type: PROJECT_TABLE_ADDITION.END, project, table});
-const endProjectTableDeletion = (project, tableID) => ({type: PROJECT_TABLE_DELETION.END, project, tableID});
-
+export const clearDatasetDataType = networkAction((datasetId, dataType) => (dispatch, getState) => {
+    // TODO: more robust mapping from dataType to url.
+    const serviceUrl = dataType === "variant"
+        ? getState().services.itemsByKind.gohan.url
+        : getState().services.itemsByKind.metadata.url;
+    console.log(serviceUrl);
+    return {
+        types: DELETE_DATASET_DATA_TYPE,
+        url: `${serviceUrl}/datasets/${datasetId}/data-types/${dataType}`,
+        req: {
+            method: "DELETE",
+        },
+    };
+});
 
 export const fetchProjects = networkAction(() => (dispatch, getState) => ({
     types: FETCH_PROJECTS,
@@ -61,27 +51,15 @@ export const fetchProjects = networkAction(() => (dispatch, getState) => ({
 }));
 
 
-export const fetchProjectTables = networkAction(projectsByID => (dispatch, getState) => ({
-    types: FETCH_PROJECT_TABLES,
-    params: {projectsByID},
-    url: `${getState().services.metadataService.url}/api/table_ownership`,
-    paginated: true,
-    err: "Error fetching tables",
-}));
-
-
 // TODO: if needed fetching + invalidation
-export const fetchProjectsWithDatasetsAndTables = () => async (dispatch, getState) => {
+export const fetchProjectsWithDatasets = () => async (dispatch, getState) => {
     const state = getState();
     if (state.projects.isFetching ||
         state.projects.isCreating ||
         state.projects.isDeleting ||
         state.projects.isSaving) return;
 
-    dispatch(beginFlow(FETCHING_PROJECTS_WITH_TABLES));
     await dispatch(fetchProjects());
-    await dispatch(fetchProjectTables(getState().projects.itemsByID));
-    dispatch(endFlow(FETCHING_PROJECTS_WITH_TABLES));
 };
 
 
@@ -150,8 +128,6 @@ export const deleteProject = networkAction(project => (dispatch, getState) => ({
 export const deleteProjectIfPossible = project => (dispatch, getState) => {
     if (getState().projects.isDeleting) return;
     return dispatch(deleteProject(project));
-
-    // TODO: Do we need to delete project tables as well? What to do here??
 };
 
 
@@ -203,7 +179,6 @@ export const deleteProjectDataset = networkAction((project, dataset) => (dispatc
     url: `${getState().services.metadataService.url}/api/datasets/${dataset.identifier}`,
     req: {method: "DELETE"},
     err: `Error deleting dataset '${dataset.title}'`,
-    // TODO: Do we need to delete project tables as well? What to do here??
 }));
 
 export const deleteProjectDatasetIfPossible = (project, dataset) => (dispatch, getState) => {
@@ -276,175 +251,6 @@ export const deleteDatasetLinkedFieldSetIfPossible = (dataset, linkedFieldSet, l
             || getState().projects.isDeletingDataset) return;
         return dispatch(deleteDatasetLinkedFieldSet(dataset, linkedFieldSet, linkedFieldSetIndex));
     };
-
-
-// TODO: Split into network actions, use onSuccess
-export const addProjectTable = (project, datasetID, serviceInfo, dataType, tableName) =>
-    async (dispatch, getState) => {
-        if (getState().projectTables.isAdding) return;  // TODO: or isDeleting
-
-        const authHeaders = makeAuthorizationHeader(getState().auth.accessToken);
-
-        dispatch(beginFlow(PROJECT_TABLE_ADDITION));
-        dispatch(beginFlow(ADDING_SERVICE_TABLE));
-
-        const terminate = () => {
-            message.error(`Error adding new table '${tableName}'`);
-            dispatch(terminateFlow(ADDING_SERVICE_TABLE));
-            dispatch(terminateFlow(PROJECT_TABLE_ADDITION));
-        };
-
-        await fetch(`${serviceInfo.url}/tables?data-type=${dataType}`, {
-            method: "OPTIONS",
-            headers: authHeaders,
-        });
-
-        try {
-            const serviceResponse = await fetch(
-                `${serviceInfo.url}/tables`,
-                jsonRequest({
-                    name: tableName.trim(),
-                    metadata: {},
-                    data_type: dataType,
-                    dataset: datasetID,  // This will only be used by the metadata service to create the ownership
-                }, "POST", authHeaders));
-
-            if (!serviceResponse.ok) {
-                console.error(serviceResponse);
-                terminate();
-                return;
-            }
-
-            const serviceTable = await serviceResponse.json();
-            // Backwards compatibility for:
-            // - old type ("group:artifact:version")
-            // - and new  ({"group": "...", "artifact": "...", "version": "..."})
-            const serviceArtifact = (typeof serviceInfo.type === "string")
-                ? serviceInfo.type.split(":")[1]
-                : serviceInfo.type.artifact;
-
-            try {
-                // If table is created in the metadata service, it'll handle automatically creating the ownership record
-                const projectResponse = await (
-                    serviceArtifact === "metadata" ? fetch(
-                        `${getState().services.metadataService.url}/api/table_ownership/${serviceTable.id}`,
-                        {method: "GET", headers: authHeaders},
-                    ) : fetch(
-                        `${getState().services.metadataService.url}/api/table_ownership`,
-                        jsonRequest({
-                            table_id: serviceTable.id,
-                            service_id: serviceInfo.id,
-                            service_artifact: serviceArtifact,
-                            data_type: dataType,
-
-                            dataset: datasetID,
-                            sample: null,  // TODO: Sample ID if wanted  // TODO: Deprecate?
-                        }, "POST", authHeaders),
-                    )
-                );
-
-                if (!projectResponse.ok) {
-                    // TODO: Delete previously-created service dataset
-                    console.error(projectResponse);
-                    terminate();
-                    return;
-                }
-
-                const projectTable = await projectResponse.json();
-                message.success("Table added!");  // TODO: Nicer GUI success message
-                dispatch(endAddingServiceTable(serviceInfo, dataType, serviceTable));
-                dispatch(endProjectTableAddition(project, projectTable));  // TODO: Check params here
-            } catch (e) {
-                // TODO: Delete previously-created service dataset
-                console.error(e);
-                terminate();
-            }
-        } catch (e) {
-            console.error(e);
-            terminate();
-        }
-    };
-
-
-// TODO: Split into network actions, use onSuccess
-const deleteProjectTable = (project, table) => async (dispatch, getState) => {
-    dispatch(beginFlow(PROJECT_TABLE_DELETION));
-    dispatch(beginFlow(DELETING_SERVICE_TABLE));
-
-    const serviceInfo = getState().services.itemsByID[table.service_id];
-    const authHeaders = makeAuthorizationHeader(getState().auth.accessToken);
-
-    const terminate = () => {
-        message.error(`Error deleting table '${table.name}'`);
-        dispatch(terminateFlow(DELETING_SERVICE_TABLE));
-        dispatch(terminateFlow(PROJECT_TABLE_DELETION));
-    };
-
-    const handleFailure = e => {
-        console.error(e);
-        message.error("Error deleting table");
-        terminate();
-    };
-
-    const deleteReqInit = {
-        method: "DELETE",
-        headers: authHeaders,
-    };
-
-        // Delete from service
-    try {
-        console.debug(`deleting table ${table.table_id}`);
-        const serviceResponse = await fetch(`${serviceInfo.url}/tables/${table.table_id}`, deleteReqInit);
-        if (!serviceResponse.ok) return handleFailure(serviceResponse);
-    } catch (e) {
-        return handleFailure(e);
-    }
-
-    // Delete from project metadata
-    try {
-        if ((serviceInfo.bento?.serviceKind ?? serviceInfo.type.artifact) !== "metadata") {
-            // Only manually delete the table ownership record if we're not deleting from Katsu, since Katsu
-            // handles its own table ownership deletion.
-
-            const projectResponse = await fetch(
-                `${getState().services.metadataService.url}/api/table_ownership/${table.table_id}`,
-                deleteReqInit,
-            );
-
-            if (!projectResponse.ok) {
-                // TODO: Handle partial failure / out-of-sync
-                return handleFailure(projectResponse);
-            }
-        }
-    } catch (e) {
-        // TODO: Handle partial failure / out-of-sync
-        return handleFailure(e);
-    }
-
-    // Success
-
-    message.success("Table deleted!");  // TODO: Nicer GUI success message
-
-    dispatch(endDeletingServiceTable(serviceInfo.id, table.table_id));  // TODO: Check params here
-    dispatch(endProjectTableDeletion(project, table.table_id));  // TODO: Check params here
-};
-
-export const deleteProjectTableIfPossible = (project, table) => (dispatch, getState) => {
-    if (getState().projectTables.isDeleting) return;
-
-    const service = getState().services.itemsByID[table.service_id];
-    if (!service) {
-        throw new Error(`Service not found: ${table.service_id}`);
-    }
-
-    const serviceKind = service.bento?.serviceKind ?? service.type.artifact;
-    const bentoServiceInfo = getState().bentoServices.itemsByKind[serviceKind];
-    if (!bentoServiceInfo.manageable_tables) {
-        // If manageable_tables is set and not true, we can't delete the table.
-        return;
-    }
-    return dispatch(deleteProjectTable(project, table));
-};
 
 
 const fetchIndividual = networkAction(individualID => (dispatch, getState) => ({

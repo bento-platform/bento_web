@@ -19,9 +19,9 @@ import {
     setActiveTab,
 } from "../../modules/explorer/actions";
 
-import IndividualsTable from "./IndividualsTable";
-import BiosamplesTable from "./BiosamplesTable";
-import ExperimentsTable from "./ExperimentsTable";
+import IndividualsTable from "./searchResultsTables/IndividualsTable";
+import BiosamplesTable from "./searchResultsTables/BiosamplesTable";
+import ExperimentsTable from "./searchResultsTables/ExperimentsTable";
 
 const { TabPane } = Tabs;
 
@@ -39,11 +39,7 @@ const ExplorerDatasetSearch = () => {
     const { dataset } = useParams();
     const dispatch = useDispatch();
 
-    const datasetsByID = useSelector((state) =>
-        Object.fromEntries(
-            state.projects.items.flatMap((p) => p.datasets.map((d) => [d.identifier, { ...d, project: p.identifier }])),
-        ),
-    );
+    const datasetsByID = useSelector((state) => state.projects.datasetsByID);
 
     const activeKey = useSelector((state) => state.explorer.activeTabByDatasetID[dataset]) || TAB_KEYS.INDIVIDUAL;
     const dataTypeForms = useSelector((state) => state.explorer.dataTypeFormsByDatasetID[dataset] || []);
@@ -89,6 +85,7 @@ const ExplorerDatasetSearch = () => {
             <Typography.Title level={4}>Explore Dataset {selectedDataset.title}</Typography.Title>
             <SearchAllRecords datasetID={dataset} />
             <DiscoveryQueryBuilder
+                activeDataset={dataset}
                 isInternal={true}
                 dataTypeForms={dataTypeForms}
                 onSubmit={performSearch}
@@ -104,25 +101,28 @@ const ExplorerDatasetSearch = () => {
                         <TabPane tab="Individual" key={TAB_KEYS.INDIVIDUAL}>
                             <IndividualsTable
                                 data={searchResults.searchFormattedResults}
-                                datasetID={dataset}/>
+                                datasetID={dataset}
+                            />
                         </TabPane>
                         {hasBiosamples && (
                             <TabPane tab="Biosamples" key={TAB_KEYS.BIOSAMPLES}>
                                 <BiosamplesTable
                                     data={searchResults.searchFormattedResultsBiosamples}
-                                    datasetID={dataset}/>
+                                    datasetID={dataset}
+                                />
                             </TabPane>
                         )}
                         {hasExperiments && (
                             <TabPane tab="Experiments" key={TAB_KEYS.EXPERIMENTS}>
                                 <ExperimentsTable
                                     data={searchResults.searchFormattedResultsExperiment}
-                                    datasetID={dataset}/>
+                                    datasetID={dataset}
+                                />
                             </TabPane>
                         )}
                     </Tabs>
                 ) : (
-                    <IndividualsTable data={searchResults.searchFormattedResults} />
+                    <IndividualsTable data={searchResults.searchFormattedResults} datasetID={dataset} />
                 ))}
         </>
     );

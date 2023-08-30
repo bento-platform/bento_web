@@ -1,37 +1,15 @@
 import React from "react";
 import PropTypes from "prop-types";
-import { useSortedColumns } from "./hooks/explorerHooks";
-import { Link, useLocation } from "react-router-dom";
+import { useSortedColumns } from "../hooks/explorerHooks";
 import { useSelector } from "react-redux";
-import { countNonNullElements } from "../../utils/misc";
-import ExplorerSearchResultsTable from "./ExplorerSearchResultsTable";
+import { countNonNullElements } from "../../../utils/misc";
+
+import ExplorerSearchResultsTable from "../ExplorerSearchResultsTable";
+
+import BiosampleIDCell from "./BiosampleIDCell";
+import IndividualIDCell from "./IndividualIDCell";
 
 const NO_EXPERIMENTS_VALUE = -Infinity;
-
-const BiosampleRender = ({ biosample, alternateIds, individualId }) => {
-    const location = useLocation();
-    const alternateIdsList = alternateIds ?? [];
-    const listRender = alternateIdsList.length ? ` (${alternateIdsList.join(", ")})` : "";
-    return (
-        <>
-            <Link
-                to={{
-                    pathname: `/data/explorer/individuals/${individualId}/biosamples`,
-                    state: { backUrl: location.pathname },
-                }}
-            >
-                {biosample}
-            </Link>{" "}
-            {listRender}
-        </>
-    );
-};
-
-BiosampleRender.propTypes = {
-    biosample: PropTypes.string.isRequired,
-    alternateIds: PropTypes.arrayOf(PropTypes.string),
-    individualId: PropTypes.string.isRequired,
-};
 
 const customPluralForms = {
     Serology: "Serologies",
@@ -129,20 +107,14 @@ const SEARCH_RESULT_COLUMNS_BIOSAMPLE = [
     {
         title: "Biosample",
         dataIndex: "biosample",
-        render: (biosample, record) => (
-            <BiosampleRender
-                biosample={biosample}
-                alternateIds={record.alternateIds}
-                individualId={record.individual.id}
-            />
-        ),
+        render: (biosample, {individual}) => <BiosampleIDCell biosample={biosample} individualId={individual.id} />,
         sorter: (a, b) => a.biosample.localeCompare(b.biosample),
         defaultSortOrder: "ascend",
     },
     {
         title: "Individual",
         dataIndex: "individual",
-        render: (individual) => <>{individual.id}</>,
+        render: (individual) => <IndividualIDCell individual={individual} />,
         sorter: (a, b) => a.individual.id.localeCompare(b.individual.id),
         sortDirections: ["descend", "ascend", "descend"],
     },
@@ -197,7 +169,6 @@ BiosamplesTable.propTypes = {
     data: PropTypes.arrayOf(
         PropTypes.shape({
             biosample: PropTypes.string.isRequired,
-            alternateIds: PropTypes.arrayOf(PropTypes.string),
             individual: PropTypes.shape({
                 id: PropTypes.string.isRequired,
             }).isRequired,

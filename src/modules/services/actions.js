@@ -10,15 +10,10 @@ import {
     terminateFlow,
 } from "../../utils/actions";
 
-import {createURLSearchParams} from "../../utils/requests";
-
-
 /**
  * @typedef {Object} BentoService
  * @property {string} artifact
  * @property {string} url
- * @property {boolean} data_service
- * @property {?boolean} manageable_tables
  */
 
 
@@ -30,30 +25,8 @@ export const FETCH_SERVICES = createNetworkActionTypes("FETCH_SERVICES");
 export const FETCH_SERVICE_DATA_TYPES = createNetworkActionTypes("FETCH_SERVICE_DATA_TYPES");
 export const LOADING_SERVICE_DATA_TYPES = createFlowActionTypes("LOADING_SERVICE_DATA_TYPES");
 
-export const FETCH_SERVICE_TABLES = createNetworkActionTypes("FETCH_SERVICE_TABLES");
-export const LOADING_SERVICE_TABLES = createFlowActionTypes("LOADING_SERVICE_TABLES");
-
-export const ADDING_SERVICE_TABLE = createFlowActionTypes("ADDING_SERVICE_TABLE");
-export const DELETING_SERVICE_TABLE = createFlowActionTypes("DELETING_SERVICE_TABLE");
-
 export const FETCH_SERVICE_WORKFLOWS = createNetworkActionTypes("FETCH_SERVICE_WORKFLOWS");
 export const LOADING_SERVICE_WORKFLOWS = createFlowActionTypes("LOADING_SERVICE_WORKFLOWS");
-
-
-export const endAddingServiceTable = (serviceInfo, dataTypeID, table) => ({
-    type: ADDING_SERVICE_TABLE.END,
-    serviceInfo,
-    dataTypeID,
-    table,
-});
-
-
-export const endDeletingServiceTable = (serviceInfo, dataTypeID, tableID) => ({
-    type: DELETING_SERVICE_TABLE.END,
-    serviceInfo,
-    dataTypeID,
-    tableID,
-});
 
 
 export const fetchBentoServices = networkAction(() => ({
@@ -75,13 +48,6 @@ export const fetchDataServiceDataTypes = networkAction((serviceInfo) => ({
     err: `Error fetching data types from service '${serviceInfo.name}'`,
 }));
 
-export const fetchDataServiceDataTypeTables = networkAction((serviceInfo, dataType) => ({
-    types: FETCH_SERVICE_TABLES,
-    params: {serviceInfo, dataTypeID: dataType.id},
-    url: `${serviceInfo.url}/tables?${createURLSearchParams({"data-type": dataType.id}).toString()}`,
-    err: `Error fetching tables from service '${serviceInfo.name}' (data type ${dataType.id})`,
-}));
-
 export const fetchDataServiceWorkflows = networkAction((serviceInfo) => ({
     types: FETCH_SERVICE_WORKFLOWS,
     params: {serviceInfo},
@@ -89,7 +55,7 @@ export const fetchDataServiceWorkflows = networkAction((serviceInfo) => ({
 }));
 
 
-export const fetchServicesWithMetadataAndDataTypesAndTables = (onServiceFetchFinish) => async (dispatch, getState) => {
+export const fetchServicesWithMetadataAndDataTypes = (onServiceFetchFinish) => async (dispatch, getState) => {
     dispatch(beginFlow(LOADING_ALL_SERVICE_DATA));
 
     // Fetch Services
@@ -113,7 +79,7 @@ export const fetchServicesWithMetadataAndDataTypesAndTables = (onServiceFetchFin
             ...s,
             bentoService: getState().bentoServices.itemsByKind[serviceKind] ?? null,
         };
-    }).filter(s => s.bentoService?.data_service ?? false);
+    }).filter(s => s.bento?.dataService ?? false);
 
     // - Custom stuff to start - explicitly don't wait for this promise to finish since it runs parallel to this flow.
     if (onServiceFetchFinish) onServiceFetchFinish();
@@ -133,23 +99,15 @@ export const fetchServicesWithMetadataAndDataTypesAndTables = (onServiceFetchFin
         })(),
     ]);
 
-    // Fetch Data Service Local Tables
-    // - skip services that don't provide data or don't have data types
-    dispatch(beginFlow(LOADING_SERVICE_TABLES));
-    await Promise.all(dataServicesInfo.flatMap(s =>
-        (getState().serviceDataTypes.dataTypesByServiceID[s.id]?.items ?? [])
-            .map(dt => dispatch(fetchDataServiceDataTypeTables(s, dt)))));
-    dispatch(endFlow(LOADING_SERVICE_TABLES));
-
     dispatch(endFlow(LOADING_ALL_SERVICE_DATA));
 };
 
-export const fetchServicesWithMetadataAndDataTypesAndTablesIfNeeded = (onServiceFetchFinish) =>
+export const fetchServicesWithMetadataAndDataTypesIfNeeded = (onServiceFetchFinish) =>
     (dispatch, getState) => {
         const state = getState();
         if ((Object.keys(state.bentoServices.itemsByArtifact).length === 0 || state.services.items.length === 0 ||
                 Object.keys(state.serviceDataTypes.dataTypesByServiceID).length === 0) &&
                 !state.services.isFetchingAll) {
-            return dispatch(fetchServicesWithMetadataAndDataTypesAndTables(onServiceFetchFinish));
+            return dispatch(fetchServicesWithMetadataAndDataTypes(onServiceFetchFinish));
         }
     };

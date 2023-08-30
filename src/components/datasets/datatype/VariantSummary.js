@@ -2,7 +2,7 @@ import React from "react";
 
 import {Col, Icon, Row, Statistic} from "antd";
 
-import {summaryPropTypesShape} from "../../../../propTypes";
+import {summaryPropTypesShape} from "../../../propTypes";
 
 const VariantSummary = ({summary}) =>
     <Row gutter={16}>

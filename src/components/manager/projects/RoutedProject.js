@@ -29,7 +29,7 @@ class RoutedProject extends Component {
         this.showDatasetAdditionModal = this.showDatasetAdditionModal.bind(this);
         this.hideDatasetAdditionModal = this.hideDatasetAdditionModal.bind(this);
         this.hideDatasetEditModal = this.hideDatasetEditModal.bind(this);
-        this.ingestIntoTable = this.ingestIntoTable.bind(this);
+        this.ingestIntoDataset = this.ingestIntoDataset.bind(this);
         this.handleDeleteProject = this.handleDeleteProject.bind(this);
     }
 
@@ -40,9 +40,17 @@ class RoutedProject extends Component {
         }
     }
 
-    ingestIntoTable(p, t) {
-        this.props.history.push("/admin/data/manager/ingestion",
-            {workflowSelectionValues: {selectedTable: `${p.identifier}:${t.data_type}:${t.id}`}});
+    ingestIntoDataset(p, d, dt) {
+        this.props.history.push(
+            "/admin/data/manager/ingestion",
+            {
+                workflowSelectionValues: {
+                    selectedProject: p.identifier,
+                    selectedDataset: d.identifier,
+                    selectedDataType: dt.id,
+                },
+            },
+        );
     }
 
     handleProjectSave(project) {
@@ -96,54 +104,6 @@ class RoutedProject extends Component {
         const project = this.props.projectsByID[this.props.match.params.project];
         if (!project) return <ProjectSkeleton />;
 
-        const tables = this.props.serviceTablesByServiceID;
-
-        /**
-         * @typedef {Object} ProjectTable
-         * @property {string} table_id
-         * @property {string} service_id
-         * @property {string} dataset
-         * @property {string} data_type
-         * @property {string} sample
-         * @type {ProjectTable[]}
-         */
-        const projectTableRecords = this.props.projectTablesByProjectID[selectedProjectID] || [];
-
-        const bentoServicesByKind = this.props.bentoServicesByKind;
-        const serviceDataTypesByServiceID = this.props.serviceDataTypesByServiceID;
-
-        const manageableDataTypes = this.props.services
-            .filter(s => {
-                const cs = bentoServicesByKind[s.bento?.serviceKind ?? s.type.artifact] ?? {};
-                return (
-                    cs.data_service &&  // Service in question must be a data service to have manageable tables ...
-                    cs.manageable_tables &&  // ... and it must have manageable tables specified ...
-                    serviceDataTypesByServiceID[s.id]?.items?.length  // ... and it must have >=1 data type.
-                );
-            })
-            .flatMap(s => serviceDataTypesByServiceID[s.id].items.map(dt => dt.id));
-
-        console.log("ptr", projectTableRecords);
-        console.log("tbl", tables);
-
-        const tableList = projectTableRecords
-            .filter(tableOwnership =>
-                tableOwnership.table_id in (tables[tableOwnership.service_id]?.tablesByID ?? {}))
-            .map(tableOwnership => ({
-                ...tableOwnership,
-                ...tables[tableOwnership.service_id].tablesByID[tableOwnership.table_id],
-            }));
-
-        console.log("tll", tableList);
-
-        // TODO: Inconsistent schemas
-        const strayTables = [
-            ...this.props.serviceTables.filter(t2 =>
-                !this.props.projectTables.map(to => to.table_id).includes(t2.id) &&
-                manageableDataTypes.includes(t2.data_type)).map(t => ({...t, table_id: t.id})),
-            ...this.props.projectTables.filter(to => !this.props.servicesByID.hasOwnProperty(to.service_id)),
-        ];
-
         return <>
             <DatasetFormModal mode={FORM_MODE_ADD}
                               project={project}
@@ -164,8 +124,6 @@ class RoutedProject extends Component {
                                     onCancel={() => this.setJsonSchemaModalVisible(false)} />
 
             <Project value={project}
-                     tables={tableList}
-                     strayTables={strayTables}
                      editing={this.props.editingProject}
                      saving={this.props.savingProject}
                      onDelete={() => this.handleDeleteProject(project)}
@@ -178,7 +136,7 @@ class RoutedProject extends Component {
                          datasetEditModal: true,
                      })}
                      onAddJsonSchema={() => this.setJsonSchemaModalVisible(true)}
-                     onTableIngest={(p, t) => this.ingestIntoTable(p, t)}/>
+                     onDatasetIngest={(p, d, dt) => this.ingestIntoDataset(p, d, dt)}/>
         </>;
     }
 }
@@ -198,14 +156,8 @@ RoutedProject.propTypes = {
         isFetching: PropTypes.bool,
     })),
 
-    serviceTables: PropTypes.arrayOf(PropTypes.object),  // TODO: Shape
-    serviceTablesByServiceID: PropTypes.objectOf(PropTypes.object),  // TODO: Shape
-
     projects: PropTypes.arrayOf(projectPropTypesShape),
     projectsByID: PropTypes.objectOf(projectPropTypesShape),
-
-    projectTables: PropTypes.arrayOf(PropTypes.object),  // TODO: Shape
-    projectTablesByProjectID: PropTypes.objectOf(PropTypes.arrayOf(PropTypes.object)),  // TODO: Shape
 
     loadingProjects: PropTypes.bool,
 
@@ -228,14 +180,8 @@ const mapStateToProps = state => ({
 
     serviceDataTypesByServiceID: state.serviceDataTypes.dataTypesByServiceID,
 
-    serviceTables: state.serviceTables.items,
-    serviceTablesByServiceID: state.serviceTables.itemsByServiceID,
-
     projects: state.projects.items,
     projectsByID: state.projects.itemsByID,
-
-    projectTables: state.projectTables.items,
-    projectTablesByProjectID: state.projectTables.itemsByProjectID,
 
     loadingProjects: state.projects.isAdding || state.projects.isFetching,
 

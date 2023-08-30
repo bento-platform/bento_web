@@ -6,7 +6,6 @@ import {discovery} from "./modules/discovery/reducers";
 import {explorer} from "./modules/explorer/reducers";
 import {
     projects,
-    projectTables,
 
     biosamples,
     individuals,
@@ -19,10 +18,9 @@ import {
     bentoServices,
     services,
     serviceDataTypes,
-    serviceTables,
     serviceWorkflows,
 } from "./modules/services/reducers";
-import {tableSummaries} from "./modules/tables/reducers";
+import {datasetDataTypes, datasetSummaries} from "./modules/datasets/reducers";
 import {runs} from "./modules/wes/reducers";
 
 const rootReducer = combineReducers({
@@ -41,7 +39,6 @@ const rootReducer = combineReducers({
 
     // Metadata module
     projects,
-    projectTables,
 
     biosamples,
     individuals,
@@ -58,11 +55,11 @@ const rootReducer = combineReducers({
     bentoServices,
     services,
     serviceDataTypes,
-    serviceTables,
     serviceWorkflows,
 
-    // Table module
-    tableSummaries,
+    // Dataset module
+    datasetDataTypes,
+    datasetSummaries,
 
     // WES module
     runs,

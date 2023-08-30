@@ -31,14 +31,17 @@ const getInputComponent = ({type, extensions, values}) => {
                 basePrefix={BENTO_DROP_BOX_FS_BASE_PATH}
             />;
 
+        // TODO: directory
+
         case "enum":
-            // TODO: enum[]
+            // TODO: enum[] - need to be able to reselect
             return <Select>{values.map(v => <Select.Option key={v}>{v}</Select.Option>)}</Select>;
 
         case "number":
             return <Input type="number" />;
 
         // TODO: string[], enum[], number[]
+        // TODO: drsObject, drsObject[]
 
         default:
             return <Input />;

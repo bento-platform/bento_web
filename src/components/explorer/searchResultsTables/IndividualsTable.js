@@ -1,49 +1,30 @@
 import React from "react";
 import PropTypes from "prop-types";
-import { useSortedColumns } from "./hooks/explorerHooks";
-import { Link, useLocation } from "react-router-dom";
+import { useSortedColumns } from "../hooks/explorerHooks";
 import { useSelector } from "react-redux";
-import ExplorerSearchResultsTable from "./ExplorerSearchResultsTable";
-
-const IndividualRender = ({individual}) => {
-    const location = useLocation();
-    const alternateIds = individual.alternate_ids ?? [];
-    const listRender = alternateIds.length ? " (" + alternateIds.join(", ") + ")" : "";
-    return (
-        <>
-            <Link
-                to={{
-                    pathname: `/data/explorer/individuals/${individual.id}/overview`,
-                    state: { backUrl: location.pathname },
-                }}
-            >
-                {individual.id}
-            </Link>{" "}
-            {listRender}
-        </>
-    );
-};
-
-IndividualRender.propTypes = {
-    individual: PropTypes.object.isRequired,
-};
+import ExplorerSearchResultsTable from "../ExplorerSearchResultsTable";
+import BiosampleIDCell from "./BiosampleIDCell";
+import IndividualIDCell from "./IndividualIDCell";
 
 const SEARCH_RESULT_COLUMNS = [
     {
         title: "Individual",
         dataIndex: "individual",
-        render: (individual) => <IndividualRender individual={individual} />,
+        render: (individual) => <IndividualIDCell individual={individual} />,
         sorter: (a, b) => a.individual.id.localeCompare(b.individual.id),
         defaultSortOrder: "ascend",
     },
     {
         title: "Samples",
         dataIndex: "biosamples",
-        render: (samples) => (
+        render: (samples, {individual: {id: individualId}}) => (
             <>
                 {samples.length} Sample{samples.length === 1 ? "" : "s"}
                 {samples.length ? ": " : ""}
-                {samples.join(", ")}
+                {samples.map((s, si) => <>
+                    <BiosampleIDCell biosample={s} individualId={individualId} />
+                    {si < samples.length - 1 ? ", " : ""}
+                </>)}
             </>
         ),
         sorter: (a, b) => a.biosamples.length - b.biosamples.length,

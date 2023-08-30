@@ -139,13 +139,9 @@ class Project extends Component {
                                         key={d.identifier}
                                         mode="private"
                                         project={this.props.value}
-                                        value={{
-                                            ...d,
-                                            tables: this.props.tables.filter(t => t.dataset === d.identifier),
-                                        }}
-                                        strayTables={this.props.strayTables}
+                                        value={d}
                                         onEdit={() => (this.props.onEditDataset || nop)(d)}
-                                        onTableIngest={this.props.onTableIngest || nop}
+                                        onDatasetIngest={this.props.onDatasetIngest || nop}
                                     />
                                 </Col>
                             </Row>,
@@ -194,8 +190,6 @@ class Project extends Component {
 
 Project.propTypes = {
     value: projectPropTypesShape,
-    tables: PropTypes.arrayOf(PropTypes.object),  // TODO: shape
-    strayTables: PropTypes.arrayOf(PropTypes.object),  // TODO: shape (this is currently heterogeneous)
 
     editing: PropTypes.bool,
     saving: PropTypes.bool,
@@ -208,7 +202,7 @@ Project.propTypes = {
     onEditDataset: PropTypes.func,
     onAddJsonSchema: PropTypes.func,
 
-    onTableIngest: PropTypes.func,
+    onDatasetIngest: PropTypes.func,
 };
 
 export default Project;

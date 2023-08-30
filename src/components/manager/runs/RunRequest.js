@@ -9,25 +9,39 @@ import ReactJson from "react-json-view";
 import WorkflowListItem from "../WorkflowListItem";
 
 const RunRequest = ({run}) => {
-    const tablesByServiceID = useSelector(state => state.serviceTables.itemsByServiceID);
+    const projectsById = useSelector((state) => state.projects.itemsByID);
 
     const details = run?.details;
 
     if (!details) return <div />;
 
-    const serviceID = details.request.tags.workflow_metadata.serviceID;
-    const tableDataType = details.request.tags.workflow_metadata.data_type;
-    const tableID = details.request.tags.table_id;
-    const tableName = tablesByServiceID[serviceID]?.tablesByID?.[tableID]?.name;
+    const runDataType = details.request.tags.workflow_metadata.data_type;
 
-    // TODO: Link to some "table" page from the table description item here
+    const {project_id: projectId, dataset_id: datasetId} = details.request.tags;
 
-    const idFragment = <span style={{fontFamily: "monospace"}}>{tableID}</span>;
+    const project = projectsById[projectId] ?? null;
+    const dataset = project ? (project.datasets.find(d => d.identifier === datasetId) ?? null) : null;
+
+    const projectTitle = project?.title ?? null;
+    const datasetTitle = dataset?.title ?? null;
+
+    const projectIdFragment = <span style={{fontFamily: "monospace"}}>{projectId}</span>;
+    const datasetIdFragment = <span style={{fontFamily: "monospace"}}>{datasetId}</span>;
 
     return <Descriptions bordered>
-        {tableID !== undefined && (
-            <Descriptions.Item label="Table" span={3}>
-                <Tag>{tableDataType}</Tag> {tableName ? <>{tableName} ({idFragment})</> : idFragment}
+        {project !== null && (
+            <Descriptions.Item label="Project" span={3}>
+                {projectTitle ? <>{projectTitle} ({projectIdFragment})</> : projectIdFragment}
+            </Descriptions.Item>
+        )}
+        {dataset !== null && (
+            <Descriptions.Item label="Dataset" span={3}>
+                {datasetTitle ? <>{datasetTitle} ({datasetIdFragment})</> : datasetIdFragment}
+            </Descriptions.Item>
+        )}
+        {dataset !== null && (
+            <Descriptions.Item label="Run Data Type" span={3}>
+                <Tag>{runDataType}</Tag>
             </Descriptions.Item>
         )}
         <Descriptions.Item label="Parameters" span={3}>
