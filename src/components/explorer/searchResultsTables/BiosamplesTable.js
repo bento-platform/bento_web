@@ -3,8 +3,11 @@ import PropTypes from "prop-types";
 import { useSortedColumns } from "../hooks/explorerHooks";
 import { useSelector } from "react-redux";
 import { countNonNullElements } from "../../../utils/misc";
-import BiosampleIDCell from "./BiosampleIDCell";
+
 import ExplorerSearchResultsTable from "../ExplorerSearchResultsTable";
+
+import BiosampleIDCell from "./BiosampleIDCell";
+import IndividualIDCell from "./IndividualIDCell";
 
 const NO_EXPERIMENTS_VALUE = -Infinity;
 
@@ -111,7 +114,7 @@ const SEARCH_RESULT_COLUMNS_BIOSAMPLE = [
     {
         title: "Individual",
         dataIndex: "individual",
-        render: (individual) => <>{individual.id}</>,
+        render: (individual) => <IndividualIDCell individual={individual} />,
         sorter: (a, b) => a.individual.id.localeCompare(b.individual.id),
         sortDirections: ["descend", "ascend", "descend"],
     },
