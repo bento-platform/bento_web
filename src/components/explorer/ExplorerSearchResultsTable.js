@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from "react";
+import React, {useState, useMemo, useCallback} from "react";
 import PropTypes from "prop-types";
 import { useParams } from "react-router-dom";
 import { useSelector, useDispatch } from "react-redux";
@@ -44,9 +44,11 @@ const ExplorerSearchResultsTable = ({
     const fetchingSearch = useSelector((state) => state.explorer.fetchingSearchByDatasetID[dataset] || false);
     const dispatch = useDispatch();
 
-    const handleSetSelectedRows = (...args) => dispatch(setSelectedRows(dataset, ...args));
+    const handleSetSelectedRows = useCallback(
+        (...args) => dispatch(setSelectedRows(dataset, ...args)),
+        [dispatch, dataset]);
 
-    const handlePerformIndividualsDownloadCSVIfPossible = (...args) => {
+    const handlePerformDownloadCSVIfPossible = useCallback((...args) => {
         if (activeTab === "individuals") {
             return dispatch(performIndividualsDownloadCSVIfPossible(dataset, ...args));
         }
@@ -56,19 +58,19 @@ const ExplorerSearchResultsTable = ({
         if (activeTab === "experiments") {
             return dispatch(performExperimentsDownloadCSVIfPossible(dataset, ...args));
         }
-    };
+    }, [dispatch, dataset, activeTab]);
 
-    const onPageChange = (pageObj, filters, sorter) => {
+    const onPageChange = useCallback((pageObj, filters, sorter) => {
         setCurrentPage(pageObj.current);
         dispatch(setTableSortOrder(dataset, sorter.field, sorter.order, activeTab, pageObj.current));
-    };
+    }, [dispatch, dataset, activeTab]);
 
-    const tableStyle = {
+    const tableStyle = useMemo(() => ({
         opacity: fetchingSearch ? 0.5 : 1,
         pointerEvents: fetchingSearch ? "none" : "auto",
-    };
+    }), [fetchingSearch]);
 
-    const rowSelection = {
+    const rowSelection = useMemo(() => ({
         type: "checkbox",
         selectedRowKeys: selectedRows,
         onChange: (selectedRowKeys) => {
@@ -89,7 +91,7 @@ const ExplorerSearchResultsTable = ({
                 onSelect: () => handleSetSelectedRows([]),
             },
         ],
-    };
+    }), [selectedRows, data, handleSetSelectedRows]);
 
     const sortedInfo = useMemo(
         () => ({
@@ -123,7 +125,7 @@ const ExplorerSearchResultsTable = ({
                         icon="export"
                         style={{ marginRight: "8px" }}
                         loading={isFetchingDownload}
-                        onClick={() => handlePerformIndividualsDownloadCSVIfPossible(selectedRows, data)}
+                        onClick={() => handlePerformDownloadCSVIfPossible(selectedRows, data)}
                     >
                         Export as CSV
                     </Button>
@@ -172,8 +174,6 @@ ExplorerSearchResultsTable.defaultProps = {
     searchResults: null,
     selectedRows: [],
     dataStructure: [],
-    setSelectedRows: () => {},
-    performIndividualsDownloadCSVIfPossible: () => {},
     isFetchingDownload: false,
     type: "",
     data: [],
