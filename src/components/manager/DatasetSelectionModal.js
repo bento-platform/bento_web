@@ -21,7 +21,7 @@ const DatasetSelectionModal = ({dataType, title, visible, onCancel, onOk}) => {
 
     const onOkInner = useCallback(
         () => (onOk || nop)(selectedProject, selectedDataset, dataType),
-        [onOk, selectedProject, selectedDataset, dataType]
+        [onOk, selectedProject, selectedDataset, dataType],
     );
 
     return <Modal title={title || "Select a Dataset"}
