@@ -8,27 +8,22 @@ import ExplorerSearchResultsTable from "../ExplorerSearchResultsTable";
 
 const NO_EXPERIMENTS_VALUE = -Infinity;
 
-const BiosampleRender = React.memo(({ biosample, alternateIds, individualId }) => {
+const BiosampleRender = React.memo(({ biosample, individualId }) => {
     const location = useLocation();
-    const alternateIdsRender = alternateIds?.length ? ` (${alternateIds.join(", ")})` : "";
     return (
-        <>
-            <Link
-                to={{
-                    pathname: `/data/explorer/individuals/${individualId}/biosamples`,
-                    state: { backUrl: location.pathname },
-                }}
-            >
-                {biosample}
-            </Link>{" "}
-            {alternateIdsRender}
-        </>
+        <Link
+            to={{
+                pathname: `/data/explorer/individuals/${individualId}/biosamples`,
+                state: { backUrl: location.pathname },
+            }}
+        >
+            {biosample}
+        </Link>
     );
 });
 
 BiosampleRender.propTypes = {
     biosample: PropTypes.string.isRequired,
-    alternateIds: PropTypes.arrayOf(PropTypes.string),
     individualId: PropTypes.string.isRequired,
 };
 
@@ -131,7 +126,6 @@ const SEARCH_RESULT_COLUMNS_BIOSAMPLE = [
         render: (biosample, record) => (
             <BiosampleRender
                 biosample={biosample}
-                alternateIds={record.alternateIds}
                 individualId={record.individual.id}
             />
         ),
@@ -196,7 +190,6 @@ BiosamplesTable.propTypes = {
     data: PropTypes.arrayOf(
         PropTypes.shape({
             biosample: PropTypes.string.isRequired,
-            alternateIds: PropTypes.arrayOf(PropTypes.string),
             individual: PropTypes.shape({
                 id: PropTypes.string.isRequired,
             }).isRequired,
