@@ -33,7 +33,7 @@ class IndividualBiosamples extends Component {
                 {biosamplesData.map((biosample, i) => (
                     <>
                         <Descriptions
-                            title={`Biosample ${biosample.id}`}
+                            title={<span id={`biosample-${biosample.id}`}>Biosample {biosample.id}</span>}
                             layout="horizontal"
                             bordered={true}
                             column={1}

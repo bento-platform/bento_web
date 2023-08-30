@@ -1,31 +1,15 @@
 import React from "react";
 import PropTypes from "prop-types";
 import { useSortedColumns } from "../hooks/explorerHooks";
-import { Link, useLocation } from "react-router-dom";
 import { useSelector } from "react-redux";
 import { countNonNullElements } from "../../../utils/misc";
+
 import ExplorerSearchResultsTable from "../ExplorerSearchResultsTable";
 
+import BiosampleIDCell from "./BiosampleIDCell";
+import IndividualIDCell from "./IndividualIDCell";
+
 const NO_EXPERIMENTS_VALUE = -Infinity;
-
-const BiosampleRender = React.memo(({ biosample, individualId }) => {
-    const location = useLocation();
-    return (
-        <Link
-            to={{
-                pathname: `/data/explorer/individuals/${individualId}/biosamples`,
-                state: { backUrl: location.pathname },
-            }}
-        >
-            {biosample}
-        </Link>
-    );
-});
-
-BiosampleRender.propTypes = {
-    biosample: PropTypes.string.isRequired,
-    individualId: PropTypes.string.isRequired,
-};
 
 const customPluralForms = {
     Serology: "Serologies",
@@ -123,19 +107,14 @@ const SEARCH_RESULT_COLUMNS_BIOSAMPLE = [
     {
         title: "Biosample",
         dataIndex: "biosample",
-        render: (biosample, record) => (
-            <BiosampleRender
-                biosample={biosample}
-                individualId={record.individual.id}
-            />
-        ),
+        render: (biosample, {individual}) => <BiosampleIDCell biosample={biosample} individualId={individual.id} />,
         sorter: (a, b) => a.biosample.localeCompare(b.biosample),
         defaultSortOrder: "ascend",
     },
     {
         title: "Individual",
         dataIndex: "individual",
-        render: (individual) => <>{individual.id}</>,
+        render: (individual) => <IndividualIDCell individual={individual} />,
         sorter: (a, b) => a.individual.id.localeCompare(b.individual.id),
         sortDirections: ["descend", "ascend", "descend"],
     },
