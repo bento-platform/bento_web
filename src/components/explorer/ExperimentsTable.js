@@ -5,11 +5,8 @@ import PropTypes from "prop-types";
 import { useSortedColumns } from "./hooks/explorerHooks";
 import ExplorerSearchResultsTable from "./ExplorerSearchResultsTable";
 
-const ExperimentRender = ({ experimentId, individual }) => {
+const ExperimentRender = React.memo(({ experimentId, individual }) => {
     const location = useLocation();
-    const alternateIds = individual.alternate_ids ?? [];
-    const listRender = alternateIds.length ? `(${alternateIds.join(", ")})` : "";
-
     return (
         <>
             <Link
@@ -20,17 +17,15 @@ const ExperimentRender = ({ experimentId, individual }) => {
                 }}
             >
                 {experimentId}
-            </Link>{" "}
-            {listRender}
+            </Link>
         </>
     );
-};
+});
 
 ExperimentRender.propTypes = {
     experimentId: PropTypes.string.isRequired,
     individual: PropTypes.shape({
         id: PropTypes.string.isRequired,
-        alternate_ids: PropTypes.arrayOf(PropTypes.string),
     }).isRequired,
 };
 
@@ -101,7 +96,6 @@ ExperimentsTable.propTypes = {
             experimentId: PropTypes.string.isRequired,
             individual: PropTypes.shape({
                 id: PropTypes.string.isRequired,
-                alternate_ids: PropTypes.arrayOf(PropTypes.string),
             }).isRequired,
             biosampleId: PropTypes.string.isRequired,
             studyType: PropTypes.string.isRequired,

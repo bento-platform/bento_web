@@ -8,10 +8,9 @@ import ExplorerSearchResultsTable from "./ExplorerSearchResultsTable";
 
 const NO_EXPERIMENTS_VALUE = -Infinity;
 
-const BiosampleRender = ({ biosample, alternateIds, individualId }) => {
+const BiosampleRender = React.memo(({ biosample, alternateIds, individualId }) => {
     const location = useLocation();
-    const alternateIdsList = alternateIds ?? [];
-    const listRender = alternateIdsList.length ? ` (${alternateIdsList.join(", ")})` : "";
+    const alternateIdsRender = alternateIds?.length ? ` (${alternateIds.join(", ")})` : "";
     return (
         <>
             <Link
@@ -22,10 +21,10 @@ const BiosampleRender = ({ biosample, alternateIds, individualId }) => {
             >
                 {biosample}
             </Link>{" "}
-            {listRender}
+            {alternateIdsRender}
         </>
     );
-};
+});
 
 BiosampleRender.propTypes = {
     biosample: PropTypes.string.isRequired,

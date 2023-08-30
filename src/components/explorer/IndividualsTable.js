@@ -5,24 +5,23 @@ import { Link, useLocation } from "react-router-dom";
 import { useSelector } from "react-redux";
 import ExplorerSearchResultsTable from "./ExplorerSearchResultsTable";
 
-const IndividualRender = ({individual}) => {
+const IndividualRender = React.memo(({individual: {id, alternate_ids: alternateIds}}) => {
     const location = useLocation();
-    const alternateIds = individual.alternate_ids ?? [];
-    const listRender = alternateIds.length ? " (" + alternateIds.join(", ") + ")" : "";
+    const alternateIdsRender = alternateIds?.length ? " (" + alternateIds.join(", ") + ")" : "";
     return (
         <>
             <Link
                 to={{
-                    pathname: `/data/explorer/individuals/${individual.id}/overview`,
+                    pathname: `/data/explorer/individuals/${id}/overview`,
                     state: { backUrl: location.pathname },
                 }}
             >
-                {individual.id}
+                {id}
             </Link>{" "}
-            {listRender}
+            {alternateIdsRender}
         </>
     );
-};
+});
 
 IndividualRender.propTypes = {
     individual: PropTypes.object.isRequired,
