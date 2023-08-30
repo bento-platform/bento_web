@@ -4,6 +4,7 @@ import { useSortedColumns } from "../hooks/explorerHooks";
 import { Link, useLocation } from "react-router-dom";
 import { useSelector } from "react-redux";
 import ExplorerSearchResultsTable from "../ExplorerSearchResultsTable";
+import BiosampleIDCell from "./BiosampleIDCell";
 
 const IndividualRender = React.memo(({individual: {id, alternate_ids: alternateIds}}) => {
     const location = useLocation();
@@ -38,11 +39,14 @@ const SEARCH_RESULT_COLUMNS = [
     {
         title: "Samples",
         dataIndex: "biosamples",
-        render: (samples) => (
+        render: (samples, {individual: {id: individualId}}) => (
             <>
                 {samples.length} Sample{samples.length === 1 ? "" : "s"}
                 {samples.length ? ": " : ""}
-                {samples.join(", ")}
+                {samples.map((s, si) => <>
+                    <BiosampleIDCell biosample={s} individualId={individualId} />
+                    {si < samples.length - 1 ? ", " : ""}
+                </>)}
             </>
         ),
         sorter: (a, b) => a.biosamples.length - b.biosamples.length,
