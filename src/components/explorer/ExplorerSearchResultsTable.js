@@ -169,25 +169,7 @@ const ExplorerSearchResultsTable = ({
     );
 };
 
-ExplorerSearchResultsTable.defaultProps = {
-    fetchingSearch: false,
-    searchResults: null,
-    selectedRows: [],
-    dataStructure: [],
-    isFetchingDownload: false,
-    type: "",
-    data: [],
-};
-
 ExplorerSearchResultsTable.propTypes = {
-    fetchingSearch: PropTypes.bool,
-    searchResults: PropTypes.object,
-    selectedRows: PropTypes.arrayOf(PropTypes.string),
-    dataStructure: PropTypes.arrayOf(PropTypes.object),
-    setSelectedRows: PropTypes.func.isRequired,
-    isFetchingDownload: PropTypes.bool,
-    performIndividualsDownloadCSVIfPossible: PropTypes.func.isRequired,
-    type: PropTypes.string,
     data: PropTypes.arrayOf(PropTypes.object),
     activeTab: PropTypes.string.isRequired,
     columns: PropTypes.arrayOf(PropTypes.object).isRequired,
