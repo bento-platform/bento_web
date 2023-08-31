@@ -1,0 +1,111 @@
+import React, {useCallback, useEffect, useMemo, useState} from "react";
+import {useSelector} from "react-redux";
+import PropTypes from "prop-types";
+
+import {Button, Divider, Form, Input, Modal, Skeleton} from "antd";
+
+import {useAuthorizationHeader} from "../../lib/auth/utils";
+import JsonDisplay from "../JsonDisplay";
+
+const ServiceRequestModal = ({service, onCancel}) => {
+    const bentoServicesByKind = useSelector(state => state.bentoServices.itemsByKind);
+    const serviceUrl = useMemo(() => bentoServicesByKind[service]?.url, [bentoServicesByKind, service]);
+
+    const [requestPath, setRequestPath] = useState("service-info");
+    const [requestLoading, setRequestLoading] = useState(false);
+    const [requestData, setRequestData] = useState(null);
+    const [requestIsJSON, setRequestIsJSON] = useState(false);
+
+    const [hasAttempted, setHasAttempted] = useState(false);
+
+    const authHeader = useAuthorizationHeader();
+
+    const performRequestModalGet = useCallback(() => {
+        if (!serviceUrl) {
+            setRequestData(null);
+            return;
+        }
+        (async () => {
+            setRequestLoading(true);
+
+            try {
+                const res = await fetch(`${serviceUrl}/${requestPath}`, {
+                    headers: authHeader,
+                });
+
+                if ((res.headers.get("content-type") ?? "").includes("application/json")) {
+                    const data = await res.json();
+                    setRequestIsJSON(true);
+                    setRequestData(data);
+                } else {
+                    const data = await res.text();
+                    setRequestIsJSON(false);
+                    setRequestData(data);
+                }
+            } finally {
+                setRequestLoading(false);
+            }
+        })();
+    }, [serviceUrl, requestPath, authHeader]);
+
+    useEffect(() => {
+        setRequestData(null);
+        setRequestIsJSON(false);
+        setRequestPath("service-info");
+        setHasAttempted(false);
+    }, [service]);
+
+    useEffect(() => {
+        if (!hasAttempted) {
+            performRequestModalGet();
+            setHasAttempted(true);
+        }
+    }, [hasAttempted, performRequestModalGet]);
+
+    return (
+        <Modal
+            visible={service !== null}
+            title={`${service}: make a request`}
+            footer={null}
+            width={960}
+            onCancel={onCancel}
+        >
+            <Form layout="inline" style={{display: "flex"}}>
+                <Form.Item style={{flex: 1}} wrapperCol={{span: 24}}>
+                    <Input
+                        addonBefore={(serviceUrl ?? "ERROR") + "/"}
+                        value={requestPath}
+                        disabled={!hasAttempted || requestLoading}
+                        onChange={e => setRequestPath(e.target.value)}
+                    />
+                </Form.Item>
+                <Form.Item>
+                    <Button type="primary" htmlFor="submit" onClick={e => {
+                        performRequestModalGet();
+                        e.preventDefault();
+                    }}>GET</Button>
+                </Form.Item>
+            </Form>
+            <Divider />
+            {requestLoading ? <Skeleton loading={true} /> : (
+                requestIsJSON
+                    ? <JsonDisplay jsonSrc={requestData} />
+                    : (
+                        <div style={{maxWidth: "100%", overflowX: "auto"}}>
+                            <pre>
+                                {((typeof requestData) === "string" || requestData === null)
+                                    ? requestData
+                                    : JSON.stringify(requestData)}
+                            </pre>
+                        </div>
+                    )
+            )}
+        </Modal>
+    );
+};
+ServiceRequestModal.propTypes = {
+    service: PropTypes.string,
+    onCancel: PropTypes.func,
+};
+
+export default ServiceRequestModal;
