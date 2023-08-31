@@ -28,8 +28,9 @@ const ServiceRequestModal = ({service, onCancel}) => {
         (async () => {
             setRequestLoading(true);
 
+            const p = requestPath.replace(/^\//, "");
             try {
-                const res = await fetch(`${serviceUrl}/${requestPath}`, {
+                const res = await fetch(`${serviceUrl}/${p}`, {
                     headers: authHeader,
                 });
 
@@ -44,6 +45,7 @@ const ServiceRequestModal = ({service, onCancel}) => {
                 }
             } finally {
                 setRequestLoading(false);
+                setRequestPath(p);  // With starting '/' trimmed off if needed
             }
         })();
     }, [serviceUrl, requestPath, authHeader]);
@@ -62,6 +64,11 @@ const ServiceRequestModal = ({service, onCancel}) => {
         }
     }, [hasAttempted, performRequestModalGet]);
 
+    const formSubmit = useCallback(e => {
+        performRequestModalGet();
+        e.preventDefault();
+    }, [performRequestModalGet]);
+
     return (
         <Modal
             visible={service !== null}
@@ -70,7 +77,7 @@ const ServiceRequestModal = ({service, onCancel}) => {
             width={960}
             onCancel={onCancel}
         >
-            <Form layout="inline" style={{display: "flex"}}>
+            <Form layout="inline" style={{display: "flex"}} onSubmit={formSubmit}>
                 <Form.Item style={{flex: 1}} wrapperCol={{span: 24}}>
                     <Input
                         addonBefore={(serviceUrl ?? "ERROR") + "/"}
@@ -80,10 +87,7 @@ const ServiceRequestModal = ({service, onCancel}) => {
                     />
                 </Form.Item>
                 <Form.Item>
-                    <Button type="primary" htmlFor="submit" onClick={e => {
-                        performRequestModalGet();
-                        e.preventDefault();
-                    }}>GET</Button>
+                    <Button type="primary" htmlFor="submit" loading={requestLoading} onClick={formSubmit}>GET</Button>
                 </Form.Item>
             </Form>
             <Divider />
