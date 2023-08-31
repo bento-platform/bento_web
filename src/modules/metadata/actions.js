@@ -122,6 +122,7 @@ export const deleteProject = networkAction(project => (dispatch, getState) => ({
     req: {method: "DELETE"},
     err: `Error deleting project '${project.title}'`,  // TODO: More user-friendly, detailed error
     onSuccess: () => {
+        // Iter all deleted project's datasets and delete variants in gohan
         project.datasets.map(ds => ds.identifier)
             .forEach(async (id) => await dispatch(clearDatasetDataType(id, "variant")));
         message.success(`Project '${project.title}' deleted!`);
@@ -182,10 +183,8 @@ export const deleteProjectDataset = networkAction((project, dataset) => (dispatc
     url: `${getState().services.metadataService.url}/api/datasets/${dataset.identifier}`,
     req: {method: "DELETE"},
     err: `Error deleting dataset '${dataset.title}'`,
-    onSuccess: async () => {
-        // Only delete variants if katsu dataset deletion is a success
-        await dispatch(clearDatasetDataType(dataset.identifier, "variant"));
-    }
+    // Only delete variants if katsu dataset deletion is a success
+    onSuccess: async () => await dispatch(clearDatasetDataType(dataset.identifier, "variant")),
 }));
 
 export const deleteProjectDatasetIfPossible = (project, dataset) => (dispatch, getState) => {
