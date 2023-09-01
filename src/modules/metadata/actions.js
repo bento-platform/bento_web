@@ -28,17 +28,17 @@ export const FETCH_OVERVIEW_SUMMARY = createNetworkActionTypes("FETCH_OVERVIEW_S
 
 export const DELETE_DATASET_DATA_TYPE = createNetworkActionTypes("DELETE_DATASET_DATA_TYPE");
 
-export const clearDatasetDataType = networkAction((datasetId, dataType) => (dispatch, getState) => {
-    // TODO: more robust mapping from dataType to url.
-    const serviceUrl = dataType === "variant"
-        ? getState().services.itemsByKind.gohan.url
-        : getState().services.itemsByKind.metadata.url;
-    console.log(serviceUrl);
+export const clearDatasetDataType = networkAction((datasetId, dataTypeID) => (dispatch, getState) => {
+    const {service_base_url: serviceBaseUrl} = getState().serviceDataTypes.itemsByID[dataTypeID];
     return {
         types: DELETE_DATASET_DATA_TYPE,
-        url: `${serviceUrl}/datasets/${datasetId}/data-types/${dataType}`,
+        url: `${serviceBaseUrl}datasets/${datasetId}/data-types/${dataTypeID}`,
         req: {
             method: "DELETE",
+        },
+        onError: (error) => {
+            // Needs to re throw for project/dataset deletion error handling
+            throw error;
         },
     };
 });
@@ -125,11 +125,25 @@ export const deleteProject = networkAction(project => (dispatch, getState) => ({
     onSuccess: () => message.success(`Project '${project.title}' deleted!`),
 }));
 
-export const deleteProjectIfPossible = project => (dispatch, getState) => {
+export const deleteProjectIfPossible = project => async (dispatch, getState) => {
     if (getState().projects.isDeleting) return;
-    return dispatch(deleteProject(project));
+
+    // Remove data without destroying project/datasets first
+    try {
+        await Promise.all(project.datasets.map(ds => dispatch(clearDatasetDataTypes(ds.identifier))));
+        await dispatch(deleteProject(project));
+    } catch (err) {
+        console.error(err);
+        message.error(`Error deleting project '${project.title}'`);
+    }
 };
 
+export const clearDatasetDataTypes = datasetId => async (dispatch, getState) => {
+    // only clear data types which can yield counts - `queryable` is a proxy for this
+    const dataTypes = Object.values(getState().datasetDataTypes.itemsById[datasetId].itemsById)
+        .filter(dt => dt.queryable);
+    return await Promise.all(dataTypes.map(dt => dispatch(clearDatasetDataType(datasetId, dt.id))));
+};
 
 const saveProject = networkAction(project => (dispatch, getState) => ({
     types: SAVE_PROJECT,
@@ -181,11 +195,17 @@ export const deleteProjectDataset = networkAction((project, dataset) => (dispatc
     err: `Error deleting dataset '${dataset.title}'`,
 }));
 
-export const deleteProjectDatasetIfPossible = (project, dataset) => (dispatch, getState) => {
+export const deleteProjectDatasetIfPossible = (project, dataset) => async (dispatch, getState) => {
     if (getState().projects.isAddingDataset
         || getState().projects.isSavingDataset
         || getState().projects.isDeletingDataset) return;
-    return dispatch(deleteProjectDataset(project, dataset));
+    try {
+        await dispatch(clearDatasetDataTypes(dataset.identifier));
+        await dispatch(deleteProjectDataset(project, dataset));
+    } catch (err) {
+        console.error(err);
+        message.error(`Error deleting dataset '${dataset.title}'`);
+    }
 };
 
 

@@ -5,7 +5,7 @@ import { Button, Col, Row, Table, Typography } from "antd";
 import PropTypes from "prop-types";
 import { datasetPropTypesShape, projectPropTypesShape } from "../../propTypes";
 import { clearDatasetDataType } from "../../modules/metadata/actions";
-import { fetchDatasetDataTypesSummaryIfPossible } from "../../modules/datasets/actions";
+import { fetchDatasetDataTypesSummariesIfPossible } from "../../modules/datasets/actions";
 import genericConfirm from "../ConfirmationModal";
 import DataTypeSummaryModal from "./datatype/DataTypeSummaryModal";
 import { nop } from "../../utils/misc";
@@ -16,7 +16,7 @@ const DatasetDataTypes = React.memo(
     ({isPrivate, project, dataset, onDatasetIngest}) => {
         const dispatch = useDispatch();
         const datasetDataTypes = useSelector((state) => Object.values(
-            state.datasetDataTypes.itemsById[dataset.identifier]?.itemsById));
+            state.datasetDataTypes.itemsById[dataset.identifier]?.itemsById ?? {}));
         const datasetSummaries = useSelector((state) => state.datasetSummaries.itemsById[dataset.identifier]);
         const isFetchingDataset = useSelector(
             (state) => state.datasetDataTypes.itemsById[dataset.identifier]?.isFetching);
@@ -35,7 +35,7 @@ const DatasetDataTypes = React.memo(
                 "will be deleted permanently, and will no longer be available for exploration.",
                 onOk: async () => {
                     await dispatch(clearDatasetDataType(dataset.identifier, dataType.id));
-                    await dispatch(fetchDatasetDataTypesSummaryIfPossible(dataset.identifier));
+                    await dispatch(fetchDatasetDataTypesSummariesIfPossible(dataset.identifier));
                 },
             });
         }, [dispatch, dataset]);

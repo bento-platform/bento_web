@@ -161,26 +161,21 @@ export const workflowsStateToPropsMixin = state => {
         export: [],
     };
 
-    Object.entries(state.serviceWorkflows.workflowsByServiceID)
-        .filter(([_, s]) => !s.isFetching)
-        .forEach(([serviceID, s]) => {
-            Object.entries(s.workflows).forEach(([workflowType, workflowTypeWorkflows]) => {
-                if (!(workflowType in workflowsByType)) return;
+    Object.entries(state.serviceWorkflows.items).forEach(([workflowType, workflowTypeWorkflows]) => {
+        if (!(workflowType in workflowsByType)) return;
 
-                // noinspection JSCheckFunctionSignatures
-                workflowsByType[workflowType].push(
-                    ...Object.entries(workflowTypeWorkflows).map(([k, v]) => ({
-                        ...v,
-                        id: k,
-                        serviceID,
-                    })),
-                );
-            });
-        });
+        // noinspection JSCheckFunctionSignatures
+        workflowsByType[workflowType].push(
+            ...Object.entries(workflowTypeWorkflows).map(([k, v]) => ({
+                ...v,
+                id: k,
+            })),
+        );
+    });
 
     return {
         workflows: workflowsByType,
-        workflowsLoading: state.services.isFetchingAll || state.serviceWorkflows.isFetchingAll,
+        workflowsLoading: state.services.isFetchingAll || state.serviceWorkflows.isFetching,
     };
 };
 

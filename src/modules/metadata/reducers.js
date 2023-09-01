@@ -146,6 +146,9 @@ export const projects = (
             };
         }
 
+        case ADD_PROJECT_DATASET.FINISH:
+            return {...state, isAddingDataset: false};
+
 
         // DELETE_PROJECT_DATASET
         case DELETE_PROJECT_DATASET.REQUEST:

@@ -6,17 +6,15 @@ import { useSelector } from "react-redux";
 const DataTypeSelect = ({value, workflows, onChange}) => {
     const [selected, setSelected] = useState(value ?? undefined);
     const servicesFetching = useSelector((state) => state.services.isFetchingAll);
-    const workflowsFetching = useSelector((state) => state.serviceWorkflows.isFetchingAll);
+    const workflowsFetching = useSelector((state) => state.serviceWorkflows.isFetching);
     const {
-        itemsByID: dataTypes,
-        isFetchingAll: isFetchingDataTypes,
+        items: dataTypes,
+        isFetching: isFetchingDataTypes,
     } = useSelector((state) => state.serviceDataTypes);
 
     const labels = useMemo(() => {
         if (!dataTypes) return {};
-        return Object.fromEntries(
-            Object.values(dataTypes).map(dt => [dt.id, dt.label]),
-        );
+        return Object.fromEntries(dataTypes.map(dt => [dt.id, dt.label]));
     }, dataTypes);
 
     useEffect(() => {
@@ -34,8 +32,8 @@ const DataTypeSelect = ({value, workflows, onChange}) => {
         if (!Array.isArray(workflows)) {
             return [];
         }
-        const dataTypes = new Set(workflows.map((w) => w.data_type));
-        return Array.from(dataTypes)
+        const workflowDataTypes = new Set(workflows.map((w) => w.data_type));
+        return Array.from(workflowDataTypes)
             // filter out workflow types for which we have no labels (mcode)
             .filter(dt => dt in labels)
             .map((dt) =>
@@ -43,7 +41,7 @@ const DataTypeSelect = ({value, workflows, onChange}) => {
                     {labels[dt]} ({<span style={{fontFamily: "monospace"}}>{dt}</span>})
                 </Select.Option>,
             );
-    }, [workflows, dataTypes, labels]);
+    }, [workflows, labels]);
 
     return (
         <Spin spinning={servicesFetching || workflowsFetching || isFetchingDataTypes}>
