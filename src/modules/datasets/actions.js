@@ -36,6 +36,6 @@ const fetchDatasetSummary = networkAction((serviceInfo, datasetID) => ({
 export const fetchDatasetSummariesIfPossible = (datasetID) => async (dispatch, getState) => {
     if (getState().datasetSummaries.isFetching) return;
     await Promise.all(
-        getDataServices(getState()).map(serviceInfo => fetchDatasetSummary(serviceInfo, datasetID)),
+        getDataServices(getState()).map(serviceInfo => dispatch(fetchDatasetSummary(serviceInfo, datasetID))),
     );
 };
