@@ -72,7 +72,6 @@ AnalysisConfirmDisplay.propTypes = {
 const ManagerAnalysisContent = () => {
     const dispatch = useDispatch();
     const history = useHistory();
-    const servicesByID = useSelector(state => state.services.itemsByID);
 
     return <RunSetupWizard
         workflowSelection={({handleWorkflowClick}) => (
@@ -84,9 +83,8 @@ const ManagerAnalysisContent = () => {
                 // TODO: GUI error message
                 return;
             }
-            const serviceInfo = servicesByID[selectedWorkflow.serviceID];
             dispatch(submitAnalysisWorkflowRun(
-                serviceInfo,
+                selectedWorkflow.service_base_url,
                 selectedWorkflow,
                 inputs,
                 "/admin/data/manager/runs",

@@ -139,7 +139,6 @@ IngestConfirmDisplay.propTypes = {
 const ManagerIngestionContent = () => {
     const dispatch = useDispatch();
     const history = useHistory();
-    const servicesByID = useSelector(state => state.services.itemsByID);
 
     return <RunSetupWizard
         workflowSelection={({workflowSelectionValues, setWorkflowSelectionValues, handleWorkflowClick}) => (
@@ -169,10 +168,8 @@ const ManagerIngestionContent = () => {
                 return;
             }
 
-            const serviceInfo = servicesByID[selectedWorkflow.serviceID];
-
             dispatch(submitIngestionWorkflowRun(
-                serviceInfo,
+                selectedWorkflow.service_base_url,
                 selectedProject,
                 selectedDataset,
                 selectedDataType,

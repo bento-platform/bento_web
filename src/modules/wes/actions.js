@@ -99,14 +99,16 @@ export const fetchRunLogStreamsIfPossibleAndNeeded = runID => (dispatch, getStat
 
 
 export const submitWorkflowRun = networkAction(
-    (types, serviceInfo, workflow, params, inputs, tags, onSuccess, errorMessage) => (dispatch, getState) => {
+    (types, serviceBaseUrl, workflow, params, inputs, tags, onSuccess, errorMessage) => (dispatch, getState) => {
+        const serviceUrlRStrip = serviceBaseUrl.replace(/\/$/, "");
+
         const runRequest = {
             workflow_params: Object.fromEntries(Object.entries(inputs)
                 .map(([k, v]) => [`${workflow.id}.${k}`, v])),
             workflow_type: "WDL",  // TODO: Should eventually not be hard-coded
             workflow_type_version: "1.0",  // TODO: "
             workflow_engine_parameters: {},  // TODO: Currently unused
-            workflow_url: `${serviceInfo.url}/workflows/${workflow.id}.wdl`,
+            workflow_url: `${serviceUrlRStrip}/workflows/${workflow.id}.wdl`,
             tags: {
                 workflow_id: workflow.id,
                 workflow_metadata: workflow,
@@ -116,7 +118,7 @@ export const submitWorkflowRun = networkAction(
 
         return {
             types,
-            params: {serviceInfo, request: runRequest, ...params},
+            params: {request: runRequest, ...params},
             url: `${getState().services.wesService.url}/runs`,
             req: {
                 method: "POST",
@@ -129,11 +131,11 @@ export const submitWorkflowRun = networkAction(
 
 
 export const submitIngestionWorkflowRun =
-    (serviceInfo, projectID, datasetID, dataType, workflow, inputs, redirect, hist) =>
+    (serviceBaseUrl, projectID, datasetID, dataType, workflow, inputs, redirect, hist) =>
         (dispatch) =>
             dispatch(submitWorkflowRun(
                 SUBMIT_INGESTION_RUN,
-                serviceInfo,
+                serviceBaseUrl,
                 workflow,
                 {projectID, datasetID, dataType},  // params
                 inputs,
@@ -150,10 +152,10 @@ export const submitIngestionWorkflowRun =
             ));
 
 
-export const submitAnalysisWorkflowRun = (serviceInfo, workflow, inputs, redirect, hist) => (dispatch) =>
+export const submitAnalysisWorkflowRun = (serviceBaseUrl, workflow, inputs, redirect, hist) => (dispatch) =>
     dispatch(submitWorkflowRun(
         SUBMIT_ANALYSIS_RUN,
-        serviceInfo,
+        serviceBaseUrl,
         workflow,
         {},  // params
         inputs,

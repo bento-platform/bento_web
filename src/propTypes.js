@@ -182,7 +182,7 @@ export const workflowsStateToPropsMixin = state => {
 // Prop types object shape for a single workflow object.
 export const workflowPropTypesShape = PropTypes.shape({
     id: PropTypes.string,
-    serviceID: PropTypes.string,
+    service_base_url: PropTypes.string,
 
     // "Real" properties
     name: PropTypes.string,
