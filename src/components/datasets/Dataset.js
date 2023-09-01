@@ -13,8 +13,8 @@ import {
 } from "../../modules/metadata/actions";
 
 import {
-    fetchDatasetDataTypesSummaryIfPossible,
-    fetchDatasetSummaryIfPossible,
+    fetchDatasetDataTypesSummariesIfPossible,
+    fetchDatasetSummariesIfPossible,
 } from "../../modules/datasets/actions";
 
 import {INITIAL_DATA_USE_VALUE} from "../../duo";
@@ -315,8 +315,8 @@ const mapDispatchToProps = (dispatch, ownProps) => ({
     deleteProjectDataset: dataset => dispatch(deleteProjectDatasetIfPossible(ownProps.project, dataset)),
     deleteLinkedFieldSet: (dataset, linkedFieldSet, linkedFieldSetIndex) =>
         dispatch(deleteDatasetLinkedFieldSetIfPossible(dataset, linkedFieldSet, linkedFieldSetIndex)),
-    fetchDatasetSummary: (datasetId) => dispatch(fetchDatasetSummaryIfPossible(datasetId)),
-    fetchDatasetDataTypesSummary: (datasetId) => dispatch(fetchDatasetDataTypesSummaryIfPossible(datasetId)),
+    fetchDatasetSummary: (datasetId) => dispatch(fetchDatasetSummariesIfPossible(datasetId)),
+    fetchDatasetDataTypesSummary: (datasetId) => dispatch(fetchDatasetDataTypesSummariesIfPossible(datasetId)),
 });
 
 export default connect(mapStateToProps, mapDispatchToProps)(Dataset);

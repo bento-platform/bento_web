@@ -35,7 +35,7 @@ export const clearDatasetDataType = networkAction((datasetId, dataType) => (disp
         : getState().services.itemsByKind.metadata.url;
     return {
         types: DELETE_DATASET_DATA_TYPE,
-        url: `${serviceUrl}/datasets/${datasetId}/data-types/${dataType}`,
+        url: `${serviceUrl}/datasets/${datasetId}/data-types/${dataType.identifier}`,
         req: {
             method: "DELETE",
         },
@@ -142,10 +142,10 @@ export const deleteProjectIfPossible = project => async (dispatch, getState) => 
 };
 
 export const clearDatasetDataTypes = datasetId => async (dispatch, getState) => {
+    // only clear data types which can yield counts - `queryable` is a proxy for this
     const dataTypes = Object.values(getState().datasetDataTypes.itemsById[datasetId].itemsById)
-        .filter(dtDetails => dtDetails.queryable)
-        .map(dtDetails => dtDetails.id);
-    await Promise.all(dataTypes.map(async dt => await dispatch(clearDatasetDataType(datasetId, dt))));
+        .filter(dtDetails => dtDetails.queryable);
+    return await Promise.all(dataTypes.map(dt => dispatch(clearDatasetDataType(datasetId, dt))));
 };
 
 const saveProject = networkAction(project => (dispatch, getState) => ({

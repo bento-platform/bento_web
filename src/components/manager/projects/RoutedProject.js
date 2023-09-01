@@ -150,12 +150,6 @@ RoutedProject.propTypes = {
     services: PropTypes.arrayOf(serviceInfoPropTypesShape),
     servicesByID: PropTypes.objectOf(serviceInfoPropTypesShape),
 
-    serviceDataTypesByServiceID: PropTypes.objectOf(PropTypes.shape({
-        items: PropTypes.array,  // TODO: Shape
-        itemsByID: PropTypes.object,  // TODO: Shape
-        isFetching: PropTypes.bool,
-    })),
-
     projects: PropTypes.arrayOf(projectPropTypesShape),
     projectsByID: PropTypes.objectOf(projectPropTypesShape),
 
@@ -177,8 +171,6 @@ const mapStateToProps = state => ({
 
     services: state.services.items,
     servicesByID: state.services.itemsByID,
-
-    serviceDataTypesByServiceID: state.serviceDataTypes.dataTypesByServiceID,
 
     projects: state.projects.items,
     projectsByID: state.projects.itemsByID,

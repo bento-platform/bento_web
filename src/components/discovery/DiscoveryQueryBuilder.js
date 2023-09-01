@@ -254,14 +254,15 @@ DiscoveryQueryBuilder.propTypes = {
 
 const mapStateToProps = state => ({
     servicesInfo: state.services.items,
-    dataTypes: state.serviceDataTypes.dataTypesByServiceID,
     dataTypesByID: state.serviceDataTypes.itemsByID,
     dataTypesByDataset: state.datasetDataTypes,
 
     autoQuery: state.explorer.autoQuery,
     isFetchingTextSearch: state.explorer.fetchingTextSearch || false,
 
-    dataTypesLoading: state.services.isFetching || state.datasetDataTypes.isFetchingAll,
+    dataTypesLoading: state.services.isFetching
+        || state.serviceDataTypes.isFetching
+        || state.datasetDataTypes.isFetchingAll,
 });
 
 const mapDispatchToProps = (dispatch) => ({
