@@ -15,7 +15,7 @@ const DataTypeSelect = ({value, workflows, onChange}) => {
     const labels = useMemo(() => {
         if (!dataTypes) return {};
         return Object.fromEntries(dataTypes.map(dt => [dt.id, dt.label]));
-    }, dataTypes);
+    }, [dataTypes]);
 
     useEffect(() => {
         setSelected(value);
