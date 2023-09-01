@@ -14,7 +14,7 @@ const fetchDatasetDataTypesSummary = networkAction((serviceInfo, datasetID) => (
 export const fetchDatasetDataTypesSummariesIfPossible = (datasetID) => async (dispatch, getState) => {
     if (getState().datasetDataTypes.isFetchingAll) return;
     await Promise.all(
-        getDataServices(getState()).map(serviceInfo => dispatch(fetchDatasetDataTypesSummary(serviceInfo, datasetID)))
+        getDataServices(getState()).map(serviceInfo => dispatch(fetchDatasetDataTypesSummary(serviceInfo, datasetID))),
     );
 };
 
@@ -36,6 +36,6 @@ const fetchDatasetSummary = networkAction((serviceInfo, datasetID) => ({
 export const fetchDatasetSummariesIfPossible = (datasetID) => async (dispatch, getState) => {
     if (getState().datasetSummaries.isFetching) return;
     await Promise.all(
-        getDataServices(getState()).map(serviceInfo => fetchDatasetSummary(serviceInfo, datasetID))
+        getDataServices(getState()).map(serviceInfo => fetchDatasetSummary(serviceInfo, datasetID)),
     );
 };

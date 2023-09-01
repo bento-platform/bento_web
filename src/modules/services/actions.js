@@ -47,7 +47,7 @@ export const fetchWorkflows = networkAction(() => ({
     types: FETCH_WORKFLOWS,
     url: `${BENTO_PUBLIC_URL}/api/service-registry/workflows`,
     err: "Error fetching workflows",
-}))
+}));
 
 
 export const fetchServicesWithMetadataAndDataTypes = (onServiceFetchFinish) => async (dispatch, getState) => {
