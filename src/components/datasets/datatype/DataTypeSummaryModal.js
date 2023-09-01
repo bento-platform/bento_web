@@ -11,11 +11,11 @@ import PhenopacketSummary from "./PhenopacketSummary";
 import VariantSummary from "./VariantSummary";
 
 const DataTypeSummaryModal = ({dataType, summary, onCancel, visible}) => {
+    const isFetchingSummaries = useSelector((state) => state.datasetDataTypes.isFetchingAll);
+
     if (!dataType) {
         return <></>;
     }
-
-    const isFetchingSummaries = useSelector((state) => state.datasetDataTypes.isFetchingAll);
 
     let Summary = GenericSummary;
     let summaryData = summary;
@@ -35,6 +35,7 @@ const DataTypeSummaryModal = ({dataType, summary, onCancel, visible}) => {
         onCancel={onCancel}
         onOk={onCancel}
         title={<Tag>{dataType.id}</Tag>}
+        width={760}
     >
         {(!summaryData || isFetchingSummaries)
             ? <Skeleton/>
