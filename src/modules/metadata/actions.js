@@ -28,14 +28,11 @@ export const FETCH_OVERVIEW_SUMMARY = createNetworkActionTypes("FETCH_OVERVIEW_S
 
 export const DELETE_DATASET_DATA_TYPE = createNetworkActionTypes("DELETE_DATASET_DATA_TYPE");
 
-export const clearDatasetDataType = networkAction((datasetId, dataType) => (dispatch, getState) => {
-    // TODO: more robust mapping from dataType to url.
-    const serviceUrl = dataType === "variant"
-        ? getState().services.itemsByKind.gohan.url
-        : getState().services.itemsByKind.metadata.url;
+export const clearDatasetDataType = networkAction((datasetId, dataTypeID) => (dispatch, getState) => {
+    const {service_base_url: serviceBaseUrl} = getState().serviceDataTypes.itemsByID[dataTypeID];
     return {
         types: DELETE_DATASET_DATA_TYPE,
-        url: `${serviceUrl}/datasets/${datasetId}/data-types/${dataType.identifier}`,
+        url: `${serviceBaseUrl}datasets/${datasetId}/data-types/${dataTypeID}`,
         req: {
             method: "DELETE",
         },
@@ -144,8 +141,8 @@ export const deleteProjectIfPossible = project => async (dispatch, getState) => 
 export const clearDatasetDataTypes = datasetId => async (dispatch, getState) => {
     // only clear data types which can yield counts - `queryable` is a proxy for this
     const dataTypes = Object.values(getState().datasetDataTypes.itemsById[datasetId].itemsById)
-        .filter(dtDetails => dtDetails.queryable);
-    return await Promise.all(dataTypes.map(dt => dispatch(clearDatasetDataType(datasetId, dt))));
+        .filter(dt => dt.queryable);
+    return await Promise.all(dataTypes.map(dt => dispatch(clearDatasetDataType(datasetId, dt.id))));
 };
 
 const saveProject = networkAction(project => (dispatch, getState) => ({
