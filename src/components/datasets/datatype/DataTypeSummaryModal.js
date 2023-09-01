@@ -15,7 +15,7 @@ const DataTypeSummaryModal = ({dataType, summary, onCancel, visible}) => {
         return <></>;
     }
 
-    const isFetchingSummaries = useSelector((state) => state.datasetDataTypes.isFetching);
+    const isFetchingSummaries = useSelector((state) => state.datasetDataTypes.isFetchingAll);
 
     let Summary = GenericSummary;
     let summaryData = summary;
@@ -38,7 +38,7 @@ const DataTypeSummaryModal = ({dataType, summary, onCancel, visible}) => {
     >
         {(!summaryData || isFetchingSummaries)
             ? <Skeleton/>
-            : <Summary summary={summaryData}/>}
+            : <Summary summary={summaryData} />}
     </Modal>;
 };
 
