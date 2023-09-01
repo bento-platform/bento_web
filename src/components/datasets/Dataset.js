@@ -93,9 +93,10 @@ class Dataset extends Component {
 
 
     componentDidMount() {
-        if (this.state.identifier) {
-            this.props.fetchDatasetSummary(this.state.identifier);
-            this.props.fetchDatasetDataTypesSummary(this.state.identifier);
+        const {identifier} = this.state;
+        if (identifier) {
+            this.props.fetchDatasetSummary(identifier);
+            this.props.fetchDatasetDataTypesSummary(identifier);
         }
     }
 

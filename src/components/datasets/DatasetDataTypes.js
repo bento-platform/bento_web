@@ -40,7 +40,7 @@ const DatasetDataTypes = React.memo(
             });
         }, [dispatch, dataset]);
 
-        const showDatatypeSummary = useCallback((dataType) => {
+        const showDataTypeSummary = useCallback((dataType) => {
             setSelectedDataType(dataType);
             setDatatypeSummaryVisible(true);
         }, []);
@@ -51,7 +51,7 @@ const DatasetDataTypes = React.memo(
                 key: "label",
                 render: (dt) =>
                     isPrivate ? (
-                    <a onClick={() => showDatatypeSummary(dt)}>
+                    <a onClick={() => showDataTypeSummary(dt)}>
                         {dt.label ?? NA_TEXT}
                     </a>
                     ) : dt.label ?? NA_TEXT,
