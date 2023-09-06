@@ -87,8 +87,7 @@ const IndividualTracks = ({ individual }) => {
 
     const igvRef = useRef(null);
     const igvRendered = useRef(false);
-    const igvUrls = useSelector((state) => state.drs.igvUrlsByFilename);
-    const isFetchingIgvUrls = useSelector((state) => state.drs.isFetchingIgvUrls);
+    const {igvUrlsByFilename: igvUrls, isFetchingIgvUrls} = useSelector((state) => state.drs.igvUrlsByFilename);
 
     // read stored position only on first render
     const igvPosition = useSelector(
