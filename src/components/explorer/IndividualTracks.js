@@ -102,12 +102,15 @@ const IndividualTracks = ({ individual }) => {
     const viewableResults = useMemo(() =>
         experimentsData.flatMap((e) => e?.experiment_results ?? [])
             .filter(isViewable)
-            .map((v) => ({  // add properties for visibility and file type
-                ...v,
-                // by default, don't view crams (user can turn them on in track controls):
-                viewInIgv: v.file_format.toLowerCase() !== "cram",
-                file_format: v.file_format?.toLowerCase() ?? guessFileType(v.filename),
-            })),
+            .map((v) => {  // add properties for visibility and file type
+                const fileFormat = v.file_format?.toLowerCase() ?? guessFileType(v.filename);
+                return {
+                    ...v,
+                    // by default, don't view crams (user can turn them on in track controls):
+                    viewInIgv: fileFormat !== "cram",
+                    file_format: fileFormat,  // re-formatted: to lowercase + guess if missing
+                };
+            }),
         [experimentsData],
     );
 
