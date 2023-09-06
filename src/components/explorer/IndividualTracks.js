@@ -43,7 +43,7 @@ const hasFreshUrls = (files, urls) => files.every((f) => urls.hasOwnProperty(f.f
 const isViewable = (file) => {
     const viewable = ["vcf", "cram", "bigwig", "bw"];
     return viewable.includes(file.file_format?.toLowerCase()) || viewable.includes(guessFileType(file.filename));
-}
+};
 
 const TrackControlTable = React.memo(({ toggleView, allFoundFiles }) => {
     const trackTableColumns = [
@@ -99,18 +99,19 @@ const IndividualTracks = ({ individual }) => {
     const biosamplesData = (individual?.phenopackets ?? []).flatMap((p) => p.biosamples);
     const experimentsData = biosamplesData.flatMap((b) => b?.experiments ?? []);
 
-    const viewableResults = useMemo(() =>
-        experimentsData.flatMap((e) => e?.experiment_results ?? [])
-            .filter(isViewable)
-            .map((v) => {  // add properties for visibility and file type
-                const fileFormat = v.file_format?.toLowerCase() ?? guessFileType(v.filename);
-                return {
-                    ...v,
-                    // by default, don't view crams (user can turn them on in track controls):
-                    viewInIgv: fileFormat !== "cram",
-                    file_format: fileFormat,  // re-formatted: to lowercase + guess if missing
-                };
-            }),
+    const viewableResults = useMemo(
+        () =>
+            experimentsData.flatMap((e) => e?.experiment_results ?? [])
+                .filter(isViewable)
+                .map((v) => {  // add properties for visibility and file type
+                    const fileFormat = v.file_format?.toLowerCase() ?? guessFileType(v.filename);
+                    return {
+                        ...v,
+                        // by default, don't view crams (user can turn them on in track controls):
+                        viewInIgv: fileFormat !== "cram",
+                        file_format: fileFormat,  // re-formatted: to lowercase + guess if missing
+                    };
+                }),
         [experimentsData],
     );
 
