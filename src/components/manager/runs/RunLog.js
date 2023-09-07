@@ -1,15 +1,17 @@
 import React, {useEffect} from "react";
 import {useDispatch, useSelector} from "react-redux";
+import PropTypes from "prop-types";
 
 import {AnsiUp} from "ansi_up/ansi_up";
 
 import {Descriptions, Skeleton} from "antd";
 
-const ansiUp = new AnsiUp();
-
-
 import {fetchRunLogStreamsIfPossibleAndNeeded} from "../../../modules/wes/actions";
 import {runPropTypesShape} from "../../../propTypes";
+
+
+const ansiUp = new AnsiUp();
+
 
 const LogOutput = ({log}) => {
     if (log === null) return <Skeleton paragraph={false} />;
@@ -19,6 +21,11 @@ const LogOutput = ({log}) => {
         dangerouslySetInnerHTML={{__html: ansiUp.ansi_to_html(log?.data || "")}}
     />;
 };
+LogOutput.propTypes = {
+    log: PropTypes.shape({
+        data: PropTypes.string,
+    }),
+};
 
 const RunLog = ({run}) => {
     const dispatch = useDispatch();
@@ -27,7 +34,7 @@ const RunLog = ({run}) => {
 
     useEffect(() => {
         if (isFetchingRuns) return;
-        dispatch(fetchRunLogStreamsIfPossibleAndNeeded(run.run_id))
+        dispatch(fetchRunLogStreamsIfPossibleAndNeeded(run.run_id));
     }, [dispatch, run, isFetchingRuns]);
 
     const stdout = runLogStreams[run.run_id]?.stdout ?? null;
