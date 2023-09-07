@@ -1,7 +1,6 @@
-import React from "react";
+import React, {useMemo} from "react";
 
 import {Table} from "antd";
-
 
 import {individualPropTypesShape} from "../../propTypes";
 
@@ -12,54 +11,66 @@ import {individualPropTypesShape} from "../../propTypes";
 const METADATA_COLUMNS = [
     {
         title: "Resource ID",
-        key: "r_id",
-        render: (_, individual) => individual.id,
+        dataIndex: "id",
         sorter: (a, b) => a.id.toString().localeCompare(b.id),
         defaultSortOrder: "ascend",
-    },{
+    },
+    {
         title: "Name",
-        key: "name",
-        render: (_, individual) => individual.name,
+        dataIndex: "name",
         sorter: (a, b) => a.name.toString().localeCompare(b.name),
         defaultSortOrder: "ascend",
-    },{
+    },
+    {
         title: "Namespace Prefix",
-        key: "namespace_prefix",
-        render: (_, individual) => individual.namespace_prefix,
+        dataIndex: "namespace_prefix",
         sorter: (a, b) => a.namespace_prefix.toString().localeCompare(b.namespace_prefix),
         defaultSortOrder: "ascend",
-    },{
+    },
+    {
         title: "Url",
-        key: "url",
-        render: (_, individual) => <a target="_blank"
-                                      rel="noopener noreferrer"
-                                      href={individual.url}>{individual.url}</a>,
+        dataIndex: "url",
+        render: (url) => <a target="_blank" rel="noopener noreferrer" href={url}>{url}</a>,
         defaultSortOrder: "ascend",
-    },{
+    },
+    {
         title: "Version",
-        key: "version",
-        render: (_, individual) => individual.version,
+        dataIndex: "version",
         sorter: (a, b) => a.version.toString().localeCompare(b.version),
         defaultSortOrder: "ascend",
-    },{
+    },
+    {
         title: "IRI Prefix",
-        key: "iri_prefix",
-        render: (_, individual) => <a target="_blank"
-                                      rel="noopener noreferrer"
-                                      href={individual.iri_prefix}>{individual.iri_prefix}</a>,
+        dataIndex: "iri_prefix",
+        render: (iriPrefix) => <span style={{ fontFamily: "monospace" }}>{iriPrefix}</span>,
         defaultSortOrder: "ascend",
     },
 ];
 
-const IndividualMetadata = ({individual}) =>
-    <Table bordered
-           size="middle"
-           pagination={{pageSize: 25}}
-           columns={METADATA_COLUMNS}
-           rowKey="id"
-           dataSource={(individual || {}).phenopackets.flatMap(p => (p.meta_data || {}).resources || [])} />;
+const IndividualMetadata = ({individual}) => {
+    const resources = useMemo(
+        () =>
+            Object.values(
+                Object.fromEntries(
+                    (individual || {}).phenopackets
+                        .flatMap(p => (p.meta_data || {}).resources || [])
+                        .map(r => [r.id, r]),
+                ),
+            ),
+        [individual],
+    );
 
-
+    return (
+        <Table
+            bordered
+            size="middle"
+            pagination={{pageSize: 25}}
+            columns={METADATA_COLUMNS}
+            rowKey="id"
+            dataSource={resources}
+        />
+    );
+};
 
 IndividualMetadata.propTypes = {
     individual: individualPropTypesShape,
