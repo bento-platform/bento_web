@@ -21,8 +21,8 @@ const BiosampleTabs = ({ individual, handleBiosampleClick, handleExperimentClick
             Object.fromEntries(
                 (individual?.phenopackets ?? [])
                     .flatMap((p) => p.biosamples)
-                    .map(b => [b.id, b])
-            )
+                    .map(b => [b.id, b]),
+            ),
         ),
         [individual]);
 
@@ -62,11 +62,11 @@ const BiosampleTabs = ({ individual, handleBiosampleClick, handleExperimentClick
                     </Descriptions.Item>
                     <Descriptions.Item label="Extra Properties">
                         {biosample.hasOwnProperty("extra_properties") &&
-                        Object.keys(biosample.extra_properties).length ? (
-                            <JsonView inputJson={biosample.extra_properties} />
-                        ) : (
-                            EM_DASH
-                        )}
+                            Object.keys(biosample.extra_properties).length ? (
+                                <JsonView inputJson={biosample.extra_properties} />
+                            ) : (
+                                EM_DASH
+                            )}
                     </Descriptions.Item>
                     <Descriptions.Item label="Available Experiments">
                         {(biosample.experiments ?? [])
@@ -84,6 +84,11 @@ const BiosampleTabs = ({ individual, handleBiosampleClick, handleExperimentClick
         ))}
     </Tabs>;
 };
+BiosampleTabs.propTypes = {
+    individual: individualPropTypesShape,
+    handleBiosampleClick: PropTypes.func,
+    handleExperimentClick: PropTypes.func,
+};
 
 const IndividualBiosamples = ({individual, experimentsUrl}) => {
     const history = useHistory();
@@ -93,7 +98,7 @@ const IndividualBiosamples = ({individual, experimentsUrl}) => {
         () => Array.from(new Set(
             (individual?.phenopackets ?? [])
                 .flatMap((p) => p.biosamples)
-                .map(b => b.id)
+                .map(b => b.id),
         )),
         [individual]);
 
@@ -117,7 +122,7 @@ const IndividualBiosamples = ({individual, experimentsUrl}) => {
             </Route>
             <Redirect from={match.path} to={`${match.path}/${biosampleIDs[0]}`} />
         </Switch>
-    )
+    );
 };
 
 IndividualBiosamples.propTypes = {
