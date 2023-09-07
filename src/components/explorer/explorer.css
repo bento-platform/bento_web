@@ -48,14 +48,6 @@
   padding: 8px 16px !important;
 }
 
-.ant-descriptions-bordered.ant-descriptions-small .ant-descriptions-item-label,
-.ant-descriptions-bordered.ant-descriptions-small .ant-descriptions-item-content {
-  padding: 0;
-  border-spacing: 0px;
-  /* border: 0;
-  box-shadow: 0 0 0 1px #e8e8e8; */
-}
-
 /* selector for nested descriptions */
 .ant-descriptions-view .ant-descriptions-view {
   border: 0;
@@ -69,40 +61,6 @@
   border-top: 0;
   border-bottom: 0;
 }
-
-
-.ant-descriptions-title {
-  margin: 0;
-  /* padding-left: 15px; */
-  background-color: #fafafa;
-  font-size: 14px;
-  padding: 8px 15px;
-}
-
-.ant-descriptions-title {
-  margin: 0;
-  padding-left: 15px;
-  background-color: #fafafa;
-  font-size: 14px;
-}
-
-.ant-descriptions-view {
-  border-radius: 0;
-}
-
-.ant-descriptions-title {
-  border: 0;
-  box-shadow: 0 0 0 1px #e8e8e8;
-}
-
-.ant-descriptions-row {
-  border: 0;
-  box-shadow: 0 0 0 1px #e8e8e8;
-}
-
-/* div.ant-descriptions-view > table {
-  border-spacing:
-} */
 
 .experiment_summary {
   display: flex;
@@ -121,15 +79,15 @@
 }
 
 .experiment-titles {
-  padding: 0px 0px 8px 17px;
+  padding: 0 0 8px 17px;
 }
 
 .other-details .ant-descriptions-item-label {
-  padding: 0px 10px !important;
+  padding: 0 10px !important;
 }
 
 .other-details .ant-descriptions-item-content {
-  padding: 0px 10px !important;
+  padding: 0 10px !important;
 }
 
 .other-details-click {
@@ -138,4 +96,4 @@
 
 .experiment_and_results .ant-table-content {
   display: inline-block;
-} 
+}
