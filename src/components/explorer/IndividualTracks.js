@@ -247,11 +247,17 @@ const IndividualTracks = ({ individual }) => {
 
     return (
         <>
-            {allFoundFiles.length ? (
-                <Button icon="setting" style={{ marginRight: "8px" }} onClick={showModal}>
-                    Configure Tracks
-                </Button>
-            ) : (
+            <Button
+                icon="setting"
+                style={{ marginRight: "8px" }}
+                onClick={showModal}
+                disabled={!allFoundFiles.length}
+                loading={isFetchingIgvUrls}
+            >
+                Configure Tracks
+            </Button>
+            <Divider />
+            {!allFoundFiles.length && (
                 isFetchingIgvUrls ? (
                     <Skeleton title={false} loading={true} />
                 ) : (
@@ -259,7 +265,6 @@ const IndividualTracks = ({ individual }) => {
                 )
             )}
             <div ref={igvRef} />
-            <Divider />
             <Modal visible={modalVisible} onOk={closeModal} onCancel={closeModal} zIndex={MODAL_Z_INDEX} width={600}>
                 <TrackControlTable toggleView={toggleView} allFoundFiles={allFoundFiles} />
             </Modal>
