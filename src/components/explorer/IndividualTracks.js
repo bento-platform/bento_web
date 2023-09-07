@@ -1,7 +1,7 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import PropTypes from "prop-types";
-import { Button, Divider, Modal, Switch, Table, Empty } from "antd";
+import {Button, Divider, Modal, Switch, Table, Empty, Skeleton} from "antd";
 import { debounce } from "lodash";
 import igv from "igv/dist/igv.esm";
 
@@ -39,6 +39,11 @@ const DEBOUNCE_WAIT = 500;
 
 // verify url set is for this individual (may have stale urls from previous request)
 const hasFreshUrls = (files, urls) => files.every((f) => urls.hasOwnProperty(f.filename));
+
+const isViewable = (file) => {
+    const viewable = ["vcf", "cram", "bigwig", "bw"];
+    return viewable.includes(file.file_format?.toLowerCase()) || viewable.includes(guessFileType(file.filename));
+};
 
 const TrackControlTable = React.memo(({ toggleView, allFoundFiles }) => {
     const trackTableColumns = [
@@ -82,8 +87,7 @@ const IndividualTracks = ({ individual }) => {
 
     const igvRef = useRef(null);
     const igvRendered = useRef(false);
-    const igvUrls = useSelector((state) => state.drs.igvUrlsByFilename);
-    const isFetchingIgvUrls = useSelector((state) => state.drs.isFetchingIgvUrls);
+    const {igvUrlsByFilename: igvUrls, isFetchingIgvUrls} = useSelector((state) => state.drs);
 
     // read stored position only on first render
     const igvPosition = useSelector(
@@ -94,17 +98,22 @@ const IndividualTracks = ({ individual }) => {
     const dispatch = useDispatch();
     const biosamplesData = (individual?.phenopackets ?? []).flatMap((p) => p.biosamples);
     const experimentsData = biosamplesData.flatMap((b) => b?.experiments ?? []);
-    let viewableResults = experimentsData.flatMap((e) => e?.experiment_results ?? []).filter(isViewable);
 
-    // add properties for visibility and file type
-    viewableResults = viewableResults.map((v) => {
-        return { ...v, viewInIgv: true, file_format: v.file_format?.toLowerCase() ?? guessFileType(v.filename) };
-    });
-
-    // by default, don't view crams (user can turn them on in track controls)
-    viewableResults = viewableResults.map((v) => {
-        return v.file_format.toLowerCase() === "cram" ? { ...v, viewInIgv: false } : v;
-    });
+    const viewableResults = useMemo(
+        () =>
+            experimentsData.flatMap((e) => e?.experiment_results ?? [])
+                .filter(isViewable)
+                .map((v) => {  // add properties for visibility and file type
+                    const fileFormat = v.file_format?.toLowerCase() ?? guessFileType(v.filename);
+                    return {
+                        ...v,
+                        // by default, don't view crams (user can turn them on in track controls):
+                        viewInIgv: fileFormat !== "cram",
+                        file_format: fileFormat,  // re-formatted: to lowercase + guess if missing
+                    };
+                }),
+        [experimentsData],
+    );
 
     const [allTracks, setAllTracks] = useState(
         viewableResults.sort((r1, r2) => (r1.file_format > r2.file_format ? 1 : -1)),
@@ -119,6 +128,8 @@ const IndividualTracks = ({ individual }) => {
     );
 
     const [modalVisible, setModalVisible] = useState(false);
+
+    const showModal = useCallback(() => setModalVisible(true), []);
     const closeModal = useCallback(() => setModalVisible(false), []);
 
     // hardcode for hg19/GRCh37, fix requires updates elsewhere in Bento
@@ -145,11 +156,11 @@ const IndividualTracks = ({ individual }) => {
         }
     }, [allTracks]);
 
-    const storeIgvPosition = (referenceFrame) => {
+    const storeIgvPosition = useCallback((referenceFrame) => {
         const { chr, start, end } = referenceFrame[0];
         const position = `${chr}:${start}-${end}`;
         dispatch(setIgvPosition(position));
-    };
+    }, [dispatch]);
 
     // retrieve urls on mount
     useEffect(() => {
@@ -236,15 +247,24 @@ const IndividualTracks = ({ individual }) => {
 
     return (
         <>
-            {allFoundFiles.length ? (
-                <Button icon="setting" style={{ marginRight: "8px" }} onClick={() => setModalVisible(true)}>
-                    Configure Tracks
-                </Button>
-            ) : (
-                <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} />
+            <Button
+                icon="setting"
+                style={{ marginRight: "8px" }}
+                onClick={showModal}
+                disabled={!allFoundFiles.length}
+                loading={isFetchingIgvUrls}
+            >
+                Configure Tracks
+            </Button>
+            <Divider />
+            {!allFoundFiles.length && (
+                isFetchingIgvUrls ? (
+                    <Skeleton title={false} paragraph={{ rows: 4 }} loading={true} />
+                ) : (
+                    <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} />
+                )
             )}
             <div ref={igvRef} />
-            <Divider />
             <Modal visible={modalVisible} onOk={closeModal} onCancel={closeModal} zIndex={MODAL_Z_INDEX} width={600}>
                 <TrackControlTable toggleView={toggleView} allFoundFiles={allFoundFiles} />
             </Modal>
@@ -255,10 +275,5 @@ const IndividualTracks = ({ individual }) => {
 IndividualTracks.propTypes = {
     individual: individualPropTypesShape,
 };
-
-function isViewable(file) {
-    const viewable = ["vcf", "cram", "bigwig", "bw"];
-    return viewable.includes(file.file_format?.toLowerCase()) || viewable.includes(guessFileType(file.filename));
-}
 
 export default IndividualTracks;
