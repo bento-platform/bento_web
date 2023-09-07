@@ -259,7 +259,7 @@ const IndividualTracks = ({ individual }) => {
             <Divider />
             {!allFoundFiles.length && (
                 isFetchingIgvUrls ? (
-                    <Skeleton title={false} loading={true} />
+                    <Skeleton title={false} paragraph={{ rows: 4 }} loading={true} />
                 ) : (
                     <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} />
                 )
