@@ -31,7 +31,7 @@ const P_FEATURES_COLUMNS = [
 ];
 
 const IndividualPhenotypicFeatures = ({individual}) => {
-    // TODO: this logic might be technically incorrect with different versions of the same resource
+    // TODO: this logic might be technically incorrect with different versions of the same resource (i.e. ontology)
     //  across multiple phenopackets
     const phenotypicFeatures = useMemo(
         () =>
