@@ -1,13 +1,13 @@
-import React, {useMemo} from "react";
-import {Link} from "react-router-dom";
-import {useDispatch} from "react-redux";
+import React, { useMemo } from "react";
+import { Link } from "react-router-dom";
+import { useDispatch } from "react-redux";
 import PropTypes from "prop-types";
 
-import {Button, Descriptions, Empty} from "antd";
+import { Button, Descriptions, Empty } from "antd";
 
-import {individualPropTypesShape} from "../../propTypes";
-import {setIgvPosition} from "../../modules/explorer/actions";
-import {deduplicatedIndividualBiosamples} from "./utils";
+import { individualPropTypesShape } from "../../propTypes";
+import { setIgvPosition } from "../../modules/explorer/actions";
+import { useDeduplicatedIndividualBiosamples } from "./utils";
 import "./explorer.css";
 
 // TODO: Only show variants from the relevant dataset, if specified;
@@ -62,7 +62,7 @@ SampleVariants.propTypes = {
 };
 
 const IndividualVariants = ({individual, tracksUrl}) => {
-    const biosamples = useMemo(() => deduplicatedIndividualBiosamples(individual), [individual]);
+    const biosamples = useDeduplicatedIndividualBiosamples(individual);
 
     const variantsMapped = useMemo(
         () => Object.fromEntries(biosamples.map((biosample) => [
