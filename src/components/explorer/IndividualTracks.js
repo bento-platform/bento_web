@@ -10,6 +10,7 @@ import { individualPropTypesShape } from "../../propTypes";
 import { getIgvUrlsFromDrs } from "../../modules/drs/actions";
 import { setIgvPosition } from "../../modules/explorer/actions";
 import { guessFileType } from "../../utils/guessFileType";
+import {useDeduplicatedIndividualBiosamples} from "./utils";
 
 const SQUISHED_CALL_HEIGHT = 10;
 const EXPANDED_CALL_HEIGHT = 50;
@@ -96,7 +97,7 @@ const IndividualTracks = ({ individual }) => {
     );
 
     const dispatch = useDispatch();
-    const biosamplesData = (individual?.phenopackets ?? []).flatMap((p) => p.biosamples);
+    const biosamplesData = useDeduplicatedIndividualBiosamples(individual);
     const experimentsData = biosamplesData.flatMap((b) => b?.experiments ?? []);
 
     const viewableResults = useMemo(
