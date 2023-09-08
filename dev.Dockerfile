@@ -13,9 +13,9 @@ LABEL org.opencontainers.image.description="Local development image for Bento We
 
 WORKDIR /web
 
+COPY run.dev.bash .
 COPY package.json .
 COPY package-lock.json .
-COPY run.dev.bash .
 
 COPY --from=install /web/node_modules ./node_modules
 

@@ -35,17 +35,22 @@ RUN curl -fsSL https://deb.nodesource.com/setup_20.x | bash - && \
 COPY nginx.conf /etc/nginx/nginx.conf
 
 WORKDIR /web
-# Copy webpack-built source code from the build stage to the final image
-COPY --from=build /web/dist ./dist
-# Copy in package.json to provide version
-COPY package.json .
-# Copy in the production config generation script
-COPY create_config_prod.js .
-# Copy in the service info generator
-COPY create_service_info.js .
-# Copy in the entrypoint, which writes the config file and starts NGINX
-COPY run.bash .
-# Copy in LICENSE so that people can see it if they explore the image contents
+
+# In general, we want to copy files in order of least -> most changed for layer caching reasons.
+
+# - Copy in LICENSE so that people can see it if they explore the image contents
 COPY LICENSE .
+# - Copy in the production config generation script
+COPY create_config_prod.js .
+# - Copy in the service info generator
+COPY create_service_info.js .
+# - Copy in the entrypoint, which writes the config file and starts NGINX
+COPY run.bash .
+# - Copy in package.json to provide version to scripts
+COPY package.json .
+# - Copy webpack-built source code from the build stage to the final image
+#    - copy this last, since it changes more often than everything above it
+#    - this way we can cache layers
+COPY --from=build /web/dist ./dist
 
 CMD ["bash", "./run.bash"]
