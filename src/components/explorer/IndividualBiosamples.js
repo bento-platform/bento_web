@@ -1,4 +1,4 @@
-import React, { Fragment, useCallback, useMemo } from "react";
+import React, {Fragment, useCallback, useEffect, useMemo} from "react";
 import PropTypes from "prop-types";
 import { Route, Switch, useHistory } from "react-router-dom";
 
@@ -110,6 +110,19 @@ const Biosamples = ({ individual, handleBiosampleClick, handleExperimentClick })
         [selectedBiosample],
     );
 
+    useEffect(() => {
+        // If, on first load, there's a selected biosample:
+        //  - find the biosample-${id} element (a span in the table row)
+        //  - scroll it into view
+        setTimeout(() => {
+            if (selectedBiosample) {
+                const el = document.getElementById(`biosample-${selectedBiosample}`);
+                if (!el) return;
+                el.scrollIntoView();
+            }
+        }, 100);
+    }, []);
+
     const biosamples = useMemo(
         () => Object.values(
             Object.fromEntries(
@@ -125,6 +138,7 @@ const Biosamples = ({ individual, handleBiosampleClick, handleExperimentClick })
             {
                 title: "Biosample",
                 dataIndex: "id",
+                render: id => <span id={`biosample-${id}`}>{id}</span>,  // scroll anchor wrapper
             },
             {
                 title: "Sampled Tissue",
