@@ -1,10 +1,12 @@
 import React from "react";
 import {Link} from "react-router-dom";
-import { useDispatch } from "react-redux";
-import {Button, Descriptions, Empty} from "antd";
+import {useDispatch} from "react-redux";
 import PropTypes from "prop-types";
+
+import {Button, Descriptions, Empty} from "antd";
+
 import {individualPropTypesShape} from "../../propTypes";
-import { setIgvPosition } from "../../modules/explorer/actions";
+import {setIgvPosition} from "../../modules/explorer/actions";
 import "./explorer.css";
 
 // TODO: Only show variants from the relevant dataset, if specified;
@@ -14,66 +16,57 @@ const sampleStyle = {display: "flex", flexDirection: "column", flexWrap: "nowrap
 const variantStyle = {margin: "5px"};
 
 const IndividualVariants = ({individual, tracksUrl}) => {
-    const biosamples = (individual || {}).phenopackets.flatMap(p => p.biosamples);
-    const variantsMapped = {};
     const dispatch = useDispatch();
 
-    biosamples.forEach((bs) => {
-        const allvariants = (bs || {}).variants;
+    const biosamples = Object.values(
+        Object.fromEntries(
+            (individual || {}).phenopackets
+                .flatMap(p => p.biosamples)
+                .map(b => [b.id, b])
+        )
+    );
 
-        const variantsObject = (allvariants || []).map((v) => ({
+    const variantsMapped = Object.fromEntries(biosamples.map((biosample) => [
+        biosample.id,
+        (biosample.variants ?? []).map((v) => ({
             id: v.hgvsAllele?.id,
             hgvs: v.hgvsAllele?.hgvs,
             gene_context: v.extra_properties?.gene_context ?? "",
-        }));
-        variantsMapped[bs.id] = variantsObject;
-    });
+        })),
+    ]));
 
-    const ids = (biosamples || []).map(b =>
-        ({
-            title: `Biosample ${b.id}`,
-            key: b.id,
-            render: (_, map) => <div style={{verticalAlign: "top"}}>
-                <pre>{JSON.stringify(map[b.id], null, 2)}</pre></div>,
-            //sorter: (a, b) => a.id.localeCompare(b.id),
-            //defaultSortOrder: "ascend"
-        }),
+    const VariantDetails = ({variant}) => (
+        <div style={variantStyle}>
+            <span style={{display: "inline", marginRight: "15px"} }>
+                {`id: ${variant.id} hgvs: ${variant.hgvs}`}
+            </span>
+            {variant.gene_context && (
+                <>
+                    gene context:
+                    <Link onClick={() => dispatch(setIgvPosition(variant.gene_context))}
+                          to={{ pathname: tracksUrl }}>
+                        <Button>{variant.gene_context}</Button>
+                    </Link>
+                </>
+            )}
+        </div>
     );
 
-    const VariantDetails = ({variant}) => {
-        return  <div style={variantStyle}>
-      <span style={{display: "inline", marginRight: "15px"} }>{`id: ${variant.id} hgvs: ${variant.hgvs}`}</span>
-      {variant.gene_context && (
-          <>gene context:
-            <Link onClick={() => dispatch(setIgvPosition(variant.gene_context))}
-                  to={{
-                      pathname: tracksUrl,
-                  }}
-            >
-            <Button>{variant.gene_context}</Button>
-            </Link>
-          </>
-      )}
-    </div>;
-    };
-
-    const SampleVariants = ({id}) => {
-
-        return variantsMapped[id].length ? (
+    const SampleVariants = ({biosampleID}) =>
+        variantsMapped[biosampleID].length ? (
           <div style={sampleStyle}>
-            {variantsMapped[id].map((v) => (
+            {variantsMapped[biosampleID].map((v) => (
               <VariantDetails key={v.id} variant={v} />
             ))}
           </div>
         ) : <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} />;
-    };
 
     return (
       <div className="variantDescriptions">
-          {ids.length ? <Descriptions layout="horizontal" bordered={true} column={1} size="small">
-              {ids.map((i) => (
-                  <Descriptions.Item key={i.key} label={i.title}>
-                      <SampleVariants id={i.key}/>
+          {biosamples.length ? <Descriptions layout="horizontal" bordered={true} column={1} size="small">
+              {biosamples.map(({id}) => (
+                  <Descriptions.Item key={id} label={`Biosample ${id}`}>
+                      <SampleVariants biosampleID={id} />
                   </Descriptions.Item>
               ))}
           </Descriptions> : <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} />}
