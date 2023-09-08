@@ -54,6 +54,10 @@
   box-shadow: 0 0 0 1px #e8e8e8;
 }
 
+.ant-table-expanded-row .ant-descriptions-item-content {
+  background-color: white;
+}
+
 .ant-descriptions-view .ant-descriptions-view .ant-descriptions-item-content {
   padding: 8px 16px;
   border-spacing: 0;
