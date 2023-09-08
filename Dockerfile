@@ -1,4 +1,4 @@
-FROM --platform=$BUILDPLATFORM node:18-bullseye-slim AS build
+FROM --platform=$BUILDPLATFORM node:20-bookworm-slim AS build
 
 # Build bento_web with NodeJS + Webpack
 #  - Use BUILDPLATFORM for running webpack, since it should perform a lot better.
@@ -25,7 +25,8 @@ RUN npm run build
 
 FROM nginx:1.23
 
-RUN curl -fsSL https://deb.nodesource.com/setup_18.x | bash - && \
+# Install node so that we can run the create_config_prod.js & create_service_info.js scripts
+RUN curl -fsSL https://deb.nodesource.com/setup_20.x | bash - && \
     apt-get update -y && \
     apt-get install nodejs
 

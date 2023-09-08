@@ -1,4 +1,4 @@
-FROM --platform=$BUILDPLATFORM node:18-bullseye-slim AS install
+FROM --platform=$BUILDPLATFORM node:20-bookworm-slim AS install
 
 WORKDIR /web
 
@@ -7,7 +7,7 @@ COPY package-lock.json .
 
 RUN npm ci
 
-FROM ghcr.io/bento-platform/bento_base_image:node-debian-2023.03.22
+FROM ghcr.io/bento-platform/bento_base_image:node-debian-2023.09.08
 
 LABEL org.opencontainers.image.description="Local development image for Bento Web."
 
