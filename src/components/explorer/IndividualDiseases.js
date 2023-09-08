@@ -3,7 +3,7 @@ import React from "react";
 import {Table} from "antd";
 
 
-import {diseasePropTypesShape} from "../../propTypes";
+import { individualPropTypesShape } from "../../propTypes";
 import { EM_DASH } from "../../constants";
 
 // TODO: Only show diseases from the relevant dataset, if specified;
@@ -66,7 +66,7 @@ const IndividualDiseases = ({individual}) =>
 
 
 IndividualDiseases.propTypes = {
-    individual: diseasePropTypesShape,
+    individual: individualPropTypesShape,
 };
 
 export default IndividualDiseases;
