@@ -7,6 +7,7 @@ import {Button, Descriptions, Empty} from "antd";
 
 import {individualPropTypesShape} from "../../propTypes";
 import {setIgvPosition} from "../../modules/explorer/actions";
+import {deduplicatedIndividualBiosamples} from "./utils";
 import "./explorer.css";
 
 // TODO: Only show variants from the relevant dataset, if specified;
@@ -61,16 +62,7 @@ SampleVariants.propTypes = {
 };
 
 const IndividualVariants = ({individual, tracksUrl}) => {
-    const biosamples = useMemo(
-        () => Object.values(
-            Object.fromEntries(
-                (individual || {}).phenopackets
-                    .flatMap(p => p.biosamples)
-                    .map(b => [b.id, b]),
-            ),
-        ),
-        [individual],
-    );
+    const biosamples = useMemo(() => deduplicatedIndividualBiosamples(individual), [individual]);
 
     const variantsMapped = useMemo(
         () => Object.fromEntries(biosamples.map((biosample) => [
