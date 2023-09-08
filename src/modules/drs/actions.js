@@ -146,7 +146,7 @@ export const getFileDownloadUrlsFromDrs = (fileObjects) => async (dispatch, getS
             // reduce array to object that's addressable by filename
             const urlsObj = urls.reduce((obj, item) => Object.assign(obj, item), {});
 
-            console.debug(`received download urls from drs:`, urlsObj);
+            console.debug("received download urls from drs:", urlsObj);
 
             dispatch(setDownloadUrls(urlsObj));
         })
