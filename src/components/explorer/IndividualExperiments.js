@@ -155,14 +155,7 @@ const IndividualExperiments = ({ individual }) => {
             {experimentsData.map((e) => (
                 <Panel
                     key={e.id}
-                    header={(
-                        <span>
-                            <span style={{fontFamily: "monospace", fontStyle: "italic", color: "rgb(140, 140, 140)"}}>
-                                ID: {e.id}
-                            </span>{" "}
-                            {e.experiment_type} (Biosample {e.biosample})
-                        </span>
-                    )}
+                    header={`${e.experiment_type} (Biosample ${e.biosample})`}
                 >
                     <div className="experiment_and_results" id={e.biosample} key={e.id}>
                         <div className="experiment_summary">
@@ -242,6 +235,9 @@ const IndividualExperiments = ({ individual }) => {
                                         column={1}
                                         size="small"
                                     >
+                                        <Descriptions.Item label="ID">
+                                            <span style={{fontFamily: "monospace"}}>{e.id}</span>
+                                        </Descriptions.Item>
                                         <Descriptions.Item label="Experiment Type">
                                             {e.experiment_type}
                                         </Descriptions.Item>
