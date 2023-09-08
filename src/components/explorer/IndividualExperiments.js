@@ -157,7 +157,7 @@ const IndividualExperiments = ({ individual }) => {
                     key={e.id}
                     header={(
                         <span>
-                            <span style={{fontFamily: "monospace", fontStyle: "italic", color: "#666"}}>
+                            <span style={{fontFamily: "monospace", fontStyle: "italic", color: "rgb(140, 140, 140)"}}>
                                 ID: {e.id}
                             </span>{" "}
                             {e.experiment_type} (Biosample {e.biosample})
