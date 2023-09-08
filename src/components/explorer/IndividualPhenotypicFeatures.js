@@ -42,8 +42,8 @@ const IndividualPhenotypicFeatures = ({individual}) => {
                         .map(pf => {
                             const pfID = `${pf.type.id}:${pf.negated}`;
                             return [pfID, {...pf, id: pfID}];
-                        })
-                )
+                        }),
+                ),
             ),
         [individual],
     );
@@ -58,7 +58,7 @@ const IndividualPhenotypicFeatures = ({individual}) => {
             dataSource={phenotypicFeatures}
         />
     );
-}
+};
 
 IndividualPhenotypicFeatures.propTypes = {
     individual: individualPropTypesShape,
