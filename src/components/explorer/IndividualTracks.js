@@ -121,8 +121,8 @@ const IndividualTracks = ({ individual }) => {
                                     file_format: fileFormat,  // re-formatted: to lowercase + guess if missing
                                 },
                             ];
-                        })
-                )
+                        }),
+                ),
             ),
         [experimentsData],
     );
