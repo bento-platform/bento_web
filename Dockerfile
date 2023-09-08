@@ -28,7 +28,8 @@ FROM nginx:1.23
 # Install node so that we can run the create_config_prod.js & create_service_info.js scripts
 RUN curl -fsSL https://deb.nodesource.com/setup_20.x | bash - && \
     apt-get update -y && \
-    apt-get install nodejs
+    apt-get install nodejs && \
+    rm -rf /var/lib/apt/lists/*
 
 # Serve bento_web with NGINX; copy in configuration
 COPY nginx.conf /etc/nginx/nginx.conf
