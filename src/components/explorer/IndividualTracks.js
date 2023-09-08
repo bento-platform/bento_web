@@ -116,6 +116,8 @@ const IndividualTracks = ({ individual }) => {
         [experimentsData],
     );
 
+    console.debug("Viewable experiment results:", viewableResults);
+
     const [allTracks, setAllTracks] = useState(
         viewableResults.sort((r1, r2) => (r1.file_format > r2.file_format ? 1 : -1)),
     );
