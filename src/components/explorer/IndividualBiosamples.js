@@ -1,19 +1,20 @@
 import React, {Fragment, useCallback, useEffect, useMemo} from "react";
 import PropTypes from "prop-types";
-import { Route, Switch, useHistory } from "react-router-dom";
+import { Route, Switch, useHistory, useRouteMatch, useParams } from "react-router-dom";
 
 import { Button, Descriptions, Table } from "antd";
 
 import { EM_DASH } from "../../constants";
 import { renderOntologyTerm } from "./ontologies";
+import { useDeduplicatedIndividualBiosamples } from "./utils";
 import {
     biosamplePropTypesShape,
     experimentPropTypesShape,
     individualPropTypesShape,
     ontologyShape,
 } from "../../propTypes";
+
 import JsonView from "./JsonView";
-import { useRouteMatch, useParams } from "react-router-dom/cjs/react-router-dom";
 
 import "./explorer.css";
 
@@ -123,15 +124,7 @@ const Biosamples = ({ individual, handleBiosampleClick, handleExperimentClick })
         }, 100);
     }, []);
 
-    const biosamples = useMemo(
-        () => Object.values(
-            Object.fromEntries(
-                (individual?.phenopackets ?? [])
-                    .flatMap((p) => p.biosamples)
-                    .map(b => [b.id, b]),
-            ),
-        ),
-        [individual]);
+    const biosamples = useDeduplicatedIndividualBiosamples(individual);
 
     const columns = useMemo(
         () => [
