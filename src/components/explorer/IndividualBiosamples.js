@@ -174,6 +174,7 @@ const Biosamples = ({ individual, handleBiosampleClick, handleExperimentClick })
         <Table
             bordered={true}
             pagination={false}
+            size="middle"
             columns={columns}
             onExpand={onExpand}
             expandedRowKeys={selectedRowKeys}
