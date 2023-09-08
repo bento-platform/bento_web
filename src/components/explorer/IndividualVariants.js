@@ -40,7 +40,7 @@ const VariantDetails = ({variant, tracksUrl}) => {
             )}
         </div>
     );
-}
+};
 VariantDetails.propTypes = {
     variant: mappedVariantPropType,
     tracksUrl: PropTypes.string,
@@ -55,7 +55,7 @@ const SampleVariants = ({variantsMapped, biosampleID, tracksUrl}) =>
         </div>
     ) : <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} />;
 SampleVariants.propTypes = {
-    variantsMapped: PropTypes.objectOf(mappedVariantPropType),
+    variantsMapped: PropTypes.objectOf(PropTypes.arrayOf(mappedVariantPropType)),
     biosampleID: PropTypes.string,
     tracksUrl: PropTypes.string,
 };
@@ -69,12 +69,12 @@ const IndividualVariants = ({individual, tracksUrl}) => {
                     .map(b => [b.id, b]),
             ),
         ),
-    [individual]
+        [individual],
     );
 
     const variantsMapped = useMemo(
         () => Object.fromEntries(biosamples.map((biosample) => [
-        biosample.id,
+            biosample.id,
             (biosample.variants ?? []).map((v) => ({
                 id: v.hgvsAllele?.id,
                 hgvs: v.hgvsAllele?.hgvs,
