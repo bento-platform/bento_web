@@ -155,7 +155,14 @@ const IndividualExperiments = ({ individual }) => {
             {experimentsData.map((e) => (
                 <Panel
                     key={e.id}
-                    header={`${e.experiment_type} (Biosample ${e.biosample})`}
+                    header={(
+                        <span>
+                            <span style={{fontFamily: "monospace", fontStyle: "italic", color: "#666"}}>
+                                ID: {e.id}
+                            </span>{" "}
+                            {e.experiment_type} (Biosample {e.biosample})
+                        </span>
+                    )}
                 >
                     <div className="experiment_and_results" id={e.biosample} key={e.id}>
                         <div className="experiment_summary">
