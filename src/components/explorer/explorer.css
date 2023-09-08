@@ -69,6 +69,7 @@
 .experiment_summary {
   display: flex;
   margin-bottom: 25px;
+  gap: 12px;
 }
 
 /* box shadow instead of borders for automatic border collapse on adjacent items */
