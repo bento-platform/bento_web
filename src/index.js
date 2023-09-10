@@ -8,14 +8,17 @@ import "antd/es/message/style/css";
 
 import App from "./components/App";
 import { store } from "./store";
+import AuthProviderInitialised from "./components/AuthProviderInitialised";
 
 document.addEventListener("DOMContentLoaded", () => {
     const root = document.getElementById("root");
     render(
         <Provider store={store}>
-            <BrowserRouter>
-                <App />
-            </BrowserRouter>
+            <AuthProviderInitialised>
+                <BrowserRouter>
+                    <App />
+                </BrowserRouter>
+            </AuthProviderInitialised>
         </Provider>,
         root
     );
