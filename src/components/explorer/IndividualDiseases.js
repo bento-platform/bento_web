@@ -40,8 +40,8 @@ const IndividualDiseases = ({ individual }) => {
                         : (disease.onset.hasOwnProperty("start") && Object.keys(disease.onset.start).length)
                             ? <div>{disease.onset.start.age} - {disease.onset.end.age}</div>
                             // Onset age label only
-                            : (disease.onset.hasOwnProperty("label") && Object.keys(disease.onset.label).length)
-                                ? <div>{disease.onset.label} ({disease.onset.id})</div>
+                            : disease.onset.label
+                                ? <OntologyTerm individual={individual} term={disease.onset} />
                                 : EM_DASH
                     : EM_DASH,
         },
@@ -49,7 +49,7 @@ const IndividualDiseases = ({ individual }) => {
             title: "Extra Properties",
             key: "extra_properties",
             render: (_, individual) =>
-                (individual.hasOwnProperty("extra_properties") && Object.keys(individual.extra_properties).length)
+                (Object.keys(individual.extra_properties ?? {}).length)
                     ? <div>
                         <pre>{JSON.stringify(individual.extra_properties, null, 2)}</pre>
                     </div>
