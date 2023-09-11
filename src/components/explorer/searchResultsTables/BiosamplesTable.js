@@ -2,15 +2,15 @@ import React from "react";
 import PropTypes from "prop-types";
 import { useSortedColumns } from "../hooks/explorerHooks";
 import { useSelector } from "react-redux";
-import { countNonNullElements } from "../../../utils/misc";
-
-import ExplorerSearchResultsTable from "../ExplorerSearchResultsTable";
 
 import BiosampleIDCell from "./BiosampleIDCell";
+import ExplorerSearchResultsTable from "../ExplorerSearchResultsTable";
 import IndividualIDCell from "./IndividualIDCell";
-import {ontologyShape} from "../../../propTypes";
 import OntologyTerm from "../OntologyTerm";
-import {ontologyTermSorter} from "../utils";
+
+import { ontologyShape } from "../../../propTypes";
+import { countNonNullElements } from "../../../utils/misc";
+import { ontologyTermSorter } from "../utils";
 
 const NO_EXPERIMENTS_VALUE = -Infinity;
 
