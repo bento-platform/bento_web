@@ -287,7 +287,21 @@ export const phenopacketPropTypesShape = PropTypes.shape({
     biosamples: biosamplePropTypesShape.isRequired,
     diseases: diseasePropTypesShape.isRequired,
     phenotypic_features: phenotypicFeaturePropTypesShape,
-    meta_data: PropTypes.object.isRequired,  // TODO: Shape
+    meta_data: PropTypes.shape({
+        created: PropTypes.string,
+        created_by: PropTypes.string,
+        submitted_by: PropTypes.string,
+        resources: PropTypes.arrayOf(PropTypes.shape({
+            id: PropTypes.string,
+            name: PropTypes.string,
+            namespace_prefix: PropTypes.string,
+            url: PropTypes.string,
+            version: PropTypes.string,
+            iri_prefix: PropTypes.string,
+            extra_properties: PropTypes.object,
+        })),
+        phenopacket_schema_version: PropTypes.string,
+    }).isRequired,
     created: PropTypes.string,  // ISO datetime string
     updated: PropTypes.string,  // ISO datetime string
 });
@@ -297,10 +311,10 @@ export const experimentPropTypesShape = PropTypes.shape({
     study_type: PropTypes.string,
 
     experiment_type: PropTypes.string.isRequired,
-    experiment_ontology: PropTypes.arrayOf(PropTypes.object),  // TODO: Array of ontology terms
+    experiment_ontology: PropTypes.arrayOf(ontologyShape),  // TODO: Array of ontology terms
 
     molecule: PropTypes.string,
-    molecule_ontology: PropTypes.arrayOf(PropTypes.object),  // TODO: Array of ontology terms
+    molecule_ontology: PropTypes.arrayOf(ontologyShape),  // TODO: Array of ontology terms
 
     library_strategy: PropTypes.string,
     library_source: PropTypes.string,

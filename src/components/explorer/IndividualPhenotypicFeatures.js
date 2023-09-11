@@ -1,36 +1,12 @@
-import React, {useMemo} from "react";
+import React, { useMemo } from "react";
 
-import {Table} from "antd";
+import { Table } from "antd";
 
-import {EM_DASH} from "../../constants";
-import {individualPropTypesShape} from "../../propTypes";
+import { EM_DASH } from "../../constants";
+import { individualPropTypesShape } from "../../propTypes";
+import OntologyTerm from "./OntologyTerm";
 
-const P_FEATURES_COLUMNS = [
-    {
-        title: "Type",
-        dataIndex: "type",
-        render: (type) => <span>
-            <strong>{type?.label ?? EM_DASH} </strong>
-            {type?.id ?? EM_DASH}
-        </span>,
-    },
-    {
-        title: "Negated",
-        dataIndex: "negated",
-        render: (negated) => (negated ?? "false").toString(),
-    },
-    {
-        title: "Extra Properties",
-        dataIndex: "extra_properties",
-        render: (extraProperties) =>
-            (Object.keys(extraProperties ?? {}).length)
-                ?  <div><pre>{JSON.stringify(extraProperties ?? {}, null, 2)}</pre></div>
-                : EM_DASH,
-    },
-
-];
-
-const IndividualPhenotypicFeatures = ({individual}) => {
+const IndividualPhenotypicFeatures = ({ individual }) => {
     // TODO: this logic might be technically incorrect with different versions of the same resource (i.e. ontology)
     //  across multiple phenopackets
     const phenotypicFeatures = useMemo(
@@ -48,12 +24,36 @@ const IndividualPhenotypicFeatures = ({individual}) => {
         [individual],
     );
 
+    const columns = useMemo(() => [
+        {
+            title: "Type",
+            dataIndex: "type",
+            render: (type) => (
+                <OntologyTerm individual={individual} term={type} />
+            ),
+        },
+        {
+            title: "Negated",
+            dataIndex: "negated",
+            render: (negated) => (negated ?? "false").toString(),
+        },
+        {
+            title: "Extra Properties",
+            dataIndex: "extra_properties",
+            render: (extraProperties) =>
+                (Object.keys(extraProperties ?? {}).length)
+                    ?  <div><pre>{JSON.stringify(extraProperties ?? {}, null, 2)}</pre></div>
+                    : EM_DASH,
+        },
+
+    ], [individual]);
+
     return (
         <Table
             bordered
             size="middle"
             pagination={{pageSize: 25}}
-            columns={P_FEATURES_COLUMNS}
+            columns={columns}
             rowKey="id"
             dataSource={phenotypicFeatures}
         />

@@ -1,8 +1,9 @@
-import React, {useMemo} from "react";
+import React from "react";
 
 import {Table} from "antd";
 
 import {individualPropTypesShape} from "../../propTypes";
+import {useResources} from "./utils";
 
 
 // TODO: Only show diseases from the relevant dataset, if specified;
@@ -48,17 +49,7 @@ const METADATA_COLUMNS = [
 ];
 
 const IndividualMetadata = ({individual}) => {
-    const resources = useMemo(
-        () =>
-            Object.values(
-                Object.fromEntries(
-                    (individual || {}).phenopackets
-                        .flatMap(p => (p.meta_data || {}).resources || [])
-                        .map(r => [r.id, r]),
-                ),
-            ),
-        [individual],
-    );
+    const resources = useResources(individual);
 
     return (
         <Table

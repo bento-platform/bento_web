@@ -2,12 +2,15 @@ import React from "react";
 import PropTypes from "prop-types";
 import { useSortedColumns } from "../hooks/explorerHooks";
 import { useSelector } from "react-redux";
-import { countNonNullElements } from "../../../utils/misc";
-
-import ExplorerSearchResultsTable from "../ExplorerSearchResultsTable";
 
 import BiosampleIDCell from "./BiosampleIDCell";
+import ExplorerSearchResultsTable from "../ExplorerSearchResultsTable";
 import IndividualIDCell from "./IndividualIDCell";
+import OntologyTerm from "../OntologyTerm";
+
+import { ontologyShape } from "../../../propTypes";
+import { countNonNullElements } from "../../../utils/misc";
+import { ontologyTermSorter } from "../utils";
 
 const NO_EXPERIMENTS_VALUE = -Infinity;
 
@@ -57,15 +60,6 @@ const experimentsSorter = (a, b) => {
     return countNonNullElements(a.studyTypes) - countNonNullElements(b.studyTypes);
 };
 
-const sampledTissuesRender = (sampledTissues) => sampledTissues.map((m) => m.label)[0];
-
-const sampledTissuesSorter = (a, b) => {
-    if (a.sampledTissues[0].label && b.sampledTissues[0].label) {
-        return a.sampledTissues[0].label.toString().localeCompare(b.sampledTissues[0].label.toString());
-    }
-    return 0;
-};
-
 const availableExperimentsRender = (experimentsType) => {
     if (experimentsType.every((s) => s !== null)) {
         const experimentCount = experimentsType.reduce((acc, experiment) => {
@@ -107,7 +101,7 @@ const SEARCH_RESULT_COLUMNS_BIOSAMPLE = [
     {
         title: "Biosample",
         dataIndex: "biosample",
-        render: (biosample, {individual}) => <BiosampleIDCell biosample={biosample} individualId={individual.id} />,
+        render: (biosample, { individual }) => <BiosampleIDCell biosample={biosample} individualId={individual.id} />,
         sorter: (a, b) => a.biosample.localeCompare(b.biosample),
         defaultSortOrder: "ascend",
     },
@@ -126,10 +120,11 @@ const SEARCH_RESULT_COLUMNS_BIOSAMPLE = [
         sortDirections: ["descend", "ascend", "descend"],
     },
     {
-        title: "Sampled Tissues",
-        dataIndex: "sampledTissues",
-        render: sampledTissuesRender,
-        sorter: sampledTissuesSorter,
+        title: "Sampled Tissue",
+        dataIndex: "sampledTissue",
+        // Can't pass individual here to OntologyTerm since it doesn't have a list of phenopackets
+        render: (sampledTissue) => <OntologyTerm term={sampledTissue} />,
+        sorter: ontologyTermSorter("sampledTissue"),
         sortDirections: ["descend", "ascend", "descend"],
     },
     {
@@ -173,11 +168,7 @@ BiosamplesTable.propTypes = {
                 id: PropTypes.string.isRequired,
             }).isRequired,
             studyTypes: PropTypes.arrayOf(PropTypes.string).isRequired,
-            sampledTissues: PropTypes.arrayOf(
-                PropTypes.shape({
-                    label: PropTypes.string.isRequired,
-                }),
-            ).isRequired,
+            sampledTissue: ontologyShape,
             experimentTypes: PropTypes.arrayOf(PropTypes.string).isRequired,
         }),
     ).isRequired,
