@@ -7,11 +7,24 @@ import { id } from "../../utils/misc";
 
 import { useResourcesByNamespacePrefix } from "./utils";
 
+const OntologyTermPlain = memo(({ term, renderLabel }) => (
+    <span>{renderLabel(term.label)} (ID: {term.id})</span>
+));
+OntologyTermPlain.propTypes = {
+    term: ontologyShape.isRequired,
+    renderLabel: PropTypes.func.isRequired,
+};
+
 const OntologyTerm = memo(({ individual, term, renderLabel }) => {
     // TODO: perf: might be slow to generate this over and over
     const resourcesByNamespacePrefix = useResourcesByNamespacePrefix(individual);
 
     if (!term) return <>{EM_DASH}</>;
+
+    if (!term.id.includes(":")) {
+        // Malformed ID, render as plain text
+        return <OntologyTermPlain term={term} renderLabel={renderLabel} />;
+    }
 
     const [namespacePrefix, namespaceID] = term.id.split(":");
 
@@ -19,9 +32,7 @@ const OntologyTerm = memo(({ individual, term, renderLabel }) => {
 
     // If resource doesn't exist / isn't linkable, render the term as an un-clickable plain <span>
     if (!termResource || !termResource.iri_prefix || termResource.iri_prefix.includes("example.org")) {
-        return (
-            <span>{renderLabel(term.label)} (ID: {term.id})</span>
-        );
+        return <OntologyTermPlain term={term} renderLabel={renderLabel} />;
     }
 
     return (
