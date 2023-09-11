@@ -1,4 +1,4 @@
-import React, { memo } from "react";
+import React, {memo, useEffect} from "react";
 import PropTypes from "prop-types";
 
 import { EM_DASH } from "../../constants";
@@ -19,7 +19,23 @@ const OntologyTerm = memo(({ individual, term, renderLabel }) => {
     // TODO: perf: might be slow to generate this over and over
     const resourcesByNamespacePrefix = useResourcesByNamespacePrefix(individual);
 
-    if (!term) return <>{EM_DASH}</>;
+    if (!term) {
+        return (
+            <>{EM_DASH}</>
+        );
+    }
+
+    useEffect(() => {
+        if (!term.id || !term.label) {
+            console.error("Invalid term provided to OntologyTerm component:", term);
+        }
+    }, [term]);
+
+    if (!term.id || !term.label) {
+        return (
+            <>{EM_DASH}</>
+        );
+    }
 
     if (!term.id.includes(":")) {
         // Malformed ID, render as plain text

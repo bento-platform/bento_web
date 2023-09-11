@@ -167,15 +167,24 @@ const IndividualExperiments = ({ individual }) => {
                                 key={e.id}
                             >
                                 <Descriptions.Item>
-                                    {(e.molecule_ontology ?? []).map((mo, i) => (
-                                        <React.Fragment key={mo.id}>
-                                            <OntologyTerm individual={individual} term={mo} />
-                                            {i < ((e.molecule_ontology ?? []).length - 1) ? "; " : ""}
-                                        </React.Fragment>
-                                    ))}
+                                    {/*
+                                    molecule_ontology is accidentally an array in Katsu, so this takes the first item
+                                    and falls back to just the field (if we fix this in the future)
+                                    */}
+                                    <OntologyTerm
+                                        individual={individual}
+                                        term={e.molecule_ontology?.[0] ?? e.molecule_ontology}
+                                    />
                                 </Descriptions.Item>
                                 <Descriptions.Item label="Experiment Ontology">
-                                    <OntologyTerm individual={individual} term={e.experiment_ontology} />
+                                    {/*
+                                    experiment_ontology is accidentally an array in Katsu, so this takes the first item
+                                    and falls back to just the field (if we fix this in the future)
+                                    */}
+                                    <OntologyTerm
+                                        individual={individual}
+                                        term={e.experiment_ontology?.[0] ?? e.experiment_ontology}
+                                    />
                                 </Descriptions.Item>
                                 <Descriptions.Item>
                                     <Descriptions
