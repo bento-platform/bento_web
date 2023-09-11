@@ -29,7 +29,7 @@ const IndividualPhenotypicFeatures = ({ individual }) => {
             title: "Type",
             dataIndex: "type",
             render: (type) => (
-                <OntologyTerm individual={individual} term={type} renderLabel={label => (<strong>{label}</strong>)} />
+                <OntologyTerm individual={individual} term={type} />
             ),
         },
         {
