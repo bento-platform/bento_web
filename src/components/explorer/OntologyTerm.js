@@ -1,19 +1,13 @@
 import React, { memo, useEffect } from "react";
 import PropTypes from "prop-types";
 
+import { Icon } from "antd";
+
 import { EM_DASH } from "../../constants";
 import { individualPropTypesShape, ontologyShape } from "../../propTypes";
 import { id } from "../../utils/misc";
 
 import { useResourcesByNamespacePrefix } from "./utils";
-
-const OntologyTermPlain = memo(({ term, renderLabel }) => (
-    <span>{renderLabel(term.label)} (ID: {term.id})</span>
-));
-OntologyTermPlain.propTypes = {
-    term: ontologyShape.isRequired,
-    renderLabel: PropTypes.func.isRequired,
-};
 
 const OntologyTerm = memo(({ individual, term, renderLabel }) => {
     // TODO: perf: might be slow to generate this over and over
@@ -37,28 +31,29 @@ const OntologyTerm = memo(({ individual, term, renderLabel }) => {
         );
     }
 
-    if (!term.id.includes(":")) {
-        // Malformed ID, render as plain text
-        return (
-            <OntologyTermPlain term={term} renderLabel={renderLabel} />
-        );
-    }
+    /**
+     * @type {string|null}
+     */
+    let defLink = null;
 
-    const [namespacePrefix, namespaceID] = term.id.split(":");
+    if (term.id.includes(":")) {
+        const [namespacePrefix, namespaceID] = term.id.split(":");
+        const termResource = resourcesByNamespacePrefix[namespacePrefix];
 
-    const termResource = resourcesByNamespacePrefix[namespacePrefix];
-
-    // If resource doesn't exist / isn't linkable, render the term as an un-clickable plain <span>
-    if (!termResource || !termResource.iri_prefix || termResource.iri_prefix.includes("example.org")) {
-        return (
-            <OntologyTermPlain term={term} renderLabel={renderLabel} />
-        );
-    }
+        if (termResource?.iri_prefix && !termResource.iri_prefix.includes("example.org")) {
+            defLink = `${termResource.iri_prefix}${namespaceID}`;
+        }  // If resource doesn't exist / isn't linkable, don't include a link
+    }  // Otherwise, malformed ID - render without a link
 
     return (
-        <a href={`${termResource.iri_prefix}${namespaceID}`} target="_blank" rel="noopener noreferrer">
-            {renderLabel(term.label)} (ID: {term.id})
-        </a>
+        <span>
+            {renderLabel(term.label)} (ID: {term.id}){" "}
+            {defLink && (
+                <a href={defLink} target="_blank" rel="noopener noreferrer">
+                    <Icon type="link" />
+                </a>
+            )}
+        </span>
     );
 });
 
