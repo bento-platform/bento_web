@@ -168,10 +168,10 @@ const IndividualExperiments = ({ individual }) => {
                             >
                                 <Descriptions.Item>
                                     {(e.molecule_ontology ?? []).map((mo, i) => (
-                                        <>
-                                            <OntologyTerm key={mo.id} individual={individual} term={mo} />
+                                        <React.Fragment key={mo.id}>
+                                            <OntologyTerm individual={individual} term={mo} />
                                             {i < ((e.molecule_ontology ?? []).length - 1) ? "; " : ""}
-                                        </>
+                                        </React.Fragment>
                                     ))}
                                 </Descriptions.Item>
                                 <Descriptions.Item label="Experiment Ontology">
