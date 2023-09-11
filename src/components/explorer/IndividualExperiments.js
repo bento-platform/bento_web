@@ -167,8 +167,11 @@ const IndividualExperiments = ({ individual }) => {
                                 key={e.id}
                             >
                                 <Descriptions.Item>
-                                    {(e.molecule_ontology ?? []).map((mo) => (
-                                        <OntologyTerm key={mo.id} individual={individual} term={mo} />
+                                    {(e.molecule_ontology ?? []).map((mo, i) => (
+                                        <>
+                                            <OntologyTerm key={mo.id} individual={individual} term={mo} />
+                                            {i < ((e.molecule_ontology ?? []).length - 1) ? "; " : ""}
+                                        </>
                                     ))}
                                 </Descriptions.Item>
                                 <Descriptions.Item label="Experiment Ontology">
