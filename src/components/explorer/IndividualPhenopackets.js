@@ -1,7 +1,6 @@
 import React from "react";
-
-import { individualPropTypesShape } from "../../propTypes";
 import ReactJson from "react-json-view";
+import { individualPropTypesShape } from "../../propTypes";
 
 const IndividualPhenopackets = ({ individual }) => {
     return (
