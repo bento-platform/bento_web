@@ -23,7 +23,9 @@ const OntologyTerm = memo(({ individual, term, renderLabel }) => {
 
     if (!term.id.includes(":")) {
         // Malformed ID, render as plain text
-        return <OntologyTermPlain term={term} renderLabel={renderLabel} />;
+        return (
+            <OntologyTermPlain term={term} renderLabel={renderLabel} />
+        );
     }
 
     const [namespacePrefix, namespaceID] = term.id.split(":");
@@ -32,7 +34,9 @@ const OntologyTerm = memo(({ individual, term, renderLabel }) => {
 
     // If resource doesn't exist / isn't linkable, render the term as an un-clickable plain <span>
     if (!termResource || !termResource.iri_prefix || termResource.iri_prefix.includes("example.org")) {
-        return <OntologyTermPlain term={term} renderLabel={renderLabel} />;
+        return (
+            <OntologyTermPlain term={term} renderLabel={renderLabel} />
+        );
     }
 
     return (
