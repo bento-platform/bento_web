@@ -1,7 +1,7 @@
 import React, { useEffect, useMemo } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useHistory } from "react-router-dom";
-import {Button, Collapse, Descriptions, Empty, Icon, Popover, Table} from "antd";
+import { Button, Collapse, Descriptions, Empty, Icon, Popover, Table } from "antd";
 import JsonView from "./JsonView";
 import FileSaver from "file-saver";
 import { EM_DASH } from "../../constants";
@@ -10,6 +10,7 @@ import { getFileDownloadUrlsFromDrs } from "../../modules/drs/actions";
 import { guessFileType } from "../../utils/guessFileType";
 import PropTypes from "prop-types";
 import {useDeduplicatedIndividualBiosamples} from "./utils";
+import OntologyTerm from "./OntologyTerm";
 
 const { Panel } = Collapse;
 
@@ -116,8 +117,6 @@ const EXPERIMENT_RESULTS_COLUMNS = [
     },
 ];
 
-const BLANK_EXPERIMENT_ONTOLOGY = [{ id: EM_DASH, label: EM_DASH }];
-
 const IndividualExperiments = ({ individual }) => {
     const dispatch = useDispatch();
     const history = useHistory();
@@ -169,41 +168,11 @@ const IndividualExperiments = ({ individual }) => {
                             >
                                 <Descriptions.Item>
                                     {(e.molecule_ontology ?? []).map((mo) => (
-                                        <Descriptions
-                                            title="Molecule Ontology"
-                                            layout="horizontal"
-                                            bordered={true}
-                                            column={1}
-                                            size="small"
-                                            key={mo.id}
-                                        >
-                                            <Descriptions.Item label="id">
-                                                {mo.id}
-                                            </Descriptions.Item>
-                                            <Descriptions.Item label="label">
-                                                {mo.label}
-                                            </Descriptions.Item>
-                                        </Descriptions>
+                                        <OntologyTerm individual={individual} term={mo} />
                                     ))}
                                 </Descriptions.Item>
-                                <Descriptions.Item>
-                                    {(e.experiment_ontology || BLANK_EXPERIMENT_ONTOLOGY).map((eo) => (
-                                        <Descriptions
-                                            title="Experiment Ontology"
-                                            layout="horizontal"
-                                            bordered={true}
-                                            column={1}
-                                            size="small"
-                                            key={eo.id}
-                                        >
-                                            <Descriptions.Item label="id">
-                                                {eo.id}
-                                            </Descriptions.Item>
-                                            <Descriptions.Item label="label">
-                                                {eo.label}
-                                            </Descriptions.Item>
-                                        </Descriptions>
-                                    ))}
+                                <Descriptions.Item label="Experiment Ontology">
+                                    <OntologyTerm individual={individual} term={e.experiment_ontology} />
                                 </Descriptions.Item>
                                 <Descriptions.Item>
                                     <Descriptions

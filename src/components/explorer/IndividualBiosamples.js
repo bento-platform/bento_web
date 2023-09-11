@@ -5,7 +5,6 @@ import { Route, Switch, useHistory, useRouteMatch, useParams } from "react-route
 import { Button, Descriptions, Table } from "antd";
 
 import { EM_DASH } from "../../constants";
-import { renderOntologyTerm } from "./ontologies";
 import { useDeduplicatedIndividualBiosamples } from "./utils";
 import {
     biosamplePropTypesShape,
@@ -15,29 +14,29 @@ import {
 } from "../../propTypes";
 
 import JsonView from "./JsonView";
+import OntologyTerm from "./OntologyTerm";
 
 import "./explorer.css";
 
 // TODO: Only show biosamples from the relevant dataset, if specified;
 //  highlight those found in search results, if specified
 
-const BiosampleProcedure = ({procedure}) => (
+const BiosampleProcedure = ({ individual, procedure }) => (
     <div>
-        <strong>Code:</strong>{" "}
-        {renderOntologyTerm(procedure.code)}
+        <strong>Code:</strong>{" "}<OntologyTerm individual={individual} term={procedure.code} />
         {procedure.body_site ? (
             <div>
-                <strong>Body Site:</strong>{" "}
-                {renderOntologyTerm(procedure.body_site)}
+                <strong>Body Site:</strong>{" "}<OntologyTerm individual={individual} term={procedure.body_site} />
             </div>
         ) : null}
     </div>
 );
 BiosampleProcedure.propTypes = {
+    individual: individualPropTypesShape.isRequired,
     procedure: PropTypes.shape({
         code: ontologyShape.isRequired,
         body_site: ontologyShape,
-    }),
+    }).isRequired,
 };
 
 const ExperimentsClickList = ({ experiments, handleExperimentClick }) => {
@@ -60,20 +59,20 @@ ExperimentsClickList.propTypes = {
     handleExperimentClick: PropTypes.func,
 };
 
-const BiosampleDetail = ({ biosample, handleExperimentClick }) => {
+const BiosampleDetail = ({ individual, biosample, handleExperimentClick }) => {
     return (
         <Descriptions bordered={true} column={1} size="small" style={{maxWidth: 800}}>
             <Descriptions.Item label="ID">
                 {biosample.id}
             </Descriptions.Item>
             <Descriptions.Item label="Sampled Tissue">
-                {renderOntologyTerm(biosample.sampled_tissue)}
+                <OntologyTerm individual={individual} term={biosample.sampled_tissue} />
             </Descriptions.Item>
             <Descriptions.Item label="Procedure">
-                <BiosampleProcedure procedure={biosample.procedure} />
+                <BiosampleProcedure individual={individual} procedure={biosample.procedure} />
             </Descriptions.Item>
             <Descriptions.Item label="Histological Diagnosis">
-                {renderOntologyTerm(biosample.histological_diagnosis)}
+                <OntologyTerm individual={individual} term={biosample.histological_diagnosis} />
             </Descriptions.Item>
             <Descriptions.Item label="Ind. Age At Collection">
                 {biosample.individual_age_at_collection
@@ -100,6 +99,7 @@ const BiosampleDetail = ({ biosample, handleExperimentClick }) => {
     );
 };
 BiosampleDetail.propTypes = {
+    individual: individualPropTypesShape,
     biosample: biosamplePropTypesShape,
     handleExperimentClick: PropTypes.func,
 };
@@ -136,7 +136,7 @@ const Biosamples = ({ individual, handleBiosampleClick, handleExperimentClick })
             {
                 title: "Sampled Tissue",
                 dataIndex: "sampled_tissue",
-                render: tissue => renderOntologyTerm(tissue),
+                render: tissue => <OntologyTerm individual={individual} term={tissue} />,
             },
             {
                 title: "Experiments",
@@ -146,7 +146,7 @@ const Biosamples = ({ individual, handleBiosampleClick, handleExperimentClick })
                 ),
             },
         ],
-        [handleExperimentClick],
+        [individual, handleExperimentClick],
     );
 
     const onExpand = useCallback(
@@ -158,7 +158,11 @@ const Biosamples = ({ individual, handleBiosampleClick, handleExperimentClick })
 
     const expandedRowRender = useCallback(
         (biosample) => (
-            <BiosampleDetail biosample={biosample} handleExperimentClick={handleExperimentClick} />
+            <BiosampleDetail
+                individual={individual}
+                biosample={biosample}
+                handleExperimentClick={handleExperimentClick}
+            />
         ),
         [handleExperimentClick],
     );

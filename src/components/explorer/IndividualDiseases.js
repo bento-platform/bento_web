@@ -1,72 +1,76 @@
-import React from "react";
+import React, { useMemo } from "react";
 
-import {Table} from "antd";
-
+import { Table } from "antd";
 
 import { individualPropTypesShape } from "../../propTypes";
 import { EM_DASH } from "../../constants";
+import { ontologyTermSorter } from "./utils";
+
+import OntologyTerm from "./OntologyTerm";
 
 // TODO: Only show diseases from the relevant dataset, if specified;
 //  highlight those found in search results, if specified
 
-const DISEASE_COLUMNS = [
-    {
-        title: "Disease ID",
-        key: "d_id",
-        render: (_, individual) => individual.id,
-        sorter: (a, b) => a.id.toString().localeCompare(b.id),
-        defaultSortOrder: "ascend",
-    },
-    {
-        title: "Term ID",
-        key: "t_id",
-        render: (_, individual) => individual.term.id,
-    },
-    {
-        title: "Label",
-        key: "t_label",
-        render: (_, individual) => individual.term.label,
-    },
-    {
-        title: "Onset Age(s)",
-        key: "t_onset_ages",
-        render: (_, individual) =>
-        // Print onset age
-            (individual.hasOwnProperty("onset") && Object.keys(individual.onset).length)
-            // Single onset age
-                ?  (individual.onset.hasOwnProperty("age") && Object.keys(individual.onset.age).length)
-                    ?  <div>{individual.onset.age}</div>
-                    // Onset age start and end
-                    : (individual.onset.hasOwnProperty("start") && Object.keys(individual.onset.start).length)
-                        ?  <div>{individual.onset.start.age} - {individual.onset.end.age}</div>
-                        // Onset age label only
-                        : (individual.onset.hasOwnProperty("label") && Object.keys(individual.onset.label).length)
-                            ?  <div>{individual.onset.label} ({individual.onset.id})</div>
-                            : EM_DASH
-                : EM_DASH,
-    },
-    {
-        title: "Extra Properties",
-        key: "extra_properties",
-        render: (_, individual) =>
-            (individual.hasOwnProperty("extra_properties") && Object.keys(individual.extra_properties).length)
-                ?  <div><pre>{JSON.stringify(individual.extra_properties, null, 2)}</pre></div>
-                : EM_DASH,
-    },
-];
+const IndividualDiseases = ({ individual }) => {
+    const diseases = individual.phenopackets.flatMap(p => p.diseases);
 
-const IndividualDiseases = ({individual}) =>
-    <Table bordered
-           size="middle"
-           pagination={{pageSize: 25}}
-           columns={DISEASE_COLUMNS}
-           rowKey="id"
-           dataSource={(individual || {}).phenopackets.flatMap(p => p.diseases)} />;
+    const columns = useMemo(() => [
+        {
+            title: "Disease ID",
+            key: "id",
+            sorter: (a, b) => a.id.toString().localeCompare(b.id),
+            defaultSortOrder: "ascend",
+        },
+        {
+            title: "term",
+            dataIndex: "term",
+            render: (term) => <OntologyTerm individual={individual} term={term} />,
+            sorter: ontologyTermSorter("term"),
+        },
+        {
+            title: "Onset Age(s)",
+            key: "t_onset_ages",
+            render: (_, disease) =>
+                // Print onset age
+                (disease.hasOwnProperty("onset") && Object.keys(disease.onset).length)
+                    // Single onset age
+                    ? (disease.onset.hasOwnProperty("age") && Object.keys(disease.onset.age).length)
+                        ? <div>{disease.onset.age}</div>
+                        // Onset age start and end
+                        : (disease.onset.hasOwnProperty("start") && Object.keys(disease.onset.start).length)
+                            ? <div>{disease.onset.start.age} - {disease.onset.end.age}</div>
+                            // Onset age label only
+                            : (disease.onset.hasOwnProperty("label") && Object.keys(disease.onset.label).length)
+                                ? <div>{disease.onset.label} ({disease.onset.id})</div>
+                                : EM_DASH
+                    : EM_DASH,
+        },
+        {
+            title: "Extra Properties",
+            key: "extra_properties",
+            render: (_, individual) =>
+                (individual.hasOwnProperty("extra_properties") && Object.keys(individual.extra_properties).length)
+                    ? <div>
+                        <pre>{JSON.stringify(individual.extra_properties, null, 2)}</pre>
+                    </div>
+                    : EM_DASH,
+        },
+    ], [individual]);
 
-
+    return (
+        <Table
+            bordered
+            size="middle"
+            pagination={{pageSize: 25}}
+            columns={columns}
+            rowKey="id"
+            dataSource={diseases}
+        />
+    );
+};
 
 IndividualDiseases.propTypes = {
-    individual: individualPropTypesShape,
+    individual: individualPropTypesShape.isRequired,
 };
 
 export default IndividualDiseases;

@@ -1,11 +1,11 @@
 import React from "react";
 import ReactJson from "react-json-view";
 
-import {Descriptions} from "antd";
+import { Descriptions } from "antd";
 
-import {EM_DASH} from "../../constants";
-import {renderOntologyTerm} from "./ontologies";
-import {individualPropTypesShape} from "../../propTypes";
+import { EM_DASH } from "../../constants";
+import { individualPropTypesShape } from "../../propTypes";
+import OntologyTerm from "./OntologyTerm";
 
 const IndividualOverview = ({individual}) => individual ?
     <Descriptions layout="vertical" bordered={true} size="middle">
@@ -14,11 +14,12 @@ const IndividualOverview = ({individual}) => individual ?
         <Descriptions.Item label="Age">{getAge(individual)}</Descriptions.Item>
         <Descriptions.Item label="Ethnicity">{individual.ethnicity || "UNKNOWN_ETHNICITY"}</Descriptions.Item>
         <Descriptions.Item label="Karyotypic Sex">{individual.karyotypic_sex || "UNKNOWN_KARYOTYPE"}</Descriptions.Item>
-        {/* TODO: Link to ontology term */}
         <Descriptions.Item label="Taxonomy">
-            {renderOntologyTerm(individual.taxonomy
-                ? {...individual.taxonomy, label: <em>{individual.taxonomy.label}</em>}
-                : null)}
+            <OntologyTerm
+                individual={individual}
+                term={individual.taxonomy}
+                renderLabel={label => (<em>{label}</em>)}
+            />
         </Descriptions.Item>
         <Descriptions.Item label="Extra Properties">{
             (individual.hasOwnProperty("extra_properties") && Object.keys(individual.extra_properties).length)
