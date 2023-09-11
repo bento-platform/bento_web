@@ -166,7 +166,7 @@ const IndividualExperiments = ({ individual }) => {
                                 size="small"
                                 key={e.id}
                             >
-                                <Descriptions.Item>
+                                <Descriptions.Item label="Molecule Ontology">
                                     {/*
                                     molecule_ontology is accidentally an array in Katsu, so this takes the first item
                                     and falls back to just the field (if we fix this in the future)
