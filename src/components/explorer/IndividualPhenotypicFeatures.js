@@ -34,19 +34,19 @@ const IndividualPhenotypicFeatures = ({ individual }) => {
         },
         {
             title: "Negated",
-                dataIndex: "negated",
+            dataIndex: "negated",
             render: (negated) => (negated ?? "false").toString(),
         },
         {
             title: "Extra Properties",
-                dataIndex: "extra_properties",
+            dataIndex: "extra_properties",
             render: (extraProperties) =>
-            (Object.keys(extraProperties ?? {}).length)
-                ?  <div><pre>{JSON.stringify(extraProperties ?? {}, null, 2)}</pre></div>
-                : EM_DASH,
+                (Object.keys(extraProperties ?? {}).length)
+                    ?  <div><pre>{JSON.stringify(extraProperties ?? {}, null, 2)}</pre></div>
+                    : EM_DASH,
         },
 
-    ], [individual])
+    ], [individual]);
 
     return (
         <Table

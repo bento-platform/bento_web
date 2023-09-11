@@ -9,7 +9,7 @@ export const useDeduplicatedIndividualBiosamples = (individual) =>
                     .map(b => [b.id, b]),
             ),
         ),
-        [individual]
+        [individual],
     );
 
 
@@ -31,7 +31,7 @@ export const useResourcesByNamespacePrefix = (individual) => {
     const resources = useResources(individual);
     return useMemo(
         () => Object.fromEntries(resources.map(r => [r.namespace_prefix, r])),
-        [individual]
+        [individual],
     );
 };
 
