@@ -31,7 +31,10 @@ const ServiceRequestModal = ({service, onCancel}) => {
             const p = requestPath.replace(/^\//, "");
             try {
                 const res = await fetch(`${serviceUrl}/${p}`, {
-                    headers: authHeader,
+                    headers: {
+                        ...authHeader,
+                        "Cache-Control": "no-cache",
+                    },
                 });
 
                 if ((res.headers.get("content-type") ?? "").includes("application/json")) {
