@@ -36,7 +36,7 @@ import {
 } from "antd";
 
 import {LAYOUT_CONTENT_STYLE} from "../../styles/layoutContent";
-import DownloadButton from "./DownloadButton";
+import DownloadButton from "../DownloadButton";
 import DropBoxTreeSelect from "./DropBoxTreeSelect";
 import JsonDisplay from "../JsonDisplay";
 import DatasetSelectionModal from "./DatasetSelectionModal";
