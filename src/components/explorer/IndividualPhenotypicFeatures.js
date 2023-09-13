@@ -65,13 +65,19 @@ const IndividualPhenotypicFeatures = ({ individual }) => {
 
     ], [individual]);
 
-    const data = useMemo(() => (individual?.phenopackets ?? []).flatMap((p) => [
-        {
-            header: p.id,
-            key: p.id,
-        },
-        ...p.phenotypic_features.map((pf) => ({...pf, key: `${pf.type.id}:${pf.negated}`})),
-    ]), [individual]);
+    const data = useMemo(() => {
+        const phenopackets = (individual?.phenopackets ?? []);
+        return phenopackets.flatMap((p) => [
+            ...(phenopackets.length > 1 ? [{
+                header: p.id,
+                key: p.id,
+            }] : []),  // If there is just 1 phenopacket, don't include a header row
+            ...p.phenotypic_features.map((pf) => ({
+                ...pf,
+                key: `${pf.type.id}:${pf.negated}`,
+            })),
+        ])
+    }, [individual]);
 
     return (
         <Table
