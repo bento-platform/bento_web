@@ -23,7 +23,7 @@ const ExperimentResultDownloadButton = ({ resultFile }) => {
 
     const url = downloadUrls[resultFile.filename]?.url;
     return url ? (
-       <DownloadButton type="link" uri={url} children={undefined} />
+       <DownloadButton type="link" uri={url} children={null} />
     ) : (
         {EM_DASH}
     );

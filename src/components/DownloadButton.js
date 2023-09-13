@@ -24,14 +24,13 @@ const DownloadButton = ({ disabled, uri, children, type }) => {
 
     return (
         <Button key="download" icon="download" type={type} disabled={disabled} onClick={onClick}>
-            {children}
+            {children === undefined ? "Download" : children}
         </Button>
     );
 };
 
 DownloadButton.defaultProps = {
     disabled: false,
-    children: "Download",
     type: "default",
 };
 
