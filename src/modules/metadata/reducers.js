@@ -16,6 +16,7 @@ import {
     DELETE_DATASET_LINKED_FIELD_SET,
 
     FETCH_INDIVIDUAL,
+    FETCH_INDIVIDUAL_PHENOPACKETS,
 
     FETCH_OVERVIEW_SUMMARY,
 
@@ -293,10 +294,13 @@ export const biosamples = (
 export const individuals = (
     state = {
         itemsByID: {},
+        phenopacketsByIndividualID: {},
     },
     action,
 ) => {
     switch (action.type) {
+        // FETCH_INDIVIDUAL
+
         case FETCH_INDIVIDUAL.REQUEST:
             return {
                 ...state,
@@ -330,6 +334,48 @@ export const individuals = (
                     },
                 },
             };
+
+        // FETCH_INDIVIDUAL_PHENOPACKETS
+
+        case FETCH_INDIVIDUAL_PHENOPACKETS.REQUEST: {
+            const { individualID } = action;
+            return {
+                ...state,
+                phenopacketsByIndividualID: {
+                    ...state.phenopacketsByIndividualID,
+                    [individualID]: {
+                        ...(state.phenopacketsByIndividualID[individualID] ?? {}),
+                        isFetching: true,
+                    },
+                },
+            };
+        }
+        case FETCH_INDIVIDUAL_PHENOPACKETS.RECEIVE: {
+            const { individualID, data } = action;
+            return {
+                ...state,
+                phenopacketsByIndividualID: {
+                    ...state.phenopacketsByIndividualID,
+                    [individualID]: {
+                        ...(state.phenopacketsByIndividualID[individualID] ?? {}),
+                        data,
+                    },
+                },
+            };
+        }
+        case FETCH_INDIVIDUAL_PHENOPACKETS.FINISH: {
+            const { individualID } = action;
+            return {
+                ...state,
+                phenopacketsByIndividualID: {
+                    ...state.phenopacketsByIndividualID,
+                    [individualID]: {
+                        ...(state.phenopacketsByIndividualID[individualID] ?? {}),
+                        isFetching: false,
+                    },
+                },
+            };
+        }
 
         default:
             return state;

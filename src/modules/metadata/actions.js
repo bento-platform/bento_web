@@ -24,6 +24,7 @@ export const SAVE_DATASET_LINKED_FIELD_SET = createNetworkActionTypes("SAVE_DATA
 export const DELETE_DATASET_LINKED_FIELD_SET = createNetworkActionTypes("DELETE_DATASET_LINKED_FIELD_SET");
 
 export const FETCH_INDIVIDUAL = createNetworkActionTypes("FETCH_INDIVIDUAL");
+export const FETCH_INDIVIDUAL_PHENOPACKETS = createNetworkActionTypes("FETCH_INDIVIDUAL_PHENOPACKETS");
 export const FETCH_OVERVIEW_SUMMARY = createNetworkActionTypes("FETCH_OVERVIEW_SUMMARY");
 
 export const DELETE_DATASET_DATA_TYPE = createNetworkActionTypes("DELETE_DATASET_DATA_TYPE");
@@ -284,6 +285,20 @@ export const fetchIndividualIfNecessary = individualID => (dispatch, getState) =
     const individualRecord = getState().individuals.itemsByID[individualID] || {};
     if (individualRecord.isFetching || individualRecord.data) return;  // Don't fetch if already fetching or loaded.
     return dispatch(fetchIndividual(individualID));
+};
+
+
+const fetchIndividualPhenopackets = networkAction((individualID) => (dispatch, getState) => ({
+    types: FETCH_INDIVIDUAL_PHENOPACKETS,
+    params: {individualID},
+    url: `${getState().services.metadataService.url}/api/individuals/${individualID}/phenopackets`,
+    err: `Error fetching phenopackets for individual ${individualID}`,
+}));
+
+export const fetchIndividualPhenopacketsIfNecessary = individualID => (dispatch, getState) => {
+    const record = getState().individuals.phenopacketsByIndividualID[individualID] || {};
+    if (record.isFetching || record.data) return;  // Don't fetch if already fetching or loaded.
+    return dispatch(fetchIndividualPhenopackets(individualID));
 };
 
 
