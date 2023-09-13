@@ -11,7 +11,6 @@ const DownloadButton = ({ disabled, uri, children }) => {
 
         const form = document.createElement("form");
         form.method = "post";
-        form.target = "_blank";
         form.action = uri;
         form.innerHTML = `<input type="hidden" name="token" value="${accessToken}" />`;
         document.body.appendChild(form);

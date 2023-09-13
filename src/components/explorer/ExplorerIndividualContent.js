@@ -7,11 +7,11 @@ import ReactRouterPropTypes from "react-router-prop-types";
 
 import {Layout, Menu, Skeleton} from "antd";
 
-import {fetchIndividualIfNecessary} from "../../modules/metadata/actions";
-import {individualPropTypesShape} from "../../propTypes";
-import {LAYOUT_CONTENT_STYLE} from "../../styles/layoutContent";
-import {matchingMenuKeys, renderMenuItem} from "../../utils/menu";
-import {urlPath} from "../../utils/url";
+import { fetchIndividualIfNecessary } from "../../modules/metadata/actions";
+import { individualPropTypesShape } from "../../propTypes";
+import { LAYOUT_CONTENT_STYLE } from "../../styles/layoutContent";
+import { matchingMenuKeys, renderMenuItem } from "../../utils/menu";
+import { urlPath } from "../../utils/url";
 
 import SitePageHeader from "../SitePageHeader";
 import IndividualOverview from "./IndividualOverview";
@@ -23,9 +23,9 @@ import IndividualMetadata from "./IndividualMetadata";
 import IndividualVariants from "./IndividualVariants";
 import IndividualGenes from "./IndividualGenes";
 import IndividualTracks from "./IndividualTracks";
-import {BENTO_URL} from "../../config";
+import IndividualPhenopackets from "./IndividualPhenopackets";
 
-const withURLPrefix = (individual, page) => `/data/explorer/individuals/${individual}/${page}`;
+import { BENTO_URL } from "../../config";
 
 const MENU_STYLE = {
     marginLeft: "-24px",
@@ -73,18 +73,22 @@ class ExplorerIndividualContent extends Component {
         const individualInfo = this.props.individuals[individualID] || {};
         const individual = individualInfo.data;
 
-        const overviewUrl = withURLPrefix(individualID, "overview");
-        const pfeaturesUrl = withURLPrefix(individualID, "phenotypicfeatures");
-        const biosamplesUrl = withURLPrefix(individualID, "biosamples");
-        const experimentsUrl = withURLPrefix(individualID, "experiments");
-        const variantsUrl = withURLPrefix(individualID, "variants");
-        const genesUrl = withURLPrefix(individualID, "genes");
-        const diseasesUrl = withURLPrefix(individualID, "diseases");
-        const metadataUrl = withURLPrefix(individualID, "metadata");
-        const tracksUrl = withURLPrefix(individualID, "tracks");
+        const individualUrl = this.props.match.url;
+
+        const overviewUrl = `${individualUrl}/overview`;
+        const phenotypicFeaturesUrl = `${individualUrl}/phenotypic-features`;
+        const biosamplesUrl = `${individualUrl}/biosamples`;
+        const experimentsUrl = `${individualUrl}/experiments`;
+        const variantsUrl = `${individualUrl}/variants`;
+        const genesUrl = `${individualUrl}/genes`;
+        const diseasesUrl = `${individualUrl}/diseases`;
+        const metadataUrl = `${individualUrl}/metadata`;
+        const tracksUrl = `${individualUrl}/tracks`;
+        const phenopacketsUrl = `${individualUrl}/phenopackets`;
+
         const individualMenu = [
             {url: overviewUrl, style: {marginLeft: "4px"}, text: "Overview"},
-            {url: pfeaturesUrl, text: "Phenotypic Features"},
+            {url: phenotypicFeaturesUrl, text: "Phenotypic Features"},
             {url: biosamplesUrl, text: "Biosamples"},
             {url: experimentsUrl, text: "Experiments"},
             {url: tracksUrl, text: "Tracks"},
@@ -92,6 +96,7 @@ class ExplorerIndividualContent extends Component {
             {url: genesUrl, text: "Genes"},
             {url: diseasesUrl, text: "Diseases"},
             {url: metadataUrl, text: "Metadata"},
+            {url: phenopacketsUrl, text: "Phenopackets JSON"},
         ];
 
         const selectedKeys = matchingMenuKeys(individualMenu, urlPath(BENTO_URL));
@@ -121,7 +126,7 @@ class ExplorerIndividualContent extends Component {
                         <Route path={overviewUrl.replace(":", "\\:")}>
                             <IndividualOverview individual={individual} />
                         </Route>
-                        <Route path={pfeaturesUrl.replace(":", "\\:")}>
+                        <Route path={phenotypicFeaturesUrl.replace(":", "\\:")}>
                             <IndividualPhenotypicFeatures individual={individual} />
                         </Route>
                         <Route path={biosamplesUrl.replace(":", "\\:")}>
@@ -145,8 +150,11 @@ class ExplorerIndividualContent extends Component {
                         <Route path={metadataUrl.replace(":", "\\:")}>
                             <IndividualMetadata individual={individual} />
                         </Route>
+                        <Route path={phenopacketsUrl.replace(":", "\\:")}>
+                            <IndividualPhenopackets individual={individual} />
+                        </Route>
                         <Redirect to={overviewUrl.replace(":", "\\:")} />
-                    </Switch> : <Skeleton />}
+                    </Switch> : <Skeleton loading={true} />}
                 </Layout.Content>
             </Layout>
         </>;
