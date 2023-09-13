@@ -154,7 +154,7 @@ class ExplorerIndividualContent extends Component {
                             <IndividualPhenopackets individual={individual} />
                         </Route>
                         <Redirect to={overviewUrl.replace(":", "\\:")} />
-                    </Switch> : <Skeleton />}
+                    </Switch> : <Skeleton loading={true} />}
                 </Layout.Content>
             </Layout>
         </>;
