@@ -76,7 +76,7 @@ const IndividualPhenotypicFeatures = ({ individual }) => {
                 ...pf,
                 key: `${pf.type.id}:${pf.negated}`,
             })),
-        ])
+        ]);
     }, [individual]);
 
     return (
