@@ -23,7 +23,7 @@ const DownloadButton = ({ disabled, uri, children }) => {
     }, [uri, accessToken]);
 
     return (
-        <Button key="download" icon="download" disabled={disabled} onClick={onClick}>
+        <Button key="download" icon="download" type={type} disabled={disabled} onClick={onClick}>
             {children}
         </Button>
     );
@@ -32,12 +32,14 @@ const DownloadButton = ({ disabled, uri, children }) => {
 DownloadButton.defaultProps = {
     disabled: false,
     children: "Download",
+    type: "default",
 };
 
 DownloadButton.propTypes = {
     disabled: PropTypes.bool,
     uri: PropTypes.string,
     children: PropTypes.oneOfType([PropTypes.object, PropTypes.string]),
+    type: PropTypes.oneOf(["primary", "ghost", "dashed", "danger", "link", "default"]),
 };
 
 export default DownloadButton;
