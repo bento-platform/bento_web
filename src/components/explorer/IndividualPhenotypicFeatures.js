@@ -1,6 +1,6 @@
-import React, {useCallback, useMemo} from "react";
+import React, { useMemo } from "react";
 
-import {Card, Icon, Table} from "antd";
+import { Icon, Table } from "antd";
 
 import { EM_DASH } from "../../constants";
 import { individualPropTypesShape } from "../../propTypes";
