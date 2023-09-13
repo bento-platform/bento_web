@@ -23,9 +23,9 @@ const ExperimentResultDownloadButton = ({ resultFile }) => {
 
     const url = downloadUrls[resultFile.filename]?.url;
     return url ? (
-       <DownloadButton type="link" uri={url} children={null} />
+        <DownloadButton type="link" uri={url}>{""}</DownloadButton>
     ) : (
-        <>EM_DASH</>
+        <>{EM_DASH}</>
     );
 };
 ExperimentResultDownloadButton.propTypes = {
