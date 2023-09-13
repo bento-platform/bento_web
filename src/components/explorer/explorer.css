@@ -10,6 +10,13 @@
   vertical-align: top !important;
 }
 
+/* Phenotypic Features tab */
+
+.phenotypic-features-table td[colspan="2"] {
+  /*background-color: red;*/
+  border-top: 2px solid #e8e8e8;
+}
+
 /* Variants tab */
 
 .variantDescriptions .ant-descriptions-item-label{
