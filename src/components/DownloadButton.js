@@ -3,7 +3,7 @@ import React, { useCallback } from "react";
 import { Button } from "antd";
 import PropTypes from "prop-types";
 
-const DownloadButton = ({ disabled, uri, children }) => {
+const DownloadButton = ({ disabled, uri, children, type }) => {
     const { accessToken } = useSelector((state) => state.auth);
 
     const onClick = useCallback(() => {
