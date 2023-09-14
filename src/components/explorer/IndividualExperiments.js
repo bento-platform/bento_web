@@ -1,42 +1,34 @@
 import React, { useEffect, useMemo } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useHistory } from "react-router-dom";
-import { Button, Collapse, Descriptions, Empty, Icon, Popover, Table } from "antd";
-import JsonView from "./JsonView";
-import FileSaver from "file-saver";
+import PropTypes from "prop-types";
+
+import { Button, Collapse, Descriptions, Empty, Popover, Table } from "antd";
+
 import { EM_DASH } from "../../constants";
 import { individualPropTypesShape } from "../../propTypes";
 import { getFileDownloadUrlsFromDrs } from "../../modules/drs/actions";
 import { guessFileType } from "../../utils/guessFileType";
-import PropTypes from "prop-types";
-import {useDeduplicatedIndividualBiosamples} from "./utils";
+
+import { useDeduplicatedIndividualBiosamples } from "./utils";
+
+import JsonView from "./JsonView";
 import OntologyTerm from "./OntologyTerm";
+import DownloadButton from "../DownloadButton";
 
 const { Panel } = Collapse;
 
-const DownloadButton = ({ resultFile }) => {
+const ExperimentResultDownloadButton = ({ resultFile }) => {
     const downloadUrls = useSelector((state) => state.drs.downloadUrlsByFilename);
 
     const url = downloadUrls[resultFile.filename]?.url;
-    if (!url) {
-        return <>{EM_DASH}</>;
-    }
-
-    const saveAs = () =>
-        FileSaver.saveAs(
-            downloadUrls[resultFile.filename].url,
-            resultFile.filename,
-        );
-
-    return (
-        <div>
-            <a onClick={saveAs}>
-                <Icon type="cloud-download" />
-            </a>
-        </div>
+    return url ? (
+        <DownloadButton type="link" uri={url}>{""}</DownloadButton>
+    ) : (
+        <>{EM_DASH}</>
     );
 };
-DownloadButton.propTypes = {
+ExperimentResultDownloadButton.propTypes = {
     resultFile: PropTypes.shape({
         filename: PropTypes.string,
     }),
@@ -63,7 +55,7 @@ const EXPERIMENT_RESULTS_COLUMNS = [
         title: "Download",
         key: "download",
         align: "center",
-        render: (_, result) => <DownloadButton resultFile={result} />,
+        render: (_, result) => <ExperimentResultDownloadButton resultFile={result} />,
     },
     {
         title: "Other Details",

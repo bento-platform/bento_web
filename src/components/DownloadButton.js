@@ -3,7 +3,7 @@ import React, { useCallback } from "react";
 import { Button } from "antd";
 import PropTypes from "prop-types";
 
-const DownloadButton = ({ disabled, uri, children }) => {
+const DownloadButton = ({ disabled, uri, children, type }) => {
     const { accessToken } = useSelector((state) => state.auth);
 
     const onClick = useCallback(() => {
@@ -23,21 +23,22 @@ const DownloadButton = ({ disabled, uri, children }) => {
     }, [uri, accessToken]);
 
     return (
-        <Button key="download" icon="download" disabled={disabled} onClick={onClick}>
-            {children}
+        <Button key="download" icon="download" type={type} disabled={disabled} onClick={onClick}>
+            {children === undefined ? "Download" : children}
         </Button>
     );
 };
 
 DownloadButton.defaultProps = {
     disabled: false,
-    children: "Download",
+    type: "default",
 };
 
 DownloadButton.propTypes = {
     disabled: PropTypes.bool,
     uri: PropTypes.string,
     children: PropTypes.oneOfType([PropTypes.object, PropTypes.string]),
+    type: PropTypes.oneOf(["primary", "ghost", "dashed", "danger", "link", "default"]),
 };
 
 export default DownloadButton;
