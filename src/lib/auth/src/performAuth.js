@@ -5,12 +5,9 @@ import {useDispatch, useSelector} from "react-redux";
 import {useHistory, useLocation} from "react-router-dom";
 
 import {tokenHandoff} from "./redux/authSlice";
-import {nop} from "../../../utils/misc";
+import {nop} from "./utils";
 import {buildUrlEncodedData, getIsAuthenticated} from "./utils";
-import {popLocalStorageItem} from "../../../utils/localStorageUtils";
-
-// TODO: REMOVE LATER
-import { fetchUserDependentData } from "../../../modules/user/actions";
+import {popLocalStorageItem} from "./utils";
 
 export const LS_BENTO_WAS_SIGNED_IN = "BENTO_WAS_SIGNED_IN";
 export const LS_BENTO_POST_AUTH_REDIRECT = "BENTO_POST_AUTH_REDIRECT";
@@ -41,7 +38,7 @@ export const performAuth = async (authorizationEndpoint, clientId, authCallbackU
     window.location = await createAuthURL(authorizationEndpoint, clientId, authCallbackURL, scope);
 };
 
-const defaultAuthCodeCallback = async (dispatch, history, code, verifier) => {
+const defaultAuthCodeCallback = async (dispatch, history, code, verifier, fetchUserDependentData) => {
     const lastPath = popLocalStorageItem(LS_BENTO_POST_AUTH_REDIRECT);
     await dispatch(tokenHandoff(code, verifier));
     history.replace(lastPath ?? DEFAULT_REDIRECT);
@@ -52,7 +49,7 @@ export const setLSNotSignedIn = () => {
     localStorage.removeItem(LS_BENTO_WAS_SIGNED_IN);
 };
 
-export const useHandleCallback = (callbackPath, authCodeCallback = undefined) => {
+export const useHandleCallback = (callbackPath, fetchUserDependentData, authCodeCallback = undefined) => {
     const dispatch = useDispatch();
     const history = useHistory();
     const location = useLocation();
@@ -106,7 +103,7 @@ export const useHandleCallback = (callbackPath, authCodeCallback = undefined) =>
 
         const verifier = popLocalStorageItem(PKCE_LS_VERIFIER);
 
-        (authCodeCallback ?? defaultAuthCodeCallback)(dispatch, history, code, verifier).catch(err => {
+        (authCodeCallback ?? defaultAuthCodeCallback)(dispatch, history, code, verifier, fetchUserDependentData).catch(err => {
             console.error(err);
             setLSNotSignedIn();
         });

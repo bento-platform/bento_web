@@ -95,7 +95,7 @@ const App = () => {
     })();
 
     // Set up auth callback handling
-    useHandleCallback(CALLBACK_PATH, isInAuthPopup ? popupOpenerAuthCallback : undefined);
+    useHandleCallback(CALLBACK_PATH, fetchUserDependentData, isInAuthPopup ? popupOpenerAuthCallback : undefined);
 
     // Set up message handling from sign-in popup
     useEffect(() => {

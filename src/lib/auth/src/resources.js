@@ -1,4 +1,4 @@
-import {recursiveOrderedObject} from "../../../utils/misc";
+import {recursiveOrderedObject} from "./utils";
 
 export const RESOURCE_EVERYTHING = {"everything": true};
 

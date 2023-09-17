@@ -1,5 +1,4 @@
 import { createSlice} from "@reduxjs/toolkit";
-import { LS_BENTO_WAS_SIGNED_IN, setLSNotSignedIn } from "../performAuth";
 
 export const configSlice = createSlice({
     name: "config",
