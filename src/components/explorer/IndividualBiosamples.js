@@ -192,7 +192,6 @@ const IndividualBiosamples = ({individual, experimentsUrl}) => {
     const match = useRouteMatch();
 
     const handleBiosampleClick = useCallback((bID) => {
-        console.log(match);
         if (!bID) {
             history.replace(match.url);
             return;
@@ -201,26 +200,21 @@ const IndividualBiosamples = ({individual, experimentsUrl}) => {
     }, [history, match]);
 
     const handleExperimentClick = useCallback((eid) => {
-        const hashLink = experimentsUrl + "#" + eid;
-        history.push(hashLink);
+        history.push(`${experimentsUrl}/${eid}`);
     }, [experimentsUrl, history]);
+
+    const biosamplesNode = (
+        <Biosamples
+            individual={individual}
+            handleBiosampleClick={handleBiosampleClick}
+            handleExperimentClick={handleExperimentClick}
+        />
+    );
 
     return (
         <Switch>
-            <Route path={`${match.path}/:selectedBiosample`}>
-                <Biosamples
-                    individual={individual}
-                    handleBiosampleClick={handleBiosampleClick}
-                    handleExperimentClick={handleExperimentClick}
-                />
-            </Route>
-            <Route path={match.path} exact={true}>
-                <Biosamples
-                    individual={individual}
-                    handleBiosampleClick={handleBiosampleClick}
-                    handleExperimentClick={handleExperimentClick}
-                />
-            </Route>
+            <Route path={`${match.path}/:selectedBiosample`}>{biosamplesNode}</Route>
+            <Route path={match.path} exact={true}>{biosamplesNode}</Route>
         </Switch>
     );
 };

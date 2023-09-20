@@ -360,6 +360,8 @@ export const experimentPropTypesShape = PropTypes.shape({
         ]),
         data_output_type: PropTypes.oneOf(["Raw data", "Derived data"]),
         usage: PropTypes.string,
+        creation_date: PropTypes.string,
+        created_by: PropTypes.string,
     })),
 
     qc_flags: PropTypes.arrayOf(PropTypes.string),

@@ -1,12 +1,12 @@
-import React, { useEffect, useMemo } from "react";
+import React, {useCallback, useEffect, useMemo} from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { useHistory } from "react-router-dom";
+import { Route, Switch, useHistory, useParams, useRouteMatch } from "react-router-dom";
 import PropTypes from "prop-types";
 
-import { Button, Collapse, Descriptions, Empty, Popover, Table } from "antd";
+import { Button, Descriptions, Popover, Table, Typography } from "antd";
 
 import { EM_DASH } from "../../constants";
-import { individualPropTypesShape } from "../../propTypes";
+import { experimentPropTypesShape, individualPropTypesShape } from "../../propTypes";
 import { getFileDownloadUrlsFromDrs } from "../../modules/drs/actions";
 import { guessFileType } from "../../utils/guessFileType";
 
@@ -15,8 +15,6 @@ import { useDeduplicatedIndividualBiosamples } from "./utils";
 import JsonView from "./JsonView";
 import OntologyTerm from "./OntologyTerm";
 import DownloadButton from "../DownloadButton";
-
-const { Panel } = Collapse;
 
 const ExperimentResultDownloadButton = ({ resultFile }) => {
     const downloadUrls = useSelector((state) => state.drs.downloadUrlsByFilename);
@@ -58,7 +56,6 @@ const EXPERIMENT_RESULTS_COLUMNS = [
         render: (_, result) => <ExperimentResultDownloadButton resultFile={result} />,
     },
     {
-        title: "Other Details",
         key: "other_details",
         align: "center",
         render: (_, result) => (
@@ -74,28 +71,28 @@ const EXPERIMENT_RESULTS_COLUMNS = [
                             column={1}
                             size="small"
                         >
-                            <Descriptions.Item label="identifier">
+                            <Descriptions.Item label="Identifier">
                                 {result.identifier}
                             </Descriptions.Item>
-                            <Descriptions.Item label="description">
+                            <Descriptions.Item label="Description">
                                 {result.description}
                             </Descriptions.Item>
-                            <Descriptions.Item label="filename">
+                            <Descriptions.Item label="Filename">
                                 {result.filename}
                             </Descriptions.Item>
-                            <Descriptions.Item label="file format">
+                            <Descriptions.Item label="File format">
                                 {result.file_format}
                             </Descriptions.Item>
-                            <Descriptions.Item label="data output type">
+                            <Descriptions.Item label="Data output type">
                                 {result.data_output_type}
                             </Descriptions.Item>
-                            <Descriptions.Item label="usage">
+                            <Descriptions.Item label="Usage">
                                 {result.usage}
                             </Descriptions.Item>
-                            <Descriptions.Item label="creation date">
+                            <Descriptions.Item label="Creation date">
                                 {result.creation_date}
                             </Descriptions.Item>
-                            <Descriptions.Item label="created by">
+                            <Descriptions.Item label="Created by">
                                 {result.created_by}
                             </Descriptions.Item>
                         </Descriptions>
@@ -103,22 +100,126 @@ const EXPERIMENT_RESULTS_COLUMNS = [
                 }
                 trigger="click"
             >
-                <Button> click here </Button>
+                <Button size="small">See details</Button>
             </Popover>
         ),
     },
 ];
 
-const IndividualExperiments = ({ individual }) => {
+const ExperimentDetail = ({ individual, experiment }) => {
+    const {
+        id,
+        experiment_type: experimentType,
+        experiment_ontology: experimentOntology,
+        molecule,
+        molecule_ontology: moleculeOntology,
+        instrument,
+        study_type: studyType,
+        extraction_protocol: extractionProtocol,
+        library_layout: libraryLayout,
+        library_selection: librarySelection,
+        library_source: librarySource,
+        library_strategy: libraryStrategy,
+        experiment_results: experimentResults,
+        extra_properties: extraProperties,
+    } = experiment;
+
+    const sortedExperimentResults = useMemo(
+        () =>
+            [...(experimentResults || [])].sort((r1, r2) => r1.file_format > r2.file_format ? 1 : -1),
+        [experimentResults]);
+
+    return (
+        <div className="experiment_and_results">
+            <Typography.Title level={4}>{experimentType} - Details</Typography.Title>
+            <Descriptions layout="horizontal" bordered={true} column={2} size="small" style={{ maxWidth: 1200 }}>
+                <Descriptions.Item span={2} label="ID">
+                    <span style={{ fontFamily: "monospace" }}>{id}</span>
+                </Descriptions.Item>
+                <Descriptions.Item span={1} label="Experiment Type">{experimentType}</Descriptions.Item>
+                <Descriptions.Item span={1} label="Experiment Ontology">
+                    {/*
+                    experiment_ontology is accidentally an array in Katsu, so this takes the first item
+                    and falls back to just the field (if we fix this in the future)
+                    */}
+                    <OntologyTerm individual={individual} term={experimentOntology?.[0] ?? experimentOntology} />
+                </Descriptions.Item>
+                <Descriptions.Item span={1} label="Molecule">
+                    {molecule}
+                </Descriptions.Item>
+                <Descriptions.Item span={1} label="Molecule Ontology">
+                    {/*
+                    molecule_ontology is accidentally an array in Katsu, so this takes the first item
+                    and falls back to just the field (if we fix this in the future)
+                    */}
+                    <OntologyTerm individual={individual} term={moleculeOntology?.[0] ?? moleculeOntology} />
+                </Descriptions.Item>
+                <Descriptions.Item label="Study Type">{studyType}</Descriptions.Item>
+                <Descriptions.Item label="Extraction Protocol">{extractionProtocol}</Descriptions.Item>
+                <Descriptions.Item span={1} label="Library Layout">{libraryLayout}</Descriptions.Item>
+                <Descriptions.Item span={1} label="Library Selection">{librarySelection}</Descriptions.Item>
+                <Descriptions.Item span={1} label="Library Source">{librarySource}</Descriptions.Item>
+                <Descriptions.Item span={1} label="Library Strategy">{libraryStrategy}</Descriptions.Item>
+                <Descriptions.Item span={2} label="Instrument">
+                    <div style={{ display: "flex", gap: 16 }}>
+                        <div>
+                            <strong>Platform:</strong>&nbsp;{instrument.platform}
+                        </div>
+                        <div>
+                            <strong>ID:</strong>&nbsp;
+                            <span style={{ fontFamily: "monospace" }}>{instrument.identifier}</span>
+                        </div>
+                    </div>
+                </Descriptions.Item>
+                <Descriptions.Item span={2} label="Extra Properties">
+                    <JsonView inputJson={extraProperties} />
+                </Descriptions.Item>
+            </Descriptions>
+            <Typography.Title level={4}>{experimentType} - Results</Typography.Title>
+            <Table
+                bordered={true}
+                size="small"
+                pagination={false}
+                columns={EXPERIMENT_RESULTS_COLUMNS}
+                rowKey="id"
+                dataSource={sortedExperimentResults}
+                style={{ maxWidth: 1200, backgroundColor: "white" }}
+            />
+        </div>
+    );
+};
+ExperimentDetail.propTypes = {
+    individual: individualPropTypesShape,
+    experiment: experimentPropTypesShape,
+};
+
+const Experiments = ({ individual, handleExperimentClick }) => {
     const dispatch = useDispatch();
-    const history = useHistory();
+
+    const { selectedExperiment } = useParams();
+    const selectedRowKeys = useMemo(
+        () => selectedExperiment ? [selectedExperiment] : [],
+        [selectedExperiment],
+    );
+
+    useEffect(() => {
+        // If, on first load, there's a selected experiment:
+        //  - find the experiment-${id} element (a span in the table row)
+        //  - scroll it into view
+        setTimeout(() => {
+            if (selectedExperiment) {
+                const el = document.getElementById(`experiment-${selectedExperiment}`);
+                if (!el) return;
+                el.scrollIntoView();
+            }
+        }, 100);
+    }, []);
 
     const biosamplesData = useDeduplicatedIndividualBiosamples(individual);
     const experimentsData = useMemo(
         () => biosamplesData.flatMap((b) => b?.experiments ?? []),
         [biosamplesData],
     );
-
 
     useEffect(() => {
         // retrieve any download urls if experiments data changes
@@ -134,140 +235,80 @@ const IndividualExperiments = ({ individual }) => {
         dispatch(getFileDownloadUrlsFromDrs(downloadableFiles));
     }, [experimentsData]);
 
-    const selected = history.location.hash.slice(1);
-    const opened = (selected && selected.length > 1) ? [selected] : [];
+    const columns = useMemo(
+        () => [
+            {
+                title: "Experiment Type",
+                dataIndex: "experiment_type",
+                render: (type, { id }) => <span id={`experiment-${id}`}>{type}</span>,  // scroll anchor wrapper
+            },
+            {
+                title: "Molecule",
+                dataIndex: "molecule_ontology",
+                render: (mo) => <OntologyTerm individual={individual} term={mo?.[0] ?? mo} />,
+            },
+            {
+                title: "Experiment Results",
+                key: "experiment_results",
+                render: (exp) => <span>{exp.experiment_results.length ?? 0} files</span>,
+            },
+        ],
+        [individual, handleExperimentClick],
+    );
 
-    if (!experimentsData.length) {
-        return <Empty description="No experiments" image={Empty.PRESENTED_IMAGE_SIMPLE} />;
-    }
+    const onExpand = useCallback(
+        (e, experiment) => {
+            handleExperimentClick(e ? experiment.id : undefined);
+        },
+        [handleExperimentClick],
+    );
+
+    const expandedRowRender = useCallback(
+        (experiment) => (
+            <ExperimentDetail
+                individual={individual}
+                experiment={experiment}
+            />
+        ),
+        [handleExperimentClick],
+    );
 
     return (
-        <Collapse defaultActiveKey={opened}>
-            {experimentsData.map((e) => (
-                <Panel
-                    key={e.id}
-                    header={`${e.experiment_type} (Biosample ${e.biosample})`}
-                >
-                    <div className="experiment_and_results" id={e.biosample} key={e.id}>
-                        <div className="experiment_summary">
-                            <Descriptions
-                                layout="vertical"
-                                bordered={true}
-                                colon={false}
-                                column={1}
-                                size="small"
-                                key={e.id}
-                            >
-                                <Descriptions.Item label="Molecule Ontology">
-                                    {/*
-                                    molecule_ontology is accidentally an array in Katsu, so this takes the first item
-                                    and falls back to just the field (if we fix this in the future)
-                                    */}
-                                    <OntologyTerm
-                                        individual={individual}
-                                        term={e.molecule_ontology?.[0] ?? e.molecule_ontology}
-                                    />
-                                </Descriptions.Item>
-                                <Descriptions.Item label="Experiment Ontology">
-                                    {/*
-                                    experiment_ontology is accidentally an array in Katsu, so this takes the first item
-                                    and falls back to just the field (if we fix this in the future)
-                                    */}
-                                    <OntologyTerm
-                                        individual={individual}
-                                        term={e.experiment_ontology?.[0] ?? e.experiment_ontology}
-                                    />
-                                </Descriptions.Item>
-                                <Descriptions.Item>
-                                    <Descriptions
-                                        title="Instrument"
-                                        layout="horizontal"
-                                        bordered={true}
-                                        column={1}
-                                        size="small"
-                                    >
-                                        <Descriptions.Item label="platform">
-                                            {e.instrument.platform}
-                                        </Descriptions.Item>
-                                        <Descriptions.Item label="identifier">
-                                            {e.instrument.identifier}
-                                        </Descriptions.Item>
-                                    </Descriptions>
-                                </Descriptions.Item>
-                            </Descriptions>
-                            <Descriptions
-                                layout="vertical"
-                                bordered={true}
-                                column={1}
-                                size="small"
-                            >
-                                <Descriptions.Item>
-                                    <Descriptions
-                                        layout="horizontal"
-                                        bordered={true}
-                                        column={1}
-                                        size="small"
-                                    >
-                                        <Descriptions.Item label="ID">
-                                            <span style={{fontFamily: "monospace"}}>{e.id}</span>
-                                        </Descriptions.Item>
-                                        <Descriptions.Item label="Experiment Type">
-                                            {e.experiment_type}
-                                        </Descriptions.Item>
-                                        <Descriptions.Item label="Study Type">
-                                            {e.study_type}
-                                        </Descriptions.Item>
-                                        <Descriptions.Item label="Extraction Protocol">
-                                            {e.extraction_protocol}
-                                        </Descriptions.Item>
-                                        <Descriptions.Item label="Library Layout">
-                                            {e.library_layout}
-                                        </Descriptions.Item>
-                                        <Descriptions.Item label="Library Selection">
-                                            {e.library_selection}
-                                        </Descriptions.Item>
-                                        <Descriptions.Item label="Library Source">
-                                            {e.library_source}
-                                        </Descriptions.Item>
-                                        <Descriptions.Item label="Library Strategy">
-                                            {e.library_strategy}
-                                        </Descriptions.Item>
-                                    </Descriptions>
-                                </Descriptions.Item>
-                                <Descriptions.Item>
-                                    <Descriptions
-                                        title="Extra Properties"
-                                        layout="horizontal"
-                                        bordered={true}
-                                        column={1}
-                                        size="small"
-                                    >
-                                        <Descriptions.Item>
-                                            <JsonView inputJson={e.extra_properties} />
-                                        </Descriptions.Item>
-                                    </Descriptions>
-                                </Descriptions.Item>
-                            </Descriptions>
-                        </div>
-                        <Descriptions
-                            title={`${e.experiment_type} - Results`}
-                            bordered={true}
-                        />
-                        <Table
-                            // bordered
-                            size="small"
-                            pagination={false}
-                            columns={EXPERIMENT_RESULTS_COLUMNS}
-                            rowKey="filename"
-                            dataSource={(e.experiment_results || []).sort(
-                                (r1, r2) =>
-                                    r1.file_format > r2.file_format ? 1 : -1,
-                            )}
-                        />
-                    </div>
-                </Panel>
-            ))}
-        </Collapse>
+        <Table
+            bordered={true}
+            pagination={false}
+            size="middle"
+            columns={columns}
+            onExpand={onExpand}
+            expandedRowKeys={selectedRowKeys}
+            expandedRowRender={expandedRowRender}
+            dataSource={experimentsData}
+            rowKey="id"
+        />
+    );
+}
+
+const IndividualExperiments = ({ individual }) => {
+    const history = useHistory();
+    const match = useRouteMatch();
+
+    const handleExperimentClick = useCallback((eID) => {
+        if (!eID) {
+            history.replace(match.url);
+            return;
+        }
+        history.replace(`${match.url}/${eID}`);
+    }, [history, match]);
+
+    const experimentsNode = (
+        <Experiments individual={individual} handleExperimentClick={handleExperimentClick} />
+    );
+
+    return (
+        <Switch>
+            <Route path={`${match.path}/:selectedExperiment`}>{experimentsNode}</Route>
+            <Route path={match.path} exact={true}>{experimentsNode}</Route>
+        </Switch>
     );
 };
 
