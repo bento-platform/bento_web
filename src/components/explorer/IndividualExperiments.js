@@ -6,7 +6,7 @@ import PropTypes from "prop-types";
 import { Button, Descriptions, Popover, Table, Typography } from "antd";
 
 import { EM_DASH } from "../../constants";
-import { experimentPropTypesShape, individualPropTypesShape } from "../../propTypes";
+import { experimentPropTypesShape, experimentResultPropTypesShape, individualPropTypesShape } from "../../propTypes";
 import { getFileDownloadUrlsFromDrs } from "../../modules/drs/actions";
 import { guessFileType } from "../../utils/guessFileType";
 
@@ -16,10 +16,10 @@ import JsonView from "./JsonView";
 import OntologyTerm from "./OntologyTerm";
 import DownloadButton from "../DownloadButton";
 
-const ExperimentResultDownloadButton = ({ resultFile }) => {
+const ExperimentResultDownloadButton = ({ result }) => {
     const downloadUrls = useSelector((state) => state.drs.downloadUrlsByFilename);
 
-    const url = downloadUrls[resultFile.filename]?.url;
+    const url = downloadUrls[result.filename]?.url;
     return url ? (
         <DownloadButton type="link" uri={url}>{""}</DownloadButton>
     ) : (
@@ -27,9 +27,7 @@ const ExperimentResultDownloadButton = ({ resultFile }) => {
     );
 };
 ExperimentResultDownloadButton.propTypes = {
-    resultFile: PropTypes.shape({
-        filename: PropTypes.string,
-    }),
+    result: experimentResultPropTypesShape,
 };
 
 const EXPERIMENT_RESULTS_COLUMNS = [
@@ -53,7 +51,7 @@ const EXPERIMENT_RESULTS_COLUMNS = [
         title: "Download",
         key: "download",
         align: "center",
-        render: (_, result) => <ExperimentResultDownloadButton resultFile={result} />,
+        render: (_, result) => <ExperimentResultDownloadButton result={result} />,
     },
     {
         key: "other_details",
@@ -286,7 +284,11 @@ const Experiments = ({ individual, handleExperimentClick }) => {
             rowKey="id"
         />
     );
-}
+};
+Experiments.propTypes = {
+    individual: individualPropTypesShape,
+    handleExperimentClick: PropTypes.func,
+};
 
 const IndividualExperiments = ({ individual }) => {
     const history = useHistory();
