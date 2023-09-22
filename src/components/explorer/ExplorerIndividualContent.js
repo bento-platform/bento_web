@@ -16,7 +16,7 @@ import IndividualPhenotypicFeatures from "./IndividualPhenotypicFeatures";
 import IndividualBiosamples from "./IndividualBiosamples";
 import IndividualExperiments from "./IndividualExperiments";
 import IndividualDiseases from "./IndividualDiseases";
-import IndividualMetadata from "./IndividualMetadata";
+import IndividualOntologies from "./IndividualOntologies";
 import IndividualVariants from "./IndividualVariants";
 import IndividualGenes from "./IndividualGenes";
 import IndividualTracks from "./IndividualTracks";
@@ -76,7 +76,7 @@ const ExplorerIndividualContent = () => {
     const variantsUrl = `${individualUrl}/variants`;
     const genesUrl = `${individualUrl}/genes`;
     const diseasesUrl = `${individualUrl}/diseases`;
-    const metadataUrl = `${individualUrl}/metadata`;
+    const ontologiesUrl = `${individualUrl}/ontologies`;
     const tracksUrl = `${individualUrl}/tracks`;
     const phenopacketsUrl = `${individualUrl}/phenopackets`;
 
@@ -89,7 +89,7 @@ const ExplorerIndividualContent = () => {
         {url: variantsUrl, text: "Variants"},
         {url: genesUrl, text: "Genes"},
         {url: diseasesUrl, text: "Diseases"},
-        {url: metadataUrl, text: "Metadata"},
+        {url: ontologiesUrl, text: "Ontologies"},
         {url: phenopacketsUrl, text: "Phenopackets JSON"},
     ];
 
@@ -133,8 +133,8 @@ const ExplorerIndividualContent = () => {
                     <Route path={diseasesUrl.replace(":", "\\:")}>
                         <IndividualDiseases individual={individual} />
                     </Route>
-                    <Route path={metadataUrl.replace(":", "\\:")}>
-                        <IndividualMetadata individual={individual} />
+                    <Route path={ontologiesUrl.replace(":", "\\:")}>
+                        <IndividualOntologies individual={individual} />
                     </Route>
                     <Route path={phenopacketsUrl.replace(":", "\\:")}>
                         <IndividualPhenopackets individual={individual} />

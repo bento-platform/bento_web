@@ -48,7 +48,7 @@ const METADATA_COLUMNS = [
     },
 ];
 
-const IndividualMetadata = ({individual}) => {
+const IndividualOntologies = ({individual}) => {
     const resources = useResources(individual);
 
     return (
@@ -63,8 +63,8 @@ const IndividualMetadata = ({individual}) => {
     );
 };
 
-IndividualMetadata.propTypes = {
+IndividualOntologies.propTypes = {
     individual: individualPropTypesShape,
 };
 
-export default IndividualMetadata;
+export default IndividualOntologies;
