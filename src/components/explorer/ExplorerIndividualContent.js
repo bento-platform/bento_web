@@ -4,11 +4,12 @@ import { Redirect, Route, Switch, useHistory, useLocation, useParams, useRouteMa
 
 import { Layout, Menu, Skeleton } from "antd";
 
-import { fetchDatasetResourcesIfNecessary } from "../../modules/datasets/actions";
+import { BENTO_URL } from "../../config";
 import { fetchIndividualIfNecessary } from "../../modules/metadata/actions";
 import { LAYOUT_CONTENT_STYLE } from "../../styles/layoutContent";
 import { matchingMenuKeys, renderMenuItem } from "../../utils/menu";
 import { urlPath } from "../../utils/url";
+import { useResources } from "./utils";
 
 import SitePageHeader from "../SitePageHeader";
 import IndividualOverview from "./IndividualOverview";
@@ -21,8 +22,6 @@ import IndividualVariants from "./IndividualVariants";
 import IndividualGenes from "./IndividualGenes";
 import IndividualTracks from "./IndividualTracks";
 import IndividualPhenopackets from "./IndividualPhenopackets";
-
-import { BENTO_URL } from "../../config";
 
 const MENU_STYLE = {
     marginLeft: "-24px",
@@ -62,12 +61,8 @@ const ExplorerIndividualContent = () => {
 
     const { isFetching: individualIsFetching, data: individual } = individuals[individualID] ?? {};
 
-    useEffect(() => {
-        // TODO: when individual belongs to a single dataset, use that instead
-        if (individual) {
-            individual.phenopackets.map((p) => dispatch(fetchDatasetResourcesIfNecessary(p.dataset)));
-        }
-    }, [dispatch, individual]);
+    // Trigger resource loading
+    useResources(individual);
 
     const overviewUrl = `${individualUrl}/overview`;
     const phenotypicFeaturesUrl = `${individualUrl}/phenotypic-features`;
