@@ -19,8 +19,9 @@
 
 /* Variants tab */
 
-.variantDescriptions .ant-descriptions-item-label{
+.variantDescriptions .ant-descriptions-item-label {
   vertical-align: top;
+  width: 200px;
 }
 
 /* Biosamples and Experiments tabs */
