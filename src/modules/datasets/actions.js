@@ -53,6 +53,7 @@ const fetchDatasetResources = networkAction((datasetID) => (dispatch, getState) 
     err: "Error fetching dataset resources",
 }));
 export const fetchDatasetResourcesIfNecessary = (datasetID) => (dispatch, getState) => {
-    if (getState().datasetResources.itemsByID[datasetID]?.isFetching) return;
+    const datasetResources = getState().datasetResources.itemsByID[datasetID];
+    if (datasetResources?.isFetching || datasetResources?.data) return;
     return dispatch(fetchDatasetResources(datasetID));
 };

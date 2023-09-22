@@ -4,11 +4,12 @@ import { Redirect, Route, Switch, useHistory, useLocation, useParams, useRouteMa
 
 import { Layout, Menu, Skeleton } from "antd";
 
-import { fetchDatasetResourcesIfNecessary } from "../../modules/datasets/actions";
+import { BENTO_URL } from "../../config";
 import { fetchIndividualIfNecessary } from "../../modules/metadata/actions";
 import { LAYOUT_CONTENT_STYLE } from "../../styles/layoutContent";
 import { matchingMenuKeys, renderMenuItem } from "../../utils/menu";
 import { urlPath } from "../../utils/url";
+import { useIndividualResources } from "./utils";
 
 import SitePageHeader from "../SitePageHeader";
 import IndividualOverview from "./IndividualOverview";
@@ -16,13 +17,11 @@ import IndividualPhenotypicFeatures from "./IndividualPhenotypicFeatures";
 import IndividualBiosamples from "./IndividualBiosamples";
 import IndividualExperiments from "./IndividualExperiments";
 import IndividualDiseases from "./IndividualDiseases";
-import IndividualMetadata from "./IndividualMetadata";
+import IndividualOntologies from "./IndividualOntologies";
 import IndividualVariants from "./IndividualVariants";
 import IndividualGenes from "./IndividualGenes";
 import IndividualTracks from "./IndividualTracks";
 import IndividualPhenopackets from "./IndividualPhenopackets";
-
-import { BENTO_URL } from "../../config";
 
 const MENU_STYLE = {
     marginLeft: "-24px",
@@ -62,12 +61,8 @@ const ExplorerIndividualContent = () => {
 
     const { isFetching: individualIsFetching, data: individual } = individuals[individualID] ?? {};
 
-    useEffect(() => {
-        // TODO: when individual belongs to a single dataset, use that instead
-        if (individual) {
-            individual.phenopackets.map((p) => dispatch(fetchDatasetResourcesIfNecessary(p.dataset)));
-        }
-    }, [dispatch, individual]);
+    // Trigger resource loading
+    useIndividualResources(individual);
 
     const overviewUrl = `${individualUrl}/overview`;
     const phenotypicFeaturesUrl = `${individualUrl}/phenotypic-features`;
@@ -76,7 +71,7 @@ const ExplorerIndividualContent = () => {
     const variantsUrl = `${individualUrl}/variants`;
     const genesUrl = `${individualUrl}/genes`;
     const diseasesUrl = `${individualUrl}/diseases`;
-    const metadataUrl = `${individualUrl}/metadata`;
+    const ontologiesUrl = `${individualUrl}/ontologies`;
     const tracksUrl = `${individualUrl}/tracks`;
     const phenopacketsUrl = `${individualUrl}/phenopackets`;
 
@@ -89,7 +84,7 @@ const ExplorerIndividualContent = () => {
         {url: variantsUrl, text: "Variants"},
         {url: genesUrl, text: "Genes"},
         {url: diseasesUrl, text: "Diseases"},
-        {url: metadataUrl, text: "Metadata"},
+        {url: ontologiesUrl, text: "Ontologies"},
         {url: phenopacketsUrl, text: "Phenopackets JSON"},
     ];
 
@@ -133,8 +128,8 @@ const ExplorerIndividualContent = () => {
                     <Route path={diseasesUrl.replace(":", "\\:")}>
                         <IndividualDiseases individual={individual} />
                     </Route>
-                    <Route path={metadataUrl.replace(":", "\\:")}>
-                        <IndividualMetadata individual={individual} />
+                    <Route path={ontologiesUrl.replace(":", "\\:")}>
+                        <IndividualOntologies individual={individual} />
                     </Route>
                     <Route path={phenopacketsUrl.replace(":", "\\:")}>
                         <IndividualPhenopackets individual={individual} />

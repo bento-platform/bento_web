@@ -1,17 +1,17 @@
 import React, { memo, useEffect } from "react";
 import PropTypes from "prop-types";
 
-import { Icon } from "antd";
+import { Button, Icon } from "antd";
 
 import { EM_DASH } from "../../constants";
-import { individualPropTypesShape, ontologyShape } from "../../propTypes";
+import { ontologyShape } from "../../propTypes";
 import { id } from "../../utils/misc";
 
 import { useResourcesByNamespacePrefix } from "./utils";
 
-const OntologyTerm = memo(({ individual, term, renderLabel }) => {
+const OntologyTerm = memo(({ resourcesTuple, term, renderLabel }) => {
     // TODO: perf: might be slow to generate this over and over
-    const resourcesByNamespacePrefix = useResourcesByNamespacePrefix(individual);
+    const [resourcesByNamespacePrefix, isFetchingResources] = useResourcesByNamespacePrefix(resourcesTuple);
 
     if (!term) {
         return (
@@ -43,22 +43,30 @@ const OntologyTerm = memo(({ individual, term, renderLabel }) => {
         if (termResource?.iri_prefix && !termResource.iri_prefix.includes("example.org")) {
             defLink = `${termResource.iri_prefix}${namespaceID}`;
         }  // If resource doesn't exist / isn't linkable, don't include a link
-    }  // Otherwise, malformed ID - render without a link
+    }  // Otherwise, malformed ID - render a disabled link
 
     return (
         <span>
             {renderLabel(term.label)} (ID: {term.id}){" "}
-            {defLink && (
-                <a href={defLink} target="_blank" rel="noopener noreferrer">
+            <span style={{cursor: (!defLink) ? (isFetchingResources ? "wait" : "not-allowed") : "pointer"}}>
+                <Button
+                    type="link"
+                    size="small"
+                    disabled={!defLink}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    href={defLink ?? "#"}
+                    style={{ padding: 0 }}
+                >
                     <Icon type="link" />
-                </a>
-            )}
+                </Button>
+            </span>
         </span>
     );
 });
 
 OntologyTerm.propTypes = {
-    individual: individualPropTypesShape,
+    resourcesTuple: PropTypes.array,
     term: ontologyShape.isRequired,
     renderLabel: PropTypes.func,
 };

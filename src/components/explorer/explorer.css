@@ -1,11 +1,3 @@
-/* css snippet to help align the antd spinner in the parent row */
-.ant-spin-nested-loading,
-.ant-spin-nested-loading > div:first-child,
-.ant-spin-spinning,
-.ant-spin-container {
-  display: inline !important;
-}
-
 .ant-table-row.ant-table-row-level-0 {
   vertical-align: top !important;
 }
@@ -19,8 +11,9 @@
 
 /* Variants tab */
 
-.variantDescriptions .ant-descriptions-item-label{
+.variantDescriptions .ant-descriptions-item-label {
   vertical-align: top;
+  width: 200px;
 }
 
 /* Biosamples and Experiments tabs */
