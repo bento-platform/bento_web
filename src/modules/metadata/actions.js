@@ -141,7 +141,7 @@ export const deleteProjectIfPossible = project => async (dispatch, getState) => 
 
 export const clearDatasetDataTypes = datasetId => async (dispatch, getState) => {
     // only clear data types which can yield counts - `queryable` is a proxy for this
-    const dataTypes = Object.values(getState().datasetDataTypes.itemsById[datasetId].itemsById)
+    const dataTypes = Object.values(getState().datasetDataTypes.itemsByID[datasetId].itemsByID)
         .filter(dt => dt.queryable);
     return await Promise.all(dataTypes.map(dt => dispatch(clearDatasetDataType(datasetId, dt.id))));
 };
@@ -307,4 +307,3 @@ export const fetchOverviewSummary = networkAction(() => (dispatch, getState) => 
     url: `${getState().services.metadataService.url}/api/overview`,
     err: "Error fetching overview summary metadata",
 }));
-
