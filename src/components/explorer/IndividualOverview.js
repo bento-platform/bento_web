@@ -18,7 +18,9 @@ const IndividualOverview = ({individual}) => {
             <Descriptions.Item label="Sex">{individual.sex || "UNKNOWN_SEX"}</Descriptions.Item>
             <Descriptions.Item label="Age">{getAge(individual)}</Descriptions.Item>
             <Descriptions.Item label="Ethnicity">{individual.ethnicity || "UNKNOWN_ETHNICITY"}</Descriptions.Item>
-            <Descriptions.Item label="Karyotypic Sex">{individual.karyotypic_sex || "UNKNOWN_KARYOTYPE"}</Descriptions.Item>
+            <Descriptions.Item label="Karyotypic Sex">{
+                individual.karyotypic_sex || "UNKNOWN_KARYOTYPE"}
+            </Descriptions.Item>
             <Descriptions.Item label="Taxonomy">
                 <OntologyTerm
                     resourcesTuple={resourcesTuple}
@@ -42,7 +44,7 @@ const IndividualOverview = ({individual}) => {
             }</Descriptions.Item>
         </Descriptions>
     );
-}
+};
 
 IndividualOverview.propTypes = {
     individual: individualPropTypesShape,

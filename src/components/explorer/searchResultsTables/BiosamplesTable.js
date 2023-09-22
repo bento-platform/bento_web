@@ -108,7 +108,9 @@ const BiosamplesTable = ({ data, datasetID }) => {
         {
             title: "Biosample",
             dataIndex: "biosample",
-            render: (biosample, { individual }) => <BiosampleIDCell biosample={biosample} individualId={individual.id} />,
+            render: (biosample, { individual }) => (
+                <BiosampleIDCell biosample={biosample} individualId={individual.id} />
+            ),
             sorter: (a, b) => a.biosample.localeCompare(b.biosample),
             defaultSortOrder: "ascend",
         },

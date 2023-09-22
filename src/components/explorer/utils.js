@@ -22,7 +22,7 @@ export const useDatasetResources = (datasetIDOrDatasetIDs) => {
 
     const datasetIDs = useMemo(
         () => Array.isArray(datasetIDOrDatasetIDs) ? datasetIDOrDatasetIDs : [datasetIDOrDatasetIDs],
-    [datasetIDOrDatasetIDs],
+        [datasetIDOrDatasetIDs],
     );
 
     useEffect(() => {
