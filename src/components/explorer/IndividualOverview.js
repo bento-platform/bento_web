@@ -5,25 +5,30 @@ import { Descriptions } from "antd";
 
 import { EM_DASH } from "../../constants";
 import { individualPropTypesShape } from "../../propTypes";
+import { useIndividualResources } from "./utils";
 import OntologyTerm from "./OntologyTerm";
 
-const IndividualOverview = ({individual}) => individual ?
-    <Descriptions layout="vertical" bordered={true} size="middle">
-        <Descriptions.Item label="Date of Birth">{individual.date_of_birth || EM_DASH}</Descriptions.Item>
-        <Descriptions.Item label="Sex">{individual.sex || "UNKNOWN_SEX"}</Descriptions.Item>
-        <Descriptions.Item label="Age">{getAge(individual)}</Descriptions.Item>
-        <Descriptions.Item label="Ethnicity">{individual.ethnicity || "UNKNOWN_ETHNICITY"}</Descriptions.Item>
-        <Descriptions.Item label="Karyotypic Sex">{individual.karyotypic_sex || "UNKNOWN_KARYOTYPE"}</Descriptions.Item>
-        <Descriptions.Item label="Taxonomy">
-            <OntologyTerm
-                individual={individual}
-                term={individual.taxonomy}
-                renderLabel={label => (<em>{label}</em>)}
-            />
-        </Descriptions.Item>
-        <Descriptions.Item label="Extra Properties">{
-            (individual.hasOwnProperty("extra_properties") && Object.keys(individual.extra_properties).length)
-                ?  <div>
+const IndividualOverview = ({individual}) => {
+    const resourcesTuple = useIndividualResources(individual);
+
+    if (!individual) return <div />;
+    return (
+        <Descriptions layout="vertical" bordered={true} size="middle">
+            <Descriptions.Item label="Date of Birth">{individual.date_of_birth || EM_DASH}</Descriptions.Item>
+            <Descriptions.Item label="Sex">{individual.sex || "UNKNOWN_SEX"}</Descriptions.Item>
+            <Descriptions.Item label="Age">{getAge(individual)}</Descriptions.Item>
+            <Descriptions.Item label="Ethnicity">{individual.ethnicity || "UNKNOWN_ETHNICITY"}</Descriptions.Item>
+            <Descriptions.Item label="Karyotypic Sex">{individual.karyotypic_sex || "UNKNOWN_KARYOTYPE"}</Descriptions.Item>
+            <Descriptions.Item label="Taxonomy">
+                <OntologyTerm
+                    resourcesTuple={resourcesTuple}
+                    term={individual.taxonomy}
+                    renderLabel={label => (<em>{label}</em>)}
+                />
+            </Descriptions.Item>
+            <Descriptions.Item label="Extra Properties">{
+                (individual.hasOwnProperty("extra_properties") && Object.keys(individual.extra_properties).length)
+                    ?  <div>
                     <pre>
                           <ReactJson src={individual.extra_properties}
                                      displayDataTypes={false}
@@ -32,10 +37,12 @@ const IndividualOverview = ({individual}) => individual ?
                                      enableClipboard={false}
                           />
                     </pre>
-                   </div>
-                : EM_DASH
-        }</Descriptions.Item>
-    </Descriptions> : <div />;
+                    </div>
+                    : EM_DASH
+            }</Descriptions.Item>
+        </Descriptions>
+    );
+}
 
 IndividualOverview.propTypes = {
     individual: individualPropTypesShape,

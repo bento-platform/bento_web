@@ -10,7 +10,7 @@ import { experimentPropTypesShape, experimentResultPropTypesShape, individualPro
 import { getFileDownloadUrlsFromDrs } from "../../modules/drs/actions";
 import { guessFileType } from "../../utils/guessFileType";
 
-import { useDeduplicatedIndividualBiosamples } from "./utils";
+import { useDeduplicatedIndividualBiosamples, useIndividualResources } from "./utils";
 
 import JsonView from "./JsonView";
 import OntologyTerm from "./OntologyTerm";
@@ -104,7 +104,7 @@ const EXPERIMENT_RESULTS_COLUMNS = [
     },
 ];
 
-const ExperimentDetail = ({ individual, experiment }) => {
+const ExperimentDetail = ({ experiment, resourcesTuple }) => {
     const {
         id,
         experiment_type: experimentType,
@@ -140,7 +140,10 @@ const ExperimentDetail = ({ individual, experiment }) => {
                     experiment_ontology is accidentally an array in Katsu, so this takes the first item
                     and falls back to just the field (if we fix this in the future)
                     */}
-                    <OntologyTerm individual={individual} term={experimentOntology?.[0] ?? experimentOntology} />
+                    <OntologyTerm
+                        resourcesTuple={resourcesTuple}
+                        term={experimentOntology?.[0] ?? experimentOntology}
+                    />
                 </Descriptions.Item>
                 <Descriptions.Item span={1} label="Molecule">
                     {molecule}
@@ -150,7 +153,7 @@ const ExperimentDetail = ({ individual, experiment }) => {
                     molecule_ontology is accidentally an array in Katsu, so this takes the first item
                     and falls back to just the field (if we fix this in the future)
                     */}
-                    <OntologyTerm individual={individual} term={moleculeOntology?.[0] ?? moleculeOntology} />
+                    <OntologyTerm resourcesTuple={resourcesTuple} term={moleculeOntology?.[0] ?? moleculeOntology} />
                 </Descriptions.Item>
                 <Descriptions.Item label="Study Type">{studyType}</Descriptions.Item>
                 <Descriptions.Item label="Extraction Protocol">{extractionProtocol}</Descriptions.Item>
@@ -187,8 +190,8 @@ const ExperimentDetail = ({ individual, experiment }) => {
     );
 };
 ExperimentDetail.propTypes = {
-    individual: individualPropTypesShape,
     experiment: experimentPropTypesShape,
+    resourcesTuple: PropTypes.array,
 };
 
 const Experiments = ({ individual, handleExperimentClick }) => {
@@ -218,6 +221,7 @@ const Experiments = ({ individual, handleExperimentClick }) => {
         () => biosamplesData.flatMap((b) => b?.experiments ?? []),
         [biosamplesData],
     );
+    const resourcesTuple = useIndividualResources(individual);
 
     useEffect(() => {
         // retrieve any download urls if experiments data changes
@@ -243,7 +247,7 @@ const Experiments = ({ individual, handleExperimentClick }) => {
             {
                 title: "Molecule",
                 dataIndex: "molecule_ontology",
-                render: (mo) => <OntologyTerm individual={individual} term={mo?.[0] ?? mo} />,
+                render: (mo) => <OntologyTerm resourcesTuple={resourcesTuple} term={mo?.[0] ?? mo} />,
             },
             {
                 title: "Experiment Results",
@@ -251,7 +255,7 @@ const Experiments = ({ individual, handleExperimentClick }) => {
                 render: (exp) => <span>{exp.experiment_results.length ?? 0} files</span>,
             },
         ],
-        [individual, handleExperimentClick],
+        [resourcesTuple, handleExperimentClick],
     );
 
     const onExpand = useCallback(
@@ -263,12 +267,9 @@ const Experiments = ({ individual, handleExperimentClick }) => {
 
     const expandedRowRender = useCallback(
         (experiment) => (
-            <ExperimentDetail
-                individual={individual}
-                experiment={experiment}
-            />
+            <ExperimentDetail experiment={experiment} resourcesTuple={resourcesTuple} />
         ),
-        [handleExperimentClick],
+        [resourcesTuple],
     );
 
     return (

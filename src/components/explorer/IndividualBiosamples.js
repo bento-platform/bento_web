@@ -5,7 +5,7 @@ import { Route, Switch, useHistory, useRouteMatch, useParams } from "react-route
 import { Button, Descriptions, Table } from "antd";
 
 import { EM_DASH } from "../../constants";
-import { useDeduplicatedIndividualBiosamples } from "./utils";
+import { useDeduplicatedIndividualBiosamples, useIndividualResources } from "./utils";
 import {
     biosamplePropTypesShape,
     experimentPropTypesShape,
@@ -21,18 +21,19 @@ import "./explorer.css";
 // TODO: Only show biosamples from the relevant dataset, if specified;
 //  highlight those found in search results, if specified
 
-const BiosampleProcedure = ({ individual, procedure }) => (
+const BiosampleProcedure = ({ resourcesTuple, procedure }) => (
     <div>
-        <strong>Code:</strong>{" "}<OntologyTerm individual={individual} term={procedure.code} />
+        <strong>Code:</strong>{" "}<OntologyTerm resourcesTuple={resourcesTuple} term={procedure.code} />
         {procedure.body_site ? (
             <div>
-                <strong>Body Site:</strong>{" "}<OntologyTerm individual={individual} term={procedure.body_site} />
+                <strong>Body Site:</strong>{" "}
+                <OntologyTerm resourcesTuple={resourcesTuple} term={procedure.body_site} />
             </div>
         ) : null}
     </div>
 );
 BiosampleProcedure.propTypes = {
-    individual: individualPropTypesShape.isRequired,
+    resourcesTuple: PropTypes.array,
     procedure: PropTypes.shape({
         code: ontologyShape.isRequired,
         body_site: ontologyShape,
@@ -60,19 +61,20 @@ ExperimentsClickList.propTypes = {
 };
 
 const BiosampleDetail = ({ individual, biosample, handleExperimentClick }) => {
+    const resourcesTuple = useIndividualResources(individual);
     return (
         <Descriptions bordered={true} column={1} size="small" style={{maxWidth: 800}}>
             <Descriptions.Item label="ID">
                 {biosample.id}
             </Descriptions.Item>
             <Descriptions.Item label="Sampled Tissue">
-                <OntologyTerm individual={individual} term={biosample.sampled_tissue} />
+                <OntologyTerm resourcesTuple={resourcesTuple} term={biosample.sampled_tissue} />
             </Descriptions.Item>
             <Descriptions.Item label="Procedure">
-                <BiosampleProcedure individual={individual} procedure={biosample.procedure} />
+                <BiosampleProcedure resourcesTuple={resourcesTuple} procedure={biosample.procedure} />
             </Descriptions.Item>
             <Descriptions.Item label="Histological Diagnosis">
-                <OntologyTerm individual={individual} term={biosample.histological_diagnosis} />
+                <OntologyTerm resourcesTuple={resourcesTuple} term={biosample.histological_diagnosis} />
             </Descriptions.Item>
             <Descriptions.Item label="Ind. Age At Collection">
                 {biosample.individual_age_at_collection
@@ -125,6 +127,7 @@ const Biosamples = ({ individual, handleBiosampleClick, handleExperimentClick })
     }, []);
 
     const biosamples = useDeduplicatedIndividualBiosamples(individual);
+    const resourcesTuple = useIndividualResources(individual);
 
     const columns = useMemo(
         () => [
@@ -136,7 +139,7 @@ const Biosamples = ({ individual, handleBiosampleClick, handleExperimentClick })
             {
                 title: "Sampled Tissue",
                 dataIndex: "sampled_tissue",
-                render: tissue => <OntologyTerm individual={individual} term={tissue} />,
+                render: tissue => <OntologyTerm resourcesTuple={resourcesTuple} term={tissue} />,
             },
             {
                 title: "Experiments",
@@ -146,7 +149,7 @@ const Biosamples = ({ individual, handleBiosampleClick, handleExperimentClick })
                 ),
             },
         ],
-        [individual, handleExperimentClick],
+        [resourcesTuple, handleExperimentClick],
     );
 
     const onExpand = useCallback(

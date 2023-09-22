@@ -4,7 +4,7 @@ import { Table } from "antd";
 
 import { individualPropTypesShape } from "../../propTypes";
 import { EM_DASH } from "../../constants";
-import { ontologyTermSorter } from "./utils";
+import { ontologyTermSorter, useIndividualResources } from "./utils";
 
 import OntologyTerm from "./OntologyTerm";
 
@@ -13,6 +13,7 @@ import OntologyTerm from "./OntologyTerm";
 
 const IndividualDiseases = ({ individual }) => {
     const diseases = individual.phenopackets.flatMap(p => p.diseases);
+    const resourcesTuple = useIndividualResources(individual);
 
     const columns = useMemo(() => [
         {
@@ -24,7 +25,7 @@ const IndividualDiseases = ({ individual }) => {
         {
             title: "term",
             dataIndex: "term",
-            render: (term) => <OntologyTerm individual={individual} term={term} />,
+            render: (term) => <OntologyTerm resourcesTuple={resourcesTuple} term={term} />,
             sorter: ontologyTermSorter("term"),
         },
         {
@@ -41,21 +42,21 @@ const IndividualDiseases = ({ individual }) => {
                             ? <div>{disease.onset.start.age} - {disease.onset.end.age}</div>
                             // Onset age label only
                             : disease.onset.label
-                                ? <OntologyTerm individual={individual} term={disease.onset} />
+                                ? <OntologyTerm resourcesTuple={resourcesTuple} term={disease.onset} />
                                 : EM_DASH
                     : EM_DASH,
         },
         {
             title: "Extra Properties",
             key: "extra_properties",
-            render: (_, individual) =>
-                (Object.keys(individual.extra_properties ?? {}).length)
+            render: (_, disease) =>
+                (Object.keys(disease.extra_properties ?? {}).length)
                     ? <div>
-                        <pre>{JSON.stringify(individual.extra_properties, null, 2)}</pre>
+                        <pre>{JSON.stringify(disease.extra_properties, null, 2)}</pre>
                     </div>
                     : EM_DASH,
         },
-    ], [individual]);
+    ], [resourcesTuple]);
 
     return (
         <Table

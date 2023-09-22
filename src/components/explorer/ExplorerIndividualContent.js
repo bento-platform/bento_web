@@ -9,7 +9,7 @@ import { fetchIndividualIfNecessary } from "../../modules/metadata/actions";
 import { LAYOUT_CONTENT_STYLE } from "../../styles/layoutContent";
 import { matchingMenuKeys, renderMenuItem } from "../../utils/menu";
 import { urlPath } from "../../utils/url";
-import { useResources } from "./utils";
+import { useIndividualResources } from "./utils";
 
 import SitePageHeader from "../SitePageHeader";
 import IndividualOverview from "./IndividualOverview";
@@ -62,7 +62,7 @@ const ExplorerIndividualContent = () => {
     const { isFetching: individualIsFetching, data: individual } = individuals[individualID] ?? {};
 
     // Trigger resource loading
-    useResources(individual);
+    useIndividualResources(individual);
 
     const overviewUrl = `${individualUrl}/overview`;
     const phenotypicFeaturesUrl = `${individualUrl}/phenotypic-features`;
