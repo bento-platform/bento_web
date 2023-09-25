@@ -6,7 +6,7 @@ export const useDeduplicatedIndividualBiosamples = (individual) =>
     useMemo(
         () => Object.values(
             Object.fromEntries(
-                (individual || {}).phenopackets
+                (individual?.phenopackets ?? [])
                     .flatMap(p => p.biosamples)
                     .map(b => [b.id, b]),
             ),
