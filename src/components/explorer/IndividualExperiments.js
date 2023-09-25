@@ -252,7 +252,8 @@ const Experiments = ({ individual, handleExperimentClick }) => {
             {
                 title: "Experiment Results",
                 key: "experiment_results",
-                render: (exp) => <span>{exp.experiment_results.length ?? 0} files</span>,
+                // experiment_results can be undefined if no experiment results exist
+                render: (exp) => <span>{exp.experiment_results?.length ?? 0} files</span>,
             },
         ],
         [resourcesTuple, handleExperimentClick],
