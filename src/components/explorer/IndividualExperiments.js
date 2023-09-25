@@ -3,7 +3,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { Route, Switch, useHistory, useParams, useRouteMatch } from "react-router-dom";
 import PropTypes from "prop-types";
 
-import { Button, Descriptions, Popover, Table, Typography } from "antd";
+import { Button, Descriptions, Icon, Popover, Table, Typography } from "antd";
 
 import { EM_DASH } from "../../constants";
 import { experimentPropTypesShape, experimentResultPropTypesShape, individualPropTypesShape } from "../../propTypes";
@@ -129,7 +129,7 @@ const ExperimentDetail = ({ experiment, resourcesTuple }) => {
 
     return (
         <div className="experiment_and_results">
-            <Typography.Title level={4}>{experimentType} - Details</Typography.Title>
+            <Typography.Title level={4}><Icon type="profile" /> Details</Typography.Title>
             <Descriptions layout="horizontal" bordered={true} column={2} size="small" style={{ maxWidth: 1200 }}>
                 <Descriptions.Item span={2} label="ID">
                     <span style={{ fontFamily: "monospace" }}>{id}</span>
@@ -176,8 +176,10 @@ const ExperimentDetail = ({ experiment, resourcesTuple }) => {
                     <JsonView inputJson={extraProperties} />
                 </Descriptions.Item>
             </Descriptions>
-            <Typography.Title level={4}>{experimentType} - Results</Typography.Title>
-            <Table
+            <Typography.Title level={4}>
+                <Icon type="file-text" /> {sortedExperimentResults.length ? 'Results' : 'No experiment results'}
+            </Typography.Title>
+            {sortedExperimentResults.length ? <Table
                 bordered={true}
                 size="small"
                 pagination={false}
@@ -185,7 +187,7 @@ const ExperimentDetail = ({ experiment, resourcesTuple }) => {
                 rowKey="id"
                 dataSource={sortedExperimentResults}
                 style={{ maxWidth: 1200, backgroundColor: "white" }}
-            />
+            /> : null}
         </div>
     );
 };
