@@ -1,4 +1,4 @@
-import React from "react";
+import React, {useMemo} from "react";
 import PropTypes from "prop-types";
 import { useSortedColumns } from "../hooks/explorerHooks";
 import { useSelector } from "react-redux";
@@ -10,7 +10,7 @@ import OntologyTerm from "../OntologyTerm";
 
 import { ontologyShape } from "../../../propTypes";
 import { countNonNullElements } from "../../../utils/misc";
-import { ontologyTermSorter } from "../utils";
+import { ontologyTermSorter, useDatasetResources } from "../utils";
 
 const NO_EXPERIMENTS_VALUE = -Infinity;
 
@@ -97,59 +97,62 @@ const availableExperimentsSorter = (a, b) => {
     return highB - highA;
 };
 
-const SEARCH_RESULT_COLUMNS_BIOSAMPLE = [
-    {
-        title: "Biosample",
-        dataIndex: "biosample",
-        render: (biosample, { individual }) => <BiosampleIDCell biosample={biosample} individualId={individual.id} />,
-        sorter: (a, b) => a.biosample.localeCompare(b.biosample),
-        defaultSortOrder: "ascend",
-    },
-    {
-        title: "Individual",
-        dataIndex: "individual",
-        render: (individual) => <IndividualIDCell individual={individual} />,
-        sorter: (a, b) => a.individual.id.localeCompare(b.individual.id),
-        sortDirections: ["descend", "ascend", "descend"],
-    },
-    {
-        title: "Experiments",
-        dataIndex: "studyTypes",
-        render: (studyTypes) => <ExperimentsRender studiesType={studyTypes} />,
-        sorter: experimentsSorter,
-        sortDirections: ["descend", "ascend", "descend"],
-    },
-    {
-        title: "Sampled Tissue",
-        dataIndex: "sampledTissue",
-        // Can't pass individual here to OntologyTerm since it doesn't have a list of phenopackets
-        render: (sampledTissue) => <OntologyTerm term={sampledTissue} />,
-        sorter: ontologyTermSorter("sampledTissue"),
-        sortDirections: ["descend", "ascend", "descend"],
-    },
-    {
-        title: "Available Experiments",
-        dataIndex: "experimentTypes",
-        render: availableExperimentsRender,
-        sorter: availableExperimentsSorter,
-        sortDirections: ["descend", "ascend", "descend"],
-    },
-];
-
 const BiosamplesTable = ({ data, datasetID }) => {
+    const resourcesTuple = useDatasetResources(datasetID);
+
     const tableSortOrder = useSelector(
         (state) => state.explorer.tableSortOrderByDatasetID[datasetID]?.["biosamples"],
     );
 
+    const columns = useMemo(() => [
+        {
+            title: "Biosample",
+            dataIndex: "biosample",
+            render: (biosample, { individual }) => (
+                <BiosampleIDCell biosample={biosample} individualId={individual.id} />
+            ),
+            sorter: (a, b) => a.biosample.localeCompare(b.biosample),
+            defaultSortOrder: "ascend",
+        },
+        {
+            title: "Individual",
+            dataIndex: "individual",
+            render: (individual) => <IndividualIDCell individual={individual} />,
+            sorter: (a, b) => a.individual.id.localeCompare(b.individual.id),
+            sortDirections: ["descend", "ascend", "descend"],
+        },
+        {
+            title: "Experiments",
+            dataIndex: "studyTypes",
+            render: (studyTypes) => <ExperimentsRender studiesType={studyTypes} />,
+            sorter: experimentsSorter,
+            sortDirections: ["descend", "ascend", "descend"],
+        },
+        {
+            title: "Sampled Tissue",
+            dataIndex: "sampledTissue",
+            // Can't pass individual here to OntologyTerm since it doesn't have a list of phenopackets
+            render: (sampledTissue) => <OntologyTerm resourcesTuple={resourcesTuple} term={sampledTissue} />,
+            sorter: ontologyTermSorter("sampledTissue"),
+            sortDirections: ["descend", "ascend", "descend"],
+        },
+        {
+            title: "Available Experiments",
+            dataIndex: "experimentTypes",
+            render: availableExperimentsRender,
+            sorter: availableExperimentsSorter,
+            sortDirections: ["descend", "ascend", "descend"],
+        },
+    ], [resourcesTuple]);
+
     const { sortedData, columnsWithSortOrder } = useSortedColumns(
         data,
         tableSortOrder,
-        SEARCH_RESULT_COLUMNS_BIOSAMPLE,
+        columns,
     );
 
     return (
         <ExplorerSearchResultsTable
-            dataStructure={SEARCH_RESULT_COLUMNS_BIOSAMPLE}
             data={sortedData}
             sortColumnKey={tableSortOrder?.sortColumnKey}
             sortOrder={tableSortOrder?.sortOrder}

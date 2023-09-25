@@ -1,4 +1,6 @@
-import {useMemo} from "react";
+import { useEffect, useMemo } from "react";
+import { useDispatch, useSelector } from "react-redux";
+import { fetchDatasetResourcesIfNecessary } from "../../modules/datasets/actions";
 
 export const useDeduplicatedIndividualBiosamples = (individual) =>
     useMemo(
@@ -13,25 +15,52 @@ export const useDeduplicatedIndividualBiosamples = (individual) =>
     );
 
 
-export const useResources = (individual) =>
-    useMemo(
-        () =>
-            Object.values(
-                Object.fromEntries(
-                    (individual?.phenopackets ?? [])
-                        .flatMap(p => p.meta_data.resources ?? [])
-                        .map(r => [r.id, r]),
-                ),
-            ),
-        [individual],
+export const useDatasetResources = (datasetIDOrDatasetIDs) => {
+    const dispatch = useDispatch();
+
+    const datasetResources = useSelector((state) => state.datasetResources.itemsByID);
+
+    const datasetIDs = useMemo(
+        () => Array.isArray(datasetIDOrDatasetIDs) ? datasetIDOrDatasetIDs : [datasetIDOrDatasetIDs],
+        [datasetIDOrDatasetIDs],
     );
 
+    useEffect(() => {
+        datasetIDs.map((d) => dispatch(fetchDatasetResourcesIfNecessary(d)));
+    }, [dispatch, datasetIDs]);
 
-export const useResourcesByNamespacePrefix = (individual) => {
-    const resources = useResources(individual);
     return useMemo(
-        () => Object.fromEntries(resources.map(r => [r.namespace_prefix, r])),
-        [individual],
+        () => {
+            const r = Object.values(
+                Object.fromEntries(
+                    datasetIDs
+                        .flatMap(d => datasetResources[d]?.data ?? [])
+                        .map(r => [r.id, r]),
+                ),
+            );
+            const fetching = datasetIDs.reduce((flag, d) => flag || datasetResources[d]?.isFetching, false);
+            return [r, fetching];
+        },
+        [datasetResources, datasetIDs],
+    );
+};
+
+export const useIndividualResources = (individual) => {
+    // TODO: when individual belongs to a single dataset, use that instead
+    const individualDatasets = useMemo(
+        () => (individual?.phenopackets ?? []).map(p => p.dataset),
+        [individual]);
+
+    return useDatasetResources(individualDatasets);
+};
+
+export const useResourcesByNamespacePrefix = ([resources, isFetching]) => {
+    return useMemo(
+        () => [
+            Object.fromEntries(resources.map(r => [r.namespace_prefix, r])),
+            isFetching,
+        ],
+        [resources, isFetching],
     );
 };
 

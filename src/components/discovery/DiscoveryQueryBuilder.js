@@ -133,7 +133,7 @@ class DiscoveryQueryBuilder extends Component {
     render() {
         const { activeDataset, dataTypesByDataset} = this.props;
 
-        const dataTypesForActiveDataset = Object.values(dataTypesByDataset.itemsById[activeDataset] || {})
+        const dataTypesForActiveDataset = Object.values(dataTypesByDataset.itemsByID[activeDataset] || {})
             .filter(dt => typeof dt === "object");
 
         const filteredDataTypes = dataTypesForActiveDataset

@@ -1,9 +1,9 @@
 import React from "react";
 
-import {Table} from "antd";
+import { Table } from "antd";
 
-import {individualPropTypesShape} from "../../propTypes";
-import {useResources} from "./utils";
+import { individualPropTypesShape } from "../../propTypes";
+import { useIndividualResources } from "./utils";
 
 
 // TODO: Only show diseases from the relevant dataset, if specified;
@@ -48,8 +48,8 @@ const METADATA_COLUMNS = [
     },
 ];
 
-const IndividualMetadata = ({individual}) => {
-    const resources = useResources(individual);
+const IndividualOntologies = ({individual}) => {
+    const [resources, isFetching] = useIndividualResources(individual);
 
     return (
         <Table
@@ -59,12 +59,13 @@ const IndividualMetadata = ({individual}) => {
             columns={METADATA_COLUMNS}
             rowKey="id"
             dataSource={resources}
+            loading={isFetching}
         />
     );
 };
 
-IndividualMetadata.propTypes = {
+IndividualOntologies.propTypes = {
     individual: individualPropTypesShape,
 };
 
-export default IndividualMetadata;
+export default IndividualOntologies;

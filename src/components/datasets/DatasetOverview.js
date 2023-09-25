@@ -9,8 +9,8 @@ import {EM_DASH} from "../../constants";
 import { useSelector } from "react-redux";
 
 const DatasetOverview = ({isPrivate, project, dataset}) => {
-    const datasetsDataTypes = useSelector((state) => state.datasetDataTypes.itemsById);
-    const dataTypesSummary = Object.values(datasetsDataTypes[dataset.identifier]?.itemsById || {});
+    const datasetsDataTypes = useSelector((state) => state.datasetDataTypes.itemsByID);
+    const dataTypesSummary = Object.values(datasetsDataTypes[dataset.identifier]?.itemsByID || {});
     const isFetchingDataset = datasetsDataTypes[dataset.identifier]?.isFetching;
 
     // Count data types which actually have data in them for showing in the overview

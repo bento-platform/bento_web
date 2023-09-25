@@ -1,11 +1,3 @@
-/* css snippet to help align the antd spinner in the parent row */
-.ant-spin-nested-loading,
-.ant-spin-nested-loading > div:first-child,
-.ant-spin-spinning,
-.ant-spin-container {
-  display: inline !important;
-}
-
 .ant-table-row.ant-table-row-level-0 {
   vertical-align: top !important;
 }
@@ -19,8 +11,9 @@
 
 /* Variants tab */
 
-.variantDescriptions .ant-descriptions-item-label{
+.variantDescriptions .ant-descriptions-item-label {
   vertical-align: top;
+  width: 200px;
 }
 
 /* Biosamples and Experiments tabs */
@@ -46,66 +39,16 @@
   padding: 8px 16px !important;
 }
 
-.ant-descriptions-item-no-label {
-  display: none;
+.ant-table-expanded-row .ant-descriptions-bordered table {
+  border-collapse: collapse;  /* Fixes borders not showing in descriptions nested inside tables */
 }
-
-.ant-descriptions-item-label.ant-descriptions-item-colon {
-  width: 200px;
-  padding: 8px 16px !important;
-}
-
-/* selector for nested descriptions */
-.ant-descriptions-view .ant-descriptions-view {
-  border: 0;
-  box-shadow: 0 0 0 1px #e8e8e8;
-}
-
 .ant-table-expanded-row .ant-descriptions-item-content {
-  background-color: white;
+  background-color: white;  /* Fixes no background on item content for descriptions nested inside tables */
 }
 
-.ant-descriptions-view .ant-descriptions-view .ant-descriptions-item-content {
-  padding: 8px 16px;
-  border-spacing: 0;
-  border: 0;
-  border-top: 0;
-  border-bottom: 0;
+.experiment_and_results {
+  margin: 8px 16px;
 }
-
-.experiment_summary {
-  display: flex;
-  margin-bottom: 25px;
-  gap: 12px;
-}
-
-/* box shadow instead of borders for automatic border collapse on adjacent items */
-.experiment_summary > :last-child > * {
-  border: 0;
-  box-shadow: 0 0 0 1px #e8e8e8;
-}
-
-.experiment_summary > :first-child > * {
-  border: 0;
-  box-shadow: 0 0 0 1px #e8e8e8;
-}
-
-.experiment-titles {
-  padding: 0 0 8px 17px;
-}
-
-.other-details .ant-descriptions-item-label {
-  padding: 0 10px !important;
-}
-
-.other-details .ant-descriptions-item-content {
-  padding: 0 10px !important;
-}
-
-.other-details-click {
-  color: #1990ff;
-}
-
-.experiment_and_results .ant-table-content {
-  display: inline-block;
+.experiment_and_results h4:not(:first-of-type) {
+  margin-top: 16px;
 }
