@@ -177,7 +177,7 @@ const ExperimentDetail = ({ experiment, resourcesTuple }) => {
                 </Descriptions.Item>
             </Descriptions>
             <Typography.Title level={4}>
-                <Icon type="file-text" /> {sortedExperimentResults.length ? 'Results' : 'No experiment results'}
+                <Icon type="file-text" /> {sortedExperimentResults.length ? "Results" : "No experiment results"}
             </Typography.Title>
             {sortedExperimentResults.length ? <Table
                 bordered={true}
