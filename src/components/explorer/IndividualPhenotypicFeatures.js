@@ -89,7 +89,7 @@ const IndividualPhenotypicFeatures = ({ individual }) => {
             size="middle"
             pagination={false}
             columns={columns}
-            rowKey="id"
+            rowKey="key"
             dataSource={data}
         />
     );
