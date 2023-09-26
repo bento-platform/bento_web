@@ -45,7 +45,6 @@ const IndividualPhenotypicFeatures = ({ individual }) => {
             title: "Extra Properties",
             dataIndex: "extra_properties",
             render: (extraProperties, feature) => {
-                console.log(feature);
                 const nExtraProperties = Object.keys(extraProperties ?? {}).length;
                 return {
                     children: nExtraProperties ? (
