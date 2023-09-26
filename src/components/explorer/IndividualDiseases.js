@@ -17,15 +17,13 @@ const IndividualDiseases = ({ individual }) => {
 
     const columns = useMemo(() => [
         {
-            title: "Disease ID",
-            key: "id",
-            sorter: (a, b) => a.id.toString().localeCompare(b.id),
-            defaultSortOrder: "ascend",
-        },
-        {
-            title: "term",
+            title: "Disease",
             dataIndex: "term",
-            render: (term) => <OntologyTerm resourcesTuple={resourcesTuple} term={term} />,
+            // Tag the ontology term with a data attribute holding the disease ID. This has no effect, but might
+            // help us debug diseases in production if we need it.
+            render: (term, disease) => (
+                <OntologyTerm resourcesTuple={resourcesTuple} term={term} data-disease-id={disease.id} />
+            ),
             sorter: ontologyTermSorter("term"),
         },
         {
