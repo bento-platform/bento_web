@@ -16,17 +16,15 @@ const DatasetDataTypes = React.memo(
     ({isPrivate, project, dataset, onDatasetIngest}) => {
         const dispatch = useDispatch();
         const datasetDataTypes = useSelector((state) => Object.values(
-            state.datasetDataTypes.itemsById[dataset.identifier]?.itemsById ?? {}));
-        const datasetSummaries = useSelector((state) => state.datasetSummaries.itemsById[dataset.identifier]);
+            state.datasetDataTypes.itemsByID[dataset.identifier]?.itemsByID ?? {}));
+        const datasetSummaries = useSelector((state) => state.datasetSummaries.itemsByID[dataset.identifier]);
         const isFetchingDataset = useSelector(
-            (state) => state.datasetDataTypes.itemsById[dataset.identifier]?.isFetching);
+            (state) => state.datasetDataTypes.itemsByID[dataset.identifier]?.isFetching);
 
         const [datatypeSummaryVisible, setDatatypeSummaryVisible] = useState(false);
         const [selectedDataType, setSelectedDataType] = useState(null);
 
-        const selectedSummary = (selectedDataType !== null && datasetSummaries)
-            ? datasetSummaries[selectedDataType.id]
-            : {};
+        const selectedSummary = datasetSummaries?.data?.[selectedDataType?.id] ?? {};
 
         const handleClearDataType = useCallback((dataType) => {
             genericConfirm({

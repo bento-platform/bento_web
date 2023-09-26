@@ -1,13 +1,16 @@
-import React from "react";
+import React, {useMemo} from "react";
 import PropTypes from "prop-types";
 import { useSortedColumns } from "../hooks/explorerHooks";
 import { useSelector } from "react-redux";
-import { countNonNullElements } from "../../../utils/misc";
-
-import ExplorerSearchResultsTable from "../ExplorerSearchResultsTable";
 
 import BiosampleIDCell from "./BiosampleIDCell";
+import ExplorerSearchResultsTable from "../ExplorerSearchResultsTable";
 import IndividualIDCell from "./IndividualIDCell";
+import OntologyTerm from "../OntologyTerm";
+
+import { ontologyShape } from "../../../propTypes";
+import { countNonNullElements } from "../../../utils/misc";
+import { ontologyTermSorter, useDatasetResources } from "../utils";
 
 const NO_EXPERIMENTS_VALUE = -Infinity;
 
@@ -57,15 +60,6 @@ const experimentsSorter = (a, b) => {
     return countNonNullElements(a.studyTypes) - countNonNullElements(b.studyTypes);
 };
 
-const sampledTissuesRender = (sampledTissues) => sampledTissues.map((m) => m.label)[0];
-
-const sampledTissuesSorter = (a, b) => {
-    if (a.sampledTissues[0].label && b.sampledTissues[0].label) {
-        return a.sampledTissues[0].label.toString().localeCompare(b.sampledTissues[0].label.toString());
-    }
-    return 0;
-};
-
 const availableExperimentsRender = (experimentsType) => {
     if (experimentsType.every((s) => s !== null)) {
         const experimentCount = experimentsType.reduce((acc, experiment) => {
@@ -103,58 +97,62 @@ const availableExperimentsSorter = (a, b) => {
     return highB - highA;
 };
 
-const SEARCH_RESULT_COLUMNS_BIOSAMPLE = [
-    {
-        title: "Biosample",
-        dataIndex: "biosample",
-        render: (biosample, {individual}) => <BiosampleIDCell biosample={biosample} individualId={individual.id} />,
-        sorter: (a, b) => a.biosample.localeCompare(b.biosample),
-        defaultSortOrder: "ascend",
-    },
-    {
-        title: "Individual",
-        dataIndex: "individual",
-        render: (individual) => <IndividualIDCell individual={individual} />,
-        sorter: (a, b) => a.individual.id.localeCompare(b.individual.id),
-        sortDirections: ["descend", "ascend", "descend"],
-    },
-    {
-        title: "Experiments",
-        dataIndex: "studyTypes",
-        render: (studyTypes) => <ExperimentsRender studiesType={studyTypes} />,
-        sorter: experimentsSorter,
-        sortDirections: ["descend", "ascend", "descend"],
-    },
-    {
-        title: "Sampled Tissues",
-        dataIndex: "sampledTissues",
-        render: sampledTissuesRender,
-        sorter: sampledTissuesSorter,
-        sortDirections: ["descend", "ascend", "descend"],
-    },
-    {
-        title: "Available Experiments",
-        dataIndex: "experimentTypes",
-        render: availableExperimentsRender,
-        sorter: availableExperimentsSorter,
-        sortDirections: ["descend", "ascend", "descend"],
-    },
-];
-
 const BiosamplesTable = ({ data, datasetID }) => {
+    const resourcesTuple = useDatasetResources(datasetID);
+
     const tableSortOrder = useSelector(
         (state) => state.explorer.tableSortOrderByDatasetID[datasetID]?.["biosamples"],
     );
 
+    const columns = useMemo(() => [
+        {
+            title: "Biosample",
+            dataIndex: "biosample",
+            render: (biosample, { individual }) => (
+                <BiosampleIDCell biosample={biosample} individualId={individual.id} />
+            ),
+            sorter: (a, b) => a.biosample.localeCompare(b.biosample),
+            defaultSortOrder: "ascend",
+        },
+        {
+            title: "Individual",
+            dataIndex: "individual",
+            render: (individual) => <IndividualIDCell individual={individual} />,
+            sorter: (a, b) => a.individual.id.localeCompare(b.individual.id),
+            sortDirections: ["descend", "ascend", "descend"],
+        },
+        {
+            title: "Experiments",
+            dataIndex: "studyTypes",
+            render: (studyTypes) => <ExperimentsRender studiesType={studyTypes} />,
+            sorter: experimentsSorter,
+            sortDirections: ["descend", "ascend", "descend"],
+        },
+        {
+            title: "Sampled Tissue",
+            dataIndex: "sampledTissue",
+            // Can't pass individual here to OntologyTerm since it doesn't have a list of phenopackets
+            render: (sampledTissue) => <OntologyTerm resourcesTuple={resourcesTuple} term={sampledTissue} />,
+            sorter: ontologyTermSorter("sampledTissue"),
+            sortDirections: ["descend", "ascend", "descend"],
+        },
+        {
+            title: "Available Experiments",
+            dataIndex: "experimentTypes",
+            render: availableExperimentsRender,
+            sorter: availableExperimentsSorter,
+            sortDirections: ["descend", "ascend", "descend"],
+        },
+    ], [resourcesTuple]);
+
     const { sortedData, columnsWithSortOrder } = useSortedColumns(
         data,
         tableSortOrder,
-        SEARCH_RESULT_COLUMNS_BIOSAMPLE,
+        columns,
     );
 
     return (
         <ExplorerSearchResultsTable
-            dataStructure={SEARCH_RESULT_COLUMNS_BIOSAMPLE}
             data={sortedData}
             sortColumnKey={tableSortOrder?.sortColumnKey}
             sortOrder={tableSortOrder?.sortOrder}
@@ -173,11 +171,7 @@ BiosamplesTable.propTypes = {
                 id: PropTypes.string.isRequired,
             }).isRequired,
             studyTypes: PropTypes.arrayOf(PropTypes.string).isRequired,
-            sampledTissues: PropTypes.arrayOf(
-                PropTypes.shape({
-                    label: PropTypes.string.isRequired,
-                }),
-            ).isRequired,
+            sampledTissue: ontologyShape,
             experimentTypes: PropTypes.arrayOf(PropTypes.string).isRequired,
         }),
     ).isRequired,

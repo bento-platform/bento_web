@@ -21,10 +21,10 @@ const SEARCH_RESULT_COLUMNS = [
             <>
                 {samples.length} Sample{samples.length === 1 ? "" : "s"}
                 {samples.length ? ": " : ""}
-                {samples.map((s, si) => <>
+                {samples.map((s, si) => <React.Fragment key={s}>
                     <BiosampleIDCell biosample={s} individualId={individualId} />
                     {si < samples.length - 1 ? ", " : ""}
-                </>)}
+                </React.Fragment>)}
             </>
         ),
         sorter: (a, b) => a.biosamples.length - b.biosamples.length,

@@ -1,42 +1,43 @@
 import React, {Fragment, useCallback, useEffect, useMemo} from "react";
 import PropTypes from "prop-types";
-import { Route, Switch, useHistory } from "react-router-dom";
+import { Route, Switch, useHistory, useRouteMatch, useParams } from "react-router-dom";
 
 import { Button, Descriptions, Table } from "antd";
 
 import { EM_DASH } from "../../constants";
-import { renderOntologyTerm } from "./ontologies";
+import { useDeduplicatedIndividualBiosamples, useIndividualResources } from "./utils";
 import {
     biosamplePropTypesShape,
     experimentPropTypesShape,
     individualPropTypesShape,
     ontologyShape,
 } from "../../propTypes";
+
 import JsonView from "./JsonView";
-import { useRouteMatch, useParams } from "react-router-dom/cjs/react-router-dom";
+import OntologyTerm from "./OntologyTerm";
 
 import "./explorer.css";
 
 // TODO: Only show biosamples from the relevant dataset, if specified;
 //  highlight those found in search results, if specified
 
-const BiosampleProcedure = ({procedure}) => (
+const BiosampleProcedure = ({ resourcesTuple, procedure }) => (
     <div>
-        <strong>Code:</strong>{" "}
-        {renderOntologyTerm(procedure.code)}
+        <strong>Code:</strong>{" "}<OntologyTerm resourcesTuple={resourcesTuple} term={procedure.code} />
         {procedure.body_site ? (
             <div>
                 <strong>Body Site:</strong>{" "}
-                {renderOntologyTerm(procedure.body_site)}
+                <OntologyTerm resourcesTuple={resourcesTuple} term={procedure.body_site} />
             </div>
         ) : null}
     </div>
 );
 BiosampleProcedure.propTypes = {
+    resourcesTuple: PropTypes.array,
     procedure: PropTypes.shape({
         code: ontologyShape.isRequired,
         body_site: ontologyShape,
-    }),
+    }).isRequired,
 };
 
 const ExperimentsClickList = ({ experiments, handleExperimentClick }) => {
@@ -59,20 +60,21 @@ ExperimentsClickList.propTypes = {
     handleExperimentClick: PropTypes.func,
 };
 
-const BiosampleDetail = ({ biosample, handleExperimentClick }) => {
+const BiosampleDetail = ({ individual, biosample, handleExperimentClick }) => {
+    const resourcesTuple = useIndividualResources(individual);
     return (
         <Descriptions bordered={true} column={1} size="small" style={{maxWidth: 800}}>
             <Descriptions.Item label="ID">
                 {biosample.id}
             </Descriptions.Item>
             <Descriptions.Item label="Sampled Tissue">
-                {renderOntologyTerm(biosample.sampled_tissue)}
+                <OntologyTerm resourcesTuple={resourcesTuple} term={biosample.sampled_tissue} />
             </Descriptions.Item>
             <Descriptions.Item label="Procedure">
-                <BiosampleProcedure procedure={biosample.procedure} />
+                <BiosampleProcedure resourcesTuple={resourcesTuple} procedure={biosample.procedure} />
             </Descriptions.Item>
             <Descriptions.Item label="Histological Diagnosis">
-                {renderOntologyTerm(biosample.histological_diagnosis)}
+                <OntologyTerm resourcesTuple={resourcesTuple} term={biosample.histological_diagnosis} />
             </Descriptions.Item>
             <Descriptions.Item label="Ind. Age At Collection">
                 {biosample.individual_age_at_collection
@@ -99,6 +101,7 @@ const BiosampleDetail = ({ biosample, handleExperimentClick }) => {
     );
 };
 BiosampleDetail.propTypes = {
+    individual: individualPropTypesShape,
     biosample: biosamplePropTypesShape,
     handleExperimentClick: PropTypes.func,
 };
@@ -123,15 +126,8 @@ const Biosamples = ({ individual, handleBiosampleClick, handleExperimentClick })
         }, 100);
     }, []);
 
-    const biosamples = useMemo(
-        () => Object.values(
-            Object.fromEntries(
-                (individual?.phenopackets ?? [])
-                    .flatMap((p) => p.biosamples)
-                    .map(b => [b.id, b]),
-            ),
-        ),
-        [individual]);
+    const biosamples = useDeduplicatedIndividualBiosamples(individual);
+    const resourcesTuple = useIndividualResources(individual);
 
     const columns = useMemo(
         () => [
@@ -143,7 +139,7 @@ const Biosamples = ({ individual, handleBiosampleClick, handleExperimentClick })
             {
                 title: "Sampled Tissue",
                 dataIndex: "sampled_tissue",
-                render: tissue => renderOntologyTerm(tissue),
+                render: tissue => <OntologyTerm resourcesTuple={resourcesTuple} term={tissue} />,
             },
             {
                 title: "Experiments",
@@ -153,7 +149,7 @@ const Biosamples = ({ individual, handleBiosampleClick, handleExperimentClick })
                 ),
             },
         ],
-        [handleExperimentClick],
+        [resourcesTuple, handleExperimentClick],
     );
 
     const onExpand = useCallback(
@@ -165,7 +161,11 @@ const Biosamples = ({ individual, handleBiosampleClick, handleExperimentClick })
 
     const expandedRowRender = useCallback(
         (biosample) => (
-            <BiosampleDetail biosample={biosample} handleExperimentClick={handleExperimentClick} />
+            <BiosampleDetail
+                individual={individual}
+                biosample={biosample}
+                handleExperimentClick={handleExperimentClick}
+            />
         ),
         [handleExperimentClick],
     );
@@ -195,7 +195,6 @@ const IndividualBiosamples = ({individual, experimentsUrl}) => {
     const match = useRouteMatch();
 
     const handleBiosampleClick = useCallback((bID) => {
-        console.log(match);
         if (!bID) {
             history.replace(match.url);
             return;
@@ -204,26 +203,21 @@ const IndividualBiosamples = ({individual, experimentsUrl}) => {
     }, [history, match]);
 
     const handleExperimentClick = useCallback((eid) => {
-        const hashLink = experimentsUrl + "#" + eid;
-        history.push(hashLink);
+        history.push(`${experimentsUrl}/${eid}`);
     }, [experimentsUrl, history]);
+
+    const biosamplesNode = (
+        <Biosamples
+            individual={individual}
+            handleBiosampleClick={handleBiosampleClick}
+            handleExperimentClick={handleExperimentClick}
+        />
+    );
 
     return (
         <Switch>
-            <Route path={`${match.path}/:selectedBiosample`}>
-                <Biosamples
-                    individual={individual}
-                    handleBiosampleClick={handleBiosampleClick}
-                    handleExperimentClick={handleExperimentClick}
-                />
-            </Route>
-            <Route path={match.path} exact={true}>
-                <Biosamples
-                    individual={individual}
-                    handleBiosampleClick={handleBiosampleClick}
-                    handleExperimentClick={handleExperimentClick}
-                />
-            </Route>
+            <Route path={`${match.path}/:selectedBiosample`}>{biosamplesNode}</Route>
+            <Route path={match.path} exact={true}>{biosamplesNode}</Route>
         </Switch>
     );
 };

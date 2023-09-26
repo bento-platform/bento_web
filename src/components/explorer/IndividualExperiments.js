@@ -1,305 +1,320 @@
-import React, { useEffect } from "react";
+import React, {useCallback, useEffect, useMemo} from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { useHistory } from "react-router-dom";
-import { Button, Collapse, Descriptions, Icon, Popover, Table } from "antd";
-import JsonView from "./JsonView";
-import FileSaver from "file-saver";
+import { Route, Switch, useHistory, useParams, useRouteMatch } from "react-router-dom";
+import PropTypes from "prop-types";
+
+import { Button, Descriptions, Icon, Popover, Table, Typography } from "antd";
+
 import { EM_DASH } from "../../constants";
-import { individualPropTypesShape } from "../../propTypes";
+import { experimentPropTypesShape, experimentResultPropTypesShape, individualPropTypesShape } from "../../propTypes";
 import { getFileDownloadUrlsFromDrs } from "../../modules/drs/actions";
 import { guessFileType } from "../../utils/guessFileType";
 
-const { Panel } = Collapse;
+import { useDeduplicatedIndividualBiosamples, useIndividualResources } from "./utils";
 
-const IndividualExperiments = ({ individual }) => {
-    const blankExperimentOntology = [{ id: EM_DASH, label: EM_DASH }];
+import JsonView from "./JsonView";
+import OntologyTerm from "./OntologyTerm";
+import DownloadButton from "../DownloadButton";
 
-    const downloadUrls = useSelector(
-        (state) => state.drs.downloadUrlsByFilename,
+const ExperimentResultDownloadButton = ({ result }) => {
+    const downloadUrls = useSelector((state) => state.drs.downloadUrlsByFilename);
+
+    const url = downloadUrls[result.filename]?.url;
+    return url ? (
+        <DownloadButton type="link" uri={url}>{""}</DownloadButton>
+    ) : (
+        <>{EM_DASH}</>
     );
-    const dispatch = useDispatch();
-    const history = useHistory();
+};
+ExperimentResultDownloadButton.propTypes = {
+    result: experimentResultPropTypesShape,
+};
 
-    const biosamplesData = (individual?.phenopackets ?? []).flatMap(
-        (p) => p.biosamples,
-    );
-    const experimentsData = biosamplesData.flatMap((b) => b?.experiments ?? []);
-    let results = experimentsData.flatMap((e) => e?.experiment_results ?? []);
+const EXPERIMENT_RESULTS_COLUMNS = [
+    {
+        title: "File Format",
+        dataIndex: "file_format",
+    },
+    {
+        title: "Creation Date",
+        dataIndex: "creation_date",
+    },
+    {
+        title: "Description",
+        dataIndex: "description",
+    },
+    {
+        title: "Filename",
+        dataIndex: "filename",
+    },
+    {
+        title: "Download",
+        key: "download",
+        align: "center",
+        render: (_, result) => <ExperimentResultDownloadButton result={result} />,
+    },
+    {
+        key: "other_details",
+        align: "center",
+        render: (_, result) => (
+            <Popover
+                placement="leftTop"
+                title={`Experiment Results: ${result.file_format}`}
+                content={
+                    <div className="other-details">
+                        <Descriptions
+                            layout="horizontal"
+                            bordered={true}
+                            colon={false}
+                            column={1}
+                            size="small"
+                        >
+                            <Descriptions.Item label="Identifier">
+                                {result.identifier}
+                            </Descriptions.Item>
+                            <Descriptions.Item label="Description">
+                                {result.description}
+                            </Descriptions.Item>
+                            <Descriptions.Item label="Filename">
+                                {result.filename}
+                            </Descriptions.Item>
+                            <Descriptions.Item label="File format">
+                                {result.file_format}
+                            </Descriptions.Item>
+                            <Descriptions.Item label="Data output type">
+                                {result.data_output_type}
+                            </Descriptions.Item>
+                            <Descriptions.Item label="Usage">
+                                {result.usage}
+                            </Descriptions.Item>
+                            <Descriptions.Item label="Creation date">
+                                {result.creation_date}
+                            </Descriptions.Item>
+                            <Descriptions.Item label="Created by">
+                                {result.created_by}
+                            </Descriptions.Item>
+                        </Descriptions>
+                    </div>
+                }
+                trigger="click"
+            >
+                <Button size="small">See details</Button>
+            </Popover>
+        ),
+    },
+];
 
-    // enforce file_format property
-    results = results.map((r) => {
-        return {
-            ...r,
-            file_format: r.file_format ?? guessFileType(r.filename),
-        };
-    });
+const ExperimentDetail = ({ experiment, resourcesTuple }) => {
+    const {
+        id,
+        experiment_type: experimentType,
+        experiment_ontology: experimentOntology,
+        molecule,
+        molecule_ontology: moleculeOntology,
+        instrument,
+        study_type: studyType,
+        extraction_protocol: extractionProtocol,
+        library_layout: libraryLayout,
+        library_selection: librarySelection,
+        library_source: librarySource,
+        library_strategy: libraryStrategy,
+        experiment_results: experimentResults,
+        extra_properties: extraProperties,
+    } = experiment;
 
-    const downloadableFiles = results.filter(isDownloadable);
-
-    useEffect(() => {
-        // retrieve any download urls on mount
-        dispatch(getFileDownloadUrlsFromDrs(downloadableFiles));
-    }, []);
-
-    const selected = history.location.hash.slice(1);
-    const opened = [];
-    if (selected && selected.length > 1) opened.push(selected);
-
-    const renderDownloadButton = (resultFile) => {
-        return downloadUrls[resultFile.filename]?.url ? (
-            <div>
-                <a
-                    onClick={async () =>
-                        FileSaver.saveAs(
-                            downloadUrls[resultFile.filename].url,
-                            resultFile.filename,
-                        )
-                    }
-                >
-                    <Icon type={"cloud-download"} />
-                </a>
-            </div>
-        ) : (
-            EM_DASH
-        );
-    };
-
-    const EXPERIMENT_RESULTS_COLUMNS = [
-        {
-            title: "Result File",
-            key: "result_file",
-            render: (_, result) => result.file_format,
-        },
-        {
-            title: "Creation Date",
-            key: "creation_date",
-            render: (_, result) => result.creation_date,
-        },
-        {
-            title: "Description",
-            key: "description",
-            render: (_, result) => result.description,
-        },
-        {
-            title: "Filename",
-            key: "filename",
-            render: (_, result) => result.filename,
-        },
-        {
-            title: "Download",
-            key: "download",
-            align: "center",
-            render: (_, result) => renderDownloadButton(result),
-        },
-        {
-            title: "Other Details",
-            key: "other_details",
-            align: "center",
-            render: (_, result) => (
-                <Popover
-                    placement="leftTop"
-                    title={`Experiment Results: ${result.file_format}`}
-                    content={
-                        <div className="other-details">
-                            <Descriptions
-                                layout="horizontal"
-                                bordered={true}
-                                colon={false}
-                                column={1}
-                                size="small"
-                            >
-                                <Descriptions.Item label="identifier">
-                                    {result.identifier}
-                                </Descriptions.Item>
-                                <Descriptions.Item label="description">
-                                    {result.description}
-                                </Descriptions.Item>
-                                <Descriptions.Item label="filename">
-                                    {result.filename}
-                                </Descriptions.Item>
-                                <Descriptions.Item label="file format">
-                                    {result.file_format}
-                                </Descriptions.Item>
-                                <Descriptions.Item label="data output type">
-                                    {result.data_output_type}
-                                </Descriptions.Item>
-                                <Descriptions.Item label="usage">
-                                    {result.usage}
-                                </Descriptions.Item>
-                                <Descriptions.Item label="creation date">
-                                    {result.creation_date}
-                                </Descriptions.Item>
-                                <Descriptions.Item label="created by">
-                                    {result.created_by}
-                                </Descriptions.Item>
-                            </Descriptions>
-                        </div>
-                    }
-                    trigger="click"
-                >
-                    <Button> click here </Button>
-                </Popover>
-            ),
-        },
-    ];
+    const sortedExperimentResults = useMemo(
+        () =>
+            [...(experimentResults || [])].sort((r1, r2) => r1.file_format > r2.file_format ? 1 : -1),
+        [experimentResults]);
 
     return (
-        <>
-            <Collapse defaultActiveKey={opened}>
-                {experimentsData.map((e) => (
-                    <Panel
-                        key={e.id}
-                        header={`${e.experiment_type} (Biosample ${e.biosample})`}
-                    >
-                        <div
-                            className="experiment_and_results"
-                            id={e.biosample}
-                            key={e.id}
-                        >
-                            <div className="experiment_summary">
-                                <Descriptions
-                                    layout="vertical"
-                                    bordered={true}
-                                    colon={false}
-                                    column={1}
-                                    size="small"
-                                    key={e.id}
-                                >
-                                    <Descriptions.Item>
-                                        {(e.molecule_ontology ?? []).map(
-                                            (mo) => (
-                                                <Descriptions
-                                                    title="Molecule Ontology"
-                                                    layout="horizontal"
-                                                    bordered={true}
-                                                    column={1}
-                                                    size="small"
-                                                    key={mo.id}
-                                                >
-                                                    <Descriptions.Item label="id">
-                                                        {mo.id}
-                                                    </Descriptions.Item>
-                                                    <Descriptions.Item label="label">
-                                                        {mo.label}
-                                                    </Descriptions.Item>
-                                                </Descriptions>
-                                            ),
-                                        )}
-                                    </Descriptions.Item>
-                                    <Descriptions.Item>
-                                        {(
-                                            e.experiment_ontology ||
-                                            blankExperimentOntology
-                                        ).map((eo) => (
-                                            <Descriptions
-                                                title="Experiment Ontology"
-                                                layout="horizontal"
-                                                bordered={true}
-                                                column={1}
-                                                size="small"
-                                                key={eo.id}
-                                            >
-                                                <Descriptions.Item label="id">
-                                                    {eo.id}
-                                                </Descriptions.Item>
-                                                <Descriptions.Item label="label">
-                                                    {eo.label}
-                                                </Descriptions.Item>
-                                            </Descriptions>
-                                        ))}
-                                    </Descriptions.Item>
-                                    <Descriptions.Item>
-                                        <Descriptions
-                                            title="Instrument"
-                                            layout="horizontal"
-                                            bordered={true}
-                                            column={1}
-                                            size="small"
-                                        >
-                                            <Descriptions.Item label="platform">
-                                                {e.instrument.platform}
-                                            </Descriptions.Item>
-                                            <Descriptions.Item label="identifier">
-                                                {e.instrument.identifier}
-                                            </Descriptions.Item>
-                                        </Descriptions>
-                                    </Descriptions.Item>
-                                </Descriptions>
-                                <Descriptions
-                                    layout="vertical"
-                                    bordered={true}
-                                    column={1}
-                                    size="small"
-                                >
-                                    <Descriptions.Item>
-                                        <Descriptions
-                                            layout="horizontal"
-                                            bordered={true}
-                                            column={1}
-                                            size="small"
-                                        >
-                                            <Descriptions.Item label="Experiment Type">
-                                                {e.experiment_type}
-                                            </Descriptions.Item>
-                                            <Descriptions.Item label="Study Type">
-                                                {e.study_type}
-                                            </Descriptions.Item>
-                                            <Descriptions.Item label="Extraction Protocol">
-                                                {e.extraction_protocol}
-                                            </Descriptions.Item>
-                                            <Descriptions.Item label="Library Layout">
-                                                {e.library_layout}
-                                            </Descriptions.Item>
-                                            <Descriptions.Item label="Library Selection">
-                                                {e.library_selection}
-                                            </Descriptions.Item>
-                                            <Descriptions.Item label="Library Source">
-                                                {e.library_source}
-                                            </Descriptions.Item>
-                                            <Descriptions.Item label="Library Strategy">
-                                                {e.library_strategy}
-                                            </Descriptions.Item>
-                                        </Descriptions>
-                                    </Descriptions.Item>
-                                    <Descriptions.Item>
-                                        <Descriptions
-                                            title="Extra Properties"
-                                            layout="horizontal"
-                                            bordered={true}
-                                            column={1}
-                                            size="small"
-                                        >
-                                            <Descriptions.Item>
-                                                <JsonView
-                                                    inputJson={
-                                                        e.extra_properties
-                                                    }
-                                                />
-                                            </Descriptions.Item>
-                                        </Descriptions>
-                                    </Descriptions.Item>
-                                </Descriptions>
-                            </div>
-                            <Descriptions
-                                title={`${e.experiment_type} - Results`}
-                                bordered
-                            />
-                            <Table
-                                // bordered
-                                size="small"
-                                pagination={false}
-                                columns={EXPERIMENT_RESULTS_COLUMNS}
-                                rowKey="filename"
-                                dataSource={(e.experiment_results || []).sort(
-                                    (r1, r2) =>
-                                        r1.file_format > r2.file_format ? 1 : -1,
-                                )}
-                            />
+        <div className="experiment_and_results">
+            <Typography.Title level={4}><Icon type="profile" /> Details</Typography.Title>
+            <Descriptions layout="horizontal" bordered={true} column={2} size="small" style={{ maxWidth: 1200 }}>
+                <Descriptions.Item span={2} label="ID">
+                    <span style={{ fontFamily: "monospace" }}>{id}</span>
+                </Descriptions.Item>
+                <Descriptions.Item span={1} label="Experiment Type">{experimentType}</Descriptions.Item>
+                <Descriptions.Item span={1} label="Experiment Ontology">
+                    {/*
+                    experiment_ontology is accidentally an array in Katsu, so this takes the first item
+                    and falls back to just the field (if we fix this in the future)
+                    */}
+                    <OntologyTerm
+                        resourcesTuple={resourcesTuple}
+                        term={experimentOntology?.[0] ?? experimentOntology}
+                    />
+                </Descriptions.Item>
+                <Descriptions.Item span={1} label="Molecule">
+                    {molecule}
+                </Descriptions.Item>
+                <Descriptions.Item span={1} label="Molecule Ontology">
+                    {/*
+                    molecule_ontology is accidentally an array in Katsu, so this takes the first item
+                    and falls back to just the field (if we fix this in the future)
+                    */}
+                    <OntologyTerm resourcesTuple={resourcesTuple} term={moleculeOntology?.[0] ?? moleculeOntology} />
+                </Descriptions.Item>
+                <Descriptions.Item label="Study Type">{studyType}</Descriptions.Item>
+                <Descriptions.Item label="Extraction Protocol">{extractionProtocol}</Descriptions.Item>
+                <Descriptions.Item span={1} label="Library Layout">{libraryLayout}</Descriptions.Item>
+                <Descriptions.Item span={1} label="Library Selection">{librarySelection}</Descriptions.Item>
+                <Descriptions.Item span={1} label="Library Source">{librarySource}</Descriptions.Item>
+                <Descriptions.Item span={1} label="Library Strategy">{libraryStrategy}</Descriptions.Item>
+                <Descriptions.Item span={2} label="Instrument">
+                    <div style={{ display: "flex", gap: 16 }}>
+                        <div>
+                            <strong>Platform:</strong>&nbsp;{instrument.platform}
                         </div>
-                    </Panel>
-                ))}
-            </Collapse>
-        </>
+                        <div>
+                            <strong>ID:</strong>&nbsp;
+                            <span style={{ fontFamily: "monospace" }}>{instrument.identifier}</span>
+                        </div>
+                    </div>
+                </Descriptions.Item>
+                <Descriptions.Item span={2} label="Extra Properties">
+                    <JsonView inputJson={extraProperties} />
+                </Descriptions.Item>
+            </Descriptions>
+            <Typography.Title level={4}>
+                <Icon type="file-text" /> {sortedExperimentResults.length ? "Results" : "No experiment results"}
+            </Typography.Title>
+            {sortedExperimentResults.length ? <Table
+                bordered={true}
+                size="small"
+                pagination={false}
+                columns={EXPERIMENT_RESULTS_COLUMNS}
+                rowKey="id"
+                dataSource={sortedExperimentResults}
+                style={{ maxWidth: 1200, backgroundColor: "white" }}
+            /> : null}
+        </div>
+    );
+};
+ExperimentDetail.propTypes = {
+    experiment: experimentPropTypesShape,
+    resourcesTuple: PropTypes.array,
+};
+
+const Experiments = ({ individual, handleExperimentClick }) => {
+    const dispatch = useDispatch();
+
+    const { selectedExperiment } = useParams();
+    const selectedRowKeys = useMemo(
+        () => selectedExperiment ? [selectedExperiment] : [],
+        [selectedExperiment],
+    );
+
+    useEffect(() => {
+        // If, on first load, there's a selected experiment:
+        //  - find the experiment-${id} element (a span in the table row)
+        //  - scroll it into view
+        setTimeout(() => {
+            if (selectedExperiment) {
+                const el = document.getElementById(`experiment-${selectedExperiment}`);
+                if (!el) return;
+                el.scrollIntoView();
+            }
+        }, 100);
+    }, []);
+
+    const biosamplesData = useDeduplicatedIndividualBiosamples(individual);
+    const experimentsData = useMemo(
+        () => biosamplesData.flatMap((b) => b?.experiments ?? []),
+        [biosamplesData],
+    );
+    const resourcesTuple = useIndividualResources(individual);
+
+    useEffect(() => {
+        // retrieve any download urls if experiments data changes
+
+        const downloadableFiles = experimentsData
+            .flatMap((e) => e?.experiment_results ?? [])
+            .map((r) => ({  // enforce file_format property
+                ...r,
+                file_format: r.file_format ?? guessFileType(r.filename),
+            }))
+            .filter(isDownloadable);
+
+        dispatch(getFileDownloadUrlsFromDrs(downloadableFiles));
+    }, [experimentsData]);
+
+    const columns = useMemo(
+        () => [
+            {
+                title: "Experiment Type",
+                dataIndex: "experiment_type",
+                render: (type, { id }) => <span id={`experiment-${id}`}>{type}</span>,  // scroll anchor wrapper
+            },
+            {
+                title: "Molecule",
+                dataIndex: "molecule_ontology",
+                render: (mo) => <OntologyTerm resourcesTuple={resourcesTuple} term={mo?.[0] ?? mo} />,
+            },
+            {
+                title: "Experiment Results",
+                key: "experiment_results",
+                // experiment_results can be undefined if no experiment results exist
+                render: (exp) => <span>{exp.experiment_results?.length ?? 0} files</span>,
+            },
+        ],
+        [resourcesTuple, handleExperimentClick],
+    );
+
+    const onExpand = useCallback(
+        (e, experiment) => {
+            handleExperimentClick(e ? experiment.id : undefined);
+        },
+        [handleExperimentClick],
+    );
+
+    const expandedRowRender = useCallback(
+        (experiment) => (
+            <ExperimentDetail experiment={experiment} resourcesTuple={resourcesTuple} />
+        ),
+        [resourcesTuple],
+    );
+
+    return (
+        <Table
+            bordered={true}
+            pagination={false}
+            size="middle"
+            columns={columns}
+            onExpand={onExpand}
+            expandedRowKeys={selectedRowKeys}
+            expandedRowRender={expandedRowRender}
+            dataSource={experimentsData}
+            rowKey="id"
+        />
+    );
+};
+Experiments.propTypes = {
+    individual: individualPropTypesShape,
+    handleExperimentClick: PropTypes.func,
+};
+
+const IndividualExperiments = ({ individual }) => {
+    const history = useHistory();
+    const match = useRouteMatch();
+
+    const handleExperimentClick = useCallback((eID) => {
+        if (!eID) {
+            history.replace(match.url);
+            return;
+        }
+        history.replace(`${match.url}/${eID}`);
+    }, [history, match]);
+
+    const experimentsNode = (
+        <Experiments individual={individual} handleExperimentClick={handleExperimentClick} />
+    );
+
+    return (
+        <Switch>
+            <Route path={`${match.path}/:selectedExperiment`}>{experimentsNode}</Route>
+            <Route path={match.path} exact={true}>{experimentsNode}</Route>
+        </Switch>
     );
 };
 

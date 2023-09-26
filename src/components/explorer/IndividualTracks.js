@@ -10,6 +10,7 @@ import { individualPropTypesShape } from "../../propTypes";
 import { getIgvUrlsFromDrs } from "../../modules/drs/actions";
 import { setIgvPosition } from "../../modules/explorer/actions";
 import { guessFileType } from "../../utils/guessFileType";
+import {useDeduplicatedIndividualBiosamples} from "./utils";
 
 const SQUISHED_CALL_HEIGHT = 10;
 const EXPANDED_CALL_HEIGHT = 50;
@@ -82,6 +83,10 @@ TrackControlTable.propTypes = {
     allFoundFiles: PropTypes.arrayOf(PropTypes.object),
 };
 
+// Right now, a lot of this code uses filenames. This should not be the case going forward,
+// as multiple files may have the same name. Everything *should* be done through DRS IDs.
+// For now, we treat the filenames as unique identifiers (unfortunately).
+
 const IndividualTracks = ({ individual }) => {
     const { accessToken } = useSelector((state) => state.auth);
 
@@ -96,24 +101,33 @@ const IndividualTracks = ({ individual }) => {
     );
 
     const dispatch = useDispatch();
-    const biosamplesData = (individual?.phenopackets ?? []).flatMap((p) => p.biosamples);
+    const biosamplesData = useDeduplicatedIndividualBiosamples(individual);
     const experimentsData = biosamplesData.flatMap((b) => b?.experiments ?? []);
 
     const viewableResults = useMemo(
         () =>
-            experimentsData.flatMap((e) => e?.experiment_results ?? [])
-                .filter(isViewable)
-                .map((v) => {  // add properties for visibility and file type
-                    const fileFormat = v.file_format?.toLowerCase() ?? guessFileType(v.filename);
-                    return {
-                        ...v,
-                        // by default, don't view crams (user can turn them on in track controls):
-                        viewInIgv: fileFormat !== "cram",
-                        file_format: fileFormat,  // re-formatted: to lowercase + guess if missing
-                    };
-                }),
+            Object.values(
+                Object.fromEntries(
+                    experimentsData.flatMap((e) => e?.experiment_results ?? [])
+                        .filter(isViewable)
+                        .map((v) => {  // add properties for visibility and file type
+                            const fileFormat = v.file_format?.toLowerCase() ?? guessFileType(v.filename);
+                            return [
+                                v.filename,
+                                {
+                                    ...v,
+                                    // by default, don't view crams (user can turn them on in track controls):
+                                    viewInIgv: fileFormat !== "cram",
+                                    file_format: fileFormat,  // re-formatted: to lowercase + guess if missing
+                                },
+                            ];
+                        }),
+                ),
+            ),
         [experimentsData],
     );
+
+    console.debug("Viewable experiment results:", viewableResults);
 
     const [allTracks, setAllTracks] = useState(
         viewableResults.sort((r1, r2) => (r1.file_format > r2.file_format ? 1 : -1)),

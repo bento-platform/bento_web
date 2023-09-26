@@ -377,12 +377,11 @@ function generateBiosampleObjects(searchResults) {
                         experimentIds: [],
                         experimentTypes: [],
                         studyTypes: [],
-                        sampledTissues: [],
+                        sampledTissue: biosample["sampled_tissue"],
                     };
                     objects[index].experimentIds.push(biosample.experiment["experiment_id"]);
                     objects[index].experimentTypes.push(biosample.experiment["experiment_type"]);
                     objects[index].studyTypes.push(biosample.experiment["study_type"]);
-                    objects[index].sampledTissues.push(biosample["sampled_tissue"]);
                 }
                 return objects;
             }, []);

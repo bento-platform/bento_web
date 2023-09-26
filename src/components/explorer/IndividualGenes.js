@@ -1,49 +1,62 @@
-import React from "react";
-import {Link} from "react-router-dom";
+import React, { useMemo } from "react";
+import { Link } from "react-router-dom";
 import { useDispatch } from "react-redux";
-import {Button, Table} from "antd";
-import { setIgvPosition } from "../../modules/explorer/actions";
-import {individualPropTypesShape} from "../../propTypes";
 import PropTypes from "prop-types";
+
+import { Button, Table } from "antd";
+
+import { setIgvPosition } from "../../modules/explorer/actions";
+import { individualPropTypesShape } from "../../propTypes";
 
 // TODO: Only show genes from the relevant dataset, if specified;
 //  highlight those found in search results, if specified
 
-const IndividualGenes = ({individual, tracksUrl}) => {
-    const genes = (individual || {}).phenopackets.flatMap(p => p.genes);
-    const genesFlat = genes.flatMap(g => ({symbol: g.symbol}));
+const GeneIGVLink = React.memo(({symbol, tracksUrl}) => {
     const dispatch = useDispatch();
+    return (
+        <Link onClick={() => dispatch(setIgvPosition(symbol))} to={{ pathname: tracksUrl }}>
+            <Button>{symbol}</Button>
+        </Link>
+    );
+});
+GeneIGVLink.propTypes = {
+    symbol: PropTypes.string,
+    tracksUrl: PropTypes.string,
+};
 
-    console.log({genesFlat: genesFlat});
-
-    const igvLink = (symbol) => (
-      <Link onClick={() => dispatch(setIgvPosition(symbol))}
-            to={{
-                pathname: tracksUrl,
-            }}
-      >
-        <Button>{symbol}</Button>
-      </Link>
+const IndividualGenes = ({individual, tracksUrl}) => {
+    const genes = useMemo(
+        () => Object.values(
+            Object.fromEntries(
+                (individual || {}).phenopackets
+                    .flatMap(p => p.genes)
+                    .map(g => [g.symbol, g]),
+            ),
+        ),
+        [individual],
     );
 
-    const ids = [{
-        //(biosamples || []).map(_b =>
-        title: "Symbol",
-            // key: "id",
-        render: (_, gene) => igvLink(gene.symbol),
-            //sorter: (a, b) => a.id.localeCompare(b.id),
-            //defaultSortOrder: "ascend"
-    },
-    ];
-    //);
+    const columns = useMemo(
+        () => [
+            {
+                title: "Symbol",
+                dataIndex: "symbol",
+                render: (symbol) => <GeneIGVLink symbol={symbol} tracksUrl={tracksUrl} />,
+            },
+        ],
+        [tracksUrl],
+    );
 
-    return <Table bordered
-                  size="middle"
-                  pagination={{pageSize: 25}}
-                  columns={ids}
-                  rowKey={gene => gene.symbol}
-                  dataSource={genesFlat}
-        />;
+    return (
+        <Table
+            bordered
+            size="middle"
+            pagination={{pageSize: 25}}
+            columns={columns}
+            rowKey="symbol"
+            dataSource={genes}
+        />
+    );
 };
 IndividualGenes.propTypes = {
     individual: individualPropTypesShape,

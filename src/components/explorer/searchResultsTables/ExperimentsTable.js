@@ -14,8 +14,7 @@ const ExperimentRender = React.memo(({ experimentId, individual }) => {
         <>
             <Link
                 to={{
-                    pathname: `/data/explorer/individuals/${individual.id}/experiments`,
-                    hash: "#" + experimentId,
+                    pathname: `/data/explorer/individuals/${individual.id}/experiments/${experimentId}`,
                     state: { backUrl: location.pathname },
                 }}
             >

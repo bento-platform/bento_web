@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React, { useCallback, useEffect } from "react";
 import { useSelector, useDispatch } from "react-redux";
 import { useParams } from "react-router-dom";
 
@@ -22,6 +22,7 @@ import {
 import IndividualsTable from "./searchResultsTables/IndividualsTable";
 import BiosamplesTable from "./searchResultsTables/BiosamplesTable";
 import ExperimentsTable from "./searchResultsTables/ExperimentsTable";
+import {fetchDatasetResourcesIfNecessary} from "../../modules/datasets/actions";
 
 const { TabPane } = Tabs;
 
@@ -36,42 +37,45 @@ const hasNonEmptyArrayProperty = (targetObject, propertyKey) => {
 };
 
 const ExplorerDatasetSearch = () => {
-    const { dataset } = useParams();
+    const { dataset: datasetID } = useParams();
     const dispatch = useDispatch();
 
     const datasetsByID = useSelector((state) => state.projects.datasetsByID);
 
-    const activeKey = useSelector((state) => state.explorer.activeTabByDatasetID[dataset]) || TAB_KEYS.INDIVIDUAL;
-    const dataTypeForms = useSelector((state) => state.explorer.dataTypeFormsByDatasetID[dataset] || []);
-    const fetchingSearch = useSelector((state) => state.explorer.fetchingSearchByDatasetID[dataset] || false);
+    const activeKey = useSelector((state) => state.explorer.activeTabByDatasetID[datasetID]) || TAB_KEYS.INDIVIDUAL;
+    const dataTypeForms = useSelector((state) => state.explorer.dataTypeFormsByDatasetID[datasetID] || []);
+    const fetchingSearch = useSelector((state) => state.explorer.fetchingSearchByDatasetID[datasetID] || false);
     const fetchingTextSearch = useSelector((state) => state.explorer.fetchingTextSearch || false);
-    const searchResults = useSelector((state) => state.explorer.searchResultsByDatasetID[dataset] || null);
+    const searchResults = useSelector((state) => state.explorer.searchResultsByDatasetID[datasetID] || null);
 
     console.debug("search results: ", searchResults);
 
-    const handleSetSelectedRows = (...args) => dispatch(setSelectedRows(dataset, ...args));
+    const handleSetSelectedRows = useCallback(
+        (...args) => dispatch(setSelectedRows(datasetID, ...args)),
+        [dispatch, datasetID],
+    );
 
     useEffect(() => {
         // Ensure user is at the top of the page after transition
         window.scrollTo(0, 0);
     }, []);
 
-    const onTabChange = (newActiveKey) => {
-        dispatch(setActiveTab(dataset, newActiveKey));
+    const onTabChange = useCallback((newActiveKey) => {
+        dispatch(setActiveTab(datasetID, newActiveKey));
         handleSetSelectedRows([]);
-    };
+    }, [dispatch, datasetID, handleSetSelectedRows]);
 
-    const performSearch = () => {
-        dispatch(setActiveTab(dataset, TAB_KEYS.INDIVIDUAL));
-        dispatch(resetTableSortOrder(dataset));
-        dispatch(performSearchIfPossible(dataset));
-    };
+    const performSearch = useCallback(() => {
+        dispatch(setActiveTab(datasetID, TAB_KEYS.INDIVIDUAL));
+        dispatch(resetTableSortOrder(datasetID));
+        dispatch(performSearchIfPossible(datasetID));
+    }, [dispatch, datasetID]);
 
-    if (!dataset) return null;
+    useEffect(() => {
+        dispatch(fetchDatasetResourcesIfNecessary(datasetID));
+    }, [dispatch, datasetID]);
 
-    const selectedDataset = datasetsByID[dataset];
-
-    if (!selectedDataset) return null;
+    const selectedDataset = datasetsByID[datasetID];
 
     const isFetchingSearchResults = fetchingSearch || fetchingTextSearch;
 
@@ -80,19 +84,20 @@ const ExplorerDatasetSearch = () => {
     const hasBiosamples = hasNonEmptyArrayProperty(searchResults, "searchFormattedResultsBiosamples");
     const showTabs = hasResults && (hasExperiments || hasBiosamples);
 
+    if (!selectedDataset) return null;
     return (
         <>
             <Typography.Title level={4}>Explore Dataset {selectedDataset.title}</Typography.Title>
-            <SearchAllRecords datasetID={dataset} />
+            <SearchAllRecords datasetID={datasetID} />
             <DiscoveryQueryBuilder
-                activeDataset={dataset}
+                activeDataset={datasetID}
                 isInternal={true}
                 dataTypeForms={dataTypeForms}
                 onSubmit={performSearch}
                 searchLoading={fetchingSearch}
-                addDataTypeQueryForm={(form) => dispatch(addDataTypeQueryForm(dataset, form))}
-                updateDataTypeQueryForm={(index, form) => dispatch(updateDataTypeQueryForm(dataset, index, form))}
-                removeDataTypeQueryForm={(index) => dispatch(removeDataTypeQueryForm(dataset, index))}
+                addDataTypeQueryForm={(form) => dispatch(addDataTypeQueryForm(datasetID, form))}
+                updateDataTypeQueryForm={(index, form) => dispatch(updateDataTypeQueryForm(datasetID, index, form))}
+                removeDataTypeQueryForm={(index) => dispatch(removeDataTypeQueryForm(datasetID, index))}
             />
             {hasResults &&
                 !isFetchingSearchResults &&
@@ -101,14 +106,14 @@ const ExplorerDatasetSearch = () => {
                         <TabPane tab="Individual" key={TAB_KEYS.INDIVIDUAL}>
                             <IndividualsTable
                                 data={searchResults.searchFormattedResults}
-                                datasetID={dataset}
+                                datasetID={datasetID}
                             />
                         </TabPane>
                         {hasBiosamples && (
                             <TabPane tab="Biosamples" key={TAB_KEYS.BIOSAMPLES}>
                                 <BiosamplesTable
                                     data={searchResults.searchFormattedResultsBiosamples}
-                                    datasetID={dataset}
+                                    datasetID={datasetID}
                                 />
                             </TabPane>
                         )}
@@ -116,13 +121,13 @@ const ExplorerDatasetSearch = () => {
                             <TabPane tab="Experiments" key={TAB_KEYS.EXPERIMENTS}>
                                 <ExperimentsTable
                                     data={searchResults.searchFormattedResultsExperiment}
-                                    datasetID={dataset}
+                                    datasetID={datasetID}
                                 />
                             </TabPane>
                         )}
                     </Tabs>
                 ) : (
-                    <IndividualsTable data={searchResults.searchFormattedResults} datasetID={dataset} />
+                    <IndividualsTable data={searchResults.searchFormattedResults} datasetID={datasetID} />
                 ))}
         </>
     );

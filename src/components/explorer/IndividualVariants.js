@@ -1,10 +1,13 @@
-import React from "react";
-import {Link} from "react-router-dom";
+import React, { useMemo } from "react";
+import { Link } from "react-router-dom";
 import { useDispatch } from "react-redux";
-import {Button, Descriptions, Empty} from "antd";
 import PropTypes from "prop-types";
-import {individualPropTypesShape} from "../../propTypes";
+
+import { Button, Descriptions, Empty } from "antd";
+
+import { individualPropTypesShape } from "../../propTypes";
 import { setIgvPosition } from "../../modules/explorer/actions";
+import { useDeduplicatedIndividualBiosamples } from "./utils";
 import "./explorer.css";
 
 // TODO: Only show variants from the relevant dataset, if specified;
@@ -13,67 +16,72 @@ import "./explorer.css";
 const sampleStyle = {display: "flex", flexDirection: "column", flexWrap: "nowrap"};
 const variantStyle = {margin: "5px"};
 
-const IndividualVariants = ({individual, tracksUrl}) => {
-    const biosamples = (individual || {}).phenopackets.flatMap(p => p.biosamples);
-    const variantsMapped = {};
+const mappedVariantPropType = PropTypes.shape({
+    id: PropTypes.string,
+    hgvs: PropTypes.string,
+    geneContext: PropTypes.string,
+});
+
+const VariantDetails = ({variant, tracksUrl}) => {
     const dispatch = useDispatch();
 
-    biosamples.forEach((bs) => {
-        const allvariants = (bs || {}).variants;
-
-        const variantsObject = (allvariants || []).map((v) => ({
-            id: v.hgvsAllele?.id,
-            hgvs: v.hgvsAllele?.hgvs,
-            gene_context: v.extra_properties?.gene_context ?? "",
-        }));
-        variantsMapped[bs.id] = variantsObject;
-    });
-
-    const ids = (biosamples || []).map(b =>
-        ({
-            title: `Biosample ${b.id}`,
-            key: b.id,
-            render: (_, map) => <div style={{verticalAlign: "top"}}>
-                <pre>{JSON.stringify(map[b.id], null, 2)}</pre></div>,
-            //sorter: (a, b) => a.id.localeCompare(b.id),
-            //defaultSortOrder: "ascend"
-        }),
+    return (
+        <div style={variantStyle}>
+            <span style={{display: "inline", marginRight: "15px"} }>
+                {`id: ${variant.id} hgvs: ${variant.hgvs}`}
+            </span>
+            {variant.geneContext && (
+                <>
+                    gene context:
+                    <Link onClick={() => dispatch(setIgvPosition(variant.geneContext))}
+                          to={{ pathname: tracksUrl }}>
+                        <Button>{variant.geneContext}</Button>
+                    </Link>
+                </>
+            )}
+        </div>
     );
+};
+VariantDetails.propTypes = {
+    variant: mappedVariantPropType,
+    tracksUrl: PropTypes.string,
+};
 
-    const VariantDetails = ({variant}) => {
-        return  <div style={variantStyle}>
-      <span style={{display: "inline", marginRight: "15px"} }>{`id: ${variant.id} hgvs: ${variant.hgvs}`}</span>
-      {variant.gene_context && (
-          <>gene context:
-            <Link onClick={() => dispatch(setIgvPosition(variant.gene_context))}
-                  to={{
-                      pathname: tracksUrl,
-                  }}
-            >
-            <Button>{variant.gene_context}</Button>
-            </Link>
-          </>
-      )}
-    </div>;
-    };
-
-    const SampleVariants = ({id}) => {
-
-        return variantsMapped[id].length ? (
-          <div style={sampleStyle}>
-            {variantsMapped[id].map((v) => (
-              <VariantDetails key={v.id} variant={v} />
+const SampleVariants = ({variantsMapped, biosampleID, tracksUrl}) =>
+    variantsMapped[biosampleID].length ? (
+        <div style={sampleStyle}>
+            {variantsMapped[biosampleID].map((v) => (
+                <VariantDetails key={v.id} variant={v} tracksUrl={tracksUrl} />
             ))}
-          </div>
-        ) : <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} />;
-    };
+        </div>
+    ) : <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} />;
+SampleVariants.propTypes = {
+    variantsMapped: PropTypes.objectOf(PropTypes.arrayOf(mappedVariantPropType)),
+    biosampleID: PropTypes.string,
+    tracksUrl: PropTypes.string,
+};
+
+const IndividualVariants = ({individual, tracksUrl}) => {
+    const biosamples = useDeduplicatedIndividualBiosamples(individual);
+
+    const variantsMapped = useMemo(
+        () => Object.fromEntries(biosamples.map((biosample) => [
+            biosample.id,
+            (biosample.variants ?? []).map((v) => ({
+                id: v.hgvsAllele?.id,
+                hgvs: v.hgvsAllele?.hgvs,
+                geneContext: v.extra_properties?.gene_context ?? "",
+            })),
+        ])),
+        [biosamples],
+    );
 
     return (
       <div className="variantDescriptions">
-          {ids.length ? <Descriptions layout="horizontal" bordered={true} column={1} size="small">
-              {ids.map((i) => (
-                  <Descriptions.Item key={i.key} label={i.title}>
-                      <SampleVariants id={i.key}/>
+          {biosamples.length ? <Descriptions layout="horizontal" bordered={true} column={1} size="small">
+              {biosamples.map(({id}) => (
+                  <Descriptions.Item key={id} label={`Biosample ${id}`}>
+                      <SampleVariants variantsMapped={variantsMapped} biosampleID={id} tracksUrl={tracksUrl} />
                   </Descriptions.Item>
               ))}
           </Descriptions> : <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} />}

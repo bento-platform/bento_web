@@ -2,7 +2,7 @@ import React, {useCallback, useMemo} from "react";
 import {Redirect, Route, Switch} from "react-router-dom";
 import {useDispatch, useSelector} from "react-redux";
 
-import {Button, Empty, Layout, Menu, Typography} from "antd";
+import {Button, Empty, Layout, Menu, Result, Typography} from "antd";
 
 import ProjectCreationModal from "./ProjectCreationModal";
 import ProjectSkeleton from "./ProjectSkeleton";
@@ -31,6 +31,7 @@ const ManagerProjectDatasetContent = () => {
 
     const {items} = useSelector(state => state.projects);
     const {isFetchingDependentData} = useSelector(state => state.auth);
+    const {metadataService, isFetchingAll: isFetchingAllServices} = useSelector(state => state.services);
 
     const projectMenuItems = useMemo(() => items.map(project => ({
         url: `/admin/data/manager/projects/${project.identifier}`,
@@ -41,6 +42,18 @@ const ManagerProjectDatasetContent = () => {
         () => dispatch(toggleProjectCreationModalAction()), [dispatch]);
 
     if (!isFetchingDependentData && projectMenuItems.length === 0) {
+        if (!isFetchingAllServices && metadataService === null) {
+            return <Layout>
+                <Layout.Content style={LAYOUT_CONTENT_STYLE}>
+                    <Result
+                        status="error"
+                        title="Could not contact the metadata service"
+                        subTitle="Please contact your Bento node administrator or ensure that all services are running."
+                    />
+                </Layout.Content>
+            </Layout>;
+        }
+
         return  <>
             <ProjectCreationModal />
             <Layout>

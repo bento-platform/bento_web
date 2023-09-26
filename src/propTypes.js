@@ -281,15 +281,63 @@ export const phenotypicFeaturePropTypesShape = PropTypes.shape({
     updated: PropTypes.string,  // ISO datetime string
 });
 
+export const resourcePropTypesShape = PropTypes.shape({
+    id: PropTypes.string,
+    name: PropTypes.string,
+    namespace_prefix: PropTypes.string,
+    url: PropTypes.string,
+    version: PropTypes.string,
+    iri_prefix: PropTypes.string,
+    extra_properties: PropTypes.object,
+});
+
 export const phenopacketPropTypesShape = PropTypes.shape({
     id: PropTypes.string.isRequired,
     subject: PropTypes.oneOfType([individualPropTypesShape, PropTypes.string]).isRequired,
     biosamples: biosamplePropTypesShape.isRequired,
     diseases: diseasePropTypesShape.isRequired,
     phenotypic_features: phenotypicFeaturePropTypesShape,
-    meta_data: PropTypes.object.isRequired,  // TODO: Shape
+    meta_data: PropTypes.shape({
+        created: PropTypes.string,
+        created_by: PropTypes.string,
+        submitted_by: PropTypes.string,
+        resources: PropTypes.arrayOf(resourcePropTypesShape),
+        phenopacket_schema_version: PropTypes.string,
+    }).isRequired,
     created: PropTypes.string,  // ISO datetime string
     updated: PropTypes.string,  // ISO datetime string
+});
+
+export const experimentResultPropTypesShape = PropTypes.shape({
+    identifier: PropTypes.string,
+    description: PropTypes.string,
+    filename: PropTypes.string,
+    file_format: PropTypes.oneOf([
+        "SAM",
+        "BAM",
+        "CRAM",
+        "BAI",
+        "CRAI",
+        "VCF",
+        "BCF",
+        "GVCF",
+        "BigWig",
+        "BigBed",
+        "FASTA",
+        "FASTQ",
+        "TAB",
+        "SRA",
+        "SRF",
+        "SFF",
+        "GFF",
+        "TABIX",
+        "UNKNOWN",
+        "OTHER",
+    ]),
+    data_output_type: PropTypes.oneOf(["Raw data", "Derived data"]),
+    usage: PropTypes.string,
+    creation_date: PropTypes.string,
+    created_by: PropTypes.string,
 });
 
 export const experimentPropTypesShape = PropTypes.shape({
@@ -297,10 +345,10 @@ export const experimentPropTypesShape = PropTypes.shape({
     study_type: PropTypes.string,
 
     experiment_type: PropTypes.string.isRequired,
-    experiment_ontology: PropTypes.arrayOf(PropTypes.object),  // TODO: Array of ontology terms
+    experiment_ontology: PropTypes.arrayOf(ontologyShape),  // TODO: Array of ontology terms
 
     molecule: PropTypes.string,
-    molecule_ontology: PropTypes.arrayOf(PropTypes.object),  // TODO: Array of ontology terms
+    molecule_ontology: PropTypes.arrayOf(ontologyShape),  // TODO: Array of ontology terms
 
     library_strategy: PropTypes.string,
     library_source: PropTypes.string,
@@ -318,35 +366,7 @@ export const experimentPropTypesShape = PropTypes.shape({
         model: PropTypes.string,
     }),
 
-    experiment_results: PropTypes.arrayOf(PropTypes.shape({
-        identifier: PropTypes.string,
-        description: PropTypes.string,
-        filename: PropTypes.string,
-        file_format: PropTypes.oneOf([
-            "SAM",
-            "BAM",
-            "CRAM",
-            "BAI",
-            "CRAI",
-            "VCF",
-            "BCF",
-            "GVCF",
-            "BigWig",
-            "BigBed",
-            "FASTA",
-            "FASTQ",
-            "TAB",
-            "SRA",
-            "SRF",
-            "SFF",
-            "GFF",
-            "TABIX",
-            "UNKNOWN",
-            "OTHER",
-        ]),
-        data_output_type: PropTypes.oneOf(["Raw data", "Derived data"]),
-        usage: PropTypes.string,
-    })),
+    experiment_results: PropTypes.arrayOf(experimentResultPropTypesShape),
 
     qc_flags: PropTypes.arrayOf(PropTypes.string),
 
