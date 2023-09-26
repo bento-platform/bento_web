@@ -30,17 +30,15 @@ const IndividualOverview = ({individual}) => {
             </Descriptions.Item>
             <Descriptions.Item label="Extra Properties">{
                 (individual.hasOwnProperty("extra_properties") && Object.keys(individual.extra_properties).length)
-                    ?  <div>
-                    <pre>
-                          <ReactJson src={individual.extra_properties}
-                                     displayDataTypes={false}
-                                     name="Properties"
-                                     collapsed={1}
-                                     enableClipboard={false}
-                          />
-                    </pre>
-                    </div>
-                    : EM_DASH
+                    ?  (
+                        <ReactJson
+                            src={individual.extra_properties}
+                            displayDataTypes={false}
+                            name={null}
+                            collapsed={1}
+                            enableClipboard={false}
+                        />
+                    ) : EM_DASH
             }</Descriptions.Item>
         </Descriptions>
     );
