@@ -67,7 +67,7 @@ const OntologyTerm = memo(({ resourcesTuple, term, renderLabel }) => {
 
 OntologyTerm.propTypes = {
     resourcesTuple: PropTypes.array,
-    term: ontologyShape.isRequired,
+    term: ontologyShape,
     renderLabel: PropTypes.func,
 };
 OntologyTerm.defaultProps = {
