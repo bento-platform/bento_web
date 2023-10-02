@@ -38,18 +38,18 @@ export const performAuth = async (authorizationEndpoint, clientId, authCallbackU
     window.location = await createAuthURL(authorizationEndpoint, clientId, authCallbackURL, scope);
 };
 
-const defaultAuthCodeCallback = async (dispatch, history, code, verifier, fetchUserDependentData) => {
+const defaultAuthCodeCallback = async (dispatch, history, code, verifier, onSuccessfulAuthentication) => {
     const lastPath = popLocalStorageItem(LS_BENTO_POST_AUTH_REDIRECT);
     await dispatch(tokenHandoff(code, verifier));
     history.replace(lastPath ?? DEFAULT_REDIRECT);
-    await dispatch(fetchUserDependentData(nop));
+    await dispatch(onSuccessfulAuthentication(nop));
 };
 
 export const setLSNotSignedIn = () => {
     localStorage.removeItem(LS_BENTO_WAS_SIGNED_IN);
 };
 
-export const useHandleCallback = (callbackPath, fetchUserDependentData, authCodeCallback = undefined) => {
+export const useHandleCallback = (callbackPath, onSuccessfulAuthentication, authCodeCallback = undefined) => {
     const dispatch = useDispatch();
     const history = useHistory();
     const location = useLocation();
@@ -95,7 +95,6 @@ export const useHandleCallback = (callbackPath, fetchUserDependentData, authCode
 
         const paramState = params.get("state");
         if (localState !== paramState) {
-            message.error("Error encountered during sign-in: state mismatch");
             console.error("state mismatch");
             setLSNotSignedIn();
             return;
@@ -103,7 +102,7 @@ export const useHandleCallback = (callbackPath, fetchUserDependentData, authCode
 
         const verifier = popLocalStorageItem(PKCE_LS_VERIFIER);
 
-        (authCodeCallback ?? defaultAuthCodeCallback)(dispatch, history, code, verifier, fetchUserDependentData).catch(err => {
+        (authCodeCallback ?? defaultAuthCodeCallback)(dispatch, history, code, verifier, onSuccessfulAuthentication).catch(err => {
             console.error(err);
             setLSNotSignedIn();
         });
