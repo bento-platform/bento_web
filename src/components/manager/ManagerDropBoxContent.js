@@ -113,7 +113,7 @@ const stopEvent = event => {
 
 const DropBoxFileDisplay = ({file, tree, treeLoading}) => {
     const urisByFilePath = useMemo(() => generateURIsByRelPath(tree, {}), [tree]);
-    const uri = useMemo(() => urisByFilePath[file], [urisByFilePath]);
+    const uri = useMemo(() => urisByFilePath[file], [urisByFilePath, file]);
 
     return <FileDisplay uri={uri} fileName={file} loading={treeLoading} />;
 };
@@ -250,7 +250,7 @@ const FileContentsModal = ({selectedFilePath, visible, onCancel}) => {
         footer={null}
         onCancel={onCancel}
     >
-        <FileDisplay file={selectedFilePath} tree={tree} treeLoading={treeLoading} />
+        <DropBoxFileDisplay file={selectedFilePath} tree={tree} treeLoading={treeLoading} />
     </Modal>;
 };
 FileContentsModal.propTypes = {

@@ -25,6 +25,8 @@ import JsonDisplay from "./JsonDisplay";
 import "react-pdf/dist/esm/Page/AnnotationLayer.css";
 import "react-pdf/dist/esm/Page/TextLayer.css";
 import PropTypes from "prop-types";
+import CsvDisplay from "./CsvDisplay";
+import ImageBlobDisplay from "./ImageBlobDisplay";
 
 SyntaxHighlighter.registerLanguage("bash", bash);
 SyntaxHighlighter.registerLanguage("dockerfile", dockerfile);
@@ -43,14 +45,14 @@ const BASE_PDF_OPTIONS = {
 };
 
 const LANGUAGE_HIGHLIGHTERS = {
-    ".bash": "bash",
-    ".json": "json",
-    ".md": "markdown",
-    ".txt": "plaintext",
-    ".py": "python",
-    ".R": "r",
-    ".sh": "shell",
-    ".xml": "xml",
+    "bash": "bash",
+    "json": "json",
+    "md": "markdown",
+    "txt": "plaintext",
+    "py": "python",
+    "R": "r",
+    "sh": "shell",
+    "xml": "xml",
 
     // Special files
     "Dockerfile": "dockerfile",
@@ -58,7 +60,36 @@ const LANGUAGE_HIGHLIGHTERS = {
     "CHANGELOG": "plaintext",
 };
 
-export const VIEWABLE_FILE_EXTENSIONS = [...Object.keys(LANGUAGE_HIGHLIGHTERS), ".pdf"];
+// TODO: ".bed",
+//  .bed files are basically TSVs, but they can have instructions and can be whitespace-delimited instead
+const IMAGE_FILE_EXTENSIONS = [
+    "apng",
+    "avif",
+    "bmp",
+    "gif",
+    "jpg",
+    "jpeg",
+    "png",
+    "svg",
+    "webp",
+];
+export const VIEWABLE_FILE_EXTENSIONS = [
+    // Tabular data
+    "csv",
+    "tsv",
+
+    // Images
+    ...IMAGE_FILE_EXTENSIONS,
+
+    // Documents
+    "pdf",
+
+    // Code & text formats
+    ...Object.keys(LANGUAGE_HIGHLIGHTERS),
+];
+
+const DEFER_LOADING_FILE_EXTENSIONS = ["pdf"];  // Don't use a fetch() for these extensions
+const BINARY_FILE_EXTENSIONS = [...IMAGE_FILE_EXTENSIONS, "pdf"];
 
 const FileDisplay = ({ uri, fileName, loading }) => {
     const authHeader = useAuthorizationHeader();
@@ -73,7 +104,6 @@ const FileDisplay = ({ uri, fileName, loading }) => {
         httpHeaders: authHeader,
     }), [authHeader]);
 
-    const textFormat = fileName ? !!Object.keys(LANGUAGE_HIGHLIGHTERS).find(ext => fileName.endsWith(ext)) : false;
     const fileExt = fileName ? fileName.split(".").slice(-1)[0] : null;
 
     useEffect(() => {
@@ -87,7 +117,7 @@ const FileDisplay = ({ uri, fileName, loading }) => {
                 setLoadingFileContents(true);
             }
 
-            if (!textFormat || fileContents.hasOwnProperty(uri)) return;
+            if (DEFER_LOADING_FILE_EXTENSIONS.includes(fileExt) || fileContents.hasOwnProperty(uri)) return;
 
             if (!uri) {
                 console.error(`Files: something went wrong while trying to load ${uri}`);
@@ -99,8 +129,13 @@ const FileDisplay = ({ uri, fileName, loading }) => {
                 setLoadingFileContents(true);
                 const r = await fetch(uri, { headers: authHeader });
                 if (r.ok) {
-                    const text = await r.text();
-                    const content = (fileExt === "json" ? JSON.parse(text) : text);
+                    let content;
+                    if (BINARY_FILE_EXTENSIONS.includes(fileExt)) {
+                        content = await r.blob();
+                    } else {
+                        const text = await r.text();
+                        content = (fileExt === "json" ? JSON.parse(text) : text);
+                    }
                     setFileContents({
                         ...fileContents,
                         [uri]: content,
@@ -129,6 +164,7 @@ const FileDisplay = ({ uri, fileName, loading }) => {
     }, []);
 
     if (!uri || !fileName) {
+        console.error(`Missing URI or file name: uri=${uri}, fileName=${fileName}`);
         return <div />;
     }
 
@@ -137,8 +173,9 @@ const FileDisplay = ({ uri, fileName, loading }) => {
             if (fileLoadError) {
                 return <Alert
                     type="error"
-                    message={`Error loading file: ${file}`}
+                    message={`Error loading file: ${fileName}`}
                     description={fileLoadError}
+                    showIcon={true}
                 />;
             }
 
@@ -147,13 +184,25 @@ const FileDisplay = ({ uri, fileName, loading }) => {
                     <Document file={uri} onLoadSuccess={onPdfLoad} onLoadError={onPdfFail} options={pdfOptions}>
                         {(() => {
                             const pages = [];
-                            for (let i = 1; i <= pdfPageCounts[file] ?? 1; i++) {
+                            for (let i = 1; i <= pdfPageCounts[uri] ?? 1; i++) {
                                 pages.push(<Page pageNumber={i} key={i} />);
                             }
                             return pages;
                         })()}
                     </Document>
                 );
+            } else if (["csv", "tsv"].includes(fileExt)) {
+                if (loadingFileContents) {
+                    return <div />;
+                }
+                return (
+                    <CsvDisplay contents={fileContents[uri]} />
+                );
+            } else if (IMAGE_FILE_EXTENSIONS.includes(fileExt)) {
+                if (loadingFileContents) {
+                    return <div />;
+                }
+                return <ImageBlobDisplay alt={fileName} blob={fileContents[uri]} />;
             } else if (fileExt === "json") {
                 const jsonSrc = fileContents[uri];
                 if (loadingFileContents || !jsonSrc) {
