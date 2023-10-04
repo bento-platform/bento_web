@@ -214,7 +214,7 @@ const FileDisplay = ({ uri, fileName, loading }) => {
             } else {  // if (textFormat)
                 return (
                     <SyntaxHighlighter
-                        language={LANGUAGE_HIGHLIGHTERS[`.${fileExt}`]}
+                        language={LANGUAGE_HIGHLIGHTERS[fileExt]}
                         style={a11yLight}
                         customStyle={{fontSize: "12px"}}
                         showLineNumbers={true}
