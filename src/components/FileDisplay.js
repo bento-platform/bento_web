@@ -73,15 +73,7 @@ const FileDisplay = ({ uri, fileName, loading }) => {
         httpHeaders: authHeader,
     }), [authHeader]);
 
-    let textFormat = false;
-    if (fileName) {
-        Object.keys(LANGUAGE_HIGHLIGHTERS).forEach(ext => {
-            if (fileName.endsWith(ext)) {
-                textFormat = true;
-            }
-        });
-    }
-
+    const textFormat = fileName ? !!Object.keys(LANGUAGE_HIGHLIGHTERS).find(ext => fileName.endsWith(ext)) : false;
     const fileExt = fileName ? fileName.split(".").slice(-1)[0] : null;
 
     useEffect(() => {
