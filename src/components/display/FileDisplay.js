@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useMemo, useState } from "react";
-import { useAuthorizationHeader } from "../lib/auth/utils";
+import { useAuthorizationHeader } from "../../lib/auth/utils";
 import { Alert, Spin } from "antd";
 
 import fetch from "cross-fetch";

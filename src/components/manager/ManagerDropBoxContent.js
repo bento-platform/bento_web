@@ -45,7 +45,7 @@ import {
 import {RESOURCE_EVERYTHING} from "../../lib/auth/resources";
 import {deleteDropBox, ingestDropBox} from "../../lib/auth/permissions";
 
-import FileDisplay, { VIEWABLE_FILE_EXTENSIONS } from "../FileDisplay";
+import FileDisplay, { VIEWABLE_FILE_EXTENSIONS } from "../display/FileDisplay";
 
 const DROP_BOX_CONTENT_CONTAINER_STYLE = {display: "flex", flexDirection: "column", gap: "1em"};
 const DROP_BOX_ACTION_CONTAINER_STYLE = {display: "flex", gap: "12px"};
