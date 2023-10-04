@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { Redirect, Route, Switch, useHistory, useLocation, useParams, useRouteMatch } from "react-router-dom";
 
@@ -46,7 +46,14 @@ const ExplorerIndividualContent = () => {
     const { individual: individualID } = useParams();
     const { url: individualUrl } = useRouteMatch();
 
-    const backUrl = location.state?.backUrl;
+    const [backUrl, setBackUrl] = useState(undefined);
+
+    useEffect(() => {
+        const b = location.state?.backUrl;
+        if (b) {
+            setBackUrl(b);
+        }
+    }, [location]);
 
     const metadataService = useSelector((state) => state.services.metadataService);
     const individuals = useSelector((state) => state.individuals.itemsByID);
@@ -94,7 +101,10 @@ const ExplorerIndividualContent = () => {
         <SitePageHeader
             title={headerTitle(individual) || "Loading..."}
             withTabBar={true}
-            onBack={backUrl ? (() => history.push(backUrl)) : undefined}
+            onBack={backUrl ? (() => {
+                history.push(backUrl);
+                setBackUrl(undefined);  // Clear back button if we use it
+            }) : undefined}
             footer={
                 <Menu mode="horizontal" style={MENU_STYLE} selectedKeys={selectedKeys}>
                     {individualMenu.map(renderMenuItem)}
