@@ -4,17 +4,7 @@ import {useHistory} from "react-router-dom";
 
 import PropTypes from "prop-types";
 
-import fetch from "cross-fetch";
 import {filesize} from "filesize";
-
-import {Light as SyntaxHighlighter} from "react-syntax-highlighter";
-import {a11yLight} from "react-syntax-highlighter/dist/cjs/styles/hljs";
-
-import {Document, Page} from "react-pdf/dist/esm/entry.webpack5";
-import "react-pdf/dist/esm/Page/AnnotationLayer.css";
-import "react-pdf/dist/esm/Page/TextLayer.css";
-
-import {json, markdown, plaintext} from "react-syntax-highlighter/dist/cjs/languages/hljs";
 
 import {
     Alert,
@@ -38,13 +28,12 @@ import {
 import {LAYOUT_CONTENT_STYLE} from "../../styles/layoutContent";
 import DownloadButton from "../DownloadButton";
 import DropBoxTreeSelect from "./DropBoxTreeSelect";
-import JsonDisplay from "../JsonDisplay";
 import DatasetSelectionModal from "./DatasetSelectionModal";
 
 import {BENTO_DROP_BOX_FS_BASE_PATH} from "../../config";
 import {STEP_INPUT} from "./workflowCommon";
 import {dropBoxTreeStateToPropsMixinPropTypes, workflowsStateToPropsMixin} from "../../propTypes";
-import {useAuthorizationHeader, useResourcePermissions} from "../../lib/auth/utils";
+import {useResourcePermissions} from "../../lib/auth/utils";
 import {getFalse} from "../../utils/misc";
 import {
     beginDropBoxPuttingObjects,
@@ -56,37 +45,7 @@ import {
 import {RESOURCE_EVERYTHING} from "../../lib/auth/resources";
 import {deleteDropBox, ingestDropBox} from "../../lib/auth/permissions";
 
-
-SyntaxHighlighter.registerLanguage("json", json);
-SyntaxHighlighter.registerLanguage("markdown", markdown);
-SyntaxHighlighter.registerLanguage("plaintext", plaintext);
-
-
-const BASE_PDF_OPTIONS = {
-    cMapUrl: "cmaps/",
-    cMapPacked: true,
-    standardFontDataUrl: "standard_fonts/",
-};
-
-
-const LANGUAGE_HIGHLIGHTERS = {
-    ".bash": "bash",
-    ".json": "json",
-    ".md": "markdown",
-    ".txt": "plaintext",
-    ".py": "python",
-    ".R": "r",
-    ".sh": "shell",
-    ".xml": "xml",
-
-    // Special files
-    "Dockerfile": "dockerfile",
-    "README": "plaintext",
-    "CHANGELOG": "plaintext",
-};
-
-const VIEWABLE_FILE_EXTENSIONS = [...Object.keys(LANGUAGE_HIGHLIGHTERS), ".pdf"];
-
+import FileDisplay, { VIEWABLE_FILE_EXTENSIONS } from "../FileDisplay";
 
 const DROP_BOX_CONTENT_CONTAINER_STYLE = {display: "flex", flexDirection: "column", gap: "1em"};
 const DROP_BOX_ACTION_CONTAINER_STYLE = {display: "flex", gap: "12px"};
@@ -152,130 +111,13 @@ const stopEvent = event => {
 };
 
 
-const FileDisplay = ({file, tree, treeLoading}) => {
+const DropBoxFileDisplay = ({file, tree, treeLoading}) => {
     const urisByFilePath = useMemo(() => generateURIsByRelPath(tree, {}), [tree]);
+    const uri = useMemo(() => urisByFilePath[file], [urisByFilePath]);
 
-    const authHeader = useAuthorizationHeader();
-
-    const [fileLoadError, setFileLoadError] = useState("");
-    const [loadingFileContents, setLoadingFileContents] = useState(false);
-    const [fileContents, setFileContents] = useState({});
-    const [pdfPageCounts, setPdfPageCounts] = useState({});
-
-    const pdfOptions = useMemo(() => ({
-        ...BASE_PDF_OPTIONS,
-        httpHeaders: authHeader,
-    }), [authHeader]);
-
-    let textFormat = false;
-    if (file) {
-        Object.keys(LANGUAGE_HIGHLIGHTERS).forEach(ext => {
-            if (file.endsWith(ext)) {
-                textFormat = true;
-            }
-        });
-    }
-
-    const fileExt = file ? file.split(".").slice(-1)[0] : null;
-
-    useEffect(() => {
-        // File changed, so reset the load error
-        setFileLoadError("");
-
-        (async () => {
-            if (!file) return;
-
-            if (fileExt === "pdf") {
-                setLoadingFileContents(true);
-            }
-
-            if (!textFormat || fileContents.hasOwnProperty(file)) return;
-
-            if (!(file in urisByFilePath)) {
-                console.error(`Files: something went wrong while trying to load ${file}`);
-                setFileLoadError("Could not find URI for file.");
-                return;
-            }
-
-            try {
-                setLoadingFileContents(true);
-                const r = await fetch(urisByFilePath[file], {headers: authHeader});
-                if (r.ok) {
-                    const text = await r.text();
-                    const content = (fileExt === "json" ? JSON.parse(text) : text);
-                    setFileContents({
-                        ...fileContents,
-                        [file]: content,
-                    });
-                } else {
-                    setFileLoadError(`Could not load file: ${r.content}`);
-                }
-            } catch (e) {
-                console.error(e);
-                setFileLoadError(`Could not load file: ${e.message}`);
-            } finally {
-                setLoadingFileContents(false);
-            }
-        })();
-    }, [file]);
-
-    const onPdfLoad = useCallback(({numPages}) => {
-        setLoadingFileContents(false);
-        setPdfPageCounts({...pdfPageCounts, [file]: numPages});
-    }, [file]);
-
-    const onPdfFail = useCallback(err => {
-        console.error(err);
-        setLoadingFileContents(false);
-        setFileLoadError(`Error loading PDF: ${err.message}`);
-    }, []);
-
-    if (!file) return <div />;
-
-    return <Spin spinning={treeLoading || loadingFileContents}>
-        {(() => {
-            if (fileLoadError) {
-                return <Alert
-                    type="error"
-                    message={`Error loading file: ${file}`}
-                    description={fileLoadError}
-                />;
-            }
-
-            if (fileExt === "pdf") {  // Non-text, content isn't loaded a priori
-                const uri = urisByFilePath[file];
-                if (!uri) return <div />;
-                return (
-                    <Document file={uri} onLoadSuccess={onPdfLoad} onLoadError={onPdfFail} options={pdfOptions}>
-                        {(() => {
-                            const pages = [];
-                            for (let i = 1; i <= pdfPageCounts[file] ?? 1; i++) {
-                                pages.push(<Page pageNumber={i} key={i} />);
-                            }
-                            return pages;
-                        })()}
-                    </Document>
-                );
-            } else if (fileExt === "json") {
-                const jsonSrc = fileContents[file];
-                if (loadingFileContents || !jsonSrc) return <div />;
-                return (<JsonDisplay jsonSrc={jsonSrc}/>);
-            } else {  // if (textFormat)
-                return (
-                    <SyntaxHighlighter
-                        language={LANGUAGE_HIGHLIGHTERS[`.${fileExt}`]}
-                        style={a11yLight}
-                        customStyle={{fontSize: "12px"}}
-                        showLineNumbers={true}
-                    >
-                        {fileContents[file] || ""}
-                    </SyntaxHighlighter>
-                );
-            }
-        })()}
-    </Spin>;
+    return <FileDisplay uri={uri} fileName={file} loading={treeLoading} />;
 };
-FileDisplay.propTypes = {
+DropBoxFileDisplay.propTypes = {
     file: PropTypes.string,
     ...dropBoxTreeStateToPropsMixinPropTypes,
 };
