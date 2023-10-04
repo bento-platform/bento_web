@@ -74,9 +74,9 @@ const IndividualPhenotypicFeatures = ({ individual }) => {
                 header: p.id,
                 key: p.id,
             }] : []),  // If there is just 1 phenopacket, don't include a header row
-            ...p.phenotypic_features.map((pf) => ({
+            ...(p.phenotypic_features ?? []).map((pf) => ({
                 ...pf,
-                key: `${pf.type.id}:${pf.negated}`,
+                key: `${p.id}:${pf.type.id}:${pf.negated}`,
             })),
         ]);
     }, [individual]);
