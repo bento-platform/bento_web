@@ -17,7 +17,7 @@ import {
     python,
     r,
     shell,
-    xml
+    xml,
 } from "react-syntax-highlighter/dist/cjs/languages/hljs";
 
 import JsonDisplay from "./JsonDisplay";

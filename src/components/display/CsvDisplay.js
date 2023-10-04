@@ -22,7 +22,6 @@ const CsvDisplay = ({ contents }) => {
         Papa.parse(contents, {
             worker: true,
             step: (res) => {
-                console.log(res);
                 if (res.errors?.length) {
                     setParseError(res.errors[0].message);
                 }
@@ -31,14 +30,13 @@ const CsvDisplay = ({ contents }) => {
             complete() {
                 setIsParsing(false);
                 if (!parseError) {
-                    console.log('first row', rows[0]);
                     setColumns(rows[0] ? Object.entries(rows[0]).map((_, i) => ({
                         dataIndex: `col${i}`,
                     })) : [DEFAULT_COLUMN]);
                     setParsedData(rows);
                 }
             },
-        })
+        });
     }, [contents]);
 
     if (parseError) {
