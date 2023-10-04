@@ -15,9 +15,6 @@ const CsvDisplay = ({ contents }) => {
         if (contents === undefined || contents === null) return;
 
         setIsParsing(true);
-
-        console.log(contents);
-
         const rows = [];
         Papa.parse(contents, {
             worker: true,
