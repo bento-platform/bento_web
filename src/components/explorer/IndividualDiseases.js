@@ -12,7 +12,7 @@ import OntologyTerm from "./OntologyTerm";
 //  highlight those found in search results, if specified
 
 const IndividualDiseases = ({ individual }) => {
-    const diseases = individual.phenopackets.flatMap(p => p.diseases);
+    const diseases = individual.phenopackets.flatMap(p => p.diseases).filter(Boolean);
     const resourcesTuple = useIndividualResources(individual);
 
     const columns = useMemo(() => [
@@ -34,10 +34,10 @@ const IndividualDiseases = ({ individual }) => {
                     const onset = disease.onset;
                     if (onset.hasOwnProperty("age") && Object.keys(onset.age).length) {
                         return <div>{onset.age.iso8601duration}</div>;
-                    } else if (onset.hasOwnProperty("ageRange") && Object.keys(onset.age_range).length) {
-                        return <div>{onset.ageRange.start.iso8601duration} - {onset.ageRange.end.iso8601duration}</div>;
-                    } else if (onset.hasOwnProperty("ontologyClass") && Object.keys(onset.ontology_class).length) {
-                        return <OntologyTerm resourcesTuple={resourcesTuple} term={onset.ontologyClass} />;
+                    } else if (onset.hasOwnProperty("age_range") && Object.keys(onset.age_range).length) {
+                        return <div>{onset.age_range.start.iso8601duration} - {onset.age_range.end.iso8601duration}</div>;
+                    } else if (onset.hasOwnProperty("ontology_class") && Object.keys(onset.ontology_class).length) {
+                        return <OntologyTerm resourcesTuple={resourcesTuple} term={onset.ontology_class} />;
                     }
                     // TODO: new stuff that comes with TIME_ELEMENT representation
                 }
