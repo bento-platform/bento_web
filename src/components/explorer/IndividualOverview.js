@@ -49,19 +49,21 @@ IndividualOverview.propTypes = {
 };
 
 function getAge(individual) {
-    // This isn't a real Phenopackets value like UNKNOWN_SEX is
-    if (!individual?.age?.age) {
+    if (!individual?.time_at_last_encounter) {
         return "UNKNOWN_AGE";
     }
 
-    const age = individual.age.age;
+    const age = individual.time_at_last_encounter;
 
-    // standard age.age
-    if (typeof(age) === "string") {
-        return age;
+    if (age?.age?.iso8601duration) {
+        return age.age.iso8601duration;
     }
 
-    // age.start + age.end, all other cases
+    if (age?.age_range) {
+        return JSON.stringify(age.age_range);
+    }
+
+    // other cases
     return JSON.stringify(age);
 }
 
