@@ -30,6 +30,9 @@ const IndividualGenes = ({individual, tracksUrl}) => {
             Object.fromEntries(
                 (individual || {}).phenopackets
                     .flatMap(p => p.genes)
+                    .filter(Boolean)
+                    // TODO: temp filter fix, genes are now in GenomicInterpretation
+                    // new location: pheno.interpretation.diagnosis.genomic_interpretations.gene_descriptor.symbol
                     .map(g => [g.symbol, g]),
             ),
         ),

@@ -29,20 +29,20 @@ const IndividualDiseases = ({ individual }) => {
         {
             title: "Onset Age(s)",
             key: "t_onset_ages",
-            render: (_, disease) =>
-                // Print onset age
-                (disease.hasOwnProperty("onset") && Object.keys(disease.onset).length)
-                    // Single onset age
-                    ? (disease.onset.hasOwnProperty("age") && Object.keys(disease.onset.age).length)
-                        ? <div>{disease.onset.age}</div>
-                        // Onset age start and end
-                        : (disease.onset.hasOwnProperty("start") && Object.keys(disease.onset.start).length)
-                            ? <div>{disease.onset.start.age} - {disease.onset.end.age}</div>
-                            // Onset age label only
-                            : disease.onset.label
-                                ? <OntologyTerm resourcesTuple={resourcesTuple} term={disease.onset} />
-                                : EM_DASH
-                    : EM_DASH,
+            render: (_, disease) => {
+                if (disease.hasOwnProperty("onset") && Object.keys(disease.onset).length) {
+                    const onset = disease.onset;
+                    if (onset.hasOwnProperty("age") && Object.keys(onset.age).length) {
+                        return <div>{onset.age.iso8601duration}</div>;
+                    } else if (onset.hasOwnProperty("ageRange") && Object.keys(onset.age_range).length) {
+                        return <div>{onset.ageRange.start.iso8601duration} - {onset.ageRange.end.iso8601duration}</div>;
+                    } else if (onset.hasOwnProperty("ontologyClass") && Object.keys(onset.ontology_class).length) {
+                        return <OntologyTerm resourcesTuple={resourcesTuple} term={onset.ontologyClass} />;
+                    }
+                    // TODO: new stuff that comes with TIME_ELEMENT representation
+                }
+                return EM_DASH;
+            },
         },
         {
             title: "Extra Properties",
