@@ -166,6 +166,7 @@ const LastIngestionTable = () => {
     const ingestions = useMemo(() => processIngestions(runs, currentDatasets), [runs, currentDatasets]);
 
     return <Table
+        size="middle"
         bordered={true}
         columns={COLUMNS_LAST_CONTENT}
         loading={servicesFetching || runsFetching}

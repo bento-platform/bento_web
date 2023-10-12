@@ -1,6 +1,6 @@
 import {combineReducers} from "redux";
 
-import {auth, openIdConfiguration} from "./modules/auth/reducers";
+import { auth, grants, groups, openIdConfiguration } from "./modules/auth/reducers";
 import {drs} from "./modules/drs/reducers";
 import {discovery} from "./modules/discovery/reducers";
 import {explorer} from "./modules/explorer/reducers";
@@ -27,6 +27,8 @@ const rootReducer = combineReducers({
     // Auth module
     auth,
     openIdConfiguration,
+    grants,
+    groups,
 
     // DRS module
     drs,

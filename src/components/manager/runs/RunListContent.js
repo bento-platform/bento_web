@@ -40,6 +40,7 @@ class RunListContent extends Component {
                 <div>
                     <Typography.Title level={2}>Workflow Runs</Typography.Title>
                     <Table
+                        size="middle"
                         bordered={true}
                         columns={RUN_TABLE_COLUMNS}
                         dataSource={this.props.runs}

@@ -1,17 +1,17 @@
-import React, {Suspense, lazy, useEffect, useMemo} from "react";
-import {Redirect, Route, Switch} from "react-router-dom";
+import React, { Suspense, lazy, useEffect, useMemo } from "react";
+import { Redirect, Route, Switch } from "react-router-dom";
 
 import {Menu, Skeleton} from "antd";
 
-import {SITE_NAME} from "../constants";
+import { SITE_NAME } from "../constants";
 import {matchingMenuKeys, renderMenuItem} from "../utils/menu";
 
 import SitePageHeader from "./SitePageHeader";
-import {viewDropBox} from "../lib/auth/permissions";
-import {RESOURCE_EVERYTHING} from "../lib/auth/resources";
+import { viewDropBox, viewPermissions } from "../lib/auth/permissions";
+import { RESOURCE_EVERYTHING } from "../lib/auth/resources";
 import ManagerDRSContent from "./manager/drs/ManagerDRSContent";
 import ManagerAnalysisContent from "./manager/ManagerAnalysisContent";
-import {useHasResourcePermission} from "../lib/auth/utils";
+import { useResourcePermissions } from "../lib/auth/utils";
 
 const ManagerProjectDatasetContent = lazy(() => import("./manager/projects/ManagerProjectDatasetContent"));
 const ManagerAccessContent = lazy(() => import("./manager/ManagerAccessContent"));
@@ -26,7 +26,7 @@ const styles = {
         marginRight: "-24px",
         marginTop: "-12px",
     },
-    suspenseFallback: {padding: "24px", backgroundColor: "white"},
+    suspenseFallback: { padding: "24px", backgroundColor: "white" },
 };
 
 const DataManagerContent = () => {
@@ -34,22 +34,30 @@ const DataManagerContent = () => {
         document.title = `${SITE_NAME}: Admin / Data Manager`;
     }, []);
 
-    const {isFetching: fetchingPermission, hasPermission} = useHasResourcePermission(RESOURCE_EVERYTHING, viewDropBox);
+    const {
+        permissions,
+        isFetching: fetchingPermissions,
+    } = useResourcePermissions(RESOURCE_EVERYTHING);
 
     const menuItems = useMemo(() => [
         {url: "/admin/data/manager/projects", style: {marginLeft: "4px"}, text: "Projects and Datasets"},
-        // {url: "/data/manager/access", text: "Access Management"},  // TODO: Re-enable for v0.2
         {
             url: "/admin/data/manager/files",
             text: "Drop Box",
-            disabled: fetchingPermission || !hasPermission,
+            disabled: fetchingPermissions || !permissions.includes(viewDropBox),
         },
         {url: "/admin/data/manager/ingestion", text: "Ingestion"},
         {url: "/admin/data/manager/analysis", text: "Analysis"},
         {url: "/admin/data/manager/workflows", text: "Workflows"},
         {url: "/admin/data/manager/runs", text: "Workflow Runs"},
         {url: "/admin/data/manager/drs", text: "DRS Objects"},
-    ], [fetchingPermission, hasPermission]);
+        {
+            url: "/admin/data/manager/access",
+            text: "Permissions",  // TODO: Access Management - when we can modify
+            // check if we have any viewPermissions in any grant, not just on RESOURCE_EVERYTHING
+            disabled: fetchingPermissions || !permissions.includes(viewPermissions),
+        },
+    ], [fetchingPermissions, permissions]);
 
     const selectedKeys = useMemo(() => matchingMenuKeys(menuItems), [menuItems, window.location.pathname]);
 

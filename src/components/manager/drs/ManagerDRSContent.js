@@ -121,6 +121,7 @@ const ManagerDRSContent = () => {
                     columns={DRS_COLUMNS}
                     dataSource={searchResults}
                     loading={loading}
+                    size="middle"
                     bordered={true}
                     expandedRowRender={({ id, description, checksums, access_methods: accessMethods, size }) => (
                         <div style={TABLE_NESTED_DESCRIPTIONS_STYLE} className="table-nested-ant-descriptions">
