@@ -243,11 +243,13 @@ FileUploadModal.propTypes = {
 const FileContentsModal = ({selectedFilePath, visible, onCancel}) => {
     const {tree, isFetching: treeLoading} = useSelector(state => state.dropBox);
 
+    // destroyOnClose in order to stop audio/video from playing & avoid memory leaks at the cost of re-fetching
     return <Modal
         visible={visible}
         title={selectedFilePath ? `${selectedFilePath.split("/").at(-1)} - contents` : ""}
         width={1080}
         footer={null}
+        destroyOnClose={true}
         onCancel={onCancel}
     >
         <DropBoxFileDisplay file={selectedFilePath} tree={tree} treeLoading={treeLoading} />
