@@ -67,8 +67,14 @@ const BiosampleDetail = ({ individual, biosample, handleExperimentClick }) => {
             <Descriptions.Item label="ID">
                 {biosample.id}
             </Descriptions.Item>
+            <Descriptions.Item label="Derived from ID">
+                {biosample.derived_from_id ? biosample.derived_from_id : EM_DASH}
+            </Descriptions.Item>
             <Descriptions.Item label="Sampled Tissue">
                 <OntologyTerm resourcesTuple={resourcesTuple} term={biosample.sampled_tissue} />
+            </Descriptions.Item>
+            <Descriptions.Item label="Sample Type">
+                <OntologyTerm resourcesTuple={resourcesTuple} term={biosample.sample_type} />
             </Descriptions.Item>
             <Descriptions.Item label="Procedure">
                 <BiosampleProcedure resourcesTuple={resourcesTuple} procedure={biosample.procedure} />
@@ -76,12 +82,23 @@ const BiosampleDetail = ({ individual, biosample, handleExperimentClick }) => {
             <Descriptions.Item label="Histological Diagnosis">
                 <OntologyTerm resourcesTuple={resourcesTuple} term={biosample.histological_diagnosis} />
             </Descriptions.Item>
+            <Descriptions.Item label="Pathological Stage">
+                <OntologyTerm resourcesTuple={resourcesTuple} term={biosample.pathological_stage} />
+            </Descriptions.Item>
             <Descriptions.Item label="Ind. Age At Collection">
                 {biosample.individual_age_at_collection
                     ? biosample.individual_age_at_collection.age ??
                     `Between ${biosample.individual_age_at_collection.start.age}` +
                     `and ${biosample.individual_age_at_collection.end.age}`
                     : EM_DASH}
+            </Descriptions.Item>
+            <Descriptions.Item label="Measurements">
+                {biosample.hasOwnProperty("measurements") &&
+                    Object.keys(biosample.measurements).length ? (
+                        <JsonView inputJson={biosample.measurements}/>
+                    ) : (
+                        EM_DASH
+                    )}
             </Descriptions.Item>
             <Descriptions.Item label="Extra Properties">
                 {biosample.hasOwnProperty("extra_properties") &&

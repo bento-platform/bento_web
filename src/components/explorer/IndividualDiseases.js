@@ -35,7 +35,11 @@ const IndividualDiseases = ({ individual }) => {
                     if (onset.hasOwnProperty("age") && Object.keys(onset.age).length) {
                         return <div>{onset.age.iso8601duration}</div>;
                     } else if (onset.hasOwnProperty("age_range") && Object.keys(onset.age_range).length) {
-                        return <div>{onset.age_range.start.iso8601duration} - {onset.age_range.end.iso8601duration}</div>;
+                        return (
+                            <div>
+                                {onset.age_range.start.iso8601duration} - {onset.age_range.end.iso8601duration}
+                            </div>
+                        );
                     } else if (onset.hasOwnProperty("ontology_class") && Object.keys(onset.ontology_class).length) {
                         return <OntologyTerm resourcesTuple={resourcesTuple} term={onset.ontology_class} />;
                     }
