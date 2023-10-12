@@ -30,6 +30,7 @@ import CsvDisplay from "./CsvDisplay";
 import ImageBlobDisplay from "./ImageBlobDisplay";
 import JsonDisplay from "./JsonDisplay";
 import VideoDisplay from "./VideoDisplay";
+import XlsxDisplay from "./XlsxDisplay";
 
 SyntaxHighlighter.registerLanguage("bash", bash);
 SyntaxHighlighter.registerLanguage("dockerfile", dockerfile);
@@ -92,10 +93,6 @@ const VIDEO_FILE_EXTENSIONS = [
 // TODO: ".bed",
 //  .bed files are basically TSVs, but they can have instructions and can be whitespace-delimited instead
 export const VIEWABLE_FILE_EXTENSIONS = [
-    // Tabular data
-    "csv",
-    "tsv",
-
     // Audio
     ...AUDIO_FILE_EXTENSIONS,
 
@@ -108,12 +105,19 @@ export const VIEWABLE_FILE_EXTENSIONS = [
     // Documents
     "pdf",
 
+    // Tabular data
+    "csv",
+    "tsv",
+    "xls",
+    "xlsx",
+
     // Code & text formats
     ...Object.keys(LANGUAGE_HIGHLIGHTERS),
 ];
 
 const DEFER_LOADING_FILE_EXTENSIONS = ["pdf"];  // Don't use a fetch() for these extensions
-const BINARY_FILE_EXTENSIONS = [...AUDIO_FILE_EXTENSIONS, ...IMAGE_FILE_EXTENSIONS, ...VIDEO_FILE_EXTENSIONS, "pdf"];
+const ARRAY_BUFFER_FILE_EXTENSIONS = ["xls", "xlsx"];
+const BLOB_FILE_EXTENSIONS = [...AUDIO_FILE_EXTENSIONS, ...IMAGE_FILE_EXTENSIONS, ...VIDEO_FILE_EXTENSIONS, "pdf"];
 
 const FileDisplay = ({ uri, fileName, loading }) => {
     const authHeader = useAuthorizationHeader();
@@ -154,7 +158,9 @@ const FileDisplay = ({ uri, fileName, loading }) => {
                 const r = await fetch(uri, { headers: authHeader });
                 if (r.ok) {
                     let content;
-                    if (BINARY_FILE_EXTENSIONS.includes(fileExt)) {
+                    if (ARRAY_BUFFER_FILE_EXTENSIONS.includes(fileExt)) {
+                        content = await r.arrayBuffer();
+                    } else if (BLOB_FILE_EXTENSIONS.includes(fileExt)) {
                         content = await r.blob();
                     } else {
                         const text = await r.text();
@@ -220,6 +226,9 @@ const FileDisplay = ({ uri, fileName, loading }) => {
                 return (
                     <CsvDisplay contents={fileContents[uri]} />
                 );
+            } else if (["xls", "xlsx"].includes(fileExt)) {
+                if (loadingFileContents) return <div />;
+                return <XlsxDisplay content={fileContents[uri]} />;
             } else if (AUDIO_FILE_EXTENSIONS.includes(fileExt)) {
                 if (loadingFileContents) return <div />;
                 return <AudioDisplay blob={fileContents[uri]} />;
@@ -232,9 +241,7 @@ const FileDisplay = ({ uri, fileName, loading }) => {
             } else if (fileExt === "json") {
                 const jsonSrc = fileContents[uri];
                 if (loadingFileContents || !jsonSrc) return <div/>;
-                return (
-                    <JsonDisplay jsonSrc={jsonSrc}/>
-                );
+                return <JsonDisplay jsonSrc={jsonSrc}/>;
             } else {  // if (textFormat)
                 return (
                     <SyntaxHighlighter
