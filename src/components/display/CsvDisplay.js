@@ -3,8 +3,11 @@ import PropTypes from "prop-types";
 import Papa from "papaparse";
 import { Alert, Table } from "antd";
 
+const TABLE_PAGINATION = { pageSize: 25 };
 const TABLE_SCROLL = { x: true };
 const DEFAULT_COLUMN = { key: "col" };
+
+const rowKey = (_, i) => `row${i}`;
 
 const CsvDisplay = ({ contents }) => {
     const [parsedData, setParsedData] = useState([]);
@@ -37,8 +40,6 @@ const CsvDisplay = ({ contents }) => {
         });
     }, [contents]);
 
-    const rowKey = useCallback((_, i) => `row${i}`, []);
-
     if (parseError) {
         return <Alert message="Parsing error" description={parseError} type="error" showIcon={true} />;
     }
@@ -48,7 +49,7 @@ const CsvDisplay = ({ contents }) => {
             size="small"
             bordered={true}
             showHeader={false}
-            pagination={false}
+            pagination={TABLE_PAGINATION}
             scroll={TABLE_SCROLL}
             loading={isParsing}
             columns={columns}
