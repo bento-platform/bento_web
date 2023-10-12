@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useMemo, useState } from "react";
-import { useAuthorizationHeader } from "../../lib/auth/utils";
+import PropTypes from "prop-types";
 import { Alert, Spin } from "antd";
 
 import fetch from "cross-fetch";
@@ -20,13 +20,16 @@ import {
     xml,
 } from "react-syntax-highlighter/dist/cjs/languages/hljs";
 
-import JsonDisplay from "./JsonDisplay";
-
 import "react-pdf/dist/esm/Page/AnnotationLayer.css";
 import "react-pdf/dist/esm/Page/TextLayer.css";
-import PropTypes from "prop-types";
+
+import { useAuthorizationHeader } from "../../lib/auth/utils";
+
+import AudioDisplay from "./AudioDisplay";
 import CsvDisplay from "./CsvDisplay";
 import ImageBlobDisplay from "./ImageBlobDisplay";
+import JsonDisplay from "./JsonDisplay";
+import VideoDisplay from "./VideoDisplay";
 
 SyntaxHighlighter.registerLanguage("bash", bash);
 SyntaxHighlighter.registerLanguage("dockerfile", dockerfile);
@@ -60,8 +63,16 @@ const LANGUAGE_HIGHLIGHTERS = {
     "CHANGELOG": "plaintext",
 };
 
-// TODO: ".bed",
-//  .bed files are basically TSVs, but they can have instructions and can be whitespace-delimited instead
+const AUDIO_FILE_EXTENSIONS = [
+    "3gp",
+    "aac",
+    "flac",
+    "m4a",
+    "mp3",
+    "ogg",
+    "wav",
+];
+
 const IMAGE_FILE_EXTENSIONS = [
     "apng",
     "avif",
@@ -73,13 +84,26 @@ const IMAGE_FILE_EXTENSIONS = [
     "svg",
     "webp",
 ];
+
+const VIDEO_FILE_EXTENSIONS = [
+    "mp4",
+];
+
+// TODO: ".bed",
+//  .bed files are basically TSVs, but they can have instructions and can be whitespace-delimited instead
 export const VIEWABLE_FILE_EXTENSIONS = [
     // Tabular data
     "csv",
     "tsv",
 
+    // Audio
+    ...AUDIO_FILE_EXTENSIONS,
+
     // Images
     ...IMAGE_FILE_EXTENSIONS,
+
+    // Videos
+    ...VIDEO_FILE_EXTENSIONS,
 
     // Documents
     "pdf",
@@ -89,7 +113,7 @@ export const VIEWABLE_FILE_EXTENSIONS = [
 ];
 
 const DEFER_LOADING_FILE_EXTENSIONS = ["pdf"];  // Don't use a fetch() for these extensions
-const BINARY_FILE_EXTENSIONS = [...IMAGE_FILE_EXTENSIONS, "pdf"];
+const BINARY_FILE_EXTENSIONS = [...AUDIO_FILE_EXTENSIONS, ...IMAGE_FILE_EXTENSIONS, ...VIDEO_FILE_EXTENSIONS, "pdf"];
 
 const FileDisplay = ({ uri, fileName, loading }) => {
     const authHeader = useAuthorizationHeader();
@@ -192,22 +216,22 @@ const FileDisplay = ({ uri, fileName, loading }) => {
                     </Document>
                 );
             } else if (["csv", "tsv"].includes(fileExt)) {
-                if (loadingFileContents) {
-                    return <div />;
-                }
+                if (loadingFileContents) return <div />;
                 return (
                     <CsvDisplay contents={fileContents[uri]} />
                 );
+            } else if (AUDIO_FILE_EXTENSIONS.includes(fileExt)) {
+                if (loadingFileContents) return <div />;
+                return <AudioDisplay blob={fileContents[uri]} />;
             } else if (IMAGE_FILE_EXTENSIONS.includes(fileExt)) {
-                if (loadingFileContents) {
-                    return <div />;
-                }
+                if (loadingFileContents) return <div />;
                 return <ImageBlobDisplay alt={fileName} blob={fileContents[uri]} />;
+            } else if (VIDEO_FILE_EXTENSIONS.includes(fileExt)) {
+                if (loadingFileContents) return <div />;
+                return <VideoDisplay blob={fileContents[uri]} />;
             } else if (fileExt === "json") {
                 const jsonSrc = fileContents[uri];
-                if (loadingFileContents || !jsonSrc) {
-                    return <div/>;
-                }
+                if (loadingFileContents || !jsonSrc) return <div/>;
                 return (
                     <JsonDisplay jsonSrc={jsonSrc}/>
                 );
