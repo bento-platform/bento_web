@@ -6,7 +6,6 @@ const ImageBlobDisplay = ({alt, blob}) => {
 
     useEffect(() => {
         if (imgRef.current && blob) {
-            console.log(blob);
             imgRef.current.src = URL.createObjectURL(blob);
         }
     }, [imgRef, blob]);
