@@ -17,7 +17,7 @@ import DatasetTreeSelect, { ID_FORMAT_PROJECT_DATASET } from "./DatasetTreeSelec
 import DropBoxTreeSelect from "./DropBoxTreeSelect";
 
 
-const getInputComponentAndOptions = ({ type, pattern, values, required, repeatable }) => {
+const getInputComponentAndOptions = ({ id, type, pattern, values, required, repeatable }) => {
     const dropBoxTreeNodeEnabled = ({ name, contents }) =>
         contents !== undefined || !pattern || (new RegExp(pattern)).test(name);
 
@@ -26,22 +26,23 @@ const getInputComponentAndOptions = ({ type, pattern, values, required, repeatab
         rules: [{ required: required ?? true }],
     };
 
+    const key = `input-${id}`;
     const isArray = type.endsWith("[]");
 
     switch (type) {
         case "string":
-            return [<Input />, options];
+            return [<Input key={key} />, options];
         case "string[]": {
             // TODO: string[] - need to be able to reselect if repeatable
-            return [<Select mode="tags" />, options];
+            return [<Select key={key} mode="tags" />, options];
         }
 
         case "number":
-            return [<Input type="number" />, options];
+            return [<Input key={key} type="number" />, options];
         // case "number[]":
 
         case "boolean":
-            return [<Checkbox />, { ...options, valuePropName: "checked" }];
+            return [<Checkbox key={key} />, { ...options, valuePropName: "checked" }];
 
         case "enum":
         case "enum[]": {
@@ -49,7 +50,7 @@ const getInputComponentAndOptions = ({ type, pattern, values, required, repeatab
 
             // TODO: enum[] - need to be able to reselect if repeatable
             return [
-                <Select mode={mode}>{values.map(v => <Select.Option key={v}>{v}</Select.Option>)}</Select>,
+                <Select key={key} mode={mode}>{values.map(v => <Select.Option key={v}>{v}</Select.Option>)}</Select>,
                 options,
             ];
         }
@@ -60,6 +61,7 @@ const getInputComponentAndOptions = ({ type, pattern, values, required, repeatab
             // TODO: Don't hard-code configured filesystem path for input files
             return [
                 <DropBoxTreeSelect
+                    key={key}
                     basePrefix={BENTO_DROP_BOX_FS_BASE_PATH}
                     multiple={isArray}
                     nodeEnabled={dropBoxTreeNodeEnabled}
@@ -70,15 +72,20 @@ const getInputComponentAndOptions = ({ type, pattern, values, required, repeatab
         case "directory":
         case "directory[]":
             return [
-                <DropBoxTreeSelect basePrefix={BENTO_DROP_BOX_FS_BASE_PATH} multiple={isArray} folderMode={true} />,
+                <DropBoxTreeSelect
+                    key={key}
+                    basePrefix={BENTO_DROP_BOX_FS_BASE_PATH}
+                    multiple={isArray}
+                    folderMode={true}
+                />,
                 options,
             ];
 
         case "project:dataset":
-            return [<DatasetTreeSelect idFormat={ID_FORMAT_PROJECT_DATASET} />, options];
+            return [<DatasetTreeSelect key={key} idFormat={ID_FORMAT_PROJECT_DATASET} />, options];
 
         default:
-            return [<Input />, options];
+            return [<Input key={key} />, options];
     }
 };
 
