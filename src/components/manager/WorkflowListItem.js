@@ -33,35 +33,13 @@ const ioTagWithType = (id, ioType, typeContent = "") => (
 );
 
 const WorkflowListItem = ({onClick, workflow}) => {
-    const {inputs, outputs, name, description, data_type: dt} = workflow;
+    const {inputs, name, description, data_type: dt} = workflow;
 
     const typeTag = dt ? <Tag key={dt}>{dt}</Tag> : null;
 
     const inputTags = inputs
         .filter(i => !i.hidden)  // Filter out hidden (often injected/FROM_CONFIG) inputs
         .map(i => ioTagWithType(i.id, i.type, i.type.startsWith("file") ? i.extensions.join(" / ") : ""));
-
-    const inputExtensions = Object.fromEntries(inputs
-        .filter(i => i.type.startsWith("file"))
-        .map(i => [i.id, i.extensions[0]]));  // TODO: What to do with more than one?
-
-    const outputTags = outputs.map(o => {
-        if (!o.value) console.error("Missing or invalid value prop for workflow output: ", o);
-
-        if (!o.type.startsWith("file")) return ioTagWithType(o.id, o.type);
-
-        const outputValue = o.value || "";
-        let formattedOutput = outputValue;
-
-        [...outputValue.matchAll(/{(.*)}/g)].forEach(([_, id]) => {
-            formattedOutput = formattedOutput.replace(`{${id}}`, {
-                ...inputExtensions,
-                "": o.hasOwnProperty("map_from_input") ? inputExtensions[o.map_from_input] : undefined,
-            }[id]);
-        });
-
-        return ioTagWithType(o.id, o.type, formattedOutput);
-    });
 
     const selectable = !!onClick;  // Can be selected if a click handler exists
 
@@ -80,10 +58,11 @@ const WorkflowListItem = ({onClick, workflow}) => {
             {inputTags}
         </div>
 
-        <div>
-            <span style={{fontWeight: "bold", marginRight: "1em"}}>Outputs:</span>
-            {outputTags}
-        </div>
+        {/* TODO: parse outputs from WDL. For now, we cannot list them, so we just don't show anything */}
+        {/*<div>*/}
+        {/*    <span style={{fontWeight: "bold", marginRight: "1em"}}>Outputs:</span>*/}
+        {/*    {outputTags}*/}
+        {/*</div>*/}
     </List.Item>;
 };
 
