@@ -7,21 +7,33 @@ import {nop} from "../../utils/misc";
 import {workflowPropTypesShape} from "../../propTypes";
 
 const TYPE_TAG_DISPLAY = {
-    file: {
-        color: "volcano",
-        icon: "file",
-    },
-    enum: {
-        color: "blue",
-        icon: "menu",
-    },
-    number: { // TODO: Break into int and float?
+    number: {
         color: "green",
         icon: "number",
     },
     string: {
         color: "purple",
         icon: "font-size",
+    },
+    boolean: {
+        color: "cyan",
+        icon: "check-square",
+    },
+    enum: {
+        color: "blue",
+        icon: "menu",
+    },
+    "project:dataset": {
+        color: "magenta",
+        icon: "database",
+    },
+    file: {
+        color: "volcano",
+        icon: "file",
+    },
+    directory: {
+        color: "orange",
+        icon: "folder",
     },
 };
 
@@ -38,18 +50,30 @@ const WorkflowListItem = ({onClick, workflow}) => {
     const typeTag = dt ? <Tag key={dt}>{dt}</Tag> : null;
 
     const inputTags = inputs
-        .filter(i => !i.hidden)  // Filter out hidden (often injected/FROM_CONFIG) inputs
-        .map(i => ioTagWithType(i.id, i.type, i.type.startsWith("file") ? i.extensions.join(" / ") : ""));
+        .filter(i => !i.hidden && !i.injected)  // Filter out hidden (often injected/FROM_CONFIG) inputs
+        .map(i =>
+            ioTagWithType(
+                i.id,
+                i.type,
+                i.type.startsWith("file")
+                    ? i.extensions ? (i.extensions.join(" / ")) : (i.pattern ?? "")
+                    : "",
+            ));
 
     const selectable = !!onClick;  // Can be selected if a click handler exists
 
     return <List.Item>
         <List.Item.Meta
             title={selectable
-                ? <a onClick={() => (onClick || nop)()}>
-                    {typeTag} {name}
-                    <Icon type="right" style={{marginLeft: "0.3rem"}} /></a>
-                : <span>{typeTag} {name}</span>}
+                ? <a onClick={() => (onClick || nop)()} style={{ display: "flex" }}>
+                    <span style={{ flex: 1 }}>
+                        {name}
+                        <Icon type="right" style={{marginLeft: "0.3rem"}} />
+                    </span><span>{typeTag}</span></a>
+                : <span style={{ display: "flex" }}>
+                    <span style={{ flex: 1 }}>{name}</span>
+                    <span>{typeTag}</span>
+                </span>}
             description={description || ""}
         />
 

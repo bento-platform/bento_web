@@ -12,9 +12,11 @@ import {
     STEP_INPUT,
     STEP_CONFIRM,
 } from "./workflowCommon";
+import WorkflowSelection from "./WorkflowSelection";
+import { workflowTypePropType } from "../../propTypes";
 
 const RunSetupWizard = ({
-    workflowSelection,
+    workflowType,
     workflowSelectionTitle,
     workflowSelectionDescription,
     confirmDisplay,
@@ -25,17 +27,15 @@ const RunSetupWizard = ({
     const [step, setStep] = useState(STEP_WORKFLOW_SELECTION);
     const [selectedWorkflow, setSelectedWorkflow] = useState(null);
 
-    // Extra values (tables etc. for ingestion)
-    const [workflowSelectionValues, setWorkflowSelectionValues] = useState({});
-
     const [inputs, setInputs] = useState({});
+    const [initialWorkflowFilterValues, setInitialWorkflowFilterValues] = useState(undefined);
     const [initialInputValues, setInitialInputValues] = useState({});
     const [inputFormFields, setInputFormFields] = useState({});
 
     useEffect(() => {
         const {
             step: newStep,
-            workflowSelectionValues: newWorkflowSelectionValues,
+            initialWorkflowFilterValues: newInitialWorkflowFilterValues,
             selectedWorkflow: newSelectedWorkflow,
             initialInputValues: newInitialInputValues,
         } = location?.state ?? {};
@@ -43,8 +43,8 @@ const RunSetupWizard = ({
         if (newStep !== undefined) {
             setStep(newStep);
         }
-        if (newWorkflowSelectionValues !== undefined) {
-            setWorkflowSelectionValues(newWorkflowSelectionValues);
+        if (newInitialWorkflowFilterValues !== undefined) {
+            setInitialWorkflowFilterValues(newInitialWorkflowFilterValues);
         }
         if (newSelectedWorkflow !== undefined) {
             setSelectedWorkflow(newSelectedWorkflow);
@@ -65,17 +65,17 @@ const RunSetupWizard = ({
     }, []);
 
     const handleRunWorkflow = useCallback(() => {
-        onSubmit({
-            workflowSelectionValues,
-            selectedWorkflow,
-            inputs,
-        });
+        onSubmit({ selectedWorkflow, inputs });
     }, [selectedWorkflow, inputs]);
 
     const getStepContents = useCallback(() => {
         switch (step) {
             case STEP_WORKFLOW_SELECTION:
-                return workflowSelection({workflowSelectionValues, setWorkflowSelectionValues, handleWorkflowClick});
+                return <WorkflowSelection
+                    workflowType={workflowType}
+                    initialFilterValues={initialWorkflowFilterValues}
+                    handleWorkflowClick={handleWorkflowClick}
+                />;
             case STEP_INPUT:
                 return <RunSetupInputForm
                     workflow={selectedWorkflow}
@@ -86,13 +86,12 @@ const RunSetupWizard = ({
                     onBack={() => setStep(STEP_WORKFLOW_SELECTION)}
                 />;
             case STEP_CONFIRM:
-                return confirmDisplay({selectedWorkflow, workflowSelectionValues, inputs, handleRunWorkflow});
+                return confirmDisplay({ selectedWorkflow, inputs, handleRunWorkflow });
             default:
                 return <div />;
         }
     }, [
         step,
-        workflowSelectionValues,
         inputs,
         selectedWorkflow,
         initialInputValues,
@@ -125,7 +124,7 @@ const RunSetupWizard = ({
     </Layout>;
 };
 RunSetupWizard.propTypes = {
-    workflowSelection: PropTypes.func,
+    workflowType: workflowTypePropType,
     workflowSelectionTitle: PropTypes.oneOfType([PropTypes.string, PropTypes.node]),
     workflowSelectionDescription: PropTypes.oneOfType([PropTypes.string, PropTypes.node]),
     confirmDisplay: PropTypes.func,

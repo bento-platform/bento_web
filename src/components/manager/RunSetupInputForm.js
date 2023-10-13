@@ -1,7 +1,7 @@
-import React, {useCallback} from "react";
+import React, { forwardRef, useCallback, useEffect, useState } from "react";
 import PropTypes from "prop-types";
 
-import { Button, Checkbox, Form, Icon, Input, Select } from "antd";
+import { Button, Checkbox, Form, Icon, Input, Select, Spin } from "antd";
 
 import {
     FORM_LABEL_COL,
@@ -15,6 +15,45 @@ import {nop} from "../../utils/misc";
 
 import DatasetTreeSelect, { ID_FORMAT_PROJECT_DATASET } from "./DatasetTreeSelect";
 import DropBoxTreeSelect from "./DropBoxTreeSelect";
+
+
+const EnumSelect = forwardRef(({ mode, onChange, values: valuesConfig, value }, ref) => {
+    const isUrl = typeof valuesConfig === "string";
+
+    const [values, setValues] = useState(isUrl ? [] : valuesConfig);
+    const [fetching, setFetching] = useState(false);
+
+    useEffect(() => {
+        if (isUrl) {
+            setFetching(true);
+            fetch(valuesConfig)
+                .then(r => r.json())
+                .then(data => {
+                    if (Array.isArray(data)) {
+                        setValues(data);
+                    }
+                    setFetching(false);
+                })
+                .catch(err => {
+                    console.error(err);
+                    setValues([]);
+                    setFetching(false);
+                });
+        }
+    }, [isUrl]);
+
+    return (
+        <Select
+            mode={mode}
+            ref={ref}
+            value={value}
+            onChange={onChange}
+            notFoundContent={fetching ? <Spin size="small" /> : null}
+        >
+            {values.map(v => <Select.Option key={v}>{v}</Select.Option>)}
+        </Select>
+    );
+});
 
 
 const getInputComponentAndOptions = ({ id, type, pattern, values, required, repeatable }) => {
@@ -49,10 +88,7 @@ const getInputComponentAndOptions = ({ id, type, pattern, values, required, repe
             const mode = (isArray && !repeatable) ? "multiple" : "default";
 
             // TODO: enum[] - need to be able to reselect if repeatable
-            return [
-                <Select key={key} mode={mode}>{values.map(v => <Select.Option key={v}>{v}</Select.Option>)}</Select>,
-                options,
-            ];
+            return [<EnumSelect key={key} mode={mode} values={values} />, options];
         }
 
         case "file":

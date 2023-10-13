@@ -198,6 +198,8 @@ export const workflowPropTypesShape = PropTypes.shape({
     })),
 });
 
+export const workflowTypePropType = PropTypes.oneOf(["ingestion", "analysis", "export"]);
+
 // Any components which include workflowStateToPropsMixin should include this as well in their prop types.
 export const workflowsStateToPropsMixinPropTypes = {
     workflows: PropTypes.shape({
