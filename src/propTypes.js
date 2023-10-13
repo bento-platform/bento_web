@@ -189,13 +189,12 @@ export const workflowPropTypesShape = PropTypes.shape({
     description: PropTypes.string,
     data_type: PropTypes.string,
     inputs: PropTypes.arrayOf(PropTypes.shape({
-        type: PropTypes.string,
-        id: PropTypes.string,
-        extensions: PropTypes.arrayOf(PropTypes.string),  // File type only
-    })),
-    outputs: PropTypes.arrayOf(PropTypes.shape({
-        type: PropTypes.string,
-        value: PropTypes.string,
+        type: PropTypes.string.isRequired,
+        id: PropTypes.string.isRequired,
+        pattern: PropTypes.string,  // File type only
+        required: PropTypes.bool,
+        injected: PropTypes.bool,
+        repeatable: PropTypes.bool,
     })),
 });
 

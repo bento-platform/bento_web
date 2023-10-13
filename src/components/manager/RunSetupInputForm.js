@@ -1,7 +1,7 @@
 import React, {useCallback} from "react";
 import PropTypes from "prop-types";
 
-import {Button, Form, Icon, Input, Select} from "antd";
+import { Button, Checkbox, Form, Icon, Input, Select } from "antd";
 
 import {
     FORM_LABEL_COL,
@@ -13,45 +13,72 @@ import {BENTO_DROP_BOX_FS_BASE_PATH} from "../../config";
 import {workflowPropTypesShape} from "../../propTypes";
 import {nop} from "../../utils/misc";
 
-import DatasetTreeSelect, {ID_FORMAT_DATASET, ID_FORMAT_PROJECT_DATASET} from "./DatasetTreeSelect";
+import DatasetTreeSelect, { ID_FORMAT_PROJECT_DATASET } from "./DatasetTreeSelect";
 import DropBoxTreeSelect from "./DropBoxTreeSelect";
 
 
-const getInputComponent = ({type, extensions, values}) => {
-    const dropBoxTreeNodeEnabled = ({name, contents}) => contents !== undefined ||
-        extensions.find(e => name.endsWith(e)) !== undefined;
+const getInputComponentAndOptions = ({ type, pattern, values, required, repeatable }) => {
+    const dropBoxTreeNodeEnabled = ({ name, contents }) =>
+        contents !== undefined || !pattern || (new RegExp(pattern)).test(name);
+
+    const options = {
+        // Default to requiring the field unless the "required" property is set on the input
+        rules: [{ required: required ?? true }],
+    };
+
+    const isArray = type.endsWith("[]");
 
     switch (type) {
+        case "string":
+            return [<Input />, options];
+        case "string[]": {
+            // TODO: string[] - need to be able to reselect if repeatable
+            return [<Select mode="tags" />, options];
+        }
+
+        case "number":
+            return [<Input type="number" />, options];
+        // case "number[]":
+
+        case "boolean":
+            return [<Checkbox />, { ...options, valuePropName: "checked" }];
+
+        case "enum":
+        case "enum[]": {
+            const mode = (isArray && !repeatable) ? "multiple" : "default";
+
+            // TODO: enum[] - need to be able to reselect if repeatable
+            return [
+                <Select mode={mode}>{values.map(v => <Select.Option key={v}>{v}</Select.Option>)}</Select>,
+                options,
+            ];
+        }
+
         case "file":
         case "file[]":
             // TODO: What about non-unique files?
             // TODO: Don't hard-code configured filesystem path for input files
-            return <DropBoxTreeSelect
-                nodeEnabled={dropBoxTreeNodeEnabled}
-                multiple={type === "file[]"}
-                basePrefix={BENTO_DROP_BOX_FS_BASE_PATH}
-            />;
+            return [
+                <DropBoxTreeSelect
+                    basePrefix={BENTO_DROP_BOX_FS_BASE_PATH}
+                    multiple={isArray}
+                    nodeEnabled={dropBoxTreeNodeEnabled}
+                />,
+                options,
+            ];
 
-        // TODO: directory
+        case "directory":
+        case "directory[]":
+            return [
+                <DropBoxTreeSelect basePrefix={BENTO_DROP_BOX_FS_BASE_PATH} multiple={isArray} folderMode={true} />,
+                options,
+            ];
 
         case "project:dataset":
-            return <DatasetTreeSelect idFormat={ID_FORMAT_PROJECT_DATASET} />;
-
-        case "dataset":
-            return <DatasetTreeSelect idFormat={ID_FORMAT_DATASET} />;
-
-        case "enum":
-            // TODO: enum[] - need to be able to reselect
-            return <Select>{values.map(v => <Select.Option key={v}>{v}</Select.Option>)}</Select>;
-
-        case "number":
-            return <Input type="number" />;
-
-        // TODO: string[], enum[], number[]
-        // TODO: drsObject, drsObject[]
+            return [<DatasetTreeSelect idFormat={ID_FORMAT_PROJECT_DATASET} />, options];
 
         default:
-            return <Input />;
+            return [<Input />, options];
     }
 };
 
@@ -68,15 +95,20 @@ const RunSetupInputForm = ({initialValues, form, onSubmit, workflow, onBack}) =>
 
     return <Form labelCol={FORM_LABEL_COL} wrapperCol={FORM_WRAPPER_COL} onSubmit={handleSubmit}>
         {[
-            ...workflow.inputs.filter(i => !i.hidden).map(i => (
-                <Form.Item label={i.id} key={i.id}>
-                    {form.getFieldDecorator(i.id, {
-                        initialValue: initialValues[i.id],  // undefined if not set
-                        // Default to requiring the field unless the "required" property is set on the input
-                        rules: [{required: i.required === undefined ? true : i.required}],
-                    })(getInputComponent(i))}
-                </Form.Item>
-            )),
+            ...workflow.inputs.filter(i => !i.hidden && !i.injected).map(i => {
+                const [component, options] = getInputComponentAndOptions(i);
+
+                return (
+                    <Form.Item label={i.id} key={i.id}>
+                        {form.getFieldDecorator(i.id, {
+                            initialValue: initialValues[i.id],  // undefined if not set
+                            // Default to requiring the field unless the "required" property is set on the input
+                            rules: [{ required: i.required === undefined ? true : i.required }],
+                            ...options,
+                        })(component)}
+                    </Form.Item>
+                );
+            }),
 
             <Form.Item key="_submit" wrapperCol={FORM_BUTTON_COL}>
                 {onBack ? <Button icon="left" onClick={handleBack}>Back</Button> : null}
