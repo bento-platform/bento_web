@@ -1,6 +1,6 @@
 import React, { useCallback, useEffect, useMemo, useState } from "react";
 import PropTypes from "prop-types";
-import { Alert, Spin } from "antd";
+import { Alert, Skeleton, Spin } from "antd";
 
 import fetch from "cross-fetch";
 
@@ -31,6 +31,7 @@ import ImageBlobDisplay from "./ImageBlobDisplay";
 import JsonDisplay from "./JsonDisplay";
 import VideoDisplay from "./VideoDisplay";
 import XlsxDisplay from "./XlsxDisplay";
+import MarkdownDisplay from "./MarkdownDisplay";
 
 SyntaxHighlighter.registerLanguage("bash", bash);
 SyntaxHighlighter.registerLanguage("dockerfile", dockerfile);
@@ -210,6 +211,8 @@ const FileDisplay = ({ uri, fileName, loading }) => {
                 />;
             }
 
+            const fc = fileContents[uri];  // undefined for PDF or if not loaded yet
+
             if (fileExt === "pdf") {  // Non-text, content isn't loaded a priori
                 return (
                     <Document file={uri} onLoadSuccess={onPdfLoad} onLoadError={onPdfFail} options={pdfOptions}>
@@ -224,25 +227,25 @@ const FileDisplay = ({ uri, fileName, loading }) => {
                 );
             } else if (["csv", "tsv"].includes(fileExt)) {
                 if (loadingFileContents) return <div />;
-                return (
-                    <CsvDisplay contents={fileContents[uri]} />
-                );
+                return <CsvDisplay contents={fc} />;
             } else if (["xls", "xlsx"].includes(fileExt)) {
                 if (loadingFileContents) return <div />;
-                return <XlsxDisplay content={fileContents[uri]} />;
+                return <XlsxDisplay content={fc} />;
             } else if (AUDIO_FILE_EXTENSIONS.includes(fileExt)) {
                 if (loadingFileContents) return <div />;
-                return <AudioDisplay blob={fileContents[uri]} />;
+                return <AudioDisplay blob={fc} />;
             } else if (IMAGE_FILE_EXTENSIONS.includes(fileExt)) {
                 if (loadingFileContents) return <div />;
-                return <ImageBlobDisplay alt={fileName} blob={fileContents[uri]} />;
+                return <ImageBlobDisplay alt={fileName} blob={fc} />;
             } else if (VIDEO_FILE_EXTENSIONS.includes(fileExt)) {
                 if (loadingFileContents) return <div />;
-                return <VideoDisplay blob={fileContents[uri]} />;
+                return <VideoDisplay blob={fc} />;
             } else if (fileExt === "json") {
-                const jsonSrc = fileContents[uri];
-                if (loadingFileContents || !jsonSrc) return <div/>;
-                return <JsonDisplay jsonSrc={jsonSrc}/>;
+                if (loadingFileContents || !fc) return <div/>;
+                return <JsonDisplay jsonSrc={fc}/>;
+            } else if (fileExt === "md") {
+                if (loadingFileContents) return <Skeleton loading={true} />;
+                return <MarkdownDisplay contents={fc} />;
             } else {  // if (textFormat)
                 return (
                     <SyntaxHighlighter
@@ -251,7 +254,7 @@ const FileDisplay = ({ uri, fileName, loading }) => {
                         customStyle={{fontSize: "12px"}}
                         showLineNumbers={true}
                     >
-                        {fileContents[uri] || ""}
+                        {fc || ""}
                     </SyntaxHighlighter>
                 );
             }
