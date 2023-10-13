@@ -330,7 +330,7 @@ const ManagerDropBoxContent = () => {
             // TODO
 
             // Find files where 1+ of the valid extensions (e.g. jpeg or jpg) match.
-            const compatibleFiles = filesLeft.filter(f => !!i.extensions.find(e => f.endsWith(e)));
+            const compatibleFiles = filesLeft.filter(f => !!i.extensions.find(e => f.toLowerCase().endsWith(e)));
             if (compatibleFiles.length === 0) {
                 workflowSupported = false;
                 break;
@@ -453,7 +453,7 @@ const ManagerDropBoxContent = () => {
     }, [dispatch, selectedEntries]);
 
     const selectedFileViewable = selectedEntries.length === 1 && !selectedFolder &&
-        VIEWABLE_FILE_EXTENSIONS.filter(e => firstSelectedEntry.endsWith(e)).length > 0;
+        VIEWABLE_FILE_EXTENSIONS.filter(e => firstSelectedEntry.toLowerCase().endsWith(e)).length > 0;
 
     const selectedFileInfoAvailable = selectedEntries.length === 1 && firstSelectedEntry in filesByPath;
     const fileForInfo = selectedFileInfoAvailable ? firstSelectedEntry : "";

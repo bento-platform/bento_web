@@ -132,7 +132,7 @@ const FileDisplay = ({ uri, fileName, loading }) => {
         httpHeaders: authHeader,
     }), [authHeader]);
 
-    const fileExt = fileName ? fileName.split(".").slice(-1)[0] : null;
+    const fileExt = fileName ? fileName.split(".").slice(-1)[0].toLowerCase() : null;
 
     useEffect(() => {
         // File changed, so reset the load error
