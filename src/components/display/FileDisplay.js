@@ -88,6 +88,7 @@ const IMAGE_FILE_EXTENSIONS = [
 
 const VIDEO_FILE_EXTENSIONS = [
     "mp4",
+    "webm",
 ];
 
 // TODO: ".bed",
