@@ -5,7 +5,7 @@ import { Button, Col, Row, Table, Typography } from "antd";
 import PropTypes from "prop-types";
 import { datasetPropTypesShape, projectPropTypesShape } from "../../propTypes";
 import { clearDatasetDataType } from "../../modules/metadata/actions";
-import { fetchDatasetDataTypesSummaryIfPossible } from "../../modules/datasets/actions";
+import { fetchDatasetDataTypesSummariesIfPossible } from "../../modules/datasets/actions";
 import genericConfirm from "../ConfirmationModal";
 import DataTypeSummaryModal from "./datatype/DataTypeSummaryModal";
 import { nop } from "../../utils/misc";
@@ -13,18 +13,18 @@ import { nop } from "../../utils/misc";
 const NA_TEXT = <span style={{ color: "#999", fontStyle: "italic" }}>N/A</span>;
 
 const DatasetDataTypes = React.memo(
-    ({isPrivate, project, dataset, onDatasetIngest, isFetchingDatasets }) => {
+    ({isPrivate, project, dataset, onDatasetIngest}) => {
         const dispatch = useDispatch();
-
-        const datasetDataTypes = useSelector((state) => state.datasetDataTypes.itemsById[dataset.identifier]);
-        const datasetSummaries = useSelector((state) => state.datasetSummaries.itemsById[dataset.identifier]);
+        const datasetDataTypes = useSelector((state) => Object.values(
+            state.datasetDataTypes.itemsByID[dataset.identifier]?.itemsByID ?? {}));
+        const datasetSummaries = useSelector((state) => state.datasetSummaries.itemsByID[dataset.identifier]);
+        const isFetchingDataset = useSelector(
+            (state) => state.datasetDataTypes.itemsByID[dataset.identifier]?.isFetching);
 
         const [datatypeSummaryVisible, setDatatypeSummaryVisible] = useState(false);
         const [selectedDataType, setSelectedDataType] = useState(null);
 
-        const selectedSummary = (selectedDataType !== null && datasetSummaries)
-            ? datasetSummaries[selectedDataType.id]
-            : {};
+        const selectedSummary = datasetSummaries?.data?.[selectedDataType?.id] ?? {};
 
         const handleClearDataType = useCallback((dataType) => {
             genericConfirm({
@@ -33,12 +33,12 @@ const DatasetDataTypes = React.memo(
                 "will be deleted permanently, and will no longer be available for exploration.",
                 onOk: async () => {
                     await dispatch(clearDatasetDataType(dataset.identifier, dataType.id));
-                    await dispatch(fetchDatasetDataTypesSummaryIfPossible(dataset.identifier));
+                    await dispatch(fetchDatasetDataTypesSummariesIfPossible(dataset.identifier));
                 },
             });
         }, [dispatch, dataset]);
 
-        const showDatatypeSummary = useCallback((dataType) => {
+        const showDataTypeSummary = useCallback((dataType) => {
             setSelectedDataType(dataType);
             setDatatypeSummaryVisible(true);
         }, []);
@@ -49,7 +49,7 @@ const DatasetDataTypes = React.memo(
                 key: "label",
                 render: (dt) =>
                     isPrivate ? (
-                    <a onClick={() => showDatatypeSummary(dt)}>
+                    <a onClick={() => showDataTypeSummary(dt)}>
                         {dt.label ?? NA_TEXT}
                     </a>
                     ) : dt.label ?? NA_TEXT,
@@ -81,11 +81,11 @@ const DatasetDataTypes = React.memo(
                             <Button
                                 type="danger"
                                 icon="delete"
-                                disabled={dt.count !== null && dt.count > 0}
+                                disabled={ !dt.count || dt.count && dt.count === 0}
                                 onClick={() => handleClearDataType(dt)}
                                 style={{ width: "100%" }}
                             >
-                                Clear Data
+                                Clear
                             </Button>
                         </Col>
                     </Row>
@@ -98,24 +98,24 @@ const DatasetDataTypes = React.memo(
 
         return (
             <>
-            <DataTypeSummaryModal
-                dataType={selectedDataType}
-                summary={selectedSummary}
-                visible={datatypeSummaryVisible}
-                onCancel={onDataTypeSummaryModalCancel}
-            />
+                <DataTypeSummaryModal
+                    dataType={selectedDataType}
+                    summary={selectedSummary}
+                    visible={datatypeSummaryVisible}
+                    onCancel={onDataTypeSummaryModalCancel}
+                />
 
-            <Typography.Title level={4}>
-                Data Types
-            </Typography.Title>
+                <Typography.Title level={4}>
+                    Data Types
+                </Typography.Title>
 
-            <Table
-                bordered
-                dataSource={datasetDataTypes}
-                rowKey="id"
-                columns={dataTypesColumns}
-                loading={isFetchingDatasets}
-            />
+                <Table
+                    bordered
+                    dataSource={datasetDataTypes}
+                    rowKey="id"
+                    columns={dataTypesColumns}
+                    loading={isFetchingDataset}
+                />
             </>
         );
     });
@@ -125,7 +125,6 @@ DatasetDataTypes.propTypes = {
     project: projectPropTypesShape,
     dataset: datasetPropTypesShape,
     onDatasetIngest: PropTypes.func,
-    isFetchingDatasets: PropTypes.bool,
 };
 
 export default DatasetDataTypes;

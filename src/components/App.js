@@ -1,10 +1,11 @@
-import React, {Suspense, lazy, useRef, useState, useEffect, useCallback} from "react";
-import {useDispatch, useSelector} from "react-redux";
-import {Redirect, Route, Switch, useHistory} from "react-router-dom";
+import React, { Suspense, lazy, useRef, useState, useEffect, useCallback } from "react";
+import { useDispatch, useSelector } from "react-redux";
+import { Redirect, Route, Switch, useHistory } from "react-router-dom";
+import { ChartConfigProvider } from "bento-charts";
 
 import * as io from "socket.io-client";
 
-import {Layout, Modal} from "antd";
+import { Layout, Modal } from "antd";
 
 import OwnerRoute from "./OwnerRoute";
 
@@ -19,12 +20,12 @@ import {
     tokenHandoff,
 } from "../modules/auth/actions";
 
-import {BENTO_URL_NO_TRAILING_SLASH} from "../config";
+import { BENTO_URL_NO_TRAILING_SLASH } from "../config";
 import eventHandler from "../events";
-import {createAuthURL, useHandleCallback} from "../lib/auth/performAuth";
-import {getIsAuthenticated} from "../lib/auth/utils";
+import { createAuthURL, useHandleCallback } from "../lib/auth/performAuth";
+import { getIsAuthenticated } from "../lib/auth/utils";
 import SessionWorker from "../session.worker";
-import {nop} from "../utils/misc";
+import { nop } from "../utils/misc";
 
 // Lazy-load notification drawer
 const NotificationDrawer = lazy(() => import("./notifications/NotificationDrawer"));
@@ -49,7 +50,7 @@ const popupOpenerAuthCallback = async (dispatch, _history, code, verifier) => {
 
     // Send the code and verifier to the main thread/page for authentication
     // IMPORTANT SECURITY: provide BENTO_URL as the target origin:
-    window.opener.postMessage({type: "authResult", code, verifier}, BENTO_URL_NO_TRAILING_SLASH);
+    window.opener.postMessage({ type: "authResult", code, verifier }, BENTO_URL_NO_TRAILING_SLASH);
 
     // We're inside a popup window which has successfully re-authenticated the user, meaning we need to
     // close ourselves to return focus to the original window.
@@ -70,12 +71,12 @@ const App = () => {
 
     const sessionWorker = useRef(null);
 
-    const {accessToken, idTokenContents} = useSelector(state => state.auth);
+    const { accessToken, idTokenContents } = useSelector((state) => state.auth);
     const isAuthenticated = getIsAuthenticated(idTokenContents);
 
-    const eventRelay = useSelector(state => state.services.eventRelay);
+    const eventRelay = useSelector((state) => state.services.eventRelay);
     const eventRelayUrl = eventRelay?.url ?? null;
-    const openIdConfig = useSelector(state => state.openIdConfiguration.data);
+    const openIdConfig = useSelector((state) => state.openIdConfiguration.data);
 
     const [lastIsAuthenticated, setLastIsAuthenticated] = useState(false);
 
@@ -84,9 +85,9 @@ const App = () => {
     const isInAuthPopup = (() => {
         try {
             const didCreateSignInPopup = localStorage.getItem(LS_SIGN_IN_POPUP);
-            return window.opener
-                && window.opener.origin === BENTO_URL_NO_TRAILING_SLASH
-                && didCreateSignInPopup === "true";
+            return (
+                window.opener && window.opener.origin === BENTO_URL_NO_TRAILING_SLASH && didCreateSignInPopup === "true"
+            );
         } catch {
             // If we are restricted from accessing the opener, we are not in an auth popup.
             return false;
@@ -101,10 +102,10 @@ const App = () => {
         if (windowMessageHandler.current) {
             window.removeEventListener("message", windowMessageHandler.current);
         }
-        windowMessageHandler.current = e => {
+        windowMessageHandler.current = (e) => {
             if (e.origin !== BENTO_URL_NO_TRAILING_SLASH) return;
             if (e.data?.type !== "authResult") return;
-            const {code, verifier} = e.data ?? {};
+            const { code, verifier } = e.data ?? {};
             if (!code || !verifier) return;
             localStorage.removeItem(LS_SIGN_IN_POPUP);
             dispatch(tokenHandoff(code, verifier));
@@ -118,7 +119,8 @@ const App = () => {
             console.debug(
                 `considering creating an event-relay connection: 
                 is authenticated? ${isAuthenticated} | 
-                have event relay? ${!!eventRelayUrl}`);
+                have event relay? ${!!eventRelayUrl}`,
+            );
 
             // Don't bother trying to create the event relay connection if the user isn't authenticated
             if (!isAuthenticated) return null;
@@ -136,9 +138,9 @@ const App = () => {
                 auth: {
                     token: accessToken,
                 },
-            });  // Connect to the main socket.io namespace on the server side
-            socket.on("events", message => eventHandler(message, history));
-            socket.on("connect_error", err => {
+            }); // Connect to the main socket.io namespace on the server side
+            socket.on("events", (message) => eventHandler(message, history));
+            socket.on("connect_error", (err) => {
                 console.error(`socket.io: connect_error - ${err.message}`);
             });
             return socket;
@@ -186,7 +188,7 @@ const App = () => {
 
     // TODO: Don't execute on focus if it's been checked recently
     useEffect(() => {
-        if (focusListener.current === handleUserChange) return;  // Same as before
+        if (focusListener.current === handleUserChange) return; // Same as before
         if (focusListener.current) window.removeEventListener("focus", focusListener.current);
         window.addEventListener("focus", handleUserChange);
         focusListener.current = handleUserChange;
@@ -237,7 +239,8 @@ const App = () => {
             signInWindow.current = window.open(
                 await createAuthURL(openIdConfig["authorization_endpoint"]),
                 "Bento Sign In",
-                `${SIGN_IN_WINDOW_FEATURES}, top=${popupTop}, left=${popupLeft}`);
+                `${SIGN_IN_WINDOW_FEATURES}, top=${popupTop}, left=${popupLeft}`,
+            );
         })();
     }, [signInWindow, openIdConfig]);
 
@@ -249,40 +252,52 @@ const App = () => {
         return <div>Authenticating...</div>;
     }
 
-    return <>
-        <Modal title="You have been signed out"
-               footer={null}
-               onCancel={() => {
-                   clearPingInterval();  // Stop pinging until the user decides to sign in again
-                   setSignedOutModal(false);  // Close the modal
-               }}
-               visible={signedOutModal}>
-            Please <a onClick={openSignInWindow}>sign in</a> (uses a popup window) to continue working.
-        </Modal>
-        <Layout style={{minHeight: "100vh"}}>
-            <Suspense fallback={<div />}>
-                <NotificationDrawer />
-            </Suspense>
-            <Suspense fallback={<Layout.Header />}>
-                <SiteHeader />
-            </Suspense>
-            <Layout.Content style={{margin, display: "flex", flexDirection: "column"}}>
-                <Suspense fallback={<SitePageLoading />}>
-                    <Switch>
-                        <Route path={CALLBACK_PATH} component={SitePageLoading} />
-                        <OwnerRoute path="/overview" component={OverviewContent} />
-                        <OwnerRoute path="/data/explorer" component={DataExplorerContent} />
-                        <OwnerRoute path="/cbioportal" component={CBioPortalContent} />
-                        <OwnerRoute path="/admin" component={AdminContent} />
-                        <OwnerRoute path="/notifications" component={NotificationsContent} />
-                        <OwnerRoute path="/profile" component={UserProfileContent} />
-                        <Redirect from="/" to="/overview" />
-                    </Switch>
-                </Suspense>
-            </Layout.Content>
-            <SiteFooter />
-        </Layout>
-    </>;
+    const threshold = useSelector((state) => state.explorer.otherThresholdPercentage) / 100;
+
+    return (
+        <>
+            <ChartConfigProvider
+                Lng="en"
+                translationMap={{ en: { Count: "Count", Other: "Other" } }}
+                globalThreshold={threshold}
+            >
+                <Modal
+                    title="You have been signed out"
+                    footer={null}
+                    onCancel={() => {
+                        clearPingInterval(); // Stop pinging until the user decides to sign in again
+                        setSignedOutModal(false); // Close the modal
+                    }}
+                    visible={signedOutModal}
+                >
+                    Please <a onClick={openSignInWindow}>sign in</a> (uses a popup window) to continue working.
+                </Modal>
+                <Layout style={{ minHeight: "100vh" }}>
+                    <Suspense fallback={<div />}>
+                        <NotificationDrawer />
+                    </Suspense>
+                    <Suspense fallback={<Layout.Header />}>
+                        <SiteHeader />
+                    </Suspense>
+                    <Layout.Content style={{ margin, display: "flex", flexDirection: "column" }}>
+                        <Suspense fallback={<SitePageLoading />}>
+                            <Switch>
+                                <Route path={CALLBACK_PATH} component={SitePageLoading} />
+                                <OwnerRoute path="/overview" component={OverviewContent} />
+                                <OwnerRoute path="/data/explorer" component={DataExplorerContent} />
+                                <OwnerRoute path="/cbioportal" component={CBioPortalContent} />
+                                <OwnerRoute path="/admin" component={AdminContent} />
+                                <OwnerRoute path="/notifications" component={NotificationsContent} />
+                                <OwnerRoute path="/profile" component={UserProfileContent} />
+                                <Redirect from="/" to="/overview" />
+                            </Switch>
+                        </Suspense>
+                    </Layout.Content>
+                    <SiteFooter />
+                </Layout>
+            </ChartConfigProvider>
+        </>
+    );
 };
 
 export default App;

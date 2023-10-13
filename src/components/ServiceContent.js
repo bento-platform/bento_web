@@ -40,7 +40,6 @@ const ServiceContent = () => {
                                 />
                             </Spin>
                         </Col>
-                        {/* TODO: Tables */}
                     </Row>
                     <Typography.Title level={3}>Services</Typography.Title>
                     <ServiceList />

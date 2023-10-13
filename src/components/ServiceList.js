@@ -1,13 +1,13 @@
-import React, {useCallback, useEffect, useMemo, useState} from "react";
+import React, {useMemo, useState} from "react";
 import { useSelector } from "react-redux";
-import PropTypes from "prop-types";
 
 import { Link } from "react-router-dom";
 
-import {Table, Typography, Tag, Icon, Button, Modal, Form, Input, Divider, Skeleton} from "antd";
+import {Table, Typography, Tag, Icon, Button} from "antd";
 
-import {getIsAuthenticated, useAuthorizationHeader} from "../lib/auth/utils";
-import JsonDisplay from "./JsonDisplay";
+import {getIsAuthenticated} from "../lib/auth/utils";
+
+import ServiceRequestModal from "./services/ServiceRequestModal";
 
 const SERVICE_KIND_STYLING = { fontFamily: "monospace" };
 
@@ -110,121 +110,23 @@ const serviceColumns = (isAuthenticated, setRequestModalService) => [
 ];
 /* eslint-enable react/prop-types */
 
-const ServiceRequestModal = ({service, onCancel}) => {
-    const bentoServicesByKind = useSelector(state => state.bentoServices.itemsByKind);
-    const serviceUrl = useMemo(() => bentoServicesByKind[service]?.url, [bentoServicesByKind, service]);
-
-    const [requestPath, setRequestPath] = useState("service-info");
-    const [requestLoading, setRequestLoading] = useState(false);
-    const [requestData, setRequestData] = useState(null);
-    const [requestIsJSON, setRequestIsJSON] = useState(false);
-
-    const [hasAttempted, setHasAttempted] = useState(false);
-
-    const authHeader = useAuthorizationHeader();
-
-    const performRequestModalGet = useCallback(() => {
-        if (!serviceUrl) {
-            setRequestData(null);
-            return;
-        }
-        (async () => {
-            setRequestLoading(true);
-
-            try {
-                const res = await fetch(`${serviceUrl}/${requestPath}`, {
-                    headers: authHeader,
-                });
-
-                if ((res.headers.get("content-type") ?? "").includes("application/json")) {
-                    const data = await res.json();
-                    setRequestIsJSON(true);
-                    setRequestData(data);
-                } else {
-                    const data = await res.text();
-                    setRequestIsJSON(false);
-                    setRequestData(data);
-                }
-            } finally {
-                setRequestLoading(false);
-            }
-        })();
-    }, [serviceUrl, requestPath, authHeader]);
-
-    useEffect(() => {
-        setRequestData(null);
-        setRequestIsJSON(false);
-        setRequestPath("service-info");
-        setHasAttempted(false);
-    }, [service]);
-
-    useEffect(() => {
-        if (!hasAttempted) {
-            performRequestModalGet();
-            setHasAttempted(true);
-        }
-    }, [hasAttempted, performRequestModalGet]);
-
-    return (
-        <Modal
-            visible={service !== null}
-            title={`${service}: make a request`}
-            footer={null}
-            width={960}
-            onCancel={onCancel}
-        >
-            <Form layout="inline" style={{display: "flex"}}>
-                <Form.Item style={{flex: 1}} wrapperCol={{span: 24}}>
-                    <Input
-                        addonBefore={(serviceUrl ?? "ERROR") + "/"}
-                        value={requestPath}
-                        disabled={!hasAttempted || requestLoading}
-                        onChange={e => setRequestPath(e.target.value)}
-                    />
-                </Form.Item>
-                <Form.Item>
-                    <Button type="primary" htmlFor="submit" onClick={e => {
-                        performRequestModalGet();
-                        e.preventDefault();
-                    }}>GET</Button>
-                </Form.Item>
-            </Form>
-            <Divider />
-            {requestLoading ? <Skeleton loading={true} /> : (
-                requestIsJSON
-                    ? <JsonDisplay jsonSrc={requestData} />
-                    : (
-                        <div style={{maxWidth: "100%", overflowX: "auto"}}>
-                            <pre>
-                                {((typeof requestData) === "string" || requestData === null)
-                                    ? requestData
-                                    : JSON.stringify(requestData)}
-                            </pre>
-                        </div>
-                    )
-            )}
-        </Modal>
-    );
-};
-ServiceRequestModal.propTypes = {
-    service: PropTypes.string,
-    onCancel: PropTypes.func,
-};
-
 const ServiceList = () => {
     const [requestModalService, setRequestModalService] = useState(null);
 
     const dataSource = useSelector((state) =>
-        Object.entries(state.bentoServices.itemsByKind).map(([kind, service]) => ({
-            ...service,
-            key: kind,
-            serviceInfo: state.services.itemsByKind[kind] ?? null,
-            status: {
-                status: kind in state.services.itemsByKind,
-                dataService: service.data_service,
-            },
-            loading: state.services.isFetching,
-        })),
+        Object.entries(state.bentoServices.itemsByKind).map(([kind, service]) => {
+            const serviceInfo = state.services.itemsByKind[kind] ?? null;
+            return {
+                ...service,
+                key: kind,
+                serviceInfo,
+                status: {
+                    status: kind in state.services.itemsByKind,
+                    dataService: serviceInfo?.bento?.dataService,
+                },
+                loading: state.services.isFetching,
+            };
+        }),
     );
 
     const isAuthenticated = useSelector(

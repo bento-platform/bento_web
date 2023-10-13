@@ -8,7 +8,7 @@ import { Layout, Input, Table, Descriptions, message } from "antd";
 import { LAYOUT_CONTENT_STYLE } from "../../../styles/layoutContent";
 import { useAuthorizationHeader } from "../../../lib/auth/utils";
 
-import DownloadButton from "../DownloadButton";
+import DownloadButton from "../../DownloadButton";
 
 const SEARCH_CONTAINER_STYLE = {
     maxWidth: 800,

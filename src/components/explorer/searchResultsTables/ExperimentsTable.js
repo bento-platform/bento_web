@@ -1,33 +1,33 @@
 import React from "react";
-import { Link } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
+import { useSelector } from "react-redux";
 import PropTypes from "prop-types";
-import ExplorerSearchResultsTable from "./ExplorerSearchResultsTable";
 
-const ExperimentRender = ({ experimentId, individual }) => {
-    const alternateIds = individual.alternate_ids ?? [];
-    const listRender = alternateIds.length ? `(${alternateIds.join(", ")})` : "";
+import { useSortedColumns } from "../hooks/explorerHooks";
 
+import BiosampleIDCell from "./BiosampleIDCell";
+import ExplorerSearchResultsTable from "../ExplorerSearchResultsTable";
+
+const ExperimentRender = React.memo(({ experimentId, individual }) => {
+    const location = useLocation();
     return (
         <>
             <Link
                 to={{
-                    pathname: `/data/explorer/individuals/${individual.id}/experiments`,
-                    hash: "#" + experimentId,
+                    pathname: `/data/explorer/individuals/${individual.id}/experiments/${experimentId}`,
                     state: { backUrl: location.pathname },
                 }}
             >
                 {experimentId}
-            </Link>{" "}
-            {listRender}
+            </Link>
         </>
     );
-};
+});
 
 ExperimentRender.propTypes = {
     experimentId: PropTypes.string.isRequired,
     individual: PropTypes.shape({
         id: PropTypes.string.isRequired,
-        alternate_ids: PropTypes.arrayOf(PropTypes.string),
     }).isRequired,
 };
 
@@ -49,7 +49,9 @@ const SEARCH_RESULT_COLUMNS_EXP = [
     {
         title: "Biosample",
         dataIndex: "biosampleId",
-        render: (bioType) => <>{bioType}</>,
+        render: (biosampleId, record) => (
+            <BiosampleIDCell biosample={biosampleId} individualId={record.individual.id} />
+        ),
         sorter: (a, b) => a.biosampleId.localeCompare(b.biosampleId),
         sortDirections: ["descend", "ascend", "descend"],
     },
@@ -69,9 +71,26 @@ const SEARCH_RESULT_COLUMNS_EXP = [
     },
 ];
 
-const ExperimentsTable = ({ data }) => {
+const ExperimentsTable = ({ data, datasetID }) => {
+    const tableSortOrder = useSelector(
+        (state) => state.explorer.tableSortOrderByDatasetID[datasetID]?.["experiments"],
+    );
+
+    const { sortedData, columnsWithSortOrder } = useSortedColumns(
+        data,
+        tableSortOrder,
+        SEARCH_RESULT_COLUMNS_EXP,
+    );
     return (
-        <ExplorerSearchResultsTable dataStructure={SEARCH_RESULT_COLUMNS_EXP} data={data} activeTab="experiments" />
+        <ExplorerSearchResultsTable
+            dataStructure={SEARCH_RESULT_COLUMNS_EXP}
+            data={sortedData}
+            sortColumnKey={tableSortOrder?.sortColumnKey}
+            sortOrder={tableSortOrder?.sortOrder}
+            activeTab="experiments"
+            columns={columnsWithSortOrder}
+            currentPage={tableSortOrder?.currentPage}
+        />
     );
 };
 
@@ -81,13 +100,13 @@ ExperimentsTable.propTypes = {
             experimentId: PropTypes.string.isRequired,
             individual: PropTypes.shape({
                 id: PropTypes.string.isRequired,
-                alternate_ids: PropTypes.arrayOf(PropTypes.string),
             }).isRequired,
             biosampleId: PropTypes.string.isRequired,
             studyType: PropTypes.string.isRequired,
             experimentType: PropTypes.string.isRequired,
         }),
     ).isRequired,
+    datasetID: PropTypes.string.isRequired,
 };
 
 export default ExperimentsTable;

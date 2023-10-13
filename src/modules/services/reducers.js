@@ -1,22 +1,10 @@
-import {objectWithoutProp} from "../../utils/misc";
-
 import {
     LOADING_ALL_SERVICE_DATA,
 
     FETCH_BENTO_SERVICES,
     FETCH_SERVICES,
-
-    FETCH_SERVICE_DATA_TYPES,
-    LOADING_SERVICE_DATA_TYPES,
-
-    FETCH_SERVICE_TABLES,
-    LOADING_SERVICE_TABLES,
-
-    ADDING_SERVICE_TABLE,
-    DELETING_SERVICE_TABLE,
-
-    FETCH_SERVICE_WORKFLOWS,
-    LOADING_SERVICE_WORKFLOWS,
+    FETCH_DATA_TYPES,
+    FETCH_WORKFLOWS,
 } from "./actions";
 import {normalizeServiceInfo} from "../../utils/serviceInfo";
 
@@ -133,240 +121,23 @@ export const services = (
 
 export const serviceDataTypes = (
     state = {
-        isFetchingAll: false,
+        isFetching: false,
         itemsByID: {},
-        dataTypesByServiceID: {},
-        dataTypesByServiceArtifact: {},
-        dataTypesByServiceKind: {},
-    },
-    action,
-) => {
-    switch (action.type) {
-        case LOADING_SERVICE_DATA_TYPES.BEGIN:
-            return {...state, isFetchingAll: true};
-
-        case LOADING_SERVICE_DATA_TYPES.END:
-        case LOADING_SERVICE_DATA_TYPES.TERMINATE:
-            return {...state, isFetchingAll: false};
-
-        case FETCH_SERVICE_DATA_TYPES.REQUEST: {
-            const {serviceInfo} = action;
-            const kind = serviceInfo.bento?.serviceKind ?? serviceInfo.type.artifact;
-            return {
-                ...state,
-                dataTypesByServiceID: {
-                    ...state.dataTypesByServiceID,
-                    [serviceInfo.id]: {
-                        ...(state.dataTypesByServiceID[serviceInfo.id] ?? {items: null, itemsByID: null}),
-                        isFetching: true,
-                    },
-                },
-                dataTypesByServiceArtifact: {
-                    ...state.dataTypesByServiceArtifact,
-                    [serviceInfo.type.artifact]: {
-                        ...(state.dataTypesByServiceArtifact[serviceInfo.type.artifact] ??
-                            {items: null, itemsByID: null}),
-                        isFetching: true,
-                    },
-                },
-                dataTypesByServiceKind: {
-                    ...state.dataTypesByServiceKind,
-                    [kind]: {
-                        ...(state.dataTypesByServiceKind[kind] ?? {items: null, itemsByID: null}),
-                        isFetching: true,
-                    },
-                },
-            };
-        }
-
-        case FETCH_SERVICE_DATA_TYPES.RECEIVE: {
-            const {serviceInfo} = action;
-            const artifact = serviceInfo.type.artifact;
-            const kind = serviceInfo.bento?.serviceKind ?? artifact;
-            const itemsByID = Object.fromEntries(action.data.map(d => [d.id, d]));
-            return {
-                ...state,
-                itemsByID: {
-                    ...state.itemsByID,
-                    ...itemsByID,
-                },
-                dataTypesByServiceID: {
-                    ...state.dataTypesByServiceID,
-                    [serviceInfo.id]: {items: action.data, itemsByID, isFetching: false},
-                },
-                dataTypesByServiceArtifact: {
-                    ...state.dataTypesByServiceArtifact,
-                    [artifact]: {items: action.data, itemsByID, isFetching: false},
-                },
-                dataTypesByServiceKind: {
-                    ...state.dataTypesByServiceKind,
-                    [kind]: {items: action.data, itemsByID, isFetching: false},
-                },
-                lastUpdated: action.receivedAt,
-            };
-        }
-
-        case FETCH_SERVICE_DATA_TYPES.ERROR: {
-            const {serviceInfo} = action;
-            const artifact = serviceInfo.type.artifact;
-            const kind = serviceInfo.bento?.serviceKind ?? artifact;
-            return {
-                ...state,
-                dataTypesByServiceID: {
-                    ...state.dataTypesByServiceID,
-                    [action.serviceID]: {
-                        ...(state.dataTypesByServiceID[serviceInfo.id] ?? {items: null, itemsByID: null}),
-                        isFetching: false,
-                    },
-                },
-                dataTypesByServiceArtifact: {
-                    ...state.dataTypesByServiceArtifact,
-                    [artifact]: {
-                        ...(state.dataTypesByServiceArtifact[artifact] ?? {items: null, itemsByID: null}),
-                        isFetching: false,
-                    },
-                },
-                dataTypesByServiceKind: {
-                    ...state.dataTypesByServiceArtifact,
-                    [kind]: {
-                        ...(state.dataTypesByServiceArtifact[kind] ?? {items: null, itemsByID: null}),
-                        isFetching: false,
-                    },
-                },
-            };
-        }
-
-        default:
-            return state;
-    }
-};
-
-export const serviceTables = (
-    state = {
-        isFetchingAll: false,
-        isCreating: false,
-        isDeleting: false,
         items: [],
-        itemsByServiceID: {},
     },
     action,
 ) => {
     switch (action.type) {
-        case LOADING_SERVICE_TABLES.BEGIN:
-            return {...state, isFetchingAll: true};
-
-        case LOADING_SERVICE_TABLES.END:
-        case LOADING_SERVICE_TABLES.TERMINATE:
-            return {...state, isFetchingAll: false};
-
-        case FETCH_SERVICE_TABLES.REQUEST: {
-            const {serviceInfo} = action;
+        case FETCH_DATA_TYPES.REQUEST:
+            return {...state, isFetching: true};
+        case FETCH_DATA_TYPES.RECEIVE:
             return {
                 ...state,
-                itemsByServiceID: {
-                    ...state.itemsByServiceID,
-                    [serviceInfo.id]: {
-                        ...(state.itemsByServiceID[serviceInfo.id] ?? {}),
-                        isFetching: true,
-                    },
-                },
+                items: action.data,
+                itemsByID: Object.fromEntries(action.data.map(dt => [dt.id, dt])),
             };
-        }
-
-        case FETCH_SERVICE_TABLES.RECEIVE: {
-            const {serviceInfo: {id: serviceID}, data, dataTypeID} = action;
-
-            const newTables = data.map(t => ({
-                ...t,
-                service_id: serviceID,
-                data_type: dataTypeID,
-            })).filter(t =>
-                !(state.itemsByServiceID[serviceID]?.tablesByID ?? {}).hasOwnProperty(t.id));
-
-            return {
-                ...state,
-                items: [...state.items, ...newTables],
-                itemsByServiceID: {
-                    ...state.itemsByServiceID,
-                    [serviceID]: {
-                        ...(state.itemsByServiceID[serviceID] ?? {}),
-                        isFetching: false,
-                        tables: [
-                            ...(state.itemsByServiceID[serviceID]?.tables ?? []),
-                            ...data,
-                        ],
-                        tablesByID: {
-                            ...(state.itemsByServiceID[serviceID]?.tablesByID ?? {}),
-                            ...Object.fromEntries(newTables.map(t => [t.id, t])),
-                        },
-                    },
-                },
-            };
-        }
-
-        case FETCH_SERVICE_TABLES.ERROR: {
-            const {serviceInfo: {id: serviceID}} = action;
-            return {
-                ...state,
-                itemsByServiceID: {
-                    ...state.itemsByServiceID,
-                    [serviceID]: {
-                        ...(state.itemsByServiceID[serviceID] ?? {}),
-                        isFetching: false,
-                    },
-                },
-            };
-        }
-
-        case ADDING_SERVICE_TABLE.BEGIN:
-            return {...state, isCreating: true};
-
-        case ADDING_SERVICE_TABLE.END: {
-            const {serviceInfo: {id: serviceID}, table} = action;
-            return {
-                ...state,
-                itemsByServiceID: {
-                    ...state.itemsByServiceID,
-                    [serviceID]: {
-                        ...(state.itemsByServiceID[serviceID] ?? {}),
-                        tables: [...(state.itemsByServiceID[serviceID]?.tables ?? []), table],
-                        tablesByID: {
-                            ...(state.itemsByServiceID[serviceID]?.tablesByID ?? {}),
-                            [table.id]: table,
-                        },
-                    },
-                },
-            };
-        }
-
-        case ADDING_SERVICE_TABLE.TERMINATE:
-            return {...state, isCreating: false};
-
-        case DELETING_SERVICE_TABLE.BEGIN:
-            return {...state, isDeleting: true};
-
-        case DELETING_SERVICE_TABLE.END: {
-            const {serviceInfo: {id: serviceID}, tableID} = action;
-            return {
-                ...state,
-                isDeleting: false,
-                itemsByServiceID: {
-                    ...state.itemsByServiceID,
-                    [serviceID]: {
-                        ...(state.itemsByServiceID[serviceID] ?? {}),
-                        tables: (state.itemsByServiceID[serviceID]?.tables ?? [])
-                            .filter(t => t.id !== tableID),
-                        tablesByID: objectWithoutProp(
-                            (state.itemsByServiceID[serviceID]?.tablesByID ?? {}),
-                            tableID,
-                        ),
-                    },
-                },
-            };
-        }
-
-        case DELETING_SERVICE_TABLE.TERMINATE:
-            return {...state, isDeleting: false};
+        case FETCH_DATA_TYPES.FINISH:
+            return {...state, isFetching: false};
 
         default:
             return state;
@@ -375,47 +146,24 @@ export const serviceTables = (
 
 export const serviceWorkflows = (
     state = {
-        isFetchingAll: false,
-        workflowsByServiceID: {},
+        isFetching: false,
+        items: {},  // by purpose and then by workflow ID
     },
     action,
 ) => {
     switch (action.type) {
-        case LOADING_SERVICE_WORKFLOWS.BEGIN:
-            return {...state, isFetchingAll: true};
-
-        case LOADING_SERVICE_WORKFLOWS.END:
-        case LOADING_SERVICE_WORKFLOWS.TERMINATE:
-            return {...state, isFetchingAll: false};
-
-        case FETCH_SERVICE_WORKFLOWS.REQUEST: {
-            const {serviceInfo: {id: serviceID}} = action;
+        case FETCH_WORKFLOWS.REQUEST:
+            return {...state, isFetching: true};
+        case FETCH_WORKFLOWS.RECEIVE:
             return {
                 ...state,
-                workflowsByServiceID: {
-                    ...state.workflowsByServiceID,
-                    [serviceID]: {
-                        isFetching: true,
-                        ...(state.workflowsByServiceID[serviceID] ?? {workflows: null}),
-                    },
-                },
+                items: action.data,
             };
-        }
-
-        case FETCH_SERVICE_WORKFLOWS.RECEIVE: {
-            const {serviceInfo: {id: serviceID}, data} = action;
+        case FETCH_WORKFLOWS.FINISH:
             return {
                 ...state,
                 isFetching: false,
-                workflowsByServiceID: {
-                    ...state.workflowsByServiceID,
-                    [serviceID]: {isFetching: false, workflows: data},
-                },
             };
-        }
-
-        case FETCH_SERVICE_WORKFLOWS.ERROR:
-            return {...state, isFetching: false};
 
         default:
             return state;

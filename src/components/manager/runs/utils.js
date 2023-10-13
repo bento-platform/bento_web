@@ -7,7 +7,7 @@ import {Tag} from "antd";
 export const RUN_REFRESH_TIMEOUT = 7500;
 
 
-export const renderDate = date => date === "" ? "" : new Date(Date.parse(date)).toLocaleString("en-CA");
+export const renderDate = date => date ? new Date(Date.parse(date)).toLocaleString("en-CA") : "";
 
 export const sortDate = (a, b, dateProperty) =>
     (new Date(Date.parse(a[dateProperty])).getTime() || Infinity) -

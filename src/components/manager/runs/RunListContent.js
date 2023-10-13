@@ -4,8 +4,9 @@ import PropTypes from "prop-types";
 
 import { Table, Typography } from "antd";
 
-import { fetchAllRunDetailsIfNeeded } from "../../../modules/wes/actions";
+import LastIngestionTable from "./RunLastContent";
 
+import { fetchAllRunDetailsIfNeeded } from "../../../modules/wes/actions";
 import { RUN_REFRESH_TIMEOUT, RUN_TABLE_COLUMNS } from "./utils";
 
 class RunListContent extends Component {
@@ -31,19 +32,22 @@ class RunListContent extends Component {
     // TODO: Loading for individual rows
     render() {
         return (
-            <>
-                <Typography.Title level={2}>Latest Ingested Files</Typography.Title>
-                {/* TODO: organize last ingestions by datasets */}
-                {/* <LastIngestionTable /> */}
-                <Typography.Title level={2}>Workflow Runs</Typography.Title>
-                <Table
-                    bordered={true}
-                    columns={RUN_TABLE_COLUMNS}
-                    dataSource={this.props.runs}
-                    loading={this.props.servicesFetching || this.props.runsFetching}
-                    rowKey="run_id"
-                />
-            </>
+            <div style={{display: "flex", flexDirection: "column", gap: 24}}>
+                <div>
+                    <Typography.Title level={2}>Latest Ingested Files</Typography.Title>
+                    <LastIngestionTable />
+                </div>
+                <div>
+                    <Typography.Title level={2}>Workflow Runs</Typography.Title>
+                    <Table
+                        bordered={true}
+                        columns={RUN_TABLE_COLUMNS}
+                        dataSource={this.props.runs}
+                        loading={this.props.servicesFetching || this.props.runsFetching}
+                        rowKey="run_id"
+                    />
+                </div>
+            </div>
         );
     }
 }

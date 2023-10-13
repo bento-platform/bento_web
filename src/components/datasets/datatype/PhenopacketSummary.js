@@ -8,10 +8,10 @@ import { summaryPropTypesShape } from "../../../propTypes";
 import { VICTORY_PIE_LABEL_PROPS, VICTORY_PIE_PROPS } from "../../../styles/victory";
 
 const PhenopacketSummary = ({ summary }) => {
-    const individualsBySex = Object.entries(summary.data_type_specific.individuals.sex)
+    const individualsBySex = Object.entries(summary.data_type_specific?.individuals?.sex ?? {})
         .filter(e => e[1] > 0)
         .map(([x, y]) => ({ x, y }));
-    const individualsByKaryotype = Object.entries(summary.data_type_specific.individuals.karyotypic_sex)
+    const individualsByKaryotype = Object.entries(summary.data_type_specific?.individuals?.karyotypic_sex ?? {})
         .filter(e => e[1] > 0)
         .map(([x, y]) => ({ x, y }));
     return <>
@@ -19,9 +19,9 @@ const PhenopacketSummary = ({ summary }) => {
         <Row gutter={16}>
             <Col span={8}><Statistic title="Phenopackets" value={summary.count} /></Col>
             <Col span={8}>
-                <Statistic title="Biosamples" value={summary.data_type_specific.biosamples.count} /></Col>
+                <Statistic title="Biosamples" value={summary.data_type_specific?.biosamples?.count ?? "N/A"} /></Col>
             <Col span={8}>
-                <Statistic title="Individuals" value={summary.data_type_specific.individuals.count} /></Col>
+                <Statistic title="Individuals" value={summary.data_type_specific?.individuals?.count ?? "N/A"} /></Col>
         </Row>
         {(individualsBySex.length > 0 && individualsByKaryotype.length > 0) ? (
             <>

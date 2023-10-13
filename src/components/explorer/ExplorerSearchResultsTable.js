@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from "react";
+import React, {useState, useMemo, useCallback} from "react";
 import PropTypes from "prop-types";
 import { useParams } from "react-router-dom";
 import { useSelector, useDispatch } from "react-redux";
@@ -12,13 +12,21 @@ import {
     performIndividualsDownloadCSVIfPossible,
     performBiosamplesDownloadCSVIfPossible,
     performExperimentsDownloadCSVIfPossible,
+    setTableSortOrder,
 } from "../../modules/explorer/actions";
 
 const PAGE_SIZE = 25;
 
-const ExplorerSearchResultsTable = ({ data, activeTab, ...props }) => {
+const ExplorerSearchResultsTable = ({
+    data,
+    activeTab,
+    columns,
+    currentPage: initialCurrentPage,
+    sortOrder,
+    sortColumnKey,
+}) => {
     const { dataset } = useParams();
-    const [currentPage, setCurrentPage] = useState(1);
+    const [currentPage, setCurrentPage] = useState(initialCurrentPage || 1);
     const [numResults] = useState(data.length);
 
     const [summaryModalVisible, setSummaryModalVisible] = useState(false);
@@ -36,9 +44,11 @@ const ExplorerSearchResultsTable = ({ data, activeTab, ...props }) => {
     const fetchingSearch = useSelector((state) => state.explorer.fetchingSearchByDatasetID[dataset] || false);
     const dispatch = useDispatch();
 
-    const handleSetSelectedRows = (...args) => dispatch(setSelectedRows(dataset, ...args));
+    const handleSetSelectedRows = useCallback(
+        (...args) => dispatch(setSelectedRows(dataset, ...args)),
+        [dispatch, dataset]);
 
-    const handlePerformIndividualsDownloadCSVIfPossible = (...args) => {
+    const handlePerformDownloadCSVIfPossible = useCallback((...args) => {
         if (activeTab === "individuals") {
             return dispatch(performIndividualsDownloadCSVIfPossible(dataset, ...args));
         }
@@ -48,19 +58,19 @@ const ExplorerSearchResultsTable = ({ data, activeTab, ...props }) => {
         if (activeTab === "experiments") {
             return dispatch(performExperimentsDownloadCSVIfPossible(dataset, ...args));
         }
-    };
+    }, [dispatch, dataset, activeTab]);
 
-    const onPageChange = (pageObj) => {
+    const onPageChange = useCallback((pageObj, filters, sorter) => {
         setCurrentPage(pageObj.current);
-    };
+        dispatch(setTableSortOrder(dataset, sorter.field, sorter.order, activeTab, pageObj.current));
+    }, [dispatch, dataset, activeTab]);
 
-    const tableStyle = {
+    const tableStyle = useMemo(() => ({
         opacity: fetchingSearch ? 0.5 : 1,
         pointerEvents: fetchingSearch ? "none" : "auto",
-    };
+    }), [fetchingSearch]);
 
-
-    const rowSelection = {
+    const rowSelection = useMemo(() => ({
         type: "checkbox",
         selectedRowKeys: selectedRows,
         onChange: (selectedRowKeys) => {
@@ -81,7 +91,15 @@ const ExplorerSearchResultsTable = ({ data, activeTab, ...props }) => {
                 onSelect: () => handleSetSelectedRows([]),
             },
         ],
-    };
+    }), [selectedRows, data, handleSetSelectedRows]);
+
+    const sortedInfo = useMemo(
+        () => ({
+            order: sortOrder,
+            columnKey: sortColumnKey,
+        }),
+        [sortOrder, sortColumnKey],
+    );
 
     return (
         <div>
@@ -107,7 +125,7 @@ const ExplorerSearchResultsTable = ({ data, activeTab, ...props }) => {
                         icon="export"
                         style={{ marginRight: "8px" }}
                         loading={isFetchingDownload}
-                        onClick={() => handlePerformIndividualsDownloadCSVIfPossible(selectedRows, data)}
+                        onClick={() => handlePerformDownloadCSVIfPossible(selectedRows, data)}
                     >
                         Export as CSV
                     </Button>
@@ -132,8 +150,9 @@ const ExplorerSearchResultsTable = ({ data, activeTab, ...props }) => {
                     bordered
                     disabled={fetchingSearch}
                     size="middle"
-                    columns={props.dataStructure}
+                    columns={columns}
                     dataSource={data || []}
+                    sortedInfo={sortedInfo}
                     onChange={onPageChange}
                     pagination={{
                         pageSize: PAGE_SIZE,
@@ -150,29 +169,13 @@ const ExplorerSearchResultsTable = ({ data, activeTab, ...props }) => {
     );
 };
 
-ExplorerSearchResultsTable.defaultProps = {
-    fetchingSearch: false,
-    searchResults: null,
-    selectedRows: [],
-    dataStructure: [],
-    setSelectedRows: () => {},
-    performIndividualsDownloadCSVIfPossible: () => {},
-    isFetchingDownload: false,
-    type: "",
-    data: [],
-};
-
 ExplorerSearchResultsTable.propTypes = {
-    fetchingSearch: PropTypes.bool,
-    searchResults: PropTypes.object,
-    selectedRows: PropTypes.arrayOf(PropTypes.string),
-    dataStructure: PropTypes.arrayOf(PropTypes.object),
-    setSelectedRows: PropTypes.func.isRequired,
-    isFetchingDownload: PropTypes.bool,
-    performIndividualsDownloadCSVIfPossible: PropTypes.func.isRequired,
-    type: PropTypes.string,
     data: PropTypes.arrayOf(PropTypes.object),
     activeTab: PropTypes.string.isRequired,
+    columns: PropTypes.arrayOf(PropTypes.object).isRequired,
+    sortOrder: PropTypes.string,
+    sortColumnKey: PropTypes.string,
+    currentPage: PropTypes.number,
 };
 
 export default ExplorerSearchResultsTable;

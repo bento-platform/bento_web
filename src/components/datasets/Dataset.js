@@ -13,8 +13,8 @@ import {
 } from "../../modules/metadata/actions";
 
 import {
-    fetchDatasetDataTypesSummaryIfPossible,
-    fetchDatasetSummaryIfPossible,
+    fetchDatasetDataTypesSummariesIfPossible,
+    fetchDatasetSummariesIfPossible,
 } from "../../modules/datasets/actions";
 
 import {INITIAL_DATA_USE_VALUE} from "../../duo";
@@ -76,7 +76,6 @@ class Dataset extends Component {
             contact_info: value.contact_info || "",
             data_use: simpleDeepCopy(value.data_use || INITIAL_DATA_USE_VALUE),
             linked_field_sets: value.linked_field_sets || [],
-            tables: value.tables || [],
 
             fieldSetAdditionModalVisible: false,
 
@@ -87,7 +86,6 @@ class Dataset extends Component {
             },
 
             selectedTab: "overview",
-            selectedTable: null,
         };
 
         this.handleFieldSetDeletion = this.handleFieldSetDeletion.bind(this);
@@ -95,9 +93,10 @@ class Dataset extends Component {
 
 
     componentDidMount() {
-        if (this.state.identifier) {
-            this.props.fetchDatasetSummary(this.state.identifier);
-            this.props.fetchDatasetDataTypesSummary(this.state.identifier);
+        const {identifier} = this.state;
+        if (identifier) {
+            this.props.fetchDatasetSummary(identifier);
+            this.props.fetchDatasetDataTypesSummary(identifier);
         }
     }
 
@@ -136,12 +135,10 @@ class Dataset extends Component {
         const tabContents = {
             overview: <DatasetOverview dataset={this.state}
                                        project={this.props.project}
-                                       isPrivate={isPrivate}
-                                       isFetchingDatasets={this.props.isFetchingDatasets} />,
+                                       isPrivate={isPrivate} />,
             data_types: <DatasetDataTypes dataset={this.state}
                                           project={this.props.project}
                                           isPrivate={isPrivate}
-                                          isFetchingDatasets={this.props.isFetchingDatasets}
                                           onDatasetIngest={this.props.onDatasetIngest}/>,
             linked_field_sets: (
                 <>
@@ -294,11 +291,8 @@ Dataset.propTypes = {
     mode: PropTypes.oneOf(["public", "private"]),
 
     project: projectPropTypesShape,
-    strayTables: PropTypes.arrayOf(PropTypes.object),
 
     value: datasetPropTypesShape,
-
-    isFetchingDatasets: PropTypes.bool,
 
     onEdit: PropTypes.func,
     onDatasetIngest: PropTypes.func,
@@ -312,8 +306,6 @@ Dataset.propTypes = {
 };
 
 const mapStateToProps = state => ({
-    isFetchingDatasets: state.services.isFetchingAll
-        || state.datasetDataTypes.isFetching,
     isSavingDataset: state.projects.isSavingDataset,
     isDeletingDataset: state.projects.isDeletingDataset,
 });
@@ -324,8 +316,8 @@ const mapDispatchToProps = (dispatch, ownProps) => ({
     deleteProjectDataset: dataset => dispatch(deleteProjectDatasetIfPossible(ownProps.project, dataset)),
     deleteLinkedFieldSet: (dataset, linkedFieldSet, linkedFieldSetIndex) =>
         dispatch(deleteDatasetLinkedFieldSetIfPossible(dataset, linkedFieldSet, linkedFieldSetIndex)),
-    fetchDatasetSummary: (datasetId) => dispatch(fetchDatasetSummaryIfPossible(datasetId)),
-    fetchDatasetDataTypesSummary: (datasetId) => dispatch(fetchDatasetDataTypesSummaryIfPossible(datasetId)),
+    fetchDatasetSummary: (datasetId) => dispatch(fetchDatasetSummariesIfPossible(datasetId)),
+    fetchDatasetDataTypesSummary: (datasetId) => dispatch(fetchDatasetDataTypesSummariesIfPossible(datasetId)),
 });
 
 export default connect(mapStateToProps, mapDispatchToProps)(Dataset);

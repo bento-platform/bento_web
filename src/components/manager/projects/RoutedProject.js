@@ -29,7 +29,7 @@ class RoutedProject extends Component {
         this.showDatasetAdditionModal = this.showDatasetAdditionModal.bind(this);
         this.hideDatasetAdditionModal = this.hideDatasetAdditionModal.bind(this);
         this.hideDatasetEditModal = this.hideDatasetEditModal.bind(this);
-        this.ingestIntoTable = this.ingestIntoDataset.bind(this);
+        this.ingestIntoDataset = this.ingestIntoDataset.bind(this);
         this.handleDeleteProject = this.handleDeleteProject.bind(this);
     }
 
@@ -41,13 +41,16 @@ class RoutedProject extends Component {
     }
 
     ingestIntoDataset(p, d, dt) {
-        this.props.history.push("/admin/data/manager/ingestion",
-            {workflowSelectionValues: {
-                selectedProject: p.identifier,
-                selectedDataset: d.identifier,
-                selectedDataType: dt.id,
+        this.props.history.push(
+            "/admin/data/manager/ingestion",
+            {
+                workflowSelectionValues: {
+                    selectedProject: p.identifier,
+                    selectedDataset: d.identifier,
+                    selectedDataType: dt.id,
+                },
             },
-            });
+        );
     }
 
     handleProjectSave(project) {
@@ -101,16 +104,6 @@ class RoutedProject extends Component {
         const project = this.props.projectsByID[this.props.match.params.project];
         if (!project) return <ProjectSkeleton />;
 
-        /**
-         * @typedef {Object} ProjectTable
-         * @property {string} table_id
-         * @property {string} service_id
-         * @property {string} dataset
-         * @property {string} data_type
-         * @property {string} sample
-         * @type {ProjectTable[]}
-         */
-
         return <>
             <DatasetFormModal mode={FORM_MODE_ADD}
                               project={project}
@@ -157,20 +150,8 @@ RoutedProject.propTypes = {
     services: PropTypes.arrayOf(serviceInfoPropTypesShape),
     servicesByID: PropTypes.objectOf(serviceInfoPropTypesShape),
 
-    serviceDataTypesByServiceID: PropTypes.objectOf(PropTypes.shape({
-        items: PropTypes.array,  // TODO: Shape
-        itemsByID: PropTypes.object,  // TODO: Shape
-        isFetching: PropTypes.bool,
-    })),
-
-    serviceTables: PropTypes.arrayOf(PropTypes.object),  // TODO: Shape
-    serviceTablesByServiceID: PropTypes.objectOf(PropTypes.object),  // TODO: Shape
-
     projects: PropTypes.arrayOf(projectPropTypesShape),
     projectsByID: PropTypes.objectOf(projectPropTypesShape),
-
-    projectTables: PropTypes.arrayOf(PropTypes.object),  // TODO: Shape
-    projectTablesByProjectID: PropTypes.objectOf(PropTypes.arrayOf(PropTypes.object)),  // TODO: Shape
 
     loadingProjects: PropTypes.bool,
 
@@ -190,11 +171,6 @@ const mapStateToProps = state => ({
 
     services: state.services.items,
     servicesByID: state.services.itemsByID,
-
-    serviceDataTypesByServiceID: state.serviceDataTypes.dataTypesByServiceID,
-
-    serviceTables: state.serviceTables.items,
-    serviceTablesByServiceID: state.serviceTables.itemsByServiceID,
 
     projects: state.projects.items,
     projectsByID: state.projects.itemsByID,

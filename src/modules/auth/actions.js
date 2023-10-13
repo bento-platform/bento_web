@@ -10,10 +10,12 @@ import {
     networkAction,
 } from "../../utils/actions";
 
+import { fetchDatasetsDataTypes } from "../../modules/datasets/actions";
 import { fetchDropBoxTreeOrFail } from "../manager/actions";
 import {
     fetchProjectsWithDatasets,
     fetchOverviewSummary,
+    fetchExtraPropertiesSchemaTypes,
 } from "../metadata/actions";
 import { fetchNotifications } from "../notifications/actions";
 import { fetchServicesWithMetadataAndDataTypesIfNeeded } from "../services/actions";
@@ -35,6 +37,7 @@ export const fetchServiceDependentData = () => dispatch => Promise.all([
     fetchNotifications,
     fetchOverviewSummary,
     performGetGohanVariantsOverviewIfPossible,
+    fetchExtraPropertiesSchemaTypes,
 ].map(a => dispatch(a())));
 
 export const fetchUserDependentData = (servicesCb) => async (dispatch, getState) => {
@@ -57,11 +60,11 @@ export const fetchUserDependentData = (servicesCb) => async (dispatch, getState)
     try {
         if (idTokenContents) {
             // If we're newly authenticated as an owner, we run all actions that need authentication (via the callback).
-            // TODO: refactor to remove tables
             await dispatch(fetchServicesWithMetadataAndDataTypesIfNeeded(
                 () => dispatch(fetchServiceDependentData())));
             await (servicesCb || nop)();
             await dispatch(fetchProjectsWithDatasets());  // TODO: If needed, remove if !hasAttempted
+            await dispatch(fetchDatasetsDataTypes());
         }
     } finally {
         dispatch(endFlow(FETCHING_USER_DEPENDENT_DATA));

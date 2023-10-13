@@ -1,22 +1,18 @@
 import {message} from "antd";
 
 import {endProjectEditing} from "../manager/actions";
-import {
-    createNetworkActionTypes,
-    createFlowActionTypes,
-    networkAction,
-} from "../../utils/actions";
+import { createNetworkActionTypes, networkAction } from "../../utils/actions";
 import {nop, objectWithoutProps} from "../../utils/misc";
 import {jsonRequest} from "../../utils/requests";
 
 
 export const FETCH_PROJECTS = createNetworkActionTypes("FETCH_PROJECTS");
-export const FETCH_PROJECT_TABLES = createNetworkActionTypes("FETCH_PROJECT_TABLES");
 
 export const CREATE_PROJECT = createNetworkActionTypes("CREATE_PROJECT");
 export const DELETE_PROJECT = createNetworkActionTypes("DELETE_PROJECT");
 export const SAVE_PROJECT = createNetworkActionTypes("SAVE_PROJECT");
 
+export const FETCH_EXTRA_PROPERTIES_SCHEMA_TYPES = createNetworkActionTypes("FETCH_EXTRA_PROPERTIES_SCHEMA_TYPES");
 export const CREATE_PROJECT_JSON_SCHEMA = createNetworkActionTypes("CREATE_PROJECT_JSON_SCHEMA");
 export const DELETE_PROJECT_JSON_SCHEMA = createNetworkActionTypes("DELETE_PROJECT_JSON_SCHEMA");
 
@@ -27,21 +23,26 @@ export const ADD_DATASET_LINKED_FIELD_SET = createNetworkActionTypes("ADD_DATASE
 export const SAVE_DATASET_LINKED_FIELD_SET = createNetworkActionTypes("SAVE_DATASET_LINKED_FIELD_SET");
 export const DELETE_DATASET_LINKED_FIELD_SET = createNetworkActionTypes("DELETE_DATASET_LINKED_FIELD_SET");
 
-export const PROJECT_TABLE_ADDITION = createFlowActionTypes("PROJECT_TABLE_ADDITION");
-export const PROJECT_TABLE_DELETION = createFlowActionTypes("PROJECT_TABLE_DELETION");
-
 export const FETCH_INDIVIDUAL = createNetworkActionTypes("FETCH_INDIVIDUAL");
+export const FETCH_INDIVIDUAL_PHENOPACKETS = createNetworkActionTypes("FETCH_INDIVIDUAL_PHENOPACKETS");
 export const FETCH_OVERVIEW_SUMMARY = createNetworkActionTypes("FETCH_OVERVIEW_SUMMARY");
 
 export const DELETE_DATASET_DATA_TYPE = createNetworkActionTypes("DELETE_DATASET_DATA_TYPE");
 
-export const clearDatasetDataType = networkAction((datasetId, dataType) => (dispatch, getState) => ({
-    types: DELETE_DATASET_DATA_TYPE,
-    url: `${getState().services.metadataService.url}/datasets/${datasetId}/data-types/${dataType}`,
-    req: {
-        method: "DELETE",
-    },
-}));
+export const clearDatasetDataType = networkAction((datasetId, dataTypeID) => (dispatch, getState) => {
+    const {service_base_url: serviceBaseUrl} = getState().serviceDataTypes.itemsByID[dataTypeID];
+    return {
+        types: DELETE_DATASET_DATA_TYPE,
+        url: `${serviceBaseUrl}datasets/${datasetId}/data-types/${dataTypeID}`,
+        req: {
+            method: "DELETE",
+        },
+        onError: (error) => {
+            // Needs to re throw for project/dataset deletion error handling
+            throw error;
+        },
+    };
+});
 
 export const fetchProjects = networkAction(() => (dispatch, getState) => ({
     types: FETCH_PROJECTS,
@@ -82,6 +83,13 @@ export const createProjectIfPossible = (project, history) => (dispatch, getState
 };
 
 
+export const fetchExtraPropertiesSchemaTypes = networkAction(() => (dispatch, getState) => ({
+    types: FETCH_EXTRA_PROPERTIES_SCHEMA_TYPES,
+    url: `${getState().services.metadataService.url}/api/extra_properties_schema_types`,
+    error: "Error fetching extra properties schema types",
+}));
+
+
 const createProjectJsonSchema = networkAction(projectJsonSchema => (dispatch, getState) => ({
     types: CREATE_PROJECT_JSON_SCHEMA,
     url: `${getState().services.metadataService.url}/api/project_json_schemas`,
@@ -118,13 +126,25 @@ export const deleteProject = networkAction(project => (dispatch, getState) => ({
     onSuccess: () => message.success(`Project '${project.title}' deleted!`),
 }));
 
-export const deleteProjectIfPossible = project => (dispatch, getState) => {
+export const deleteProjectIfPossible = project => async (dispatch, getState) => {
     if (getState().projects.isDeleting) return;
-    return dispatch(deleteProject(project));
 
-    // TODO: Do we need to delete project tables as well? What to do here??
+    // Remove data without destroying project/datasets first
+    try {
+        await Promise.all(project.datasets.map(ds => dispatch(clearDatasetDataTypes(ds.identifier))));
+        await dispatch(deleteProject(project));
+    } catch (err) {
+        console.error(err);
+        message.error(`Error deleting project '${project.title}'`);
+    }
 };
 
+export const clearDatasetDataTypes = datasetId => async (dispatch, getState) => {
+    // only clear data types which can yield counts - `queryable` is a proxy for this
+    const dataTypes = Object.values(getState().datasetDataTypes.itemsByID[datasetId].itemsByID)
+        .filter(dt => dt.queryable);
+    return await Promise.all(dataTypes.map(dt => dispatch(clearDatasetDataType(datasetId, dt.id))));
+};
 
 const saveProject = networkAction(project => (dispatch, getState) => ({
     types: SAVE_PROJECT,
@@ -174,14 +194,19 @@ export const deleteProjectDataset = networkAction((project, dataset) => (dispatc
     url: `${getState().services.metadataService.url}/api/datasets/${dataset.identifier}`,
     req: {method: "DELETE"},
     err: `Error deleting dataset '${dataset.title}'`,
-    // TODO: Do we need to delete project tables as well? What to do here??
 }));
 
-export const deleteProjectDatasetIfPossible = (project, dataset) => (dispatch, getState) => {
+export const deleteProjectDatasetIfPossible = (project, dataset) => async (dispatch, getState) => {
     if (getState().projects.isAddingDataset
         || getState().projects.isSavingDataset
         || getState().projects.isDeletingDataset) return;
-    return dispatch(deleteProjectDataset(project, dataset));
+    try {
+        await dispatch(clearDatasetDataTypes(dataset.identifier));
+        await dispatch(deleteProjectDataset(project, dataset));
+    } catch (err) {
+        console.error(err);
+        message.error(`Error deleting dataset '${dataset.title}'`);
+    }
 };
 
 
@@ -263,9 +288,22 @@ export const fetchIndividualIfNecessary = individualID => (dispatch, getState) =
 };
 
 
+const fetchIndividualPhenopackets = networkAction((individualID) => (dispatch, getState) => ({
+    types: FETCH_INDIVIDUAL_PHENOPACKETS,
+    params: {individualID},
+    url: `${getState().services.metadataService.url}/api/individuals/${individualID}/phenopackets`,
+    err: `Error fetching phenopackets for individual ${individualID}`,
+}));
+
+export const fetchIndividualPhenopacketsIfNecessary = individualID => (dispatch, getState) => {
+    const record = getState().individuals.phenopacketsByIndividualID[individualID] || {};
+    if (record.isFetching || record.data) return;  // Don't fetch if already fetching or loaded.
+    return dispatch(fetchIndividualPhenopackets(individualID));
+};
+
+
 export const fetchOverviewSummary = networkAction(() => (dispatch, getState) => ({
     types: FETCH_OVERVIEW_SUMMARY,
     url: `${getState().services.metadataService.url}/api/overview`,
     err: "Error fetching overview summary metadata",
 }));
-

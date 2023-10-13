@@ -23,6 +23,8 @@ import {
     UPDATE_DATA_TYPE_QUERY_FORM,
     SET_SELECTED_ROWS,
     SET_TABLE_SORT_ORDER,
+    RESET_TABLE_SORT_ORDER,
+    SET_ACTIVE_TAB,
     SET_AUTO_QUERY_PAGE_TRANSITION,
     NEUTRALIZE_AUTO_QUERY_PAGE_TRANSITION,
     FREE_TEXT_SEARCH,
@@ -40,6 +42,7 @@ export const explorer = (
         searchResultsByDatasetID: {},
         selectedRowsByDatasetID: {},
         tableSortOrderByDatasetID: {},
+        activeTabByDatasetID: {},
         isFetchingDownload: false,
         fetchingTextSearch: false,
         isSubmittingSearch: false,
@@ -213,11 +216,36 @@ export const explorer = (
                 tableSortOrderByDatasetID: {
                     ...state.tableSortOrderByDatasetID,
                     [action.datasetID]: {
-                        sortColumnKey: action.sortColumnKey,
-                        sortOrder: action.sortOrder,
+                        ...state.tableSortOrderByDatasetID[action.datasetID],
+                        [action.activeTab]: {
+                            sortColumnKey: action.sortColumnKey,
+                            sortOrder: action.sortOrder,
+                            currentPage: action.currentPage,
+                        },
                     },
                 },
             };
+
+        case RESET_TABLE_SORT_ORDER: {
+            const updatedTableSortOrder = { ...state.tableSortOrderByDatasetID };
+            delete updatedTableSortOrder[action.datasetID];
+
+            return {
+                ...state,
+                tableSortOrderByDatasetID: updatedTableSortOrder,
+            };
+        }
+
+        case SET_ACTIVE_TAB: {
+            return {
+                ...state,
+                activeTabByDatasetID: {
+                    ...state.activeTabByDatasetID,
+                    [action.datasetID]: action.activeTab,
+                },
+            };
+
+        }
 
         // Auto-Queries start here ----
         case SET_AUTO_QUERY_PAGE_TRANSITION:
@@ -349,12 +377,11 @@ function generateBiosampleObjects(searchResults) {
                         experimentIds: [],
                         experimentTypes: [],
                         studyTypes: [],
-                        sampledTissues: [],
+                        sampledTissue: biosample["sampled_tissue"],
                     };
                     objects[index].experimentIds.push(biosample.experiment["experiment_id"]);
                     objects[index].experimentTypes.push(biosample.experiment["experiment_type"]);
                     objects[index].studyTypes.push(biosample.experiment["study_type"]);
-                    objects[index].sampledTissues.push(biosample["sampled_tissue"]);
                 }
                 return objects;
             }, []);

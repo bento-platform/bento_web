@@ -1,65 +1,120 @@
-import {FETCH_DATASET_DATATYPE, FETCH_DATASET_SUMMARY} from "./actions";
+import {
+    FETCHING_DATASETS_DATA_TYPES,
+    FETCH_DATASET_DATA_TYPES_SUMMARY,
+    FETCH_DATASET_SUMMARY,
+    FETCHING_ALL_DATASET_SUMMARIES, FETCH_DATASET_RESOURCES,
+} from "./actions";
 
 export const datasetDataTypes = (
     state = {
-        isFetching: false,
-        itemsById: {},
+        itemsByID: {},
+        isFetchingAll: false,
     },
     action,
 ) => {
     switch (action.type) {
-        case FETCH_DATASET_DATATYPE.REQUEST:
+        case FETCHING_DATASETS_DATA_TYPES.BEGIN:
+            return {...state, isFetchingAll: true};
+        case FETCHING_DATASETS_DATA_TYPES.END:
+            return {...state, isFetchingAll: false};
+        case FETCH_DATASET_DATA_TYPES_SUMMARY.REQUEST:{
+            const {datasetID} = action;
             return {
                 ...state,
-                isFetching: true,
-            };
-        case FETCH_DATASET_DATATYPE.RECEIVE:
-            return {
-                ...state,
-                itemsById: {
-                    ...state.itemsById,
-                    [action.datasetID]: action.data,
+                itemsByID: {
+                    ...state.itemsByID,
+                    [datasetID]: {
+                        itemsByID: state.itemsByID[datasetID]?.itemsByID ?? {},
+                        isFetching: true,
+                    },
                 },
             };
-        case FETCH_DATASET_DATATYPE.FINISH:
-        case FETCH_DATASET_DATATYPE.ERROR:
+        }
+        case FETCH_DATASET_DATA_TYPES_SUMMARY.RECEIVE:{
+            const {datasetID} = action;
+            const itemsByID = Object.fromEntries(action.data.map(d => [d.id, d]));
             return {
                 ...state,
-                isFetching: false,
+                itemsByID: {
+                    ...state.itemsByID,
+                    [datasetID]: {
+                        itemsByID: {
+                            ...state.itemsByID[datasetID].itemsByID,
+                            ...itemsByID,
+                        },
+                    },
+                },
             };
+        }
+        case FETCH_DATASET_DATA_TYPES_SUMMARY.FINISH:
+        case FETCH_DATASET_DATA_TYPES_SUMMARY.ERROR:{
+            const {datasetID} = action;
+            return {
+                ...state,
+                itemsByID: {
+                    ...state.itemsByID,
+                    [datasetID]: {
+                        ...state.itemsByID[datasetID],
+                        isFetching: false,
+                    },
+                },
+            };
+        }
         default:
             return state;
     }
 };
 
 
+const datasetItemSet = (oldState, datasetID, key, value) => ({
+    ...oldState,
+    itemsByID: {
+        ...oldState.itemsByID,
+        [datasetID]: {
+            ...(oldState.itemsByID[datasetID] ?? {}),
+            [key]: value,
+        },
+    },
+});
+
+
 export const datasetSummaries = (
     state = {
-        isFetching: false,
-        itemsById: {},
+        isFetchingAll: false,
+        itemsByID: {},
     },
     action,
 ) => {
     switch (action.type) {
         case FETCH_DATASET_SUMMARY.REQUEST:
-            return {
-                ...state,
-                isFetching: true,
-            };
+            return datasetItemSet(state, action.datasetID, "isFetching", true);
         case FETCH_DATASET_SUMMARY.RECEIVE:
-            return {
-                ...state,
-                itemsById: {
-                    ...state.itemsById,
-                    [action.datasetID]: action.data,
-                },
-            };
+            return datasetItemSet(state, action.datasetID, "data", action.data);
         case FETCH_DATASET_SUMMARY.FINISH:
-        case FETCH_DATASET_SUMMARY.ERROR:
-            return {
-                ...state,
-                isFetching: false,
-            };
+            return datasetItemSet(state, action.datasetID, "isFetching", false);
+        case FETCHING_ALL_DATASET_SUMMARIES.BEGIN:
+            return {...state, isFetchingAll: true};
+        case FETCHING_ALL_DATASET_SUMMARIES.END:
+        case FETCHING_ALL_DATASET_SUMMARIES.TERMINATE:
+            return {...state, isFetchingAll: false};
+        default:
+            return state;
+    }
+};
+
+export const datasetResources = (
+    state = {
+        itemsByID: {},
+    },
+    action,
+) => {
+    switch (action.type) {
+        case FETCH_DATASET_RESOURCES.REQUEST:
+            return datasetItemSet(state, action.datasetID, "isFetching", true);
+        case FETCH_DATASET_RESOURCES.RECEIVE:
+            return datasetItemSet(state, action.datasetID, "data", action.data);
+        case FETCH_DATASET_RESOURCES.FINISH:
+            return datasetItemSet(state, action.datasetID, "isFetching", false);
         default:
             return state;
     }

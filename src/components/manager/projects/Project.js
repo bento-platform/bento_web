@@ -190,8 +190,6 @@ class Project extends Component {
 
 Project.propTypes = {
     value: projectPropTypesShape,
-    tables: PropTypes.arrayOf(PropTypes.object),  // TODO: shape
-    strayTables: PropTypes.arrayOf(PropTypes.object),  // TODO: shape (this is currently heterogeneous)
 
     editing: PropTypes.bool,
     saving: PropTypes.bool,

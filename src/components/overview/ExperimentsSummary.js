@@ -1,15 +1,13 @@
-import React, {Component} from "react";
-import {connect} from "react-redux";
+import React, { Component } from "react";
+import { connect } from "react-redux";
 import PropTypes from "prop-types";
-import {Col, Row, Spin, Statistic, Typography} from "antd";
-import CustomPieChart from "./CustomPieChart";
+import { Col, Row, Spin, Statistic, Typography } from "antd";
+import PieChart from "../charts/PieChart";
 import { setAutoQueryPageTransition } from "../../modules/explorer/actions";
-import {
-    overviewSummaryPropTypesShape,
-} from "../../propTypes";
-import {mapNameValueFields} from "../../utils/mapNameValueFields";
+import { overviewSummaryPropTypesShape } from "../../propTypes";
+import { mapNameValueFields } from "../../utils/mapNameValueFields";
 
-const mapStateToProps = state => ({
+const mapStateToProps = (state) => ({
     overviewSummary: state.overviewSummary,
     otherThresholdPercentage: state.explorer.otherThresholdPercentage,
 });
@@ -19,7 +17,6 @@ const actionCreators = {
 };
 
 class ExperimentsSummary2 extends Component {
-
     static propTypes = {
         overviewSummary: PropTypes.shape({
             isFetching: PropTypes.bool,
@@ -32,17 +29,16 @@ class ExperimentsSummary2 extends Component {
     constructor(props) {
         super(props);
         this.state = {
-            chartPadding:  "1rem",
+            chartPadding: "1rem",
             chartHeight: 300,
-            chartAspectRatio: 1.8,
             chartLabelPaddingTop: 3,
             chartLabelPaddingLeft: 3,
         };
     }
 
     render() {
-        const {overviewSummary, otherThresholdPercentage} = this.props;
-        const {data, isFetching} = overviewSummary;
+        const { overviewSummary, otherThresholdPercentage } = this.props;
+        const { data, isFetching } = overviewSummary;
 
         // TODO: most of these have "other" categories, so counts here are ambiguous or simply incorrect
         const numExperiments = overviewSummary.data?.data_type_specific?.experiments?.count;
@@ -79,116 +75,110 @@ class ExperimentsSummary2 extends Component {
         );
         const autoQueryDataType = "experiment";
 
-        const pieRowStyle = {display: "flex", flexWrap: "wrap"};
+        const pieRowStyle = { display: "flex", flexWrap: "wrap" };
 
-        return <>
-            <Row>
-                <Typography.Title level={4}>
-                    Experiments
-                </Typography.Title>
-                <Row style={{marginBottom: "24px"}} gutter={[0, 16]}>
-                    <Col xl={2} lg={3} md={5} sm={6} xs={10}>
-                        <Spin spinning={isFetching}>
-                            <Statistic title="Experiments" value={numExperiments}/>
-                        </Spin>
-                    </Col>
-                    <Col xl={2} lg={3} md={5} sm={6} xs={10}>
-                        <Spin spinning={isFetching}>
-                            <Statistic title="Experiment Types" value={numExperimentTypes} />
-                        </Spin>
-                    </Col>
-                    <Col xl={2} lg={3} md={5} sm={6} xs={10}>
-                        <Spin spinning={isFetching}>
-                            <Statistic title="Molecules Used" value={numMoleculesUsed} />
-                        </Spin>
-                    </Col>
-                    <Col xl={2} lg={3} md={5} sm={6} xs={10}>
-                        <Spin spinning={isFetching}>
-                            <Statistic title="Library Strategies" value={numLibraryStrategies} />
-                        </Spin>
-                    </Col>
-                </Row>
-                <Row style={pieRowStyle}>
-                <Col style={{textAlign: "center"}}>
+        return (
+            <>
+                <Row>
+                    <Typography.Title level={4}>Experiments</Typography.Title>
+                    <Row style={{ marginBottom: "24px" }} gutter={[0, 16]}>
+                        <Col xl={2} lg={3} md={5} sm={6} xs={10}>
                             <Spin spinning={isFetching}>
-                                <CustomPieChart
+                                <Statistic title="Experiments" value={numExperiments} />
+                            </Spin>
+                        </Col>
+                        <Col xl={2} lg={3} md={5} sm={6} xs={10}>
+                            <Spin spinning={isFetching}>
+                                <Statistic title="Experiment Types" value={numExperimentTypes} />
+                            </Spin>
+                        </Col>
+                        <Col xl={2} lg={3} md={5} sm={6} xs={10}>
+                            <Spin spinning={isFetching}>
+                                <Statistic title="Molecules Used" value={numMoleculesUsed} />
+                            </Spin>
+                        </Col>
+                        <Col xl={2} lg={3} md={5} sm={6} xs={10}>
+                            <Spin spinning={isFetching}>
+                                <Statistic title="Library Strategies" value={numLibraryStrategies} />
+                            </Spin>
+                        </Col>
+                    </Row>
+                    <Row style={pieRowStyle}>
+                        <Col style={{ textAlign: "center" }}>
+                            <Spin spinning={isFetching}>
+                                <PieChart
                                     title="Study Types"
-                                    style={{cursor: "pointer"}}
+                                    style={{ cursor: "pointer" }}
                                     data={studyTypeData}
                                     chartHeight={this.state.chartHeight}
                                     chartAspectRatio={this.state.chartAspectRatio}
-                                    fieldLabel={"[dataset item].study_type"}
-                                    setAutoQueryPageTransition={this.props.setAutoQueryPageTransition}
-                                    autoQueryDataType={autoQueryDataType}
+                                    labelKey={"[dataset item].study_type"}
+                                    onAutoQueryTransition={this.props.setAutoQueryPageTransition}
+                                    dataType={autoQueryDataType}
                                 />
                             </Spin>
-                    </Col>
+                        </Col>
 
-                    <Col style={{textAlign: "center"}}>
+                        <Col style={{ textAlign: "center" }}>
                             <Spin spinning={isFetching}>
-                                <CustomPieChart
+                                <PieChart
                                     title="Experiment Types"
-                                    style={{cursor: "pointer"}}
+                                    style={{ cursor: "pointer" }}
                                     data={experimentTypeData}
                                     chartHeight={this.state.chartHeight}
-                                    chartAspectRatio={this.state.chartAspectRatio}
-                                    fieldLabel={"[dataset item].experiment_type"}
-                                    setAutoQueryPageTransition={this.props.setAutoQueryPageTransition}
-                                    autoQueryDataType={autoQueryDataType}
+                                    labelKey={"[dataset item].experiment_type"}
+                                    onAutoQueryTransition={this.props.setAutoQueryPageTransition}
+                                    dataType={autoQueryDataType}
                                 />
                             </Spin>
-                    </Col>
+                        </Col>
 
-                    <Col style={{textAlign: "center"}}>
+                        <Col style={{ textAlign: "center" }}>
                             <Spin spinning={isFetching}>
-                                <CustomPieChart
+                                <PieChart
                                     title="Molecules Used"
-                                    style={{cursor: "pointer"}}
+                                    style={{ cursor: "pointer" }}
                                     data={moleculeData}
                                     chartHeight={this.state.chartHeight}
-                                    chartAspectRatio={this.state.chartAspectRatio}
-                                    fieldLabel={"[dataset item].molecule"}
-                                    setAutoQueryPageTransition={this.props.setAutoQueryPageTransition}
-                                    autoQueryDataType={autoQueryDataType}
+                                    labelKey={"[dataset item].molecule"}
+                                    onAutoQueryTransition={this.props.setAutoQueryPageTransition}
+                                    dataType={autoQueryDataType}
                                 />
                             </Spin>
-                    </Col>
+                        </Col>
 
-                    <Col style={{textAlign: "center"}}>
+                        <Col style={{ textAlign: "center" }}>
                             <Spin spinning={isFetching}>
-                                <CustomPieChart
+                                <PieChart
                                     title="Library Strategies"
-                                    style={{cursor: "pointer"}}
+                                    style={{ cursor: "pointer" }}
                                     data={libraryStrategyData}
                                     chartHeight={this.state.chartHeight}
-                                    chartAspectRatio={this.state.chartAspectRatio}
-                                    fieldLabel={"[dataset item].library_strategy"}
-                                    setAutoQueryPageTransition={this.props.setAutoQueryPageTransition}
-                                    autoQueryDataType={autoQueryDataType}
+                                    labelKey={"[dataset item].library_strategy"}
+                                    onAutoQueryTransition={this.props.setAutoQueryPageTransition}
+                                    dataType={autoQueryDataType}
                                 />
                             </Spin>
-                    </Col>
+                        </Col>
 
-                    <Col style={{textAlign: "center"}}>
+                        <Col style={{ textAlign: "center" }}>
                             <Spin spinning={isFetching}>
-                                <CustomPieChart
+                                <PieChart
                                     title="Library Selections"
-                                    style={{cursor: "pointer"}}
+                                    style={{ cursor: "pointer" }}
                                     data={librarySelectionData}
                                     chartHeight={this.state.chartHeight}
-                                    chartAspectRatio={this.state.chartAspectRatio}
-                                    fieldLabel={"[dataset item].library_selection"}
-                                    setAutoQueryPageTransition={this.props.setAutoQueryPageTransition}
-                                    autoQueryDataType={autoQueryDataType}
+                                    labelKey={"[dataset item].library_selection"}
+                                    onAutoQueryTransition={this.props.setAutoQueryPageTransition}
+                                    dataType={autoQueryDataType}
                                 />
                             </Spin>
-                    </Col>
+                        </Col>
+                    </Row>
                 </Row>
-            </Row>
-        </>;
+            </>
+        );
     }
 }
 
 export default connect(mapStateToProps, actionCreators)(ExperimentsSummary2);
-
-
