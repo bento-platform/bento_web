@@ -34,7 +34,7 @@ const MarkdownDisplay = ({ contents }) => {
                 {contents || ""}
             </SyntaxHighlighter>
         ) : (
-            <ReactMarkdown children={contents} remarkPlugins={REMARK_PLUGINS} />
+            <ReactMarkdown remarkPlugins={REMARK_PLUGINS}>{contents}</ReactMarkdown>
         )}
     </div>;
 };
