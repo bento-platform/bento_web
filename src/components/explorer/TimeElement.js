@@ -29,31 +29,29 @@ const getTimeElementTypeLabel = (timeElement) => {
 const renderTimeElement = (type, timeElement) => {
     switch (type) {
         case "age":
-            return <>{timeElement.age.iso8601duration}</>;
+            return <span>{timeElement.age.iso8601duration}</span>;
         case "gestational_age":
-            return <>
-                <strong>Weeks:</strong>{" "}{timeElement.gestationalAge.weeks}
+            return <span>
+                <strong>Weeks:</strong>{" "}{timeElement.gestationalAge.weeks}{" "}
                 <strong>Days:</strong>{" "}{timeElement.gestationalAge.days}
-            </>;
+            </span>;
         case "age_range":
-            return <>
-                <strong>Start:</strong>{" "}<>{timeElement.age_range.start.iso8601duration}</>
+            return <span>
+                <strong>Start:</strong>{" "}<>{timeElement.age_range.start.iso8601duration}</>{" "}
                 <strong>End:</strong>{" "}<>{timeElement.age_range.end.iso8601duration}</>
-            </>;
+            </span>;
         case "ontology_class":
-            return <>
-                <strong>ID:</strong>{" "}{timeElement.ontology_class.id}
+            return <span>
+                <strong>ID:</strong>{" "}{timeElement.ontology_class.id}{" "}
                 <strong>Label:</strong>{" "}{timeElement.ontology_class.label}
-            </>;
+            </span>;
         case "timestamp":
-            return <>
-                <strong>Timestamp:</strong>{" "}{timeElement.timestamp}
-            </>;
+            return <span>{timeElement.timestamp}</span>;
         case "interval":
-            return <>
-                <strong>Start:</strong>{" "}<>{timeElement.interval.start}</>
+            return <span>
+                <strong>Start:</strong>{" "}<>{timeElement.interval.start}</>{" "}
                 <strong>End:</strong>{" "}<>{timeElement.interval.end}</>
-            </>;
+            </span>;
         default:
             return EM_DASH;
     }
@@ -68,10 +66,10 @@ const TimeElement = ({timeElement}) => {
     }
 
     return (
-        <div>
+        <span>
             <strong>{label}: </strong>
             {renderTimeElement(timeType, timeElement)}
-        </div>
+        </span>
     );
 }
 

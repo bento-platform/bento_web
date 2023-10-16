@@ -33,8 +33,8 @@ const BiosampleProcedure = ({ resourcesTuple, procedure }) => (
         ) : null}
         {procedure.performed ? (
             <div>
-                <strong>Time Performed:</strong>{" "}
-                <TimeElement timeElement={procedure.performed}/>
+                <strong>Performed:</strong>{" "}
+                <TimeElement timeElement={procedure.performed} />
             </div>
         ): null}
     </div>
