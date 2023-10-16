@@ -7,7 +7,7 @@ const TABLE_PAGINATION = { pageSize: 25 };
 const TABLE_SCROLL = { x: true };
 const rowKey = (_, i) => `row${i}`;
 
-const XlsxDisplay = ({content}) => {
+const XlsxDisplay = ({ contents }) => {
     const [excelFile, setExcelFile] = useState(null);
 
     const [selectedSheet, setSelectedSheet] = useState(undefined);
@@ -15,9 +15,9 @@ const XlsxDisplay = ({content}) => {
     const [sheetJSON, setSheetJSON] = useState([]);
 
     useEffect(() => {
-        if (!content) return;
-        setExcelFile(read(content));
-    }, [content]);
+        if (!contents) return;
+        setExcelFile(read(contents));
+    }, [contents]);
 
     useEffect(() => {
         if (selectedSheet === undefined && excelFile?.SheetNames?.length) {
@@ -70,7 +70,7 @@ const XlsxDisplay = ({content}) => {
     );
 };
 XlsxDisplay.propTypes = {
-    content: PropTypes.instanceOf(ArrayBuffer),
+    contents: PropTypes.instanceOf(ArrayBuffer),
 };
 
 export default XlsxDisplay;

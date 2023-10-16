@@ -32,6 +32,7 @@ import JsonDisplay from "./JsonDisplay";
 import VideoDisplay from "./VideoDisplay";
 import XlsxDisplay from "./XlsxDisplay";
 import MarkdownDisplay from "./MarkdownDisplay";
+import DocxDisplay from "./DocxDisplay";
 
 SyntaxHighlighter.registerLanguage("bash", bash);
 SyntaxHighlighter.registerLanguage("dockerfile", dockerfile);
@@ -105,6 +106,7 @@ export const VIEWABLE_FILE_EXTENSIONS = [
     ...VIDEO_FILE_EXTENSIONS,
 
     // Documents
+    "docx",
     "pdf",
 
     // Tabular data
@@ -118,7 +120,7 @@ export const VIEWABLE_FILE_EXTENSIONS = [
 ];
 
 const DEFER_LOADING_FILE_EXTENSIONS = ["pdf"];  // Don't use a fetch() for these extensions
-const ARRAY_BUFFER_FILE_EXTENSIONS = ["xls", "xlsx"];
+const ARRAY_BUFFER_FILE_EXTENSIONS = ["docx", "xls", "xlsx"];
 const BLOB_FILE_EXTENSIONS = [...AUDIO_FILE_EXTENSIONS, ...IMAGE_FILE_EXTENSIONS, ...VIDEO_FILE_EXTENSIONS, "pdf"];
 
 const FileDisplay = ({ uri, fileName, loading }) => {
@@ -225,12 +227,14 @@ const FileDisplay = ({ uri, fileName, loading }) => {
                         })()}
                     </Document>
                 );
+            } else if (fileExt === "docx") {
+                return <DocxDisplay contents={fc} />;
             } else if (["csv", "tsv"].includes(fileExt)) {
                 if (loadingFileContents) return <div />;
                 return <CsvDisplay contents={fc} />;
             } else if (["xls", "xlsx"].includes(fileExt)) {
                 if (loadingFileContents) return <div />;
-                return <XlsxDisplay content={fc} />;
+                return <XlsxDisplay contents={fc} />;
             } else if (AUDIO_FILE_EXTENSIONS.includes(fileExt)) {
                 if (loadingFileContents) return <div />;
                 return <AudioDisplay blob={fc} />;
