@@ -1,6 +1,6 @@
 import React, { useEffect, useMemo, useState } from "react";
 import mammoth from "mammoth/mammoth.browser";
-import { Alert, Spin } from "antd";
+import { Alert, Skeleton, Spin } from "antd";
 import PropTypes from "prop-types";
 
 const MAMMOTH_OPTIONS = {
@@ -12,9 +12,7 @@ const MAMMOTH_OPTIONS = {
     ),
 };
 
-const DOC_CONTAINER_STYLE = { width: "100%", minHeight: 100 };
-
-const DocxDisplay = ({ contents }) => {
+const DocxDisplay = ({ contents, loading }) => {
     const [parsing, setParsing] = useState(false);
     const [error, setError] = useState(null);
     const [docHTML, setDocHTML] = useState(null);
@@ -42,16 +40,20 @@ const DocxDisplay = ({ contents }) => {
 
     const innerHTML = useMemo(() => ({ __html: docHTML ?? "<div />" }), [docHTML]);
 
+    const waiting = loading || parsing;
+
     // noinspection JSValidateTypes
-    return <Spin spinning={parsing}>
+    return <Spin spinning={waiting}>
+        {waiting && <Skeleton loading={true} />}
         {error && (
             <Alert showIcon={true} message="Parsing error" description={error} />
         )}
-        <div style={DOC_CONTAINER_STYLE} dangerouslySetInnerHTML={innerHTML} />
+        <div dangerouslySetInnerHTML={innerHTML} />
     </Spin>;
 };
 DocxDisplay.propTypes = {
     contents: PropTypes.instanceOf(ArrayBuffer),
+    loading: PropTypes.bool,
 };
 
 export default DocxDisplay;

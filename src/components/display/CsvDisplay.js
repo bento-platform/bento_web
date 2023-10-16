@@ -9,7 +9,7 @@ const DEFAULT_COLUMN = { key: "col" };
 
 const rowKey = (_, i) => `row${i}`;
 
-const CsvDisplay = ({ contents }) => {
+const CsvDisplay = ({ contents, loading }) => {
     const [parsedData, setParsedData] = useState([]);
     const [parseError, setParseError] = useState("");
     const [isParsing, setIsParsing] = useState(true);  // Start in parsing state
@@ -51,7 +51,7 @@ const CsvDisplay = ({ contents }) => {
             showHeader={false}
             pagination={TABLE_PAGINATION}
             scroll={TABLE_SCROLL}
-            loading={isParsing}
+            loading={loading || isParsing}
             columns={columns}
             dataSource={parsedData}
             rowKey={rowKey}
@@ -60,6 +60,7 @@ const CsvDisplay = ({ contents }) => {
 };
 CsvDisplay.propTypes = {
     contents: PropTypes.string,
+    loading: PropTypes.bool,
 };
 
 export default CsvDisplay;

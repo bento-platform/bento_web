@@ -76,6 +76,8 @@ const AUDIO_FILE_EXTENSIONS = [
     "wav",
 ];
 
+const CSV_LIKE_FILE_EXTENSIONS = ["csv", "tsv"];
+
 const IMAGE_FILE_EXTENSIONS = [
     "apng",
     "avif",
@@ -88,10 +90,7 @@ const IMAGE_FILE_EXTENSIONS = [
     "webp",
 ];
 
-const VIDEO_FILE_EXTENSIONS = [
-    "mp4",
-    "webm",
-];
+const VIDEO_FILE_EXTENSIONS = ["mp4", "webm"];
 
 // TODO: ".bed",
 //  .bed files are basically TSVs, but they can have instructions and can be whitespace-delimited instead
@@ -110,6 +109,7 @@ export const VIEWABLE_FILE_EXTENSIONS = [
     "pdf",
 
     // Tabular data
+    ...CSV_LIKE_FILE_EXTENSIONS,
     "csv",
     "tsv",
     "xls",
@@ -122,6 +122,8 @@ export const VIEWABLE_FILE_EXTENSIONS = [
 const DEFER_LOADING_FILE_EXTENSIONS = ["pdf"];  // Don't use a fetch() for these extensions
 const ARRAY_BUFFER_FILE_EXTENSIONS = ["docx", "xls", "xlsx"];
 const BLOB_FILE_EXTENSIONS = [...AUDIO_FILE_EXTENSIONS, ...IMAGE_FILE_EXTENSIONS, ...VIDEO_FILE_EXTENSIONS, "pdf"];
+
+const EMPTY_LOADING_DIV = <div style={{ width: "100%", height: 100 }} />;
 
 const FileDisplay = ({ uri, fileName, loading }) => {
     const authHeader = useAuthorizationHeader();
@@ -228,24 +230,23 @@ const FileDisplay = ({ uri, fileName, loading }) => {
                     </Document>
                 );
             } else if (fileExt === "docx") {
-                return <DocxDisplay contents={fc} />;
-            } else if (["csv", "tsv"].includes(fileExt)) {
-                if (loadingFileContents) return <div />;
-                return <CsvDisplay contents={fc} />;
+                return <DocxDisplay contents={fc} loading={loadingFileContents} />;
+            } else if (CSV_LIKE_FILE_EXTENSIONS.includes(fileExt)) {
+                return <CsvDisplay contents={fc} loading={loadingFileContents} />;
             } else if (["xls", "xlsx"].includes(fileExt)) {
-                if (loadingFileContents) return <div />;
+                if (loadingFileContents) return EMPTY_LOADING_DIV;
                 return <XlsxDisplay contents={fc} />;
             } else if (AUDIO_FILE_EXTENSIONS.includes(fileExt)) {
-                if (loadingFileContents) return <div />;
+                if (loadingFileContents) return EMPTY_LOADING_DIV;
                 return <AudioDisplay blob={fc} />;
             } else if (IMAGE_FILE_EXTENSIONS.includes(fileExt)) {
-                if (loadingFileContents) return <div />;
+                if (loadingFileContents) return EMPTY_LOADING_DIV;
                 return <ImageBlobDisplay alt={fileName} blob={fc} />;
             } else if (VIDEO_FILE_EXTENSIONS.includes(fileExt)) {
-                if (loadingFileContents) return <div />;
+                if (loadingFileContents) return EMPTY_LOADING_DIV;
                 return <VideoDisplay blob={fc} />;
             } else if (fileExt === "json") {
-                if (loadingFileContents || !fc) return <div/>;
+                if (loadingFileContents || !fc) return EMPTY_LOADING_DIV;
                 return <JsonDisplay jsonSrc={fc}/>;
             } else if (fileExt === "md") {
                 if (loadingFileContents) return <Skeleton loading={true} />;
