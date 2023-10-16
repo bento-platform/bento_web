@@ -109,11 +109,11 @@ export const searchUiMappings = {
                 "path": "phenotypic_features.[item].severity.label",
                 "ui_name": "Phenotypic feature severity",
             },
-            "modifier": {
-                "path": "phenotypic_features.[item].modifier.[item].label",
+            "modifiers": {
+                "path": "phenotypic_features.[item].modifiers.[item].label",
                 "ui_name": "Phenotypic feature modifier",
             },
-            "onset": {
+                        "onset": {
                 "path": "phenotypic_features.[item].onset.label",
                 "ui_name": "Phenotypic feature onset",
             },
@@ -177,8 +177,8 @@ export const searchUiMappings = {
                 "path": "diseases.[item].disease_stage.[item].label",
                 "ui_name": "Disease stage",
             },
-            "tnm_finding": {
-                "path": "diseases.[item].tnm_finding.[item].label",
+            "clinical_tnm_finding": {
+                "path": "diseases.[item].clinical_tnm_finding.[item].label",
                 "ui_name": "TNM finding",
             },
         },
