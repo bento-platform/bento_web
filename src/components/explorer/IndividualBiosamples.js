@@ -17,6 +17,7 @@ import JsonView from "./JsonView";
 import OntologyTerm from "./OntologyTerm";
 
 import "./explorer.css";
+import TimeElement from "./TimeElement";
 
 // TODO: Only show biosamples from the relevant dataset, if specified;
 //  highlight those found in search results, if specified
@@ -30,6 +31,12 @@ const BiosampleProcedure = ({ resourcesTuple, procedure }) => (
                 <OntologyTerm resourcesTuple={resourcesTuple} term={procedure.body_site} />
             </div>
         ) : null}
+        {procedure.performed ? (
+            <div>
+                <strong>Time Performed:</strong>{" "}
+                <TimeElement timeElement={procedure.performed}/>
+            </div>
+        ): null}
     </div>
 );
 BiosampleProcedure.propTypes = {
@@ -62,6 +69,7 @@ ExperimentsClickList.propTypes = {
 
 const BiosampleDetail = ({ individual, biosample, handleExperimentClick }) => {
     const resourcesTuple = useIndividualResources(individual);
+    console.log(biosample.procedure);
     return (
         <Descriptions bordered={true} column={1} size="small" style={{maxWidth: 800}}>
             <Descriptions.Item label="ID">
@@ -85,12 +93,8 @@ const BiosampleDetail = ({ individual, biosample, handleExperimentClick }) => {
             <Descriptions.Item label="Pathological Stage">
                 <OntologyTerm resourcesTuple={resourcesTuple} term={biosample.pathological_stage} />
             </Descriptions.Item>
-            <Descriptions.Item label="Ind. Age At Collection">
-                {biosample.individual_age_at_collection
-                    ? biosample.individual_age_at_collection.age ??
-                    `Between ${biosample.individual_age_at_collection.start.age}` +
-                    `and ${biosample.individual_age_at_collection.end.age}`
-                    : EM_DASH}
+            <Descriptions.Item label="Time of Collection">
+                <TimeElement timeElement={biosample.time_of_collection}/>
             </Descriptions.Item>
             <Descriptions.Item label="Measurements">
                 {biosample.hasOwnProperty("measurements") &&
