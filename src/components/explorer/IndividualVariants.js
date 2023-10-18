@@ -7,7 +7,7 @@ import { Button, Descriptions, Empty } from "antd";
 
 import { individualPropTypesShape } from "../../propTypes";
 import { setIgvPosition } from "../../modules/explorer/actions";
-import { useDeduplicatedIndividualBiosamples } from "./utils";
+import { useDeduplicatedIndividualBiosamples, useIndividualInterpretations, useIndividualVariantInterpretations } from "./utils";
 import "./explorer.css";
 
 // TODO: Only show variants from the relevant dataset, if specified;
@@ -62,19 +62,31 @@ SampleVariants.propTypes = {
 };
 
 const IndividualVariants = ({individual, tracksUrl}) => {
-    const biosamples = useDeduplicatedIndividualBiosamples(individual);
+    // const biosamples = useDeduplicatedIndividualBiosamples(individual);
+    const interpretations = useIndividualVariantInterpretations(individual);
 
     const variantsMapped = useMemo(
-        () => Object.fromEntries(biosamples.map((biosample) => [
-            biosample.id,
-            (biosample.variants ?? []).map((v) => ({
-                id: v.hgvsAllele?.id,
-                hgvs: v.hgvsAllele?.hgvs,
-                geneContext: v.extra_properties?.gene_context ?? "",
-            })),
-        ])),
-        [biosamples],
+        () => Object.fromEntries(
+                interpretations.map(i => i.diagnosis)
+                    .flatMap(d => d.genomic_interpretations)
+                    .filter(gi => gi.hasOwnProperty("variant_interpretation"))
+                    .map(gi => [gi.subject_or_biosample_id, gi])
+        ),
+        [interpretations]
     );
+    console.log(variantsMapped);
+
+    // const variantsMapped = useMemo(
+    //     () => Object.fromEntries(biosamples.map((biosample) => [
+    //         biosample.id,
+    //         (biosample.variants ?? []).map((v) => ({
+    //             id: v.hgvsAllele?.id,
+    //             hgvs: v.hgvsAllele?.hgvs,
+    //             geneContext: v.extra_properties?.gene_context ?? "",
+    //         })),
+    //     ])),
+    //     [biosamples],
+    // );
 
     return (
       <div className="variantDescriptions">

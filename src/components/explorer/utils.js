@@ -14,6 +14,48 @@ export const useDeduplicatedIndividualBiosamples = (individual) =>
         [individual],
     );
 
+export const useIndividualInterpretations = (individual, withDiagnosis = false) =>
+    useMemo(
+        () => Object.values(
+            Object.fromEntries(
+                (individual?.phenopackets ?? [])
+                    .flatMap(p => p.interpretations)
+                    .filter(i => withDiagnosis ? i.hasOwnProperty("diagnosis") : true)
+                    .map(i => [i.id, i]),
+            ),
+        ),
+        [individual],
+    );
+
+/**
+ * Returns the Interpretations that contain the call
+ * @param {array} interpretations Array of Phenopacket Interpretation
+ * @param {string} call "gene_descriptor" or "variant_interpretation"
+ * @returns Interpretations with call
+ */
+export const useGenomicInterpretations = (interpretations, call) =>
+    useMemo(
+        () => Object.values(
+            Object.fromEntries(
+                interpretations
+                    .filter(interp => interp.hasOwnProperty("diagnosis"))
+                    .filter(interp => interp.diagnosis.hasOwnProperty("genomic_interpretations") 
+                                        && interp.diagnosis.genomic_interpretations.length)
+                    .filter(interp => interp.diagnosis.genomic_interpretations.some(i => i.hasOwnProperty(call)))
+                    .map(interp => [interp.id, interp]),
+            ),
+        ),
+    );
+
+export const useIndividualVariantInterpretations = (individual) => {
+    const interpretations = useIndividualInterpretations(individual);
+    return useGenomicInterpretations(interpretations, "variant_interpretation");
+};
+
+export const useIndividualGeneInterpretations = (individual) => {
+    const interpretations = useIndividualInterpretations(individual);
+    return useGenomicInterpretations(interpretations, "gene_descriptor");
+}
 
 export const useDatasetResources = (datasetIDOrDatasetIDs) => {
     const dispatch = useDispatch();
