@@ -7,9 +7,10 @@ import { Button, Descriptions, Empty } from "antd";
 
 import { individualPropTypesShape } from "../../propTypes";
 import { setIgvPosition } from "../../modules/explorer/actions";
-import { useDeduplicatedIndividualBiosamples, useIndividualInterpretations, useIndividualVariantInterpretations } from "./utils";
+import { useIndividualResources, useIndividualVariantInterpretations } from "./utils";
 import "./explorer.css";
-import g from "file-saver";
+import JsonView from "./JsonView";
+import OntologyTerm from "./OntologyTerm";
 
 // TODO: Only show variants from the relevant dataset, if specified;
 //  highlight those found in search results, if specified
@@ -62,45 +63,71 @@ SampleVariants.propTypes = {
     tracksUrl: PropTypes.string,
 };
 
-const GenomicInterpretation = ({genomicInterpretation, tracksUrl}) => {
-    const isBiosampleRelated = genomicInterpretation?.extra_properties?.related_type ?? "";
-    console.log(isBiosampleRelated);
+const ConditionalDescriptionItem = ({data, label}) => {
+    console.log(label, data);
+    return <>
+        {data && <Descriptions.Item label={label}>{data}</Descriptions.Item>}
+    </>;
+}
+ConditionalDescriptionItem.propTypes = {
+    data: PropTypes.any,
+    label: PropTypes.any,
+}
+
+const VariantInterpretationDescriptor = ({genomicInterpretation, resourcesTuple}) => {
+    const variantInterpretation = genomicInterpretation?.variant_interpretation ?? {};
+    const variationDescriptor = variantInterpretation?.variation_descriptor ?? {};
     return (
-        <div style={sampleStyle}>
-            <Descriptions>
-                <Descriptions.Item label={""}>
-                    
-                </Descriptions.Item>
-                <Descriptions.Item></Descriptions.Item>
-                <Descriptions.Item></Descriptions.Item>
-            </Descriptions>
-        </div>
+        <Descriptions layout="horizontal" bordered={true} column={1} size="small">
+            <Descriptions.Item label={"ID"}>{variationDescriptor.id}</Descriptions.Item>
+            <ConditionalDescriptionItem data={variationDescriptor?.variation} label={"Variation"}/>
+            <ConditionalDescriptionItem data={variationDescriptor?.label} label={"Label"}/>
+            <ConditionalDescriptionItem data={variationDescriptor?.description} label={"Description"}/>
+            <ConditionalDescriptionItem data={variationDescriptor?.gene_context} label={"Gene Context"}/>
+            {variationDescriptor.expressions && <Descriptions.Item label={"Expressions"}>
+                {/* TODO */}
+            </Descriptions.Item>}
+            {variationDescriptor.vcf_record && <Descriptions.Item label={"VCF Record"}>
+                {/* TODO */}
+            </Descriptions.Item>}
+            {<Descriptions.Item label={"XRefs"}>{variationDescriptor.xrefs}</Descriptions.Item>}
+            <Descriptions.Item label={"Alternate Labels"}>{variationDescriptor.alternate_labels}</Descriptions.Item>
+            <Descriptions.Item label={"Extensions"}>
+                {/* TODO */}
+            </Descriptions.Item>
+            <Descriptions.Item label={"Molecule Context"}>{variationDescriptor.molecule_context}</Descriptions.Item>
+            {variationDescriptor.structural_type && <Descriptions.Item label={"Structural Type"}>
+                <OntologyTerm resourcesTuple={resourcesTuple} term={variationDescriptor.structural_type}/>
+            </Descriptions.Item>}
+            <Descriptions.Item label={"VRS ref allele sequence"}>{variationDescriptor.vrs_ref_allele_seq}</Descriptions.Item>
+            {variationDescriptor.allelic_state && <Descriptions.Item label={"Allelic State"}>
+                <OntologyTerm resourcesTuple={resourcesTuple} term={variationDescriptor.allelic_state}/>
+            </Descriptions.Item>}
+        </Descriptions>
     );
 };
-
-
-GenomicInterpretation.propTypes = {
+VariantInterpretationDescriptor.propTypes = {
     genomicInterpretation: PropTypes.object,
-    tracksUrl: PropTypes.string,
+    resourcesTuple: PropTypes.array,
 };
 
 const IndividualVariants = ({individual, tracksUrl}) => {
-    const interpretations = useIndividualVariantInterpretations(individual);
-
-    const genomicInterpretations = interpretations.map(i => i.diagnosis)
-            .flatMap(d => d.genomic_interpretations)
-            .filter(gi => gi.hasOwnProperty("variant_interpretation"))
-    console.log(genomicInterpretations);
+    const variantGenomicInterpretations = useIndividualVariantInterpretations(individual);
+    const resourcesTuple = useIndividualResources(individual);
 
     return (
       <div className="variantDescriptions">
-            {genomicInterpretations.length ?
-                (<Descriptions layout="horizontal" bordered={true} column={1} size="small">
-                    {genomicInterpretations.map(gi => 
-                        <GenomicInterpretation genomicInterpretation={gi} tracksUrl={tracksUrl} key={gi.id}/>
-                    )}
-                </Descriptions>) :
-                (<Empty image={Empty.PRESENTED_IMAGE_SIMPLE}/>)
+            {
+                variantGenomicInterpretations.length ? <Descriptions layout="horizontal" bordered={true} column={1} size="small">
+                    {variantGenomicInterpretations.map(gi => {
+                        return (
+                            <Descriptions.Item key={gi.id} label={gi.id}>
+                                <VariantInterpretationDescriptor genomicInterpretation={gi} resourcesTuple={resourcesTuple}/>
+                            </Descriptions.Item>
+                        )
+                    })}
+                </Descriptions>
+                : <Empty image={Empty.PRESENTED_IMAGE_SIMPLE}/>
             }
       </div>
     );

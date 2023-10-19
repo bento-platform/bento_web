@@ -31,9 +31,9 @@ export const useIndividualInterpretations = (individual, withDiagnosis = false) 
  * Returns the Interpretations that contain the call
  * @param {array} interpretations Array of Phenopacket Interpretation
  * @param {string} call "gene_descriptor" or "variant_interpretation"
- * @returns Interpretations with call
+ * @returns List of GenomicInterpretations filtered for variants or genes call
  */
-export const useGenomicInterpretations = (interpretations, call) =>
+const useGenomicInterpretationsWithCall = (interpretations, call) =>
     useMemo(
         () => Object.values(
             Object.fromEntries(
@@ -41,20 +41,21 @@ export const useGenomicInterpretations = (interpretations, call) =>
                     .filter(interp => interp.hasOwnProperty("diagnosis"))
                     .filter(interp => interp.diagnosis.hasOwnProperty("genomic_interpretations") 
                                         && interp.diagnosis.genomic_interpretations.length)
-                    .filter(interp => interp.diagnosis.genomic_interpretations.some(i => i.hasOwnProperty(call)))
-                    .map(interp => [interp.id, interp]),
+                    .flatMap(interp => interp.diagnosis.genomic_interpretations)
+                    .filter(gi => gi.hasOwnProperty(call))
+                    .map(gi => [gi.subject_or_biosample_id, gi]),
             ),
         ),
     );
 
 export const useIndividualVariantInterpretations = (individual) => {
     const interpretations = useIndividualInterpretations(individual);
-    return useGenomicInterpretations(interpretations, "variant_interpretation");
+    return useGenomicInterpretationsWithCall(interpretations, "variant_interpretation");
 };
 
-export const useIndividualGeneInterpretations = (individual) => {
+export const useIndividualGeneDescriptors = (individual) => {
     const interpretations = useIndividualInterpretations(individual);
-    return useGenomicInterpretations(interpretations, "gene_descriptor");
+    return useGenomicInterpretationsWithCall(interpretations, "gene_descriptor");
 }
 
 export const useDatasetResources = (datasetIDOrDatasetIDs) => {

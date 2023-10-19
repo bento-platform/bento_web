@@ -22,6 +22,7 @@ import IndividualVariants from "./IndividualVariants";
 import IndividualGenes from "./IndividualGenes";
 import IndividualTracks from "./IndividualTracks";
 import IndividualPhenopackets from "./IndividualPhenopackets";
+import IndividualInterpretations from "./IndividualInterpretations";
 
 const MENU_STYLE = {
     marginLeft: "-24px",
@@ -81,12 +82,14 @@ const ExplorerIndividualContent = () => {
     const ontologiesUrl = `${individualUrl}/ontologies`;
     const tracksUrl = `${individualUrl}/tracks`;
     const phenopacketsUrl = `${individualUrl}/phenopackets`;
+    const interpretationsUrl = `${individualUrl}/interpretations`
 
     const individualMenu = [
         {url: overviewUrl, style: {marginLeft: "4px"}, text: "Overview"},
         {url: phenotypicFeaturesUrl, text: "Phenotypic Features"},
         {url: biosamplesUrl, text: "Biosamples"},
         {url: experimentsUrl, text: "Experiments"},
+        {url: interpretationsUrl, text: "Interpretations"},
         {url: tracksUrl, text: "Tracks"},
         {url: variantsUrl, text: "Variants"},
         {url: genesUrl, text: "Genes"},
@@ -125,6 +128,9 @@ const ExplorerIndividualContent = () => {
                     </Route>
                     <Route path={experimentsUrl.replace(":", "\\:")}>
                         <IndividualExperiments individual={individual} />
+                    </Route>
+                    <Route path={interpretationsUrl.replace()}>
+                        <IndividualInterpretations individual={individual}/>
                     </Route>
                     <Route path={tracksUrl.replace(":", "\\:")}>
                         <IndividualTracks individual={individual} />
