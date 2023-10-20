@@ -130,7 +130,9 @@ const ExplorerIndividualContent = () => {
                         <IndividualExperiments individual={individual} />
                     </Route>
                     <Route path={interpretationsUrl.replace()}>
-                        <IndividualInterpretations individual={individual}/>
+                        <IndividualInterpretations individual={individual}
+                            variantsUrl={variantsUrl} 
+                            genesUrl={genesUrl}/>
                     </Route>
                     <Route path={tracksUrl.replace(":", "\\:")}>
                         <IndividualTracks individual={individual} />

@@ -15,114 +15,131 @@ import OntologyTerm from "./OntologyTerm";
 // TODO: Only show variants from the relevant dataset, if specified;
 //  highlight those found in search results, if specified
 
-const sampleStyle = {display: "flex", flexDirection: "column", flexWrap: "nowrap"};
 const variantStyle = {margin: "5px"};
 
-const mappedVariantPropType = PropTypes.shape({
-    id: PropTypes.string,
-    hgvs: PropTypes.string,
-    geneContext: PropTypes.string,
+const variantExpressionPropType = PropTypes.shape({
+    syntax: PropTypes.string,
+    value: PropTypes.string,
+    version: PropTypes.string,
 });
 
-const VariantDetails = ({variant, tracksUrl}) => {
+const VariantExpressionDetails = ({variantExpression, tracksUrl}) => {
     const dispatch = useDispatch();
-
+    console.log("variantExpr", variantExpression);
     return (
         <div style={variantStyle}>
             <span style={{display: "inline", marginRight: "15px"} }>
-                {`id: ${variant.id} hgvs: ${variant.hgvs}`}
+                <strong>syntax :</strong>{" "}{variantExpression.syntax}{" "}
+                <strong>value :</strong>{" "}{variantExpression.value}{" "}
+                <strong>version :</strong>{" "}{variantExpression.version}{" "}
             </span>
-            {variant.geneContext && (
+            {variantExpression.geneContext && (
                 <>
                     gene context:
-                    <Link onClick={() => dispatch(setIgvPosition(variant.geneContext))}
+                    <Link onClick={() => dispatch(setIgvPosition(variantExpression.geneContext))}
                           to={{ pathname: tracksUrl }}>
-                        <Button>{variant.geneContext}</Button>
+                        <Button>{variantExpression.geneContext}</Button>
                     </Link>
                 </>
             )}
         </div>
     );
 };
-VariantDetails.propTypes = {
-    variant: mappedVariantPropType,
+VariantExpressionDetails.propTypes = {
+    variantExpression: variantExpressionPropType,
+    geneContext: PropTypes.string,
     tracksUrl: PropTypes.string,
 };
 
-const SampleVariants = ({variantsMapped, biosampleID, tracksUrl}) =>
-    variantsMapped[biosampleID].length ? (
-        <div style={sampleStyle}>
-            {variantsMapped[biosampleID].map((v) => (
-                <VariantDetails key={v.id} variant={v} tracksUrl={tracksUrl} />
-            ))}
-        </div>
-    ) : <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} />;
-SampleVariants.propTypes = {
-    variantsMapped: PropTypes.objectOf(PropTypes.arrayOf(mappedVariantPropType)),
-    biosampleID: PropTypes.string,
-    tracksUrl: PropTypes.string,
-};
 
-const ConditionalDescriptionItem = ({data, label}) => {
-    console.log(label, data);
-    return <>
-        {data && <Descriptions.Item label={label}>{data}</Descriptions.Item>}
-    </>;
-}
-ConditionalDescriptionItem.propTypes = {
-    data: PropTypes.any,
-    label: PropTypes.any,
-}
-
-const VariantInterpretationDescriptor = ({genomicInterpretation, resourcesTuple}) => {
-    const variantInterpretation = genomicInterpretation?.variant_interpretation ?? {};
-    const variationDescriptor = variantInterpretation?.variation_descriptor ?? {};
+const VariantDescriptor = ({variationDescriptor, resourcesTuple, tracksUrl}) => {
     return (
         <Descriptions layout="horizontal" bordered={true} column={1} size="small">
             <Descriptions.Item label={"ID"}>{variationDescriptor.id}</Descriptions.Item>
-            <ConditionalDescriptionItem data={variationDescriptor?.variation} label={"Variation"}/>
-            <ConditionalDescriptionItem data={variationDescriptor?.label} label={"Label"}/>
-            <ConditionalDescriptionItem data={variationDescriptor?.description} label={"Description"}/>
-            <ConditionalDescriptionItem data={variationDescriptor?.gene_context} label={"Gene Context"}/>
-            {variationDescriptor.expressions && <Descriptions.Item label={"Expressions"}>
-                {/* TODO */}
-            </Descriptions.Item>}
-            {variationDescriptor.vcf_record && <Descriptions.Item label={"VCF Record"}>
-                {/* TODO */}
-            </Descriptions.Item>}
-            {<Descriptions.Item label={"XRefs"}>{variationDescriptor.xrefs}</Descriptions.Item>}
-            <Descriptions.Item label={"Alternate Labels"}>{variationDescriptor.alternate_labels}</Descriptions.Item>
-            <Descriptions.Item label={"Extensions"}>
-                {/* TODO */}
-            </Descriptions.Item>
-            <Descriptions.Item label={"Molecule Context"}>{variationDescriptor.molecule_context}</Descriptions.Item>
-            {variationDescriptor.structural_type && <Descriptions.Item label={"Structural Type"}>
-                <OntologyTerm resourcesTuple={resourcesTuple} term={variationDescriptor.structural_type}/>
-            </Descriptions.Item>}
-            <Descriptions.Item label={"VRS ref allele sequence"}>{variationDescriptor.vrs_ref_allele_seq}</Descriptions.Item>
-            {variationDescriptor.allelic_state && <Descriptions.Item label={"Allelic State"}>
-                <OntologyTerm resourcesTuple={resourcesTuple} term={variationDescriptor.allelic_state}/>
-            </Descriptions.Item>}
+            {variationDescriptor.variation &&
+                <Descriptions.Item label="Variation">
+                    {/* TODO: Variation type specific display */}
+                    <JsonView inputJson={variationDescriptor.variation}/>
+                </Descriptions.Item>
+            }
+            {variationDescriptor.label &&
+                <Descriptions.Item label="Label">{variationDescriptor.label}</Descriptions.Item>
+            }
+            {variationDescriptor.description &&
+                <Descriptions.Item label="Description">{variationDescriptor.description}</Descriptions.Item>
+            }
+            {variationDescriptor.gene_context &&
+                <Descriptions.Item label="Gene Context">{variationDescriptor.gene_context}</Descriptions.Item>
+            }
+            {variationDescriptor.expressions &&
+                <Descriptions.Item label={"Expressions"}>
+                    {variationDescriptor.expressions.map(expr => (
+                        <VariantExpressionDetails variantExpression={expr} 
+                            geneContext={variationDescriptor.gene_context} 
+                            tracksUrl={tracksUrl}
+                            key={expr.value}/>
+                    ))}
+                </Descriptions.Item>
+            }
+            {variationDescriptor.vfc_record &&
+                <Descriptions.Item label={"VCF Record"}>
+                    <JsonView inputJson={variationDescriptor.vfc_record}/>
+                </Descriptions.Item>
+            }
+            {variationDescriptor.xrefs &&
+                <Descriptions.Item label={"XRefs"}>{variationDescriptor.xrefs}</Descriptions.Item>
+            }
+            {variationDescriptor.alternate_labels &&
+                <Descriptions.Item label={"Alternate Labels"}>{variationDescriptor.alternate_labels}</Descriptions.Item>
+            }
+            {variationDescriptor.extensions &&
+                <Descriptions.Item label={"Extensions"}>
+                    {variationDescriptor.extensions}
+                </Descriptions.Item>
+            }
+            {variationDescriptor.molecule_context &&
+                <Descriptions.Item label={"Molecule Context"}>{variationDescriptor.molecule_context}</Descriptions.Item>
+            }
+            {variationDescriptor.structural_type &&
+                <Descriptions.Item label={"Structural Type"}>
+                    <OntologyTerm resourcesTuple={resourcesTuple} term={variationDescriptor.structural_type}/>
+                </Descriptions.Item>
+            }
+            {variationDescriptor.vrs_ref_allele_seq &&
+                <Descriptions.Item label={"VRS ref allele sequence"}>
+                    {variationDescriptor.vrs_ref_allele_seq}
+                </Descriptions.Item>
+            }
+            {variationDescriptor.allelic_state &&
+                <Descriptions.Item label={"Allelic State"}>
+                    <OntologyTerm resourcesTuple={resourcesTuple} term={variationDescriptor.allelic_state}/>
+                </Descriptions.Item>
+            }
         </Descriptions>
     );
 };
-VariantInterpretationDescriptor.propTypes = {
-    genomicInterpretation: PropTypes.object,
+VariantDescriptor.propTypes = {
+    variationDescriptor: PropTypes.object,
     resourcesTuple: PropTypes.array,
+    tracksUrl: PropTypes.string,
 };
 
 const IndividualVariants = ({individual, tracksUrl}) => {
-    const variantGenomicInterpretations = useIndividualVariantInterpretations(individual);
     const resourcesTuple = useIndividualResources(individual);
 
+    const variantGenomicInterpretations = useIndividualVariantInterpretations(individual);
+    const variantDescriptors = variantGenomicInterpretations.map(gi => gi.variant_interpretation.variation_descriptor)
+    console.log(variantDescriptors);
     return (
       <div className="variantDescriptions">
             {
-                variantGenomicInterpretations.length ? <Descriptions layout="horizontal" bordered={true} column={1} size="small">
-                    {variantGenomicInterpretations.map(gi => {
+                variantDescriptors.length ? <Descriptions layout="horizontal" bordered={true} column={1} size="small" title="Variants">
+                    {variantDescriptors.map(vd => {
                         return (
-                            <Descriptions.Item key={gi.id} label={gi.id}>
-                                <VariantInterpretationDescriptor genomicInterpretation={gi} resourcesTuple={resourcesTuple}/>
+                            <Descriptions.Item key={vd.id} label={vd.id}>
+                                <VariantDescriptor variationDescriptor={vd}
+                                    resourcesTuple={resourcesTuple}
+                                    tracksUrl={tracksUrl}/>
                             </Descriptions.Item>
                         )
                     })}
