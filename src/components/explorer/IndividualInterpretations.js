@@ -1,4 +1,4 @@
-import React, { useMemo } from "react";
+import React from "react";
 import PropTypes from "prop-types";
 
 import { Link } from "react-router-dom";
@@ -19,7 +19,7 @@ const createdAndUpdatedDescriptions = (data) => {
         descriptions.push(<Descriptions.Item label="Updated" key={"updated"}>{data.updated}</Descriptions.Item>);
     }
     return descriptions;
-}
+};
 
 export const VariantInterpretation = ({variationInterpretation, variantsUrl}) => {
     return (
@@ -43,27 +43,27 @@ VariantInterpretation.propTypes = {
     variantsUrl: PropTypes.string,
 };
 
-export const GenomicInterpretation = ({genomicInterpretation, tracksUrl, variantsUrl}) => {
-    const related_type = genomicInterpretation?.extra_properties?.related_type ?? "unknown";
-    const related_label = related_type[0].toUpperCase() + related_type.slice(1).toLowerCase();
+export const GenomicInterpretation = ({genomicInterpretation, variantsUrl, genesUrl}) => {
+    const relatedType = genomicInterpretation?.extra_properties?.related_type ?? "unknown";
+    const relatedLabel = relatedType[0].toUpperCase() + relatedType.slice(1).toLowerCase();
 
-    const variant_interpretation = genomicInterpretation?.variant_interpretation;
-    const gene_descriptor = genomicInterpretation?.gene_descriptor;
+    const variantInterpretation = genomicInterpretation?.variant_interpretation;
+    const geneDescriptor = genomicInterpretation?.gene_descriptor;
 
     return (
         <Descriptions layout="horizontal" bordered={true} column={1} size="small">
             <Descriptions.Item label="ID">{genomicInterpretation.id}</Descriptions.Item>
-            <Descriptions.Item label={`${related_label} ID`}>
+            <Descriptions.Item label={`${relatedLabel} ID`}>
                 {genomicInterpretation.subject_or_biosample_id}
             </Descriptions.Item>
             <Descriptions.Item label={"Interpretation Status"}>
                 {genomicInterpretation.interpretation_status}
             </Descriptions.Item>
             {createdAndUpdatedDescriptions(genomicInterpretation)}
-            {variant_interpretation && <Descriptions.Item label={"Variant Interpretation"}>
-                <VariantInterpretation variationInterpretation={variant_interpretation} variantsUrl={variantsUrl}/>
+            {variantInterpretation && <Descriptions.Item label={"Variant Interpretation"}>
+                <VariantInterpretation variationInterpretation={variantInterpretation} variantsUrl={variantsUrl}/>
             </Descriptions.Item>}
-            {gene_descriptor && <Descriptions.Item label="Gene Descriptor">
+            {geneDescriptor && <Descriptions.Item label="Gene Descriptor">
                 {/* TODO: GeneDescriptor component */}
             </Descriptions.Item>}
         </Descriptions>
@@ -72,30 +72,34 @@ export const GenomicInterpretation = ({genomicInterpretation, tracksUrl, variant
 GenomicInterpretation.propTypes = {
     genomicInterpretation: PropTypes.object,
     variantsUrl: PropTypes.string,
-    tracksUrl: PropTypes.string,
+    genesUrl: PropTypes.string,
 };
 
 
-const Diagnosis = ({diagnosis, resourcesTuple, variantsUrl}) => {
-    const genomic_interpretations = diagnosis?.genomic_interpretations ?? [];
+const Diagnosis = ({diagnosis, resourcesTuple, variantsUrl, genesUrl}) => {
+    const genomicInterpretations = diagnosis?.genomic_interpretations ?? [];
     return (
         <Descriptions layout="horizontal" bordered={true} column={1} size="small">
             <Descriptions.Item label="Disease">
                 <OntologyTerm resourcesTuple={resourcesTuple} term={diagnosis.disease_ontology}/>
             </Descriptions.Item>
-            {genomic_interpretations.length ? (
+            {genomicInterpretations.length ? (
                 <Descriptions.Item label="Genomic Interpretations">
-                    {genomic_interpretations.map(gi =>
-                        <GenomicInterpretation genomicInterpretation={gi} key={gi.id} variantsUrl={variantsUrl}/>
+                    {genomicInterpretations.map(gi =>
+                        <GenomicInterpretation key={gi.id}
+                                               genomicInterpretation={gi}
+                                               variantsUrl={variantsUrl}/>,
                     )}
                 </Descriptions.Item>
             ) : null}
         </Descriptions>
-    )
+    );
 };
 Diagnosis.propTypes = {
     diagnosis: PropTypes.object,
+    resourcesTuple: resourcePropTypesShape,
     variantsUrl: PropTypes.string,
+    genesUrl: PropTypes.string,
 };
 
 const Interpretation = ({interpretation, resourcesTuple, variantsUrl, genesUrl}) => {
@@ -108,24 +112,29 @@ const Interpretation = ({interpretation, resourcesTuple, variantsUrl, genesUrl})
             <Diagnosis diagnosis={interpretation.diagnosis} resourcesTuple={resourcesTuple} variantsUrl={variantsUrl}/>
         </Descriptions.Item>
     </Descriptions>);
-}
+};
 Interpretation.propTypes = {
     interpretation: PropTypes.object,
     resourcesTuple: PropTypes.array,
     variantsUrl: PropTypes.string,
     genesUrl: PropTypes.string,
-}
+};
 
 const IndividualInterpretations = ({individual, variantsUrl, genesUrl}) => {
     const interpretations = useIndividualInterpretations(individual);
     const resourcesTuple = useIndividualResources(individual);
     return (
         <div>
-            {interpretations.length ? (<Descriptions layout="horizontal" bordered={true} column={1} size="small" title="Interpretations">
-                {interpretations.map(interp => <Descriptions.Item label={interp.id} key={interp.id}>
-                    <Interpretation interpretation={interp} resourcesTuple={resourcesTuple} variantsUrl={variantsUrl} genesUrl={genesUrl}/>
-                </Descriptions.Item>)}
-            </Descriptions>) : <Empty image={Empty.PRESENTED_IMAGE_SIMPLE}/>}
+            {interpretations.length ?
+                (<Descriptions layout="horizontal" bordered={true} column={1} size="small" title="Interpretations">
+                    {interpretations.map(interp => <Descriptions.Item label={interp.id} key={interp.id}>
+                        <Interpretation interpretation={interp}
+                                        resourcesTuple={resourcesTuple}
+                                        variantsUrl={variantsUrl}
+                                        genesUrl={genesUrl}/>
+                    </Descriptions.Item>)}
+                </Descriptions>)
+                : <Empty image={Empty.PRESENTED_IMAGE_SIMPLE}/>}
         </div>
     );
 };

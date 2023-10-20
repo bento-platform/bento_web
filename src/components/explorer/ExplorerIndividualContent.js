@@ -72,6 +72,7 @@ const ExplorerIndividualContent = () => {
     // Trigger resource loading
     useIndividualResources(individual);
 
+    // TODO: Medical Procedures
     const overviewUrl = `${individualUrl}/overview`;
     const phenotypicFeaturesUrl = `${individualUrl}/phenotypic-features`;
     const biosamplesUrl = `${individualUrl}/biosamples`;
@@ -82,7 +83,7 @@ const ExplorerIndividualContent = () => {
     const ontologiesUrl = `${individualUrl}/ontologies`;
     const tracksUrl = `${individualUrl}/tracks`;
     const phenopacketsUrl = `${individualUrl}/phenopackets`;
-    const interpretationsUrl = `${individualUrl}/interpretations`
+    const interpretationsUrl = `${individualUrl}/interpretations`;
 
     const individualMenu = [
         {url: overviewUrl, style: {marginLeft: "4px"}, text: "Overview"},
@@ -131,8 +132,8 @@ const ExplorerIndividualContent = () => {
                     </Route>
                     <Route path={interpretationsUrl.replace()}>
                         <IndividualInterpretations individual={individual}
-                            variantsUrl={variantsUrl} 
-                            genesUrl={genesUrl}/>
+                                                   variantsUrl={variantsUrl}
+                                                   genesUrl={genesUrl}/>
                     </Route>
                     <Route path={tracksUrl.replace(":", "\\:")}>
                         <IndividualTracks individual={individual} />

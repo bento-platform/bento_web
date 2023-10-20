@@ -1,4 +1,4 @@
-import React, { useMemo } from "react";
+import React from "react";
 import { Link } from "react-router-dom";
 import { useDispatch } from "react-redux";
 import PropTypes from "prop-types";
@@ -23,9 +23,8 @@ const variantExpressionPropType = PropTypes.shape({
     version: PropTypes.string,
 });
 
-const VariantExpressionDetails = ({variantExpression, tracksUrl}) => {
+const VariantExpressionDetails = ({variantExpression, geneContext, tracksUrl}) => {
     const dispatch = useDispatch();
-    console.log("variantExpr", variantExpression);
     return (
         <div style={variantStyle}>
             <span style={{display: "inline", marginRight: "15px"} }>
@@ -33,12 +32,12 @@ const VariantExpressionDetails = ({variantExpression, tracksUrl}) => {
                 <strong>value :</strong>{" "}{variantExpression.value}{" "}
                 <strong>version :</strong>{" "}{variantExpression.version}{" "}
             </span>
-            {variantExpression.geneContext && (
+            {geneContext && (
                 <>
                     gene context:
-                    <Link onClick={() => dispatch(setIgvPosition(variantExpression.geneContext))}
+                    <Link onClick={() => dispatch(setIgvPosition(geneContext))}
                           to={{ pathname: tracksUrl }}>
-                        <Button>{variantExpression.geneContext}</Button>
+                        <Button>{geneContext}</Button>
                     </Link>
                 </>
             )}
@@ -74,10 +73,10 @@ const VariantDescriptor = ({variationDescriptor, resourcesTuple, tracksUrl}) => 
             {variationDescriptor.expressions &&
                 <Descriptions.Item label={"Expressions"}>
                     {variationDescriptor.expressions.map(expr => (
-                        <VariantExpressionDetails variantExpression={expr} 
-                            geneContext={variationDescriptor.gene_context} 
-                            tracksUrl={tracksUrl}
-                            key={expr.value}/>
+                        <VariantExpressionDetails variantExpression={expr}
+                                                  geneContext={variationDescriptor.gene_context}
+                                                  tracksUrl={tracksUrl}
+                                                  key={expr.value}/>
                     ))}
                 </Descriptions.Item>
             }
@@ -128,23 +127,23 @@ const IndividualVariants = ({individual, tracksUrl}) => {
     const resourcesTuple = useIndividualResources(individual);
 
     const variantGenomicInterpretations = useIndividualVariantInterpretations(individual);
-    const variantDescriptors = variantGenomicInterpretations.map(gi => gi.variant_interpretation.variation_descriptor)
-    console.log(variantDescriptors);
+    const variantDescriptors = variantGenomicInterpretations.map(gi => gi.variant_interpretation.variation_descriptor);
     return (
       <div className="variantDescriptions">
             {
-                variantDescriptors.length ? <Descriptions layout="horizontal" bordered={true} column={1} size="small" title="Variants">
-                    {variantDescriptors.map(vd => {
-                        return (
-                            <Descriptions.Item key={vd.id} label={vd.id}>
-                                <VariantDescriptor variationDescriptor={vd}
-                                    resourcesTuple={resourcesTuple}
-                                    tracksUrl={tracksUrl}/>
-                            </Descriptions.Item>
-                        )
-                    })}
-                </Descriptions>
-                : <Empty image={Empty.PRESENTED_IMAGE_SIMPLE}/>
+                variantDescriptors.length ?
+                    <Descriptions layout="horizontal" bordered={true} column={1} size="small" title="Variants">
+                        {variantDescriptors.map(vd => {
+                            return (
+                                <Descriptions.Item key={vd.id} label={vd.id}>
+                                    <VariantDescriptor variationDescriptor={vd}
+                                                       resourcesTuple={resourcesTuple}
+                                                       tracksUrl={tracksUrl}/>
+                                </Descriptions.Item>
+                            );
+                        })}
+                    </Descriptions>
+                    : <Empty image={Empty.PRESENTED_IMAGE_SIMPLE}/>
             }
       </div>
     );

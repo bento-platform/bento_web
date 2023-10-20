@@ -1,8 +1,7 @@
-import React, { memo, useEffect } from "react";
+import React from "react";
 import PropTypes from "prop-types";
 
 import { EM_DASH } from "../../constants";
-import OntologyTerm from "./OntologyTerm";
 
 const TIME_ELEMENT_TYPES_LABELS = {
     "age": "Age",
@@ -11,7 +10,7 @@ const TIME_ELEMENT_TYPES_LABELS = {
     "ontology_class": "Ontology Class",
     "timestamp": "Timestamp",
     "interval": "Interval",
-}
+};
 
 const getTimeElementTypeLabel = (timeElement) => {
     const keys = Object.keys(timeElement);
@@ -24,7 +23,7 @@ const getTimeElementTypeLabel = (timeElement) => {
         }
     }
     return [null, "NOT_SUPPORTED"];
-}
+};
 
 const renderTimeElement = (type, timeElement) => {
     switch (type) {
@@ -55,7 +54,7 @@ const renderTimeElement = (type, timeElement) => {
         default:
             return EM_DASH;
     }
-}
+};
 
 const TimeElement = ({timeElement}) => {
     const [timeType, label] = getTimeElementTypeLabel(timeElement);
@@ -71,7 +70,7 @@ const TimeElement = ({timeElement}) => {
             {renderTimeElement(timeType, timeElement)}
         </span>
     );
-}
+};
 
 TimeElement.propTypes = {
     timeElement: PropTypes.object,

@@ -36,7 +36,7 @@ const BiosampleProcedure = ({ resourcesTuple, procedure }) => (
                 <strong>Performed:</strong>{" "}
                 <TimeElement timeElement={procedure.performed} />
             </div>
-        ): null}
+        ) : null}
     </div>
 );
 BiosampleProcedure.propTypes = {
@@ -44,6 +44,7 @@ BiosampleProcedure.propTypes = {
     procedure: PropTypes.shape({
         code: ontologyShape.isRequired,
         body_site: ontologyShape,
+        performed: PropTypes.bool,
     }).isRequired,
 };
 

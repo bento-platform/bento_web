@@ -113,7 +113,7 @@ export const searchUiMappings = {
                 "path": "phenotypic_features.[item].modifiers.[item].label",
                 "ui_name": "Phenotypic feature modifier",
             },
-                        "onset": {
+            "onset": {
                 "path": "phenotypic_features.[item].onset.label",
                 "ui_name": "Phenotypic feature onset",
             },

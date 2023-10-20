@@ -39,7 +39,7 @@ const useGenomicInterpretationsWithCall = (interpretations, call) =>
             Object.fromEntries(
                 interpretations
                     .filter(interp => interp.hasOwnProperty("diagnosis"))
-                    .filter(interp => interp.diagnosis.hasOwnProperty("genomic_interpretations") 
+                    .filter(interp => interp.diagnosis.hasOwnProperty("genomic_interpretations")
                                         && interp.diagnosis.genomic_interpretations.length)
                     .flatMap(interp => interp.diagnosis.genomic_interpretations)
                     .filter(gi => gi.hasOwnProperty(call))
@@ -56,7 +56,7 @@ export const useIndividualVariantInterpretations = (individual) => {
 export const useIndividualGeneDescriptors = (individual) => {
     const interpretations = useIndividualInterpretations(individual);
     return useGenomicInterpretationsWithCall(interpretations, "gene_descriptor");
-}
+};
 
 export const useDatasetResources = (datasetIDOrDatasetIDs) => {
     const dispatch = useDispatch();
