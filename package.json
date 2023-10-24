@@ -16,12 +16,15 @@
     "jose": "^4.14.6",
     "lodash": "^4.17.21",
     "lodash.debounce": "^4.0.8",
+    "mammoth": "^1.6.0",
+    "papaparse": "^5.4.1",
     "prop-types": "^15.7.2",
     "query-string": "^6.13.7",
     "react": "^16.14.0",
     "react-dom": "^16.14.0",
     "react-dropzone": "^14.2.3",
     "react-json-view": "^1.21.3",
+    "react-markdown": "^8.0.7",
     "react-pdf": "^6.2.2",
     "react-redux": "^7.2.9",
     "react-router-dom": "^5.3.4",
@@ -29,8 +32,10 @@
     "react-syntax-highlighter": "^13.5.3",
     "redux": "^4.2.0",
     "redux-thunk": "^2.4.2",
+    "remark-gfm": "^3.0.1",
     "socket.io-client": "^4.7.2",
-    "victory": "^35.3.1"
+    "victory": "^35.3.1",
+    "xlsx": "https://cdn.sheetjs.com/xlsx-0.20.0/xlsx-0.20.0.tgz"
   },
   "devDependencies": {
     "@babel/core": "^7.23.0",

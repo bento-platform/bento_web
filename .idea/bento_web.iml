@@ -19,5 +19,6 @@
     <orderEntry type="library" name="@types/victory" level="application" />
     <orderEntry type="library" name="@types/react-router" level="application" />
     <orderEntry type="library" name="@types/react-pdf" level="application" />
+    <orderEntry type="library" name="@types/papaparse" level="application" />
   </component>
 </module>
