@@ -53,7 +53,7 @@ const BASE_PDF_OPTIONS = {
 const LANGUAGE_HIGHLIGHTERS = {
     "bash": "bash",
     "json": "json",
-    "md": "markdown",  // TODO: component to either render this or show source
+    "md": "markdown",
     "txt": "plaintext",
     "py": "python",
     "R": "r",
