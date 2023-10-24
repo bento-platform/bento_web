@@ -3,7 +3,7 @@ import React, { useCallback } from "react";
 import { Button } from "antd";
 import PropTypes from "prop-types";
 
-const DownloadButton = ({ disabled, uri, children, type }) => {
+const DownloadButton = ({ disabled, uri, children, size, type }) => {
     const { accessToken } = useSelector((state) => state.auth);
 
     const onClick = useCallback(() => {
@@ -23,7 +23,7 @@ const DownloadButton = ({ disabled, uri, children, type }) => {
     }, [uri, accessToken]);
 
     return (
-        <Button key="download" icon="download" type={type} disabled={disabled} onClick={onClick}>
+        <Button key="download" icon="download" size={size} type={type} disabled={disabled} onClick={onClick}>
             {children === undefined ? "Download" : children}
         </Button>
     );
@@ -31,6 +31,7 @@ const DownloadButton = ({ disabled, uri, children, type }) => {
 
 DownloadButton.defaultProps = {
     disabled: false,
+    size: "default",
     type: "default",
 };
 
@@ -38,6 +39,7 @@ DownloadButton.propTypes = {
     disabled: PropTypes.bool,
     uri: PropTypes.string,
     children: PropTypes.oneOfType([PropTypes.object, PropTypes.string]),
+    size: PropTypes.oneOf(["small", "default", "large"]),
     type: PropTypes.oneOf(["primary", "ghost", "dashed", "danger", "link", "default"]),
 };
 
