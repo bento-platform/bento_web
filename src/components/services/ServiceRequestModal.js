@@ -5,7 +5,7 @@ import PropTypes from "prop-types";
 import {Button, Divider, Form, Input, Modal, Skeleton} from "antd";
 
 import {useAuthorizationHeader} from "../../lib/auth/utils";
-import JsonDisplay from "../JsonDisplay";
+import JsonDisplay from "../display/JsonDisplay";
 
 const ServiceRequestModal = ({service, onCancel}) => {
     const bentoServicesByKind = useSelector(state => state.bentoServices.itemsByKind);

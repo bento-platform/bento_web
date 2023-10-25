@@ -253,7 +253,6 @@ export const individualPropTypesShape = PropTypes.shape({
     age: PropTypes.object,  // TODO: Shape
     sex: PropTypes.oneOf(SEX_VALUES),
     karyotypic_sex: PropTypes.oneOf(KARYOTYPIC_SEX_VALUES),
-    ethnicity: PropTypes.string,
     taxonomy: ontologyShape,
 
     phenopackets: PropTypes.arrayOf(PropTypes.object),  // TODO
