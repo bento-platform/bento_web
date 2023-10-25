@@ -331,6 +331,7 @@ export const experimentResultPropTypesShape = PropTypes.shape({
         "SFF",
         "GFF",
         "TABIX",
+        "PDF",
         "UNKNOWN",
         "OTHER",
     ]),
