@@ -46,6 +46,7 @@ WorkflowFilter.propTypes = {
     loading: PropTypes.bool,
     tags: PropTypes.arrayOf(PropTypes.string),
     value: filterValuesPropType,
+    onChange: PropTypes.func,
 };
 
 const WorkflowSelection = ({ workflowType, initialFilterValues, handleWorkflowClick }) => {
@@ -81,7 +82,7 @@ const WorkflowSelection = ({ workflowType, initialFilterValues, handleWorkflowCl
                         w.name.toLowerCase().includes(ftLower) ||
                         w.description.toLowerCase().includes(ftLower) ||
                         w.data_type.includes(ftLower)
-                    ) && (ftTags.length === 0 || ftTags.includes(w.data_type))
+                    ) && (ftTags.length === 0 || ftTags.includes(w.data_type)),
                 )  // TODO: tags too, properly
                 .map(w =>
                     <WorkflowListItem
@@ -90,7 +91,7 @@ const WorkflowSelection = ({ workflowType, initialFilterValues, handleWorkflowCl
                         selectable={true}
                         onClick={() => handleWorkflowClick(w)}
                     />,
-                )
+                );
         },
         [workflowsOfType, filterValues],
     );

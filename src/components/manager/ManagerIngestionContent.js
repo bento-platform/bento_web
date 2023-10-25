@@ -77,7 +77,7 @@ const ManagerIngestionContent = () => {
         )}
         onSubmit={({selectedWorkflow, inputs}) => {
             if (!selectedWorkflow) {
-                message.error(`Missing workflow selection; cannot submit run!`);
+                message.error("Missing workflow selection; cannot submit run!");
                 return;
             }
 

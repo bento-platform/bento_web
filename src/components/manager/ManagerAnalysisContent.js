@@ -1,15 +1,15 @@
 import React from "react";
-import {useDispatch, useSelector} from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
+import { useHistory } from "react-router-dom";
 import PropTypes from "prop-types";
 
-import { Button, Form, List } from "antd";
+import { Button, Form, List, message } from "antd";
 
+import { submitAnalysisWorkflowRun } from "../../modules/wes/actions";
 import WorkflowListItem from "./WorkflowListItem";
-import {FORM_BUTTON_COL, FORM_LABEL_COL, FORM_WRAPPER_COL} from "./workflowCommon";
-import {useHistory} from "react-router-dom";
 import RunSetupWizard from "./RunSetupWizard";
 import RunSetupInputsTable from "./RunSetupInputsTable";
-import {submitAnalysisWorkflowRun} from "../../modules/wes/actions";
+import { FORM_BUTTON_COL, FORM_LABEL_COL, FORM_WRAPPER_COL } from "./workflowCommon";
 
 const AnalysisConfirmDisplay = ({selectedWorkflow, inputs, handleRunWorkflow}) => {
     const isSubmittingAnalysisRun = useSelector(state => state.runs.isSubmittingAnalysisRun);
@@ -27,7 +27,7 @@ const AnalysisConfirmDisplay = ({selectedWorkflow, inputs, handleRunWorkflow}) =
             <Form.Item wrapperCol={FORM_BUTTON_COL}>
                 {/* TODO: Back button like the last one */}
                 <Button type="primary"
-                        style={{marginTop: "16px", float: "right"}}
+                        style={{ marginTop: "16px", float: "right" }}
                         loading={isSubmittingAnalysisRun}
                         onClick={handleRunWorkflow}>
                     Run Analysis
@@ -51,7 +51,7 @@ const ManagerAnalysisContent = () => {
         confirmDisplay={props => <AnalysisConfirmDisplay {...props} />}
         onSubmit={({selectedWorkflow, inputs}) => {
             if (!selectedWorkflow) {
-                message.error(`Missing workflow selection; cannot submit run!`);
+                message.error("Missing workflow selection; cannot submit run!");
                 return;
             }
 
