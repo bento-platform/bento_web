@@ -147,7 +147,7 @@ const ManagerDRSContent = () => {
                                         <div key={i} style={{ display: "flex", gap: "0.8em", alignItems: "baseline" }}>
                                             <span style={{ fontWeight: "bold" }}>{type.toLocaleUpperCase()}:</span>
                                             <span style={{ fontFamily: "monospace" }}>
-                                                {type === "http" ? (
+                                                {["http", "https"].includes(type) ? (  // "http" for back-compat
                                                     <a href={url?.url} target="_blank" rel="noreferrer">
                                                         {url?.url}
                                                     </a>
