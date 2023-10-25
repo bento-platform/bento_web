@@ -320,7 +320,7 @@ const IndividualExperiments = ({ individual }) => {
 
 // expand here accordingly
 const isDownloadable = (result) =>
-    ["vcf", "cram", "bw", "bigwig"].includes(result.file_format?.toLowerCase());
+    ["vcf", "cram", "bw", "bigwig", "pdf"].includes(result.file_format?.toLowerCase());
 
 IndividualExperiments.propTypes = {
     individual: individualPropTypesShape,
