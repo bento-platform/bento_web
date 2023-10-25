@@ -160,10 +160,12 @@ const RunSetupInputForm = ({initialValues, form, onSubmit, workflow, onBack}) =>
             }),
 
             <Form.Item key="_submit" wrapperCol={FORM_BUTTON_COL}>
-                {onBack ? <Button icon="left" onClick={handleBack}>Back</Button> : null}
-                <Button type="primary" htmlType="submit" style={{float: "right"}}>
-                    Next <Icon type="right" />
-                </Button>
+                <> {/* Funny hack to make the type warning for multipe children in a Form.Item go away */}
+                    {onBack ? <Button icon="left" onClick={handleBack}>Back</Button> : null}
+                    <Button type="primary" htmlType="submit" style={{float: "right"}}>
+                        Next <Icon type="right" />
+                    </Button>
+                </>
             </Form.Item>,
         ]}
     </Form>;
