@@ -9,7 +9,7 @@ import { fetchIndividualIfNecessary } from "../../modules/metadata/actions";
 import { LAYOUT_CONTENT_STYLE } from "../../styles/layoutContent";
 import { matchingMenuKeys, renderMenuItem } from "../../utils/menu";
 import { urlPath } from "../../utils/url";
-import { useIndividualResources } from "./utils";
+import { useIsDataEmpty, useDeduplicatedIndividualBiosamples, useIndividualResources } from "./utils";
 
 import SitePageHeader from "../SitePageHeader";
 import IndividualOverview from "./IndividualOverview";
@@ -85,20 +85,44 @@ const ExplorerIndividualContent = () => {
     const phenopacketsUrl = `${individualUrl}/phenopackets`;
     const interpretationsUrl = `${individualUrl}/interpretations`;
 
+    const individualPhenopackets = individual?.phenopackets ?? [];
     const individualMenu = [
         {url: overviewUrl, style: {marginLeft: "4px"}, text: "Overview"},
-        {url: phenotypicFeaturesUrl, text: "Phenotypic Features"},
-        {url: biosamplesUrl, text: "Biosamples"},
-        {url: experimentsUrl, text: "Experiments"},
-        {url: interpretationsUrl, text: "Interpretations"},
+        {
+            url: phenotypicFeaturesUrl,
+            text: "Phenotypic Features",
+            disabled: useIsDataEmpty(individualPhenopackets, "phenotypic_features"),
+        },
+        {
+            url: biosamplesUrl,
+            text: "Biosamples",
+            disabled: useIsDataEmpty(individualPhenopackets, "biosamples"),
+        },
+        {
+            url: experimentsUrl,
+            text: "Experiments",
+            disabled: useIsDataEmpty(
+                useDeduplicatedIndividualBiosamples(individual),
+                "experiments",
+            ),
+        },
+        {
+            url: interpretationsUrl,
+            text: "Interpretations",
+            disabled: useIsDataEmpty(individualPhenopackets, "interpretations"),
+        },
         {url: tracksUrl, text: "Tracks"},
         {url: variantsUrl, text: "Variants"},
         {url: genesUrl, text: "Genes"},
-        {url: diseasesUrl, text: "Diseases"},
+        {
+            url: diseasesUrl,
+            text: "Diseases",
+            disabled: useIsDataEmpty(individualPhenopackets, "diseases"),
+        },
         {url: ontologiesUrl, text: "Ontologies"},
         {url: phenopacketsUrl, text: "Phenopackets JSON"},
     ];
-
+    console.log(individual);
     const selectedKeys = matchingMenuKeys(individualMenu, urlPath(BENTO_URL));
 
     return <>
@@ -130,7 +154,7 @@ const ExplorerIndividualContent = () => {
                     <Route path={experimentsUrl.replace(":", "\\:")}>
                         <IndividualExperiments individual={individual} />
                     </Route>
-                    <Route path={interpretationsUrl.replace()}>
+                    <Route path={interpretationsUrl.replace(":", "\\:")}>
                         <IndividualInterpretations individual={individual}
                                                    variantsUrl={variantsUrl}
                                                    genesUrl={genesUrl}/>

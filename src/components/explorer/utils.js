@@ -21,11 +21,37 @@ export const useIndividualInterpretations = (individual, withDiagnosis = false) 
                 (individual?.phenopackets ?? [])
                     .flatMap(p => p.interpretations)
                     .filter(i => withDiagnosis ? i.hasOwnProperty("diagnosis") : true)
+                    .filter(Boolean)
                     .map(i => [i.id, i]),
             ),
         ),
         [individual],
     );
+
+
+/**
+ * Hook to evaluate if the fieldName of an object/array contains data
+ * @param {array | object} data
+ * @param {string} fieldName
+ * @returns A bool value, true if "fieldName" is empty
+ */
+export const useIsDataEmpty = (data, fieldName) => {
+    if (Array.isArray(data)) {
+        // Flatmap the field if data is an array, 
+        // e.g: data is a list of biosamples, with fieldName="experiments"
+        return useMemo(
+            () => data.flatMap(item => item[fieldName] ?? []).length === 0,
+            [data, fieldName],
+        );
+    }
+
+    // Check data[fieldName] directly if data is an object
+    return useMemo(
+        () => (data[fieldName] ?? []).length === 0,
+        [data, fieldName],
+    );
+};
+
 
 /**
  * Returns the Interpretations that contain the call
