@@ -122,7 +122,6 @@ const ExplorerIndividualContent = () => {
         {url: ontologiesUrl, text: "Ontologies"},
         {url: phenopacketsUrl, text: "Phenopackets JSON"},
     ];
-    console.log(individual);
     const selectedKeys = matchingMenuKeys(individualMenu, urlPath(BENTO_URL));
 
     return <>

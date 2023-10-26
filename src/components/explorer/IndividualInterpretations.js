@@ -44,7 +44,7 @@ VariantInterpretation.propTypes = {
     variantsUrl: PropTypes.string,
 };
 
-export const GenomicInterpretation = ({genomicInterpretation, variantsUrl, genesUrl}) => {
+export const GenomicInterpretationDetails = ({genomicInterpretation, variantsUrl, genesUrl}) => {
     const relatedType = genomicInterpretation?.extra_properties?.related_type ?? "unknown";
     const relatedLabel = relatedType[0].toUpperCase() + relatedType.slice(1).toLowerCase();
 
@@ -53,12 +53,8 @@ export const GenomicInterpretation = ({genomicInterpretation, variantsUrl, genes
 
     return (
         <Descriptions layout="horizontal" bordered={true} column={1} size="small">
-            <Descriptions.Item label="ID">{genomicInterpretation.id}</Descriptions.Item>
             <Descriptions.Item label={`${relatedLabel} ID`}>
                 {genomicInterpretation.subject_or_biosample_id}
-            </Descriptions.Item>
-            <Descriptions.Item label={"Interpretation Status"}>
-                {genomicInterpretation.interpretation_status}
             </Descriptions.Item>
             {createdAndUpdatedDescriptions(genomicInterpretation)}
             {variantInterpretation && <Descriptions.Item label={"Variant Interpretation"}>
@@ -70,7 +66,7 @@ export const GenomicInterpretation = ({genomicInterpretation, variantsUrl, genes
         </Descriptions>
     );
 };
-GenomicInterpretation.propTypes = {
+GenomicInterpretationDetails.propTypes = {
     genomicInterpretation: PropTypes.object,
     variantsUrl: PropTypes.string,
     genesUrl: PropTypes.string,
@@ -102,6 +98,10 @@ const INTERPRETATIONS_COLUMNS = [
 
 const GENOMIC_INTERPRETATION_COLUMNS = [
     {
+        title: "ID",
+        dataIndex: "id",
+    },
+    {
         title: "Subject or Biosample ID",
         dataIndex: "subject_or_biosample_id",
     },
@@ -109,20 +109,93 @@ const GENOMIC_INTERPRETATION_COLUMNS = [
         title: "Interpretation Status",
         dataIndex: "interpretation_status",
     },
-    // TODO: use a Table here or Descriptions?
-]
+];
 
-const InterpretationDetail = ({interpretation, resourcesTuple}) => {
+const GenomicInterpretations = ({genomicInterpretations, variantsUrl, genesUrl, onGenomicInterpretationClick}) => {
+    const { selectedGenomicInterpretation } = useParams();
+    const selectedRowKeys = useMemo(
+        () => selectedGenomicInterpretation ? [selectedGenomicInterpretation] : [],
+        [selectedGenomicInterpretation],
+    );
+
+    console.log(selectedGenomicInterpretation);
+    console.log(selectedRowKeys);
+
+    const onExpand = useCallback(
+        (e, gi) => {
+            console.log(gi);
+            onGenomicInterpretationClick(e ? gi.id : undefined);
+        },
+        [onGenomicInterpretationClick],
+    );
+
+    const giRowRender = useCallback(
+        (gi) => (
+            <GenomicInterpretationDetails
+                genomicInterpretation={gi}
+                variantsUrl={variantsUrl}
+                genesUrl={genesUrl}
+            />
+        ),
+        [variantsUrl, genesUrl]
+    );
+
+    return (
+        <Table
+            bordered={true}
+            pagination={false}
+            size="middle"
+            columns={GENOMIC_INTERPRETATION_COLUMNS}
+            onExpand={onExpand}
+            // expandedRowKeys={selectedRowKeys}
+            expandedRowRender={giRowRender}
+            dataSource={genomicInterpretations}
+            rowKey="id"
+        />
+    )
+};
+
+
+const IndividualGenomicInterpretations = ({genomicInterpretations, genesUrl, variantsUrl}) => {
+    const history = useHistory();
+    const match = useRouteMatch();
+
+    const handleGenomicInterpClick = useCallback((giID) => {
+        if (!giID) {
+            history.replace(match.url);
+            return;
+        }
+        history.replace(`${match.url}/${giID}`);
+    }, [history, match]);
+
+    const genomicInterpretationsNode = (
+        <GenomicInterpretations
+            genomicInterpretations={genomicInterpretations}
+            variantsUrl={variantsUrl}
+            genesUrl={genesUrl}
+            onGenomicInterpretationClick={handleGenomicInterpClick}
+        />
+    );
+
+    return (
+        <Switch>
+            <Route path={`${match.path}/:selectedGenomicInterpretation`}>{genomicInterpretationsNode}</Route>
+            <Route path={match.path} exact={true}>{genomicInterpretationsNode}</Route>
+        </Switch>
+    )
+};
+
+const InterpretationDetail = ({interpretation, resourcesTuple, genesUrl, variantsUrl}) => {
     const { diagnosis } = interpretation;
 
     const sortedGenomicInterpretations = useMemo(
         () => (diagnosis?.genomic_interpretations ?? [])
-                .sort((g1, g2) => g1.subject_or_biosample_id > g2.subject_or_biosample_id ? 1 : -1),
+                .sort((g1, g2) => g1.id > g2.id ? 1 : -1),
         [diagnosis],
     );
 
     return (<div className="experiment_and_results">
-        <Typography.Title level={4}><Icon type="medicine-box" /> Diagnosis</Typography.Title>
+        <Typography.Title level={4}><Icon type="medicine-box" />Diagnosis</Typography.Title>
         {diagnosis ? <Descriptions layout="horizontal" bordered column={2} size="small">
             <Descriptions.Item label="Disease">
                 <OntologyTerm
@@ -132,20 +205,19 @@ const InterpretationDetail = ({interpretation, resourcesTuple}) => {
             </Descriptions.Item>
         </Descriptions> : <Empty image={Empty.PRESENTED_IMAGE_SIMPLE}/>}
 
-        <Typography.Title level={4}><Icon type="experiment" /> Genomic Interpretations</Typography.Title>
-        {sortedGenomicInterpretations.length ? <Table
-            bordered={true}
-            size="small"
-            pagination={false}
-            columns={GENOMIC_INTERPRETATION_COLUMNS}
-            rowKey="subject_or_biosample_id"
-            dataSource={sortedGenomicInterpretations}
-        /> : null}
+        <Typography.Title level={4}><Icon type="experiment" />Genomic Interpretations</Typography.Title>
+        {sortedGenomicInterpretations.length ? <IndividualGenomicInterpretations
+            genomicInterpretations={sortedGenomicInterpretations}
+            genesUrl={genesUrl}
+            variantsUrl={variantsUrl}
+        />: null}
     </div>)
 };
 InterpretationDetail.propTypes = {
     interpretation: PropTypes.object,
     resourcesTuple: PropTypes.array,
+    variantsUrl: PropTypes.string,
+    genesUrl: PropTypes.string,
 };
 
 const Interpretations = ({individual, variantsUrl, genesUrl, handleInterpretationClick}) => {
@@ -167,7 +239,12 @@ const Interpretations = ({individual, variantsUrl, genesUrl, handleInterpretatio
 
     const interpretationRowRender = useCallback(
         (interpretation) => (
-            <InterpretationDetail interpretation={interpretation} resourcesTuple={resourcesTuple} />
+            <InterpretationDetail interpretation={interpretation}
+                resourcesTuple={resourcesTuple}
+                genesUrl={genesUrl}
+                variantsUrl={variantsUrl}
+                
+            />
         ),
         [resourcesTuple]
     )
@@ -201,7 +278,7 @@ const IndividualInterpretations = ({individual, variantsUrl, genesUrl}) => {
             history.replace(match.url);
             return;
         }
-        history.replace(`${match.url}/${interpID}`)
+        history.replace(`${match.url}/${interpID}`);
     }, [history, match]);
 
     const interpretationsNode = (
