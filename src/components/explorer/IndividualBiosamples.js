@@ -5,7 +5,7 @@ import { Route, Switch, useHistory, useRouteMatch, useParams } from "react-route
 import { Button, Descriptions, Table } from "antd";
 
 import { EM_DASH } from "../../constants";
-import { useDeduplicatedIndividualBiosamples, useIndividualResources } from "./utils";
+import { useDeduplicatedIndividualBiosamples, useExplorerUrl, useIndividualResources } from "./utils";
 import {
     biosamplePropTypesShape,
     experimentPropTypesShape,
@@ -212,9 +212,11 @@ Biosamples.propTypes = {
     handleExperimentClick: PropTypes.func,
 };
 
-const IndividualBiosamples = ({individual, experimentsUrl}) => {
+const IndividualBiosamples = ({individual}) => {
     const history = useHistory();
     const match = useRouteMatch();
+
+    const experimentsUrl = useExplorerUrl("experiments");
 
     const handleBiosampleClick = useCallback((bID) => {
         if (!bID) {
@@ -246,7 +248,6 @@ const IndividualBiosamples = ({individual, experimentsUrl}) => {
 
 IndividualBiosamples.propTypes = {
     individual: individualPropTypesShape,
-    experimentsUrl: PropTypes.string,
 };
 
 export default IndividualBiosamples;

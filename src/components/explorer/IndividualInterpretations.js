@@ -1,14 +1,15 @@
-import React, { useCallback, useMemo } from "react";
+import React, { useCallback, useMemo, useState } from "react";
 import PropTypes from "prop-types";
 
-import { Link } from "react-router-dom";
-import { Button, Descriptions, Empty, Icon, Table, Typography } from "antd";
+import { Button, Descriptions, Empty, Icon, Modal, Table, Typography } from "antd";
 
 import { useIndividualResources, useIndividualInterpretations } from "./utils";
 import "./explorer.css";
 import { individualPropTypesShape } from "../../propTypes";
 import OntologyTerm from "./OntologyTerm";
 import { Route, Switch, useHistory, useParams, useRouteMatch } from "react-router-dom/cjs/react-router-dom.min";
+import { VariantDescriptor } from "./IndividualVariants";
+import { useSelector } from "react-redux";
 
 const createdAndUpdatedDescriptions = (data) => {
     const descriptions = [];
@@ -22,7 +23,13 @@ const createdAndUpdatedDescriptions = (data) => {
     return descriptions;
 };
 
-export const VariantInterpretation = ({ variationInterpretation, variantsUrl }) => {
+export const VariantInterpretation = ({ variationInterpretation }) => {
+    const [modalVisible, setModalVisible] = useState(false);
+
+    const resourcesTuple = useSelector((state) => state.explorer.individualResourcesTuple);
+    const tracksUrl = useSelector((state) => `${state.explorer.individualExplorerUrl}/tracks`);
+
+    const closeModal = () => setModalVisible(false);
     return (
         <Descriptions layout="horizontal" bordered={true} column={1} size="small">
             <Descriptions.Item label={"ACMG Pathogenicity classification"}>
@@ -32,19 +39,30 @@ export const VariantInterpretation = ({ variationInterpretation, variantsUrl }) 
                 {variationInterpretation.therapeutic_actionability}
             </Descriptions.Item>
             <Descriptions.Item label={"Variant Descriptor"}>
-                <Link to={{ pathname: variantsUrl }}>
-                    <Button>{variationInterpretation.variation_descriptor.id}</Button>
-                </Link>
+                <Button onClick={() => setModalVisible(!modalVisible)}>
+                    {variationInterpretation.variation_descriptor.id}
+                </Button>
+                <Modal
+                    title={"Variation Descriptor"}
+                    visible={modalVisible}
+                    onOk={closeModal}
+                    onCancel={closeModal}
+                >
+                    <VariantDescriptor
+                        variationDescriptor={variationInterpretation.variation_descriptor}
+                        resourcesTuple={resourcesTuple}
+                        tracksUrl={tracksUrl}
+                    />
+                </Modal>
             </Descriptions.Item>
         </Descriptions>
     );
 };
 VariantInterpretation.propTypes = {
     variationInterpretation: PropTypes.object,
-    variantsUrl: PropTypes.string,
 };
 
-export const GenomicInterpretationDetails = ({ genomicInterpretation, variantsUrl, genesUrl }) => {
+export const GenomicInterpretationDetails = ({ genomicInterpretation }) => {
     const relatedType = genomicInterpretation?.extra_properties?.related_type ?? "unknown";
     const relatedLabel = relatedType[0].toUpperCase() + relatedType.slice(1).toLowerCase();
 
@@ -58,19 +76,16 @@ export const GenomicInterpretationDetails = ({ genomicInterpretation, variantsUr
             </Descriptions.Item>
             {createdAndUpdatedDescriptions(genomicInterpretation)}
             {variantInterpretation && <Descriptions.Item label={"Variant Interpretation"}>
-                <VariantInterpretation variationInterpretation={variantInterpretation} variantsUrl={variantsUrl} />
+                <VariantInterpretation variationInterpretation={variantInterpretation} />
             </Descriptions.Item>}
             {geneDescriptor && <Descriptions.Item label="Gene Descriptor">
                 {/* TODO: GeneDescriptor component */}
-                {genesUrl}
             </Descriptions.Item>}
         </Descriptions>
     );
 };
 GenomicInterpretationDetails.propTypes = {
     genomicInterpretation: PropTypes.object,
-    variantsUrl: PropTypes.string,
-    genesUrl: PropTypes.string,
 };
 
 
@@ -112,15 +127,13 @@ const GENOMIC_INTERPRETATION_COLUMNS = [
     },
 ];
 
-const GenomicInterpretations = ({ genomicInterpretations, variantsUrl, genesUrl, onGenomicInterpretationClick }) => {
+const GenomicInterpretations = ({ genomicInterpretations, onGenomicInterpretationClick }) => {
     const { selectedGenomicInterpretation } = useParams();
-    // const selectedRowKeys = useMemo(
-    //     () => selectedGenomicInterpretation ? [selectedGenomicInterpretation] : [],
-    //     [selectedGenomicInterpretation],
-    // );
-    const selectedRowKeys = selectedGenomicInterpretation ? [selectedGenomicInterpretation] : [];
+    const selectedRowKeys = useMemo(
+        () => selectedGenomicInterpretation ? [selectedGenomicInterpretation] : [],
+        [selectedGenomicInterpretation],
+    );
 
-    console.log(selectedRowKeys);
 
     const onExpand = useCallback(
         (e, gi) => {
@@ -132,9 +145,8 @@ const GenomicInterpretations = ({ genomicInterpretations, variantsUrl, genesUrl,
     const giRowRender = useCallback(
         (gi) => (<GenomicInterpretationDetails
             genomicInterpretation={gi}
-            variantsUrl={variantsUrl}
-            genesUrl={genesUrl} />),
-        [variantsUrl, genesUrl],
+        />),
+        [],
     );
 
     return (
@@ -154,13 +166,11 @@ const GenomicInterpretations = ({ genomicInterpretations, variantsUrl, genesUrl,
 };
 GenomicInterpretations.propTypes = {
     genomicInterpretations: PropTypes.arrayOf(PropTypes.object),
-    variantsUrl: PropTypes.string,
-    genesUrl: PropTypes.string,
     onGenomicInterpretationClick: PropTypes.func,
 };
 
 
-const IndividualGenomicInterpretations = ({ genomicInterpretations, genesUrl, variantsUrl }) => {
+const IndividualGenomicInterpretations = ({ genomicInterpretations }) => {
     const history = useHistory();
     const match = useRouteMatch();
 
@@ -175,8 +185,6 @@ const IndividualGenomicInterpretations = ({ genomicInterpretations, genesUrl, va
     const genomicInterpretationsNode = (
         <GenomicInterpretations
             genomicInterpretations={genomicInterpretations}
-            variantsUrl={variantsUrl}
-            genesUrl={genesUrl}
             onGenomicInterpretationClick={handleGenomicInterpClick}
         />
     );
@@ -190,13 +198,12 @@ const IndividualGenomicInterpretations = ({ genomicInterpretations, genesUrl, va
 };
 IndividualGenomicInterpretations.propTypes = {
     genomicInterpretations: PropTypes.arrayOf(PropTypes.object),
-    variantsUrl: PropTypes.string,
-    genesUrl: PropTypes.string,
 };
 
-const InterpretationDetail = ({ interpretation, resourcesTuple, genesUrl, variantsUrl }) => {
+const InterpretationDetail = ({ interpretation }) => {
     const { diagnosis } = interpretation;
 
+    const resourcesTuple = useSelector((state) => state.explorer.individualResourcesTuple);
     const sortedGenomicInterpretations = useMemo(
         () => (diagnosis?.genomic_interpretations ?? [])
             .sort((g1, g2) => g1.id > g2.id ? 1 : -1),
@@ -217,19 +224,14 @@ const InterpretationDetail = ({ interpretation, resourcesTuple, genesUrl, varian
         <Typography.Title level={4}><Icon type="experiment" />Genomic Interpretations</Typography.Title>
         {sortedGenomicInterpretations.length ? <IndividualGenomicInterpretations
             genomicInterpretations={sortedGenomicInterpretations}
-            genesUrl={genesUrl}
-            variantsUrl={variantsUrl}
         /> : null}
     </div>);
 };
 InterpretationDetail.propTypes = {
     interpretation: PropTypes.object,
-    resourcesTuple: PropTypes.array,
-    variantsUrl: PropTypes.string,
-    genesUrl: PropTypes.string,
 };
 
-const Interpretations = ({ individual, variantsUrl, genesUrl, handleInterpretationClick }) => {
+const Interpretations = ({ individual, handleInterpretationClick }) => {
     const { selectedInterpretation } = useParams();
     const selectedRowKeys = useMemo(
         () => selectedInterpretation ? [selectedInterpretation] : [],
@@ -248,11 +250,9 @@ const Interpretations = ({ individual, variantsUrl, genesUrl, handleInterpretati
 
     const interpretationRowRender = useCallback(
         (interpretation) => (
-            <InterpretationDetail interpretation={interpretation}
-                                  resourcesTuple={resourcesTuple}
-                                  genesUrl={genesUrl}
-                                  variantsUrl={variantsUrl}
-
+            <InterpretationDetail
+                interpretation={interpretation}
+                resourcesTuple={resourcesTuple}
             />
         ),
         [resourcesTuple],
@@ -273,12 +273,10 @@ const Interpretations = ({ individual, variantsUrl, genesUrl, handleInterpretati
 };
 Interpretations.propTypes = {
     individual: individualPropTypesShape,
-    variantsUrl: PropTypes.string,
-    genesUrl: PropTypes.string,
     handleInterpretationClick: PropTypes.func,
 };
 
-const IndividualInterpretations = ({ individual, variantsUrl, genesUrl }) => {
+const IndividualInterpretations = ({ individual }) => {
     const history = useHistory();
     const match = useRouteMatch();
 
@@ -293,8 +291,6 @@ const IndividualInterpretations = ({ individual, variantsUrl, genesUrl }) => {
     const interpretationsNode = (
         <Interpretations
             individual={individual}
-            variantsUrl={variantsUrl}
-            genesUrl={genesUrl}
             handleInterpretationClick={handleInterpretationClick}
         />
     );
@@ -309,8 +305,6 @@ const IndividualInterpretations = ({ individual, variantsUrl, genesUrl }) => {
 
 IndividualInterpretations.propTypes = {
     individual: individualPropTypesShape,
-    variantsUrl: PropTypes.string,
-    genesUrl: PropTypes.string,
 };
 
 export default IndividualInterpretations;

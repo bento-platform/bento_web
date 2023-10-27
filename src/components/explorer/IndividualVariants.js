@@ -3,11 +3,9 @@ import { Link } from "react-router-dom";
 import { useDispatch } from "react-redux";
 import PropTypes from "prop-types";
 
-import { Button, Descriptions, Empty } from "antd";
+import { Button, Descriptions } from "antd";
 
-import { individualPropTypesShape } from "../../propTypes";
 import { setIgvPosition } from "../../modules/explorer/actions";
-import { useIndividualResources, useIndividualVariantInterpretations } from "./utils";
 import "./explorer.css";
 import JsonView from "./JsonView";
 import OntologyTerm from "./OntologyTerm";
@@ -46,13 +44,12 @@ const VariantExpressionDetails = ({variantExpression, geneContext, tracksUrl}) =
 };
 VariantExpressionDetails.propTypes = {
     variantExpression: variantExpressionPropType,
-    geneContext: PropTypes.string,
+    geneContext: PropTypes.object,
     tracksUrl: PropTypes.string,
 };
 
 
-const VariantDescriptor = ({variationDescriptor, resourcesTuple, tracksUrl}) => {
-    console.log(variationDescriptor);
+export const VariantDescriptor = ({variationDescriptor, resourcesTuple, tracksUrl}) => {
     return (
         <Descriptions layout="horizontal" bordered={true} column={1} size="small">
             <Descriptions.Item label={"ID"}>{variationDescriptor.id}</Descriptions.Item>
@@ -126,37 +123,4 @@ VariantDescriptor.propTypes = {
     tracksUrl: PropTypes.string,
 };
 
-const IndividualVariants = ({individual, tracksUrl}) => {
-    const resourcesTuple = useIndividualResources(individual);
-
-    const variantGenomicInterpretations = useIndividualVariantInterpretations(individual);
-    const variantDescriptors = variantGenomicInterpretations.map(gi => gi.variant_interpretation.variation_descriptor);
-    return (
-      <div className="variantDescriptions">
-            {
-                variantDescriptors.length ?
-                    <Descriptions layout="horizontal" bordered={true} column={1} size="small" title="Variants">
-                        {variantDescriptors.map(vd => {
-                            return (
-                                <Descriptions.Item key={vd.id} label={vd.id}>
-                                    <VariantDescriptor variationDescriptor={vd}
-                                                       resourcesTuple={resourcesTuple}
-                                                       tracksUrl={tracksUrl}/>
-                                </Descriptions.Item>
-                            );
-                        })}
-                    </Descriptions>
-                    : <Empty image={Empty.PRESENTED_IMAGE_SIMPLE}/>
-            }
-      </div>
-    );
-};
-
-IndividualVariants.propTypes = {
-    id: PropTypes.string,
-    individual: individualPropTypesShape,
-    variant: PropTypes.object,
-    tracksUrl: PropTypes.string,
-};
-
-export default IndividualVariants;
+export default VariantDescriptor;

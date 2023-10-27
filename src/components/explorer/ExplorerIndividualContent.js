@@ -18,11 +18,10 @@ import IndividualBiosamples from "./IndividualBiosamples";
 import IndividualExperiments from "./IndividualExperiments";
 import IndividualDiseases from "./IndividualDiseases";
 import IndividualOntologies from "./IndividualOntologies";
-import IndividualVariants from "./IndividualVariants";
-import IndividualGenes from "./IndividualGenes";
 import IndividualTracks from "./IndividualTracks";
 import IndividualPhenopackets from "./IndividualPhenopackets";
 import IndividualInterpretations from "./IndividualInterpretations";
+import { setIndividualExplorerUrl, setIndividualResourcesTuple } from "../../modules/explorer/actions";
 
 const MENU_STYLE = {
     marginLeft: "-24px",
@@ -65,25 +64,27 @@ const ExplorerIndividualContent = () => {
             // we should load individual data.
             dispatch(fetchIndividualIfNecessary(individualID));
         }
+
     }, [dispatch, metadataService, individualID]);
 
     const { isFetching: individualIsFetching, data: individual } = individuals[individualID] ?? {};
 
     // Trigger resource loading
-    useIndividualResources(individual);
+    const resources = useIndividualResources(individual);
+    dispatch(setIndividualResourcesTuple(resources));
+    dispatch(setIndividualExplorerUrl(individualUrl));
 
-    // TODO: Medical Procedures
     const overviewUrl = `${individualUrl}/overview`;
     const phenotypicFeaturesUrl = `${individualUrl}/phenotypic-features`;
     const biosamplesUrl = `${individualUrl}/biosamples`;
     const experimentsUrl = `${individualUrl}/experiments`;
-    const variantsUrl = `${individualUrl}/variants`;
-    const genesUrl = `${individualUrl}/genes`;
     const diseasesUrl = `${individualUrl}/diseases`;
     const ontologiesUrl = `${individualUrl}/ontologies`;
     const tracksUrl = `${individualUrl}/tracks`;
     const phenopacketsUrl = `${individualUrl}/phenopackets`;
     const interpretationsUrl = `${individualUrl}/interpretations`;
+    const medicalActionsUrl = `${individualUrl}/medical-actions`;
+    const measurementsUrl = `${individualUrl}/measurements`;
 
     const individualPhenopackets = individual?.phenopackets ?? [];
     const individualMenu = [
@@ -112,14 +113,22 @@ const ExplorerIndividualContent = () => {
             disabled: useIsDataEmpty(individualPhenopackets, "interpretations"),
         },
         {url: tracksUrl, text: "Tracks"},
-        {url: variantsUrl, text: "Variants"},
-        {url: genesUrl, text: "Genes"},
         {
             url: diseasesUrl,
             text: "Diseases",
             disabled: useIsDataEmpty(individualPhenopackets, "diseases"),
         },
         {url: ontologiesUrl, text: "Ontologies"},
+        {
+            url: medicalActionsUrl,
+            text: "Medical Actions",
+            disabled: useIsDataEmpty(individualPhenopackets, "medical_actions"),
+        },
+        {
+            url: measurementsUrl,
+            text: "Measurements",
+            disabled: useIsDataEmpty(individualPhenopackets, "measurements"),
+        },
         {url: phenopacketsUrl, text: "Phenopackets JSON"},
     ];
     const selectedKeys = matchingMenuKeys(individualMenu, urlPath(BENTO_URL));
@@ -148,30 +157,28 @@ const ExplorerIndividualContent = () => {
                         <IndividualPhenotypicFeatures individual={individual} />
                     </Route>
                     <Route path={biosamplesUrl.replace(":", "\\:")}>
-                        <IndividualBiosamples individual={individual} experimentsUrl={experimentsUrl} />
+                        <IndividualBiosamples individual={individual} />
                     </Route>
                     <Route path={experimentsUrl.replace(":", "\\:")}>
                         <IndividualExperiments individual={individual} />
                     </Route>
                     <Route path={interpretationsUrl.replace(":", "\\:")}>
-                        <IndividualInterpretations individual={individual}
-                                                   variantsUrl={variantsUrl}
-                                                   genesUrl={genesUrl}/>
+                        <IndividualInterpretations individual={individual} />
                     </Route>
                     <Route path={tracksUrl.replace(":", "\\:")}>
                         <IndividualTracks individual={individual} />
-                    </Route>
-                    <Route path={variantsUrl.replace(":", "\\:")}>
-                        <IndividualVariants individual={individual} tracksUrl={tracksUrl}/>
-                    </Route>
-                    <Route path={genesUrl.replace(":", "\\:")}>
-                        <IndividualGenes individual={individual} tracksUrl={tracksUrl} />
                     </Route>
                     <Route path={diseasesUrl.replace(":", "\\:")}>
                         <IndividualDiseases individual={individual} />
                     </Route>
                     <Route path={ontologiesUrl.replace(":", "\\:")}>
                         <IndividualOntologies individual={individual} />
+                    </Route>
+                    <Route path={medicalActionsUrl.replace(":", "\\:")}>
+                        {/* TODO */}
+                    </Route>
+                    <Route path={measurementsUrl.replace(":", "\\:")}>
+                        {/* TODO: */}
                     </Route>
                     <Route path={phenopacketsUrl.replace(":", "\\:")}>
                         <IndividualPhenopackets individual={individual} />

@@ -20,6 +20,8 @@ export const SET_TABLE_SORT_ORDER = "EXPLORER.SET_TABLE_SORT_ORDER";
 export const RESET_TABLE_SORT_ORDER = "EXPLORER.RESET_TABLE_SORT_ORDER";
 export const SET_ACTIVE_TAB = "EXPLORER.SET_ACTIVE_TAB";
 export const SET_IGV_POSITION = "EXPLORER.SET_IGV_POSITION";
+export const SET_INDIVIDUAL_EXPLORER_URL = "EXPLORER.SET_EXPLORER_URL";
+export const SET_INDIVIDUAL_RESOURCES_TUPLE = "EXPLORER.SET_RESOURCES_TUPLE";
 
 const performSearch = networkAction((datasetID, dataTypeQueries, excludeFromAutoJoin = []) => (dispatch, getState) => ({
     types: PERFORM_SEARCH,
@@ -199,6 +201,16 @@ export const setOtherThresholdPercentage = (threshold) => ({
 export const setIgvPosition = (igvPosition) => ({
     type: SET_IGV_POSITION,
     igvPosition,
+});
+
+export const setIndividualExplorerUrl = (url) => ({
+    type: SET_INDIVIDUAL_EXPLORER_URL,
+    url,
+});
+
+export const setIndividualResourcesTuple = (tuples) => ({
+    type: SET_INDIVIDUAL_RESOURCES_TUPLE,
+    resourcesTuple: tuples,
 });
 
 export const performGetGohanVariantsOverviewIfPossible = () => (dispatch, getState) => {
