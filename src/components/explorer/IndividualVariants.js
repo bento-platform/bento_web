@@ -52,7 +52,7 @@ VariantExpressionDetails.propTypes = {
 
 
 const VariantDescriptor = ({variationDescriptor, resourcesTuple, tracksUrl}) => {
-    console.log(variationDescriptor)
+    console.log(variationDescriptor);
     return (
         <Descriptions layout="horizontal" bordered={true} column={1} size="small">
             <Descriptions.Item label={"ID"}>{variationDescriptor.id}</Descriptions.Item>

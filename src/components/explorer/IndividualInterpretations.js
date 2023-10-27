@@ -6,7 +6,7 @@ import { Button, Descriptions, Empty, Icon, Table, Typography } from "antd";
 
 import { useIndividualResources, useIndividualInterpretations } from "./utils";
 import "./explorer.css";
-import { individualPropTypesShape, resourcePropTypesShape } from "../../propTypes";
+import { individualPropTypesShape } from "../../propTypes";
 import OntologyTerm from "./OntologyTerm";
 import { Route, Switch, useHistory, useParams, useRouteMatch } from "react-router-dom/cjs/react-router-dom.min";
 
@@ -62,6 +62,7 @@ export const GenomicInterpretationDetails = ({ genomicInterpretation, variantsUr
             </Descriptions.Item>}
             {geneDescriptor && <Descriptions.Item label="Gene Descriptor">
                 {/* TODO: GeneDescriptor component */}
+                {genesUrl}
             </Descriptions.Item>}
         </Descriptions>
     );
@@ -133,7 +134,7 @@ const GenomicInterpretations = ({ genomicInterpretations, variantsUrl, genesUrl,
             genomicInterpretation={gi}
             variantsUrl={variantsUrl}
             genesUrl={genesUrl} />),
-        [variantsUrl, genesUrl]
+        [variantsUrl, genesUrl],
     );
 
     return (
@@ -149,7 +150,13 @@ const GenomicInterpretations = ({ genomicInterpretations, variantsUrl, genesUrl,
             // GenomicInterpretation.id are PK integers, expandedRowKeys expects strings
             rowKey={(gi) => gi.id.toString()}
         />
-    )
+    );
+};
+GenomicInterpretations.propTypes = {
+    genomicInterpretations: PropTypes.arrayOf(PropTypes.object),
+    variantsUrl: PropTypes.string,
+    genesUrl: PropTypes.string,
+    onGenomicInterpretationClick: PropTypes.func,
 };
 
 
@@ -179,7 +186,12 @@ const IndividualGenomicInterpretations = ({ genomicInterpretations, genesUrl, va
             <Route path={`${match.path}/:selectedGenomicInterpretation`}>{genomicInterpretationsNode}</Route>
             <Route path={match.path} exact={true}>{genomicInterpretationsNode}</Route>
         </Switch>
-    )
+    );
+};
+IndividualGenomicInterpretations.propTypes = {
+    genomicInterpretations: PropTypes.arrayOf(PropTypes.object),
+    variantsUrl: PropTypes.string,
+    genesUrl: PropTypes.string,
 };
 
 const InterpretationDetail = ({ interpretation, resourcesTuple, genesUrl, variantsUrl }) => {
@@ -208,7 +220,7 @@ const InterpretationDetail = ({ interpretation, resourcesTuple, genesUrl, varian
             genesUrl={genesUrl}
             variantsUrl={variantsUrl}
         /> : null}
-    </div>)
+    </div>);
 };
 InterpretationDetail.propTypes = {
     interpretation: PropTypes.object,
@@ -237,14 +249,14 @@ const Interpretations = ({ individual, variantsUrl, genesUrl, handleInterpretati
     const interpretationRowRender = useCallback(
         (interpretation) => (
             <InterpretationDetail interpretation={interpretation}
-                resourcesTuple={resourcesTuple}
-                genesUrl={genesUrl}
-                variantsUrl={variantsUrl}
+                                  resourcesTuple={resourcesTuple}
+                                  genesUrl={genesUrl}
+                                  variantsUrl={variantsUrl}
 
             />
         ),
-        [resourcesTuple]
-    )
+        [resourcesTuple],
+    );
     return (
         <Table
             bordered={true}
@@ -292,7 +304,7 @@ const IndividualInterpretations = ({ individual, variantsUrl, genesUrl }) => {
             <Route path={`${match.path}/:selectedInterpretation`}>{interpretationsNode}</Route>
             <Route path={match.path} exact={true}>{interpretationsNode}</Route>
         </Switch>
-    )
+    );
 };
 
 IndividualInterpretations.propTypes = {

@@ -37,7 +37,7 @@ export const useIndividualInterpretations = (individual, withDiagnosis = false) 
  */
 export const useIsDataEmpty = (data, fieldName) => {
     if (Array.isArray(data)) {
-        // Flatmap the field if data is an array, 
+        // Flatmap the field if data is an array,
         // e.g: data is a list of biosamples, with fieldName="experiments"
         return useMemo(
             () => data.flatMap(item => item[fieldName] ?? []).length === 0,
