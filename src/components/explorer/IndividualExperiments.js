@@ -356,25 +356,26 @@ const IndividualExperiments = ({ individual }) => {
 };
 
 // expand here accordingly
-const isDownloadable = (result) =>
-    [
-        "vcf",
-        "cram",
-        "bw",
-        "bigwig",
-        "pdf",
-        "csv",
-        "tsv",
-        "jpeg",
-        "png",
-        "gif",
-        "markdown",
-        "mp3",
-        "m4a",
-        "mp4",
-        "docx",
-        "xls",
-        "xlsx"].includes(result.file_format?.toLowerCase());
+const isDownloadable = (result) => {
+    const downloadableFormats = [
+        // Audio
+        "3gp", "aac", "flac", "m4a", "mp3", "ogg", "wav",
+        // Images
+        "apng", "avif", "bmp", "gif", "jpg", "jpeg", "png", "svg", "webp",
+        // Videos
+        "mp4", "webm",
+        // Documents
+        "docx", "pdf",
+        // Tabular data
+        "csv", "tsv", "xls", "xlsx",
+        // Code and text formats
+        "bash", "json", "md", "txt", "py", "r", "sh", "xml",
+        // Special file formats
+        "Dockerfile", "README", "CHANGELOG",
+    ];
+
+    return downloadableFormats.includes(result.file_format?.toLowerCase());
+};
 
 
 IndividualExperiments.propTypes = {
