@@ -61,7 +61,12 @@ const ExperimentResultActions = ({ result }) => {
                 title={<span>View: {result.filename}</span>}
                 visible={viewModalVisible}
                 onCancel={onViewCancel}
-                width={1080}>
+                width={1080}
+                style={{
+                    display: "flex",
+                    justifyContent: "center",
+                    alignItems: "center",
+                    marginTop: "-50px"}}>
                 {hasTriggeredViewModal && (
                     <FileDisplay uri={url} fileName={result.filename} />
                 )}
