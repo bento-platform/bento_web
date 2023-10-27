@@ -37,7 +37,7 @@ const VariantExpressionDetails = ({variantExpression, geneContext, tracksUrl}) =
                     gene context:
                     <Link onClick={() => dispatch(setIgvPosition(geneContext))}
                           to={{ pathname: tracksUrl }}>
-                        <Button>{geneContext}</Button>
+                        <Button>{geneContext.value_id}</Button>
                     </Link>
                 </>
             )}
@@ -52,6 +52,7 @@ VariantExpressionDetails.propTypes = {
 
 
 const VariantDescriptor = ({variationDescriptor, resourcesTuple, tracksUrl}) => {
+    console.log(variationDescriptor)
     return (
         <Descriptions layout="horizontal" bordered={true} column={1} size="small">
             <Descriptions.Item label={"ID"}>{variationDescriptor.id}</Descriptions.Item>
@@ -68,9 +69,11 @@ const VariantDescriptor = ({variationDescriptor, resourcesTuple, tracksUrl}) => 
                 <Descriptions.Item label="Description">{variationDescriptor.description}</Descriptions.Item>
             }
             {variationDescriptor.gene_context &&
-                <Descriptions.Item label="Gene Context">{variationDescriptor.gene_context}</Descriptions.Item>
+                <Descriptions.Item label="Gene Context">
+                    <JsonView inputJson={variationDescriptor.gene_context}/>
+                </Descriptions.Item>
             }
-            {variationDescriptor.expressions &&
+            {(variationDescriptor.expressions && variationDescriptor.gene_context) &&
                 <Descriptions.Item label={"Expressions"}>
                     {variationDescriptor.expressions.map(expr => (
                         <VariantExpressionDetails variantExpression={expr}
