@@ -49,12 +49,12 @@ import FileDisplay, { VIEWABLE_FILE_EXTENSIONS } from "../display/FileDisplay";
 
 const DROP_BOX_CONTENT_CONTAINER_STYLE = {display: "flex", flexDirection: "column", gap: "1em"};
 const DROP_BOX_ACTION_CONTAINER_STYLE = {display: "flex", gap: "12px"};
-const DROP_BOX_INFO_CONTAINER_STYLE = {display: "flex", gap: "1em"};
+const DROP_BOX_INFO_CONTAINER_STYLE = {display: "flex", gap: "2em"};
 
 const TREE_CONTAINER_STYLE = {
     position: "relative",
     minHeight: 72,
-    maxHeight: 1000,
+    maxHeight: "calc(100vh - 64px)",  // calculated: viewport minus enough to show action bar at top
     overflowY: "auto",
     border: "1px solid #d9d9d9",
     borderRadius: 3,
