@@ -301,6 +301,7 @@ const ManagerDropBoxContent = () => {
     const [fileContentsModal, setFileContentsModal] = useState(false);
 
     const [fileDeleteModal, setFileDeleteModal] = useState(false);
+    const [fileDeleteModalTitle, setFileDeleteModalTitle] = useState("");  // cache to allow close animation
 
     const [selectedWorkflow, setSelectedWorkflow] = useState(null);
     const [datasetSelectionModal, setDatasetSelectionModal] = useState(false);
@@ -442,6 +443,10 @@ const ManagerDropBoxContent = () => {
     const hideFileDeleteModal = useCallback(() => setFileDeleteModal(false), []);
     const showFileDeleteModal = useCallback(() => {
         if (selectedEntries.length !== 1 || selectedFolder) return;
+        // Only set this on open - don't clear it on close, so we don't get a strange effect on modal close where the
+        // title disappears before the modal.
+        setFileDeleteModalTitle(
+            `Are you sure you want to delete '${(firstSelectedEntry ?? "").split("/").at(-1)}'?`);
         setFileDeleteModal(true);
     }, [selectedEntries, selectedFolder]);
     const handleDelete = useCallback(() => {
@@ -449,7 +454,7 @@ const ManagerDropBoxContent = () => {
         (async () => {
             await dispatch(deleteDropBoxObject(firstSelectedEntry));
             hideFileDeleteModal();
-            setSelectedEntries([]);
+            setSelectedEntries([DROP_BOX_ROOT_KEY]);
         })();
     }, [dispatch, selectedEntries]);
 
@@ -524,7 +529,7 @@ const ManagerDropBoxContent = () => {
             </Modal>
 
             <Modal visible={fileDeleteModal}
-                   title={`Are you sure you want to delete '${firstSelectedEntry.split("/").at(-1)}'?`}
+                   title={fileDeleteModalTitle}
                    okType="danger"
                    okText="Delete"
                    okButtonProps={{loading: isDeleting}}
