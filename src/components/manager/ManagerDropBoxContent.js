@@ -54,6 +54,7 @@ const DROP_BOX_ACTION_CONTAINER_STYLE = {
     gap: "12px",
     position: "sticky",
     paddingBottom: 4,
+    backgroundColor: "white",
     boxShadow: "0 12px 12px white, 0 -10px 0 white",
     top: 8,
     zIndex: 10,
