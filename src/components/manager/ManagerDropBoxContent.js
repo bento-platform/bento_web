@@ -21,6 +21,7 @@ import {
     Spin,
     Statistic,
     Tree,
+    Typography,
     Upload,
     message,
 } from "antd";
@@ -47,10 +48,21 @@ import {deleteDropBox, ingestDropBox} from "../../lib/auth/permissions";
 
 import FileDisplay, { VIEWABLE_FILE_EXTENSIONS } from "../display/FileDisplay";
 
-const DROP_BOX_CONTENT_CONTAINER_STYLE = {display: "flex", flexDirection: "column", gap: "1em"};
-const DROP_BOX_ACTION_CONTAINER_STYLE = {display: "flex", gap: "12px"};
+const DROP_BOX_CONTENT_CONTAINER_STYLE = { display: "flex", flexDirection: "column", gap: 8 };
+const DROP_BOX_ACTION_CONTAINER_STYLE = {
+    display: "flex",
+    gap: "12px",
+    alignItems: "baseline",
+    position: "sticky",
+    paddingBottom: 4,
+    backgroundColor: "white",
+    boxShadow: "0 12px 12px white, 0 -10px 0 white",
+    top: 8,
+    zIndex: 10,
+};
+const DROP_BOX_INFO_CONTAINER_STYLE = { display: "flex", gap: "2em", paddingTop: 8 };
 
-const TREE_CONTAINER_STYLE = {position: "relative", minHeight: 72};
+const TREE_CONTAINER_STYLE = { minHeight: 72, overflowY: "auto" };
 
 const TREE_DROP_ZONE_OVERLAY_STYLE = {
     position: "absolute",
@@ -262,13 +274,16 @@ FileContentsModal.propTypes = {
 };
 
 
-const DropBoxInformation = () => (
+const DropBoxInformation = ({ style }) => (
     <Alert type="info" showIcon={true} message="About the drop box" description={`
         The drop box contains files which are not yet ingested into this Bento instance. They are not
         organized in any particular structure; instead, this serves as a place for incoming data files to be
         deposited and examined.
-    `} />
+    `} style={style} />
 );
+DropBoxInformation.propTypes = {
+    style: PropTypes.object,
+};
 
 const DROP_BOX_ROOT_KEY = "/";
 
@@ -564,6 +579,10 @@ const ManagerDropBoxContent = () => {
                             loading={isDeleting}
                             onClick={showFileDeleteModal}>
                         Delete</Button>
+
+                    <Typography.Text type="secondary">
+                        {selectedEntries.length} item{selectedEntries.length === 1 ? "" : "s"} selected
+                    </Typography.Text>
                 </div>
 
                 <Spin spinning={treeLoading}>
@@ -594,14 +613,15 @@ const ManagerDropBoxContent = () => {
                                description="Encountered an error while trying to access the drop box service" />}
                 </Spin>
 
-                <Statistic
-                    title="Total Space Used"
-                    value={treeLoading
-                        ? "—"
-                        : filesize(Object.values(filesByPath).reduce((acc, f) => acc + f.size, 0))}
-                />
-
-                <DropBoxInformation />
+                <div style={DROP_BOX_INFO_CONTAINER_STYLE}>
+                    <Statistic
+                        title="Total Space Used"
+                        value={treeLoading
+                            ? "—"
+                            : filesize(Object.values(filesByPath).reduce((acc, f) => acc + f.size, 0))}
+                    />
+                    <DropBoxInformation style={{ flex: 1 }} />
+                </div>
             </div>
         </Layout.Content>
     </Layout>;
