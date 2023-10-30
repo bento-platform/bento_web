@@ -578,7 +578,9 @@ const ManagerDropBoxContent = () => {
                             onClick={showFileDeleteModal}>
                         Delete</Button>
 
-                    <Typography.Text type="secondary">{selectedEntries.length} selected items</Typography.Text>
+                    <Typography.Text type="secondary">
+                        {selectedEntries.length} item{selectedEntries.length === 1 ? "" : "s"} selected
+                    </Typography.Text>
                 </div>
 
                 <Spin spinning={treeLoading}>
