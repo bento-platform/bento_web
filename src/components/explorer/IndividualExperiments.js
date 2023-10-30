@@ -57,7 +57,16 @@ const ExperimentResultActions = ({ result }) => {
 
     return <>
         {resultViewable ? <>
-            <Modal title={<span>View: {result.filename}</span>} visible={viewModalVisible} onCancel={onViewCancel}>
+            <Modal
+                title={<span>View: {result.filename}</span>}
+                visible={viewModalVisible}
+                onCancel={onViewCancel}
+                width={1080}
+                style={{
+                    display: "flex",
+                    justifyContent: "center",
+                    alignItems: "center",
+                    marginTop: "-50px"}}>
                 {hasTriggeredViewModal && (
                     <FileDisplay uri={url} fileName={result.filename} />
                 )}
@@ -266,8 +275,7 @@ const Experiments = ({ individual, handleExperimentClick }) => {
             .map((r) => ({  // enforce file_format property
                 ...r,
                 file_format: r.file_format ?? guessFileType(r.filename),
-            }))
-            .filter(isDownloadable);
+            }));
 
         dispatch(getFileDownloadUrlsFromDrs(downloadableFiles));
     }, [experimentsData]);
@@ -350,10 +358,6 @@ const IndividualExperiments = ({ individual }) => {
         </Switch>
     );
 };
-
-// expand here accordingly
-const isDownloadable = (result) =>
-    ["vcf", "cram", "bw", "bigwig"].includes(result.file_format?.toLowerCase());
 
 IndividualExperiments.propTypes = {
     individual: individualPropTypesShape,
