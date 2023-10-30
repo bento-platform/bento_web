@@ -59,15 +59,7 @@ const DROP_BOX_ACTION_CONTAINER_STYLE = {
 };
 const DROP_BOX_INFO_CONTAINER_STYLE = {display: "flex", gap: "2em", paddingTop: 4};
 
-const TREE_CONTAINER_STYLE = {
-    position: "relative",
-    minHeight: 72,
-    maxHeight: "calc(100vh - 64px)",  // calculated: viewport minus enough to show action bar at top
-    overflowY: "auto",
-    border: "1px solid #d9d9d9",
-    borderRadius: 3,
-    boxShadow: "inset 0 -1px 3px rgba(0, 0, 0, 0.07)",
-};
+const TREE_CONTAINER_STYLE = { minHeight: 72, overflowY: "auto" };
 
 const TREE_DROP_ZONE_OVERLAY_STYLE = {
     position: "absolute",
