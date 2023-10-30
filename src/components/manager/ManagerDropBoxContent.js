@@ -21,6 +21,7 @@ import {
     Spin,
     Statistic,
     Tree,
+    Typography,
     Upload,
     message,
 } from "antd";
@@ -576,6 +577,8 @@ const ManagerDropBoxContent = () => {
                             loading={isDeleting}
                             onClick={showFileDeleteModal}>
                         Delete</Button>
+
+                    <Typography.Text type="secondary">{selectedEntries.length} selected items</Typography.Text>
                 </div>
 
                 <Spin spinning={treeLoading}>
