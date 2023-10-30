@@ -50,7 +50,12 @@ import FileDisplay, { VIEWABLE_FILE_EXTENSIONS } from "../display/FileDisplay";
 const DROP_BOX_CONTENT_CONTAINER_STYLE = {display: "flex", flexDirection: "column", gap: "1em"};
 const DROP_BOX_ACTION_CONTAINER_STYLE = {display: "flex", gap: "12px"};
 
-const TREE_CONTAINER_STYLE = {position: "relative", minHeight: 72};
+const TREE_CONTAINER_STYLE = {
+    position: "relative",
+    minHeight: 72,
+    maxHeight: "calc(100% - 223px)",
+    overflowY: "auto",
+};
 
 const TREE_DROP_ZONE_OVERLAY_STYLE = {
     position: "absolute",
