@@ -274,9 +274,8 @@ const Experiments = ({ individual, handleExperimentClick }) => {
             .flatMap((e) => e?.experiment_results ?? [])
             .map((r) => ({  // enforce file_format property
                 ...r,
-                file_format: r.file_format ?? guessFileType(r.filename),
-            }))
-            .filter(isDownloadable);
+                file_format: r.file_format ? r.file_format.toLowerCase() : guessFileType(r.filename).toLowerCase(),
+            }));
 
         dispatch(getFileDownloadUrlsFromDrs(downloadableFiles));
     }, [experimentsData]);
@@ -359,29 +358,6 @@ const IndividualExperiments = ({ individual }) => {
         </Switch>
     );
 };
-
-// expand here accordingly
-const isDownloadable = (result) => {
-    const downloadableFormats = [
-        // Audio
-        "3gp", "aac", "flac", "m4a", "mp3", "ogg", "wav",
-        // Images
-        "apng", "avif", "bmp", "gif", "jpg", "jpeg", "png", "svg", "webp",
-        // Videos
-        "mp4", "webm",
-        // Documents
-        "docx", "pdf",
-        // Tabular data
-        "csv", "tsv", "xls", "xlsx",
-        // Code and text formats
-        "bash", "json", "md", "txt", "py", "r", "sh", "xml",
-        // Special file formats
-        "Dockerfile", "README", "CHANGELOG",
-    ];
-
-    return downloadableFormats.includes(result.file_format?.toLowerCase());
-};
-
 
 IndividualExperiments.propTypes = {
     individual: individualPropTypesShape,
