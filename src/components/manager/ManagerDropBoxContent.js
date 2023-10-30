@@ -454,7 +454,7 @@ const ManagerDropBoxContent = () => {
         (async () => {
             await dispatch(deleteDropBoxObject(firstSelectedEntry));
             hideFileDeleteModal();
-            setSelectedEntries([]);
+            setSelectedEntries([DROP_BOX_ROOT_KEY]);
         })();
     }, [dispatch, selectedEntries]);
 
