@@ -53,8 +53,11 @@ const DROP_BOX_ACTION_CONTAINER_STYLE = {display: "flex", gap: "12px"};
 const TREE_CONTAINER_STYLE = {
     position: "relative",
     minHeight: 72,
-    maxHeight: "calc(100% - 223px)",
+    maxHeight: 1000,
     overflowY: "auto",
+    border: "1px solid #d9d9d9",
+    borderRadius: 3,
+    boxShadow: "inset 0 -1px 3px rgba(0, 0, 0, 0.07)",
 };
 
 const TREE_DROP_ZONE_OVERLAY_STYLE = {
