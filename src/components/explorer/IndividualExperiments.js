@@ -274,7 +274,7 @@ const Experiments = ({ individual, handleExperimentClick }) => {
             .flatMap((e) => e?.experiment_results ?? [])
             .map((r) => ({  // enforce file_format property
                 ...r,
-                file_format: r.file_format ? r.file_format.toLowerCase() : guessFileType(r.filename),
+                file_format: r.file_format ?? guessFileType(r.filename),
             }));
 
         dispatch(getFileDownloadUrlsFromDrs(downloadableFiles));
