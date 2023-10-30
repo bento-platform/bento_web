@@ -47,9 +47,17 @@ import {deleteDropBox, ingestDropBox} from "../../lib/auth/permissions";
 
 import FileDisplay, { VIEWABLE_FILE_EXTENSIONS } from "../display/FileDisplay";
 
-const DROP_BOX_CONTENT_CONTAINER_STYLE = {display: "flex", flexDirection: "column", gap: "1em"};
-const DROP_BOX_ACTION_CONTAINER_STYLE = {display: "flex", gap: "12px"};
-const DROP_BOX_INFO_CONTAINER_STYLE = {display: "flex", gap: "2em"};
+const DROP_BOX_CONTENT_CONTAINER_STYLE = {display: "flex", flexDirection: "column", gap: 12};
+const DROP_BOX_ACTION_CONTAINER_STYLE = {
+    display: "flex",
+    gap: "12px",
+    position: "sticky",
+    padding: "4px 0",
+    boxShadow: "0 10px 10px white",
+    top: 24,
+    zIndex: 10,
+};
+const DROP_BOX_INFO_CONTAINER_STYLE = {display: "flex", gap: "2em", paddingTop: 4};
 
 const TREE_CONTAINER_STYLE = {
     position: "relative",
