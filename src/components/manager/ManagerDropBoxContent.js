@@ -52,6 +52,7 @@ const DROP_BOX_CONTENT_CONTAINER_STYLE = { display: "flex", flexDirection: "colu
 const DROP_BOX_ACTION_CONTAINER_STYLE = {
     display: "flex",
     gap: "12px",
+    alignItems: "baseline",
     position: "sticky",
     paddingBottom: 4,
     backgroundColor: "white",
