@@ -49,6 +49,7 @@ import FileDisplay, { VIEWABLE_FILE_EXTENSIONS } from "../display/FileDisplay";
 
 const DROP_BOX_CONTENT_CONTAINER_STYLE = {display: "flex", flexDirection: "column", gap: "1em"};
 const DROP_BOX_ACTION_CONTAINER_STYLE = {display: "flex", gap: "12px"};
+const DROP_BOX_INFO_CONTAINER_STYLE = {display: "flex", gap: "1em"};
 
 const TREE_CONTAINER_STYLE = {
     position: "relative",
@@ -270,12 +271,12 @@ FileContentsModal.propTypes = {
 };
 
 
-const DropBoxInformation = () => (
+const DropBoxInformation = ({ style }) => (
     <Alert type="info" showIcon={true} message="About the drop box" description={`
         The drop box contains files which are not yet ingested into this Bento instance. They are not
         organized in any particular structure; instead, this serves as a place for incoming data files to be
         deposited and examined.
-    `} />
+    `} style={style} />
 );
 
 const DROP_BOX_ROOT_KEY = "/";
@@ -602,14 +603,15 @@ const ManagerDropBoxContent = () => {
                                description="Encountered an error while trying to access the drop box service" />}
                 </Spin>
 
-                <Statistic
-                    title="Total Space Used"
-                    value={treeLoading
-                        ? "—"
-                        : filesize(Object.values(filesByPath).reduce((acc, f) => acc + f.size, 0))}
-                />
-
-                <DropBoxInformation />
+                <div style={DROP_BOX_INFO_CONTAINER_STYLE}>
+                    <Statistic
+                        title="Total Space Used"
+                        value={treeLoading
+                            ? "—"
+                            : filesize(Object.values(filesByPath).reduce((acc, f) => acc + f.size, 0))}
+                    />
+                    <DropBoxInformation style={{ flex: 1 }} />
+                </div>
             </div>
         </Layout.Content>
     </Layout>;
