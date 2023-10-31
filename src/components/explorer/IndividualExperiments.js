@@ -16,6 +16,7 @@ import JsonView from "./JsonView";
 import OntologyTerm from "./OntologyTerm";
 import DownloadButton from "../DownloadButton";
 import FileDisplay, { VIEWABLE_FILE_EXTENSIONS } from "../display/FileDisplay";
+import FileModal from "../display/FileModal";
 
 const useResultUrl = (result) => {
     const downloadUrls = useSelector((state) => state.drs.downloadUrlsByFilename);
@@ -69,24 +70,14 @@ const ExperimentResultActions = ({ result }) => {
             {" "}
         </> : null}
         {resultViewable ? <>
-            <Modal
-                title={<span>View: {result.filename}</span>}
+            <FileModal
                 visible={viewModalVisible}
                 onCancel={onViewCancel}
-                width={1080}
-                style={{
-                    display: "flex",
-                    justifyContent: "center",
-                    alignItems: "center",
-                    marginTop: "-50px",
-                }}
-                bodyStyle={{ minWidth: "692px" }}
-                footer={null}
-            >
-                {hasTriggeredViewModal && (
-                    <FileDisplay uri={url} fileName={result.filename} />
-                )}
-            </Modal>
+                title={<span>View: {result.filename}</span>}
+                url={url}
+                fileName={result.fileName}
+                hasTriggered={hasTriggeredViewModal}
+            />
             <Tooltip title="View">
                 <Button size="small" icon="eye" onClick={onViewClick} />
             </Tooltip>{" "}
