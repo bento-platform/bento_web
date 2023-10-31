@@ -74,7 +74,13 @@ const ExperimentResultActions = ({ result }) => {
                 visible={viewModalVisible}
                 onCancel={onViewCancel}
                 width={1080}
-                style={{marginTop: "-50px"}}
+                style={{
+                    display: "flex",
+                    justifyContent: "center",
+                    alignItems: "center",
+                    marginTop: "-50px",
+                }}
+                bodyStyle={{ minWidth: "692px" }}
                 footer={null}
             >
                 {hasTriggeredViewModal && (
