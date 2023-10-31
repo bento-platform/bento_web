@@ -75,7 +75,7 @@ const ExperimentResultActions = ({ result }) => {
                 onCancel={onViewCancel}
                 title={<span>View: {result.filename}</span>}
                 url={url}
-                fileName={result.fileName}
+                fileName={result.filename}
                 hasTriggered={hasTriggeredViewModal}
             />
             <Tooltip title="View">
