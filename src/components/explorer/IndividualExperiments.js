@@ -3,7 +3,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { Route, Switch, useHistory, useParams, useRouteMatch } from "react-router-dom";
 import PropTypes from "prop-types";
 
-import { Button, Descriptions, Icon, Modal, Popover, Table, Typography } from "antd";
+import { Button, Descriptions, Icon, Modal, Popover, Table, Tooltip, Typography } from "antd";
 
 import { EM_DASH } from "../../constants";
 import { experimentPropTypesShape, experimentResultPropTypesShape, individualPropTypesShape } from "../../propTypes";
@@ -26,7 +26,9 @@ const useResultUrl = (result) => {
 const ExperimentResultDownloadButton = ({ result }) => {
     const url = useResultUrl(result);
     return url ? (
-        <DownloadButton size="small" type="link" uri={url}>{""}</DownloadButton>
+        <Tooltip title="Download">
+            <DownloadButton size="small" uri={url}>{""}</DownloadButton>
+        </Tooltip>
     ) : (
         <>{EM_DASH}</>
     );
@@ -60,6 +62,12 @@ const ExperimentResultActions = ({ result }) => {
         !!VIEWABLE_FILE_EXTENSIONS.find(ext => result.filename.endsWith(ext)));
 
     return <div style={{ whiteSpace: "nowrap" }}>
+        {url ? <>
+            <Tooltip title="Download">
+                <DownloadButton size="small" uri={url}>{""}</DownloadButton>
+            </Tooltip>
+            {" "}
+        </> : null}
         {resultViewable ? <>
             <Modal
                 title={<span>View: {result.filename}</span>}
@@ -73,7 +81,9 @@ const ExperimentResultActions = ({ result }) => {
                     <FileDisplay uri={url} fileName={result.filename} />
                 )}
             </Modal>
-            <Button size="small" icon="eye" onClick={onViewClick}>View</Button>{" "}
+            <Tooltip title="View">
+                <Button size="small" icon="eye" onClick={onViewClick} />
+            </Tooltip>{" "}
         </> : null}
         <Popover
             placement="leftTop"
@@ -110,7 +120,9 @@ const ExperimentResultActions = ({ result }) => {
             }
             trigger="click"
         >
-            <Button size="small" icon="bars">See details</Button>
+            <Tooltip title="Details">
+                <Button size="small" icon="bars" />
+            </Tooltip>
         </Popover>
     </div>;
 };
@@ -135,12 +147,12 @@ const EXPERIMENT_RESULTS_COLUMNS = [
         title: "Filename",
         dataIndex: "filename",
     },
-    {
-        title: "Download",
-        key: "download",
-        align: "center",
-        render: (_, result) => <ExperimentResultDownloadButton result={result} />,
-    },
+    // {
+    //     title: "Download",
+    //     key: "download",
+    //     align: "center",
+    //     render: (_, result) => <ExperimentResultDownloadButton result={result} />,
+    // },
     {
         key: "other_details",
         align: "center",
