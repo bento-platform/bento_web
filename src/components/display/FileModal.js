@@ -14,7 +14,7 @@ const FileModal = ({ title, visible, onCancel, hasTriggered, url, fileName, load
             display: "flex",
             justifyContent: "center",
             alignItems: "center",
-            marginTop: "-50px",
+            top: 50,  // down from default of 100; gives a bit more screen real estate
         }}
         bodyStyle={{ minWidth: "692px" }}
         footer={null}
