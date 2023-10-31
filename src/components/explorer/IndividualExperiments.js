@@ -3,7 +3,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { Route, Switch, useHistory, useParams, useRouteMatch } from "react-router-dom";
 import PropTypes from "prop-types";
 
-import { Button, Descriptions, Icon, Modal, Popover, Table, Tooltip, Typography } from "antd";
+import { Button, Descriptions, Icon, Popover, Table, Tooltip, Typography } from "antd";
 
 import { EM_DASH } from "../../constants";
 import { experimentPropTypesShape, experimentResultPropTypesShape, individualPropTypesShape } from "../../propTypes";
@@ -11,11 +11,11 @@ import { getFileDownloadUrlsFromDrs } from "../../modules/drs/actions";
 import { guessFileType } from "../../utils/guessFileType";
 
 import { useDeduplicatedIndividualBiosamples, useIndividualResources } from "./utils";
+import { VIEWABLE_FILE_EXTENSIONS } from "../display/FileDisplay";
 
 import JsonView from "./JsonView";
 import OntologyTerm from "./OntologyTerm";
 import DownloadButton from "../DownloadButton";
-import FileDisplay, { VIEWABLE_FILE_EXTENSIONS } from "../display/FileDisplay";
 import FileModal from "../display/FileModal";
 
 const useResultUrl = (result) => {
