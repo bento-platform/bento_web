@@ -17,10 +17,14 @@ import OntologyTerm from "./OntologyTerm";
 import DownloadButton from "../DownloadButton";
 import FileDisplay, { VIEWABLE_FILE_EXTENSIONS } from "../display/FileDisplay";
 
-const ExperimentResultDownloadButton = ({ result }) => {
+const useResultUrl = (result) => {
     const downloadUrls = useSelector((state) => state.drs.downloadUrlsByFilename);
+    if (!result) return undefined;
+    return downloadUrls[result.filename]?.url;
+};
 
-    const url = downloadUrls[result.filename]?.url;
+const ExperimentResultDownloadButton = ({ result }) => {
+    const url = useResultUrl(result);
     return url ? (
         <DownloadButton size="small" type="link" uri={url}>{""}</DownloadButton>
     ) : (
@@ -34,8 +38,7 @@ ExperimentResultDownloadButton.propTypes = {
 const VIEWABLE_FILE_FORMATS = ["PDF", "CSV", "TSV"];
 
 const ExperimentResultActions = ({ result }) => {
-    const downloadUrls = useSelector((state) => state.drs.downloadUrlsByFilename);
-    const url = downloadUrls[result.filename]?.url;
+    const url = useResultUrl(result);
 
     const [viewModalVisible, setViewModalVisible] = useState(false);
 
@@ -52,10 +55,11 @@ const ExperimentResultActions = ({ result }) => {
     }, []);
     const onViewCancel = useCallback(() => setViewModalVisible(false), []);
 
-    const resultViewable = VIEWABLE_FILE_FORMATS.includes(result.file_format)
-        || !!VIEWABLE_FILE_EXTENSIONS.find(ext => result.filename.endsWith(ext));
+    const resultViewable = url && (
+        VIEWABLE_FILE_FORMATS.includes(result.file_format) ||
+        !!VIEWABLE_FILE_EXTENSIONS.find(ext => result.filename.endsWith(ext)));
 
-    return <>
+    return <div style={{ whiteSpace: "nowrap" }}>
         {resultViewable ? <>
             <Modal
                 title={<span>View: {result.filename}</span>}
@@ -108,7 +112,7 @@ const ExperimentResultActions = ({ result }) => {
         >
             <Button size="small" icon="bars">See details</Button>
         </Popover>
-    </>;
+    </div>;
 };
 ExperimentResultActions.propTypes = {
     result: experimentResultPropTypesShape,
