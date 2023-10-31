@@ -260,6 +260,7 @@ const FileContentsModal = ({selectedFilePath, visible, onCancel}) => {
         visible={visible}
         title={selectedFilePath ? `${selectedFilePath.split("/").at(-1)} - contents` : ""}
         width={1080}
+        style={{marginTop: "-50px"}}
         footer={null}
         destroyOnClose={true}
         onCancel={onCancel}
