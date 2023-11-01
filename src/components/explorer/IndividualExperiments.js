@@ -5,7 +5,6 @@ import PropTypes from "prop-types";
 
 import { Button, Descriptions, Icon, Popover, Table, Tooltip, Typography } from "antd";
 
-import { EM_DASH } from "../../constants";
 import { experimentPropTypesShape, experimentResultPropTypesShape, individualPropTypesShape } from "../../propTypes";
 import { getFileDownloadUrlsFromDrs } from "../../modules/drs/actions";
 import { guessFileType } from "../../utils/guessFileType";
@@ -18,30 +17,12 @@ import OntologyTerm from "./OntologyTerm";
 import DownloadButton from "../DownloadButton";
 import FileModal from "../display/FileModal";
 
-const useResultUrl = (result) => {
-    const downloadUrls = useSelector((state) => state.drs.downloadUrlsByFilename);
-    if (!result) return undefined;
-    return downloadUrls[result.filename]?.url;
-};
-
-const ExperimentResultDownloadButton = ({ result }) => {
-    const url = useResultUrl(result);
-    return url ? (
-        <Tooltip title="Download">
-            <DownloadButton size="small" uri={url}>{""}</DownloadButton>
-        </Tooltip>
-    ) : (
-        <>{EM_DASH}</>
-    );
-};
-ExperimentResultDownloadButton.propTypes = {
-    result: experimentResultPropTypesShape,
-};
 
 const VIEWABLE_FILE_FORMATS = ["PDF", "CSV", "TSV"];
 
 const ExperimentResultActions = ({ result }) => {
-    const url = useResultUrl(result);
+    const downloadUrls = useSelector((state) => state.drs.downloadUrlsByFilename);
+    const url = downloadUrls[result.filename]?.url;
 
     const [viewModalVisible, setViewModalVisible] = useState(false);
 
@@ -144,12 +125,6 @@ const EXPERIMENT_RESULTS_COLUMNS = [
         title: "Filename",
         dataIndex: "filename",
     },
-    // {
-    //     title: "Download",
-    //     key: "download",
-    //     align: "center",
-    //     render: (_, result) => <ExperimentResultDownloadButton result={result} />,
-    // },
     {
         key: "other_details",
         align: "center",
