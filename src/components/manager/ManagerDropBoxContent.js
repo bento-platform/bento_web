@@ -30,10 +30,11 @@ import {LAYOUT_CONTENT_STYLE} from "../../styles/layoutContent";
 import DownloadButton from "../DownloadButton";
 import DropBoxTreeSelect from "./DropBoxTreeSelect";
 import DatasetSelectionModal from "./DatasetSelectionModal";
+import FileModal from "../display/FileModal";
 
 import {BENTO_DROP_BOX_FS_BASE_PATH} from "../../config";
 import {STEP_INPUT} from "./workflowCommon";
-import {dropBoxTreeStateToPropsMixinPropTypes, workflowsStateToPropsMixin} from "../../propTypes";
+import { workflowsStateToPropsMixin } from "../../propTypes";
 import {useResourcePermissions} from "../../lib/auth/utils";
 import {getFalse} from "../../utils/misc";
 import {
@@ -46,7 +47,7 @@ import {
 import {RESOURCE_EVERYTHING} from "../../lib/auth/resources";
 import {deleteDropBox, ingestDropBox} from "../../lib/auth/permissions";
 
-import FileDisplay, { VIEWABLE_FILE_EXTENSIONS } from "../display/FileDisplay";
+import { VIEWABLE_FILE_EXTENSIONS } from "../display/FileDisplay";
 
 const DROP_BOX_CONTENT_CONTAINER_STYLE = { display: "flex", flexDirection: "column", gap: 8 };
 const DROP_BOX_ACTION_CONTAINER_STYLE = {
@@ -122,17 +123,6 @@ const stopEvent = event => {
     event.stopPropagation();
 };
 
-
-const DropBoxFileDisplay = ({file, tree, treeLoading}) => {
-    const urisByFilePath = useMemo(() => generateURIsByRelPath(tree, {}), [tree]);
-    const uri = useMemo(() => urisByFilePath[file], [urisByFilePath, file]);
-
-    return <FileDisplay uri={uri} fileName={file} loading={treeLoading} />;
-};
-DropBoxFileDisplay.propTypes = {
-    file: PropTypes.string,
-    ...dropBoxTreeStateToPropsMixinPropTypes,
-};
 
 const FileUploadForm = Form.create()(({initialUploadFolder, initialUploadFiles, form}) => {
     const getFileListFromEvent = useCallback(e => Array.isArray(e) ? e : e && e.fileList, []);
@@ -255,18 +245,20 @@ FileUploadModal.propTypes = {
 const FileContentsModal = ({selectedFilePath, visible, onCancel}) => {
     const {tree, isFetching: treeLoading} = useSelector(state => state.dropBox);
 
+    const urisByFilePath = useMemo(() => generateURIsByRelPath(tree, {}), [tree]);
+    const uri = useMemo(() => urisByFilePath[selectedFilePath], [urisByFilePath, selectedFilePath]);
+
     // destroyOnClose in order to stop audio/video from playing & avoid memory leaks at the cost of re-fetching
-    return <Modal
-        visible={visible}
-        title={selectedFilePath ? `${selectedFilePath.split("/").at(-1)} - contents` : ""}
-        width={1080}
-        style={{marginTop: "-50px"}}
-        footer={null}
-        destroyOnClose={true}
-        onCancel={onCancel}
-    >
-        <DropBoxFileDisplay file={selectedFilePath} tree={tree} treeLoading={treeLoading} />
-    </Modal>;
+    return (
+        <FileModal
+            visible={visible}
+            onCancel={onCancel}
+            title={selectedFilePath ? `${selectedFilePath.split("/").at(-1)} - contents` : ""}
+            url={uri}
+            fileName={selectedFilePath}
+            loading={treeLoading}
+        />
+    );
 };
 FileContentsModal.propTypes = {
     selectedFilePath: PropTypes.string,
@@ -571,7 +563,11 @@ const ManagerDropBoxContent = () => {
                         <Button icon="file-text" onClick={handleViewFile} disabled={!selectedFileViewable}>
                             View
                         </Button>
-                        <DownloadButton disabled={!selectedFileInfoAvailable} uri={filesByPath[fileForInfo]?.uri} />
+                        <DownloadButton
+                            disabled={!selectedFileInfoAvailable}
+                            uri={filesByPath[fileForInfo]?.uri}
+                            fileName={fileForInfo}
+                        />
                     </Button.Group>
 
                     <Button type="danger"
