@@ -11,12 +11,16 @@ const FileModal = ({ title, visible, onCancel, hasTriggered, url, fileName, load
         onCancel={onCancel}
         width={1080}
         style={{
+            // the flex display allows items which are less wide (e.g., portrait PDFs) to have a narrower modal
             display: "flex",
             justifyContent: "center",
             alignItems: "center",
             top: 50,  // down from default of 100; gives a bit more screen real estate
         }}
-        bodyStyle={{ minWidth: "692px" }}
+        bodyStyle={{
+            minWidth: "692px",
+            maxWidth: "1080px",  // needed, otherwise this ends up being more than the parent width for some reason
+        }}
         footer={null}
         // destroyOnClose in order to stop audio/video from playing & avoid memory leaks at the cost of re-fetching:
         destroyOnClose={true}
