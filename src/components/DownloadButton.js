@@ -22,6 +22,9 @@ const DownloadButton = ({ disabled, uri, fileName, children, size, type, onClick
 
         const form = document.createElement("form");
         if (fileName && BROWSER_RENDERED_EXTENSIONS.find((ext) => fileName.toLowerCase().endsWith(ext))) {
+            // In Firefox, if we open, e.g., a PDF; it'll open in the PDF viewer instead of downloading.
+            // Here, we force it to open in a new tab if it's render-able by the browser (although Chrome will actually
+            // download the PDF file, so it'll flash a new tab - this is a compromise solution for viewable file types.)
             form.target = "_blank";
         }
         form.method = "post";
