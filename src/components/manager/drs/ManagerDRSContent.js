@@ -43,7 +43,7 @@ const DRS_COLUMNS = [
         key: "actions",
         render: (record) => {
             const url = record.access_methods[0]?.access_url?.url;
-            return <DownloadButton disabled={!url} uri={url} />;
+            return <DownloadButton disabled={!url} uri={url} fileName={record.name} />;
         },
     },
 ];

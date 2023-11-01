@@ -21,8 +21,10 @@ import FileModal from "../display/FileModal";
 const VIEWABLE_FILE_FORMATS = ["PDF", "CSV", "TSV"];
 
 const ExperimentResultActions = ({ result }) => {
+    const { filename } = result;
+
     const downloadUrls = useSelector((state) => state.drs.downloadUrlsByFilename);
-    const url = downloadUrls[result.filename]?.url;
+    const url = downloadUrls[filename]?.url;
 
     const [viewModalVisible, setViewModalVisible] = useState(false);
 
@@ -41,12 +43,12 @@ const ExperimentResultActions = ({ result }) => {
 
     const resultViewable = url && (
         VIEWABLE_FILE_FORMATS.includes(result.file_format) ||
-        !!VIEWABLE_FILE_EXTENSIONS.find(ext => result.filename.endsWith(ext)));
+        !!VIEWABLE_FILE_EXTENSIONS.find(ext => filename.toLowerCase().endsWith(ext)));
 
     return <div style={{ whiteSpace: "nowrap" }}>
         {url ? <>
             <Tooltip title="Download">
-                <DownloadButton size="small" uri={url}>{""}</DownloadButton>
+                <DownloadButton size="small" uri={url} fileName={filename}>{""}</DownloadButton>
             </Tooltip>
             {" "}
         </> : null}

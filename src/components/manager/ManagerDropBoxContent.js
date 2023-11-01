@@ -563,7 +563,11 @@ const ManagerDropBoxContent = () => {
                         <Button icon="file-text" onClick={handleViewFile} disabled={!selectedFileViewable}>
                             View
                         </Button>
-                        <DownloadButton disabled={!selectedFileInfoAvailable} uri={filesByPath[fileForInfo]?.uri} />
+                        <DownloadButton
+                            disabled={!selectedFileInfoAvailable}
+                            uri={filesByPath[fileForInfo]?.uri}
+                            fileName={fileForInfo}
+                        />
                     </Button.Group>
 
                     <Button type="danger"

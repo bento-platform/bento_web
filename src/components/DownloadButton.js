@@ -1,15 +1,29 @@
-import { useSelector } from "react-redux";
 import React, { useCallback } from "react";
-import { Button } from "antd";
+import { useSelector } from "react-redux";
 import PropTypes from "prop-types";
 
-const DownloadButton = ({ disabled, uri, children, size, type, onClick: propsOnClick, ...props }) => {
+import { Button } from "antd";
+
+import { AUDIO_FILE_EXTENSIONS, IMAGE_FILE_EXTENSIONS, VIDEO_FILE_EXTENSIONS } from "./display/FileDisplay";
+
+const BROWSER_RENDERED_EXTENSIONS = [
+    ".pdf",
+    ".txt",
+    ...AUDIO_FILE_EXTENSIONS,
+    ...IMAGE_FILE_EXTENSIONS,
+    ...VIDEO_FILE_EXTENSIONS,
+];
+
+const DownloadButton = ({ disabled, uri, fileName, children, size, type, onClick: propsOnClick, ...props }) => {
     const { accessToken } = useSelector((state) => state.auth);
 
     const onClick = useCallback((e) => {
         if (!uri) return;
 
         const form = document.createElement("form");
+        if (fileName && BROWSER_RENDERED_EXTENSIONS.find((ext) => fileName.toLowerCase().endsWith(ext))) {
+            form.target = "_blank";
+        }
         form.method = "post";
         form.action = uri;
         form.innerHTML = `<input type="hidden" name="token" value="${accessToken}" />`;
@@ -41,9 +55,11 @@ DownloadButton.defaultProps = {
 DownloadButton.propTypes = {
     disabled: PropTypes.bool,
     uri: PropTypes.string,
+    fileName: PropTypes.string,
     children: PropTypes.oneOfType([PropTypes.object, PropTypes.string]),
     size: PropTypes.oneOf(["small", "default", "large"]),
     type: PropTypes.oneOf(["primary", "ghost", "dashed", "danger", "link", "default"]),
+    onClick: PropTypes.func,
 };
 
 export default DownloadButton;
