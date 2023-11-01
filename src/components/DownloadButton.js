@@ -3,10 +3,10 @@ import React, { useCallback } from "react";
 import { Button } from "antd";
 import PropTypes from "prop-types";
 
-const DownloadButton = ({ disabled, uri, children, size, type, ...props }) => {
+const DownloadButton = ({ disabled, uri, children, size, type, onClick: propsOnClick, ...props }) => {
     const { accessToken } = useSelector((state) => state.auth);
 
-    const onClick = useCallback(() => {
+    const onClick = useCallback((e) => {
         if (!uri) return;
 
         const form = document.createElement("form");
@@ -19,8 +19,11 @@ const DownloadButton = ({ disabled, uri, children, size, type, ...props }) => {
         } finally {
             // Even if submit raises for some reason, we still need to clean this up; it has a token in it!
             document.body.removeChild(form);
+
+            // Call the props-passed onClick event handler after hijacking the event and doing our own thing
+            if (propsOnClick) propsOnClick(e);
         }
-    }, [uri, accessToken]);
+    }, [uri, accessToken, propsOnClick]);
 
     return (
         <Button key="download" icon="download" size={size} type={type} disabled={disabled} onClick={onClick} {...props}>
