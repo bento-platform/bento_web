@@ -9,7 +9,7 @@ const FileModal = ({ title, visible, onCancel, hasTriggered, url, fileName, load
         title={title}
         visible={visible}
         onCancel={onCancel}
-        width={1080}
+        width={1180}
         style={{
             // the flex display allows items which are less wide (e.g., portrait PDFs) to have a narrower modal
             display: "flex",
@@ -19,7 +19,7 @@ const FileModal = ({ title, visible, onCancel, hasTriggered, url, fileName, load
         }}
         bodyStyle={{
             minWidth: "692px",
-            maxWidth: "1080px",  // needed, otherwise this ends up being more than the parent width for some reason
+            maxWidth: "1180px",  // needed, otherwise this ends up being more than the parent width for some reason
         }}
         footer={null}
         // destroyOnClose in order to stop audio/video from playing & avoid memory leaks at the cost of re-fetching:
