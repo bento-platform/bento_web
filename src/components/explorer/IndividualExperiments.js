@@ -1,32 +1,112 @@
-import React, {useCallback, useEffect, useMemo} from "react";
+import React, {useCallback, useEffect, useMemo, useState} from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { Route, Switch, useHistory, useParams, useRouteMatch } from "react-router-dom";
 import PropTypes from "prop-types";
 
-import { Button, Descriptions, Icon, Popover, Table, Typography } from "antd";
+import { Button, Descriptions, Icon, Popover, Table, Tooltip, Typography } from "antd";
 
-import { EM_DASH } from "../../constants";
 import { experimentPropTypesShape, experimentResultPropTypesShape, individualPropTypesShape } from "../../propTypes";
 import { getFileDownloadUrlsFromDrs } from "../../modules/drs/actions";
 import { guessFileType } from "../../utils/guessFileType";
 
 import { useDeduplicatedIndividualBiosamples, useIndividualResources } from "./utils";
+import { VIEWABLE_FILE_EXTENSIONS } from "../display/FileDisplay";
 
 import JsonView from "./JsonView";
 import OntologyTerm from "./OntologyTerm";
 import DownloadButton from "../DownloadButton";
+import FileModal from "../display/FileModal";
 
-const ExperimentResultDownloadButton = ({ result }) => {
+
+const VIEWABLE_FILE_FORMATS = ["PDF", "CSV", "TSV"];
+
+const ExperimentResultActions = ({ result }) => {
+    const { filename } = result;
+
     const downloadUrls = useSelector((state) => state.drs.downloadUrlsByFilename);
+    const url = downloadUrls[filename]?.url;
 
-    const url = downloadUrls[result.filename]?.url;
-    return url ? (
-        <DownloadButton type="link" uri={url}>{""}</DownloadButton>
-    ) : (
-        <>{EM_DASH}</>
-    );
+    const [viewModalVisible, setViewModalVisible] = useState(false);
+
+    // Slightly different from viewModalVisible - this is just set on the first click of the
+    // view button and results in file loading being triggered. if FileDisplay was always
+    // immediately shown, it would load all experiment results immediately, which is undesirable
+    // behaviour. Instead, we wait until a user clicks it, then load the file, but we don't unmount
+    // the component after so we have the file contents cached.
+    const [hasTriggeredViewModal, setHasTriggeredViewModal] = useState(false);
+
+    const onViewClick = useCallback(() => {
+        setHasTriggeredViewModal(true);
+        setViewModalVisible(true);
+    }, []);
+    const onViewCancel = useCallback(() => setViewModalVisible(false), []);
+
+    const resultViewable = url && (
+        VIEWABLE_FILE_FORMATS.includes(result.file_format) ||
+        !!VIEWABLE_FILE_EXTENSIONS.find(ext => filename.toLowerCase().endsWith(ext)));
+
+    return <div style={{ whiteSpace: "nowrap" }}>
+        {url ? <>
+            <Tooltip title="Download">
+                <DownloadButton size="small" uri={url} fileName={filename}>{""}</DownloadButton>
+            </Tooltip>
+            {" "}
+        </> : null}
+        {resultViewable ? <>
+            <FileModal
+                visible={viewModalVisible}
+                onCancel={onViewCancel}
+                title={<span>View: {result.filename}</span>}
+                url={url}
+                fileName={result.filename}
+                hasTriggered={hasTriggeredViewModal}
+            />
+            <Tooltip title="View">
+                <Button size="small" icon="eye" onClick={onViewClick} />
+            </Tooltip>{" "}
+        </> : null}
+        <Popover
+            placement="leftTop"
+            title={`Experiment Results: ${result.file_format}`}
+            content={
+                <div className="other-details">
+                    <Descriptions layout="horizontal" bordered={true} colon={false} column={1} size="small">
+                        <Descriptions.Item label="Identifier">
+                            {result.identifier}
+                        </Descriptions.Item>
+                        <Descriptions.Item label="Description">
+                            {result.description}
+                        </Descriptions.Item>
+                        <Descriptions.Item label="Filename">
+                            {result.filename}
+                        </Descriptions.Item>
+                        <Descriptions.Item label="File format">
+                            {result.file_format}
+                        </Descriptions.Item>
+                        <Descriptions.Item label="Data output type">
+                            {result.data_output_type}
+                        </Descriptions.Item>
+                        <Descriptions.Item label="Usage">
+                            {result.usage}
+                        </Descriptions.Item>
+                        <Descriptions.Item label="Creation date">
+                            {result.creation_date}
+                        </Descriptions.Item>
+                        <Descriptions.Item label="Created by">
+                            {result.created_by}
+                        </Descriptions.Item>
+                    </Descriptions>
+                </div>
+            }
+            trigger="click"
+        >
+            <Tooltip title="Details">
+                <Button size="small" icon="bars" />
+            </Tooltip>
+        </Popover>
+    </div>;
 };
-ExperimentResultDownloadButton.propTypes = {
+ExperimentResultActions.propTypes = {
     result: experimentResultPropTypesShape,
 };
 
@@ -48,59 +128,9 @@ const EXPERIMENT_RESULTS_COLUMNS = [
         dataIndex: "filename",
     },
     {
-        title: "Download",
-        key: "download",
-        align: "center",
-        render: (_, result) => <ExperimentResultDownloadButton result={result} />,
-    },
-    {
         key: "other_details",
         align: "center",
-        render: (_, result) => (
-            <Popover
-                placement="leftTop"
-                title={`Experiment Results: ${result.file_format}`}
-                content={
-                    <div className="other-details">
-                        <Descriptions
-                            layout="horizontal"
-                            bordered={true}
-                            colon={false}
-                            column={1}
-                            size="small"
-                        >
-                            <Descriptions.Item label="Identifier">
-                                {result.identifier}
-                            </Descriptions.Item>
-                            <Descriptions.Item label="Description">
-                                {result.description}
-                            </Descriptions.Item>
-                            <Descriptions.Item label="Filename">
-                                {result.filename}
-                            </Descriptions.Item>
-                            <Descriptions.Item label="File format">
-                                {result.file_format}
-                            </Descriptions.Item>
-                            <Descriptions.Item label="Data output type">
-                                {result.data_output_type}
-                            </Descriptions.Item>
-                            <Descriptions.Item label="Usage">
-                                {result.usage}
-                            </Descriptions.Item>
-                            <Descriptions.Item label="Creation date">
-                                {result.creation_date}
-                            </Descriptions.Item>
-                            <Descriptions.Item label="Created by">
-                                {result.created_by}
-                            </Descriptions.Item>
-                        </Descriptions>
-                    </div>
-                }
-                trigger="click"
-            >
-                <Button size="small">See details</Button>
-            </Popover>
-        ),
+        render: (_, result) => <ExperimentResultActions result={result} />,
     },
 ];
 
@@ -233,8 +263,7 @@ const Experiments = ({ individual, handleExperimentClick }) => {
             .map((r) => ({  // enforce file_format property
                 ...r,
                 file_format: r.file_format ?? guessFileType(r.filename),
-            }))
-            .filter(isDownloadable);
+            }));
 
         dispatch(getFileDownloadUrlsFromDrs(downloadableFiles));
     }, [experimentsData]);
@@ -317,10 +346,6 @@ const IndividualExperiments = ({ individual }) => {
         </Switch>
     );
 };
-
-// expand here accordingly
-const isDownloadable = (result) =>
-    ["vcf", "cram", "bw", "bigwig"].includes(result.file_format?.toLowerCase());
 
 IndividualExperiments.propTypes = {
     individual: individualPropTypesShape,
