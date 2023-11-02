@@ -3,39 +3,28 @@ import { useDispatch, useSelector } from "react-redux";
 import { Route, Switch, useHistory, useParams, useRouteMatch } from "react-router-dom";
 import PropTypes from "prop-types";
 
-import { Button, Descriptions, Icon, Modal, Popover, Table, Typography } from "antd";
+import { Button, Descriptions, Icon, Popover, Table, Tooltip, Typography } from "antd";
 
-import { EM_DASH } from "../../constants";
 import { experimentPropTypesShape, experimentResultPropTypesShape, individualPropTypesShape } from "../../propTypes";
 import { getFileDownloadUrlsFromDrs } from "../../modules/drs/actions";
 import { guessFileType } from "../../utils/guessFileType";
 
 import { useDeduplicatedIndividualBiosamples, useIndividualResources } from "./utils";
+import { VIEWABLE_FILE_EXTENSIONS } from "../display/FileDisplay";
 
 import JsonView from "./JsonView";
 import OntologyTerm from "./OntologyTerm";
 import DownloadButton from "../DownloadButton";
-import FileDisplay, { VIEWABLE_FILE_EXTENSIONS } from "../display/FileDisplay";
+import FileModal from "../display/FileModal";
 
-const ExperimentResultDownloadButton = ({ result }) => {
-    const downloadUrls = useSelector((state) => state.drs.downloadUrlsByFilename);
-
-    const url = downloadUrls[result.filename]?.url;
-    return url ? (
-        <DownloadButton size="small" type="link" uri={url}>{""}</DownloadButton>
-    ) : (
-        <>{EM_DASH}</>
-    );
-};
-ExperimentResultDownloadButton.propTypes = {
-    result: experimentResultPropTypesShape,
-};
 
 const VIEWABLE_FILE_FORMATS = ["PDF", "CSV", "TSV"];
 
 const ExperimentResultActions = ({ result }) => {
+    const { filename } = result;
+
     const downloadUrls = useSelector((state) => state.drs.downloadUrlsByFilename);
-    const url = downloadUrls[result.filename]?.url;
+    const url = downloadUrls[filename]?.url;
 
     const [viewModalVisible, setViewModalVisible] = useState(false);
 
@@ -52,17 +41,29 @@ const ExperimentResultActions = ({ result }) => {
     }, []);
     const onViewCancel = useCallback(() => setViewModalVisible(false), []);
 
-    const resultViewable = VIEWABLE_FILE_FORMATS.includes(result.file_format)
-        || !!VIEWABLE_FILE_EXTENSIONS.find(ext => result.filename.endsWith(ext));
+    const resultViewable = url && (
+        VIEWABLE_FILE_FORMATS.includes(result.file_format) ||
+        !!VIEWABLE_FILE_EXTENSIONS.find(ext => filename.toLowerCase().endsWith(ext)));
 
-    return <>
+    return <div style={{ whiteSpace: "nowrap" }}>
+        {url ? <>
+            <Tooltip title="Download">
+                <DownloadButton size="small" uri={url} fileName={filename}>{""}</DownloadButton>
+            </Tooltip>
+            {" "}
+        </> : null}
         {resultViewable ? <>
-            <Modal title={<span>View: {result.filename}</span>} visible={viewModalVisible} onCancel={onViewCancel}>
-                {hasTriggeredViewModal && (
-                    <FileDisplay uri={url} fileName={result.filename} />
-                )}
-            </Modal>
-            <Button size="small" icon="eye" onClick={onViewClick}>View</Button>{" "}
+            <FileModal
+                visible={viewModalVisible}
+                onCancel={onViewCancel}
+                title={<span>View: {result.filename}</span>}
+                url={url}
+                fileName={result.filename}
+                hasTriggered={hasTriggeredViewModal}
+            />
+            <Tooltip title="View">
+                <Button size="small" icon="eye" onClick={onViewClick} />
+            </Tooltip>{" "}
         </> : null}
         <Popover
             placement="leftTop"
@@ -99,9 +100,11 @@ const ExperimentResultActions = ({ result }) => {
             }
             trigger="click"
         >
-            <Button size="small" icon="bars">See details</Button>
+            <Tooltip title="Details">
+                <Button size="small" icon="bars" />
+            </Tooltip>
         </Popover>
-    </>;
+    </div>;
 };
 ExperimentResultActions.propTypes = {
     result: experimentResultPropTypesShape,
@@ -123,12 +126,6 @@ const EXPERIMENT_RESULTS_COLUMNS = [
     {
         title: "Filename",
         dataIndex: "filename",
-    },
-    {
-        title: "Download",
-        key: "download",
-        align: "center",
-        render: (_, result) => <ExperimentResultDownloadButton result={result} />,
     },
     {
         key: "other_details",
@@ -266,8 +263,7 @@ const Experiments = ({ individual, handleExperimentClick }) => {
             .map((r) => ({  // enforce file_format property
                 ...r,
                 file_format: r.file_format ?? guessFileType(r.filename),
-            }))
-            .filter(isDownloadable);
+            }));
 
         dispatch(getFileDownloadUrlsFromDrs(downloadableFiles));
     }, [experimentsData]);
@@ -350,10 +346,6 @@ const IndividualExperiments = ({ individual }) => {
         </Switch>
     );
 };
-
-// expand here accordingly
-const isDownloadable = (result) =>
-    ["vcf", "cram", "bw", "bigwig"].includes(result.file_format?.toLowerCase());
 
 IndividualExperiments.propTypes = {
     individual: individualPropTypesShape,

@@ -66,7 +66,7 @@ const LANGUAGE_HIGHLIGHTERS = {
     "CHANGELOG": "plaintext",
 };
 
-const AUDIO_FILE_EXTENSIONS = [
+export const AUDIO_FILE_EXTENSIONS = [
     "3gp",
     "aac",
     "flac",
@@ -78,7 +78,7 @@ const AUDIO_FILE_EXTENSIONS = [
 
 const CSV_LIKE_FILE_EXTENSIONS = ["csv", "tsv"];
 
-const IMAGE_FILE_EXTENSIONS = [
+export const IMAGE_FILE_EXTENSIONS = [
     "apng",
     "avif",
     "bmp",
@@ -90,7 +90,7 @@ const IMAGE_FILE_EXTENSIONS = [
     "webp",
 ];
 
-const VIDEO_FILE_EXTENSIONS = ["mp4", "webm"];
+export const VIDEO_FILE_EXTENSIONS = ["mp4", "webm"];
 
 // TODO: ".bed",
 //  .bed files are basically TSVs, but they can have instructions and can be whitespace-delimited instead
