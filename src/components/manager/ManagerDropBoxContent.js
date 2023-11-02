@@ -21,6 +21,7 @@ import {
     Spin,
     Statistic,
     Tree,
+    Typography,
     Upload,
     message,
 } from "antd";
@@ -29,10 +30,11 @@ import {LAYOUT_CONTENT_STYLE} from "../../styles/layoutContent";
 import DownloadButton from "../DownloadButton";
 import DropBoxTreeSelect from "./DropBoxTreeSelect";
 import DatasetSelectionModal from "./DatasetSelectionModal";
+import FileModal from "../display/FileModal";
 
 import {BENTO_DROP_BOX_FS_BASE_PATH} from "../../config";
 import {STEP_INPUT} from "./workflowCommon";
-import {dropBoxTreeStateToPropsMixinPropTypes, workflowsStateToPropsMixin} from "../../propTypes";
+import { workflowsStateToPropsMixin } from "../../propTypes";
 import {useResourcePermissions} from "../../lib/auth/utils";
 import {getFalse} from "../../utils/misc";
 import {
@@ -45,12 +47,23 @@ import {
 import {RESOURCE_EVERYTHING} from "../../lib/auth/resources";
 import {deleteDropBox, ingestDropBox} from "../../lib/auth/permissions";
 
-import FileDisplay, { VIEWABLE_FILE_EXTENSIONS } from "../display/FileDisplay";
+import { VIEWABLE_FILE_EXTENSIONS } from "../display/FileDisplay";
 
-const DROP_BOX_CONTENT_CONTAINER_STYLE = {display: "flex", flexDirection: "column", gap: "1em"};
-const DROP_BOX_ACTION_CONTAINER_STYLE = {display: "flex", gap: "12px"};
+const DROP_BOX_CONTENT_CONTAINER_STYLE = { display: "flex", flexDirection: "column", gap: 8 };
+const DROP_BOX_ACTION_CONTAINER_STYLE = {
+    display: "flex",
+    gap: "12px",
+    alignItems: "baseline",
+    position: "sticky",
+    paddingBottom: 4,
+    backgroundColor: "white",
+    boxShadow: "0 10px 10px white, 0 -10px 0 white",
+    top: 8,
+    zIndex: 10,
+};
+const DROP_BOX_INFO_CONTAINER_STYLE = { display: "flex", gap: "2em", paddingTop: 8 };
 
-const TREE_CONTAINER_STYLE = {position: "relative", minHeight: 72};
+const TREE_CONTAINER_STYLE = { minHeight: 72, overflowY: "auto" };
 
 const TREE_DROP_ZONE_OVERLAY_STYLE = {
     position: "absolute",
@@ -110,17 +123,6 @@ const stopEvent = event => {
     event.stopPropagation();
 };
 
-
-const DropBoxFileDisplay = ({file, tree, treeLoading}) => {
-    const urisByFilePath = useMemo(() => generateURIsByRelPath(tree, {}), [tree]);
-    const uri = useMemo(() => urisByFilePath[file], [urisByFilePath, file]);
-
-    return <FileDisplay uri={uri} fileName={file} loading={treeLoading} />;
-};
-DropBoxFileDisplay.propTypes = {
-    file: PropTypes.string,
-    ...dropBoxTreeStateToPropsMixinPropTypes,
-};
 
 const FileUploadForm = Form.create()(({initialUploadFolder, initialUploadFiles, form}) => {
     const getFileListFromEvent = useCallback(e => Array.isArray(e) ? e : e && e.fileList, []);
@@ -243,17 +245,20 @@ FileUploadModal.propTypes = {
 const FileContentsModal = ({selectedFilePath, visible, onCancel}) => {
     const {tree, isFetching: treeLoading} = useSelector(state => state.dropBox);
 
+    const urisByFilePath = useMemo(() => generateURIsByRelPath(tree, {}), [tree]);
+    const uri = useMemo(() => urisByFilePath[selectedFilePath], [urisByFilePath, selectedFilePath]);
+
     // destroyOnClose in order to stop audio/video from playing & avoid memory leaks at the cost of re-fetching
-    return <Modal
-        visible={visible}
-        title={selectedFilePath ? `${selectedFilePath.split("/").at(-1)} - contents` : ""}
-        width={1080}
-        footer={null}
-        destroyOnClose={true}
-        onCancel={onCancel}
-    >
-        <DropBoxFileDisplay file={selectedFilePath} tree={tree} treeLoading={treeLoading} />
-    </Modal>;
+    return (
+        <FileModal
+            visible={visible}
+            onCancel={onCancel}
+            title={selectedFilePath ? `${selectedFilePath.split("/").at(-1)} - contents` : ""}
+            url={uri}
+            fileName={selectedFilePath}
+            loading={treeLoading}
+        />
+    );
 };
 FileContentsModal.propTypes = {
     selectedFilePath: PropTypes.string,
@@ -262,13 +267,16 @@ FileContentsModal.propTypes = {
 };
 
 
-const DropBoxInformation = () => (
+const DropBoxInformation = ({ style }) => (
     <Alert type="info" showIcon={true} message="About the drop box" description={`
         The drop box contains files which are not yet ingested into this Bento instance. They are not
         organized in any particular structure; instead, this serves as a place for incoming data files to be
         deposited and examined.
-    `} />
+    `} style={style} />
 );
+DropBoxInformation.propTypes = {
+    style: PropTypes.object,
+};
 
 const DROP_BOX_ROOT_KEY = "/";
 
@@ -301,6 +309,7 @@ const ManagerDropBoxContent = () => {
     const [fileContentsModal, setFileContentsModal] = useState(false);
 
     const [fileDeleteModal, setFileDeleteModal] = useState(false);
+    const [fileDeleteModalTitle, setFileDeleteModalTitle] = useState("");  // cache to allow close animation
 
     const [selectedWorkflow, setSelectedWorkflow] = useState(null);
     const [datasetSelectionModal, setDatasetSelectionModal] = useState(false);
@@ -442,6 +451,10 @@ const ManagerDropBoxContent = () => {
     const hideFileDeleteModal = useCallback(() => setFileDeleteModal(false), []);
     const showFileDeleteModal = useCallback(() => {
         if (selectedEntries.length !== 1 || selectedFolder) return;
+        // Only set this on open - don't clear it on close, so we don't get a strange effect on modal close where the
+        // title disappears before the modal.
+        setFileDeleteModalTitle(
+            `Are you sure you want to delete '${(firstSelectedEntry ?? "").split("/").at(-1)}'?`);
         setFileDeleteModal(true);
     }, [selectedEntries, selectedFolder]);
     const handleDelete = useCallback(() => {
@@ -449,6 +462,7 @@ const ManagerDropBoxContent = () => {
         (async () => {
             await dispatch(deleteDropBoxObject(firstSelectedEntry));
             hideFileDeleteModal();
+            setSelectedEntries([DROP_BOX_ROOT_KEY]);
         })();
     }, [dispatch, selectedEntries]);
 
@@ -523,7 +537,7 @@ const ManagerDropBoxContent = () => {
             </Modal>
 
             <Modal visible={fileDeleteModal}
-                   title={`Are you sure you want to delete '${firstSelectedEntry.split("/").at(-1)}'?`}
+                   title={fileDeleteModalTitle}
                    okType="danger"
                    okText="Delete"
                    okButtonProps={{loading: isDeleting}}
@@ -549,7 +563,11 @@ const ManagerDropBoxContent = () => {
                         <Button icon="file-text" onClick={handleViewFile} disabled={!selectedFileViewable}>
                             View
                         </Button>
-                        <DownloadButton disabled={!selectedFileInfoAvailable} uri={filesByPath[fileForInfo]?.uri} />
+                        <DownloadButton
+                            disabled={!selectedFileInfoAvailable}
+                            uri={filesByPath[fileForInfo]?.uri}
+                            fileName={fileForInfo}
+                        />
                     </Button.Group>
 
                     <Button type="danger"
@@ -558,6 +576,10 @@ const ManagerDropBoxContent = () => {
                             loading={isDeleting}
                             onClick={showFileDeleteModal}>
                         Delete</Button>
+
+                    <Typography.Text type="secondary">
+                        {selectedEntries.length} item{selectedEntries.length === 1 ? "" : "s"} selected
+                    </Typography.Text>
                 </div>
 
                 <Spin spinning={treeLoading}>
@@ -588,14 +610,15 @@ const ManagerDropBoxContent = () => {
                                description="Encountered an error while trying to access the drop box service" />}
                 </Spin>
 
-                <Statistic
-                    title="Total Space Used"
-                    value={treeLoading
-                        ? "—"
-                        : filesize(Object.values(filesByPath).reduce((acc, f) => acc + f.size, 0))}
-                />
-
-                <DropBoxInformation />
+                <div style={DROP_BOX_INFO_CONTAINER_STYLE}>
+                    <Statistic
+                        title="Total Space Used"
+                        value={treeLoading
+                            ? "—"
+                            : filesize(Object.values(filesByPath).reduce((acc, f) => acc + f.size, 0))}
+                    />
+                    <DropBoxInformation style={{ flex: 1 }} />
+                </div>
             </div>
         </Layout.Content>
     </Layout>;
