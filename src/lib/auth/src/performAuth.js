@@ -8,11 +8,13 @@ import {tokenHandoff} from "./redux/authSlice";
 import {nop} from "./utils";
 import {buildUrlEncodedData, getIsAuthenticated} from "./utils";
 import {popLocalStorageItem} from "./utils";
+import {AUTH_CALLBACK_URL} from "../../../config";
 
 export const LS_BENTO_WAS_SIGNED_IN = "BENTO_WAS_SIGNED_IN";
 export const LS_BENTO_POST_AUTH_REDIRECT = "BENTO_POST_AUTH_REDIRECT";
 
 export const createAuthURL = async (authorizationEndpoint, clientId, authCallbackURL,  scope = "openid email") => {
+    console.log("createAuthURL  called")
     const state = secureRandomString();
     const verifier = secureRandomString();
 
@@ -38,9 +40,9 @@ export const performAuth = async (authorizationEndpoint, clientId, authCallbackU
     window.location = await createAuthURL(authorizationEndpoint, clientId, authCallbackURL, scope);
 };
 
-const defaultAuthCodeCallback = async (dispatch, history, code, verifier, onSuccessfulAuthentication) => {
+const defaultAuthCodeCallback = async (dispatch, history, code, verifier, onSuccessfulAuthentication, CLIENT_ID, AUTH_CALLBACK_URL) => {
     const lastPath = popLocalStorageItem(LS_BENTO_POST_AUTH_REDIRECT);
-    await dispatch(tokenHandoff(code, verifier));
+    await dispatch(tokenHandoff({code, verifier, CLIENT_ID, AUTH_CALLBACK_URL}));
     history.replace(lastPath ?? DEFAULT_REDIRECT);
     await dispatch(onSuccessfulAuthentication(nop));
 };
@@ -49,7 +51,7 @@ export const setLSNotSignedIn = () => {
     localStorage.removeItem(LS_BENTO_WAS_SIGNED_IN);
 };
 
-export const useHandleCallback = (callbackPath, onSuccessfulAuthentication, authCodeCallback = undefined) => {
+export const useHandleCallback = (callbackPath, onSuccessfulAuthentication, CLIENT_ID, AUTH_CALLBACK_URL, authCodeCallback = undefined) => {
     const dispatch = useDispatch();
     const history = useHistory();
     const location = useLocation();
@@ -102,7 +104,7 @@ export const useHandleCallback = (callbackPath, onSuccessfulAuthentication, auth
 
         const verifier = popLocalStorageItem(PKCE_LS_VERIFIER);
 
-        (authCodeCallback ?? defaultAuthCodeCallback)(dispatch, history, code, verifier, onSuccessfulAuthentication).catch(err => {
+        (authCodeCallback ?? defaultAuthCodeCallback)(dispatch, history, code, verifier, onSuccessfulAuthentication, CLIENT_ID, AUTH_CALLBACK_URL).catch(err => {
             console.error(err);
             setLSNotSignedIn();
         });

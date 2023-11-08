@@ -4,7 +4,7 @@ import { LS_BENTO_WAS_SIGNED_IN, setLSNotSignedIn } from "../performAuth";
 import { decodeJwt } from "jose";
 import {makeResourceKey} from "../resources";
 
-export const tokenHandoff = createAsyncThunk("auth/TOKEN_HANDOFF", async ({ code, verifier }, thunkAPI) => {
+export const tokenHandoff = createAsyncThunk("auth/TOKEN_HANDOFF", async ({ code, verifier, CLIENT_ID, AUTH_CALLBACK_URL }, thunkAPI) => {
     const url = thunkAPI.getState().openIdConfiguration.data?.["token_endpoint"];
 
     const response = await fetch(url, {
@@ -13,8 +13,8 @@ export const tokenHandoff = createAsyncThunk("auth/TOKEN_HANDOFF", async ({ code
         body: buildUrlEncodedData({
             grant_type: "authorization_code",
             code,
-            client_id: getState().config.CLIENT_ID,
-            redirect_uri: getState().config.AUTH_CALLBACK_URL,
+            client_id: CLIENT_ID,
+            redirect_uri: AUTH_CALLBACK_URL,
             code_verifier: verifier,
         }),
     });
@@ -121,7 +121,7 @@ export const authSlice = createSlice({
                     expires_in: exp,
                     id_token: idToken,
                     refresh_token: refreshToken,
-                } = payload.data;
+                } = payload;
 
                 // Reset hasAttempted for user-dependent data if we just signed in
                 state.hasAttempted = !state.idTokenContents && idToken ? false : state.hasAttempted;
@@ -172,6 +172,7 @@ export const authSlice = createSlice({
                 localStorage.setItem(LS_BENTO_WAS_SIGNED_IN, "true");
             })
             .addCase(refreshTokens.rejected, (state, { payload }) => {
+                console.log('payload', payload);
                 const { error, error_description: errorDesc } = payload.data ?? {};
                 const tokensRefreshError = error
                     ? `${error}: ${errorDesc}`

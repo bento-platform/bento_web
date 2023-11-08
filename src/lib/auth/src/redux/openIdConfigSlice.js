@@ -1,13 +1,13 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
+import { OPENID_CONFIG_URL } from "../../../../config";
 
 // Async actions using createAsyncThunk
 export const fetchOpenIdConfiguration = createAsyncThunk(
     "openIdConfig/fetchOpenIdConfiguration",
     async (_args, { getState }) => {
-        const { isFetching, data: existingData, expiry } = getState().openIdConfiguration;
-        if (isFetching || (!!existingData && expiry && Date.now() < expiry * 1000)) return;
-
-        const response = await fetch(getState().config.OPENID_CONFIG_URL);
+        const { data: existingData, expiry } = getState().openIdConfiguration;
+        if (!!existingData && expiry && Date.now() < expiry * 1000) return;
+        const response = await fetch(OPENID_CONFIG_URL);
         if (response.ok) {
             return await response.json();
         } else {
@@ -30,10 +30,12 @@ export const openIdConfigSlice = createSlice({
         builder.addCase(fetchOpenIdConfiguration.pending, (state) => {
             state.isFetching = true;
         });
-        builder.addCase(fetchOpenIdConfiguration.fulfilled, (state, action) => {
+        builder.addCase(fetchOpenIdConfiguration.fulfilled, (state, { payload }) => {
             state.isFetching = false;
-            state.data = action.payload;
-            state.expiry = Date.now() / 1000 + 3 * 60 * 60; // Cache for 3 hours
+            if (payload !== undefined) {
+                state.data = payload;
+                state.expiry = Date.now() / 1000 + 3 * 60 * 60; // Cache for 3 hours
+            }
         });
         builder.addCase(fetchOpenIdConfiguration.rejected, (state) => {
             state.isFetching = false;

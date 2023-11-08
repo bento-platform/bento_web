@@ -95,7 +95,8 @@ const App = () => {
     })();
 
     // Set up auth callback handling
-    useHandleCallback(CALLBACK_PATH, fetchUserDependentData, isInAuthPopup ? popupOpenerAuthCallback : undefined);
+
+    useHandleCallback(CALLBACK_PATH, fetchUserDependentData, CLIENT_ID, AUTH_CALLBACK_URL, isInAuthPopup ? popupOpenerAuthCallback : undefined);
 
     // Set up message handling from sign-in popup
     useEffect(() => {
@@ -108,7 +109,7 @@ const App = () => {
             const {code, verifier} = e.data ?? {};
             if (!code || !verifier) return;
             localStorage.removeItem(LS_SIGN_IN_POPUP);
-            dispatch(tokenHandoff(code, verifier));
+            dispatch(tokenHandoff({code, verifier, CLIENT_ID, AUTH_CALLBACK_URL}));
         };
         window.addEventListener("message", windowMessageHandler.current);
     }, [dispatch]);
