@@ -137,6 +137,20 @@ export const useResourcesByNamespacePrefix = ([resources, isFetching]) => {
     );
 };
 
+export const useIndividualPhenopacketDataIndex = (individual, fieldName) => {
+    return useMemo(
+        () => (individual?.phenopackets ?? [])
+            .flatMap(p => p?.[fieldName] ?? [])
+            .map((element, index) => {
+                return {
+                    ...element,
+                    idx: `${index}`,
+                };
+            }),
+        [individual],
+    );
+};
+
 export const ontologyTermSorter = (k) => (a, b) => {
     if (a[k]?.label && b[k]?.label) {
         return a[k].label.toString().localeCompare(b[k].label.toString());

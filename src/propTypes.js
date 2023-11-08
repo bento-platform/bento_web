@@ -420,3 +420,12 @@ export const explorerSearchResultsPropTypesShape = PropTypes.shape({
         experiments: PropTypes.number,
     })),
 });
+
+export const medicalActionPropTypesShape = PropTypes.shape({
+    action: PropTypes.object,
+    treatment_target: ontologyShape,
+    treatment_intent: ontologyShape,
+    response_to_treatment: ontologyShape,
+    adverse_events: PropTypes.arrayOf(ontologyShape),
+    treatment_termination_reason: ontologyShape,
+});

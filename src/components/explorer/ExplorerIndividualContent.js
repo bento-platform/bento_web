@@ -22,6 +22,7 @@ import IndividualTracks from "./IndividualTracks";
 import IndividualPhenopackets from "./IndividualPhenopackets";
 import IndividualInterpretations from "./IndividualInterpretations";
 import { setIndividualExplorerUrl, setIndividualResourcesTuple } from "../../modules/explorer/actions";
+import IndividualMedicalActions from "./IndividualMedicalActions";
 
 const MENU_STYLE = {
     marginLeft: "-24px",
@@ -175,10 +176,10 @@ const ExplorerIndividualContent = () => {
                         <IndividualOntologies individual={individual} />
                     </Route>
                     <Route path={medicalActionsUrl.replace(":", "\\:")}>
-                        {/* TODO */}
+                        <IndividualMedicalActions individual={individual}/>
                     </Route>
                     <Route path={measurementsUrl.replace(":", "\\:")}>
-                        {/* TODO: */}
+                        {/* TODO: measurements */}
                     </Route>
                     <Route path={phenopacketsUrl.replace(":", "\\:")}>
                         <IndividualPhenopackets individual={individual} />
