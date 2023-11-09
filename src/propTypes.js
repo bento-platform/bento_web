@@ -429,3 +429,12 @@ export const medicalActionPropTypesShape = PropTypes.shape({
     adverse_events: PropTypes.arrayOf(ontologyShape),
     treatment_termination_reason: ontologyShape,
 });
+
+export const measurementPropTypesShape = PropTypes.shape({
+    description: PropTypes.string,
+    assay: ontologyShape,
+    value: PropTypes.object,
+    complexValue: PropTypes.object,
+    timeObserved: PropTypes.object,
+    procedure: PropTypes.object,
+});
