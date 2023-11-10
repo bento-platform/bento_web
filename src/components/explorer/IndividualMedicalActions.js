@@ -1,13 +1,13 @@
-import React, { useCallback, useMemo } from "react";
+import React, { useCallback } from "react";
 import PropTypes from "prop-types";
 
-import { Descriptions, Table } from "antd";
-import { Route, Switch, useHistory, useParams, useRouteMatch } from "react-router-dom/cjs/react-router-dom.min";
+import { Descriptions } from "antd";
 import { individualPropTypesShape, medicalActionPropTypesShape } from "../../propTypes";
-import { useIndividualPhenopacketDataIndex, useIndividualResources } from "./utils";
+import { useIndividualPhenopacketDataIndex } from "./utils";
 import OntologyTerm from "./OntologyTerm";
 import { EM_DASH } from "../../constants";
 import ReactJson from "react-json-view";
+import { RoutedIndividualContent, RoutedIndividualContentTable } from "./RoutedIndividualContent";
 
 const ACTION_TYPES = {
     "procedure": "Procedure",
@@ -86,22 +86,8 @@ MedicalActionDetails.propTypes = {
     resourcesTuple: PropTypes.array,
 };
 
+
 const MedicalActions = ({medicalActions, resourcesTuple, handleMedicalActionClick}) => {
-    const { selectedMedicalAction } = useParams();
-    const selectedRowKeys = useMemo(
-        () => selectedMedicalAction ? [selectedMedicalAction] : [],
-        [selectedMedicalAction],
-    );
-
-    const onExpand = useCallback(
-        (e, medicalAction) => {
-            const index = medicalActions.indexOf(medicalAction);
-            const indexStr = ( e && index >= 0 ) ? `${index}` : undefined;
-            handleMedicalActionClick(indexStr);
-        },
-        [handleMedicalActionClick, medicalActions],
-    );
-
     const expandedRowRender = useCallback(
         (medicalAction) => (
             <MedicalActionDetails
@@ -110,18 +96,14 @@ const MedicalActions = ({medicalActions, resourcesTuple, handleMedicalActionClic
             />
         ), [],
     );
-
     return (
-        <Table
-            bordered={true}
-            pagination={false}
-            size="small"
+        <RoutedIndividualContentTable
+            data={medicalActions}
+            urlParam="selectedMedicalAction"
             columns={MEDICAL_ACTIONS_COLUMS}
-            onExpand={onExpand}
-            expandedRowKeys={selectedRowKeys}
-            expandedRowRender={expandedRowRender}
-            dataSource={medicalActions}
             rowKey="idx"
+            handleRowSelect={handleMedicalActionClick}
+            expandedRowRender={expandedRowRender}
         />
     );
 };
@@ -131,48 +113,13 @@ MedicalActions.propTypes = {
     handleMedicalActionClick: PropTypes.func,
 };
 
-export const RoutedIndividualContent = ({individual, individualDataHook, dataField, renderContent, urlParam}) => {
-    const history = useHistory();
-    const match = useRouteMatch();
-
-    const resourcesTuple = useIndividualResources(individual);
-    const data = individualDataHook(individual, dataField);
-
-    const handleRoutedSelection = useCallback((selected) => {
-        if (!selected) {
-            history.replace(match.url);
-            return;
-        }
-        history.replace(`${match.url}/${selected}`);
-    });
-
-    const contentNode = useMemo(() => renderContent({
-        "data": data,
-        "onContentSelect": handleRoutedSelection,
-        "resourcesTuple": resourcesTuple,
-    }), [data, handleRoutedSelection, resourcesTuple]);
-
-    return (
-        <Switch>
-            <Route path={`${match.path}/:${urlParam}`}>{contentNode}</Route>
-            <Route path={match.path}>{contentNode}</Route>
-        </Switch>
-    );
-};
-RoutedIndividualContent.propTypes = {
-    individual: individualPropTypesShape,
-    individualDataHook: PropTypes.func,
-    dataField: PropTypes.string,
-    renderContent: PropTypes.func,
-    urlParam: PropTypes.string,
-};
 
 const IndividualMedicalActions = ({individual}) => {
+    const medicalActions = useIndividualPhenopacketDataIndex(individual, "medical_actions");
     return (
         <RoutedIndividualContent
             individual={individual}
-            individualDataHook={useIndividualPhenopacketDataIndex}
-            dataField="medical_actions"
+            data={medicalActions}
             urlParam="selectedMedicalAction"
             renderContent={({data, onContentSelect, resourcesTuple}) => (
                 <MedicalActions
