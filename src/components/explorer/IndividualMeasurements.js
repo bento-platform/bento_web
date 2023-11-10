@@ -1,13 +1,17 @@
 import React, { useCallback } from "react";
 import PropTypes from "prop-types";
 import { individualPropTypesShape, measurementPropTypesShape } from "../../propTypes";
-import { Route, Switch, useHistory, useRouteMatch } from "react-router-dom/cjs/react-router-dom.min";
+import { Route, Switch, useHistory, useParams, useRouteMatch } from "react-router-dom/cjs/react-router-dom.min";
 import { useIndividualPhenopacketDataIndex, useIndividualResources } from "./utils";
+import ReactJson from "react-json-view";
+import { RoutedIndividualContent } from "./IndividualMedicalActions";
 
 
 const Measurements = ({measurements, resourcesTuple, handleMeasurementClick}) => {
+    const { selectedMeasurement } = useParams();
+    console.log(measurements);
     return (
-        <></>
+        <ReactJson src={measurements}/>
     );
 };
 Measurements.propTypes = {
@@ -17,37 +21,22 @@ Measurements.propTypes = {
 };
 
 const IndividualMeasurements = ({individual}) => {
-    const history = useHistory();
-    const match = useRouteMatch();
-
-    const resourcesTuple = useIndividualResources(individual);
-    const indexedMeasurements = useIndividualPhenopacketDataIndex(individual, "measurements");
-
-    const handleMeasurementClick = useCallback((idx) => {
-        if (!idx) {
-            history.replace(match.url);
-            return;
-        }
-        history.replace(`${match.url}/${idx}`);
-    }, [history, match]);
-
-    const measurementsNode = (
-        <Measurements
-            measurements={indexedMeasurements}
-            resourcesTuple={resourcesTuple}
-            handleMeasurementClick={handleMeasurementClick}
+    return (
+        <RoutedIndividualContent
+            individual={individual}
+            individualDataHook={useIndividualPhenopacketDataIndex}
+            dataField="measurements"
+            urlParam="selectedMeasurement"
+            renderContent={({data, onContentSelect, resourcesTuple}) => (
+                <Measurements
+                    measurements={data}
+                    resourcesTuple={resourcesTuple}
+                    handleMeasurementClick={onContentSelect}
+                />
+            )}
         />
     );
-
-    return (
-        <Switch>
-            <Route path={`${match.path}/selectedMeasurement`}>{measurementsNode}</Route>
-            <Route path={match.path}>{measurementsNode}</Route>
-        </Switch>
-    );
-
-
-};
+}
 IndividualMeasurements.propTypes = {
     individual: individualPropTypesShape
 };

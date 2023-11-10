@@ -126,38 +126,62 @@ const MedicalActions = ({medicalActions, resourcesTuple, handleMedicalActionClic
     );
 };
 MedicalActions.propTypes = {
-    medicalActions: PropTypes.arrayOf(medicalActionPropTypesShape),
+    medicalActions: PropTypes.array,
     resourcesTuple: PropTypes.array,
     handleMedicalActionClick: PropTypes.func,
 };
 
-const IndividualMedicalActions = ({individual}) => {
+export const RoutedIndividualContent = ({individual, individualDataHook, dataField, renderContent, urlParam}) => {
     const history = useHistory();
     const match = useRouteMatch();
 
     const resourcesTuple = useIndividualResources(individual);
-    const indexedMedicalActions = useIndividualPhenopacketDataIndex(individual, "medical_actions");
-    const handleMedicalActionClick = useCallback((idx) => {
-        if (!idx) {
+    const data = individualDataHook(individual, dataField);
+
+    const handleRoutedSelection = useCallback((selected) => {
+        if (!selected) {
             history.replace(match.url);
             return;
         }
-        history.replace(`${match.url}/${idx}`);
-    }, [history, match]);
+        history.replace(`${match.url}/${selected}`);
+    });
 
-    const medicalActionsNode = (
-        <MedicalActions
-            medicalActions={indexedMedicalActions}
-            resourcesTuple={resourcesTuple}
-            handleMedicalActionClick={handleMedicalActionClick}
-        />
-    );
+    const contentNode = useMemo(() => renderContent({
+        "data": data,
+        "onContentSelect": handleRoutedSelection,
+        "resourcesTuple": resourcesTuple,
+    }), [data, handleRoutedSelection, resourcesTuple]);
 
     return (
         <Switch>
-            <Route path={`${match.path}/:selectedMedicalAction`}>{medicalActionsNode}</Route>
-            <Route path={match.path}>{medicalActionsNode}</Route>
+            <Route path={`${match.path}/:${urlParam}`}>{contentNode}</Route>
+            <Route path={match.path}>{contentNode}</Route>
         </Switch>
+    );
+};
+RoutedIndividualContent.propTypes = {
+    individual: individualPropTypesShape,
+    individualDataHook: PropTypes.func,
+    dataField: PropTypes.string,
+    renderContent: PropTypes.func,
+    urlParam: PropTypes.string,
+};
+
+const IndividualMedicalActions = ({individual}) => {
+    return (
+        <RoutedIndividualContent
+            individual={individual}
+            individualDataHook={useIndividualPhenopacketDataIndex}
+            dataField="medical_actions"
+            urlParam="selectedMedicalAction"
+            renderContent={({data, onContentSelect, resourcesTuple}) => (
+                <MedicalActions
+                    medicalActions={data}
+                    resourcesTuple={resourcesTuple}
+                    handleMedicalActionClick={onContentSelect}
+                />
+            )}
+        />
     );
 };
 
