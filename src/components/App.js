@@ -240,7 +240,7 @@ const App = () => {
         (async () => {
             localStorage.setItem(LS_SIGN_IN_POPUP, "true");
             signInWindow.current = window.open(
-                await createAuthURL(openIdConfig["authorization_endpoint"]),
+                await createAuthURL(openIdConfig["authorization_endpoint"], CLIENT_ID, AUTH_CALLBACK_URL),
                 "Bento Sign In",
                 `${SIGN_IN_WINDOW_FEATURES}, top=${popupTop}, left=${popupLeft}`
             );

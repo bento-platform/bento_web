@@ -3,7 +3,13 @@ import { useDispatch, useSelector } from "react-redux";
 import { Link, withRouter } from "react-router-dom";
 import { Badge, Icon, Layout, Menu } from "antd";
 
-import { BENTO_CBIOPORTAL_ENABLED, BENTO_URL_NO_TRAILING_SLASH, CLIENT_ID, CUSTOM_HEADER } from "../config";
+import {
+    AUTH_CALLBACK_URL,
+    BENTO_CBIOPORTAL_ENABLED,
+    BENTO_URL_NO_TRAILING_SLASH,
+    CLIENT_ID,
+    CUSTOM_HEADER,
+} from "../config";
 import { showNotificationDrawer } from "../modules/notifications/actions";
 import { matchingMenuKeys, renderMenuItem } from "../utils/menu";
 
@@ -149,7 +155,7 @@ const SiteHeader = () => {
                                   {openIdConfigFetching || isHandingOffCodeForToken ? "Loading..." : "Sign In"}
                               </span>
                           ),
-                          onClick: () => performAuth(authzEndpoint),
+                          onClick: () => performAuth(authzEndpoint, CLIENT_ID, AUTH_CALLBACK_URL),
                       },
                   ]),
             {

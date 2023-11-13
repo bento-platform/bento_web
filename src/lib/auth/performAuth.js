@@ -1,21 +1,16 @@
 import { useEffect } from "react";
 
-import { message } from "antd";
-
-import { AUTH_CALLBACK_URL, CLIENT_ID } from "../../config";
 import { PKCE_LS_STATE, PKCE_LS_VERIFIER, pkceChallengeFromVerifier, secureRandomString } from "./pkce";
 import { useDispatch, useSelector } from "react-redux";
 import { useHistory, useLocation } from "react-router-dom";
 
 import { tokenHandoff } from "./redux/authSlice";
-import { nop } from "../../utils/misc";
-import { buildUrlEncodedData, getIsAuthenticated } from "./utils";
-import { popLocalStorageItem } from "../../utils/localStorageUtils";
+import { buildUrlEncodedData, getIsAuthenticated, popLocalStorageItem, nop } from "./utils";
 
 export const LS_BENTO_WAS_SIGNED_IN = "BENTO_WAS_SIGNED_IN";
 export const LS_BENTO_POST_AUTH_REDIRECT = "BENTO_POST_AUTH_REDIRECT";
 
-export const createAuthURL = async (authorizationEndpoint, scope = "openid email") => {
+export const createAuthURL = async (authorizationEndpoint, clientId, authCallbackUrl, scope = "openid email") => {
     const state = secureRandomString();
     const verifier = secureRandomString();
 
@@ -28,10 +23,10 @@ export const createAuthURL = async (authorizationEndpoint, scope = "openid email
         `${authorizationEndpoint}?` +
         buildUrlEncodedData({
             response_type: "code",
-            client_id: CLIENT_ID,
+            client_id: clientId,
             state,
             scope,
-            redirect_uri: AUTH_CALLBACK_URL,
+            redirect_uri: authCallbackUrl,
             code_challenge: await pkceChallengeFromVerifier(verifier),
             code_challenge_method: "S256",
         }).toString()
@@ -40,8 +35,8 @@ export const createAuthURL = async (authorizationEndpoint, scope = "openid email
 
 const DEFAULT_REDIRECT = "/overview";
 
-export const performAuth = async (authorizationEndpoint, scope = "openid email") => {
-    window.location = await createAuthURL(authorizationEndpoint, scope);
+export const performAuth = async (authorizationEndpoint, clientId, authCallbackUrl, scope = "openid email") => {
+    window.location = await createAuthURL(authorizationEndpoint, clientId, authCallbackUrl, scope);
 };
 
 const defaultAuthCodeCallback = async (

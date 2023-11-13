@@ -49,3 +49,11 @@ export const useHasResourcePermission = (resource, permission) => {
     const { permissions, isFetching } = useResourcePermissions(resource) ?? {};
     return { isFetching, hasPermission: permissions.includes(permission) };
 };
+
+export const popLocalStorageItem = (key) => {
+    const val = localStorage.getItem(key);
+    localStorage.removeItem(key);
+    return val;
+};
+
+export const nop = () => {};

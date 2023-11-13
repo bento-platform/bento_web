@@ -10,6 +10,7 @@ import { LS_BENTO_WAS_SIGNED_IN, performAuth, setLSNotSignedIn } from "../lib/au
 import SitePageLoading from "./SitePageLoading";
 import { getIsAuthenticated } from "../lib/auth/utils";
 import { signOut } from "../lib/auth/redux/authSlice";
+import { AUTH_CALLBACK_URL, CLIENT_ID } from "../config";
 
 const signInIcon = (
     <div style={{ textAlign: "center" }}>
@@ -39,7 +40,7 @@ const OwnerRoute = ({ component: Component, path, ...rest }) => {
             console.debug("auto-authenticating");
             setLSNotSignedIn();
             setIsAutoAuthenticating(true);
-            performAuth(authzEndpoint).catch(console.error);
+            performAuth(authzEndpoint, CLIENT_ID, AUTH_CALLBACK_URL).catch(console.error);
         }
     }, [authzEndpoint, isAuthenticated, isAutoAuthenticating]);
 
@@ -65,7 +66,7 @@ const OwnerRoute = ({ component: Component, path, ...rest }) => {
                                 <Button
                                     type="primary"
                                     loading={openIdConfigFetching}
-                                    onClick={() => performAuth(authzEndpoint)}
+                                    onClick={() => performAuth(authzEndpoint, CLIENT_ID, AUTH_CALLBACK_URL)}
                                 >
                                     Sign In
                                 </Button>
