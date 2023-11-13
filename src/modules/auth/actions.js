@@ -1,6 +1,4 @@
-import { message } from "antd";
-
-import { AUTH_CALLBACK_URL, CLIENT_ID, OPENID_CONFIG_URL } from "../../config";
+import { AUTH_CALLBACK_URL, CLIENT_ID } from "../../config";
 
 import {
     beginFlow,
@@ -61,39 +59,6 @@ export const fetchUserDependentData = (servicesCb) => async (dispatch, getState)
     } finally {
         dispatch(endFlow(FETCHING_USER_DEPENDENT_DATA));
     }
-};
-
-export const FETCH_OPENID_CONFIGURATION = createNetworkActionTypes("FETCH_OPENID_CONFIGURATION");
-export const fetchOpenIdConfigurationIfNeeded = () => async (dispatch, getState) => {
-    const { isFetching, data: existingData, expiry } = getState().openIdConfiguration;
-    if (isFetching || (!!existingData && expiry && Date.now() < expiry * 1000)) return;
-
-    const err = () => {
-        message.error("Could not fetch identity provider configuration");
-        dispatch({ type: FETCH_OPENID_CONFIGURATION.ERROR });
-    };
-
-    dispatch({ type: FETCH_OPENID_CONFIGURATION.REQUEST });
-
-    const res = await fetch(OPENID_CONFIG_URL);
-    let data = null;
-
-    try {
-        if (res.ok) {
-            data = await res.json();
-            dispatch({ type: FETCH_OPENID_CONFIGURATION.RECEIVE, data });
-        } else {
-            console.error("Received non-200 request while fetching OpenID configuration", res);
-            err();
-        }
-    } catch (e) {
-        console.error("Received error while fetching OpenID configuration:", e);
-        err();
-    }
-
-    dispatch({ type: FETCH_OPENID_CONFIGURATION.FINISH });
-
-    return data;
 };
 
 // noinspection JSUnusedGlobalSymbols

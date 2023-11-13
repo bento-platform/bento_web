@@ -13,12 +13,9 @@ const SiteHeader = lazy(() => import("./SiteHeader"));
 import SiteFooter from "./SiteFooter";
 import SitePageLoading from "./SitePageLoading";
 
-import {
-    fetchOpenIdConfigurationIfNeeded,
-    fetchUserDependentData,
-    refreshTokensIfPossible,
-    tokenHandoff,
-} from "../modules/auth/actions";
+import { fetchUserDependentData, refreshTokensIfPossible, tokenHandoff } from "../modules/auth/actions";
+
+import { fetchOpenIdConfiguration } from "../lib/auth/redux/openIdConfigSlice";
 
 import { BENTO_URL_NO_TRAILING_SLASH } from "../config";
 import eventHandler from "../events";
@@ -119,7 +116,7 @@ const App = () => {
             console.debug(
                 `considering creating an event-relay connection: 
                 is authenticated? ${isAuthenticated} | 
-                have event relay? ${!!eventRelayUrl}`,
+                have event relay? ${!!eventRelayUrl}`
             );
 
             // Don't bother trying to create the event relay connection if the user isn't authenticated
@@ -197,7 +194,7 @@ const App = () => {
     useEffect(() => {
         if (didPostLoadEffects) return;
         (async () => {
-            await dispatch(fetchOpenIdConfigurationIfNeeded());
+            await dispatch(fetchOpenIdConfiguration());
             await dispatch(fetchUserDependentData(createEventRelayConnectionIfNecessary));
             setDidPostLoadEffects(true);
         })();
@@ -239,7 +236,7 @@ const App = () => {
             signInWindow.current = window.open(
                 await createAuthURL(openIdConfig["authorization_endpoint"]),
                 "Bento Sign In",
-                `${SIGN_IN_WINDOW_FEATURES}, top=${popupTop}, left=${popupLeft}`,
+                `${SIGN_IN_WINDOW_FEATURES}, top=${popupTop}, left=${popupLeft}`
             );
         })();
     }, [signInWindow, openIdConfig]);

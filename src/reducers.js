@@ -1,27 +1,17 @@
-import {combineReducers} from "redux";
+import { combineReducers } from "redux";
 
-import {auth, openIdConfiguration} from "./modules/auth/reducers";
-import {drs} from "./modules/drs/reducers";
-import {discovery} from "./modules/discovery/reducers";
-import {explorer} from "./modules/explorer/reducers";
-import {
-    projects,
+import { auth } from "./modules/auth/reducers";
+import { drs } from "./modules/drs/reducers";
+import { discovery } from "./modules/discovery/reducers";
+import { explorer } from "./modules/explorer/reducers";
+import { projects, biosamples, individuals, overviewSummary } from "./modules/metadata/reducers";
+import { manager, dropBox } from "./modules/manager/reducers";
+import { notifications } from "./modules/notifications/reducers";
+import { bentoServices, services, serviceDataTypes, serviceWorkflows } from "./modules/services/reducers";
+import { datasetDataTypes, datasetResources, datasetSummaries } from "./modules/datasets/reducers";
+import { runs } from "./modules/wes/reducers";
 
-    biosamples,
-    individuals,
-
-    overviewSummary,
-} from "./modules/metadata/reducers";
-import {manager, dropBox} from "./modules/manager/reducers";
-import {notifications} from "./modules/notifications/reducers";
-import {
-    bentoServices,
-    services,
-    serviceDataTypes,
-    serviceWorkflows,
-} from "./modules/services/reducers";
-import {datasetDataTypes, datasetResources, datasetSummaries} from "./modules/datasets/reducers";
-import {runs} from "./modules/wes/reducers";
+import openIdConfiguration from "./lib/auth/redux/openIdConfigSlice";
 
 const rootReducer = combineReducers({
     // Auth module
