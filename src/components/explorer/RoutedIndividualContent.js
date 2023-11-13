@@ -3,8 +3,6 @@ import PropTypes from "prop-types";
 
 import { Table } from "antd";
 import { Route, Switch, useHistory, useParams, useRouteMatch } from "react-router-dom/cjs/react-router-dom.min";
-import { individualPropTypesShape } from "../../propTypes";
-import {  useIndividualResources } from "./utils";
 
 export const RoutedIndividualContentTable = ({data, urlParam, columns, rowKey, handleRowSelect, expandedRowRender}) => {
     const paramValue = useParams()[urlParam];
@@ -36,11 +34,9 @@ RoutedIndividualContentTable.propTypes = {
     expandedRowRender: PropTypes.func,
 };
 
-export const RoutedIndividualContent = ({individual, data, renderContent, urlParam}) => {
+export const RoutedIndividualContent = ({data, renderContent, urlParam}) => {
     const history = useHistory();
     const match = useRouteMatch();
-
-    const resourcesTuple = useIndividualResources(individual);
 
     const handleRoutedSelection = useCallback((selected) => {
         if (!selected) {
@@ -53,8 +49,7 @@ export const RoutedIndividualContent = ({individual, data, renderContent, urlPar
     const contentNode = useMemo(() => renderContent({
         "data": data,
         "onContentSelect": handleRoutedSelection,
-        "resourcesTuple": resourcesTuple,
-    }), [data, handleRoutedSelection, resourcesTuple]);
+    }), [data, handleRoutedSelection]);
 
     return (
         <Switch>
@@ -64,7 +59,6 @@ export const RoutedIndividualContent = ({individual, data, renderContent, urlPar
     );
 };
 RoutedIndividualContent.propTypes = {
-    individual: individualPropTypesShape,
     data: PropTypes.array,
     renderContent: PropTypes.func,
     urlParam: PropTypes.string,

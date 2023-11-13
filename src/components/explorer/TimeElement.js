@@ -25,6 +25,15 @@ const getTimeElementTypeLabel = (timeElement) => {
     return [null, "NOT_SUPPORTED"];
 };
 
+export const renderTimeInterval = (timeInterval) => {
+    return (
+        <span>
+            <strong>Start:</strong>{" "}<>{timeInterval.start}</>{" "}
+            <strong>End:</strong>{" "}<>{timeInterval.end}</>
+        </span>
+    );
+};
+
 const renderTimeElement = (type, timeElement) => {
     switch (type) {
         case "age":
@@ -47,10 +56,7 @@ const renderTimeElement = (type, timeElement) => {
         case "timestamp":
             return <span>{timeElement.timestamp}</span>;
         case "interval":
-            return <span>
-                <strong>Start:</strong>{" "}<>{timeElement.interval.start}</>{" "}
-                <strong>End:</strong>{" "}<>{timeElement.interval.end}</>
-            </span>;
+            return renderTimeInterval(timeElement.interval);
         default:
             return EM_DASH;
     }

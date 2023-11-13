@@ -1,11 +1,13 @@
 import React, { useCallback, useMemo } from "react";
 import PropTypes from "prop-types";
 import { individualPropTypesShape, measurementPropTypesShape } from "../../propTypes";
-import { useIndividualPhenopacketDataIndex } from "./utils";
+import { ontologyTermSorter, useIndividualPhenopacketDataIndex, useIndividualResources } from "./utils";
 import { RoutedIndividualContent, RoutedIndividualContentTable } from "./RoutedIndividualContent";
 import { EM_DASH } from "../../constants";
 import { Descriptions, Table } from "antd";
-import OntologyTerm from "./OntologyTerm";
+import OntologyTerm, { conditionalOntologyRender } from "./OntologyTerm";
+import { Procedure } from "./IndividualMedicalActions";
+import TimeElement from "./TimeElement";
 
 
 const FLEX_COLUMN_STYLE = {
@@ -13,7 +15,7 @@ const FLEX_COLUMN_STYLE = {
     "flex-direction": "column",
 };
 
-const Quantity = ({quantity, resourcesTuple, title}) => {
+export const Quantity = ({quantity, resourcesTuple, title}) => {
     return (
         <Descriptions bordered={true} column={1} size="small" title={title}>
             <Descriptions.Item label="Unit">
@@ -47,23 +49,6 @@ Quantity.propTypes = {
     title: PropTypes.string,
 };
 
-const TYPED_QUANTITY_COLUMNS = [
-    {
-        title: "Type",
-        key: "type",
-        render: (_, typedQuantity) => (
-            <OntologyTerm resourcesTuple={typedQuantity.resourcesTuple} term={typedQuantity.type}/>
-        ),
-    },
-    {
-        title: "Quantity",
-        key: "quantity",
-        render: (_, typedQuantity) => (
-            <Quantity quantity={typedQuantity.quantity} resourcesTuple={typedQuantity.resourcesTuple}/>
-        ),
-    },
-];
-
 const ComplexValue = ({complexValue, resourcesTuple}) => {
     const dataWithResources = useMemo(
         () => complexValue.typed_quantities.map((tq, idx) => {
@@ -73,12 +58,30 @@ const ComplexValue = ({complexValue, resourcesTuple}) => {
         }),
         [complexValue, resourcesTuple],
     );
+
+    const COMPLEX_VALUE_COLUMNS = useMemo(() => [
+        {
+            title: "Type",
+            key: "type",
+            render: conditionalOntologyRender("type", resourcesTuple),
+            sorter: ontologyTermSorter("type"),
+
+        },
+        {
+            title: "Quantity",
+            key: "quantity",
+            render: (_, typedQuantity) => (
+                <Quantity quantity={typedQuantity.quantity} resourcesTuple={typedQuantity.resourcesTuple}/>
+            ),
+        },
+    ], [resourcesTuple]);
+
     return (
         <Table
             bordered={true}
             pagination={false}
             size="small"
-            columns={TYPED_QUANTITY_COLUMNS}
+            columns={COMPLEX_VALUE_COLUMNS}
             dataSource={dataWithResources}
             rowKey={"idx"}
         />
@@ -126,7 +129,6 @@ MeasurementValue.propTypes = {
 
 
 const MeasurementDetails = ({ measurement, resourcesTuple }) => {
-    console.log(measurement);
     return (
         <Descriptions bordered column={1} size="small">
             <Descriptions.Item label="Assay">
@@ -135,6 +137,18 @@ const MeasurementDetails = ({ measurement, resourcesTuple }) => {
             <Descriptions.Item label="Measurement Value">
                 <MeasurementValue measurement={measurement} resourcesTuple={resourcesTuple}/>
             </Descriptions.Item>
+            <Descriptions.Item label="Time Observed">
+                {measurement?.time_observed
+                    ? <TimeElement timeElement={measurement.time_observed}/>
+                    : EM_DASH
+                }
+            </Descriptions.Item>
+            <Descriptions.Item label="Procedure">
+                {measurement?.procedure
+                    ? <Procedure procedure={measurement.procedure} resourcesTuple={resourcesTuple}/>
+                    : EM_DASH
+                }
+            </Descriptions.Item>
         </Descriptions>
     );
 };
@@ -142,43 +156,6 @@ MeasurementDetails.propTypes = {
     measurement: measurementPropTypesShape,
     resourcesTuple: PropTypes.array,
 };
-
-const MEASUREMENTS_COLUMNS = [
-    {
-        title: "Assay",
-        key: "assay",
-        render: (_, measurement) => {
-            return measurement?.assay?.label ?? EM_DASH;
-        },
-    },
-    {
-        title: "Measurement Value",
-        key: "value",
-        render: (_, measurement) => {
-            if (measurement.hasOwnProperty("value")) {
-                const value = measurement.value;
-                if (value.hasOwnProperty("quantity")) {
-                    return `${value.quantity.value} (${value.quantity.unit.label})`;
-                }
-                return value?.ontology_class?.label ?? EM_DASH;
-            } else if (measurement.hasOwnProperty("complex_value")) {
-                return "Complex value (expand for details)";
-            }
-            return EM_DASH;
-        },
-    },
-    {
-        title: "Description",
-        dataIndex: "description",
-    },
-    {
-        title: "Procedure",
-        key: "procedure",
-        render: (_, measurement) => {
-            return measurement?.procedure?.code?.label ?? "";
-        },
-    },
-];
 
 const Measurements = ({measurements, resourcesTuple, handleMeasurementClick}) => {
     const expandedRowRender = useCallback(
@@ -189,6 +166,47 @@ const Measurements = ({measurements, resourcesTuple, handleMeasurementClick}) =>
             />
         ), [],
     );
+
+    const MEASUREMENTS_COLUMNS = useMemo(() => [
+        {
+            title: "Assay",
+            key: "assay",
+            // render: (_, measurement) => {
+            //     return measurement?.assay?.label ?? EM_DASH;
+            // },
+            render: conditionalOntologyRender("assay", resourcesTuple),
+            sorter: ontologyTermSorter("assay"),
+            sortDirections: ["descend", "ascend", "descend"],
+        },
+        {
+            title: "Measurement Value",
+            key: "value",
+            render: (_, measurement) => {
+                if (measurement.hasOwnProperty("value")) {
+                    const value = measurement.value;
+                    if (value.hasOwnProperty("quantity")) {
+                        return `${value.quantity.value} (${value.quantity.unit.label})`;
+                    }
+                    return value?.ontology_class?.label ?? EM_DASH;
+                } else if (measurement.hasOwnProperty("complex_value")) {
+                    return "Complex value (expand for details)";
+                }
+                return EM_DASH;
+            },
+        },
+        {
+            title: "Description",
+            dataIndex: "description",
+        },
+        {
+            title: "Procedure",
+            key: "procedure",
+            render: (_, measurement) => {
+                return measurement?.procedure?.code?.label ?? "";
+            },
+        },
+    ], [resourcesTuple]);
+
     return (
         <RoutedIndividualContentTable
             data={measurements}
@@ -208,12 +226,12 @@ Measurements.propTypes = {
 
 const IndividualMeasurements = ({individual}) => {
     const measurements = useIndividualPhenopacketDataIndex(individual, "measurements");
+    const resourcesTuple = useIndividualResources(individual);
     return (
         <RoutedIndividualContent
-            individual={individual}
             data={measurements}
             urlParam="selectedMeasurement"
-            renderContent={({data, onContentSelect, resourcesTuple}) => (
+            renderContent={({data, onContentSelect}) => (
                 <Measurements
                     measurements={data}
                     resourcesTuple={resourcesTuple}

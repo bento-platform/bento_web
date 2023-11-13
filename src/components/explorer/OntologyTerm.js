@@ -9,6 +9,14 @@ import { id } from "../../utils/misc";
 
 import { useResourcesByNamespacePrefix } from "./utils";
 
+export const conditionalOntologyRender = (field, resourcesTuple) => (_, record) => {
+    if (record.hasOwnProperty(field)) {
+        const term = record[field];
+        return (<OntologyTerm resourcesTuple={resourcesTuple} term={term}/>);
+    }
+    return EM_DASH;
+};
+
 const OntologyTerm = memo(({ resourcesTuple, term, renderLabel }) => {
     // TODO: perf: might be slow to generate this over and over
     const [resourcesByNamespacePrefix, isFetchingResources] = useResourcesByNamespacePrefix(resourcesTuple);
