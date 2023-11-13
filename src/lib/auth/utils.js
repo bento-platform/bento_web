@@ -50,6 +50,22 @@ export const useHasResourcePermission = (resource, permission) => {
     return { isFetching, hasPermission: permissions.includes(permission) };
 };
 
+export const recursiveOrderedObject = (x) => {
+    if (Array.isArray(x)) {
+        // Don't sort array, but DO make sure each nested object has sorted keys
+        return x.map((y) => recursiveOrderedObject(y));
+    } else if (typeof x === "object" && x !== null) {
+        return Object.keys(x)
+            .sort()
+            .reduce((acc, y) => {
+                acc[y] = x[y];
+                return acc;
+            }, {});
+    } else {
+        return x; // Primitive
+    }
+};
+
 export const popLocalStorageItem = (key) => {
     const val = localStorage.getItem(key);
     localStorage.removeItem(key);
