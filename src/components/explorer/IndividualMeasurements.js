@@ -1,14 +1,14 @@
-import React, { useCallback } from "react";
+import React, { useCallback, useMemo } from "react";
 import PropTypes from "prop-types";
 import { individualPropTypesShape, measurementPropTypesShape } from "../../propTypes";
 import { useIndividualPhenopacketDataIndex } from "./utils";
 import { RoutedIndividualContent, RoutedIndividualContentTable } from "./RoutedIndividualContent";
 import { EM_DASH } from "../../constants";
-import { Descriptions, List } from "antd";
+import { Descriptions, Table } from "antd";
 import OntologyTerm from "./OntologyTerm";
 
 
-const REF_RANGE_STYLE = {
+const FLEX_COLUMN_STYLE = {
     "display": "flex",
     "flex-direction": "column",
 };
@@ -22,7 +22,7 @@ const Quantity = ({quantity, resourcesTuple, title}) => {
             <Descriptions.Item label="Value">{quantity.value}</Descriptions.Item>
             {quantity?.reference_range && (
                 <Descriptions.Item label="Reference Range">
-                    <div style={REF_RANGE_STYLE}>
+                    <div style={FLEX_COLUMN_STYLE}>
                         <div>
                             <strong>Unit:</strong>{" "}<OntologyTerm
                                 resourcesTuple={resourcesTuple}
@@ -47,19 +47,40 @@ Quantity.propTypes = {
     title: PropTypes.string,
 };
 
+const TYPED_QUANTITY_COLUMNS = [
+    {
+        title: "Type",
+        key: "type",
+        render: (_, typedQuantity) => (
+            <OntologyTerm resourcesTuple={typedQuantity.resourcesTuple} term={typedQuantity.type}/>
+        ),
+    },
+    {
+        title: "Quantity",
+        key: "quantity",
+        render: (_, typedQuantity) => (
+            <Quantity quantity={typedQuantity.quantity} resourcesTuple={typedQuantity.resourcesTuple}/>
+        ),
+    },
+];
 
 const ComplexValue = ({complexValue, resourcesTuple}) => {
+    const dataWithResources = useMemo(
+        () => complexValue.typed_quantities.map((tq, idx) => {
+            tq["resourcesTuple"] = resourcesTuple;
+            tq["idx"] = idx;
+            return tq;
+        }),
+        [complexValue, resourcesTuple],
+    );
     return (
-        <List
-            header="Typed Quantities"
-            bordered
-            dataSource={complexValue?.typed_quantities ?? []}
-            renderItem={(item) => (
-                <List.Item>
-                    <OntologyTerm resourcesTuple={resourcesTuple} term={item.type}/>
-                    <Quantity quantity={item.quantity} resourcesTuple={resourcesTuple} title="Quantity"/>
-                </List.Item>
-            )}
+        <Table
+            bordered={true}
+            pagination={false}
+            size="small"
+            columns={TYPED_QUANTITY_COLUMNS}
+            dataSource={dataWithResources}
+            rowKey={"idx"}
         />
     );
 };
@@ -73,7 +94,7 @@ const Value = ({value, resourcesTuple}) => {
     return (
         <>
             {value?.quantity && <Quantity quantity={value.quantity} resourcesTuple={resourcesTuple}/>}
-            {value?.ontology_class && <OntologyTerm term={value.ontology_class}/>}
+            {value?.ontology_class && <OntologyTerm resourcesTuple={resourcesTuple} term={value.ontology_class}/>}
         </>
     );
 };
@@ -140,7 +161,7 @@ const MEASUREMENTS_COLUMNS = [
                     return `${value.quantity.value} (${value.quantity.unit.label})`;
                 }
                 return value?.ontology_class?.label ?? EM_DASH;
-            } else if (measurement.hasOwnProperty("complexValue")) {
+            } else if (measurement.hasOwnProperty("complex_value")) {
                 return "Complex value (expand for details)";
             }
             return EM_DASH;
