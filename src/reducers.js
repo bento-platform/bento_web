@@ -1,6 +1,6 @@
 import { combineReducers } from "redux";
 
-import { auth } from "./modules/auth/reducers";
+import { user } from "./modules/user/reducers";
 import { drs } from "./modules/drs/reducers";
 import { discovery } from "./modules/discovery/reducers";
 import { explorer } from "./modules/explorer/reducers";
@@ -12,11 +12,13 @@ import { datasetDataTypes, datasetResources, datasetSummaries } from "./modules/
 import { runs } from "./modules/wes/reducers";
 
 import openIdConfiguration from "./lib/auth/redux/openIdConfigSlice";
+import auth from "./lib/auth/redux/authSlice";
 
 const rootReducer = combineReducers({
     // Auth module
     auth,
     openIdConfiguration,
+    user,
 
     // DRS module
     drs,

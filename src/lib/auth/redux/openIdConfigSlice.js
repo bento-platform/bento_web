@@ -3,7 +3,7 @@ import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 // Async actions using createAsyncThunk
 export const fetchOpenIdConfiguration = createAsyncThunk(
     "openIdConfig/fetchOpenIdConfiguration",
-    async (openIdConfigUrl, { getState }) => {
+    async ({ openIdConfigUrl }, { getState }) => {
         const { data: existingData, expiry } = getState().openIdConfiguration;
         if (!!existingData && expiry && Date.now() < expiry * 1000) return;
         const response = await fetch(openIdConfigUrl);
@@ -31,7 +31,8 @@ export const openIdConfigSlice = createSlice({
         });
         builder.addCase(fetchOpenIdConfiguration.fulfilled, (state, { payload }) => {
             state.isFetching = false;
-            if (payload !== undefined) {
+            if (payload) {
+                console.log(payload);
                 state.data = payload;
                 state.expiry = Date.now() / 1000 + 3 * 60 * 60; // Cache for 3 hours
             }

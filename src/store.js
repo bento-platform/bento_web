@@ -25,4 +25,3 @@ store.subscribe(() => {
         writeToLocalStorage(LS_OPENID_CONFIG_KEY, { data, expiry, isFetching });
     }
 });
-console.log("finished it");

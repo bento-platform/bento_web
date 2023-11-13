@@ -13,16 +13,16 @@ const SiteHeader = lazy(() => import("./SiteHeader"));
 import SiteFooter from "./SiteFooter";
 import SitePageLoading from "./SitePageLoading";
 
-import { fetchUserDependentData, refreshTokensIfPossible, tokenHandoff } from "../modules/auth/actions";
-
 import { fetchOpenIdConfiguration } from "../lib/auth/redux/openIdConfigSlice";
 
-import { BENTO_URL_NO_TRAILING_SLASH } from "../config";
+import { AUTH_CALLBACK_URL, BENTO_URL_NO_TRAILING_SLASH, CLIENT_ID, OPENID_CONFIG_URL } from "../config";
 import eventHandler from "../events";
 import { createAuthURL, useHandleCallback } from "../lib/auth/performAuth";
 import { getIsAuthenticated } from "../lib/auth/utils";
 import SessionWorker from "../session.worker";
 import { nop } from "../utils/misc";
+import { refreshTokens, tokenHandoff } from "../lib/auth/redux/authSlice";
+import { fetchUserDependentData } from "../modules/user/actions";
 
 // Lazy-load notification drawer
 const NotificationDrawer = lazy(() => import("./notifications/NotificationDrawer"));
@@ -92,7 +92,13 @@ const App = () => {
     })();
 
     // Set up auth callback handling
-    useHandleCallback(CALLBACK_PATH, isInAuthPopup ? popupOpenerAuthCallback : undefined);
+    useHandleCallback(
+        CALLBACK_PATH,
+        fetchUserDependentData,
+        CLIENT_ID,
+        AUTH_CALLBACK_URL,
+        isInAuthPopup ? popupOpenerAuthCallback : undefined
+    );
 
     // Set up message handling from sign-in popup
     useEffect(() => {
@@ -105,7 +111,7 @@ const App = () => {
             const { code, verifier } = e.data ?? {};
             if (!code || !verifier) return;
             localStorage.removeItem(LS_SIGN_IN_POPUP);
-            dispatch(tokenHandoff(code, verifier));
+            dispatch(tokenHandoff({ code, verifier, CLIENT_ID, AUTH_CALLBACK_URL }));
         };
         window.addEventListener("message", windowMessageHandler.current);
     }, [dispatch]);
@@ -194,7 +200,7 @@ const App = () => {
     useEffect(() => {
         if (didPostLoadEffects) return;
         (async () => {
-            await dispatch(fetchOpenIdConfiguration());
+            await dispatch(fetchOpenIdConfiguration({ openIdConfigUrl: OPENID_CONFIG_URL }));
             await dispatch(fetchUserDependentData(createEventRelayConnectionIfNecessary));
             setDidPostLoadEffects(true);
         })();
@@ -206,7 +212,7 @@ const App = () => {
             // Use session worker to send pings to refresh the token set even when the tab is inactive.
             const sw = new SessionWorker();
             sw.addEventListener("message", () => {
-                dispatch(refreshTokensIfPossible());
+                dispatch(refreshTokens({ clientId: CLIENT_ID }));
                 dispatch(fetchUserDependentData(nop));
             });
             sessionWorker.current = sw;
