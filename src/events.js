@@ -1,12 +1,9 @@
-import {store} from "./index";
+import { store } from "./store";
 
 import notificationEvents from "./modules/notifications/events";
 import wesEvents from "./modules/wes/events";
 
-const handlerSets = [
-    notificationEvents,
-    wesEvents,
-];
+const handlerSets = [notificationEvents, wesEvents];
 
 // Global message handler
 export default async (message, history) => {

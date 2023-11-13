@@ -10,13 +10,9 @@ import {
     networkAction,
 } from "../../utils/actions";
 
-import { fetchDatasetsDataTypes } from "../../modules/datasets/actions";
+import { fetchDatasetsDataTypes } from "../datasets/actions";
 import { fetchDropBoxTreeOrFail } from "../manager/actions";
-import {
-    fetchProjectsWithDatasets,
-    fetchOverviewSummary,
-    fetchExtraPropertiesSchemaTypes,
-} from "../metadata/actions";
+import { fetchProjectsWithDatasets, fetchOverviewSummary, fetchExtraPropertiesSchemaTypes } from "../metadata/actions";
 import { fetchNotifications } from "../notifications/actions";
 import { fetchServicesWithMetadataAndDataTypesIfNeeded } from "../services/actions";
 import { fetchRuns } from "../wes/actions";
@@ -28,25 +24,22 @@ import { nop } from "../../utils/misc";
 import { jsonRequest } from "../../utils/requests";
 import { makeResourceKey } from "../../lib/auth/resources";
 
-
 export const FETCHING_USER_DEPENDENT_DATA = createFlowActionTypes("FETCHING_USER_DEPENDENT_DATA");
 
-export const fetchServiceDependentData = () => dispatch => Promise.all([
-    fetchDropBoxTreeOrFail,
-    fetchRuns,
-    fetchNotifications,
-    fetchOverviewSummary,
-    performGetGohanVariantsOverviewIfPossible,
-    fetchExtraPropertiesSchemaTypes,
-].map(a => dispatch(a())));
+export const fetchServiceDependentData = () => (dispatch) =>
+    Promise.all(
+        [
+            fetchDropBoxTreeOrFail,
+            fetchRuns,
+            fetchNotifications,
+            fetchOverviewSummary,
+            performGetGohanVariantsOverviewIfPossible,
+            fetchExtraPropertiesSchemaTypes,
+        ].map((a) => dispatch(a()))
+    );
 
 export const fetchUserDependentData = (servicesCb) => async (dispatch, getState) => {
-    const {
-        isFetchingDependentData,
-        isFetchingDependentDataSilent,
-        idTokenContents,
-        hasAttempted,
-    } = getState().auth;
+    const { isFetchingDependentData, isFetchingDependentDataSilent, idTokenContents, hasAttempted } = getState().auth;
 
     // If action is already being executed elsewhere, leave.
     if (isFetchingDependentData || isFetchingDependentDataSilent) return;
@@ -60,10 +53,9 @@ export const fetchUserDependentData = (servicesCb) => async (dispatch, getState)
     try {
         if (idTokenContents) {
             // If we're newly authenticated as an owner, we run all actions that need authentication (via the callback).
-            await dispatch(fetchServicesWithMetadataAndDataTypesIfNeeded(
-                () => dispatch(fetchServiceDependentData())));
+            await dispatch(fetchServicesWithMetadataAndDataTypesIfNeeded(() => dispatch(fetchServiceDependentData())));
             await (servicesCb || nop)();
-            await dispatch(fetchProjectsWithDatasets());  // TODO: If needed, remove if !hasAttempted
+            await dispatch(fetchProjectsWithDatasets()); // TODO: If needed, remove if !hasAttempted
             await dispatch(fetchDatasetsDataTypes());
         }
     } finally {
@@ -73,15 +65,15 @@ export const fetchUserDependentData = (servicesCb) => async (dispatch, getState)
 
 export const FETCH_OPENID_CONFIGURATION = createNetworkActionTypes("FETCH_OPENID_CONFIGURATION");
 export const fetchOpenIdConfigurationIfNeeded = () => async (dispatch, getState) => {
-    const {isFetching, data: existingData, expiry} = getState().openIdConfiguration;
+    const { isFetching, data: existingData, expiry } = getState().openIdConfiguration;
     if (isFetching || (!!existingData && expiry && Date.now() < expiry * 1000)) return;
 
     const err = () => {
         message.error("Could not fetch identity provider configuration");
-        dispatch({type: FETCH_OPENID_CONFIGURATION.ERROR});
+        dispatch({ type: FETCH_OPENID_CONFIGURATION.ERROR });
     };
 
-    dispatch({type: FETCH_OPENID_CONFIGURATION.REQUEST});
+    dispatch({ type: FETCH_OPENID_CONFIGURATION.REQUEST });
 
     const res = await fetch(OPENID_CONFIG_URL);
     let data = null;
@@ -89,7 +81,7 @@ export const fetchOpenIdConfigurationIfNeeded = () => async (dispatch, getState)
     try {
         if (res.ok) {
             data = await res.json();
-            dispatch({type: FETCH_OPENID_CONFIGURATION.RECEIVE, data});
+            dispatch({ type: FETCH_OPENID_CONFIGURATION.RECEIVE, data });
         } else {
             console.error("Received non-200 request while fetching OpenID configuration", res);
             err();
@@ -99,7 +91,7 @@ export const fetchOpenIdConfigurationIfNeeded = () => async (dispatch, getState)
         err();
     }
 
-    dispatch({type: FETCH_OPENID_CONFIGURATION.FINISH});
+    dispatch({ type: FETCH_OPENID_CONFIGURATION.FINISH });
 
     return data;
 };
@@ -109,7 +101,7 @@ const tokenSuccessError = {
     onSuccess: () => {
         localStorage.setItem(LS_BENTO_WAS_SIGNED_IN, "true");
     },
-    onError: setLSNotSignedIn,
+    onError: () => setLSNotSignedIn(),
 };
 
 // Action to do the initial handoff of an authorization code for an access token
@@ -120,7 +112,7 @@ export const tokenHandoff = networkAction((code, verifier) => (_dispatch, getSta
     ...tokenSuccessError,
     req: {
         method: "POST",
-        headers: {"Content-Type": "application/x-www-form-urlencoded"},
+        headers: { "Content-Type": "application/x-www-form-urlencoded" },
         body: buildUrlEncodedData({
             grant_type: "authorization_code",
             code,
@@ -140,7 +132,7 @@ const refreshTokens = networkAction(() => (_dispatch, getState) => ({
     ...tokenSuccessError,
     req: {
         method: "POST",
-        headers: {"Content-Type": "application/x-www-form-urlencoded"},
+        headers: { "Content-Type": "application/x-www-form-urlencoded" },
         body: buildUrlEncodedData({
             grant_type: "refresh_token",
             client_id: CLIENT_ID,
@@ -157,15 +149,15 @@ export const refreshTokensIfPossible = () => (dispatch, getState) => {
 export const SIGN_OUT = "SIGN_OUT";
 export const signOut = () => {
     setLSNotSignedIn();
-    return {type: SIGN_OUT};
+    return { type: SIGN_OUT };
 };
 
 export const FETCH_RESOURCE_PERMISSIONS = createNetworkActionTypes("FETCH_RESOURCE_PERMISSIONS");
 const fetchResourcePermissions = networkAction((resource) => (_dispatch, getState) => ({
     types: FETCH_RESOURCE_PERMISSIONS,
     url: `${getState().services.itemsByKind.authorization.url}/policy/permissions`,
-    req: jsonRequest({requested_resource: resource}, "POST"),
-    params: {resource},
+    req: jsonRequest({ requested_resource: resource }, "POST"),
+    params: { resource },
 }));
 export const fetchResourcePermissionsIfPossibleAndNeeded = (resource) => (dispatch, getState) => {
     if (!getState().services.itemsByKind.authorization?.url) {
