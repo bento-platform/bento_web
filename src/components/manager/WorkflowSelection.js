@@ -49,6 +49,11 @@ WorkflowFilter.propTypes = {
     onChange: PropTypes.func,
 };
 
+const INITIAL_FILTER_STATE = {
+    text: "",
+    tags: [],
+};
+
 const WorkflowSelection = ({ workflowType, initialFilterValues, handleWorkflowClick }) => {
     const { workflows, workflowsLoading } = useSelector(workflowsStateToPropsMixin);
 
@@ -58,14 +63,11 @@ const WorkflowSelection = ({ workflowType, initialFilterValues, handleWorkflowCl
         [workflowsOfType],
     );
 
-    const [filterValues, setFilterValues] = useState({
-        text: "",
-        tags: [],
-    });
+    const [filterValues, setFilterValues] = useState(INITIAL_FILTER_STATE);
 
     useEffect(() => {
         if (filterValues.text === "" && !filterValues.tags.length && initialFilterValues) {
-            setFilterValues(initialFilterValues);
+            setFilterValues({...INITIAL_FILTER_STATE, filterValues});
         }
     }, [initialFilterValues]);
 

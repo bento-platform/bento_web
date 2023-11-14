@@ -15,6 +15,7 @@ import {nop} from "../../utils/misc";
 
 import DatasetTreeSelect, { ID_FORMAT_PROJECT_DATASET } from "./DatasetTreeSelect";
 import DropBoxTreeSelect from "./DropBoxTreeSelect";
+import { testFileAgainstPattern } from "../../utils/files";
 
 
 const EnumSelect = forwardRef(({ mode, onChange, values: valuesConfig, value }, ref) => {
@@ -64,7 +65,7 @@ EnumSelect.propTypes = {
 
 const getInputComponentAndOptions = ({ id, type, pattern, values, required, repeatable }) => {
     const dropBoxTreeNodeEnabled = ({ name, contents }) =>
-        contents !== undefined || !pattern || (new RegExp(pattern)).test(name);
+        contents !== undefined || testFileAgainstPattern(name, pattern);
 
     const options = {
         // Default to requiring the field unless the "required" property is set on the input
@@ -183,7 +184,7 @@ RunSetupInputForm.propTypes = {
 export default Form.create({
     name: "run_setup_input_form",
     mapPropsToFields: ({workflow, formValues}) =>
-        Object.fromEntries(workflow.inputs.map(i => [i.id, Form.createFormField({...formValues[i.id]})])),
+        Object.fromEntries((workflow?.inputs ?? []).map(i => [i.id, Form.createFormField({...formValues[i.id]})])),
     onFieldsChange: ({onChange}, _, allFields) => {
         onChange({...allFields});
     },

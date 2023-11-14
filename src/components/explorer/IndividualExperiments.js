@@ -7,7 +7,7 @@ import { Button, Descriptions, Icon, Popover, Table, Tooltip, Typography } from 
 
 import { experimentPropTypesShape, experimentResultPropTypesShape, individualPropTypesShape } from "../../propTypes";
 import { getFileDownloadUrlsFromDrs } from "../../modules/drs/actions";
-import { guessFileType } from "../../utils/guessFileType";
+import { guessFileType } from "../../utils/files";
 
 import { useDeduplicatedIndividualBiosamples, useIndividualResources } from "./utils";
 import { VIEWABLE_FILE_EXTENSIONS } from "../display/FileDisplay";

@@ -44,7 +44,10 @@ const ioTagWithType = (id, ioType, typeContent = "") => (
     </Tag>
 );
 
-const WorkflowListItem = ({onClick, workflow}) => {
+const FLEX_1 = { flex: 1 };
+const MARGIN_LEFT_1EM = { marginLeft: "1em" };
+
+const WorkflowListItem = ({ onClick, workflow, rightAlignedTags }) => {
     const {inputs, name, description, data_type: dt} = workflow;
 
     const typeTag = dt ? <Tag key={dt}>{dt}</Tag> : null;
@@ -62,16 +65,18 @@ const WorkflowListItem = ({onClick, workflow}) => {
 
     const selectable = !!onClick;  // Can be selected if a click handler exists
 
+    const workflowNameStyle = rightAlignedTags ? FLEX_1 : MARGIN_LEFT_1EM;
+
     return <List.Item>
         <List.Item.Meta
             title={selectable
                 ? <a onClick={() => (onClick || nop)()} style={{ display: "flex" }}>
-                    <span style={{ flex: 1 }}>
+                    <span style={workflowNameStyle}>
                         {name}
                         <Icon type="right" style={{marginLeft: "0.3rem"}} />
                     </span><span>{typeTag}</span></a>
                 : <span style={{ display: "flex" }}>
-                    <span style={{ flex: 1 }}>{name}</span>
+                    <span style={workflowNameStyle}>{name}</span>
                     <span>{typeTag}</span>
                 </span>}
             description={description || ""}
@@ -94,6 +99,7 @@ WorkflowListItem.propTypes = {
     workflow: workflowPropTypesShape,
     selectable: PropTypes.bool,
     onClick: PropTypes.func,
+    rightAlignedTags: PropTypes.bool,
 };
 
 export default WorkflowListItem;
