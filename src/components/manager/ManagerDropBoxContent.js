@@ -1,6 +1,5 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { useHistory } from "react-router-dom";
 
 import PropTypes from "prop-types";
 
@@ -32,9 +31,9 @@ import DropBoxTreeSelect from "./DropBoxTreeSelect";
 import FileModal from "../display/FileModal";
 
 import { BENTO_DROP_BOX_FS_BASE_PATH } from "../../config";
-import { STEP_INPUT } from "./workflowCommon";
 import { workflowsStateToPropsMixin } from "../../propTypes";
 import { useResourcePermissions } from "../../lib/auth/utils";
+import { useStartIngestionFlow } from "./workflowCommon";
 import { testFileAgainstPattern } from "../../utils/files";
 import { getFalse } from "../../utils/misc";
 import {
@@ -283,7 +282,6 @@ const DROP_BOX_ROOT_KEY = "/";
 
 const ManagerDropBoxContent = () => {
     const dispatch = useDispatch();
-    const history = useHistory();
 
     const {permissions, hasAttempted} = useResourcePermissions(RESOURCE_EVERYTHING) ?? {};
 
@@ -360,17 +358,7 @@ const ManagerDropBoxContent = () => {
         return [workflowSupported, inputs];
     }, [selectedEntries]);
 
-    const continueToIngestion = useCallback((selectedWorkflow, initialInputValues) => {
-        history.push("/admin/data/manager/ingestion", {
-            step: STEP_INPUT,
-            initialWorkflowFilterValues: {
-                text: "",
-                tags: [...selectedWorkflow.tags],
-            },
-            selectedWorkflow,
-            initialInputValues,
-        });
-    }, [history]);
+    const startIngestionFlow = useStartIngestionFlow();
 
     const handleViewFile = useCallback(() => {
         showFileContentsModal();
@@ -381,8 +369,8 @@ const ManagerDropBoxContent = () => {
         [ingestionWorkflows, getWorkflowFit]);
 
     const workflowMenuItemClick = useCallback(
-        (i) => continueToIngestion(ingestionWorkflowsByID[i.key], workflowsSupported[i.key][1]),
-        [ingestionWorkflowsByID, continueToIngestion, workflowsSupported]);
+        (i) => startIngestionFlow(ingestionWorkflowsByID[i.key], workflowsSupported[i.key][1]),
+        [ingestionWorkflowsByID, startIngestionFlow, workflowsSupported]);
     const workflowMenu = (
         <Menu>
             {ingestionWorkflows.map(w => (
@@ -397,8 +385,8 @@ const ManagerDropBoxContent = () => {
         const wfs = Object.entries(workflowsSupported).filter(([_, ws]) => ws[0]);
         if (wfs.length !== 1) return;
         const [wfID, wfSupportedTuple] = wfs[0];
-        continueToIngestion(ingestionWorkflowsByID[wfID], wfSupportedTuple[1]);
-    }, [ingestionWorkflowsByID, workflowsSupported, continueToIngestion]);
+        startIngestionFlow(ingestionWorkflowsByID[wfID], wfSupportedTuple[1]);
+    }, [ingestionWorkflowsByID, workflowsSupported, startIngestionFlow]);
 
     const hasUploadPermission = permissions.includes(ingestDropBox);
     const hasDeletePermission = permissions.includes(deleteDropBox);
