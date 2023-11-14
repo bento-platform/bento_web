@@ -138,7 +138,7 @@ export const TherapeuticRegimen = ({therapeuticRegimen, resourcesTuple}) => {
                     <OntologyTerm resourcesTuple={resourcesTuple} term={therapeuticRegimen.ontology_class}/>
                 }
                 {therapeuticRegimen?.external_reference &&
-                    <div style={{"display": "flex", "flex-direction": "column"}}>
+                    <div style={{"display": "flex", "flexDirection": "column"}}>
                         <div>
                             <strong>ID:</strong>{" "}
                             {therapeuticRegimen?.external_reference?.id ?? EM_DASH}

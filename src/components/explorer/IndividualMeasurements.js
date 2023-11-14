@@ -12,7 +12,7 @@ import TimeElement from "./TimeElement";
 
 const FLEX_COLUMN_STYLE = {
     "display": "flex",
-    "flex-direction": "column",
+    "flexDirection": "column",
 };
 
 export const Quantity = ({quantity, resourcesTuple, title}) => {

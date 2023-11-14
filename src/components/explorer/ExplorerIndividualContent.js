@@ -57,6 +57,12 @@ const ExplorerIndividualContent = () => {
         }
     }, [location]);
 
+    useEffect(() => {
+        if (individualUrl) {
+            dispatch(setIndividualExplorerUrl(individualUrl));
+        }
+    }, [dispatch, individualUrl]);
+
     const metadataService = useSelector((state) => state.services.metadataService);
     const individuals = useSelector((state) => state.individuals.itemsByID);
 
@@ -66,15 +72,17 @@ const ExplorerIndividualContent = () => {
             // we should load individual data.
             dispatch(fetchIndividualIfNecessary(individualID));
         }
-
     }, [dispatch, metadataService, individualID]);
 
     const { isFetching: individualIsFetching, data: individual } = individuals[individualID] ?? {};
 
-    // Trigger resource loading
     const resources = useIndividualResources(individual);
-    dispatch(setIndividualResourcesTuple(resources));
-    dispatch(setIndividualExplorerUrl(individualUrl));
+    useEffect(() => {
+        // Set individual resources in the store for OntologyTerm rendering with no prop drilling
+        if (resources) {
+            dispatch(setIndividualResourcesTuple(resources));
+        }
+    }, [dispatch, resources]);
 
     const overviewUrl = `${individualUrl}/overview`;
     const phenotypicFeaturesUrl = `${individualUrl}/phenotypic-features`;

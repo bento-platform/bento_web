@@ -63,6 +63,10 @@ const renderTimeElement = (type, timeElement) => {
 };
 
 const TimeElement = ({timeElement}) => {
+    if (!timeElement) {
+        return EM_DASH;
+    }
+
     const [timeType, label] = getTimeElementTypeLabel(timeElement);
 
     if (!timeType) {

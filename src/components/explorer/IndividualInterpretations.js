@@ -8,20 +8,10 @@ import "./explorer.css";
 import { individualPropTypesShape } from "../../propTypes";
 import OntologyTerm from "./OntologyTerm";
 import { Route, Switch, useHistory, useParams, useRouteMatch } from "react-router-dom/cjs/react-router-dom.min";
-import { VariantDescriptor } from "./IndividualVariants";
 import { useSelector } from "react-redux";
+import { GeneDescriptor } from "./IndividualGenes";
+import VariantDescriptor from "./IndividualVariants";
 
-const createdAndUpdatedDescriptions = (data) => {
-    const descriptions = [];
-    if ("created" in data) {
-        descriptions.push(<Descriptions.Item label="Created" key={"created"}>{data.created}</Descriptions.Item>);
-    }
-
-    if ("updated" in data) {
-        descriptions.push(<Descriptions.Item label="Updated" key={"updated"}>{data.updated}</Descriptions.Item>);
-    }
-    return descriptions;
-};
 
 export const VariantInterpretation = ({ variationInterpretation }) => {
     const [modalVisible, setModalVisible] = useState(false);
@@ -74,12 +64,11 @@ export const GenomicInterpretationDetails = ({ genomicInterpretation }) => {
             <Descriptions.Item label={`${relatedLabel} ID`}>
                 {genomicInterpretation.subject_or_biosample_id}
             </Descriptions.Item>
-            {createdAndUpdatedDescriptions(genomicInterpretation)}
             {variantInterpretation && <Descriptions.Item label={"Variant Interpretation"}>
                 <VariantInterpretation variationInterpretation={variantInterpretation} />
             </Descriptions.Item>}
             {geneDescriptor && <Descriptions.Item label="Gene Descriptor">
-                {/* TODO: GeneDescriptor component */}
+                <GeneDescriptor geneDescriptor={geneDescriptor}/>
             </Descriptions.Item>}
         </Descriptions>
     );

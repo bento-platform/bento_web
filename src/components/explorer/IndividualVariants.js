@@ -49,13 +49,13 @@ VariantExpressionDetails.propTypes = {
 };
 
 
-export const VariantDescriptor = ({variationDescriptor, resourcesTuple, tracksUrl}) => {
+const VariantDescriptor = ({variationDescriptor, resourcesTuple, tracksUrl}) => {
     return (
         <Descriptions layout="horizontal" bordered={true} column={1} size="small">
             <Descriptions.Item label={"ID"}>{variationDescriptor.id}</Descriptions.Item>
             {variationDescriptor.variation &&
                 <Descriptions.Item label="Variation">
-                    {/* TODO: Variation type specific display */}
+                    {/* TODO: VRS type specific display ?*/}
                     <JsonView inputJson={variationDescriptor.variation}/>
                 </Descriptions.Item>
             }
