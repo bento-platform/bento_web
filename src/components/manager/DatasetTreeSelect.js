@@ -1,4 +1,4 @@
-import React, {useCallback, useEffect, useMemo, useState} from "react";
+import React, {forwardRef, useCallback, useEffect, useMemo, useState} from "react";
 import {useSelector} from "react-redux";
 import PropTypes from "prop-types";
 
@@ -7,7 +7,7 @@ import {Spin, TreeSelect} from "antd";
 export const ID_FORMAT_PROJECT_DATASET = "project:dataset";
 export const ID_FORMAT_DATASET = "dataset";
 
-const DatasetTreeSelect = ({value, onChange, style, idFormat}) => {
+const DatasetTreeSelect = forwardRef(({value, onChange, style, idFormat}, ref) => {
     const {items: projectItems, isFetching: projectsFetching} = useSelector((state) => state.projects);
     const servicesFetching = useSelector((state) => state.services.isFetchingAll);
 
@@ -20,8 +20,7 @@ const DatasetTreeSelect = ({value, onChange, style, idFormat}) => {
     const onChangeInner = useCallback((newSelected) => {
         if (!value) setSelected(newSelected);
         if (onChange) {
-            const [project, dataset] = newSelected.split(":");
-            onChange(project, dataset);
+            onChange(newSelected);
         }
     }, [value, onChange, selected]);
 
@@ -42,6 +41,7 @@ const DatasetTreeSelect = ({value, onChange, style, idFormat}) => {
 
     return <Spin spinning={servicesFetching || projectsFetching}>
         <TreeSelect
+            ref={ref}
             style={style ?? {}}
             showSearch={true}
             onChange={onChangeInner}
@@ -50,7 +50,7 @@ const DatasetTreeSelect = ({value, onChange, style, idFormat}) => {
             treeDefaultExpandAll={true}
         />
     </Spin>;
-};
+});
 
 DatasetTreeSelect.defaultProps = {
     idFormat: ID_FORMAT_PROJECT_DATASET,

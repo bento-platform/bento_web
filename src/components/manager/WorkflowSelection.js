@@ -64,7 +64,7 @@ const WorkflowSelection = ({ workflowType, initialFilterValues, handleWorkflowCl
     });
 
     useEffect(() => {
-        if (filterValues.text === "" && !filterValues.tags.length) {
+        if (filterValues.text === "" && !filterValues.tags.length && initialFilterValues) {
             setFilterValues(initialFilterValues);
         }
     }, [initialFilterValues]);

@@ -130,26 +130,20 @@ export const submitWorkflowRun = networkAction(
     });
 
 
-export const submitIngestionWorkflowRun =
-    (serviceBaseUrl, projectID, datasetID, dataType, workflow, inputs, redirect, hist) =>
-        (dispatch) =>
-            dispatch(submitWorkflowRun(
-                SUBMIT_INGESTION_RUN,
-                serviceBaseUrl,
-                workflow,
-                {projectID, datasetID, dataType},  // params
-                inputs,
-                {  // tags
-                    project_id: projectID,
-                    dataset_id: datasetID,
-                    data_type: dataType,
-                },
-                run => {  // onSuccess
-                    message.success(`Ingestion with run ID "${run.run_id}" submitted!`);
-                    if (redirect) hist.push(redirect);
-                },
-                "Error submitting ingestion workflow",  // errorMessage
-            ));
+export const submitIngestionWorkflowRun = (serviceBaseUrl, workflow, inputs, redirect, hist) => (dispatch) =>
+    dispatch(submitWorkflowRun(
+        SUBMIT_INGESTION_RUN,
+        serviceBaseUrl,
+        workflow,
+        {},  // params
+        inputs,
+        {},  // tags
+        run => {  // onSuccess
+            message.success(`Ingestion with run ID "${run.run_id}" submitted!`);
+            if (redirect) hist.push(redirect);
+        },
+        "Error submitting ingestion workflow",  // errorMessage
+    ));
 
 
 export const submitAnalysisWorkflowRun = (serviceBaseUrl, workflow, inputs, redirect, hist) => (dispatch) =>
