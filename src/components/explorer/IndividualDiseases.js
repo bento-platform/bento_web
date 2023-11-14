@@ -7,6 +7,7 @@ import { EM_DASH } from "../../constants";
 import { ontologyTermSorter, useIndividualResources } from "./utils";
 
 import OntologyTerm from "./OntologyTerm";
+import TimeElement from "./TimeElement";
 
 // TODO: Only show diseases from the relevant dataset, if specified;
 //  highlight those found in search results, if specified
@@ -29,24 +30,7 @@ const IndividualDiseases = ({ individual }) => {
         {
             title: "Onset Age(s)",
             key: "t_onset_ages",
-            render: (_, disease) => {
-                if (disease.hasOwnProperty("onset") && Object.keys(disease.onset).length) {
-                    const onset = disease.onset;
-                    if (onset.hasOwnProperty("age") && Object.keys(onset.age).length) {
-                        return <div>{onset.age.iso8601duration}</div>;
-                    } else if (onset.hasOwnProperty("age_range") && Object.keys(onset.age_range).length) {
-                        return (
-                            <div>
-                                {onset.age_range.start.iso8601duration} - {onset.age_range.end.iso8601duration}
-                            </div>
-                        );
-                    } else if (onset.hasOwnProperty("ontology_class") && Object.keys(onset.ontology_class).length) {
-                        return <OntologyTerm resourcesTuple={resourcesTuple} term={onset.ontology_class} />;
-                    }
-                    // TODO: new stuff that comes with TIME_ELEMENT representation
-                }
-                return EM_DASH;
-            },
+            render: (_, disease) => (<TimeElement timeElement={disease?.onset}/>),
         },
         {
             title: "Extra Properties",
