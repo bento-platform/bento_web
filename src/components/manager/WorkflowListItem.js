@@ -45,7 +45,7 @@ const ioTagWithType = (id, ioType, typeContent = "") => (
 );
 
 const FLEX_1 = { flex: 1 };
-const MARGIN_LEFT_1EM = { marginLeft: "1em" };
+const MARGIN_RIGHT_1EM = { marginRight: "1em" };
 
 const WorkflowListItem = ({ onClick, workflow, rightAlignedTags }) => {
     const {inputs, name, description, data_type: dt} = workflow;
@@ -65,7 +65,7 @@ const WorkflowListItem = ({ onClick, workflow, rightAlignedTags }) => {
 
     const selectable = !!onClick;  // Can be selected if a click handler exists
 
-    const workflowNameStyle = rightAlignedTags ? FLEX_1 : MARGIN_LEFT_1EM;
+    const workflowNameStyle = rightAlignedTags ? FLEX_1 : MARGIN_RIGHT_1EM;
 
     return <List.Item>
         <List.Item.Meta

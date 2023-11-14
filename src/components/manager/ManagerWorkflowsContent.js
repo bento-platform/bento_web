@@ -32,7 +32,10 @@ const ManagerWorkflowsContent = () => {
                                 {workflowsLoading
                                     ? <Skeleton />
                                     : <List itemLayout="vertical">
-                                        {items.map(w => <WorkflowListItem key={w.name} workflow={w} />)}</List>}
+                                        {items.map(w => (
+                                            <WorkflowListItem key={w.name} workflow={w} rightAlignedTags={true} />
+                                        ))}
+                                    </List>}
                             </Spin>
                         </Tabs.TabPane>
                     ))}
