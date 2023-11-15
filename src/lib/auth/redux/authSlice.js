@@ -184,7 +184,6 @@ export const authSlice = createSlice({
                     ? `${error}: ${errorDesc}`
                     : `An error occurred while refreshing tokens: ${action.caughtError ?? "Unknown error"}`;
                 console.error(tokensRefreshError);
-                console.error(tokensRefreshError);
                 state.tokensRefreshError = tokensRefreshError;
                 state.resourcePermissions = {};
 

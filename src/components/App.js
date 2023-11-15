@@ -111,7 +111,7 @@ const App = () => {
             const { code, verifier } = e.data ?? {};
             if (!code || !verifier) return;
             localStorage.removeItem(LS_SIGN_IN_POPUP);
-            dispatch(tokenHandoff({ code, verifier, CLIENT_ID, AUTH_CALLBACK_URL }));
+            dispatch(tokenHandoff({ code, verifier, clientId: CLIENT_ID, authCallbackUrl: AUTH_CALLBACK_URL }));
         };
         window.addEventListener("message", windowMessageHandler.current);
     }, [dispatch]);
