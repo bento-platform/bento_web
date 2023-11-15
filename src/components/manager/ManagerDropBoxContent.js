@@ -45,7 +45,8 @@ import {
     deleteDropBoxObject,
 } from "../../modules/manager/actions";
 import {RESOURCE_EVERYTHING} from "../../lib/auth/resources";
-import {deleteDropBox, ingestDropBox} from "../../lib/auth/permissions";
+import { deleteDropBox, ingestDropBox, viewDropBox } from "../../lib/auth/permissions";
+import { useFetchDropBoxContentsIfAllowed } from "./hooks";
 
 import { VIEWABLE_FILE_EXTENSIONS } from "../display/FileDisplay";
 
@@ -285,7 +286,13 @@ const ManagerDropBoxContent = () => {
     const dispatch = useDispatch();
     const history = useHistory();
 
-    const {permissions, hasAttempted} = useResourcePermissions(RESOURCE_EVERYTHING) ?? {};
+    const {
+        permissions,
+        isFetching: isFetchingPermissions,
+        hasAttempted: hasAttemptedPermissions,
+    } = useResourcePermissions(RESOURCE_EVERYTHING) ?? {};
+
+    useFetchDropBoxContentsIfAllowed();
 
     const dropBoxService = useSelector(state => state.services.dropBoxService);
     const {tree, isFetching: treeLoading, isDeleting} = useSelector(state => state.dropBox);
@@ -400,6 +407,7 @@ const ManagerDropBoxContent = () => {
         showDatasetSelectionModal(workflowsSupported[0]);
     }, [workflowsSupported]);
 
+    const hasViewPermission = permissions.includes(viewDropBox);
     const hasUploadPermission = permissions.includes(ingestDropBox);
     const hasDeletePermission = permissions.includes(deleteDropBox);
 
@@ -478,13 +486,14 @@ const ManagerDropBoxContent = () => {
         selectedEntries.length === 0 || workflowsSupported.length === 0;
 
     const handleUpload = useCallback(() => {
+        if (!hasUploadPermission) return;
         if (selectedFolder) setInitialUploadFolder(selectedEntries[0]);
         showUploadModal();
-    }, [selectedFolder, selectedEntries]);
+    }, [hasUploadPermission, selectedFolder, selectedEntries]);
 
     const deleteDisabled = !dropBoxService || selectedFolder || selectedEntries.length !== 1 || !hasDeletePermission;
 
-    if (hasAttempted && !hasUploadPermission) {
+    if (hasAttemptedPermissions && !hasViewPermission) {
         return <Layout>
             <Layout.Content style={LAYOUT_CONTENT_STYLE}>
                 <Result status="error" title="Forbidden" subTitle="You do not have permission to view the drop box." />
@@ -582,8 +591,8 @@ const ManagerDropBoxContent = () => {
                     </Typography.Text>
                 </div>
 
-                <Spin spinning={treeLoading}>
-                    {(treeLoading || dropBoxService) ? (
+                <Spin spinning={isFetchingPermissions || treeLoading}>
+                    {(isFetchingPermissions || treeLoading || dropBoxService) ? (
                         <div
                             onDragEnter={handleDragEnter}
                             onDragLeave={handleDragLeave}
