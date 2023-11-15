@@ -22,6 +22,7 @@ const RunSetupInputsTable = ({ selectedWorkflow, inputs }) => {
                     return EM_DASH;
                 }
 
+                // TODO: link these to new tab: manager page on project/dataset (when we can route datasets)
                 if (input.inputConfig.type === "project:dataset") {
                     const [projectID, datasetID] = value.split(":");
                     return <div>
@@ -39,7 +40,7 @@ const RunSetupInputsTable = ({ selectedWorkflow, inputs }) => {
                 return value.toString();
             },
         },
-    ], []);
+    ], [projectsByID, datasetsByID]);
 
     const dataSource = useMemo(
         () => selectedWorkflow.inputs
