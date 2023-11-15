@@ -160,7 +160,7 @@ const mapStateToProps = state => ({
     projects: state.projects.items,
     projectsByID: state.projects.itemsByID,
 
-    loadingProjects: state.projects.isAdding || state.projects.isFetching,
+    loadingProjects: state.projects.isCreating || state.projects.isFetching,
 
     isDeletingProject: state.projects.isDeleting,
 });
