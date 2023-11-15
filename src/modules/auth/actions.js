@@ -11,7 +11,6 @@ import {
 } from "../../utils/actions";
 
 import { fetchDatasetsDataTypes } from "../datasets/actions";
-import { fetchDropBoxTreeOrFail } from "../manager/actions";
 import {
     fetchProjectsWithDatasets,
     fetchOverviewSummary,
