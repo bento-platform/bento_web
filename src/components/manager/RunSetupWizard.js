@@ -55,9 +55,16 @@ const RunSetupWizard = ({
     }, [location]);
 
     const handleWorkflowClick = useCallback((workflow) => {
-        setSelectedWorkflow(workflow);
+        if (workflow.id !== selectedWorkflow?.id) {
+            // If we had pre-defined initial values / form values, but we change the workflow, reset these inputs.
+            setInitialInputValues({});
+            setInputFormFields({});
+
+            // Change to the new selected workflow
+            setSelectedWorkflow(workflow);
+        }
         setStep(STEP_INPUT);
-    }, []);
+    }, [selectedWorkflow]);
 
     const handleInputSubmit = useCallback(inputs => {
         setInputs(inputs);
