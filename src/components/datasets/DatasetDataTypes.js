@@ -69,7 +69,7 @@ const DatasetDataTypes = React.memo(({isPrivate, project, dataset}) => {
             {
                 title: "Actions",
                 key: "actions",
-                width: 250,
+                width: 240,
                 render: (dt) => {
                     const dtIngestionWorkflows = ingestionWorkflows
                         .filter((wf) => wf.data_type === dt.id || (wf.tags ?? []).includes(dt.id));
@@ -87,7 +87,7 @@ const DatasetDataTypes = React.memo(({isPrivate, project, dataset}) => {
                     );
 
                     const ingestDropdown = (
-                        <Dropdown overlay={ingestMenu} trigger="click">
+                        <Dropdown overlay={ingestMenu} trigger={["click"]}>
                             <Button icon="import" style={{ width: "100%" }} disabled={!dtIngestionWorkflows.length}>
                                 Ingest <Icon type="down" />
                             </Button>
@@ -134,6 +134,8 @@ const DatasetDataTypes = React.memo(({isPrivate, project, dataset}) => {
 
             <Table
                 bordered
+                size="middle"
+                pagination={false}
                 dataSource={datasetDataTypes}
                 rowKey="id"
                 columns={dataTypesColumns}
