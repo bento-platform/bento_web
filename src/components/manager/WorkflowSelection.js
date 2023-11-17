@@ -59,7 +59,7 @@ const WorkflowSelection = ({ workflowType, initialFilterValues, handleWorkflowCl
 
     const workflowsOfType = workflows[workflowType] ?? [];
     const tags = useMemo(
-        () => Array.from(new Set(workflowsOfType.map(w => w.data_type))),
+        () => Array.from(new Set(workflowsOfType.flatMap(w => [w.data_type, ...(w.tags ?? [])]))),
         [workflowsOfType],
     );
 
@@ -78,14 +78,19 @@ const WorkflowSelection = ({ workflowType, initialFilterValues, handleWorkflowCl
             const ftTags = filterValues.tags;
 
             return workflowsOfType
-                .filter(w =>
-                    (
+                .filter(w => {
+                    const wTags = new Set(w.tags ?? []);
+                    return (
                         !ftLower ||
                         w.name.toLowerCase().includes(ftLower) ||
                         w.description.toLowerCase().includes(ftLower) ||
-                        w.data_type.includes(ftLower)
-                    ) && (ftTags.length === 0 || ftTags.includes(w.data_type)),
-                )  // TODO: tags too, properly
+                        w.data_type.includes(ftLower) ||
+                        wTags.has(ftLower)
+                    ) && (
+                        ftTags.length === 0 ||
+                        ftTags.reduce((acc, t) => acc && wTags.has(t), true)
+                    );
+                })
                 .map(w =>
                     <WorkflowListItem
                         key={w.id}
