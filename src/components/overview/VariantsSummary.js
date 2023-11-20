@@ -22,7 +22,10 @@ const VariantsSummary = ( ) => {
             <Row style={{ marginBottom: "24px" }} gutter={[0, 16]}>
                 <Col xl={2} lg={3} md={4} sm={5} xs={6}>
                     <Spin spinning={fetchingVariantsOverview}>
-                        <Statistic title="VCF Files" prefix={<Icon type="file" />} value={numVarFilesFromSampleIds} />
+                        <Statistic
+                            title="Samples"
+                            prefix={<Icon type="file" />}
+                            value={numVarFilesFromSampleIds} />
                     </Spin>
                 </Col>
             </Row>
