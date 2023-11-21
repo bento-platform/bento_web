@@ -63,6 +63,10 @@ EnumSelect.propTypes = {
 };
 
 
+// These properties come from the inputs as listed in the WorkflowDefinition in the workflow-providing service.
+// For all possible workflow input types, see:
+// https://github.com/bento-platform/bento_lib/blob/master/bento_lib/workflows/models.py
+// This component is responsible for transforming these workflow input definitions into form elements.
 const getInputComponentAndOptions = ({ id, type, pattern, values, required, repeatable }) => {
     const dropBoxTreeNodeEnabled = ({ name, contents }) =>
         contents !== undefined || testFileAgainstPattern(name, pattern);
