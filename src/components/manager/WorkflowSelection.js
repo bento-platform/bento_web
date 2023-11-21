@@ -14,8 +14,8 @@ const filterValuesPropType = PropTypes.shape({
 });
 
 const WorkflowFilter = ({ loading, tags, value, onChange }) => {
-    const onChangeText = useCallback(e => onChange({ ...value, text: e.target.value }), [onChange]);
-    const onChangeTags = useCallback(tags => onChange({ ...value, tags }), [onChange]);
+    const onChangeText = useCallback(e => onChange({ ...value, text: e.target.value }), [value, onChange]);
+    const onChangeTags = useCallback(tags => onChange({ ...value, tags }), [value, onChange]);
 
     return <Row gutter={24}>
         <Col md={24} lg={12}>
