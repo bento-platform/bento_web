@@ -1,13 +1,11 @@
 import React from "react";
-import {useSelector} from "react-redux";
 
 import {Layout, List, Skeleton, Spin, Tabs, Typography} from "antd";
 
-
 import WorkflowListItem from "./WorkflowListItem";
 
-import {LAYOUT_CONTENT_STYLE} from "../../styles/layoutContent";
-import {workflowsStateToPropsMixin} from "../../propTypes";
+import { useWorkflows } from "../../hooks";
+import { LAYOUT_CONTENT_STYLE } from "../../styles/layoutContent";
 
 const workflowTypesToTitles = {
     ingestion: "Ingestion",
@@ -16,23 +14,25 @@ const workflowTypesToTitles = {
 };
 
 const ManagerWorkflowsContent = () => {
-    // TODO: real key
+    const { workflowsByType, workflowsLoading } = useWorkflows();
 
-    const {workflows, workflowsLoading} = useSelector(state => workflowsStateToPropsMixin(state));
-
+    // noinspection JSValidateTypes
     return <Layout>
         <Layout.Content style={LAYOUT_CONTENT_STYLE}>
             <Tabs defaultActiveKey="ingestion" type="card">
-                {Object.entries(workflows)
+                {Object.entries(workflowsByType)
                     .filter(([wt, _]) => wt in workflowTypesToTitles)
-                    .map(([wt, items]) => (
+                    .map(([wt, { items }]) => (
                         <Tabs.TabPane tab={workflowTypesToTitles[wt]} key={wt}>
                             <Typography.Title level={2}>{workflowTypesToTitles[wt]} Workflows</Typography.Title>
                             <Spin spinning={workflowsLoading}>
                                 {workflowsLoading
                                     ? <Skeleton />
                                     : <List itemLayout="vertical">
-                                        {items.map(w => <WorkflowListItem key={w.name} workflow={w} />)}</List>}
+                                        {items.map(w => (
+                                            <WorkflowListItem key={w.id} workflow={w} rightAlignedTags={true} />
+                                        ))}
+                                    </List>}
                             </Spin>
                         </Tabs.TabPane>
                     ))}

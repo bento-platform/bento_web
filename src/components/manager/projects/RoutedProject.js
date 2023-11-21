@@ -29,7 +29,6 @@ class RoutedProject extends Component {
         this.showDatasetAdditionModal = this.showDatasetAdditionModal.bind(this);
         this.hideDatasetAdditionModal = this.hideDatasetAdditionModal.bind(this);
         this.hideDatasetEditModal = this.hideDatasetEditModal.bind(this);
-        this.ingestIntoDataset = this.ingestIntoDataset.bind(this);
         this.handleDeleteProject = this.handleDeleteProject.bind(this);
     }
 
@@ -38,19 +37,6 @@ class RoutedProject extends Component {
         if (!this.props.projectsByID[this.props.match.params.project] && !this.props.loadingProjects) {
             this.props.history.push("/admin/data/manager/projects/");
         }
-    }
-
-    ingestIntoDataset(p, d, dt) {
-        this.props.history.push(
-            "/admin/data/manager/ingestion",
-            {
-                workflowSelectionValues: {
-                    selectedProject: p.identifier,
-                    selectedDataset: d.identifier,
-                    selectedDataType: dt.id,
-                },
-            },
-        );
     }
 
     handleProjectSave(project) {
@@ -135,8 +121,7 @@ class RoutedProject extends Component {
                          selectedDataset: dataset,
                          datasetEditModal: true,
                      })}
-                     onAddJsonSchema={() => this.setJsonSchemaModalVisible(true)}
-                     onDatasetIngest={(p, d, dt) => this.ingestIntoDataset(p, d, dt)}/>
+                     onAddJsonSchema={() => this.setJsonSchemaModalVisible(true)} />
         </>;
     }
 }
@@ -175,7 +160,7 @@ const mapStateToProps = state => ({
     projects: state.projects.items,
     projectsByID: state.projects.itemsByID,
 
-    loadingProjects: state.projects.isAdding || state.projects.isFetching,
+    loadingProjects: state.projects.isCreating || state.projects.isFetching,
 
     isDeletingProject: state.projects.isDeleting,
 });
