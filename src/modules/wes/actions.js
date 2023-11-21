@@ -99,11 +99,11 @@ export const fetchRunLogStreamsIfPossibleAndNeeded = runID => (dispatch, getStat
 
 
 export const submitWorkflowRun = networkAction(
-    (types, serviceBaseUrl, workflow, params, inputs, tags, onSuccess, errorMessage) => (dispatch, getState) => {
+    (types, serviceBaseUrl, workflow, inputs, onSuccess, errorMessage, tags) => (dispatch, getState) => {
         const serviceUrlRStrip = serviceBaseUrl.replace(/\/$/, "");
 
         const runRequest = {
-            workflow_params: Object.fromEntries(Object.entries(inputs)
+            workflow_params: Object.fromEntries(Object.entries(inputs ?? {})
                 .map(([k, v]) => [`${workflow.id}.${k}`, v])),
             workflow_type: "WDL",  // TODO: Should eventually not be hard-coded
             workflow_type_version: "1.0",  // TODO: "
@@ -112,13 +112,13 @@ export const submitWorkflowRun = networkAction(
             tags: {
                 workflow_id: workflow.id,
                 workflow_metadata: workflow,
-                ...tags,
+                ...(tags ?? {}),
             },
         };
 
         return {
             types,
-            params: {request: runRequest, ...params},
+            params: { request: runRequest },
             url: `${getState().services.wesService.url}/runs`,
             req: {
                 method: "POST",
@@ -130,26 +130,18 @@ export const submitWorkflowRun = networkAction(
     });
 
 
-export const submitIngestionWorkflowRun =
-    (serviceBaseUrl, projectID, datasetID, dataType, workflow, inputs, redirect, hist) =>
-        (dispatch) =>
-            dispatch(submitWorkflowRun(
-                SUBMIT_INGESTION_RUN,
-                serviceBaseUrl,
-                workflow,
-                {projectID, datasetID, dataType},  // params
-                inputs,
-                {  // tags
-                    project_id: projectID,
-                    dataset_id: datasetID,
-                    data_type: dataType,
-                },
-                run => {  // onSuccess
-                    message.success(`Ingestion with run ID "${run.run_id}" submitted!`);
-                    if (redirect) hist.push(redirect);
-                },
-                "Error submitting ingestion workflow",  // errorMessage
-            ));
+export const submitIngestionWorkflowRun = (serviceBaseUrl, workflow, inputs, redirect, hist) => (dispatch) =>
+    dispatch(submitWorkflowRun(
+        SUBMIT_INGESTION_RUN,
+        serviceBaseUrl,
+        workflow,
+        inputs,
+        run => {  // onSuccess
+            message.success(`Ingestion with run ID "${run.run_id}" submitted!`);
+            if (redirect) hist.push(redirect);
+        },
+        "Error submitting ingestion workflow",  // errorMessage
+    ));
 
 
 export const submitAnalysisWorkflowRun = (serviceBaseUrl, workflow, inputs, redirect, hist) => (dispatch) =>
@@ -157,9 +149,7 @@ export const submitAnalysisWorkflowRun = (serviceBaseUrl, workflow, inputs, redi
         SUBMIT_ANALYSIS_RUN,
         serviceBaseUrl,
         workflow,
-        {},  // params
         inputs,
-        {},  // tags
         run => {  // onSuccess
             message.success(`Analysis with run ID "${run.run_id}" submitted!`);
             if (redirect) hist.push(redirect);
