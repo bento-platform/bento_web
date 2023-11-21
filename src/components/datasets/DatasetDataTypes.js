@@ -4,16 +4,18 @@ import PropTypes from "prop-types";
 
 import { Button, Col, Dropdown, Icon, Menu, Row, Table, Typography } from "antd";
 
+import { useWorkflows } from "../../hooks";
 import { useStartIngestionFlow } from "../manager/workflowCommon";
-import { datasetPropTypesShape, projectPropTypesShape, workflowsStateToPropsMixin } from "../../propTypes";
+import { datasetPropTypesShape, projectPropTypesShape } from "../../propTypes";
 import { clearDatasetDataType } from "../../modules/metadata/actions";
 import { fetchDatasetDataTypesSummariesIfPossible } from "../../modules/datasets/actions";
+
 import genericConfirm from "../ConfirmationModal";
 import DataTypeSummaryModal from "./datatype/DataTypeSummaryModal";
 
 const NA_TEXT = <span style={{ color: "#999", fontStyle: "italic" }}>N/A</span>;
 
-const DatasetDataTypes = React.memo(({isPrivate, project, dataset}) => {
+const DatasetDataTypes = React.memo(({ isPrivate, project, dataset }) => {
     const dispatch = useDispatch();
     const datasetDataTypes = useSelector((state) => Object.values(
         state.datasetDataTypes.itemsByID[dataset.identifier]?.itemsByID ?? {}));
@@ -21,7 +23,8 @@ const DatasetDataTypes = React.memo(({isPrivate, project, dataset}) => {
     const isFetchingDataset = useSelector(
         (state) => state.datasetDataTypes.itemsByID[dataset.identifier]?.isFetching);
 
-    const ingestionWorkflows = useSelector(state => workflowsStateToPropsMixin(state).workflows.ingestion);
+    const { workflowsByType } = useWorkflows();
+    const ingestionWorkflows = workflowsByType.ingestion.items;
 
     const [datatypeSummaryVisible, setDatatypeSummaryVisible] = useState(false);
     const [selectedDataType, setSelectedDataType] = useState(null);

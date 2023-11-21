@@ -5,8 +5,9 @@ import PropTypes from "prop-types";
 import { Col, Form, Input, List, Row, Select, Skeleton, Spin } from "antd";
 import WorkflowListItem from "./WorkflowListItem";
 
-import { workflowsStateToPropsMixin, workflowTypePropType } from "../../propTypes";
+import { workflowTypePropType } from "../../propTypes";
 import { FORM_LABEL_COL, FORM_WRAPPER_COL } from "./workflowCommon";
+import { useWorkflows } from "../../hooks";
 
 const filterValuesPropType = PropTypes.shape({
     text: PropTypes.string,
@@ -55,11 +56,11 @@ const INITIAL_FILTER_STATE = {
 };
 
 const WorkflowSelection = ({ workflowType, initialFilterValues, handleWorkflowClick }) => {
-    const { workflows, workflowsLoading } = useSelector(workflowsStateToPropsMixin);
+    const { workflowsByType, workflowsLoading } = useWorkflows();
 
-    const workflowsOfType = workflows[workflowType] ?? [];
+    const workflowsOfType = workflowsByType[workflowType] ?? [];
     const tags = useMemo(
-        () => Array.from(new Set(workflowsOfType.flatMap(w => [w.data_type, ...(w.tags ?? [])]))),
+        () => Array.from(new Set(workflowsOfType.items.flatMap(w => [w.data_type, ...(w.tags ?? [])]))),
         [workflowsOfType],
     );
 
@@ -78,6 +79,7 @@ const WorkflowSelection = ({ workflowType, initialFilterValues, handleWorkflowCl
             const ftTags = filterValues.tags;
 
             return workflowsOfType
+                .items
                 .filter(w => {
                     const wTags = new Set(w.tags ?? []);
                     return (

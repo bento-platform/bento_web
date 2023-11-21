@@ -31,7 +31,6 @@ import DropBoxTreeSelect from "./DropBoxTreeSelect";
 import FileModal from "../display/FileModal";
 
 import { BENTO_DROP_BOX_FS_BASE_PATH } from "../../config";
-import { workflowsStateToPropsMixin } from "../../propTypes";
 import { useResourcePermissions } from "../../lib/auth/utils";
 import { useStartIngestionFlow } from "./workflowCommon";
 import { testFileAgainstPattern } from "../../utils/files";
@@ -47,6 +46,7 @@ import { RESOURCE_EVERYTHING } from "../../lib/auth/resources";
 import { deleteDropBox, ingestDropBox } from "../../lib/auth/permissions";
 
 import { VIEWABLE_FILE_EXTENSIONS } from "../display/FileDisplay";
+import { useWorkflows } from "../../hooks";
 
 const DROP_BOX_CONTENT_CONTAINER_STYLE = { display: "flex", flexDirection: "column", gap: 8 };
 const DROP_BOX_ACTION_CONTAINER_STYLE = {
@@ -287,10 +287,10 @@ const ManagerDropBoxContent = () => {
 
     const dropBoxService = useSelector(state => state.services.dropBoxService);
     const {tree, isFetching: treeLoading, isDeleting} = useSelector(state => state.dropBox);
-    const ingestionWorkflows = useSelector(state => workflowsStateToPropsMixin(state).workflows.ingestion);
-    const ingestionWorkflowsByID = useMemo(
-        () => Object.fromEntries(ingestionWorkflows.map((iw) => [iw.id, iw])),
-        [ingestionWorkflows]);
+
+    const { workflowsByType } = useWorkflows();
+    const ingestionWorkflows = workflowsByType.ingestion.items;
+    const ingestionWorkflowsByID = workflowsByType.ingestion.itemsByID;
 
     const filesByPath = useMemo(() => Object.fromEntries(
         recursivelyFlattenFileTree([], tree).map(f => [f.relativePath, f])), [tree]);

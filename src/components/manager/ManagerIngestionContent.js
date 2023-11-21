@@ -15,7 +15,6 @@ import {
     FORM_BUTTON_COL,
 } from "./workflowCommon";
 
-import { workflowTarget } from "../../propTypes";
 import RunSetupWizard from "./RunSetupWizard";
 import RunSetupInputsTable from "./RunSetupInputsTable";
 
@@ -53,7 +52,6 @@ const IngestConfirmDisplay = ({selectedWorkflow, inputs, handleRunWorkflow}) => 
     );
 };
 IngestConfirmDisplay.propTypes = {
-    target: workflowTarget,
     selectedWorkflow: PropTypes.object,
     inputs: PropTypes.object,
     handleRunWorkflow: PropTypes.func,
