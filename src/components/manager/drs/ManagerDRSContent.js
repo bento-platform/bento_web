@@ -121,7 +121,6 @@ const ManagerDRSContent = () => {
                     columns={DRS_COLUMNS}
                     dataSource={searchResults}
                     loading={loading}
-                    size="middle"
                     bordered={true}
                     size="middle"
                     expandedRowRender={({ id, description, checksums, access_methods: accessMethods, size }) => (
