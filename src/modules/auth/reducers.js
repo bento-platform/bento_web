@@ -156,7 +156,7 @@ export const auth = (
                     ...state.resourcePermissions,
                     [resourceKey]: {
                         ...(state.resourcePermissions[resourceKey] ?? {}),
-                        permissions: action.data?.result ?? [],
+                        permissions: action.data?.result?.[0] ?? [],
                     },
                 },
             };

@@ -164,7 +164,7 @@ export const FETCH_RESOURCE_PERMISSIONS = createNetworkActionTypes("FETCH_RESOUR
 const fetchResourcePermissions = networkAction((resource) => (_dispatch, getState) => ({
     types: FETCH_RESOURCE_PERMISSIONS,
     url: `${getState().services.itemsByKind.authorization.url}/policy/permissions`,
-    req: jsonRequest({requested_resource: resource}, "POST"),
+    req: jsonRequest({resources: [resource]}, "POST"),
     params: {resource},
 }));
 export const fetchResourcePermissionsIfPossibleAndNeeded = (resource) => (dispatch, getState) => {

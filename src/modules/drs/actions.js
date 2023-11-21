@@ -2,7 +2,7 @@ import {
     createNetworkActionTypes,
     networkAction,
 } from "../../utils/actions";
-import { guessFileType } from "../../utils/guessFileType";
+import { guessFileType } from "../../utils/files";
 import {message} from "antd";
 
 export const PERFORM_SEARCH_BY_FUZZYNAME = createNetworkActionTypes("PERFORM_SEARCH_BY_FUZZYNAME");
