@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useMemo } from "react";
 import PropTypes from "prop-types";
 
 import {Icon, List, Tag} from "antd";
@@ -37,31 +37,40 @@ const TYPE_TAG_DISPLAY = {
     },
 };
 
-const ioTagWithType = (id, ioType, typeContent = "") => (
-    <Tag key={id} color={TYPE_TAG_DISPLAY[ioType.replace("[]", "")].color} style={{marginBottom: "2px"}}>
-        <Icon type={TYPE_TAG_DISPLAY[ioType.replace("[]", "")].icon} />&nbsp;
-        {id} ({typeContent || ioType}{ioType.endsWith("[]") ? " array" : ""})
-    </Tag>
-);
+const WorkflowInputTag = ({ id, type, children }) => {
+    const display = useMemo(() => TYPE_TAG_DISPLAY[type.replace("[]", "")], [type]);
+    return (
+        <Tag key={id} color={display.color} style={{marginBottom: "2px"}}>
+            <Icon type={display.icon} />&nbsp;
+            {id} ({children || type}{type.endsWith("[]") ? " array" : ""})
+        </Tag>
+    );
+};
+WorkflowInputTag.propTypes = {
+    id: PropTypes.string,
+    type: PropTypes.string,
+    children: PropTypes.node,
+};
 
 const FLEX_1 = { flex: 1 };
 const MARGIN_RIGHT_1EM = { marginRight: "1em" };
 
 const WorkflowListItem = ({ onClick, workflow, rightAlignedTags }) => {
-    const {inputs, name, description, data_type: dt} = workflow;
+    const { inputs, name, description, data_type: dt } = workflow;
 
     const typeTag = dt ? <Tag key={dt}>{dt}</Tag> : null;
 
-    const inputTags = inputs
-        .filter(i => !i.hidden && !i.injected)  // Filter out hidden (often injected/FROM_CONFIG) inputs
-        .map(i =>
-            ioTagWithType(
-                i.id,
-                i.type,
-                i.type.startsWith("file")
-                    ? i.extensions ? (i.extensions.join(" / ")) : (i.pattern ?? "")
-                    : "",
-            ));
+    const inputTags = useMemo(
+        () =>
+            inputs
+            .filter(i => !i.hidden && !i.injected)  // Filter out hidden/injected inputs
+            .map(({ id, type, pattern }) => (
+                <WorkflowInputTag key={id} id={id} type={type}>
+                    {type.startsWith("file") ? pattern ?? "" : ""}
+                </WorkflowInputTag>
+            )),
+        [inputs],
+    );
 
     const selectable = !!onClick;  // Can be selected if a click handler exists
 
@@ -82,8 +91,8 @@ const WorkflowListItem = ({ onClick, workflow, rightAlignedTags }) => {
             description={description || ""}
         />
 
-        <div style={{marginBottom: "12px"}}>
-            <span style={{fontWeight: "bold", marginRight: "1em"}}>Inputs:</span>
+        <div style={{ marginBottom: "12px" }}>
+            <span style={{ fontWeight: "bold", marginRight: "1em" }}>Inputs:</span>
             {inputTags}
         </div>
 
