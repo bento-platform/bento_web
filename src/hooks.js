@@ -28,5 +28,5 @@ export const useWorkflows = () => {
         });
 
         return { workflowsByType, workflowsLoading };
-    }, [serviceWorkflows, workflowsLoading])
+    }, [serviceWorkflows, workflowsLoading]);
 };

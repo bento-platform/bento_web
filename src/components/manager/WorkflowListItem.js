@@ -63,12 +63,12 @@ const WorkflowListItem = ({ onClick, workflow, rightAlignedTags }) => {
     const inputTags = useMemo(
         () =>
             inputs
-            .filter(i => !i.hidden && !i.injected)  // Filter out hidden/injected inputs
-            .map(({ id, type, pattern }) => (
-                <WorkflowInputTag key={id} id={id} type={type}>
-                    {type.startsWith("file") ? pattern ?? "" : ""}
-                </WorkflowInputTag>
-            )),
+                .filter(i => !i.hidden && !i.injected)  // Filter out hidden/injected inputs
+                .map(({ id, type, pattern }) => (
+                    <WorkflowInputTag key={id} id={id} type={type}>
+                        {type.startsWith("file") ? pattern ?? "" : ""}
+                    </WorkflowInputTag>
+                )),
         [inputs],
     );
 
