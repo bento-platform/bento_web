@@ -40,13 +40,13 @@ export const RUN_TABLE_COLUMNS = [
     },
     {
         title: "Purpose",
-        dataIndex: "purpose",
+        dataIndex: "details.request.tags.workflow_metadata.type",
         width: 120,
         sorter: (a, b) => a.purpose.localeCompare(b.purpose),
     },
     {
         title: "Name",
-        dataIndex: "name",
+        dataIndex: "details.run_log.name",
         sorter: (a, b) => a.name.localeCompare(b.name),
     },
     {
