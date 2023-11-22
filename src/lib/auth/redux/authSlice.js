@@ -35,7 +35,10 @@ export const refreshTokens = createAsyncThunk(
 
         const response = await fetch(url, {
             method: "POST",
-            headers: { "Content-Type": "application/x-www-form-urlencoded" },
+            headers: {
+                "Content-Type": "application/x-www-form-urlencoded",
+                Authorization: `Bearer ${getState().auth.accessToken}`,
+            },
             body: buildUrlEncodedData({
                 grant_type: "refresh_token",
                 client_id: clientId,
@@ -57,11 +60,11 @@ export const refreshTokens = createAsyncThunk(
 
 export const fetchResourcePermissions = createAsyncThunk(
     "auth/FETCH_RESOURCE_PERMISSIONS",
-    async ({ resource, authUrl }) => {
+    async ({ resource, authUrl }, { getState }) => {
         const url = `${authUrl}/policy/permissions`;
         const response = await fetch(url, {
             method: "POST",
-            headers: { "Content-Type": "application/json" },
+            headers: { "Content-Type": "application/json", Authorization: `Bearer ${getState().auth.accessToken}` },
             body: JSON.stringify({ requested_resource: resource }),
         });
         return await response.json();
@@ -70,7 +73,7 @@ export const fetchResourcePermissions = createAsyncThunk(
         condition: ({ resource, authUrl }, { getState }) => {
             const key = makeResourceKey(resource);
             const rp = getState().auth.resourcePermissions[key];
-            return !rp.isFetching && !rp.permissions;
+            return !rp?.isFetching;
         },
     }
 );
@@ -145,8 +148,9 @@ export const authSlice = createSlice({
                 state.isHandingOffCodeForToken = false;
                 localStorage.setItem(LS_BENTO_WAS_SIGNED_IN, "true");
             })
-            .addCase(tokenHandoff.rejected, (state, { payload }) => {
-                let handoffError = "Error handing off authorization code for token";
+            .addCase(tokenHandoff.rejected, (state, { payload, error: errorProp }) => {
+                errorProp && console.error(errorProp);
+                let handoffError = errorProp.message ?? "Error handing off authorization code for token";
 
                 const { error, error_description: errorDesc } = payload.data ?? {};
                 if (error) {
@@ -185,11 +189,12 @@ export const authSlice = createSlice({
                     localStorage.setItem(LS_BENTO_WAS_SIGNED_IN, "true");
                 }
             })
-            .addCase(refreshTokens.rejected, (state, { payload }) => {
+            .addCase(refreshTokens.rejected, (state, { payload, error: errorProp }) => {
+                errorProp && console.error(errorProp);
                 const { error, error_description: errorDesc } = payload.data ?? {};
                 const tokensRefreshError = error
                     ? `${error}: ${errorDesc}`
-                    : `An error occurred while refreshing tokens: ${action.caughtError ?? "Unknown error"}`;
+                    : error.message ?? "Error refreshing tokens";
                 console.error(tokensRefreshError);
                 state.tokensRefreshError = tokensRefreshError;
                 state.resourcePermissions = {};
@@ -220,13 +225,17 @@ export const authSlice = createSlice({
                     permissions: payload?.result ?? [],
                 };
             })
-            .addCase(fetchResourcePermissions.rejected, (state, { meta, payload }) => {
+            .addCase(fetchResourcePermissions.rejected, (state, { meta, payload, error }) => {
                 const key = makeResourceKey(meta.arg.resource);
+                console.error(error);
                 state.resourcePermissions[key] = {
                     ...state.resourcePermissions[key],
                     isFetching: false,
                     hasAttempted: true,
-                    error: payload?.error ?? "An error occurred while fetching permissions for a resource",
+                    error:
+                        payload?.error ??
+                        error.message ??
+                        "An error occurred while fetching permissions for a resource",
                 };
             });
     },

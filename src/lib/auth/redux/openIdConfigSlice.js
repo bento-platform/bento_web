@@ -38,7 +38,8 @@ export const openIdConfigSlice = createSlice({
             state.data = payload;
             state.expiry = Date.now() / 1000 + 3 * 60 * 60; // Cache for 3 hours
         });
-        builder.addCase(fetchOpenIdConfiguration.rejected, (state) => {
+        builder.addCase(fetchOpenIdConfiguration.rejected, (state, { error }) => {
+            console.error(error);
             state.isFetching = false;
             state.data = null;
             state.expiry = null;
