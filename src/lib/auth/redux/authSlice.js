@@ -47,18 +47,13 @@ export const refreshTokens = createAsyncThunk("auth/REFRESH_TOKENS", async ({ cl
 
 export const fetchResourcePermissions = createAsyncThunk(
     "auth/FETCH_RESOURCE_PERMISSIONS",
-    async ({ resource }, thunkAPI) => {
-        if (!thunkAPI.getState().services.itemsByKind.authorization?.url) {
-            console.error("Missing authorization service");
-            return;
-        }
+    async ({ resource, authUrl }, thunkAPI) => {
         const key = makeResourceKey(resource);
         const rp = thunkAPI.getState().auth.resourcePermissions[key];
         if (rp?.isFetching || rp?.permissions) {
             return;
         }
-        // TODO: ask for it
-        const url = `${thunkAPI.getState().services.itemsByKind.authorization.url}/policy/permissions`;
+        const url = `${authUrl}/policy/permissions`;
         const response = await fetch(url, {
             method: "POST",
             headers: { "Content-Type": "application/json" },
