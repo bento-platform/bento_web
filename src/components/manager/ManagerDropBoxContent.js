@@ -1,20 +1,9 @@
-import React, {useCallback, useEffect, useMemo, useRef, useState} from "react";
-import {useDispatch, useSelector} from "react-redux";
-import {useHistory} from "react-router-dom";
+import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useDispatch, useSelector } from "react-redux";
 
 import PropTypes from "prop-types";
 
-import fetch from "cross-fetch";
-import {filesize} from "filesize";
-
-import {Light as SyntaxHighlighter} from "react-syntax-highlighter";
-import {a11yLight} from "react-syntax-highlighter/dist/cjs/styles/hljs";
-
-import {Document, Page} from "react-pdf/dist/esm/entry.webpack5";
-import "react-pdf/dist/esm/Page/AnnotationLayer.css";
-import "react-pdf/dist/esm/Page/TextLayer.css";
-
-import {json, markdown, plaintext} from "react-syntax-highlighter/dist/cjs/languages/hljs";
+import { filesize } from "filesize";
 
 import {
     Alert,
@@ -31,21 +20,21 @@ import {
     Spin,
     Statistic,
     Tree,
+    Typography,
     Upload,
     message,
 } from "antd";
 
-import {LAYOUT_CONTENT_STYLE} from "../../styles/layoutContent";
+import { LAYOUT_CONTENT_STYLE } from "../../styles/layoutContent";
 import DownloadButton from "../DownloadButton";
 import DropBoxTreeSelect from "./DropBoxTreeSelect";
-import JsonDisplay from "../JsonDisplay";
-import DatasetSelectionModal from "./DatasetSelectionModal";
+import FileModal from "../display/FileModal";
 
-import {BENTO_DROP_BOX_FS_BASE_PATH} from "../../config";
-import {STEP_INPUT} from "./workflowCommon";
-import {dropBoxTreeStateToPropsMixinPropTypes, workflowsStateToPropsMixin} from "../../propTypes";
-import {useAuthorizationHeader, useResourcePermissions} from "../../lib/auth/utils";
-import {getFalse} from "../../utils/misc";
+import { BENTO_DROP_BOX_FS_BASE_PATH } from "../../config";
+import { useResourcePermissions } from "../../lib/auth/utils";
+import { useStartIngestionFlow } from "./workflowCommon";
+import { testFileAgainstPattern } from "../../utils/files";
+import { getFalse } from "../../utils/misc";
 import {
     beginDropBoxPuttingObjects,
     endDropBoxPuttingObjects,
@@ -53,45 +42,27 @@ import {
     putDropBoxObject,
     deleteDropBoxObject,
 } from "../../modules/manager/actions";
-import {RESOURCE_EVERYTHING} from "../../lib/auth/resources";
-import {deleteDropBox, ingestDropBox} from "../../lib/auth/permissions";
+import { RESOURCE_EVERYTHING } from "../../lib/auth/resources";
+import { deleteDropBox, ingestDropBox } from "../../lib/auth/permissions";
 
+import { VIEWABLE_FILE_EXTENSIONS } from "../display/FileDisplay";
+import { useWorkflows } from "../../hooks";
 
-SyntaxHighlighter.registerLanguage("json", json);
-SyntaxHighlighter.registerLanguage("markdown", markdown);
-SyntaxHighlighter.registerLanguage("plaintext", plaintext);
-
-
-const BASE_PDF_OPTIONS = {
-    cMapUrl: "cmaps/",
-    cMapPacked: true,
-    standardFontDataUrl: "standard_fonts/",
+const DROP_BOX_CONTENT_CONTAINER_STYLE = { display: "flex", flexDirection: "column", gap: 8 };
+const DROP_BOX_ACTION_CONTAINER_STYLE = {
+    display: "flex",
+    gap: "12px",
+    alignItems: "baseline",
+    position: "sticky",
+    paddingBottom: 4,
+    backgroundColor: "white",
+    boxShadow: "0 10px 10px white, 0 -10px 0 white",
+    top: 8,
+    zIndex: 10,
 };
+const DROP_BOX_INFO_CONTAINER_STYLE = { display: "flex", gap: "2em", paddingTop: 8 };
 
-
-const LANGUAGE_HIGHLIGHTERS = {
-    ".bash": "bash",
-    ".json": "json",
-    ".md": "markdown",
-    ".txt": "plaintext",
-    ".py": "python",
-    ".R": "r",
-    ".sh": "shell",
-    ".xml": "xml",
-
-    // Special files
-    "Dockerfile": "dockerfile",
-    "README": "plaintext",
-    "CHANGELOG": "plaintext",
-};
-
-const VIEWABLE_FILE_EXTENSIONS = [...Object.keys(LANGUAGE_HIGHLIGHTERS), ".pdf"];
-
-
-const DROP_BOX_CONTENT_CONTAINER_STYLE = {display: "flex", flexDirection: "column", gap: "1em"};
-const DROP_BOX_ACTION_CONTAINER_STYLE = {display: "flex", gap: "12px"};
-
-const TREE_CONTAINER_STYLE = {position: "relative", minHeight: 72};
+const TREE_CONTAINER_STYLE = { minHeight: 72, overflowY: "auto" };
 
 const TREE_DROP_ZONE_OVERLAY_STYLE = {
     position: "absolute",
@@ -151,134 +122,6 @@ const stopEvent = event => {
     event.stopPropagation();
 };
 
-
-const FileDisplay = ({file, tree, treeLoading}) => {
-    const urisByFilePath = useMemo(() => generateURIsByRelPath(tree, {}), [tree]);
-
-    const authHeader = useAuthorizationHeader();
-
-    const [fileLoadError, setFileLoadError] = useState("");
-    const [loadingFileContents, setLoadingFileContents] = useState(false);
-    const [fileContents, setFileContents] = useState({});
-    const [pdfPageCounts, setPdfPageCounts] = useState({});
-
-    const pdfOptions = useMemo(() => ({
-        ...BASE_PDF_OPTIONS,
-        httpHeaders: authHeader,
-    }), [authHeader]);
-
-    let textFormat = false;
-    if (file) {
-        Object.keys(LANGUAGE_HIGHLIGHTERS).forEach(ext => {
-            if (file.endsWith(ext)) {
-                textFormat = true;
-            }
-        });
-    }
-
-    const fileExt = file ? file.split(".").slice(-1)[0] : null;
-
-    useEffect(() => {
-        // File changed, so reset the load error
-        setFileLoadError("");
-
-        (async () => {
-            if (!file) return;
-
-            if (fileExt === "pdf") {
-                setLoadingFileContents(true);
-            }
-
-            if (!textFormat || fileContents.hasOwnProperty(file)) return;
-
-            if (!(file in urisByFilePath)) {
-                console.error(`Files: something went wrong while trying to load ${file}`);
-                setFileLoadError("Could not find URI for file.");
-                return;
-            }
-
-            try {
-                setLoadingFileContents(true);
-                const r = await fetch(urisByFilePath[file], {headers: authHeader});
-                if (r.ok) {
-                    const text = await r.text();
-                    const content = (fileExt === "json" ? JSON.parse(text) : text);
-                    setFileContents({
-                        ...fileContents,
-                        [file]: content,
-                    });
-                } else {
-                    setFileLoadError(`Could not load file: ${r.content}`);
-                }
-            } catch (e) {
-                console.error(e);
-                setFileLoadError(`Could not load file: ${e.message}`);
-            } finally {
-                setLoadingFileContents(false);
-            }
-        })();
-    }, [file]);
-
-    const onPdfLoad = useCallback(({numPages}) => {
-        setLoadingFileContents(false);
-        setPdfPageCounts({...pdfPageCounts, [file]: numPages});
-    }, [file]);
-
-    const onPdfFail = useCallback(err => {
-        console.error(err);
-        setLoadingFileContents(false);
-        setFileLoadError(`Error loading PDF: ${err.message}`);
-    }, []);
-
-    if (!file) return <div />;
-
-    return <Spin spinning={treeLoading || loadingFileContents}>
-        {(() => {
-            if (fileLoadError) {
-                return <Alert
-                    type="error"
-                    message={`Error loading file: ${file}`}
-                    description={fileLoadError}
-                />;
-            }
-
-            if (fileExt === "pdf") {  // Non-text, content isn't loaded a priori
-                const uri = urisByFilePath[file];
-                if (!uri) return <div />;
-                return (
-                    <Document file={uri} onLoadSuccess={onPdfLoad} onLoadError={onPdfFail} options={pdfOptions}>
-                        {(() => {
-                            const pages = [];
-                            for (let i = 1; i <= pdfPageCounts[file] ?? 1; i++) {
-                                pages.push(<Page pageNumber={i} key={i} />);
-                            }
-                            return pages;
-                        })()}
-                    </Document>
-                );
-            } else if (fileExt === "json") {
-                const jsonSrc = fileContents[file];
-                if (loadingFileContents || !jsonSrc) return <div />;
-                return (<JsonDisplay jsonSrc={jsonSrc}/>);
-            } else {  // if (textFormat)
-                return (
-                    <SyntaxHighlighter
-                        language={LANGUAGE_HIGHLIGHTERS[`.${fileExt}`]}
-                        style={a11yLight}
-                        customStyle={{fontSize: "12px"}}
-                        showLineNumbers={true}
-                    >
-                        {fileContents[file] || ""}
-                    </SyntaxHighlighter>
-                );
-            }
-        })()}
-    </Spin>;
-};
-FileDisplay.propTypes = {
-    file: PropTypes.string,
-    ...dropBoxTreeStateToPropsMixinPropTypes,
-};
 
 const FileUploadForm = Form.create()(({initialUploadFolder, initialUploadFiles, form}) => {
     const getFileListFromEvent = useCallback(e => Array.isArray(e) ? e : e && e.fileList, []);
@@ -401,15 +244,20 @@ FileUploadModal.propTypes = {
 const FileContentsModal = ({selectedFilePath, visible, onCancel}) => {
     const {tree, isFetching: treeLoading} = useSelector(state => state.dropBox);
 
-    return <Modal
-        visible={visible}
-        title={selectedFilePath ? `${selectedFilePath.split("/").at(-1)} - contents` : ""}
-        width={960}
-        footer={null}
-        onCancel={onCancel}
-    >
-        <FileDisplay file={selectedFilePath} tree={tree} treeLoading={treeLoading} />
-    </Modal>;
+    const urisByFilePath = useMemo(() => generateURIsByRelPath(tree, {}), [tree]);
+    const uri = useMemo(() => urisByFilePath[selectedFilePath], [urisByFilePath, selectedFilePath]);
+
+    // destroyOnClose in order to stop audio/video from playing & avoid memory leaks at the cost of re-fetching
+    return (
+        <FileModal
+            visible={visible}
+            onCancel={onCancel}
+            title={selectedFilePath ? `${selectedFilePath.split("/").at(-1)} - contents` : ""}
+            url={uri}
+            fileName={selectedFilePath}
+            loading={treeLoading}
+        />
+    );
 };
 FileContentsModal.propTypes = {
     selectedFilePath: PropTypes.string,
@@ -418,26 +266,31 @@ FileContentsModal.propTypes = {
 };
 
 
-const DropBoxInformation = () => (
+const DropBoxInformation = ({ style }) => (
     <Alert type="info" showIcon={true} message="About the drop box" description={`
         The drop box contains files which are not yet ingested into this Bento instance. They are not
         organized in any particular structure; instead, this serves as a place for incoming data files to be
         deposited and examined.
-    `} />
+    `} style={style} />
 );
+DropBoxInformation.propTypes = {
+    style: PropTypes.object,
+};
 
 const DROP_BOX_ROOT_KEY = "/";
 
 
 const ManagerDropBoxContent = () => {
     const dispatch = useDispatch();
-    const history = useHistory();
 
     const {permissions, hasAttempted} = useResourcePermissions(RESOURCE_EVERYTHING) ?? {};
 
     const dropBoxService = useSelector(state => state.services.dropBoxService);
     const {tree, isFetching: treeLoading, isDeleting} = useSelector(state => state.dropBox);
-    const ingestionWorkflows = useSelector(state => workflowsStateToPropsMixin(state).workflows.ingestion);
+
+    const { workflowsByType } = useWorkflows();
+    const ingestionWorkflows = workflowsByType.ingestion.items;
+    const ingestionWorkflowsByID = workflowsByType.ingestion.itemsByID;
 
     const filesByPath = useMemo(() => Object.fromEntries(
         recursivelyFlattenFileTree([], tree).map(f => [f.relativePath, f])), [tree]);
@@ -457,9 +310,7 @@ const ManagerDropBoxContent = () => {
     const [fileContentsModal, setFileContentsModal] = useState(false);
 
     const [fileDeleteModal, setFileDeleteModal] = useState(false);
-
-    const [selectedWorkflow, setSelectedWorkflow] = useState(null);
-    const [datasetSelectionModal, setDatasetSelectionModal] = useState(false);
+    const [fileDeleteModalTitle, setFileDeleteModalTitle] = useState("");  // cache to allow close animation
 
     const showUploadModal = useCallback(() => setUploadModal(true), []);
     const hideUploadModal = useCallback(() => setUploadModal(false), []);
@@ -468,39 +319,37 @@ const ManagerDropBoxContent = () => {
     const showFileContentsModal = useCallback(() => setFileContentsModal(true), []);
     const hideFileContentsModal = useCallback(() => setFileContentsModal(false), []);
 
-    const showDatasetSelectionModal = useCallback(workflow => {
-        setSelectedWorkflow(workflow);
-        setDatasetSelectionModal(true);
-    }, []);
-    const hideDatasetSelectionModal = useCallback(() => setDatasetSelectionModal(false), []);
-
     const getWorkflowFit = useCallback(w => {
         let workflowSupported = true;
-        let filesLeft = [...selectedEntries];
+        let entriesLeft = [...selectedEntries];
+
         const inputs = {};
 
-        for (const i of w.inputs.filter(i => i.type.startsWith("file"))) {
-            const isFileArray = i.type.endsWith("[]");
+        for (const i of w.inputs) {
+            const isArray = i.type.endsWith("[]");
+            const isFileType = i.type.startsWith("file");
+            const isDirType = i.type.startsWith("directory");
 
-            // Find datasets that support the data type
-            // TODO
+            if (!isFileType && !isDirType) {
+                continue;  // Nothing for us to do with non-file/directory inputs
+            }
 
-            // Find files where 1+ of the valid extensions (e.g. jpeg or jpg) match.
-            const compatibleFiles = filesLeft.filter(f => !!i.extensions.find(e => f.endsWith(e)));
-            if (compatibleFiles.length === 0) {
+            // Find compatible entries which match the specified pattern if one is given.
+            const compatEntries = entriesLeft
+                .filter(e => (isFileType ? !e.contents : e.contents !== undefined)
+                    && testFileAgainstPattern(e, i.pattern));
+            if (compatEntries.length === 0) {
                 workflowSupported = false;
                 break;
             }
 
-            // Steal the first compatible file, or all if it's an array
-            const filesToTake = filesLeft.filter(f =>
-                isFileArray ? compatibleFiles.includes(f) : f === compatibleFiles[0]);
-
-            inputs[i.id] = BENTO_DROP_BOX_FS_BASE_PATH + (isFileArray ? filesToTake : filesToTake[0]);
-            filesLeft = filesLeft.filter(f => !filesToTake.includes(f));
+            // Steal the first compatible entry, or all if it's an array
+            const entriesToTake = entriesLeft.filter(e => isArray ? compatEntries.includes(e) : e === compatEntries[0]);
+            inputs[i.id] = BENTO_DROP_BOX_FS_BASE_PATH + (isArray ? entriesToTake : entriesToTake[0]);
+            entriesLeft = entriesLeft.filter(f => !entriesToTake.includes(f));
         }
 
-        if (filesLeft.length > 0) {
+        if (entriesLeft.length > 0) {
             // If there are unclaimed files remaining at the end, the workflow is not compatible with the
             // total selection of files.
             workflowSupported = false;
@@ -509,33 +358,23 @@ const ManagerDropBoxContent = () => {
         return [workflowSupported, inputs];
     }, [selectedEntries]);
 
-    const ingestIntoDataset = useCallback((project, dataset, dataType) => {
-        history.push("/admin/data/manager/ingestion", {
-            step: STEP_INPUT,
-            workflowSelectionValues: {
-                selectedProject: project,
-                selectedDataset: dataset,
-                selectedDataType: dataType,
-            },
-            selectedWorkflow,
-            initialInputValues: getWorkflowFit(selectedWorkflow)[1],
-        });
-    }, [history, selectedWorkflow]);
+    const startIngestionFlow = useStartIngestionFlow();
 
     const handleViewFile = useCallback(() => {
         showFileContentsModal();
     }, []);
 
     const workflowsSupported = useMemo(
-        () => ingestionWorkflows.filter(w => getWorkflowFit(w)[0]),
-        [ingestionWorkflows]);
+        () => Object.fromEntries(ingestionWorkflows.map(w => [w.id, getWorkflowFit(w)])),
+        [ingestionWorkflows, getWorkflowFit]);
 
+    const workflowMenuItemClick = useCallback(
+        (i) => startIngestionFlow(ingestionWorkflowsByID[i.key], workflowsSupported[i.key][1]),
+        [ingestionWorkflowsByID, startIngestionFlow, workflowsSupported]);
     const workflowMenu = (
         <Menu>
             {ingestionWorkflows.map(w => (
-                <Menu.Item key={w.id}
-                           disabled={workflowsSupported.findIndex(w2 => w2.id === w.id) === -1}
-                           onClick={() => showDatasetSelectionModal(w)}>
+                <Menu.Item key={w.id} disabled={!workflowsSupported[w.id][0]} onClick={workflowMenuItemClick}>
                     Ingest with Workflow &ldquo;{w.name}&rdquo;
                 </Menu.Item>
             ))}
@@ -543,9 +382,11 @@ const ManagerDropBoxContent = () => {
     );
 
     const handleIngest = useCallback(() => {
-        if (workflowsSupported.length !== 1) return;
-        showDatasetSelectionModal(workflowsSupported[0]);
-    }, [workflowsSupported]);
+        const wfs = Object.entries(workflowsSupported).filter(([_, ws]) => ws[0]);
+        if (wfs.length !== 1) return;
+        const [wfID, wfSupportedTuple] = wfs[0];
+        startIngestionFlow(ingestionWorkflowsByID[wfID], wfSupportedTuple[1]);
+    }, [ingestionWorkflowsByID, workflowsSupported, startIngestionFlow]);
 
     const hasUploadPermission = permissions.includes(ingestDropBox);
     const hasDeletePermission = permissions.includes(deleteDropBox);
@@ -598,6 +439,10 @@ const ManagerDropBoxContent = () => {
     const hideFileDeleteModal = useCallback(() => setFileDeleteModal(false), []);
     const showFileDeleteModal = useCallback(() => {
         if (selectedEntries.length !== 1 || selectedFolder) return;
+        // Only set this on open - don't clear it on close, so we don't get a strange effect on modal close where the
+        // title disappears before the modal.
+        setFileDeleteModalTitle(
+            `Are you sure you want to delete '${(firstSelectedEntry ?? "").split("/").at(-1)}'?`);
         setFileDeleteModal(true);
     }, [selectedEntries, selectedFolder]);
     const handleDelete = useCallback(() => {
@@ -605,11 +450,12 @@ const ManagerDropBoxContent = () => {
         (async () => {
             await dispatch(deleteDropBoxObject(firstSelectedEntry));
             hideFileDeleteModal();
+            setSelectedEntries([DROP_BOX_ROOT_KEY]);
         })();
     }, [dispatch, selectedEntries]);
 
     const selectedFileViewable = selectedEntries.length === 1 && !selectedFolder &&
-        VIEWABLE_FILE_EXTENSIONS.filter(e => firstSelectedEntry.endsWith(e)).length > 0;
+        VIEWABLE_FILE_EXTENSIONS.filter(e => firstSelectedEntry.toLowerCase().endsWith(e)).length > 0;
 
     const selectedFileInfoAvailable = selectedEntries.length === 1 && firstSelectedEntry in filesByPath;
     const fileForInfo = selectedFileInfoAvailable ? firstSelectedEntry : "";
@@ -617,7 +463,7 @@ const ManagerDropBoxContent = () => {
     const uploadDisabled = !selectedFolder || !hasUploadPermission;
     // TODO: at least one ingest:data on all datasets vvv
     const ingestIntoDatasetDisabled = !dropBoxService ||
-        selectedEntries.length === 0 || workflowsSupported.length === 0;
+        selectedEntries.length === 0 || Object.values(workflowsSupported).filter((w) => w[0]).length === 0;
 
     const handleUpload = useCallback(() => {
         if (selectedFolder) setInitialUploadFolder(selectedEntries[0]);
@@ -643,14 +489,6 @@ const ManagerDropBoxContent = () => {
                 initialUploadFiles={initialUploadFiles}
                 visible={uploadModal}
                 onCancel={hideUploadModal}
-            />
-
-            <DatasetSelectionModal
-                dataType={selectedWorkflow?.data_type || null}
-                visible={datasetSelectionModal}
-                title="Select a Dataset to Ingest Into"
-                onCancel={hideDatasetSelectionModal}
-                onOk={ingestIntoDataset}
             />
 
             <FileContentsModal
@@ -679,7 +517,7 @@ const ManagerDropBoxContent = () => {
             </Modal>
 
             <Modal visible={fileDeleteModal}
-                   title={`Are you sure you want to delete '${firstSelectedEntry.split("/").at(-1)}'?`}
+                   title={fileDeleteModalTitle}
                    okType="danger"
                    okText="Delete"
                    okButtonProps={{loading: isDeleting}}
@@ -705,7 +543,11 @@ const ManagerDropBoxContent = () => {
                         <Button icon="file-text" onClick={handleViewFile} disabled={!selectedFileViewable}>
                             View
                         </Button>
-                        <DownloadButton disabled={!selectedFileInfoAvailable} uri={filesByPath[fileForInfo]?.uri} />
+                        <DownloadButton
+                            disabled={!selectedFileInfoAvailable}
+                            uri={filesByPath[fileForInfo]?.uri}
+                            fileName={fileForInfo}
+                        />
                     </Button.Group>
 
                     <Button type="danger"
@@ -714,6 +556,10 @@ const ManagerDropBoxContent = () => {
                             loading={isDeleting}
                             onClick={showFileDeleteModal}>
                         Delete</Button>
+
+                    <Typography.Text type="secondary">
+                        {selectedEntries.length} item{selectedEntries.length === 1 ? "" : "s"} selected
+                    </Typography.Text>
                 </div>
 
                 <Spin spinning={treeLoading}>
@@ -744,14 +590,15 @@ const ManagerDropBoxContent = () => {
                                description="Encountered an error while trying to access the drop box service" />}
                 </Spin>
 
-                <Statistic
-                    title="Total Space Used"
-                    value={treeLoading
-                        ? "—"
-                        : filesize(Object.values(filesByPath).reduce((acc, f) => acc + f.size, 0))}
-                />
-
-                <DropBoxInformation />
+                <div style={DROP_BOX_INFO_CONTAINER_STYLE}>
+                    <Statistic
+                        title="Total Space Used"
+                        value={treeLoading
+                            ? "—"
+                            : filesize(Object.values(filesByPath).reduce((acc, f) => acc + f.size, 0))}
+                    />
+                    <DropBoxInformation style={{ flex: 1 }} />
+                </div>
             </div>
         </Layout.Content>
     </Layout>;

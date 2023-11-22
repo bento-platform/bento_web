@@ -1,10 +1,13 @@
-import React, {useCallback, useEffect, useMemo, useState} from "react";
+import React, {forwardRef, useCallback, useEffect, useMemo, useState} from "react";
 import {useSelector} from "react-redux";
 import PropTypes from "prop-types";
 
 import {Spin, TreeSelect} from "antd";
 
-const DatasetTreeSelect = ({value, onChange, style}) => {
+export const ID_FORMAT_PROJECT_DATASET = "project:dataset";
+export const ID_FORMAT_DATASET = "dataset";
+
+const DatasetTreeSelect = forwardRef(({value, onChange, style, idFormat}, ref) => {
     const {items: projectItems, isFetching: projectsFetching} = useSelector((state) => state.projects);
     const servicesFetching = useSelector((state) => state.services.isFetchingAll);
 
@@ -17,8 +20,7 @@ const DatasetTreeSelect = ({value, onChange, style}) => {
     const onChangeInner = useCallback((newSelected) => {
         if (!value) setSelected(newSelected);
         if (onChange) {
-            const [project, dataset] = newSelected.split(":");
-            onChange(project, dataset);
+            onChange(newSelected);
         }
     }, [value, onChange, selected]);
 
@@ -27,15 +29,19 @@ const DatasetTreeSelect = ({value, onChange, style}) => {
         selectable: false,
         key: p.identifier,
         value: p.identifier,
-        children: p.datasets.map(d => ({
-            title: d.title,
-            key: `${p.identifier}:${d.identifier}`,
-            value: `${p.identifier}:${d.identifier}`,
-        })),
-    })), [projectItems]);
+        children: p.datasets.map(d => {
+            const key = idFormat === ID_FORMAT_PROJECT_DATASET ? `${p.identifier}:${d.identifier}` : d.identifier;
+            return {
+                title: d.title,
+                key,
+                value: key,
+            };
+        }),
+    })), [idFormat, projectItems]);
 
     return <Spin spinning={servicesFetching || projectsFetching}>
         <TreeSelect
+            ref={ref}
             style={style ?? {}}
             showSearch={true}
             onChange={onChangeInner}
@@ -44,12 +50,17 @@ const DatasetTreeSelect = ({value, onChange, style}) => {
             treeDefaultExpandAll={true}
         />
     </Spin>;
+});
+
+DatasetTreeSelect.defaultProps = {
+    idFormat: ID_FORMAT_PROJECT_DATASET,
 };
 
 DatasetTreeSelect.propTypes = {
     style: PropTypes.object,
     value: PropTypes.string,
     onChange: PropTypes.func,
+    idFormat: PropTypes.oneOf([ID_FORMAT_PROJECT_DATASET, ID_FORMAT_DATASET]),
 };
 
 export default DatasetTreeSelect;

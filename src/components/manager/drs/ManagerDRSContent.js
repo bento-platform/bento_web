@@ -43,7 +43,7 @@ const DRS_COLUMNS = [
         key: "actions",
         render: (record) => {
             const url = record.access_methods[0]?.access_url?.url;
-            return <DownloadButton disabled={!url} uri={url} />;
+            return <DownloadButton disabled={!url} uri={url} fileName={record.name} size="small" />;
         },
     },
 ];
@@ -122,6 +122,7 @@ const ManagerDRSContent = () => {
                     dataSource={searchResults}
                     loading={loading}
                     bordered={true}
+                    size="middle"
                     expandedRowRender={({ id, description, checksums, access_methods: accessMethods, size }) => (
                         <div style={TABLE_NESTED_DESCRIPTIONS_STYLE} className="table-nested-ant-descriptions">
                             <Descriptions bordered={true}>
@@ -147,7 +148,7 @@ const ManagerDRSContent = () => {
                                         <div key={i} style={{ display: "flex", gap: "0.8em", alignItems: "baseline" }}>
                                             <span style={{ fontWeight: "bold" }}>{type.toLocaleUpperCase()}:</span>
                                             <span style={{ fontFamily: "monospace" }}>
-                                                {type === "http" ? (
+                                                {["http", "https"].includes(type) ? (  // "http" for back-compat
                                                     <a href={url?.url} target="_blank" rel="noreferrer">
                                                         {url?.url}
                                                     </a>

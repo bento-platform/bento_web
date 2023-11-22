@@ -49,20 +49,6 @@ export const dropBoxTreeStateToPropsMixin = state => ({
     treeLoading: state.dropBox.isFetching,
 });
 
-// Any components which include dropBoxTreeStateToPropsMixin should include this as well in their prop types.
-export const dropBoxTreeStateToPropsMixinPropTypes = {
-    tree: PropTypes.arrayOf(PropTypes.shape({
-        name: PropTypes.string.isRequired,
-        filePath: PropTypes.string.isRequired,
-        relativePath: PropTypes.string.isRequired,
-        uri: PropTypes.string,
-        lastModified: PropTypes.number,
-        lastMetadataChange: PropTypes.number,
-        contents: PropTypes.arrayOf(PropTypes.object),
-    })),  // TODO: This is going to change
-    treeLoading: PropTypes.bool,
-};
-
 export const linkedFieldSetPropTypesShape = PropTypes.shape({
     name: PropTypes.string,
     fields: PropTypes.objectOf(PropTypes.arrayOf(PropTypes.string)),  // TODO: Properties pattern?
@@ -146,39 +132,6 @@ export const runPropTypesShape = PropTypes.shape({
 // Prop types object shape for a single table summary object.
 export const summaryPropTypesShape = PropTypes.object;
 
-// Prop types object shape describing the target of a workflow (project, dataset and data-type)
-export const workflowTarget = PropTypes.shape({
-    selectedProject: PropTypes.string,
-    selectedDataset: PropTypes.string,
-    selectedDataType: PropTypes.string,
-});
-
-// Gives components which include this in their state to props connection access to workflows and loading status.
-export const workflowsStateToPropsMixin = state => {
-    const workflowsByType = {
-        ingestion: [],
-        analysis: [],
-        export: [],
-    };
-
-    Object.entries(state.serviceWorkflows.items).forEach(([workflowType, workflowTypeWorkflows]) => {
-        if (!(workflowType in workflowsByType)) return;
-
-        // noinspection JSCheckFunctionSignatures
-        workflowsByType[workflowType].push(
-            ...Object.entries(workflowTypeWorkflows).map(([k, v]) => ({
-                ...v,
-                id: k,
-            })),
-        );
-    });
-
-    return {
-        workflows: workflowsByType,
-        workflowsLoading: state.services.isFetchingAll || state.serviceWorkflows.isFetching,
-    };
-};
-
 // Prop types object shape for a single workflow object.
 export const workflowPropTypesShape = PropTypes.shape({
     id: PropTypes.string,
@@ -189,25 +142,16 @@ export const workflowPropTypesShape = PropTypes.shape({
     description: PropTypes.string,
     data_type: PropTypes.string,
     inputs: PropTypes.arrayOf(PropTypes.shape({
-        type: PropTypes.string,
-        id: PropTypes.string,
-        extensions: PropTypes.arrayOf(PropTypes.string),  // File type only
-    })),
-    outputs: PropTypes.arrayOf(PropTypes.shape({
-        type: PropTypes.string,
-        value: PropTypes.string,
+        type: PropTypes.string.isRequired,
+        id: PropTypes.string.isRequired,
+        pattern: PropTypes.string,  // File type only
+        required: PropTypes.bool,
+        injected: PropTypes.bool,
+        repeatable: PropTypes.bool,
     })),
 });
 
-// Any components which include workflowStateToPropsMixin should include this as well in their prop types.
-export const workflowsStateToPropsMixinPropTypes = {
-    workflows: PropTypes.shape({
-        ingestion: PropTypes.arrayOf(workflowPropTypesShape),
-        analysis: PropTypes.arrayOf(workflowPropTypesShape),
-        export: PropTypes.arrayOf(workflowPropTypesShape),
-    }),
-    workflowsLoading: PropTypes.bool,
-};
+export const workflowTypePropType = PropTypes.oneOf(["ingestion", "analysis", "export"]);
 
 // Shape of a phenopackets ontology object
 export const ontologyShape = PropTypes.shape({
@@ -253,7 +197,6 @@ export const individualPropTypesShape = PropTypes.shape({
     age: PropTypes.object,  // TODO: Shape
     sex: PropTypes.oneOf(SEX_VALUES),
     karyotypic_sex: PropTypes.oneOf(KARYOTYPIC_SEX_VALUES),
-    ethnicity: PropTypes.string,
     taxonomy: ontologyShape,
 
     phenopackets: PropTypes.arrayOf(PropTypes.object),  // TODO
@@ -313,26 +256,9 @@ export const experimentResultPropTypesShape = PropTypes.shape({
     description: PropTypes.string,
     filename: PropTypes.string,
     file_format: PropTypes.oneOf([
-        "SAM",
-        "BAM",
-        "CRAM",
-        "BAI",
-        "CRAI",
-        "VCF",
-        "BCF",
-        "GVCF",
-        "BigWig",
-        "BigBed",
-        "FASTA",
-        "FASTQ",
-        "TAB",
-        "SRA",
-        "SRF",
-        "SFF",
-        "GFF",
-        "TABIX",
-        "UNKNOWN",
-        "OTHER",
+        "SAM", "BAM", "CRAM", "BAI", "CRAI", "VCF", "BCF", "MAF", "GVCF", "BigWig", "BigBed", "FASTA",
+        "FASTQ", "TAB", "SRA", "SRF", "SFF", "GFF", "TABIX", "PDF", "CSV", "TSV", "JPEG", "PNG", "GIF",
+        "MARKDOWN", "MP3", "M4A", "MP4", "DOCX", "XLS", "XLSX", "UNKNOWN", "OTHER",
     ]),
     data_output_type: PropTypes.oneOf(["Raw data", "Derived data"]),
     usage: PropTypes.string,
@@ -386,20 +312,6 @@ export const overviewSummaryPropTypesShape = PropTypes.shape({
         }),
     }),
 });
-
-export const searchAllRecordsPropTypesShape = PropTypes.shape({
-    data: PropTypes.shape({
-        // TODO: more precision
-        phenopackets: PropTypes.number,
-        data_type_specific: PropTypes.shape({
-            biosamples: PropTypes.object,
-            diseases: PropTypes.object,
-            individuals: PropTypes.object,
-            phenotypic_features: PropTypes.object,
-        }),
-    }),
-});
-
 
 
 // Explorer search results format

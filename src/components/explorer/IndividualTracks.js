@@ -9,7 +9,7 @@ import { BENTO_PUBLIC_URL, BENTO_URL } from "../../config";
 import { individualPropTypesShape } from "../../propTypes";
 import { getIgvUrlsFromDrs } from "../../modules/drs/actions";
 import { setIgvPosition } from "../../modules/explorer/actions";
-import { guessFileType } from "../../utils/guessFileType";
+import { guessFileType } from "../../utils/files";
 import {useDeduplicatedIndividualBiosamples} from "./utils";
 
 const SQUISHED_CALL_HEIGHT = 10;

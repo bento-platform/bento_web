@@ -138,8 +138,7 @@ class Dataset extends Component {
                                        isPrivate={isPrivate} />,
             data_types: <DatasetDataTypes dataset={this.state}
                                           project={this.props.project}
-                                          isPrivate={isPrivate}
-                                          onDatasetIngest={this.props.onDatasetIngest}/>,
+                                          isPrivate={isPrivate} />,
             linked_field_sets: (
                 <>
                     <Typography.Title level={4}>
@@ -295,7 +294,6 @@ Dataset.propTypes = {
     value: datasetPropTypesShape,
 
     onEdit: PropTypes.func,
-    onDatasetIngest: PropTypes.func,
 
     addLinkedFieldSet: PropTypes.func,
     deleteProjectDataset: PropTypes.func,
