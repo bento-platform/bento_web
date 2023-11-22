@@ -23,6 +23,7 @@
     "react": "^16.14.0",
     "react-dom": "^16.14.0",
     "react-dropzone": "^14.2.3",
+    "react-icons": "^4.11.0",
     "react-json-view": "^1.21.3",
     "react-markdown": "^8.0.7",
     "react-pdf": "^6.2.2",
