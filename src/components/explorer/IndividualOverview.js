@@ -5,12 +5,9 @@ import { Descriptions } from "antd";
 
 import { EM_DASH } from "../../constants";
 import { individualPropTypesShape } from "../../propTypes";
-import { useIndividualResources } from "./utils";
 import OntologyTerm from "./OntologyTerm";
 
 const IndividualOverview = ({individual}) => {
-    const resourcesTuple = useIndividualResources(individual);
-
     if (!individual) return <div />;
     return (
         <Descriptions layout="vertical" bordered={true} size="middle" column={6}>
@@ -22,7 +19,6 @@ const IndividualOverview = ({individual}) => {
             </Descriptions.Item>
             <Descriptions.Item label="Taxonomy" span={2}>
                 <OntologyTerm
-                    resourcesTuple={resourcesTuple}
                     term={individual.taxonomy}
                     renderLabel={label => (<em>{label}</em>)}
                 />

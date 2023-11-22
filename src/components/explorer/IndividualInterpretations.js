@@ -3,7 +3,7 @@ import PropTypes from "prop-types";
 
 import { Button, Descriptions, Empty, Icon, Modal, Table, Typography } from "antd";
 
-import { useIndividualResources, useIndividualInterpretations } from "./utils";
+import { useIndividualInterpretations } from "./utils";
 import "./explorer.css";
 import { individualPropTypesShape } from "../../propTypes";
 import OntologyTerm from "./OntologyTerm";
@@ -16,7 +16,6 @@ import VariantDescriptor from "./IndividualVariants";
 export const VariantInterpretation = ({ variationInterpretation }) => {
     const [modalVisible, setModalVisible] = useState(false);
 
-    const resourcesTuple = useSelector((state) => state.explorer.individualResourcesTuple);
     const tracksUrl = useSelector((state) => `${state.explorer.individualExplorerUrl}/tracks`);
 
     const closeModal = () => setModalVisible(false);
@@ -40,7 +39,6 @@ export const VariantInterpretation = ({ variationInterpretation }) => {
                 >
                     <VariantDescriptor
                         variationDescriptor={variationInterpretation.variation_descriptor}
-                        resourcesTuple={resourcesTuple}
                         tracksUrl={tracksUrl}
                     />
                 </Modal>
@@ -192,7 +190,6 @@ IndividualGenomicInterpretations.propTypes = {
 const InterpretationDetail = ({ interpretation }) => {
     const { diagnosis } = interpretation;
 
-    const resourcesTuple = useSelector((state) => state.explorer.individualResourcesTuple);
     const sortedGenomicInterpretations = useMemo(
         () => (diagnosis?.genomic_interpretations ?? [])
             .sort((g1, g2) => g1.id > g2.id ? 1 : -1),
@@ -203,10 +200,7 @@ const InterpretationDetail = ({ interpretation }) => {
         <Typography.Title level={4}><Icon type="medicine-box" />Diagnosis</Typography.Title>
         {diagnosis ? <Descriptions layout="horizontal" bordered column={2} size="small">
             <Descriptions.Item label="Disease">
-                <OntologyTerm
-                    resourcesTuple={resourcesTuple}
-                    term={diagnosis.disease_ontology}
-                />
+                <OntologyTerm term={diagnosis.disease_ontology}/>
             </Descriptions.Item>
         </Descriptions> : <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} />}
 
@@ -228,7 +222,6 @@ const Interpretations = ({ individual, handleInterpretationClick }) => {
     );
 
     const interpretationsData = useIndividualInterpretations(individual);
-    const resourcesTuple = useIndividualResources(individual);
 
     const onExpand = useCallback(
         (e, interpretation) => {
@@ -237,15 +230,7 @@ const Interpretations = ({ individual, handleInterpretationClick }) => {
         [handleInterpretationClick],
     );
 
-    const interpretationRowRender = useCallback(
-        (interpretation) => (
-            <InterpretationDetail
-                interpretation={interpretation}
-                resourcesTuple={resourcesTuple}
-            />
-        ),
-        [resourcesTuple],
-    );
+
     return (
         <Table
             bordered={true}
@@ -254,7 +239,11 @@ const Interpretations = ({ individual, handleInterpretationClick }) => {
             columns={INTERPRETATIONS_COLUMNS}
             onExpand={onExpand}
             expandedRowKeys={selectedRowKeys}
-            expandedRowRender={interpretationRowRender}
+            expandedRowRender={(interpretation) => (
+                <InterpretationDetail
+                    interpretation={interpretation}
+                />
+            )}
             dataSource={interpretationsData}
             rowKey="id"
         />

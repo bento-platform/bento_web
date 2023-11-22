@@ -8,16 +8,19 @@ import { ontologyShape } from "../../propTypes";
 import { id } from "../../utils/misc";
 
 import { useResourcesByNamespacePrefix } from "./utils";
+import { useSelector } from "react-redux";
 
-export const conditionalOntologyRender = (field, resourcesTuple) => (_, record) => {
+export const conditionalOntologyRender = (field) => (_, record) => {
     if (record.hasOwnProperty(field)) {
         const term = record[field];
-        return (<OntologyTerm resourcesTuple={resourcesTuple} term={term}/>);
+        return (<OntologyTerm term={term}/>);
     }
     return EM_DASH;
 };
 
-const OntologyTerm = memo(({ resourcesTuple, term, renderLabel }) => {
+const OntologyTerm = memo(({ term, renderLabel }) => {
+    const resourcesTuple = useSelector(state => state.explorer.individualResourcesTuple);
+
     // TODO: perf: might be slow to generate this over and over
     const [resourcesByNamespacePrefix, isFetchingResources] = useResourcesByNamespacePrefix(resourcesTuple);
 
@@ -74,7 +77,6 @@ const OntologyTerm = memo(({ resourcesTuple, term, renderLabel }) => {
 });
 
 OntologyTerm.propTypes = {
-    resourcesTuple: PropTypes.array,
     term: ontologyShape,
     renderLabel: PropTypes.func,
 };

@@ -36,20 +36,16 @@ export const useIndividualInterpretations = (individual, withDiagnosis = false) 
  * @returns A bool value, true if "fieldName" is empty
  */
 export const useIsDataEmpty = (data, fieldName) => {
-    if (Array.isArray(data)) {
-        // Flatmap the field if data is an array,
-        // e.g: data is a list of biosamples, with fieldName="experiments"
-        return useMemo(
-            () => data.flatMap(item => item[fieldName] ?? []).length === 0,
-            [data, fieldName],
-        );
-    }
+    return useMemo(() => {
+        if (Array.isArray(data)) {
+            // Flatmap the field if data is an array,
+            // e.g: data is a list of biosamples, with fieldName="experiments"
+            return data.flatMap(item => item[fieldName] ?? []).length === 0;
+        }
 
-    // Check data[fieldName] directly if data is an object
-    return useMemo(
-        () => (data[fieldName] ?? []).length === 0,
-        [data, fieldName],
-    );
+        // Check data[fieldName] directly if data is an object
+        return (data[fieldName] ?? []).length === 0;
+    }, [data, fieldName]);
 };
 
 

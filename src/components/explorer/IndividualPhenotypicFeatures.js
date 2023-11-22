@@ -5,11 +5,8 @@ import { Icon, Table } from "antd";
 import { EM_DASH } from "../../constants";
 import { individualPropTypesShape } from "../../propTypes";
 import OntologyTerm from "./OntologyTerm";
-import { useIndividualResources } from "./utils";
 
 const IndividualPhenotypicFeatures = ({ individual }) => {
-    const resourcesTuple = useIndividualResources(individual);
-
     const columns = useMemo(() => [
         {
             title: "Feature",
@@ -23,7 +20,7 @@ const IndividualPhenotypicFeatures = ({ individual }) => {
                         </span>
                     </h4>
                 ) : <>
-                    <OntologyTerm resourcesTuple={resourcesTuple} term={type} />{" "}
+                    <OntologyTerm term={type} />{" "}
                     {negated ? (
                         <span style={{ color: "#CC3333" }}>
                             (<span style={{ fontWeight: "bold" }}>Excluded:</span>{" "}
@@ -65,7 +62,7 @@ const IndividualPhenotypicFeatures = ({ individual }) => {
             },
         },
 
-    ], [resourcesTuple]);
+    ], []);
 
     const data = useMemo(() => {
         const phenopackets = (individual?.phenopackets ?? []);

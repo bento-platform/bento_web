@@ -1,9 +1,9 @@
-import React, { useCallback, useMemo } from "react";
+import React from "react";
 import PropTypes from "prop-types";
 
 import { Descriptions, Table } from "antd";
 import { individualPropTypesShape, medicalActionPropTypesShape } from "../../propTypes";
-import { ontologyTermSorter, useIndividualPhenopacketDataIndex, useIndividualResources } from "./utils";
+import { ontologyTermSorter, useIndividualPhenopacketDataIndex } from "./utils";
 import OntologyTerm, { conditionalOntologyRender } from "./OntologyTerm";
 import { EM_DASH } from "../../constants";
 import { RoutedIndividualContent, RoutedIndividualContentTable } from "./RoutedIndividualContent";
@@ -32,14 +32,14 @@ const getMedicalActionType = (medicalAction) => {
     };
 };
 
-export const Procedure = ({procedure, resourcesTuple}) => {
+export const Procedure = ({procedure}) => {
     return (
         <Descriptions bordered column={1} size="small">
             <Descriptions.Item label="Code">
-                <OntologyTerm resourcesTuple={resourcesTuple} term={procedure.code}/>
+                <OntologyTerm term={procedure.code}/>
             </Descriptions.Item>
             <Descriptions.Item label="Body Site">
-                <OntologyTerm resourcesTuple={resourcesTuple} term={procedure.body_site}/>
+                <OntologyTerm term={procedure.body_site}/>
             </Descriptions.Item>
             <Descriptions.Item label="Performed">
                 <TimeElement timeElement={procedure.performed}/>
@@ -49,7 +49,6 @@ export const Procedure = ({procedure, resourcesTuple}) => {
 };
 Procedure.propTypes = {
     procedure: PropTypes.object,
-    resourcesTuple: PropTypes.array,
 };
 
 const DOSE_INTERVAL_COLUMNS = [
@@ -58,17 +57,13 @@ const DOSE_INTERVAL_COLUMNS = [
         render: (_, doseInterval) => (
             <Quantity
                 quantity={doseInterval.quantity}
-                resourcesTuple={doseInterval.resourcesTuple}
             />
         ),
     },
     {
         title: "Schedule Frequency",
         render: (_, doseInterval) => (
-            <OntologyTerm
-                resourcesTuple={doseInterval.resourcesTuple}
-                term={doseInterval.schedule_frequency}
-            />
+            <OntologyTerm term={doseInterval.schedule_frequency}/>
         ),
     },
     {
@@ -77,14 +72,14 @@ const DOSE_INTERVAL_COLUMNS = [
     },
 ];
 
-export const Treatment = ({treatment, resourcesTuple}) => {
+export const Treatment = ({treatment}) => {
     return (
         <Descriptions bordered column={1} size="small">
             <Descriptions.Item label="Agent">
-                <OntologyTerm resourcesTuple={resourcesTuple} term={treatment.agent}/>
+                <OntologyTerm term={treatment.agent}/>
             </Descriptions.Item>
             <Descriptions.Item label="Route of Administration">
-                <OntologyTerm resourcesTuple={resourcesTuple} term={treatment.route_of_administration}/>
+                <OntologyTerm term={treatment.route_of_administration}/>
             </Descriptions.Item>
             <Descriptions.Item label="Dose Intervals">
                 {treatment?.dose_interval ? (
@@ -100,7 +95,7 @@ export const Treatment = ({treatment, resourcesTuple}) => {
             <Descriptions.Item label="Drug Type">{treatment.drug_type}</Descriptions.Item>
             <Descriptions.Item label="Cumulative Dose">
                 {treatment?.cumulative_dose ? (
-                    <Quantity quantity={treatment.cumulative_dose} resourcesTuple={resourcesTuple}/>
+                    <Quantity quantity={treatment.cumulative_dose}/>
                 ) : EM_DASH}
             </Descriptions.Item>
         </Descriptions>
@@ -108,17 +103,16 @@ export const Treatment = ({treatment, resourcesTuple}) => {
 };
 Treatment.propTypes = {
     treatment: PropTypes.object,
-    resourcesTuple: PropTypes.array,
 };
 
-export const RadiationTherapy = ({radiationTherapy, resourcesTuple}) => {
+export const RadiationTherapy = ({radiationTherapy}) => {
     return (
         <Descriptions bordered column={1} size="small">
             <Descriptions.Item label="Modality">
-                <OntologyTerm resourcesTuple={resourcesTuple} term={radiationTherapy.modality}/>
+                <OntologyTerm term={radiationTherapy.modality}/>
             </Descriptions.Item>
             <Descriptions.Item label="Body Site">
-                <OntologyTerm resourcesTuple={resourcesTuple} term={radiationTherapy.body_site}/>
+                <OntologyTerm term={radiationTherapy.body_site}/>
             </Descriptions.Item>
             <Descriptions.Item label="Dosage">{radiationTherapy.dosage}</Descriptions.Item>
             <Descriptions.Item label="Fractions">{radiationTherapy.fractions}</Descriptions.Item>
@@ -127,15 +121,14 @@ export const RadiationTherapy = ({radiationTherapy, resourcesTuple}) => {
 };
 RadiationTherapy.propTypes = {
     radiationTherapy: PropTypes.object,
-    resourcesTuple: PropTypes.array,
 };
 
-export const TherapeuticRegimen = ({therapeuticRegimen, resourcesTuple}) => {
+export const TherapeuticRegimen = ({therapeuticRegimen}) => {
     return (
         <Descriptions bordered column={1} size="small">
             <Descriptions.Item label="Identifier">
                 {therapeuticRegimen?.ontology_class &&
-                    <OntologyTerm resourcesTuple={resourcesTuple} term={therapeuticRegimen.ontology_class}/>
+                    <OntologyTerm term={therapeuticRegimen.ontology_class}/>
                 }
                 {therapeuticRegimen?.external_reference &&
                     <div style={{"display": "flex", "flexDirection": "column"}}>
@@ -172,10 +165,9 @@ export const TherapeuticRegimen = ({therapeuticRegimen, resourcesTuple}) => {
 };
 TherapeuticRegimen.propTypes = {
     therapeuticRegimen: PropTypes.object,
-    resourcesTuple: PropTypes.array,
 };
 
-const MedicalActionDetails = ({medicalAction, resourcesTuple}) => {
+const MedicalActionDetails = ({medicalAction}) => {
     const actionType = getMedicalActionType(medicalAction);
 
     // The action is the only field always present, other fields are optional.
@@ -183,28 +175,22 @@ const MedicalActionDetails = ({medicalAction, resourcesTuple}) => {
         <Descriptions bordered={true} column={1} size="small">
             <Descriptions.Item label={actionType.name}>
                 {medicalAction?.procedure &&
-                    <Procedure procedure={medicalAction.procedure} resourcesTuple={resourcesTuple}/>
+                    <Procedure procedure={medicalAction.procedure}/>
                 }
                 {medicalAction?.treatment &&
-                    <Treatment treatment={medicalAction?.treatment} resourcesTuple={resourcesTuple}/>
+                    <Treatment treatment={medicalAction?.treatment}/>
                 }
                 {medicalAction?.radiation_therapy &&
-                    <RadiationTherapy
-                        radiationTherapy={medicalAction.radiation_therapy}
-                        resourcesTuple={resourcesTuple}
-                    />
+                    <RadiationTherapy radiationTherapy={medicalAction.radiation_therapy}/>
                 }
                 {medicalAction?.therapeutic_regimen &&
-                    <TherapeuticRegimen
-                        therapeuticRegimen={medicalAction.therapeutic_regimen}
-                        resourcesTuple={resourcesTuple}
-                    />
+                    <TherapeuticRegimen therapeuticRegimen={medicalAction.therapeutic_regimen}/>
                 }
             </Descriptions.Item>
             <Descriptions.Item label="Adverse Events">
                 { Array.isArray(medicalAction?.adverse_events) ?
                     medicalAction.adverse_events.map((advEvent, index) =>
-                        <OntologyTerm resourcesTuple={resourcesTuple} term={advEvent} key={index}/>)
+                        <OntologyTerm term={advEvent} key={index}/>)
                     : EM_DASH
                 }
             </Descriptions.Item>
@@ -213,73 +199,63 @@ const MedicalActionDetails = ({medicalAction, resourcesTuple}) => {
 };
 MedicalActionDetails.propTypes = {
     medicalAction: medicalActionPropTypesShape,
-    resourcesTuple: PropTypes.array,
 };
 
 const adverseEventsCount = (medicalAction) => {
     return (medicalAction?.adverse_events ?? []).length;
 };
 
-const MedicalActions = ({medicalActions, resourcesTuple, handleMedicalActionClick}) => {
-    const expandedRowRender = useCallback(
-        (medicalAction) => (
-            <MedicalActionDetails
-                medicalAction={medicalAction}
-                resourcesTuple={resourcesTuple}
-            />
-        ), [resourcesTuple],
-    );
+const MEDICAL_ACTIONS_COLUMS = [
+    {
+        title: "Action Type",
+        key: "action",
+        render: (_, medicalAction) => {
+            return getMedicalActionType(medicalAction).name;
+        },
+        sorter: (a, b) => {
+            const aType = getMedicalActionType(a).type;
+            const bType = getMedicalActionType(b).type;
+            return aType.localeCompare(bType);
+        },
+    },
+    {
+        title: "Treatment Target",
+        key: "target",
+        render: conditionalOntologyRender("treatment_target"),
+        sorter: ontologyTermSorter("treatment_target"),
+    },
+    {
+        title: "Treatment Intent",
+        key: "intent",
+        render: conditionalOntologyRender("treatment_intent"),
+        sorter: ontologyTermSorter("treatment_intent"),
+    },
+    {
+        title: "Response To Treatment",
+        key: "response",
+        render: conditionalOntologyRender("response_to_treatment"),
+        sorter: ontologyTermSorter("response_to_treatment"),
+    },
+    {
+        // Only render count, expand for details
+        title: "Adverse Events",
+        key: "adverse_events",
+        render: (_, medicalAction) => adverseEventsCount(medicalAction),
+        sorter: (a, b) => {
+            const aCount = adverseEventsCount(a);
+            const bCount = adverseEventsCount(b);
+            return aCount - bCount;
+        },
+    },
+    {
+        title: "Treatment Termination Reason",
+        key: "termination_reason",
+        render: conditionalOntologyRender("treatment_termination_reason"),
+        sorter: ontologyTermSorter("treatment_termination_reason"),
+    },
+];
 
-    const MEDICAL_ACTIONS_COLUMS = useMemo(() => [
-        {
-            title: "Action Type",
-            key: "action",
-            render: (_, medicalAction) => {
-                return getMedicalActionType(medicalAction).name;
-            },
-            sorter: (a, b) => {
-                const aType = getMedicalActionType(a).type;
-                const bType = getMedicalActionType(b).type;
-                return aType.localeCompare(bType);
-            },
-        },
-        {
-            title: "Treatment Target",
-            key: "target",
-            render: conditionalOntologyRender("treatment_target", resourcesTuple),
-            sorter: ontologyTermSorter("treatment_target"),
-        },
-        {
-            title: "Treatment Intent",
-            key: "intent",
-            render: conditionalOntologyRender("treatment_intent", resourcesTuple),
-            sorter: ontologyTermSorter("treatment_intent"),
-        },
-        {
-            title: "Response To Treatment",
-            key: "response",
-            render: conditionalOntologyRender("response_to_treatment", resourcesTuple),
-            sorter: ontologyTermSorter("response_to_treatment"),
-        },
-        {
-            // Only render count, expand for details
-            title: "Adverse Events",
-            key: "adverse_events",
-            render: (_, medicalAction) => adverseEventsCount(medicalAction),
-            sorter: (a, b) => {
-                const aCount = adverseEventsCount(a);
-                const bCount = adverseEventsCount(b);
-                return aCount - bCount;
-            },
-        },
-        {
-            title: "Treatment Termination Reason",
-            key: "termination_reason",
-            render: conditionalOntologyRender("treatment_termination_reason", resourcesTuple),
-            sorter: ontologyTermSorter("treatment_termination_reason"),
-        },
-    ], [resourcesTuple]);
-
+const MedicalActions = ({medicalActions, handleMedicalActionClick}) => {
     return (
         <RoutedIndividualContentTable
             data={medicalActions}
@@ -287,20 +263,22 @@ const MedicalActions = ({medicalActions, resourcesTuple, handleMedicalActionClic
             columns={MEDICAL_ACTIONS_COLUMS}
             rowKey="idx"
             handleRowSelect={handleMedicalActionClick}
-            expandedRowRender={expandedRowRender}
+            expandedRowRender={(medicalAction) => (
+                <MedicalActionDetails
+                    medicalAction={medicalAction}
+                />
+            )}
         />
     );
 };
 MedicalActions.propTypes = {
     medicalActions: PropTypes.array,
-    resourcesTuple: PropTypes.array,
     handleMedicalActionClick: PropTypes.func,
 };
 
 
 const IndividualMedicalActions = ({individual}) => {
     const medicalActions = useIndividualPhenopacketDataIndex(individual, "medical_actions");
-    const resourcesTuple = useIndividualResources(individual);
 
     return (
         <RoutedIndividualContent
@@ -309,7 +287,6 @@ const IndividualMedicalActions = ({individual}) => {
             renderContent={({data, onContentSelect}) => (
                 <MedicalActions
                     medicalActions={data}
-                    resourcesTuple={resourcesTuple}
                     handleMedicalActionClick={onContentSelect}
                 />
             )}

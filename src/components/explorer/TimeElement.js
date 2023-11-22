@@ -62,7 +62,7 @@ const renderTimeElement = (type, timeElement) => {
     }
 };
 
-const TimeElement = ({timeElement}) => {
+const TimeElement = React.memo(({timeElement}) => {
     if (!timeElement) {
         return EM_DASH;
     }
@@ -71,6 +71,7 @@ const TimeElement = ({timeElement}) => {
 
     if (!timeType) {
         // Unexpected TimeElement type
+        console.error("Bad time element:", timeElement);
         return EM_DASH;
     }
 
@@ -80,7 +81,7 @@ const TimeElement = ({timeElement}) => {
             {renderTimeElement(timeType, timeElement)}
         </span>
     );
-};
+});
 
 TimeElement.propTypes = {
     timeElement: PropTypes.object,

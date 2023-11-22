@@ -10,7 +10,7 @@ import OntologyTerm from "../OntologyTerm";
 
 import { ontologyShape } from "../../../propTypes";
 import { countNonNullElements } from "../../../utils/misc";
-import { ontologyTermSorter, useDatasetResources } from "../utils";
+import { ontologyTermSorter } from "../utils";
 
 const NO_EXPERIMENTS_VALUE = -Infinity;
 
@@ -98,8 +98,6 @@ const availableExperimentsSorter = (a, b) => {
 };
 
 const BiosamplesTable = ({ data, datasetID }) => {
-    const resourcesTuple = useDatasetResources(datasetID);
-
     const tableSortOrder = useSelector(
         (state) => state.explorer.tableSortOrderByDatasetID[datasetID]?.["biosamples"],
     );
@@ -132,7 +130,7 @@ const BiosamplesTable = ({ data, datasetID }) => {
             title: "Sampled Tissue",
             dataIndex: "sampledTissue",
             // Can't pass individual here to OntologyTerm since it doesn't have a list of phenopackets
-            render: (sampledTissue) => <OntologyTerm resourcesTuple={resourcesTuple} term={sampledTissue} />,
+            render: (sampledTissue) => <OntologyTerm term={sampledTissue} />,
             sorter: ontologyTermSorter("sampledTissue"),
             sortDirections: ["descend", "ascend", "descend"],
         },
@@ -143,7 +141,7 @@ const BiosamplesTable = ({ data, datasetID }) => {
             sorter: availableExperimentsSorter,
             sortDirections: ["descend", "ascend", "descend"],
         },
-    ], [resourcesTuple]);
+    ], []);
 
     const { sortedData, columnsWithSortOrder } = useSortedColumns(
         data,

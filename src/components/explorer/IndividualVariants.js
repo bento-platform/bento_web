@@ -49,7 +49,7 @@ VariantExpressionDetails.propTypes = {
 };
 
 
-const VariantDescriptor = ({variationDescriptor, resourcesTuple, tracksUrl}) => {
+const VariantDescriptor = ({variationDescriptor, tracksUrl}) => {
     return (
         <Descriptions layout="horizontal" bordered={true} column={1} size="small">
             <Descriptions.Item label={"ID"}>{variationDescriptor.id}</Descriptions.Item>
@@ -101,7 +101,7 @@ const VariantDescriptor = ({variationDescriptor, resourcesTuple, tracksUrl}) => 
             }
             {variationDescriptor.structural_type &&
                 <Descriptions.Item label={"Structural Type"}>
-                    <OntologyTerm resourcesTuple={resourcesTuple} term={variationDescriptor.structural_type}/>
+                    <OntologyTerm term={variationDescriptor.structural_type}/>
                 </Descriptions.Item>
             }
             {variationDescriptor.vrs_ref_allele_seq &&
@@ -111,7 +111,7 @@ const VariantDescriptor = ({variationDescriptor, resourcesTuple, tracksUrl}) => 
             }
             {variationDescriptor.allelic_state &&
                 <Descriptions.Item label={"Allelic State"}>
-                    <OntologyTerm resourcesTuple={resourcesTuple} term={variationDescriptor.allelic_state}/>
+                    <OntologyTerm term={variationDescriptor.allelic_state}/>
                 </Descriptions.Item>
             }
         </Descriptions>
@@ -119,7 +119,6 @@ const VariantDescriptor = ({variationDescriptor, resourcesTuple, tracksUrl}) => 
 };
 VariantDescriptor.propTypes = {
     variationDescriptor: PropTypes.object,
-    resourcesTuple: PropTypes.array,
     tracksUrl: PropTypes.string,
 };
 
