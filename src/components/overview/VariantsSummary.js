@@ -1,6 +1,7 @@
 import React from "react";
 import { useSelector } from "react-redux";
-import { Col, Row, Spin, Statistic, Typography, Icon } from "antd";
+import { BiDna } from "react-icons/bi";
+import { Col, Row, Spin, Statistic, Typography} from "antd";
 
 const VariantsSummary = ( ) => {
 
@@ -24,7 +25,7 @@ const VariantsSummary = ( ) => {
                     <Spin spinning={fetchingVariantsOverview}>
                         <Statistic
                             title="Samples"
-                            prefix={<Icon type="file" />}
+                            prefix={<BiDna/>}
                             value={numVarFilesFromSampleIds} />
                     </Spin>
                 </Col>
