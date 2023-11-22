@@ -47,12 +47,7 @@ export const refreshTokens = createAsyncThunk("auth/REFRESH_TOKENS", async ({ cl
 
 export const fetchResourcePermissions = createAsyncThunk(
     "auth/FETCH_RESOURCE_PERMISSIONS",
-    async ({ resource, authUrl }, thunkAPI) => {
-        const key = makeResourceKey(resource);
-        const rp = thunkAPI.getState().auth.resourcePermissions[key];
-        if (rp?.isFetching || rp?.permissions) {
-            return;
-        }
+    async ({ resource, authUrl }) => {
         const url = `${authUrl}/policy/permissions`;
         const response = await fetch(url, {
             method: "POST",
@@ -60,6 +55,13 @@ export const fetchResourcePermissions = createAsyncThunk(
             body: JSON.stringify({ requested_resource: resource }),
         });
         return await response.json();
+    },
+    {
+        condition: ({ resource, authUrl }, { getState }) => {
+            const key = makeResourceKey(resource);
+            const rp = getState().auth.resourcePermissions[key];
+            return !rp || !rp.isFetching;
+        },
     }
 );
 
@@ -200,15 +202,13 @@ export const authSlice = createSlice({
                 };
             })
             .addCase(fetchResourcePermissions.fulfilled, (state, { meta, payload }) => {
-                if (payload) {
-                    const key = makeResourceKey(meta.arg.resource);
-                    state.resourcePermissions[key] = {
-                        ...state.resourcePermissions[key],
-                        isFetching: false,
-                        hasAttempted: true,
-                        permissions: payload?.result ?? [],
-                    };
-                }
+                const key = makeResourceKey(meta.arg.resource);
+                state.resourcePermissions[key] = {
+                    ...state.resourcePermissions[key],
+                    isFetching: false,
+                    hasAttempted: true,
+                    permissions: payload?.result ?? [],
+                };
             })
             .addCase(fetchResourcePermissions.rejected, (state, { meta, payload }) => {
                 const key = makeResourceKey(meta.arg.resource);
