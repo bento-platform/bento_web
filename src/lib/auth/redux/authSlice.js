@@ -26,24 +26,34 @@ export const tokenHandoff = createAsyncThunk(
     }
 );
 
-export const refreshTokens = createAsyncThunk("auth/REFRESH_TOKENS", async ({ clientId }, { getState }) => {
-    if (!getState().auth.refreshToken) return;
+export const refreshTokens = createAsyncThunk(
+    "auth/REFRESH_TOKENS",
+    async ({ clientId }, { getState }) => {
+        if (!getState().auth.refreshToken) return;
 
-    const url = getState().openIdConfiguration.data?.["token_endpoint"];
+        const url = getState().openIdConfiguration.data?.["token_endpoint"];
 
-    const response = await fetch(url, {
-        method: "POST",
-        headers: { "Content-Type": "application/x-www-form-urlencoded" },
-        body: buildUrlEncodedData({
-            grant_type: "refresh_token",
-            client_id: clientId,
-            refresh_token: getState().auth.refreshToken,
-        }),
-    });
+        const response = await fetch(url, {
+            method: "POST",
+            headers: { "Content-Type": "application/x-www-form-urlencoded" },
+            body: buildUrlEncodedData({
+                grant_type: "refresh_token",
+                client_id: clientId,
+                refresh_token: getState().auth.refreshToken,
+            }),
+        });
 
-    // Assuming the server responds with JSON
-    return await response.json();
-});
+        // Assuming the server responds with JSON
+        return await response.json();
+    },
+    {
+        condition: (_, { getState }) => {
+            const { auth } = getState();
+            const { isRefreshingTokens, refreshToken } = auth;
+            return !isRefreshingTokens && refreshToken;
+        },
+    }
+);
 
 export const fetchResourcePermissions = createAsyncThunk(
     "auth/FETCH_RESOURCE_PERMISSIONS",
@@ -60,7 +70,7 @@ export const fetchResourcePermissions = createAsyncThunk(
         condition: ({ resource, authUrl }, { getState }) => {
             const key = makeResourceKey(resource);
             const rp = getState().auth.resourcePermissions[key];
-            return !rp || !rp.isFetching;
+            return !rp.isFetching && !rp.permissions;
         },
     }
 );
