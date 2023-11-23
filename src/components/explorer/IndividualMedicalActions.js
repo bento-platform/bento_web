@@ -190,7 +190,8 @@ const MedicalActionDetails = ({medicalAction}) => {
             <Descriptions.Item label="Adverse Events">
                 { Array.isArray(medicalAction?.adverse_events) ?
                     medicalAction.adverse_events.map((advEvent, index) =>
-                        <OntologyTerm term={advEvent} key={index}/>)
+                        <OntologyTerm term={advEvent} key={index} br={true}/>,
+                    )
                     : EM_DASH
                 }
             </Descriptions.Item>
@@ -241,11 +242,7 @@ const MEDICAL_ACTIONS_COLUMS = [
         title: "Adverse Events",
         key: "adverse_events",
         render: (_, medicalAction) => adverseEventsCount(medicalAction),
-        sorter: (a, b) => {
-            const aCount = adverseEventsCount(a);
-            const bCount = adverseEventsCount(b);
-            return aCount - bCount;
-        },
+        sorter: (a, b) => adverseEventsCount(a) - adverseEventsCount(b),
     },
     {
         title: "Treatment Termination Reason",

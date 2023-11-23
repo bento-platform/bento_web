@@ -87,6 +87,7 @@ module.exports = {
         },
         compress: true,
         historyApiFallback: {
+            // Allows url parameters containing dots in the devServer
             disableDotRule: true
         },
 

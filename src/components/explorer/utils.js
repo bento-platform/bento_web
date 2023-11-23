@@ -137,12 +137,7 @@ export const useIndividualPhenopacketDataIndex = (individual, fieldName) => {
     return useMemo(
         () => (individual?.phenopackets ?? [])
             .flatMap(p => p?.[fieldName] ?? [])
-            .map((element, index) => {
-                return {
-                    ...element,
-                    idx: `${index}`,
-                };
-            }),
+            .map((element, index) => ({ ...element, idx: `${index}` })),
         [individual],
     );
 };

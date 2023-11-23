@@ -165,7 +165,7 @@ const MEASUREMENTS_COLUMNS = [
                 if (value.hasOwnProperty("quantity")) {
                     return `${value.quantity.value} (${value.quantity.unit.label})`;
                 }
-                return value?.ontology_class?.label ?? EM_DASH;
+                return <OntologyTerm term={value?.ontology_class}/>;
             } else if (measurement.hasOwnProperty("complex_value")) {
                 return "Complex value (expand for details)";
             }
@@ -177,10 +177,10 @@ const MEASUREMENTS_COLUMNS = [
         dataIndex: "description",
     },
     {
-        title: "Procedure",
+        title: "Procedure Code",
         key: "procedure",
         render: (_, measurement) => {
-            return measurement?.procedure?.code?.label ?? "";
+            return <OntologyTerm term={measurement?.procedure?.code}/>;
         },
     },
 ];

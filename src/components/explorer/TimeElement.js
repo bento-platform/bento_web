@@ -2,6 +2,7 @@ import React from "react";
 import PropTypes from "prop-types";
 
 import { EM_DASH } from "../../constants";
+import OntologyTerm from "./OntologyTerm";
 
 const TIME_ELEMENT_TYPES_LABELS = {
     "age": "Age",
@@ -25,7 +26,7 @@ const getTimeElementTypeLabel = (timeElement) => {
     return [null, "NOT_SUPPORTED"];
 };
 
-export const renderTimeInterval = (timeInterval) => {
+const TimeInterval = ({timeInterval}) => {
     return (
         <span>
             <strong>Start:</strong>{" "}<>{timeInterval.start}</>{" "}
@@ -33,8 +34,11 @@ export const renderTimeInterval = (timeInterval) => {
         </span>
     );
 };
+TimeInterval.propTypes = {
+    timeInterval: PropTypes.object,
+};
 
-const renderTimeElement = (type, timeElement) => {
+const InnerTimeElement = ({type, timeElement}) => {
     switch (type) {
         case "age":
             return <span>{timeElement.age.iso8601duration}</span>;
@@ -49,17 +53,18 @@ const renderTimeElement = (type, timeElement) => {
                 <strong>End:</strong>{" "}<>{timeElement.age_range.end.iso8601duration}</>
             </span>;
         case "ontology_class":
-            return <span>
-                <strong>ID:</strong>{" "}{timeElement.ontology_class.id}{" "}
-                <strong>Label:</strong>{" "}{timeElement.ontology_class.label}
-            </span>;
+            return <OntologyTerm term={timeElement.ontology_class}/>;
         case "timestamp":
             return <span>{timeElement.timestamp}</span>;
         case "interval":
-            return renderTimeInterval(timeElement.interval);
+            return <TimeInterval timeInterval={timeElement.interval}/>;
         default:
             return EM_DASH;
     }
+};
+InnerTimeElement.propTypes = {
+    type: PropTypes.string,
+    timeElement: PropTypes.object,
 };
 
 const TimeElement = React.memo(({timeElement}) => {
@@ -78,7 +83,7 @@ const TimeElement = React.memo(({timeElement}) => {
     return (
         <span>
             <strong>{label}: </strong>
-            {renderTimeElement(timeType, timeElement)}
+            <InnerTimeElement type={timeType} timeElement={timeElement}/>
         </span>
     );
 });
