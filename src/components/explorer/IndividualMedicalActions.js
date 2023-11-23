@@ -28,7 +28,7 @@ const getMedicalActionType = (medicalAction) => {
     }
     return {
         type: null,
-        name: "Unkwown",
+        name: "Unknown",
     };
 };
 
