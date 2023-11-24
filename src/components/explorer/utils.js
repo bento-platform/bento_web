@@ -119,10 +119,6 @@ export const useIndividualResources = (individual) => {
     return useDatasetResources(individualDatasets);
 };
 
-export const useExplorerUrl = (resourceName) => {
-    return useSelector((state) => `${state.explorer.individualExplorerUrl}/${resourceName}`);
-};
-
 export const useResourcesByNamespacePrefix = ([resources, isFetching]) => {
     return useMemo(
         () => [

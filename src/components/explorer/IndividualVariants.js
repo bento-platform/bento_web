@@ -1,6 +1,6 @@
-import React from "react";
+import React, { useMemo } from "react";
 import { Link } from "react-router-dom";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import PropTypes from "prop-types";
 
 import { Button, Descriptions } from "antd";
@@ -21,8 +21,14 @@ const variantExpressionPropType = PropTypes.shape({
     version: PropTypes.string,
 });
 
-const VariantExpressionDetails = ({variantExpression, geneContext, tracksUrl}) => {
+const VariantExpressionDetails = ({variantExpression, geneContext}) => {
     const dispatch = useDispatch();
+    const individualId = useSelector(state => state.explorer.individualId);
+    const tracksUrl = useMemo(() => {
+        if (individualId) {
+            return `/data/explorer/individuals/${individualId}/tracks`;
+        }
+    }, [individualId]);
     return (
         <div style={variantStyle}>
             <span style={{display: "inline", marginRight: "15px"} }>
@@ -30,7 +36,7 @@ const VariantExpressionDetails = ({variantExpression, geneContext, tracksUrl}) =
                 <strong>value :</strong>{" "}{variantExpression.value}{" "}
                 <strong>version :</strong>{" "}{variantExpression.version}{" "}
             </span>
-            {geneContext && (
+            {(geneContext && tracksUrl) && (
                 <>
                     gene context:
                     <Link onClick={() => dispatch(setIgvPosition(geneContext))}
@@ -45,11 +51,10 @@ const VariantExpressionDetails = ({variantExpression, geneContext, tracksUrl}) =
 VariantExpressionDetails.propTypes = {
     variantExpression: variantExpressionPropType,
     geneContext: PropTypes.object,
-    tracksUrl: PropTypes.string,
 };
 
 
-const VariantDescriptor = ({variationDescriptor, tracksUrl}) => {
+const VariantDescriptor = ({variationDescriptor}) => {
     return (
         <Descriptions layout="horizontal" bordered={true} column={1} size="small">
             <Descriptions.Item label={"ID"}>{variationDescriptor.id}</Descriptions.Item>
@@ -75,7 +80,6 @@ const VariantDescriptor = ({variationDescriptor, tracksUrl}) => {
                     {variationDescriptor.expressions.map(expr => (
                         <VariantExpressionDetails variantExpression={expr}
                                                   geneContext={variationDescriptor.gene_context}
-                                                  tracksUrl={tracksUrl}
                                                   key={expr.value}/>
                     ))}
                 </Descriptions.Item>
@@ -119,7 +123,6 @@ const VariantDescriptor = ({variationDescriptor, tracksUrl}) => {
 };
 VariantDescriptor.propTypes = {
     variationDescriptor: PropTypes.object,
-    tracksUrl: PropTypes.string,
 };
 
 export default VariantDescriptor;

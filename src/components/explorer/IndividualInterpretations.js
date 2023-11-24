@@ -8,15 +8,12 @@ import "./explorer.css";
 import { individualPropTypesShape } from "../../propTypes";
 import OntologyTerm from "./OntologyTerm";
 import { Route, Switch, useHistory, useParams, useRouteMatch } from "react-router-dom/cjs/react-router-dom.min";
-import { useSelector } from "react-redux";
 import { GeneDescriptor } from "./IndividualGenes";
 import VariantDescriptor from "./IndividualVariants";
 
 
 export const VariantInterpretation = ({ variationInterpretation }) => {
     const [modalVisible, setModalVisible] = useState(false);
-
-    const tracksUrl = useSelector((state) => `${state.explorer.individualExplorerUrl}/tracks`);
 
     const closeModal = () => setModalVisible(false);
     return (
@@ -39,7 +36,6 @@ export const VariantInterpretation = ({ variationInterpretation }) => {
                 >
                     <VariantDescriptor
                         variationDescriptor={variationInterpretation.variation_descriptor}
-                        tracksUrl={tracksUrl}
                     />
                 </Modal>
             </Descriptions.Item>

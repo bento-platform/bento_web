@@ -20,7 +20,7 @@ export const SET_TABLE_SORT_ORDER = "EXPLORER.SET_TABLE_SORT_ORDER";
 export const RESET_TABLE_SORT_ORDER = "EXPLORER.RESET_TABLE_SORT_ORDER";
 export const SET_ACTIVE_TAB = "EXPLORER.SET_ACTIVE_TAB";
 export const SET_IGV_POSITION = "EXPLORER.SET_IGV_POSITION";
-export const SET_INDIVIDUAL_EXPLORER_URL = "EXPLORER.SET_EXPLORER_URL";
+export const SET_INDIVIDUAL_ID = "EXPLORER.SET_INDIVIDUAL_ID";
 export const SET_INDIVIDUAL_RESOURCES_TUPLE = "EXPLORER.SET_RESOURCES_TUPLE";
 
 const performSearch = networkAction((datasetID, dataTypeQueries, excludeFromAutoJoin = []) => (dispatch, getState) => ({
@@ -203,9 +203,9 @@ export const setIgvPosition = (igvPosition) => ({
     igvPosition,
 });
 
-export const setIndividualExplorerUrl = (url) => ({
-    type: SET_INDIVIDUAL_EXPLORER_URL,
-    url,
+export const setIndividualId = (id) => ({
+    type: SET_INDIVIDUAL_ID,
+    id,
 });
 
 export const setIndividualResourcesTuple = (tuples) => ({

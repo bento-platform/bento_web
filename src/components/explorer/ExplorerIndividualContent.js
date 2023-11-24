@@ -21,7 +21,7 @@ import IndividualOntologies from "./IndividualOntologies";
 import IndividualTracks from "./IndividualTracks";
 import IndividualPhenopackets from "./IndividualPhenopackets";
 import IndividualInterpretations from "./IndividualInterpretations";
-import { setIndividualExplorerUrl, setIndividualResourcesTuple } from "../../modules/explorer/actions";
+import { setIndividualId, setIndividualResourcesTuple } from "../../modules/explorer/actions";
 import IndividualMedicalActions from "./IndividualMedicalActions";
 import IndividualMeasurements from "./IndividualMeasurements";
 
@@ -58,10 +58,10 @@ const ExplorerIndividualContent = () => {
     }, [location]);
 
     useEffect(() => {
-        if (individualUrl) {
-            dispatch(setIndividualExplorerUrl(individualUrl));
+        if (individualID) {
+            dispatch(setIndividualId(individualID));
         }
-    }, [dispatch, individualUrl]);
+    }, [dispatch, individualID]);
 
     const metadataService = useSelector((state) => state.services.metadataService);
     const individuals = useSelector((state) => state.individuals.itemsByID);
@@ -167,7 +167,7 @@ const ExplorerIndividualContent = () => {
                         <IndividualPhenotypicFeatures individual={individual} />
                     </Route>
                     <Route path={biosamplesUrl.replace(":", "\\:")}>
-                        <IndividualBiosamples individual={individual} />
+                        <IndividualBiosamples individual={individual} experimentsUrl={experimentsUrl}/>
                     </Route>
                     <Route path={experimentsUrl.replace(":", "\\:")}>
                         <IndividualExperiments individual={individual} />

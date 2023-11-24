@@ -5,7 +5,7 @@ import { Route, Switch, useHistory, useRouteMatch, useParams } from "react-route
 import { Button, Descriptions, Table } from "antd";
 
 import { EM_DASH } from "../../constants";
-import { useDeduplicatedIndividualBiosamples, useExplorerUrl } from "./utils";
+import { useDeduplicatedIndividualBiosamples } from "./utils";
 import {
     biosamplePropTypesShape,
     experimentPropTypesShape,
@@ -18,6 +18,7 @@ import OntologyTerm from "./OntologyTerm";
 import TimeElement from "./TimeElement";
 
 import "./explorer.css";
+import BiosampleIDCell from "./searchResultsTables/BiosampleIDCell";
 
 // TODO: Only show biosamples from the relevant dataset, if specified;
 //  highlight those found in search results, if specified
@@ -74,8 +75,7 @@ const BiosampleDetail = ({ biosample, handleExperimentClick }) => {
                 {biosample.id}
             </Descriptions.Item>
             <Descriptions.Item label="Derived from ID">
-                {/* link to biosample */}
-                {biosample.derived_from_id ? biosample.derived_from_id : EM_DASH}
+                {biosample.derived_from_id ? <BiosampleIDCell biosample={biosample.derived_from_id} /> : EM_DASH}
             </Descriptions.Item>
             <Descriptions.Item label="Sampled Tissue">
                 <OntologyTerm term={biosample.sampled_tissue} />
@@ -207,11 +207,9 @@ Biosamples.propTypes = {
     handleExperimentClick: PropTypes.func,
 };
 
-const IndividualBiosamples = ({individual}) => {
+const IndividualBiosamples = ({individual, experimentsUrl}) => {
     const history = useHistory();
     const match = useRouteMatch();
-
-    const experimentsUrl = useExplorerUrl("experiments");
 
     const handleBiosampleClick = useCallback((bID) => {
         if (!bID) {
@@ -243,6 +241,7 @@ const IndividualBiosamples = ({individual}) => {
 
 IndividualBiosamples.propTypes = {
     individual: individualPropTypesShape,
+    experimentsUrl: PropTypes.string,
 };
 
 export default IndividualBiosamples;
