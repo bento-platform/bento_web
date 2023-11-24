@@ -6,6 +6,7 @@ import { Descriptions } from "antd";
 import { EM_DASH } from "../../constants";
 import { individualPropTypesShape } from "../../propTypes";
 import OntologyTerm from "./OntologyTerm";
+import TimeElement from "./TimeElement";
 
 const IndividualOverview = ({individual}) => {
     if (!individual) return <div />;
@@ -13,7 +14,9 @@ const IndividualOverview = ({individual}) => {
         <Descriptions layout="vertical" bordered={true} size="middle" column={6}>
             <Descriptions.Item label="Date of Birth">{individual.date_of_birth || EM_DASH}</Descriptions.Item>
             <Descriptions.Item label="Sex">{individual.sex || "UNKNOWN_SEX"}</Descriptions.Item>
-            <Descriptions.Item label="Age">{getAge(individual)}</Descriptions.Item>
+            <Descriptions.Item label="Time At Last Encounter">
+                <TimeElement timeElement={individual?.time_at_last_encounter}/>
+            </Descriptions.Item>
             <Descriptions.Item label="Karyotypic Sex">{
                 individual.karyotypic_sex || "UNKNOWN_KARYOTYPE"}
             </Descriptions.Item>
@@ -43,24 +46,5 @@ const IndividualOverview = ({individual}) => {
 IndividualOverview.propTypes = {
     individual: individualPropTypesShape,
 };
-
-function getAge(individual) {
-    if (!individual?.time_at_last_encounter) {
-        return "UNKNOWN_AGE";
-    }
-
-    const age = individual.time_at_last_encounter;
-
-    if (age?.age?.iso8601duration) {
-        return age.age.iso8601duration;
-    }
-
-    if (age?.age_range) {
-        return JSON.stringify(age.age_range);
-    }
-
-    // other cases
-    return JSON.stringify(age);
-}
 
 export default IndividualOverview;
