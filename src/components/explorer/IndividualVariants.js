@@ -38,7 +38,7 @@ const VariantExpressionDetails = ({variantExpression, geneContext}) => {
                 <strong>version:</strong>{" "}{variantExpression.version}<br/>
                 {(geneContext && tracksUrl) && (
                     <>
-                    <strong>gene context:</strong>
+                    <strong>gene context:</strong>{" "}
                     <Link onClick={() => dispatch(setIgvPosition(geneContext))}
                           to={{ pathname: tracksUrl }}>
                         <Button>{geneContext.value_id}</Button>
