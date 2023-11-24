@@ -34,6 +34,7 @@ export const VariantInterpretation = ({ variationInterpretation }) => {
                     onOk={closeModal}
                     onCancel={closeModal}
                     width={"50%"}
+                    footer={null}
                 >
                     <VariantDescriptor
                         variationDescriptor={variationInterpretation.variation_descriptor}
@@ -194,14 +195,18 @@ const InterpretationDetail = ({ interpretation }) => {
     );
 
     return (<div className="experiment_and_results">
-        <Typography.Title level={4}><Icon type="medicine-box" />Diagnosis</Typography.Title>
+        <Typography.Title level={4}>
+            <Icon type="medicine-box" />{" "}Diagnosis
+        </Typography.Title>
         {diagnosis ? <Descriptions layout="horizontal" bordered column={2} size="small">
             <Descriptions.Item label="Disease">
                 <OntologyTerm term={diagnosis.disease_ontology}/>
             </Descriptions.Item>
         </Descriptions> : <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} />}
 
-        <Typography.Title level={4}><Icon type="experiment" />Genomic Interpretations</Typography.Title>
+        <Typography.Title level={4}>
+            <Icon type="experiment" />{" "}Genomic Interpretations
+        </Typography.Title>
         {sortedGenomicInterpretations.length ? <IndividualGenomicInterpretations
             genomicInterpretations={sortedGenomicInterpretations}
         /> : null}

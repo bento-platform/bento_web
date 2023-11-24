@@ -15,7 +15,7 @@ export const RoutedIndividualContentTable = ({data, urlParam, columns, rowKey, h
         <Table
             bordered={true}
             pagination={false}
-            size="small"
+            size="middle"
             columns={columns}
             onExpand={onExpand}
             expandedRowKeys={selectedRowKeys}

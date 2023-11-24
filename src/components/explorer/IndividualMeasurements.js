@@ -186,7 +186,7 @@ export const MeasurementsTable = ({measurements}) => {
         <Table
             bordered={true}
             pagination={false}
-            size="small"
+            size="middle"
             columns={MEASUREMENTS_COLUMNS}
             onExpand={onExpand}
             expandedRowKeys={selectedRowKeys}
