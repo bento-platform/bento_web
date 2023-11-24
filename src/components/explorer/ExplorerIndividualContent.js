@@ -98,17 +98,40 @@ const ExplorerIndividualContent = () => {
 
     const individualPhenopackets = individual?.phenopackets ?? [];
     const individualMenu = [
+        // Overview
         {url: overviewUrl, style: {marginLeft: "4px"}, text: "Overview"},
+        // Biosamples related menu items
+        {
+            url: biosamplesUrl,
+            text: "Biosamples",
+            disabled: useIsDataEmpty(individualPhenopackets, "biosamples"),
+        },
+        {
+            url: measurementsUrl,
+            text: "Measurements",
+            disabled: useIsDataEmpty(individualPhenopackets, "measurements"),
+        },
         {
             url: phenotypicFeaturesUrl,
             text: "Phenotypic Features",
             disabled: useIsDataEmpty(individualPhenopackets, "phenotypic_features"),
         },
         {
-            url: biosamplesUrl,
-            text: "Biosamples",
-            disabled: useIsDataEmpty(individualPhenopackets, "biosamples"),
+            url: diseasesUrl,
+            text: "Diseases",
+            disabled: useIsDataEmpty(individualPhenopackets, "diseases"),
         },
+        {
+            url: interpretationsUrl,
+            text: "Interpretations",
+            disabled: useIsDataEmpty(individualPhenopackets, "interpretations"),
+        },
+        {
+            url: medicalActionsUrl,
+            text: "Medical Actions",
+            disabled: useIsDataEmpty(individualPhenopackets, "medical_actions"),
+        },
+        // Experiments related menu items
         {
             url: experimentsUrl,
             text: "Experiments",
@@ -117,28 +140,9 @@ const ExplorerIndividualContent = () => {
                 "experiments",
             ),
         },
-        {
-            url: interpretationsUrl,
-            text: "Interpretations",
-            disabled: useIsDataEmpty(individualPhenopackets, "interpretations"),
-        },
         {url: tracksUrl, text: "Tracks"},
-        {
-            url: diseasesUrl,
-            text: "Diseases",
-            disabled: useIsDataEmpty(individualPhenopackets, "diseases"),
-        },
+        // Extra
         {url: ontologiesUrl, text: "Ontologies"},
-        {
-            url: medicalActionsUrl,
-            text: "Medical Actions",
-            disabled: useIsDataEmpty(individualPhenopackets, "medical_actions"),
-        },
-        {
-            url: measurementsUrl,
-            text: "Measurements",
-            disabled: useIsDataEmpty(individualPhenopackets, "measurements"),
-        },
         {url: phenopacketsUrl, text: "Phenopackets JSON"},
     ];
     const selectedKeys = matchingMenuKeys(individualMenu, urlPath(BENTO_URL));

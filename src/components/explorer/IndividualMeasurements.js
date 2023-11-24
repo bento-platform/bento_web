@@ -1,4 +1,4 @@
-import React, { useCallback, useMemo } from "react";
+import React, { useCallback, useMemo, useState } from "react";
 import PropTypes from "prop-types";
 import { individualPropTypesShape, measurementPropTypesShape } from "../../propTypes";
 import { ontologyTermSorter, useIndividualPhenopacketDataIndex } from "./utils";
@@ -13,6 +13,7 @@ import TimeElement from "./TimeElement";
 const FLEX_COLUMN_STYLE = {
     "display": "flex",
     "flexDirection": "column",
+    "gap": "1em",
 };
 
 export const Quantity = ({quantity, title}) => {
@@ -122,17 +123,8 @@ MeasurementValue.propTypes = {
 const MeasurementDetails = ({ measurement }) => {
     return (
         <Descriptions bordered column={1} size="small">
-            <Descriptions.Item label="Assay">
-                <OntologyTerm  term={measurement.assay}/>
-            </Descriptions.Item>
             <Descriptions.Item label="Measurement Value">
                 <MeasurementValue measurement={measurement}/>
-            </Descriptions.Item>
-            <Descriptions.Item label="Time Observed">
-                {measurement?.time_observed
-                    ? <TimeElement timeElement={measurement.time_observed}/>
-                    : EM_DASH
-                }
             </Descriptions.Item>
             <Descriptions.Item label="Procedure">
                 {measurement?.procedure
@@ -185,15 +177,32 @@ const MEASUREMENTS_COLUMNS = [
     },
 ];
 
-const Measurements = ({measurements, handleMeasurementClick}) => {
-    const expandedRowRender = useCallback(
-        (measurement) => (
-            <MeasurementDetails
-                measurement={measurement}
-            />
-        ), [],
-    );
+export const MeasurementsTable = ({measurements}) => {
+    const indexedMeasurements = measurements.map((m, idx) => ({...m, idx: `${idx}`}));
+    const [selectedRowKeys, setSelectedRowKeys] = useState([]);
+    const onExpand = (e, measurement) => {
+        setSelectedRowKeys([e ? measurement.idx : undefined]);
+    };
+    return (
+        <Table
+            bordered={true}
+            pagination={false}
+            size="small"
+            columns={MEASUREMENTS_COLUMNS}
+            onExpand={onExpand}
+            expandedRowKeys={selectedRowKeys}
+            expandedRowRender={(measurement) => (
+                <MeasurementDetails
+                    measurement={measurement}
+                />
+            )}
+            dataSource={indexedMeasurements}
+            rowKey={"idx"}
+        />
+    )
+}
 
+const RoutedMeasurementsTable = ({measurements, handleMeasurementClick}) => {
     return (
         <RoutedIndividualContentTable
             data={measurements}
@@ -201,11 +210,15 @@ const Measurements = ({measurements, handleMeasurementClick}) => {
             columns={MEASUREMENTS_COLUMNS}
             rowKey="idx"
             handleRowSelect={handleMeasurementClick}
-            expandedRowRender={expandedRowRender}
+            expandedRowRender={(measurement) => (
+                <MeasurementDetails
+                    measurement={measurement}
+                />
+            )}
         />
     );
 };
-Measurements.propTypes = {
+RoutedMeasurementsTable.propTypes = {
     measurements: PropTypes.arrayOf(measurementPropTypesShape),
     handleMeasurementClick: PropTypes.func,
 };
@@ -217,7 +230,7 @@ const IndividualMeasurements = ({individual}) => {
             data={measurements}
             urlParam="selectedMeasurement"
             renderContent={({data, onContentSelect}) => (
-                <Measurements
+                <RoutedMeasurementsTable
                     measurements={data}
                     handleMeasurementClick={onContentSelect}
                 />

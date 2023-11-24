@@ -1,8 +1,8 @@
-import React, {Fragment, useCallback, useEffect, useMemo} from "react";
+import React, {Fragment, useCallback, useEffect, useMemo, useState} from "react";
 import PropTypes from "prop-types";
 import { Route, Switch, useHistory, useRouteMatch, useParams } from "react-router-dom";
 
-import { Button, Descriptions, Table } from "antd";
+import { Button, Descriptions, Modal, Table } from "antd";
 
 import { EM_DASH } from "../../constants";
 import { useDeduplicatedIndividualBiosamples } from "./utils";
@@ -19,6 +19,7 @@ import TimeElement from "./TimeElement";
 
 import "./explorer.css";
 import BiosampleIDCell from "./searchResultsTables/BiosampleIDCell";
+import { MeasurementsTable } from "./IndividualMeasurements";
 
 // TODO: Only show biosamples from the relevant dataset, if specified;
 //  highlight those found in search results, if specified
@@ -44,7 +45,7 @@ BiosampleProcedure.propTypes = {
     procedure: PropTypes.shape({
         code: ontologyShape.isRequired,
         body_site: ontologyShape,
-        performed: PropTypes.bool,
+        performed: PropTypes.object,
     }).isRequired,
 };
 
@@ -70,7 +71,7 @@ ExperimentsClickList.propTypes = {
 
 const BiosampleDetail = ({ biosample, handleExperimentClick }) => {
     return (
-        <Descriptions bordered={true} column={1} size="small" style={{maxWidth: 800}}>
+        <Descriptions bordered={true} column={1} size="small">
             <Descriptions.Item label="ID">
                 {biosample.id}
             </Descriptions.Item>
@@ -98,7 +99,7 @@ const BiosampleDetail = ({ biosample, handleExperimentClick }) => {
             <Descriptions.Item label="Measurements">
                 {biosample.hasOwnProperty("measurements") &&
                     Object.keys(biosample.measurements).length ? (
-                        <JsonView inputJson={biosample.measurements}/>
+                        <MeasurementsTable measurements={biosample.measurements}/>
                     ) : (
                         EM_DASH
                     )}
