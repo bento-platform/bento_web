@@ -164,35 +164,39 @@ const ExplorerIndividualContent = () => {
         <Layout>
             <Layout.Content style={LAYOUT_CONTENT_STYLE}>
                 {(individual && !individualIsFetching) ? <Switch>
+                    {/* OVERVIEW */}
                     <Route path={overviewUrl.replace(":", "\\:")}>
                         <IndividualOverview individual={individual} />
+                    </Route>
+                    {/* BIOSAMPLES RELATED */}
+                    <Route path={biosamplesUrl.replace(":", "\\:")}>
+                        <IndividualBiosamples individual={individual} experimentsUrl={experimentsUrl}/>
+                    </Route>
+                    <Route path={measurementsUrl.replace(":", "\\:")}>
+                        <IndividualMeasurements individual={individual} />
                     </Route>
                     <Route path={phenotypicFeaturesUrl.replace(":", "\\:")}>
                         <IndividualPhenotypicFeatures individual={individual} />
                     </Route>
-                    <Route path={biosamplesUrl.replace(":", "\\:")}>
-                        <IndividualBiosamples individual={individual} experimentsUrl={experimentsUrl}/>
-                    </Route>
-                    <Route path={experimentsUrl.replace(":", "\\:")}>
-                        <IndividualExperiments individual={individual} />
+                    <Route path={diseasesUrl.replace(":", "\\:")}>
+                        <IndividualDiseases individual={individual} />
                     </Route>
                     <Route path={interpretationsUrl.replace(":", "\\:")}>
                         <IndividualInterpretations individual={individual} />
                     </Route>
-                    <Route path={tracksUrl.replace(":", "\\:")}>
-                        <IndividualTracks individual={individual} />
-                    </Route>
-                    <Route path={diseasesUrl.replace(":", "\\:")}>
-                        <IndividualDiseases individual={individual} />
-                    </Route>
-                    <Route path={ontologiesUrl.replace(":", "\\:")}>
-                        <IndividualOntologies individual={individual} />
-                    </Route>
                     <Route path={medicalActionsUrl.replace(":", "\\:")}>
                         <IndividualMedicalActions individual={individual}/>
                     </Route>
-                    <Route path={measurementsUrl.replace(":", "\\:")}>
-                        <IndividualMeasurements individual={individual} />
+                    {/* EXPERIMENTS RELATED*/}
+                    <Route path={experimentsUrl.replace(":", "\\:")}>
+                        <IndividualExperiments individual={individual} />
+                    </Route>
+                    <Route path={tracksUrl.replace(":", "\\:")}>
+                        <IndividualTracks individual={individual} />
+                    </Route>
+                    {/* EXTRA */}
+                    <Route path={ontologiesUrl.replace(":", "\\:")}>
+                        <IndividualOntologies individual={individual} />
                     </Route>
                     <Route path={phenopacketsUrl.replace(":", "\\:")}>
                         <IndividualPhenopackets individual={individual} />
