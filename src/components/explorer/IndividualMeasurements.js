@@ -1,4 +1,4 @@
-import React, { useCallback, useMemo, useState } from "react";
+import React, { useMemo, useState } from "react";
 import PropTypes from "prop-types";
 import { individualPropTypesShape, measurementPropTypesShape } from "../../propTypes";
 import { ontologyTermSorter, useIndividualPhenopacketDataIndex } from "./utils";
@@ -7,7 +7,6 @@ import { EM_DASH } from "../../constants";
 import { Descriptions, Table } from "antd";
 import OntologyTerm, { conditionalOntologyRender } from "./OntologyTerm";
 import { Procedure } from "./IndividualMedicalActions";
-import TimeElement from "./TimeElement";
 
 
 const FLEX_COLUMN_STYLE = {
@@ -199,8 +198,11 @@ export const MeasurementsTable = ({measurements}) => {
             dataSource={indexedMeasurements}
             rowKey={"idx"}
         />
-    )
-}
+    );
+};
+MeasurementsTable.propTypes = {
+    measurements: PropTypes.arrayOf(measurementPropTypesShape),
+};
 
 const RoutedMeasurementsTable = ({measurements, handleMeasurementClick}) => {
     return (

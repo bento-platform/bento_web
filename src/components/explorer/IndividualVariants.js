@@ -9,6 +9,7 @@ import { setIgvPosition } from "../../modules/explorer/actions";
 import "./explorer.css";
 import JsonView from "./JsonView";
 import OntologyTerm from "./OntologyTerm";
+import { GeneDescriptor } from "./IndividualGenes";
 
 // TODO: Only show variants from the relevant dataset, if specified;
 //  highlight those found in search results, if specified
@@ -31,20 +32,20 @@ const VariantExpressionDetails = ({variantExpression, geneContext}) => {
     }, [individualId]);
     return (
         <div style={variantStyle}>
-            <span style={{display: "inline", marginRight: "15px"} }>
-                <strong>syntax :</strong>{" "}{variantExpression.syntax}{" "}
-                <strong>value :</strong>{" "}{variantExpression.value}{" "}
-                <strong>version :</strong>{" "}{variantExpression.version}{" "}
-            </span>
-            {(geneContext && tracksUrl) && (
-                <>
-                    gene context:
+            <span style={{display: "inline"}}>
+                <strong>syntax:</strong>{" "}{variantExpression.syntax}<br/>
+                <strong>value:</strong>{" "}{variantExpression.value}<br/>
+                <strong>version:</strong>{" "}{variantExpression.version}<br/>
+                {(geneContext && tracksUrl) && (
+                    <>
+                    <strong>gene context:</strong>
                     <Link onClick={() => dispatch(setIgvPosition(geneContext))}
                           to={{ pathname: tracksUrl }}>
                         <Button>{geneContext.value_id}</Button>
                     </Link>
-                </>
-            )}
+                    </>
+                )}
+            </span>
         </div>
     );
 };
@@ -72,7 +73,7 @@ const VariantDescriptor = ({variationDescriptor}) => {
             }
             {variationDescriptor.gene_context &&
                 <Descriptions.Item label="Gene Context">
-                    <JsonView inputJson={variationDescriptor.gene_context}/>
+                    <GeneDescriptor geneDescriptor={variationDescriptor.gene_context}/>
                 </Descriptions.Item>
             }
             {(variationDescriptor.expressions && variationDescriptor.gene_context) &&

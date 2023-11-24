@@ -1,8 +1,8 @@
-import React, {Fragment, useCallback, useEffect, useMemo, useState} from "react";
+import React, {Fragment, useCallback, useEffect, useMemo} from "react";
 import PropTypes from "prop-types";
 import { Route, Switch, useHistory, useRouteMatch, useParams } from "react-router-dom";
 
-import { Button, Descriptions, Modal, Table } from "antd";
+import { Button, Descriptions, Table } from "antd";
 
 import { EM_DASH } from "../../constants";
 import { useDeduplicatedIndividualBiosamples } from "./utils";

@@ -33,6 +33,7 @@ export const VariantInterpretation = ({ variationInterpretation }) => {
                     visible={modalVisible}
                     onOk={closeModal}
                     onCancel={closeModal}
+                    width={"50%"}
                 >
                     <VariantDescriptor
                         variationDescriptor={variationInterpretation.variation_descriptor}
