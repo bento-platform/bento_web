@@ -1,7 +1,8 @@
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
+import { decodeJwt } from "jose";
+
 import { buildUrlEncodedData } from "../utils";
 import { LS_BENTO_WAS_SIGNED_IN, setLSNotSignedIn } from "../performAuth";
-import { decodeJwt } from "jose";
 import { makeResourceKey } from "../resources";
 
 export const tokenHandoff = createAsyncThunk(
@@ -29,9 +30,7 @@ export const tokenHandoff = createAsyncThunk(
 export const refreshTokens = createAsyncThunk(
     "auth/REFRESH_TOKENS",
     async ({ clientId }, { getState }) => {
-        if (!getState().auth.refreshToken) return;
-
-        const url = getState().openIdConfiguration.data?.["token_endpoint"];
+        const url = getState().openIdConfiguration.data["token_endpoint"];
 
         const response = await fetch(url, {
             method: "POST",
@@ -51,7 +50,11 @@ export const refreshTokens = createAsyncThunk(
     },
     {
         condition: (_, { getState }) => {
-            const { auth } = getState();
+            const { auth, openIdConfiguration } = getState();
+            if (!openIdConfiguration.data?.["token_endpoint"]) {
+                console.error("No token endpoint available/No openIdConfiguration data");
+                return false;
+            }
             const { isRefreshingTokens, refreshToken } = auth;
             return !isRefreshingTokens && refreshToken;
         },
@@ -65,7 +68,7 @@ export const fetchResourcePermissions = createAsyncThunk(
         const response = await fetch(url, {
             method: "POST",
             headers: { "Content-Type": "application/json", Authorization: `Bearer ${getState().auth.accessToken}` },
-            body: JSON.stringify({ requested_resource: resource }),
+            body: JSON.stringify({ resources: resource }),
         });
         return await response.json();
     },
@@ -190,11 +193,11 @@ export const authSlice = createSlice({
                 }
             })
             .addCase(refreshTokens.rejected, (state, { payload, error: errorProp }) => {
-                errorProp && console.error(errorProp);
+                if (errorProp) console.error(errorProp);
                 const { error, error_description: errorDesc } = payload.data ?? {};
                 const tokensRefreshError = error
                     ? `${error}: ${errorDesc}`
-                    : error.message ?? "Error refreshing tokens";
+                    : errorProp.message ?? "Error refreshing tokens";
                 console.error(tokensRefreshError);
                 state.tokensRefreshError = tokensRefreshError;
                 state.resourcePermissions = {};
@@ -227,7 +230,7 @@ export const authSlice = createSlice({
             })
             .addCase(fetchResourcePermissions.rejected, (state, { meta, payload, error }) => {
                 const key = makeResourceKey(meta.arg.resource);
-                console.error(error);
+                if (error) console.error(error);
                 state.resourcePermissions[key] = {
                     ...state.resourcePermissions[key],
                     isFetching: false,
