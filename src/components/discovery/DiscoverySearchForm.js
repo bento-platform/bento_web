@@ -282,9 +282,10 @@ class DiscoverySearchForm extends Component {
         const subjectOptions = Object.values(phenopacketSearchOptions.subject);
         const phenotypicFeaturesOptions = Object.values(phenopacketSearchOptions.phenotypic_features);
         const biosamplesOptions = Object.values(phenopacketSearchOptions.biosamples);
-        const genesOptions = Object.values(phenopacketSearchOptions.genes);
-        const variantsOptions = Object.values(phenopacketSearchOptions.variants);
         const diseasesOptions = Object.values(phenopacketSearchOptions.diseases);
+        const interpretationOptions = Object.values(phenopacketSearchOptions.interpretations);
+        const measurementsOptions = Object.values(phenopacketSearchOptions.measurements);
+        const medicalActionsOptions = Object.values(phenopacketSearchOptions.medical_actions);
 
         // eslint-disable-next-line react/prop-types
         const DropdownOption = ({option: {path, ui_name: uiName}}) => {
@@ -302,50 +303,38 @@ class DiscoverySearchForm extends Component {
             }),
         };
 
+        const optionsMenuItems = (options) => {
+            return options.map(o => (
+                    <Menu.Item key={o.path}>
+                        <DropdownOption option={o} />
+                    </Menu.Item>
+            ),
+            );
+        };
+
         // longest title padded with marginRight
         return (
             <Menu style={{ display: "inline-block" }} onClick={this.addConditionFromPulldown}>
                 <Menu.SubMenu title={<span>Subject</span>}>
-                    {subjectOptions.map((o) => (
-                        <Menu.Item key={o.path}>
-                            <DropdownOption option={o} />
-                        </Menu.Item>
-                    ))}
+                    {optionsMenuItems(subjectOptions)}
                 </Menu.SubMenu>
                 <Menu.SubMenu title={<span style={{ marginRight: "10px" }}>Phenotypic Features </span>}>
-                    {phenotypicFeaturesOptions.map((o) => (
-                        <Menu.Item key={o.path}>
-                            <DropdownOption option={o} />
-                        </Menu.Item>
-                    ))}
+                    {optionsMenuItems(phenotypicFeaturesOptions)}
                 </Menu.SubMenu>
                 <Menu.SubMenu title={<span>Biosamples</span>}>
-                    {biosamplesOptions.map((o) => (
-                        <Menu.Item key={o.path}>
-                            <DropdownOption option={o} />
-                        </Menu.Item>
-                    ))}
+                    {optionsMenuItems(biosamplesOptions)}
                 </Menu.SubMenu>
-                <Menu.SubMenu title={<span>Genes</span>}>
-                    {genesOptions.map((o) => (
-                        <Menu.Item key={o.path}>
-                            <DropdownOption option={o} />
-                        </Menu.Item>
-                    ))}
-                </Menu.SubMenu>
-                <Menu.SubMenu title={<span>Annotated variants</span>}>
-                    {variantsOptions.map((o) => (
-                        <Menu.Item key={o.path}>
-                            <DropdownOption option={o} />
-                        </Menu.Item>
-                    ))}
+                <Menu.SubMenu title={<span>Measurements</span>}>
+                    {optionsMenuItems(measurementsOptions)}
                 </Menu.SubMenu>
                 <Menu.SubMenu title={<span>Diseases</span>}>
-                    {diseasesOptions.map((o) => (
-                        <Menu.Item key={o.path}>
-                            <DropdownOption option={o} />
-                        </Menu.Item>
-                    ))}
+                    {optionsMenuItems(diseasesOptions)}
+                </Menu.SubMenu>
+                <Menu.SubMenu title={<span>Interpretations</span>}>
+                    {optionsMenuItems(interpretationOptions)}
+                </Menu.SubMenu>
+                <Menu.SubMenu title={<span>Medical Actions</span>}>
+                    {optionsMenuItems(medicalActionsOptions)}
                 </Menu.SubMenu>
             </Menu>
         );
