@@ -86,7 +86,10 @@ module.exports = {
             directory: path.join(__dirname, "static"),
         },
         compress: true,
-        historyApiFallback: true,
+        historyApiFallback: {
+            // Allows url parameters containing dots in the devServer
+            disableDotRule: true
+        },
 
         host: "0.0.0.0",
         port: process.env.BENTO_WEB_PORT ?? 9000,

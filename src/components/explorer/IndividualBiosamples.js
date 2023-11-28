@@ -5,7 +5,7 @@ import { Route, Switch, useHistory, useRouteMatch, useParams } from "react-route
 import { Button, Descriptions, Table } from "antd";
 
 import { EM_DASH } from "../../constants";
-import { useDeduplicatedIndividualBiosamples, useIndividualResources } from "./utils";
+import { useDeduplicatedIndividualBiosamples } from "./utils";
 import {
     biosamplePropTypesShape,
     experimentPropTypesShape,
@@ -15,28 +15,37 @@ import {
 
 import JsonView from "./JsonView";
 import OntologyTerm from "./OntologyTerm";
+import TimeElement from "./TimeElement";
 
 import "./explorer.css";
+import BiosampleIDCell from "./searchResultsTables/BiosampleIDCell";
+import { MeasurementsTable } from "./IndividualMeasurements";
 
 // TODO: Only show biosamples from the relevant dataset, if specified;
 //  highlight those found in search results, if specified
 
-const BiosampleProcedure = ({ resourcesTuple, procedure }) => (
+const BiosampleProcedure = ({ procedure }) => (
     <div>
-        <strong>Code:</strong>{" "}<OntologyTerm resourcesTuple={resourcesTuple} term={procedure.code} />
+        <strong>Code:</strong>{" "}<OntologyTerm term={procedure.code} />
         {procedure.body_site ? (
             <div>
                 <strong>Body Site:</strong>{" "}
-                <OntologyTerm resourcesTuple={resourcesTuple} term={procedure.body_site} />
+                <OntologyTerm term={procedure.body_site} />
+            </div>
+        ) : null}
+        {procedure.performed ? (
+            <div>
+                <strong>Performed:</strong>{" "}
+                <TimeElement timeElement={procedure.performed} />
             </div>
         ) : null}
     </div>
 );
 BiosampleProcedure.propTypes = {
-    resourcesTuple: PropTypes.array,
     procedure: PropTypes.shape({
         code: ontologyShape.isRequired,
         body_site: ontologyShape,
+        performed: PropTypes.object,
     }).isRequired,
 };
 
@@ -60,28 +69,40 @@ ExperimentsClickList.propTypes = {
     handleExperimentClick: PropTypes.func,
 };
 
-const BiosampleDetail = ({ individual, biosample, handleExperimentClick }) => {
-    const resourcesTuple = useIndividualResources(individual);
+const BiosampleDetail = ({ biosample, handleExperimentClick }) => {
     return (
-        <Descriptions bordered={true} column={1} size="small" style={{maxWidth: 800}}>
+        <Descriptions bordered={true} column={1} size="small">
             <Descriptions.Item label="ID">
                 {biosample.id}
             </Descriptions.Item>
+            <Descriptions.Item label="Derived from ID">
+                {biosample.derived_from_id ? <BiosampleIDCell biosample={biosample.derived_from_id} /> : EM_DASH}
+            </Descriptions.Item>
             <Descriptions.Item label="Sampled Tissue">
-                <OntologyTerm resourcesTuple={resourcesTuple} term={biosample.sampled_tissue} />
+                <OntologyTerm term={biosample.sampled_tissue} />
+            </Descriptions.Item>
+            <Descriptions.Item label="Sample Type">
+                <OntologyTerm term={biosample.sample_type} />
             </Descriptions.Item>
             <Descriptions.Item label="Procedure">
-                <BiosampleProcedure resourcesTuple={resourcesTuple} procedure={biosample.procedure} />
+                <BiosampleProcedure procedure={biosample.procedure} />
             </Descriptions.Item>
             <Descriptions.Item label="Histological Diagnosis">
-                <OntologyTerm resourcesTuple={resourcesTuple} term={biosample.histological_diagnosis} />
+                <OntologyTerm term={biosample.histological_diagnosis} />
             </Descriptions.Item>
-            <Descriptions.Item label="Ind. Age At Collection">
-                {biosample.individual_age_at_collection
-                    ? biosample.individual_age_at_collection.age ??
-                    `Between ${biosample.individual_age_at_collection.start.age}` +
-                    `and ${biosample.individual_age_at_collection.end.age}`
-                    : EM_DASH}
+            <Descriptions.Item label="Pathological Stage">
+                <OntologyTerm term={biosample.pathological_stage} />
+            </Descriptions.Item>
+            <Descriptions.Item label="Time of Collection">
+                <TimeElement timeElement={biosample.time_of_collection}/>
+            </Descriptions.Item>
+            <Descriptions.Item label="Measurements">
+                {biosample.hasOwnProperty("measurements") &&
+                    Object.keys(biosample.measurements).length ? (
+                        <MeasurementsTable measurements={biosample.measurements}/>
+                    ) : (
+                        EM_DASH
+                    )}
             </Descriptions.Item>
             <Descriptions.Item label="Extra Properties">
                 {biosample.hasOwnProperty("extra_properties") &&
@@ -101,7 +122,6 @@ const BiosampleDetail = ({ individual, biosample, handleExperimentClick }) => {
     );
 };
 BiosampleDetail.propTypes = {
-    individual: individualPropTypesShape,
     biosample: biosamplePropTypesShape,
     handleExperimentClick: PropTypes.func,
 };
@@ -127,7 +147,6 @@ const Biosamples = ({ individual, handleBiosampleClick, handleExperimentClick })
     }, []);
 
     const biosamples = useDeduplicatedIndividualBiosamples(individual);
-    const resourcesTuple = useIndividualResources(individual);
 
     const columns = useMemo(
         () => [
@@ -139,7 +158,7 @@ const Biosamples = ({ individual, handleBiosampleClick, handleExperimentClick })
             {
                 title: "Sampled Tissue",
                 dataIndex: "sampled_tissue",
-                render: tissue => <OntologyTerm resourcesTuple={resourcesTuple} term={tissue} />,
+                render: tissue => <OntologyTerm term={tissue} />,
             },
             {
                 title: "Experiments",
@@ -149,7 +168,7 @@ const Biosamples = ({ individual, handleBiosampleClick, handleExperimentClick })
                 ),
             },
         ],
-        [resourcesTuple, handleExperimentClick],
+        [handleExperimentClick],
     );
 
     const onExpand = useCallback(
@@ -162,7 +181,6 @@ const Biosamples = ({ individual, handleBiosampleClick, handleExperimentClick })
     const expandedRowRender = useCallback(
         (biosample) => (
             <BiosampleDetail
-                individual={individual}
                 biosample={biosample}
                 handleExperimentClick={handleExperimentClick}
             />
