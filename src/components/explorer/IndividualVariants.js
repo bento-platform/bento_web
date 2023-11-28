@@ -1,99 +1,129 @@
 import React, { useMemo } from "react";
 import { Link } from "react-router-dom";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import PropTypes from "prop-types";
 
-import { Button, Descriptions, Empty } from "antd";
+import { Button, Descriptions } from "antd";
 
-import { individualPropTypesShape } from "../../propTypes";
 import { setIgvPosition } from "../../modules/explorer/actions";
-import { useDeduplicatedIndividualBiosamples } from "./utils";
 import "./explorer.css";
+import JsonView from "./JsonView";
+import OntologyTerm from "./OntologyTerm";
+import { GeneDescriptor } from "./IndividualGenes";
 
 // TODO: Only show variants from the relevant dataset, if specified;
 //  highlight those found in search results, if specified
 
-const sampleStyle = {display: "flex", flexDirection: "column", flexWrap: "nowrap"};
 const variantStyle = {margin: "5px"};
 
-const mappedVariantPropType = PropTypes.shape({
-    id: PropTypes.string,
-    hgvs: PropTypes.string,
-    geneContext: PropTypes.string,
+const variantExpressionPropType = PropTypes.shape({
+    syntax: PropTypes.string,
+    value: PropTypes.string,
+    version: PropTypes.string,
 });
 
-const VariantDetails = ({variant, tracksUrl}) => {
+const VariantExpressionDetails = ({variantExpression, geneContext}) => {
     const dispatch = useDispatch();
-
+    const individualId = useSelector(state => state.explorer.individualId);
+    const tracksUrl = useMemo(() => {
+        if (individualId) {
+            return `/data/explorer/individuals/${individualId}/tracks`;
+        }
+    }, [individualId]);
     return (
         <div style={variantStyle}>
-            <span style={{display: "inline", marginRight: "15px"} }>
-                {`id: ${variant.id} hgvs: ${variant.hgvs}`}
-            </span>
-            {variant.geneContext && (
-                <>
-                    gene context:
-                    <Link onClick={() => dispatch(setIgvPosition(variant.geneContext))}
+            <span style={{display: "inline"}}>
+                <strong>syntax:</strong>{" "}{variantExpression.syntax}<br/>
+                <strong>value:</strong>{" "}{variantExpression.value}<br/>
+                <strong>version:</strong>{" "}{variantExpression.version}<br/>
+                {(geneContext && tracksUrl) && (
+                    <>
+                    <strong>gene context:</strong>{" "}
+                    <Link onClick={() => dispatch(setIgvPosition(geneContext))}
                           to={{ pathname: tracksUrl }}>
-                        <Button>{variant.geneContext}</Button>
+                        <Button>{geneContext.value_id}</Button>
                     </Link>
-                </>
-            )}
+                    </>
+                )}
+            </span>
         </div>
     );
 };
-VariantDetails.propTypes = {
-    variant: mappedVariantPropType,
-    tracksUrl: PropTypes.string,
+VariantExpressionDetails.propTypes = {
+    variantExpression: variantExpressionPropType,
+    geneContext: PropTypes.object,
 };
 
-const SampleVariants = ({variantsMapped, biosampleID, tracksUrl}) =>
-    variantsMapped[biosampleID].length ? (
-        <div style={sampleStyle}>
-            {variantsMapped[biosampleID].map((v) => (
-                <VariantDetails key={v.id} variant={v} tracksUrl={tracksUrl} />
-            ))}
-        </div>
-    ) : <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} />;
-SampleVariants.propTypes = {
-    variantsMapped: PropTypes.objectOf(PropTypes.arrayOf(mappedVariantPropType)),
-    biosampleID: PropTypes.string,
-    tracksUrl: PropTypes.string,
-};
 
-const IndividualVariants = ({individual, tracksUrl}) => {
-    const biosamples = useDeduplicatedIndividualBiosamples(individual);
-
-    const variantsMapped = useMemo(
-        () => Object.fromEntries(biosamples.map((biosample) => [
-            biosample.id,
-            (biosample.variants ?? []).map((v) => ({
-                id: v.hgvsAllele?.id,
-                hgvs: v.hgvsAllele?.hgvs,
-                geneContext: v.extra_properties?.gene_context ?? "",
-            })),
-        ])),
-        [biosamples],
-    );
-
+const VariantDescriptor = ({variationDescriptor}) => {
     return (
-      <div className="variantDescriptions">
-          {biosamples.length ? <Descriptions layout="horizontal" bordered={true} column={1} size="small">
-              {biosamples.map(({id}) => (
-                  <Descriptions.Item key={id} label={`Biosample ${id}`}>
-                      <SampleVariants variantsMapped={variantsMapped} biosampleID={id} tracksUrl={tracksUrl} />
-                  </Descriptions.Item>
-              ))}
-          </Descriptions> : <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} />}
-      </div>
+        <Descriptions layout="horizontal" bordered={true} column={1} size="small">
+            <Descriptions.Item label={"ID"}>{variationDescriptor.id}</Descriptions.Item>
+            {variationDescriptor.variation &&
+                <Descriptions.Item label="Variation">
+                    {/* TODO: VRS type specific display ?*/}
+                    <JsonView inputJson={variationDescriptor.variation}/>
+                </Descriptions.Item>
+            }
+            {variationDescriptor.label &&
+                <Descriptions.Item label="Label">{variationDescriptor.label}</Descriptions.Item>
+            }
+            {variationDescriptor.description &&
+                <Descriptions.Item label="Description">{variationDescriptor.description}</Descriptions.Item>
+            }
+            {variationDescriptor.gene_context &&
+                <Descriptions.Item label="Gene Context">
+                    <GeneDescriptor geneDescriptor={variationDescriptor.gene_context}/>
+                </Descriptions.Item>
+            }
+            {(variationDescriptor.expressions && variationDescriptor.gene_context) &&
+                <Descriptions.Item label={"Expressions"}>
+                    {variationDescriptor.expressions.map(expr => (
+                        <VariantExpressionDetails variantExpression={expr}
+                                                  geneContext={variationDescriptor.gene_context}
+                                                  key={expr.value}/>
+                    ))}
+                </Descriptions.Item>
+            }
+            {variationDescriptor.vfc_record &&
+                <Descriptions.Item label={"VCF Record"}>
+                    <JsonView inputJson={variationDescriptor.vfc_record}/>
+                </Descriptions.Item>
+            }
+            {variationDescriptor.xrefs &&
+                <Descriptions.Item label={"XRefs"}>{variationDescriptor.xrefs}</Descriptions.Item>
+            }
+            {variationDescriptor.alternate_labels &&
+                <Descriptions.Item label={"Alternate Labels"}>{variationDescriptor.alternate_labels}</Descriptions.Item>
+            }
+            {variationDescriptor.extensions &&
+                <Descriptions.Item label={"Extensions"}>
+                    {variationDescriptor.extensions}
+                </Descriptions.Item>
+            }
+            {variationDescriptor.molecule_context &&
+                <Descriptions.Item label={"Molecule Context"}>{variationDescriptor.molecule_context}</Descriptions.Item>
+            }
+            {variationDescriptor.structural_type &&
+                <Descriptions.Item label={"Structural Type"}>
+                    <OntologyTerm term={variationDescriptor.structural_type}/>
+                </Descriptions.Item>
+            }
+            {variationDescriptor.vrs_ref_allele_seq &&
+                <Descriptions.Item label={"VRS ref allele sequence"}>
+                    {variationDescriptor.vrs_ref_allele_seq}
+                </Descriptions.Item>
+            }
+            {variationDescriptor.allelic_state &&
+                <Descriptions.Item label={"Allelic State"}>
+                    <OntologyTerm term={variationDescriptor.allelic_state}/>
+                </Descriptions.Item>
+            }
+        </Descriptions>
     );
 };
-
-IndividualVariants.propTypes = {
-    id: PropTypes.string,
-    individual: individualPropTypesShape,
-    variant: PropTypes.object,
-    tracksUrl: PropTypes.string,
+VariantDescriptor.propTypes = {
+    variationDescriptor: PropTypes.object,
 };
 
-export default IndividualVariants;
+export default VariantDescriptor;
