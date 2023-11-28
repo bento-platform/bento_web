@@ -308,7 +308,7 @@ class DiscoverySearchForm extends Component {
                     <Menu.Item key={o.path}>
                         <DropdownOption option={o} />
                     </Menu.Item>
-                )
+            ),
             );
         };
 

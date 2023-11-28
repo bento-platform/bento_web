@@ -178,8 +178,8 @@ export const searchUiMappings = {
             },
             "diagnosis": {
                 "path": "interpretations.[item].diagnosis.disease.label",
-                "ui_name": "Diagnosis Disease"
-            }
+                "ui_name": "Diagnosis Disease",
+            },
         },
         "measurements": {
             "description": {
