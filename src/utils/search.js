@@ -113,10 +113,11 @@ export const searchUiMappings = {
                 "path": "phenotypic_features.[item].modifiers.[item].label",
                 "ui_name": "Phenotypic feature modifier",
             },
-            "onset": {
-                "path": "phenotypic_features.[item].onset.label",
-                "ui_name": "Phenotypic feature onset",
-            },
+            // TODO: new search for Phenopacket TimeElement
+            // "onset": {
+            //     "path": "phenotypic_features.[item].onset.label",
+            //     "ui_name": "Phenotypic feature onset",
+            // },
         },
         "biosamples": {
             "description": {
@@ -152,22 +153,6 @@ export const searchUiMappings = {
                 "ui_name": "Procedure",
             },
         },
-        "genes": {
-            "id": {
-                "path": "genes.[item].id",
-                "ui_name": "Gene ID",
-            },
-            "symbol": {
-                "path": "genes.[item].symbol",
-                "ui_name": "Gene symbol",
-            },
-        },
-        "variants": {
-            "zygosity": {
-                "path": "variants.[item].zygosity.label",
-                "ui_name": "Variant Zygosity",
-            },
-        },
         "diseases": {
             "term": {
                 "path": "diseases.[item].term.label",
@@ -180,6 +165,56 @@ export const searchUiMappings = {
             "clinical_tnm_finding": {
                 "path": "diseases.[item].clinical_tnm_finding.[item].label",
                 "ui_name": "TNM finding",
+            },
+        },
+        "interpretations": {
+            "progress_status": {
+                "path": "interpretations.[item].progress_status",
+                "ui_name": "Progress Status",
+            },
+            "summary": {
+                "path": "interpretations.[item].summary",
+                "ui_name": "Summary",
+            },
+            "diagnosis": {
+                "path": "interpretations.[item].diagnosis.disease.label",
+                "ui_name": "Diagnosis Disease"
+            }
+        },
+        "measurements": {
+            "description": {
+                "path": "measurements.[item].description",
+                "ui_name": "Description",
+            },
+            "assay": {
+                "path": "measurements.[item].assay.label",
+                "ui_name": "Assay",
+            },
+            "procedure": {
+                "path": "measurements.[item].procedure.code.label",
+                "ui_name": "Procedure",
+            },
+        },
+        "medical_actions": {
+            "treatment_target": {
+                "path": "medical_actions.[item].treatment_target.label",
+                "ui_name": "Treatment Target",
+            },
+            "treatment_intent": {
+                "path": "medical_actions.[item].treatment_intent.label",
+                "ui_name": "Treatment Intent",
+            },
+            "response_to_treatment": {
+                "path": "medical_actions.[item].response_to_treatment.label",
+                "ui_name": "Response To Treatment",
+            },
+            "adverse_events": {
+                "path": "medical_actions.[item].adverse_events.[item].label",
+                "ui_name": "Adverse Events",
+            },
+            "treatment_termination_reason": {
+                "path": "medical_actions.[item].treatment_termination_reason.label",
+                "ui_name": "Treatment Termination Reason",
             },
         },
     },
