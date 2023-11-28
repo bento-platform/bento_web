@@ -30,6 +30,8 @@ import {
     FREE_TEXT_SEARCH,
     SET_OTHER_THRESHOLD_PERCENTAGE,
     SET_IGV_POSITION,
+    SET_INDIVIDUAL_ID,
+    SET_INDIVIDUAL_RESOURCES_TUPLE,
 } from "./actions";
 
 // TODO: Could this somehow be combined with discovery?
@@ -53,6 +55,8 @@ export const explorer = (
         otherThresholdPercentage:
             readFromLocalStorage("otherThresholdPercentage") ?? DEFAULT_OTHER_THRESHOLD_PERCENTAGE,
         igvPosition: undefined,
+        individualId: "",
+        individualResourcesTuple: [],
     },
     action,
 ) => {
@@ -307,7 +311,16 @@ export const explorer = (
                 ...state,
                 igvPosition: action.igvPosition,
             };
-
+        case SET_INDIVIDUAL_ID:
+            return {
+                ...state,
+                individualId: action.id,
+            };
+        case SET_INDIVIDUAL_RESOURCES_TUPLE:
+            return {
+                ...state,
+                individualResourcesTuple: action.resourcesTuple,
+            };
         default:
             return state;
     }
