@@ -200,7 +200,7 @@ const InterpretationDetail = ({ interpretation }) => {
         </Typography.Title>
         {diagnosis ? <Descriptions layout="horizontal" bordered column={2} size="small">
             <Descriptions.Item label="Disease">
-                <OntologyTerm term={diagnosis.disease_ontology}/>
+                <OntologyTerm term={diagnosis.disease}/>
             </Descriptions.Item>
         </Descriptions> : <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} />}
 
