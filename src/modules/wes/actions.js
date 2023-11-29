@@ -38,19 +38,19 @@ export const fetchRunDetails = networkAction(runID => (dispatch, getState) => ({
 const RUN_DONE_STATES = ["COMPLETE", "EXECUTOR_ERROR", "SYSTEM_ERROR", "CANCELED"];
 
 export const fetchRunDetailsIfNeeded = runID => async (dispatch, getState) => {
-    const state = getState();
+    const run = getState().runs.itemsByID[runID];  // run | undefined
 
-    const needsUpdate = !state.runs.itemsByID.hasOwnProperty(runID) || (
-        !state.runs.itemsByID[runID].isFetching && (
-            !state.runs.itemsByID[runID].details || (
-                !RUN_DONE_STATES.includes(state.runs.itemsByID[runID].state) &&
-                state.runs.itemsByID[runID].details.run_log.exit_code === null &&
-                state.runs.itemsByID[runID].details.run_log.end_time === "")));
+    const needsUpdate = !run || (
+        !run.isFetching && (
+            !run.details || (
+                !RUN_DONE_STATES.includes(run.state) &&
+                run.details.run_log.exit_code === null &&
+                run.details.run_log.end_time === "")));
 
     if (!needsUpdate) return;
 
     await dispatch(fetchRunDetails(runID));
-    if (getState().runs.itemsByID[runID].details) {
+    if (getState().runs.itemsByID[runID].details) {  // need to re-fetch run from state to check if we've got details
         await dispatch(fetchRunLogs(runID));
     }
 };
