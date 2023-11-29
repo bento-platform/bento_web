@@ -10,6 +10,9 @@ export const useFetchDropBoxContentsIfAllowed = () => {
     const dispatch = useDispatch();
     const { hasPermission } = useHasResourcePermission(RESOURCE_EVERYTHING, viewDropBox);
     useEffect(() => {
-        dispatch(fetchDropBoxTreeOrFail());
+        // If hasPermission changes to true, this will automatically dispatch the drop box fetch method.
+        if (hasPermission) {
+            dispatch(fetchDropBoxTreeOrFail());
+        }
     }, [dispatch, hasPermission]);
 };

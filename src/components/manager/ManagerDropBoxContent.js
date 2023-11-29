@@ -288,7 +288,7 @@ const ManagerDropBoxContent = () => {
         permissions,
         isFetching: isFetchingPermissions,
         hasAttempted: hasAttemptedPermissions,
-    } = useResourcePermissions(RESOURCE_EVERYTHING) ?? {};
+    } = useResourcePermissions(RESOURCE_EVERYTHING);
 
     useFetchDropBoxContentsIfAllowed();
 
