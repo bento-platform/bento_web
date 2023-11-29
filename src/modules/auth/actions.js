@@ -11,7 +11,6 @@ import {
 } from "../../utils/actions";
 
 import { fetchDatasetsDataTypes } from "../datasets/actions";
-import { fetchDropBoxTreeOrFail } from "../manager/actions";
 import {
     fetchProjectsWithDatasets,
     fetchOverviewSummary,
@@ -32,7 +31,6 @@ import { makeResourceKey } from "../../lib/auth/resources";
 export const FETCHING_USER_DEPENDENT_DATA = createFlowActionTypes("FETCHING_USER_DEPENDENT_DATA");
 
 export const fetchServiceDependentData = () => dispatch => Promise.all([
-    fetchDropBoxTreeOrFail,
     fetchRuns,
     fetchNotifications,
     fetchOverviewSummary,
