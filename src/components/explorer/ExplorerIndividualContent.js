@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { Redirect, Route, Switch, useHistory, useLocation, useParams, useRouteMatch } from "react-router-dom";
 
@@ -9,6 +9,8 @@ import { fetchIndividualIfNecessary } from "../../modules/metadata/actions";
 import { LAYOUT_CONTENT_STYLE } from "../../styles/layoutContent";
 import { matchingMenuKeys, renderMenuItem } from "../../utils/menu";
 import { urlPath } from "../../utils/url";
+
+import { ExplorerIndividualContext } from "./contexts/individual";
 import { useIsDataEmpty, useDeduplicatedIndividualBiosamples, useIndividualResources } from "./utils";
 
 import SitePageHeader from "../SitePageHeader";
@@ -21,7 +23,6 @@ import IndividualOntologies from "./IndividualOntologies";
 import IndividualTracks from "./IndividualTracks";
 import IndividualPhenopackets from "./IndividualPhenopackets";
 import IndividualInterpretations from "./IndividualInterpretations";
-import { setIndividualId, setIndividualResourcesTuple } from "../../modules/explorer/actions";
 import IndividualMedicalActions from "./IndividualMedicalActions";
 import IndividualMeasurements from "./IndividualMeasurements";
 
@@ -57,12 +58,6 @@ const ExplorerIndividualContent = () => {
         }
     }, [location]);
 
-    useEffect(() => {
-        if (individualID) {
-            dispatch(setIndividualId(individualID));
-        }
-    }, [dispatch, individualID]);
-
     const metadataService = useSelector((state) => state.services.metadataService);
     const individuals = useSelector((state) => state.individuals.itemsByID);
 
@@ -76,13 +71,8 @@ const ExplorerIndividualContent = () => {
 
     const { isFetching: individualIsFetching, data: individual } = individuals[individualID] ?? {};
 
-    const resources = useIndividualResources(individual);
-    useEffect(() => {
-        // Set individual resources in the store for OntologyTerm rendering with no prop drilling
-        if (resources) {
-            dispatch(setIndividualResourcesTuple(resources));
-        }
-    }, [dispatch, resources]);
+    const resourcesTuple = useIndividualResources(individual);
+    const individualContext = useMemo(() => ({ individualID, resourcesTuple }), [individualID, resourcesTuple]);
 
     const overviewUrl = `${individualUrl}/overview`;
     const phenotypicFeaturesUrl = `${individualUrl}/phenotypic-features`;
@@ -163,46 +153,48 @@ const ExplorerIndividualContent = () => {
         />
         <Layout>
             <Layout.Content style={LAYOUT_CONTENT_STYLE}>
-                {(individual && !individualIsFetching) ? <Switch>
-                    {/* OVERVIEW */}
-                    <Route path={overviewUrl.replace(":", "\\:")}>
-                        <IndividualOverview individual={individual} />
-                    </Route>
-                    {/* BIOSAMPLES RELATED */}
-                    <Route path={biosamplesUrl.replace(":", "\\:")}>
-                        <IndividualBiosamples individual={individual} experimentsUrl={experimentsUrl}/>
-                    </Route>
-                    <Route path={measurementsUrl.replace(":", "\\:")}>
-                        <IndividualMeasurements individual={individual} />
-                    </Route>
-                    <Route path={phenotypicFeaturesUrl.replace(":", "\\:")}>
-                        <IndividualPhenotypicFeatures individual={individual} />
-                    </Route>
-                    <Route path={diseasesUrl.replace(":", "\\:")}>
-                        <IndividualDiseases individual={individual} />
-                    </Route>
-                    <Route path={interpretationsUrl.replace(":", "\\:")}>
-                        <IndividualInterpretations individual={individual} />
-                    </Route>
-                    <Route path={medicalActionsUrl.replace(":", "\\:")}>
-                        <IndividualMedicalActions individual={individual}/>
-                    </Route>
-                    {/* EXPERIMENTS RELATED*/}
-                    <Route path={experimentsUrl.replace(":", "\\:")}>
-                        <IndividualExperiments individual={individual} />
-                    </Route>
-                    <Route path={tracksUrl.replace(":", "\\:")}>
-                        <IndividualTracks individual={individual} />
-                    </Route>
-                    {/* EXTRA */}
-                    <Route path={ontologiesUrl.replace(":", "\\:")}>
-                        <IndividualOntologies individual={individual} />
-                    </Route>
-                    <Route path={phenopacketsUrl.replace(":", "\\:")}>
-                        <IndividualPhenopackets individual={individual} />
-                    </Route>
-                    <Redirect to={overviewUrl.replace(":", "\\:")} />
-                </Switch> : <Skeleton loading={true} />}
+                <ExplorerIndividualContext.Provider value={individualContext}>
+                    {(individual && !individualIsFetching) ? <Switch>
+                        {/* OVERVIEW */}
+                        <Route path={overviewUrl.replace(":", "\\:")}>
+                            <IndividualOverview individual={individual} />
+                        </Route>
+                        {/* BIOSAMPLES RELATED */}
+                        <Route path={biosamplesUrl.replace(":", "\\:")}>
+                            <IndividualBiosamples individual={individual} experimentsUrl={experimentsUrl}/>
+                        </Route>
+                        <Route path={measurementsUrl.replace(":", "\\:")}>
+                            <IndividualMeasurements individual={individual} />
+                        </Route>
+                        <Route path={phenotypicFeaturesUrl.replace(":", "\\:")}>
+                            <IndividualPhenotypicFeatures individual={individual} />
+                        </Route>
+                        <Route path={diseasesUrl.replace(":", "\\:")}>
+                            <IndividualDiseases individual={individual} />
+                        </Route>
+                        <Route path={interpretationsUrl.replace(":", "\\:")}>
+                            <IndividualInterpretations individual={individual} />
+                        </Route>
+                        <Route path={medicalActionsUrl.replace(":", "\\:")}>
+                            <IndividualMedicalActions individual={individual}/>
+                        </Route>
+                        {/* EXPERIMENTS RELATED*/}
+                        <Route path={experimentsUrl.replace(":", "\\:")}>
+                            <IndividualExperiments individual={individual} />
+                        </Route>
+                        <Route path={tracksUrl.replace(":", "\\:")}>
+                            <IndividualTracks individual={individual} />
+                        </Route>
+                        {/* EXTRA */}
+                        <Route path={ontologiesUrl.replace(":", "\\:")}>
+                            <IndividualOntologies individual={individual} />
+                        </Route>
+                        <Route path={phenopacketsUrl.replace(":", "\\:")}>
+                            <IndividualPhenopackets individual={individual} />
+                        </Route>
+                        <Redirect to={overviewUrl.replace(":", "\\:")} />
+                    </Switch> : <Skeleton loading={true} />}
+                </ExplorerIndividualContext.Provider>
             </Layout.Content>
         </Layout>
     </>;

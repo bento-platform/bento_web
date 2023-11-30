@@ -17,12 +17,12 @@ const SEARCH_RESULT_COLUMNS = [
     {
         title: "Samples",
         dataIndex: "biosamples",
-        render: (samples, {individual: {id: individualId}}) => (
+        render: (samples, {individual: {id: individualID}}) => (
             <>
                 {samples.length} Sample{samples.length === 1 ? "" : "s"}
                 {samples.length ? ": " : ""}
                 {samples.map((s, si) => <React.Fragment key={s}>
-                    <BiosampleIDCell biosample={s} individualId={individualId} />
+                    <BiosampleIDCell biosample={s} individualID={individualID} />
                     {si < samples.length - 1 ? ", " : ""}
                 </React.Fragment>)}
             </>

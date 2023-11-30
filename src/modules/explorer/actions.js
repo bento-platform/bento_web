@@ -20,8 +20,6 @@ export const SET_TABLE_SORT_ORDER = "EXPLORER.SET_TABLE_SORT_ORDER";
 export const RESET_TABLE_SORT_ORDER = "EXPLORER.RESET_TABLE_SORT_ORDER";
 export const SET_ACTIVE_TAB = "EXPLORER.SET_ACTIVE_TAB";
 export const SET_IGV_POSITION = "EXPLORER.SET_IGV_POSITION";
-export const SET_INDIVIDUAL_ID = "EXPLORER.SET_INDIVIDUAL_ID";
-export const SET_INDIVIDUAL_RESOURCES_TUPLE = "EXPLORER.SET_RESOURCES_TUPLE";
 
 const performSearch = networkAction((datasetID, dataTypeQueries, excludeFromAutoJoin = []) => (dispatch, getState) => ({
     types: PERFORM_SEARCH,
@@ -177,7 +175,7 @@ export const neutralizeAutoQueryPageTransition = () => ({
 // search unpaginated for now, since that's how standard queries are currently handled
 const performFreeTextSearch = networkAction(
     (datasetID, term) => (dispatch, getState) => (
-        console.log("performFreeTextSearch", datasetID, term),
+        console.log("performFreeTextSearch", datasetID, term) ||
         {
             types: FREE_TEXT_SEARCH,
             params: { datasetID },
@@ -201,16 +199,6 @@ export const setOtherThresholdPercentage = (threshold) => ({
 export const setIgvPosition = (igvPosition) => ({
     type: SET_IGV_POSITION,
     igvPosition,
-});
-
-export const setIndividualId = (id) => ({
-    type: SET_INDIVIDUAL_ID,
-    id,
-});
-
-export const setIndividualResourcesTuple = (tuples) => ({
-    type: SET_INDIVIDUAL_RESOURCES_TUPLE,
-    resourcesTuple: tuples,
 });
 
 export const performGetGohanVariantsOverviewIfPossible = () => (dispatch, getState) => {
