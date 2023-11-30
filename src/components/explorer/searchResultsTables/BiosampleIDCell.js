@@ -7,18 +7,18 @@ import { explorerIndividualUrl } from "../utils";
 
 /**
  * A Link to the provided biosample in the explorer.
- * If no individualId prop is provided, the link will use the current individual ID in the explorer's state.
+ * If no individualID prop is provided, the link will use the current individual ID in the explorer's state.
  * @param {string} biosample biosample ID to link to
- * @param {string} individualId (optional) individual ID to link to
+ * @param {string} individualID (optional) individual ID to link to
  */
-const BiosampleIDCell = React.memo(({ biosample, individualId }) => {
+const BiosampleIDCell = React.memo(({ biosample, individualID }) => {
     const location = useLocation();
-    const { contextIndividualID } = useContext(ExplorerIndividualContext);
-    const usedIndividualId = individualId ?? contextIndividualID;
+    const { individualID: contextIndividualID } = useContext(ExplorerIndividualContext);
+    const usedIndividualID = individualID ?? contextIndividualID;
     return (
         <Link
             to={{
-                pathname: `${explorerIndividualUrl(usedIndividualId)}/biosamples/${biosample}`,
+                pathname: `${explorerIndividualUrl(usedIndividualID)}/biosamples/${biosample}`,
                 state: { backUrl: location.pathname },
             }}
         >
@@ -29,7 +29,7 @@ const BiosampleIDCell = React.memo(({ biosample, individualId }) => {
 
 BiosampleIDCell.propTypes = {
     biosample: PropTypes.string.isRequired,
-    individualId: PropTypes.string,
+    individualID: PropTypes.string,
 };
 
 export default BiosampleIDCell;

@@ -28,12 +28,12 @@ const variantExpressionPropType = PropTypes.shape({
 
 const VariantExpressionDetails = ({variantExpression, geneContext}) => {
     const dispatch = useDispatch();
-    const { individualId } = useContext(ExplorerIndividualContext);
+    const { individualID } = useContext(ExplorerIndividualContext);
     const tracksUrl = useMemo(() => {
-        if (individualId) {
-            return `${explorerIndividualUrl(individualId)}/tracks`;
+        if (individualID) {
+            return `${explorerIndividualUrl(individualID)}/tracks`;
         }
-    }, [individualId]);
+    }, [individualID]);
     return (
         <div style={variantStyle}>
             <span style={{display: "inline"}}>

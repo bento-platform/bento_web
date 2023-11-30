@@ -51,7 +51,7 @@ const SEARCH_RESULT_COLUMNS_EXP = [
         title: "Biosample",
         dataIndex: "biosampleId",
         render: (biosampleId, record) => (
-            <BiosampleIDCell biosample={biosampleId} individualId={record.individual.id} />
+            <BiosampleIDCell biosample={biosampleId} individualID={record.individual.id} />
         ),
         sorter: (a, b) => a.biosampleId.localeCompare(b.biosampleId),
         sortDirections: ["descend", "ascend", "descend"],

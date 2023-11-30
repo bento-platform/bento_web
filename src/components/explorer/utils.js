@@ -146,4 +146,4 @@ export const ontologyTermSorter = (k) => (a, b) => {
     return 0;
 };
 
-export const explorerIndividualUrl = (individualId) => `/data/explorer/individuals/${individualId}`;
+export const explorerIndividualUrl = (individualID) => `/data/explorer/individuals/${individualID}`;
