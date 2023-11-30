@@ -66,16 +66,29 @@ export const datasetDataTypes = (
 };
 
 
-const datasetItemSet = (oldState, datasetID, key, value) => ({
-    ...oldState,
-    itemsByID: {
-        ...oldState.itemsByID,
-        [datasetID]: {
-            ...(oldState.itemsByID[datasetID] ?? {}),
-            [key]: value,
+const datasetItemSet = (oldState, datasetID, key, value) => {
+    let newValue;
+    if ("boolean" === typeof value) {
+        // no need to spread a boolean
+        newValue = value;
+    } else {
+        newValue = {
+            ...(oldState.itemsByID[datasetID]?.[key] ?? {}),
+            ...value,
+        };
+    }
+    const newState = {
+        ...oldState,
+        itemsByID: {
+            ...oldState.itemsByID,
+            [datasetID]: {
+                ...(oldState.itemsByID[datasetID] ?? {}),
+                [key]: newValue,
+            },
         },
-    },
-});
+    };
+    return newState;
+};
 
 
 export const datasetSummaries = (
