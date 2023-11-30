@@ -1,7 +1,9 @@
-import React from "react";
+import React, { useContext } from "react";
 import { Link, useLocation } from "react-router-dom";
 import PropTypes from "prop-types";
-import { useSelector } from "react-redux";
+
+import { ExplorerIndividualContext } from "../contexts/individual";
+import { explorerIndividualUrl } from "../utils";
 
 /**
  * A Link to the provided biosample in the explorer.
@@ -11,11 +13,12 @@ import { useSelector } from "react-redux";
  */
 const BiosampleIDCell = React.memo(({ biosample, individualId }) => {
     const location = useLocation();
-    const usedIndividualId = individualId ? individualId : useSelector(state => state.explorer?.individualId ?? "");
+    const { contextIndividualID } = useContext(ExplorerIndividualContext);
+    const usedIndividualId = individualId ?? contextIndividualID;
     return (
         <Link
             to={{
-                pathname: `/data/explorer/individuals/${usedIndividualId}/biosamples/${biosample}`,
+                pathname: `${explorerIndividualUrl(usedIndividualId)}/biosamples/${biosample}`,
                 state: { backUrl: location.pathname },
             }}
         >

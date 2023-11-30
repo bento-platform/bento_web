@@ -1,12 +1,16 @@
-import React, { useMemo } from "react";
+import React, { useContext, useMemo } from "react";
 import { Link } from "react-router-dom";
-import { useDispatch, useSelector } from "react-redux";
+import { useDispatch } from "react-redux";
 import PropTypes from "prop-types";
 
 import { Button, Descriptions } from "antd";
 
 import { setIgvPosition } from "../../modules/explorer/actions";
+
 import "./explorer.css";
+import { ExplorerIndividualContext } from "./contexts/individual";
+import { explorerIndividualUrl } from "./utils";
+
 import JsonView from "./JsonView";
 import OntologyTerm from "./OntologyTerm";
 import { GeneDescriptor } from "./IndividualGenes";
@@ -24,10 +28,10 @@ const variantExpressionPropType = PropTypes.shape({
 
 const VariantExpressionDetails = ({variantExpression, geneContext}) => {
     const dispatch = useDispatch();
-    const individualId = useSelector(state => state.explorer.individualId);
+    const { individualId } = useContext(ExplorerIndividualContext);
     const tracksUrl = useMemo(() => {
         if (individualId) {
-            return `/data/explorer/individuals/${individualId}/tracks`;
+            return `${explorerIndividualUrl(individualId)}/tracks`;
         }
     }, [individualId]);
     return (

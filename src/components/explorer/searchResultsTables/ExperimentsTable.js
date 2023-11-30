@@ -4,6 +4,7 @@ import { useSelector } from "react-redux";
 import PropTypes from "prop-types";
 
 import { useSortedColumns } from "../hooks/explorerHooks";
+import { explorerIndividualUrl } from "../utils";
 
 import BiosampleIDCell from "./BiosampleIDCell";
 import ExplorerSearchResultsTable from "../ExplorerSearchResultsTable";
@@ -14,7 +15,7 @@ const ExperimentRender = React.memo(({ experimentId, individual }) => {
         <>
             <Link
                 to={{
-                    pathname: `/data/explorer/individuals/${individual.id}/experiments/${experimentId}`,
+                    pathname: `${explorerIndividualUrl(individual.id)}/experiments/${experimentId}`,
                     state: { backUrl: location.pathname },
                 }}
             >
