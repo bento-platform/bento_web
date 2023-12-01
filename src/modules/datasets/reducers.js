@@ -67,16 +67,12 @@ export const datasetDataTypes = (
 
 
 const datasetItemSet = (oldState, datasetID, key, value) => {
-    let newValue;
-    if ("boolean" === typeof value) {
-        // no need to spread a boolean
-        newValue = value;
-    } else {
-        newValue = {
-            ...(oldState.itemsByID[datasetID]?.[key] ?? {}),
-            ...value,
-        };
-    }
+    // If value is an object, spread with key's oldState
+    // Else, set key with value as is (boolean | string | undefined)
+    const newValue = "object" === typeof value ? {
+        ...(oldState.itemsByID[datasetID]?.[key] ?? {}),
+        ...value,
+    } : value;
     const newState = {
         ...oldState,
         itemsByID: {
