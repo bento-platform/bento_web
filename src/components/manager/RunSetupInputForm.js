@@ -153,7 +153,11 @@ const RunSetupInputForm = ({initialValues, form, onSubmit, workflow, onBack}) =>
                 const [component, options] = getInputComponentAndOptions(i);
 
                 return (
-                    <Form.Item label={i.id} key={i.id}>
+                    <Form.Item
+                        label={i.id}
+                        key={i.id}
+                        extra={i.help ? <span dangerouslySetInnerHTML={{ __html: i.help }} /> : undefined}
+                    >
                         {form.getFieldDecorator(i.id, {
                             initialValue: initialValues[i.id],  // undefined if not set
                             // Default to requiring the field unless the "required" property is set on the input
