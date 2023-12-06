@@ -9,7 +9,7 @@ export const RUN_REFRESH_TIMEOUT = 7500;
 
 export const renderDate = date => date ? new Date(Date.parse(date)).toLocaleString("en-CA") : "";
 
-export const sortDate = (a, b, dateProperty, bDateProperty=undefined) =>
+export const sortDate = (a, b, dateProperty, bDateProperty = undefined) =>
     (new Date(Date.parse(a[dateProperty])).getTime() || Infinity) -
     (new Date(Date.parse(b[bDateProperty ?? dateProperty])).getTime() || Infinity);
 
