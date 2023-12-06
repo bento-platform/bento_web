@@ -70,7 +70,7 @@ EnumSelect.propTypes = {
     mode: PropTypes.oneOf(["default", "multiple", "tags", "combobox"]),
     onChange: PropTypes.func,
     values: PropTypes.oneOfType([PropTypes.string, PropTypes.arrayOf(PropTypes.string)]),
-    value: PropTypes.arrayOf(PropTypes.string),
+    value: PropTypes.oneOfType([PropTypes.string, PropTypes.arrayOf(PropTypes.string)]),
 };
 
 
