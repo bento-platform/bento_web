@@ -1,5 +1,8 @@
-import React, { forwardRef, useCallback, useEffect, useState } from "react";
+import React, { forwardRef, useCallback, useEffect, useMemo, useState } from "react";
+import { useSelector } from "react-redux";
 import PropTypes from "prop-types";
+
+import Handlebars from "handlebars";
 
 import { Button, Checkbox, Form, Icon, Input, Select, Spin } from "antd";
 
@@ -9,13 +12,13 @@ import {
     FORM_BUTTON_COL,
 } from "./workflowCommon";
 
-import {BENTO_DROP_BOX_FS_BASE_PATH} from "../../config";
-import {workflowPropTypesShape} from "../../propTypes";
-import {nop} from "../../utils/misc";
+import { BENTO_DROP_BOX_FS_BASE_PATH } from "../../config";
+import { workflowPropTypesShape } from "../../propTypes";
+import { testFileAgainstPattern } from "../../utils/files";
+import { nop } from "../../utils/misc";
 
 import DatasetTreeSelect, { ID_FORMAT_PROJECT_DATASET } from "./DatasetTreeSelect";
 import DropBoxTreeSelect from "./DropBoxTreeSelect";
-import { testFileAgainstPattern } from "../../utils/files";
 
 
 const EnumSelect = forwardRef(({ mode, onChange, values: valuesConfig, value }, ref) => {
@@ -24,10 +27,18 @@ const EnumSelect = forwardRef(({ mode, onChange, values: valuesConfig, value }, 
     const [values, setValues] = useState(isUrl ? [] : valuesConfig);
     const [fetching, setFetching] = useState(false);
 
+    const bentoServicesByKind = useSelector((state) => state.bentoServices.itemsByKind);
+    const serviceUrls = useMemo(
+        () => Object.fromEntries(Object.entries(bentoServicesByKind).map(([k, v]) => [k, v.url])),
+        [bentoServicesByKind]);
+
     useEffect(() => {
         if (isUrl) {
             setFetching(true);
-            fetch(valuesConfig)
+
+            const url = Handlebars.compile(valuesConfig)({ serviceUrls });
+            console.debug(`enum - using values URL: ${url}`);
+            fetch(url)
                 .then(r => r.json())
                 .then(data => {
                     if (Array.isArray(data)) {
@@ -59,7 +70,7 @@ EnumSelect.propTypes = {
     mode: PropTypes.oneOf(["default", "multiple", "tags", "combobox"]),
     onChange: PropTypes.func,
     values: PropTypes.oneOfType([PropTypes.string, PropTypes.arrayOf(PropTypes.string)]),
-    value: PropTypes.arrayOf(PropTypes.string),
+    value: PropTypes.oneOfType([PropTypes.string, PropTypes.arrayOf(PropTypes.string)]),
 };
 
 
