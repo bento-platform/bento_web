@@ -7,8 +7,9 @@ import { ontologyTermSorter, useIndividualPhenopacketDataIndex } from "./utils";
 import OntologyTerm, { conditionalOntologyRender } from "./OntologyTerm";
 import { EM_DASH } from "../../constants";
 import { RoutedIndividualContent, RoutedIndividualContentTable } from "./RoutedIndividualContent";
-import TimeElement, { renderTimeInterval } from "./TimeElement";
+import TimeElement, { TimeInterval } from "./TimeElement";
 import { Quantity } from "./IndividualMeasurements";
+import { uniqueId } from "lodash";
 
 const ACTION_TYPES = {
     "procedure": "Procedure",
@@ -59,16 +60,19 @@ const DOSE_INTERVAL_COLUMNS = [
                 quantity={doseInterval.quantity}
             />
         ),
+        key: "quantity",
     },
     {
         title: "Schedule Frequency",
         render: (_, doseInterval) => (
             <OntologyTerm term={doseInterval.schedule_frequency}/>
         ),
+        key: "schedule_frequency",
     },
     {
         title: "Interval",
-        render: (_, doseInterval) => renderTimeInterval(doseInterval.interval),
+        render: (_, doseInterval) => (<TimeInterval timeInterval={doseInterval.interval} br={true}/>),
+        key: "interval",
     },
 ];
 
@@ -82,14 +86,17 @@ export const Treatment = ({treatment}) => {
                 <OntologyTerm term={treatment.route_of_administration}/>
             </Descriptions.Item>
             <Descriptions.Item label="Dose Intervals">
-                {treatment?.dose_interval ? (
-                    <Table
-                        bordered={true}
-                        pagination={false}
-                        size="small"
-                        columns={DOSE_INTERVAL_COLUMNS}
-                        dataSource={treatment.dose_interval}
-                    />
+                {treatment?.dose_intervals ? (
+                    <div>
+                        <Table
+                            bordered={false}
+                            pagination={false}
+                            size="small"
+                            columns={DOSE_INTERVAL_COLUMNS}
+                            dataSource={treatment.dose_intervals}
+                            rowKey={() => uniqueId()}
+                        />
+                    </div>
                 ) : EM_DASH}
             </Descriptions.Item>
             <Descriptions.Item label="Drug Type">{treatment.drug_type}</Descriptions.Item>
