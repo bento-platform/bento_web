@@ -179,7 +179,7 @@ const IndividualTracks = ({ individual }) => {
         if (Object.keys(availableBrowserGenomes).length) {
             if (trackAssemblyIDs.length) {
                 const asmID = trackAssemblyIDs[0];  // TODO: first available
-                console.debug("auto-selected assembly ID:", asmID)
+                console.debug("auto-selected assembly ID:", asmID);
                 setSelectedAssemblyID(asmID);
             }
         }
