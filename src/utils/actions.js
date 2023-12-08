@@ -64,8 +64,8 @@ const _networkAction =
 
             const { types, params, url, baseUrl, req, err, onSuccess, onError, paginated } = fnResult;
 
-        // Only include access token when we are making a request to this Bento node or the IdP!
-        // Otherwise, we could leak it to external sites.
+            // Only include access token when we are making a request to this Bento node or the IdP!
+            // Otherwise, we could leak it to external sites.
 
             const token =
             url.startsWith("/") ||

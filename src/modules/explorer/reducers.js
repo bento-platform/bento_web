@@ -29,7 +29,7 @@ import {
     NEUTRALIZE_AUTO_QUERY_PAGE_TRANSITION,
     FREE_TEXT_SEARCH,
     SET_OTHER_THRESHOLD_PERCENTAGE,
-    SET_IGV_POSITION,
+    SET_IGV_POSITION, FETCH_IGV_GENOMES,
 } from "./actions";
 
 // TODO: Could this somehow be combined with discovery?
@@ -307,6 +307,19 @@ export const explorer = (
                 ...state,
                 igvPosition: action.igvPosition,
             };
+        default:
+            return state;
+    }
+};
+
+export const igvGenomes = (state = { data: null, isFetching: false, hasAttempted: false }, action) => {
+    switch (action.type) {
+        case FETCH_IGV_GENOMES.REQUEST:
+            return {...state, isFetching: true};
+        case FETCH_IGV_GENOMES.RECEIVE:
+            return {...state, data: action.data};
+        case FETCH_IGV_GENOMES.FINISH:
+            return {...state, isFetching: false, hasAttempted: true};
         default:
             return state;
     }

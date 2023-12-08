@@ -11,6 +11,8 @@ import { getIgvUrlsFromDrs } from "../../modules/drs/actions";
 import { setIgvPosition } from "../../modules/explorer/actions";
 import { guessFileType } from "../../utils/files";
 import {useDeduplicatedIndividualBiosamples} from "./utils";
+import { useReferenceGenomes } from "../../modules/reference/hooks";
+import { useIgvGenomes } from "../../modules/explorer/hooks";
 
 const SQUISHED_CALL_HEIGHT = 10;
 const EXPANDED_CALL_HEIGHT = 50;
@@ -90,6 +92,32 @@ TrackControlTable.propTypes = {
 const IndividualTracks = ({ individual }) => {
     const { accessToken } = useSelector((state) => state.auth);
 
+    const igvGenomes = useIgvGenomes();  // Built-in igv.js genomes (with annotations)
+    const referenceGenomes = useReferenceGenomes();  // Reference service genomes
+
+    const availableBrowserGenomes = useMemo(() => {
+        if (!igvGenomes.hasAttempted || !referenceGenomes.hasAttempted) {
+            return {};
+        }
+
+        const availableGenomes = {};
+
+        // For now, we prefer igv.js built-in genomes with the same ID over local copies for the browser, since it comes
+        // with gene annotation tracks. TODO: in the future, this should switch to preferring local copies.
+        referenceGenomes.items.forEach((g) => {
+            availableGenomes[g] = {
+                id: g.id,
+                fastaURL: g.fasta,
+                indexURL: g.fai,
+            };
+        });
+        (igvGenomes.data ?? []).forEach((g) => availableGenomes[g] = g);
+
+        console.debug("total available genomes:", availableGenomes);
+
+        return availableGenomes;
+    }, [igvGenomes, referenceGenomes]);
+
     const igvRef = useRef(null);
     const igvRendered = useRef(false);
     const {igvUrlsByFilename: igvUrls, isFetchingIgvUrls} = useSelector((state) => state.drs);
@@ -141,13 +169,26 @@ const IndividualTracks = ({ individual }) => {
         [allTracks, igvUrls],
     );
 
+    const [selectedAssemblyID, setSelectedAssemblyID] = useState(null);
+
+    const trackAssemblyIDs = useMemo(
+        () => Array.from(new Set(allFoundFiles.map((t) => t.genome_assembly_id))).sort(),
+        [allFoundFiles]);
+
+    useEffect(() => {
+        if (Object.keys(availableBrowserGenomes).length) {
+            if (trackAssemblyIDs.length) {
+                const asmID = trackAssemblyIDs[0];  // TODO: first available
+                console.debug("auto-selected assembly ID:", asmID)
+                setSelectedAssemblyID(asmID);
+            }
+        }
+    }, [availableBrowserGenomes, trackAssemblyIDs]);
+
     const [modalVisible, setModalVisible] = useState(false);
 
     const showModal = useCallback(() => setModalVisible(true), []);
     const closeModal = useCallback(() => setModalVisible(false), []);
-
-    // hardcode for hg19/GRCh37, fix requires updates elsewhere in Bento
-    const genome = "hg19";
 
     const toggleView = useCallback((track) => {
         const wasViewing = track.viewInIgv;
@@ -166,7 +207,7 @@ const IndividualTracks = ({ individual }) => {
                 expandedCallHeight: EXPANDED_CALL_HEIGHT,
                 displayMode: DISPLAY_MODE,
                 visibilityWindow: VISIBILITY_WINDOW,
-            });
+            }).catch(console.error);
         }
     }, [allTracks]);
 
@@ -183,9 +224,9 @@ const IndividualTracks = ({ individual }) => {
             if (hasFreshUrls(allTracks, igvUrls)) {
                 return;
             }
-            dispatch(getIgvUrlsFromDrs(allTracks));
+            dispatch(getIgvUrlsFromDrs(allTracks)).catch(console.error);
         }
-    }, []);
+    }, [allTracks]);
 
     // update access token whenever necessary
     useEffect(() => {
@@ -197,7 +238,7 @@ const IndividualTracks = ({ individual }) => {
         }
     }, [accessToken]);
 
-    // render igv when track urls ready
+    // render igv when track urls + reference genomes are ready
     useEffect(() => {
         if (isFetchingIgvUrls) {
             return;
@@ -211,8 +252,14 @@ const IndividualTracks = ({ individual }) => {
             return;
         }
 
-        const indexedTracks = allFoundFiles.filter(
-            (t) => t.viewInIgv && igvUrls[t.filename].dataUrl && igvUrls[t.filename].indexUrl,
+        if (!Object.keys(availableBrowserGenomes).length) {
+            return;
+        }
+
+        const currentTracks = allFoundFiles.filter((t) => t.viewInIgv && t.genome_assembly_id === selectedAssemblyID);
+
+        const indexedTracks = currentTracks.filter(
+            (t) => igvUrls[t.filename].dataUrl && igvUrls[t.filename].indexUrl,
         );
 
         const unindexedTracks = allFoundFiles.filter((t) => t.viewInIgv && igvUrls[t.filename].url);
@@ -241,7 +288,7 @@ const IndividualTracks = ({ individual }) => {
         const igvTracks = igvUnindexedTracks.concat(igvIndexedTracks);
 
         const igvOptions = {
-            genome: genome,
+            genome: availableBrowserGenomes[selectedAssemblyID],
             locus: igvPosition,
             tracks: igvTracks,
         };
@@ -257,7 +304,7 @@ const IndividualTracks = ({ individual }) => {
                 }, DEBOUNCE_WAIT),
             );
         });
-    }, [igvUrls]);
+    }, [igvUrls, availableBrowserGenomes, selectedAssemblyID]);
 
     return (
         <>
@@ -272,7 +319,7 @@ const IndividualTracks = ({ individual }) => {
             </Button>
             <Divider />
             {!allFoundFiles.length && (
-                isFetchingIgvUrls ? (
+                (isFetchingIgvUrls || referenceGenomes.isFetching) ? (
                     <Skeleton title={false} paragraph={{ rows: 4 }} loading={true} />
                 ) : (
                     <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} />
