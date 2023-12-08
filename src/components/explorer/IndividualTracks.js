@@ -105,7 +105,7 @@ const IndividualTracks = ({ individual }) => {
         // For now, we prefer igv.js built-in genomes with the same ID over local copies for the browser, since it comes
         // with gene annotation tracks. TODO: in the future, this should switch to preferring local copies.
         referenceGenomes.items.forEach((g) => {
-            availableGenomes[g] = {
+            availableGenomes[g.id] = {
                 id: g.id,
                 fastaURL: g.fasta,
                 indexURL: g.fai,
