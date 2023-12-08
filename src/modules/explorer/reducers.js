@@ -29,7 +29,8 @@ import {
     NEUTRALIZE_AUTO_QUERY_PAGE_TRANSITION,
     FREE_TEXT_SEARCH,
     SET_OTHER_THRESHOLD_PERCENTAGE,
-    SET_IGV_POSITION, FETCH_IGV_GENOMES,
+    SET_IGV_POSITION,
+    FETCH_IGV_GENOMES,
 } from "./actions";
 
 // TODO: Could this somehow be combined with discovery?
@@ -340,7 +341,7 @@ const tableSearchResultsExperiments = (searchResults) => {
                 return [];
             }
 
-            const formattedResult = {
+            return {
                 subjectId: result.subject_id,
                 key: experiment.experiment_id,
                 alternateIds: result.alternate_ids,
@@ -353,8 +354,6 @@ const tableSearchResultsExperiments = (searchResults) => {
                     alternate_ids: result.alternate_ids ?? [],
                 },
             };
-
-            return formattedResult;
         });
     });
 };
