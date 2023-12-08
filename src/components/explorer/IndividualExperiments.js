@@ -5,6 +5,7 @@ import PropTypes from "prop-types";
 
 import { Button, Descriptions, Icon, Popover, Table, Tooltip, Typography } from "antd";
 
+import { EM_DASH } from "../../constants";
 import { experimentPropTypesShape, experimentResultPropTypesShape, individualPropTypesShape } from "../../propTypes";
 import { getFileDownloadUrlsFromDrs } from "../../modules/drs/actions";
 import { guessFileType } from "../../utils/files";
@@ -83,8 +84,11 @@ const ExperimentResultActions = ({ result }) => {
                         <Descriptions.Item label="File format">
                             {result.file_format}
                         </Descriptions.Item>
+                        <Descriptions.Item label="Assembly ID">
+                            {result.genome_assembly_id ?? EM_DASH}
+                        </Descriptions.Item>
                         <Descriptions.Item label="Data output type">
-                            {result.data_output_type}
+                            {result.data_output_type ?? EM_DASH}
                         </Descriptions.Item>
                         <Descriptions.Item label="Usage">
                             {result.usage}
