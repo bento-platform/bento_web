@@ -111,7 +111,7 @@ const IndividualTracks = ({ individual }) => {
                 indexURL: g.fai,
             };
         });
-        (igvGenomes.data ?? []).forEach((g) => availableGenomes[g] = g);
+        (igvGenomes.data ?? []).forEach((g) => availableGenomes[g.id] = g);
 
         console.debug("total available genomes:", availableGenomes);
 
