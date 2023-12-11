@@ -90,7 +90,7 @@ TrackControlTable.propTypes = {
 // For now, we treat the filenames as unique identifiers (unfortunately).
 
 const buildIgvTrack = (igvUrls, track) => ({
-    format: track.file_format,
+    format: track.file_format?.toLowerCase() ?? guessFileType(track.filename),
     url: igvUrls[track.filename].url,
     indexURL: igvUrls[track.filename].indexUrl,
     name: track.filename,
@@ -146,29 +146,28 @@ const IndividualTracks = ({ individual }) => {
                 Object.fromEntries(
                     experiments.flatMap((e) => e?.experiment_results ?? [])
                         .filter(isViewable)
-                        .map((v) => {  // add properties for visibility and file type
-                            const fileFormat = v.file_format?.toLowerCase() ?? guessFileType(v.filename);
-                            return [
-                                v.filename,
-                                {
-                                    ...v,
-                                    // by default, don't view crams (user can turn them on in track controls):
-                                    viewInIgv: fileFormat !== "cram",
-                                    file_format: fileFormat,  // re-formatted: to lowercase + guess if missing
-                                },
-                            ];
-                        }),
+                        .map((v) => [
+                            v.filename,
+                            {
+                                ...v,
+                                // by default, don't view alignments (user can turn them on in track controls):
+                                viewInIgv: !["BAM", "CRAM"].includes(v.file_format),
+                            },
+                        ]),
                 ),
-            );
+            ).sort((r1, r2) => (r1.file_format > r2.file_format ? 1 : -1));
             console.debug("Viewable experiment results:", vr);
             return vr;
         },
         [biosamplesData],
     );
 
-    const [allTracks, setAllTracks] = useState(
-        viewableResults.sort((r1, r2) => (r1.file_format > r2.file_format ? 1 : -1)),
-    );
+    const [allTracks, setAllTracks] = useState(viewableResults);
+
+    useEffect(() => {
+        // If the set of viewable results changes, reset the track state
+        setAllTracks(viewableResults);
+    }, [viewableResults]);
 
     const allFoundFiles = useMemo(
         () => allTracks.filter((t) => !!igvUrls[t.filename]?.url),
@@ -247,18 +246,20 @@ const IndividualTracks = ({ individual }) => {
         }
 
         if (!allFoundFiles.length || !hasFreshUrls(allTracks, igvUrls) || igvBrowserRef.current) {
-            console.log("urls not ready");
-            console.log({ igvUrls: igvUrls });
-            console.log({ tracksValid: hasFreshUrls(allTracks, igvUrls) });
-            console.log({ igvBrowserRef: igvBrowserRef.current });
+            console.debug("urls not ready");
+            console.debug({ igvUrls: igvUrls });
+            console.debug({ tracksValid: hasFreshUrls(allTracks, igvUrls) });
+            console.debug({ igvBrowserRef: igvBrowserRef.current });
             return;
         }
 
         if (!Object.keys(availableBrowserGenomes).length) {
+            console.debug("no available browser genomes yet");
             return;
         }
 
-        console.debug("igv.createBrowser effect dependencies:", [igvUrls, availableBrowserGenomes, selectedAssemblyID]);
+        console.debug("igv.createBrowser effect dependencies:",
+            [igvUrls, allFoundFiles, availableBrowserGenomes, selectedAssemblyID]);
 
         const igvTracks = allFoundFiles
             .filter((t) => t.viewInIgv && t.genome_assembly_id === selectedAssemblyID && igvUrls[t.filename].url)
@@ -280,7 +281,7 @@ const IndividualTracks = ({ individual }) => {
                 }, DEBOUNCE_WAIT),
             );
         });
-    }, [igvUrls, availableBrowserGenomes, selectedAssemblyID]);
+    }, [igvUrls, allFoundFiles, availableBrowserGenomes, selectedAssemblyID]);
 
     return (
         <>
