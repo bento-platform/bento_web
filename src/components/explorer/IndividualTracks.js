@@ -139,7 +139,9 @@ const IndividualTracks = ({ individual }) => {
     }, [igvGenomes, referenceGenomes]);
 
     const biosamplesData = useDeduplicatedIndividualBiosamples(individual);
-    const experimentsData = biosamplesData.flatMap((b) => b?.experiments ?? []);
+    const experimentsData = useMemo(
+        () => biosamplesData.flatMap((b) => b?.experiments ?? []),
+        [biosamplesData]);
 
     const viewableResults = useMemo(
         () => {
