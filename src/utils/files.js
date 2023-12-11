@@ -1,12 +1,17 @@
 // file type guesses for igv files, for cases where this information is missing
 export const guessFileType = (filename) => {
-    if (filename.toLowerCase().endsWith(".vcf.gz")) {
-        return ("vcf");
+    const filenameLower = filename.toLowerCase();
+
+    if (filenameLower.endsWith(".vcf.gz")) {
+        return "vcf";
     }
-    if (filename.toLowerCase().endsWith(".cram")) {
-        return ("cram");
+    if (filenameLower.endsWith(".bam")) {
+        return "bam";
     }
-    if (filename.toLowerCase().endsWith(".bw") || filename.toLowerCase().endsWith(".bigwig")) {
+    if (filenameLower.endsWith(".cram")) {
+        return "cram";
+    }
+    if (filenameLower.endsWith(".bw") || filenameLower.endsWith(".bigwig")) {
         return "bigwig";
     }
 

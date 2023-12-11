@@ -43,10 +43,12 @@ const DEBOUNCE_WAIT = 500;
 // verify url set is for this individual (may have stale urls from previous request)
 const hasFreshUrls = (files, urls) => files.every((f) => urls.hasOwnProperty(f.filename));
 
-const isViewable = (file) => {
-    const viewable = ["vcf", "cram", "bigwig", "bw"];
-    return viewable.includes(file.file_format?.toLowerCase()) || viewable.includes(guessFileType(file.filename));
-};
+const VIEWABLE_FORMATS = ["vcf", "bam", "cram", "bigwig", "bigbed"];
+const isViewable = (file) =>
+    !!file.genome_assembly_id && (
+        VIEWABLE_FORMATS.includes(file.file_format?.toLowerCase()) ||
+        VIEWABLE_FORMATS.includes(guessFileType(file.filename))
+    );
 
 const TrackControlTable = React.memo(({ toggleView, allFoundFiles }) => {
     const trackTableColumns = [
