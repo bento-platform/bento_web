@@ -1,4 +1,4 @@
-import { PERFORM_SEARCH_BY_FUZZYNAME, RETRIEVE_URLS_FOR_IGV, RETRIEVE_URLS_FOR_DOWNLOAD} from "./actions";
+import { PERFORM_SEARCH_BY_FUZZY_NAME, RETRIEVE_URLS_FOR_IGV, RETRIEVE_URLS_FOR_DOWNLOAD} from "./actions";
 
 export const drs = (
     state = {
@@ -12,18 +12,18 @@ export const drs = (
     action,
 ) => {
     switch (action.type) {
-        case PERFORM_SEARCH_BY_FUZZYNAME.REQUEST:
+        case PERFORM_SEARCH_BY_FUZZY_NAME.REQUEST:
             return {
                 ...state,
                 isFuzzySearching: true,
             };
-        case PERFORM_SEARCH_BY_FUZZYNAME.RECEIVE:
+        case PERFORM_SEARCH_BY_FUZZY_NAME.RECEIVE:
             return {
                 ...state,
                 isFuzzySearching: false,
                 fuzzySearchResponse: action.data,
             };
-        case PERFORM_SEARCH_BY_FUZZYNAME.FINISH:
+        case PERFORM_SEARCH_BY_FUZZY_NAME.FINISH:
             return {
                 ...state,
                 isFuzzySearching: false,

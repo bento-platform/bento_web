@@ -89,8 +89,32 @@ TrackControlTable.propTypes = {
 // as multiple files may have the same name. Everything *should* be done through DRS IDs.
 // For now, we treat the filenames as unique identifiers (unfortunately).
 
+const buildIgvTrack = (igvUrls, track) => ({
+    format: track.file_format,
+    url: igvUrls[track.filename].url,
+    indexURL: igvUrls[track.filename].indexUrl,
+    name: track.filename,
+    squishedCallHeight: SQUISHED_CALL_HEIGHT,
+    expandedCallHeight: EXPANDED_CALL_HEIGHT,
+    displayMode: DISPLAY_MODE,
+    visibilityWindow: VISIBILITY_WINDOW,
+});
+
 const IndividualTracks = ({ individual }) => {
     const { accessToken } = useSelector((state) => state.auth);
+
+    const igvDivRef = useRef();
+    const igvBrowserRef = useRef(null);
+
+    const { igvUrlsByFilename: igvUrls, isFetchingIgvUrls } = useSelector((state) => state.drs);
+
+    // read stored position only on first render
+    const igvPosition = useSelector(
+        (state) => state.explorer.igvPosition,
+        () => true,  // We don't want to re-render anything when the position changes
+    );
+
+    const dispatch = useDispatch();
 
     const igvGenomes = useIgvGenomes();  // Built-in igv.js genomes (with annotations)
     const referenceGenomes = useReferenceGenomes();  // Reference service genomes
@@ -105,11 +129,7 @@ const IndividualTracks = ({ individual }) => {
         // For now, we prefer igv.js built-in genomes with the same ID over local copies for the browser, since it comes
         // with gene annotation tracks. TODO: in the future, this should switch to preferring local copies.
         referenceGenomes.items.forEach((g) => {
-            availableGenomes[g.id] = {
-                id: g.id,
-                fastaURL: g.fasta,
-                indexURL: g.fai,
-            };
+            availableGenomes[g.id] = { id: g.id, fastaURL: g.fasta, indexURL: g.fai };
         });
         (igvGenomes.data ?? []).forEach((g) => availableGenomes[g.id] = g);
 
@@ -118,23 +138,12 @@ const IndividualTracks = ({ individual }) => {
         return availableGenomes;
     }, [igvGenomes, referenceGenomes]);
 
-    const igvRef = useRef(null);
-    const igvRendered = useRef(false);
-    const {igvUrlsByFilename: igvUrls, isFetchingIgvUrls} = useSelector((state) => state.drs);
-
-    // read stored position only on first render
-    const igvPosition = useSelector(
-        (state) => state.explorer.igvPosition,
-        () => true,
-    );
-
-    const dispatch = useDispatch();
     const biosamplesData = useDeduplicatedIndividualBiosamples(individual);
     const experimentsData = biosamplesData.flatMap((b) => b?.experiments ?? []);
 
     const viewableResults = useMemo(
-        () =>
-            Object.values(
+        () => {
+            const vr = Object.values(
                 Object.fromEntries(
                     experimentsData.flatMap((e) => e?.experiment_results ?? [])
                         .filter(isViewable)
@@ -151,21 +160,19 @@ const IndividualTracks = ({ individual }) => {
                             ];
                         }),
                 ),
-            ),
+            );
+            console.debug("Viewable experiment results:", vr);
+            return vr;
+        },
         [experimentsData],
     );
-
-    console.debug("Viewable experiment results:", viewableResults);
 
     const [allTracks, setAllTracks] = useState(
         viewableResults.sort((r1, r2) => (r1.file_format > r2.file_format ? 1 : -1)),
     );
 
     const allFoundFiles = useMemo(
-        () =>
-            allTracks.filter(
-                (t) => (igvUrls[t.filename]?.dataUrl && igvUrls[t.filename]?.indexUrl) || igvUrls[t.filename]?.url,
-            ),
+        () => allTracks.filter((t) => !!igvUrls[t.filename]?.url),
         [allTracks, igvUrls],
     );
 
@@ -177,10 +184,13 @@ const IndividualTracks = ({ individual }) => {
 
     useEffect(() => {
         if (Object.keys(availableBrowserGenomes).length) {
-            if (trackAssemblyIDs.length) {
+            if (trackAssemblyIDs.length && trackAssemblyIDs[0]) {
                 const asmID = trackAssemblyIDs[0];  // TODO: first available
                 console.debug("auto-selected assembly ID:", asmID);
                 setSelectedAssemblyID(asmID);
+            } else {
+                // Backup: hg38
+                setSelectedAssemblyID("hg38");
             }
         }
     }, [availableBrowserGenomes, trackAssemblyIDs]);
@@ -191,23 +201,16 @@ const IndividualTracks = ({ individual }) => {
     const closeModal = useCallback(() => setModalVisible(false), []);
 
     const toggleView = useCallback((track) => {
+        if (!igvBrowserRef.current) return;
+
         const wasViewing = track.viewInIgv;
         const updatedTrackObject = { ...track, viewInIgv: !wasViewing };
         setAllTracks(allTracks.map((t) => (t.filename === track.filename ? updatedTrackObject : t)));
 
         if (wasViewing) {
-            igv.browser.removeTrackByName(track.filename);
+            igvBrowserRef.current.removeTrackByName(track.filename);
         } else {
-            igv.browser.loadTrack({
-                format: track.file_format,
-                url: igvUrls[track.filename].dataUrl,
-                indexURL: igvUrls[track.filename].indexUrl,
-                name: track.filename,
-                squishedCallHeight: SQUISHED_CALL_HEIGHT,
-                expandedCallHeight: EXPANDED_CALL_HEIGHT,
-                displayMode: DISPLAY_MODE,
-                visibilityWindow: VISIBILITY_WINDOW,
-            }).catch(console.error);
+            igvBrowserRef.current.loadTrack(buildIgvTrack(igvUrls, track)).catch(console.error);
         }
     }, [allTracks]);
 
@@ -244,11 +247,11 @@ const IndividualTracks = ({ individual }) => {
             return;
         }
 
-        if (!allFoundFiles.length || !hasFreshUrls(allTracks, igvUrls) || igvRendered.current) {
+        if (!allFoundFiles.length || !hasFreshUrls(allTracks, igvUrls) || igvBrowserRef.current) {
             console.log("urls not ready");
             console.log({ igvUrls: igvUrls });
             console.log({ tracksValid: hasFreshUrls(allTracks, igvUrls) });
-            console.log({ igvRendered: igvRendered.current });
+            console.log({ igvBrowserRef: igvBrowserRef.current });
             return;
         }
 
@@ -256,36 +259,11 @@ const IndividualTracks = ({ individual }) => {
             return;
         }
 
-        const currentTracks = allFoundFiles.filter((t) => t.viewInIgv && t.genome_assembly_id === selectedAssemblyID);
+        console.debug("igv.createBrowser effect dependencies:", [igvUrls, availableBrowserGenomes, selectedAssemblyID]);
 
-        const indexedTracks = currentTracks.filter(
-            (t) => igvUrls[t.filename].dataUrl && igvUrls[t.filename].indexUrl,
-        );
-
-        const unindexedTracks = allFoundFiles.filter((t) => t.viewInIgv && igvUrls[t.filename].url);
-
-        const igvIndexedTracks = indexedTracks.map((t) => ({
-            format: t.file_format,
-            url: igvUrls[t.filename].dataUrl,
-            indexURL: igvUrls[t.filename].indexUrl,
-            name: t.filename,
-            squishedCallHeight: SQUISHED_CALL_HEIGHT,
-            expandedCallHeight: EXPANDED_CALL_HEIGHT,
-            displayMode: DISPLAY_MODE,
-            visibilityWindow: VISIBILITY_WINDOW,
-        }));
-
-        const igvUnindexedTracks = unindexedTracks.map((t) => ({
-            format: t.file_format,
-            url: igvUrls[t.filename].url,
-            name: t.filename,
-            squishedCallHeight: SQUISHED_CALL_HEIGHT,
-            expandedCallHeight: EXPANDED_CALL_HEIGHT,
-            displayMode: DISPLAY_MODE,
-            visibilityWindow: VISIBILITY_WINDOW,
-        }));
-
-        const igvTracks = igvUnindexedTracks.concat(igvIndexedTracks);
+        const igvTracks = allFoundFiles
+            .filter((t) => t.viewInIgv && t.genome_assembly_id === selectedAssemblyID && igvUrls[t.filename].url)
+            .map((t) => buildIgvTrack(igvUrls, t));
 
         const igvOptions = {
             genome: availableBrowserGenomes[selectedAssemblyID],
@@ -293,11 +271,10 @@ const IndividualTracks = ({ individual }) => {
             tracks: igvTracks,
         };
 
-        igv.createBrowser(igvRef.current, igvOptions).then((browser) => {
-            igv.browser = browser;
-            igvRendered.current = true;
+        igv.createBrowser(igvDivRef.current, igvOptions).then((browser) => {
+            igvBrowserRef.current = browser;
 
-            igv.browser.on(
+            browser.on(
                 "locuschange",
                 debounce((referenceFrame) => {
                     storeIgvPosition(referenceFrame);
@@ -325,7 +302,7 @@ const IndividualTracks = ({ individual }) => {
                     <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} />
                 )
             )}
-            <div ref={igvRef} />
+            <div ref={igvDivRef} />
             <Modal visible={modalVisible} onOk={closeModal} onCancel={closeModal} zIndex={MODAL_Z_INDEX} width={600}>
                 <TrackControlTable toggleView={toggleView} allFoundFiles={allFoundFiles} />
             </Modal>
