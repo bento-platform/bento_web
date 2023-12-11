@@ -266,7 +266,7 @@ const Experiments = ({ individual, handleExperimentClick }) => {
                 file_format: r.file_format ?? guessFileType(r.filename),
             }));
 
-        dispatch(getFileDownloadUrlsFromDrs(downloadableFiles));
+        dispatch(getFileDownloadUrlsFromDrs(downloadableFiles)).catch(console.error);
     }, [experimentsData]);
 
     const columns = useMemo(

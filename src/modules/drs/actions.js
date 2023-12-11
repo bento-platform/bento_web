@@ -21,76 +21,58 @@ export const RETRIEVE_URLS_FOR_DOWNLOAD = {
 
 const drsObjectDownloadUrl = (drsUrl, objId) => `${drsUrl}/objects/${objId}/download`;
 
-const getDrsUrl = (filename) => async (dispatch, getState) => {
+// for igv-viewable files, get data (and maybe index file) urls in a single network call
+const getDrsUrls = (fileObj, skipIndex=false) => async (dispatch, getState) => {
+    const filename = fileObj.filename;
     const drsUrl = getState().services.drsService.url;
 
-    console.debug("Initiating getDrsUrl");
+    const isIndexed = isIndexedFileType(fileObj);
+    const shouldFetchIndex = isIndexed && !skipIndex;
+
+    console.debug(`Initiating getDrsUrls (isIndexed=${isIndexed}, skipIndex=${skipIndex})`);
 
     const fuzzySearchUrl = `${drsUrl}/search?fuzzy_name=${filename}`;
     await dispatch(performFuzzyNameSearch(fuzzySearchUrl));
-
     console.debug(`Completed fuzzy search for ${filename}`);
 
-    // determine drs url
-    const fuzzySearchObj = getState()?.drs?.fuzzySearchResponse;
-    if (fuzzySearchObj === undefined) {
-        const msg = `Something went wrong when pinging ${fuzzySearchUrl} ; fuzzySearchResponse is undefined`;
-        console.error(msg);
-        message.error(msg);
-        return { [filename]: null };
-    }
-
-    console.debug(`Retrieved object for ${filename}`);
-    console.debug({ fuzzySearchObj: fuzzySearchObj });
-
-    const objId = fuzzySearchObj.find(obj => obj.name === filename)?.id;
-    if (objId === undefined) {
-        // console notification only, file not present is not always an error
-        console.error(`${filename}: file not found in drs`);
-        return { [filename]: null };
-    }
-    console.debug(`Retrieved object ID ${objId} for ${filename}`);
-
-    return { [filename]: { url: drsObjectDownloadUrl(drsUrl, objId) } };
-};
-
-// for igv-viewable files, get data and index file urls in a single network call
-const getDrsDataAndIndexUrls = (filename) => async (dispatch, getState) => {
-    const drsUrl = getState().services.drsService.url;
-
-    console.debug("Initiating getDrsDataAndIndexUrls");
-
-    const indexFilename = indexFileName(filename);
-    const fuzzySearchUrl = `${drsUrl}/search?fuzzy_name=${filename}`;
-    await dispatch(performFuzzyNameSearch(fuzzySearchUrl));
-    console.debug(`Completed fuzzy search for ${filename}`);
+    const result = { url: null, ...(shouldFetchIndex ? {indexUrl: null} : {}) };
 
     const fuzzySearchObj = getState()?.drs?.fuzzySearchResponse;
     if (fuzzySearchObj === undefined) {
         const msg = `Something went wrong when pinging ${fuzzySearchUrl} ; fuzzySearchResponse is undefined`;
         console.error(msg);
         message.error(msg);
-        return { [filename]: { url: null, indexUrl: null } };
+        return { [filename]: result };
     }
 
     const dataFileId = fuzzySearchObj.find((obj) => obj.name === filename)?.id;
     if (dataFileId === undefined) {
         console.error(`Something went wrong when obtaining data file ID for ${filename}`);
-        return { [filename]: { url: null, indexUrl: null } };
+        return { [filename]: result };
     }
 
-    const dataUrl = drsObjectDownloadUrl(drsUrl, dataFileId);
+    result.url = drsObjectDownloadUrl(drsUrl, dataFileId);
 
-    const indexFileId = fuzzySearchObj.find((obj) => obj.name === indexFilename)?.id;
-    if (indexFileId === undefined) {
-        console.error(`Something went wrong when obtaining index file ID for ${indexFilename}`);
-        return { [filename]: { url: dataUrl, indexUrl: null } };
+    if (shouldFetchIndex) {
+        const indexFilename = indexFileName(filename);
+
+        result.indexUrl = null;
+
+        const indexFileId = fuzzySearchObj.find((obj) => obj.name === indexFilename)?.id;
+        if (indexFileId === undefined) {
+            console.error(`Something went wrong when obtaining index file ID for ${indexFilename}`);
+            return { [filename]: result };
+        }
+
+        result.indexUrl = drsObjectDownloadUrl(drsUrl, indexFileId);
     }
 
-    const urls = { [filename]: { url: dataUrl, indexUrl: drsObjectDownloadUrl(drsUrl, indexFileId) } };
+    const urls = { [filename]: result };
     console.debug(`retrieved DRS urls: ${JSON.stringify(urls)}`);
     return urls;
 };
+
+const groupDrsUrls = (urls) => urls.reduce((obj, item) => Object.assign(obj, item), {});
 
 export const getIgvUrlsFromDrs = (fileObjects) => async (dispatch, getState) => {
     if (!getState().services.drsService) {
@@ -100,15 +82,13 @@ export const getIgvUrlsFromDrs = (fileObjects) => async (dispatch, getState) => 
 
     console.log("initiating getIgvUrlsFromDrs");
 
-    const dispatchedSearches = fileObjects.map((f) =>
-        isIndexedFileType(f) ? dispatch(getDrsDataAndIndexUrls(f.filename)) : dispatch(getDrsUrl(f.filename)),
-    );
+    const dispatchedSearches = fileObjects.map((f) => dispatch(getDrsUrls(f)));
 
     dispatch(beginIgvUrlSearch());
 
     try {
         // reduce array to object that's addressable by filename
-        const urlsObj = (await dispatchedSearches).reduce((obj, item) => Object.assign(obj, item), {});
+        const urlsObj = groupDrsUrls(await Promise.all(dispatchedSearches));
         console.debug(`received drs urls for igv: ${JSON.stringify(urlsObj)}`);
         dispatch(setDrsUrlsForIgv(urlsObj));
     } catch (err) {
@@ -125,13 +105,13 @@ export const getFileDownloadUrlsFromDrs = (fileObjects) => async (dispatch, getS
 
     console.log("initiating getFileDownloadUrlsFromDrs");
 
-    const dispatchedSearches = fileObjects.map((f) => dispatch(getDrsUrl(f.filename)));
+    const dispatchedSearches = fileObjects.map((f) => dispatch(getDrsUrls(f, true)));
 
     dispatch(beginDownloadUrlsSearch());
 
     try {
         // reduce array to object that's addressable by filename
-        const urlsObj = (await dispatchedSearches).reduce((obj, item) => Object.assign(obj, item), {});
+        const urlsObj = groupDrsUrls(await Promise.all(dispatchedSearches));
         console.debug("received download urls from drs:", urlsObj);
         dispatch(setDownloadUrls(urlsObj));
     } catch (err) {
