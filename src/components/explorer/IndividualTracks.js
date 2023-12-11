@@ -139,15 +139,12 @@ const IndividualTracks = ({ individual }) => {
     }, [igvGenomes, referenceGenomes]);
 
     const biosamplesData = useDeduplicatedIndividualBiosamples(individual);
-    const experimentsData = useMemo(
-        () => biosamplesData.flatMap((b) => b?.experiments ?? []),
-        [biosamplesData]);
-
     const viewableResults = useMemo(
         () => {
+            const experiments = biosamplesData.flatMap((b) => b?.experiments ?? []);
             const vr = Object.values(
                 Object.fromEntries(
-                    experimentsData.flatMap((e) => e?.experiment_results ?? [])
+                    experiments.flatMap((e) => e?.experiment_results ?? [])
                         .filter(isViewable)
                         .map((v) => {  // add properties for visibility and file type
                             const fileFormat = v.file_format?.toLowerCase() ?? guessFileType(v.filename);
@@ -166,7 +163,7 @@ const IndividualTracks = ({ individual }) => {
             console.debug("Viewable experiment results:", vr);
             return vr;
         },
-        [experimentsData],
+        [biosamplesData],
     );
 
     const [allTracks, setAllTracks] = useState(
