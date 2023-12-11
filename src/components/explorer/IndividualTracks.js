@@ -1,7 +1,7 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import PropTypes from "prop-types";
-import {Button, Divider, Modal, Switch, Table, Empty, Skeleton} from "antd";
+import { Button, Divider, Modal, Switch, Table, Empty, Skeleton, message } from "antd";
 import { debounce } from "lodash";
 import igv from "igv/dist/igv.esm";
 
@@ -288,10 +288,14 @@ const IndividualTracks = ({ individual }) => {
                     storeIgvPosition(referenceFrame);
                 }, DEBOUNCE_WAIT),
             );
+        }).catch((err) => {
+            message.error(`Error creating igv.js browser: ${err}`);
+            console.error(err);
         });
 
         return () => {
             if (igvBrowserRef.current) {
+                console.debug("removing igv.js browser instance");
                 igv.removeBrowser(igvBrowserRef.current);
                 igvBrowserRef.current = null;
             }
