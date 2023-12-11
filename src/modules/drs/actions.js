@@ -22,7 +22,7 @@ export const RETRIEVE_URLS_FOR_DOWNLOAD = {
 const drsObjectDownloadUrl = (drsUrl, objId) => `${drsUrl}/objects/${objId}/download`;
 
 // for igv-viewable files, get data (and maybe index file) urls in a single network call
-const getDrsUrls = (fileObj, skipIndex=false) => async (dispatch, getState) => {
+const getDrsUrls = (fileObj, skipIndex = false) => async (dispatch, getState) => {
     const filename = fileObj.filename;
     const drsUrl = getState().services.drsService.url;
 
