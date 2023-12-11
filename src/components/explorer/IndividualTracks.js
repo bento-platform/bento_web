@@ -271,6 +271,8 @@ const IndividualTracks = ({ individual }) => {
             tracks: igvTracks,
         };
 
+        console.debug("creating igv.js browser with options:", igvOptions, "; tracks:", igvTracks);
+
         igv.createBrowser(igvDivRef.current, igvOptions).then((browser) => {
             igvBrowserRef.current = browser;
 

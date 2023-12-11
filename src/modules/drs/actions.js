@@ -74,6 +74,8 @@ const getDrsUrls = (fileObj, skipIndex=false) => async (dispatch, getState) => {
 
 const groupDrsUrls = (urls) => urls.reduce((obj, item) => Object.assign(obj, item), {});
 
+// TODO: completely deduplicate these two functions
+
 export const getIgvUrlsFromDrs = (fileObjects) => async (dispatch, getState) => {
     if (!getState().services.drsService) {
         console.error("DRS not found");
