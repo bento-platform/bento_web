@@ -293,6 +293,7 @@ const IndividualTracks = ({ individual }) => {
         return () => {
             if (igvBrowserRef.current) {
                 igv.removeBrowser(igvBrowserRef.current);
+                igvBrowserRef.current = null;
             }
         };
     }, [igvUrls, allFoundFiles, availableBrowserGenomes, selectedAssemblyID]);
