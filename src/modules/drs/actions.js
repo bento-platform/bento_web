@@ -58,12 +58,12 @@ const getDrsUrl = (filename) => async (dispatch, getState) => {
 const getDrsDataAndIndexUrls = (filename) => async (dispatch, getState) => {
     const drsUrl = getState().services.drsService.url;
 
-    console.log("Initiating getDrsDataAndIndexUrls");
+    console.debug("Initiating getDrsDataAndIndexUrls");
 
     const indexFilename = indexFileName(filename);
     const fuzzySearchUrl = `${drsUrl}/search?fuzzy_name=${filename}`;
     await dispatch(performFuzzyNameSearch(fuzzySearchUrl));
-    console.log(`Completed fuzzy search for ${filename}`);
+    console.debug(`Completed fuzzy search for ${filename}`);
 
     const fuzzySearchObj = getState()?.drs?.fuzzySearchResponse;
     if (fuzzySearchObj === undefined) {
@@ -75,9 +75,7 @@ const getDrsDataAndIndexUrls = (filename) => async (dispatch, getState) => {
 
     const dataFileId = fuzzySearchObj.find((obj) => obj.name === filename)?.id;
     if (dataFileId === undefined) {
-        const msg = "Something went wrong when obtaining data file ID";
-        console.error(msg);
-        message.error(msg);
+        console.error(`Something went wrong when obtaining data file ID for ${filename}`);
         return { [filename]: { url: null, indexUrl: null } };
     }
 
@@ -85,9 +83,7 @@ const getDrsDataAndIndexUrls = (filename) => async (dispatch, getState) => {
 
     const indexFileId = fuzzySearchObj.find((obj) => obj.name === indexFilename)?.id;
     if (indexFileId === undefined) {
-        const msg = `Something went wrong when obtaining index file ID for ${indexFilename}`;
-        console.error(msg);
-        message.error(msg);
+        console.error(`Something went wrong when obtaining index file ID for ${indexFilename}`);
         return { [filename]: { url: dataUrl, indexUrl: null } };
     }
 
