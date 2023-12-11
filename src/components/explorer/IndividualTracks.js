@@ -243,20 +243,28 @@ const IndividualTracks = ({ individual }) => {
 
     // render igv when track urls + reference genomes are ready
     useEffect(() => {
+        const cleanup = () => {
+            if (igvBrowserRef.current) {
+                console.debug("removing igv.js browser instance");
+                igv.removeBrowser(igvBrowserRef.current);
+                igvBrowserRef.current = null;
+            }
+        };
+
         if (isFetchingIgvUrls) {
-            return;
+            return cleanup;
         }
 
         if (!allFoundFiles.length || !hasFreshUrls(allTracks, igvUrls)) {
             console.debug("urls not ready");
             console.debug({ igvUrls: igvUrls });
             console.debug({ tracksValid: hasFreshUrls(allTracks, igvUrls) });
-            return;
+            return cleanup;
         }
 
         if (!Object.keys(availableBrowserGenomes).length) {
             console.debug("no available browser genomes yet");
-            return;
+            return cleanup;
         }
 
         console.debug("igv.createBrowser effect dependencies:",
@@ -264,7 +272,7 @@ const IndividualTracks = ({ individual }) => {
 
         if (igvBrowserRef.current) {
             console.debug("browser already exists");
-            return;
+            return cleanup;
         }
 
         const igvTracks = allFoundFiles
@@ -281,25 +289,19 @@ const IndividualTracks = ({ individual }) => {
 
         igv.createBrowser(igvDivRef.current, igvOptions).then((browser) => {
             igvBrowserRef.current = browser;
-
             browser.on(
                 "locuschange",
                 debounce((referenceFrame) => {
                     storeIgvPosition(referenceFrame);
                 }, DEBOUNCE_WAIT),
             );
+            console.debug("created igv.js browser instance:", browser);
         }).catch((err) => {
             message.error(`Error creating igv.js browser: ${err}`);
             console.error(err);
         });
 
-        return () => {
-            if (igvBrowserRef.current) {
-                console.debug("removing igv.js browser instance");
-                igv.removeBrowser(igvBrowserRef.current);
-                igvBrowserRef.current = null;
-            }
-        };
+        return cleanup;
     }, [igvUrls, allFoundFiles, availableBrowserGenomes, selectedAssemblyID]);
 
     return (
