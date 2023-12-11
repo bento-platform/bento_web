@@ -107,6 +107,7 @@ const IndividualTracks = ({ individual }) => {
 
     const igvDivRef = useRef();
     const igvBrowserRef = useRef(null);
+    const [creatingIgvBrowser, setCreatingIgvBrowser] = useState(false);
 
     const { igvUrlsByFilename: igvUrls, isFetchingIgvUrls } = useSelector((state) => state.drs);
 
@@ -262,18 +263,22 @@ const IndividualTracks = ({ individual }) => {
             return cleanup;
         }
 
-        if (!Object.keys(availableBrowserGenomes).length) {
-            console.debug("no available browser genomes yet");
+        if (!Object.keys(availableBrowserGenomes).length || !selectedAssemblyID) {
+            console.debug("no available browser genomes / selected assembly ID yet");
             return cleanup;
         }
 
         console.debug("igv.createBrowser effect dependencies:",
             [igvUrls, allFoundFiles, availableBrowserGenomes, selectedAssemblyID]);
 
-        if (igvBrowserRef.current) {
-            console.debug("browser already exists");
+        if (creatingIgvBrowser || igvBrowserRef.current) {
+            console.debug(
+                "browser is already being created or exists: creatingIgvBrowser =", creatingIgvBrowser,
+                "igvBrowserRef.current =", igvBrowserRef.current);
             return cleanup;
         }
+
+        setCreatingIgvBrowser(true);
 
         const igvTracks = allFoundFiles
             .filter((t) => t.viewInIgv && t.genome_assembly_id === selectedAssemblyID && igvUrls[t.filename].url)
@@ -288,13 +293,14 @@ const IndividualTracks = ({ individual }) => {
         console.debug("creating igv.js browser with options:", igvOptions, "; tracks:", igvTracks);
 
         igv.createBrowser(igvDivRef.current, igvOptions).then((browser) => {
-            igvBrowserRef.current = browser;
             browser.on(
                 "locuschange",
                 debounce((referenceFrame) => {
                     storeIgvPosition(referenceFrame);
                 }, DEBOUNCE_WAIT),
             );
+            igvBrowserRef.current = browser;
+            setCreatingIgvBrowser(false);
             console.debug("created igv.js browser instance:", browser);
         }).catch((err) => {
             message.error(`Error creating igv.js browser: ${err}`);
