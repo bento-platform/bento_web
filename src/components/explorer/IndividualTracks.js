@@ -247,11 +247,10 @@ const IndividualTracks = ({ individual }) => {
             return;
         }
 
-        if (!allFoundFiles.length || !hasFreshUrls(allTracks, igvUrls) || igvBrowserRef.current) {
+        if (!allFoundFiles.length || !hasFreshUrls(allTracks, igvUrls)) {
             console.debug("urls not ready");
             console.debug({ igvUrls: igvUrls });
             console.debug({ tracksValid: hasFreshUrls(allTracks, igvUrls) });
-            console.debug({ igvBrowserRef: igvBrowserRef.current });
             return;
         }
 
@@ -262,6 +261,11 @@ const IndividualTracks = ({ individual }) => {
 
         console.debug("igv.createBrowser effect dependencies:",
             [igvUrls, allFoundFiles, availableBrowserGenomes, selectedAssemblyID]);
+
+        if (igvBrowserRef.current) {
+            console.debug("browser already exists");
+            return;
+        }
 
         const igvTracks = allFoundFiles
             .filter((t) => t.viewInIgv && t.genome_assembly_id === selectedAssemblyID && igvUrls[t.filename].url)
@@ -285,6 +289,12 @@ const IndividualTracks = ({ individual }) => {
                 }, DEBOUNCE_WAIT),
             );
         });
+
+        return () => {
+            if (igvBrowserRef.current) {
+                igv.removeBrowser(igvBrowserRef.current);
+            }
+        };
     }, [igvUrls, allFoundFiles, availableBrowserGenomes, selectedAssemblyID]);
 
     return (
