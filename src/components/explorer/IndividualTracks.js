@@ -130,7 +130,7 @@ const buildIgvTrack = (igvUrls, track) => {
         displayMode: DISPLAY_MODE,
         visibilityWindow: VISIBILITY_WINDOW,
     };
-}
+};
 
 const IndividualTracks = ({ individual }) => {
     const { accessToken } = useSelector((state) => state.auth);
