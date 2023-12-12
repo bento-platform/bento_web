@@ -1,6 +1,7 @@
 import React from "react";
 import {Link, useLocation} from "react-router-dom";
 import PropTypes from "prop-types";
+import { explorerIndividualUrl } from "../utils";
 
 const IndividualIDCell = React.memo(({individual: {id, alternate_ids: alternateIds}}) => {
     const location = useLocation();
@@ -9,7 +10,7 @@ const IndividualIDCell = React.memo(({individual: {id, alternate_ids: alternateI
         <>
             <Link
                 to={{
-                    pathname: `/data/explorer/individuals/${id}/overview`,
+                    pathname: `${explorerIndividualUrl(id)}/overview`,
                     state: { backUrl: location.pathname },
                 }}
             >

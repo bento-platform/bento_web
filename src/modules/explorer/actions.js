@@ -175,7 +175,7 @@ export const neutralizeAutoQueryPageTransition = () => ({
 // search unpaginated for now, since that's how standard queries are currently handled
 const performFreeTextSearch = networkAction(
     (datasetID, term) => (dispatch, getState) => (
-        console.log("performFreeTextSearch", datasetID, term),
+        console.log("performFreeTextSearch", datasetID, term) ||
         {
             types: FREE_TEXT_SEARCH,
             params: { datasetID },

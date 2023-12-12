@@ -1,4 +1,4 @@
-import React, { memo, useEffect } from "react";
+import React, { memo, useContext, useEffect } from "react";
 import PropTypes from "prop-types";
 
 import { Button, Icon } from "antd";
@@ -7,9 +7,20 @@ import { EM_DASH } from "../../constants";
 import { ontologyShape } from "../../propTypes";
 import { id } from "../../utils/misc";
 
+import { ExplorerIndividualContext } from "./contexts/individual";
 import { useResourcesByNamespacePrefix } from "./utils";
 
-const OntologyTerm = memo(({ resourcesTuple, term, renderLabel }) => {
+export const conditionalOntologyRender = (field) => (_, record) => {
+    if (record.hasOwnProperty(field)) {
+        const term = record[field];
+        return (<OntologyTerm term={term}/>);
+    }
+    return EM_DASH;
+};
+
+const OntologyTerm = memo(({ term, renderLabel, br }) => {
+    const { resourcesTuple } = useContext(ExplorerIndividualContext);
+
     // TODO: perf: might be slow to generate this over and over
     const [resourcesByNamespacePrefix, isFetchingResources] = useResourcesByNamespacePrefix(resourcesTuple);
 
@@ -61,17 +72,19 @@ const OntologyTerm = memo(({ resourcesTuple, term, renderLabel }) => {
                     <Icon type="link" />
                 </Button>
             </span>
+            {br && <br/>}
         </span>
     );
 });
 
 OntologyTerm.propTypes = {
-    resourcesTuple: PropTypes.array,
     term: ontologyShape,
     renderLabel: PropTypes.func,
+    br: PropTypes.bool,
 };
 OntologyTerm.defaultProps = {
     renderLabel: id,
+    br: false,
 };
 
 export default OntologyTerm;

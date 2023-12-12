@@ -141,7 +141,6 @@ class Project extends Component {
                                         project={this.props.value}
                                         value={d}
                                         onEdit={() => (this.props.onEditDataset || nop)(d)}
-                                        onDatasetIngest={this.props.onDatasetIngest || nop}
                                     />
                                 </Col>
                             </Row>,
@@ -201,8 +200,6 @@ Project.propTypes = {
     onAddDataset: PropTypes.func,
     onEditDataset: PropTypes.func,
     onAddJsonSchema: PropTypes.func,
-
-    onDatasetIngest: PropTypes.func,
 };
 
 export default Project;

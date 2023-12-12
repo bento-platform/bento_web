@@ -102,34 +102,49 @@ const buildKeyFromRecord = (record) => `${record.dataType}-${record.datasetId}`;
 
 const fileNameFromPath = (path) => path.split("/").at(-1);
 
+const namespacedInput = (workflowId, input) => `${workflowId}.${input.id}`;
+
+const getFirstProjectDatasetInputFromWorkflow = (workflowId, {inputs}) =>
+    inputs
+        .filter(input => input.type === "project:dataset")
+        .map(input => namespacedInput(workflowId, input))[0];
+
 const getFileInputsFromWorkflow = (workflowId, {inputs}) =>
     inputs
         .filter(input => ["file", "file[]"].includes(input.type))
-        .map(input => `${workflowId}.${input.id}`);
+        .map(input => namespacedInput(workflowId, input));
 
 const processIngestions = (data, currentDatasets) => {
     const currentDatasetIds = new Set((currentDatasets || []).map((ds) => ds.identifier));
 
-    const ingestionsByDataType = data.reduce((ingestions, run) => {
+    const ingestions = {};
+
+    data.forEach((run) => {
         if (run.state !== "COMPLETE") {
-            return ingestions;
+            return;
         }
 
-        const {
-            workflow_id: workflowId,
-            workflow_metadata: workflowMetadata,
-            dataset_id: datasetId,
-        } = run.details.request.tags;
+        const workflowParams = run.details.request.workflow_params;
+        const { workflow_id: workflowId, workflow_metadata: workflowMetadata } = run.details.request.tags;
 
+        const projectDatasetKey = getFirstProjectDatasetInputFromWorkflow(workflowId, workflowMetadata);
+        if (!projectDatasetKey) {
+            return;
+        }
 
+        const datasetId = workflowParams[projectDatasetKey].split(":")[1];
         if (datasetId === undefined || !currentDatasetIds.has(datasetId)) {
-            return ingestions;
+            return;
+        }
+
+        if (!workflowMetadata.data_type) {
+            return;
         }
 
         const fileNames =
             getFileInputsFromWorkflow(workflowId ?? workflowMetadata.id, workflowMetadata)
                 .flatMap(key => {
-                    const paramValue = run.details.request.workflow_params[key];
+                    const paramValue = workflowParams[key];
                     if (!paramValue) {
                         // Key isn't in workflow params or is null
                         // - possibly optional field or something else going wrong
@@ -153,10 +168,9 @@ const processIngestions = (data, currentDatasets) => {
         } else {
             ingestions[dataTypeAndDatasetId] = currentIngestion;
         }
-        return ingestions;
     }, {});
 
-    return Object.values(ingestionsByDataType).sort((a, b) => Date.parse(b.date) - Date.parse(a.date));
+    return Object.values(ingestions).sort((a, b) => Date.parse(b.date) - Date.parse(a.date));
 };
 
 const LastIngestionTable = () => {
@@ -167,6 +181,7 @@ const LastIngestionTable = () => {
 
     return <Table
         bordered={true}
+        size="middle"
         columns={COLUMNS_LAST_CONTENT}
         loading={servicesFetching || runsFetching}
         dataSource={ingestions}

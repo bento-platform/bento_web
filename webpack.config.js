@@ -80,13 +80,17 @@ module.exports = {
     watchOptions: {
         aggregateTimeout: 200,
         poll: 1000,
+        ignored: /node_modules/,
     },
     devServer: {
         static: {
             directory: path.join(__dirname, "static"),
         },
         compress: true,
-        historyApiFallback: true,
+        historyApiFallback: {
+            // Allows url parameters containing dots in the devServer
+            disableDotRule: true
+        },
 
         host: "0.0.0.0",
         port: process.env.BENTO_WEB_PORT ?? 9000,

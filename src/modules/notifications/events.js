@@ -1,8 +1,9 @@
-import {notification} from "antd";
+import { notification } from "antd";
 import "antd/es/notification/style/css";
 
-import {addNotification, markNotificationAsRead} from "./actions";
-import {navigateToWESRun} from "../../utils/notifications";
+import { addNotification, markNotificationAsRead } from "./actions";
+import { fetchOverviewSummary } from "../metadata/actions";
+import { navigateToWESRun } from "../../utils/notifications";
 
 const EVENT_NOTIFICATION = "notification";
 
@@ -43,10 +44,13 @@ export default {
                 break;
 
             case NOTIFICATION_WES_RUN_COMPLETED:
+                // Notify the user that the workflow succeeded
                 notification.success({
                     ...notificationBasics,
                     onClick: wesClickAction,
                 });
+                // Reload overview data when a workflow completes
+                dispatch(fetchOverviewSummary());
                 break;
 
             default:

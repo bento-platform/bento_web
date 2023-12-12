@@ -1,16 +1,16 @@
 import React, {useCallback, useEffect, useMemo, useRef, useState} from "react";
 import {useDispatch, useSelector} from "react-redux";
-import {useHistory} from "react-router-dom";
 import {
     useResourcePermissions,
     RESOURCE_EVERYTHING,
     deleteDropBox,
     ingestDropBox,
+    viewDropBox,
 } from "bento-auth-js";
 
 import PropTypes from "prop-types";
 
-import {filesize} from "filesize";
+import { filesize } from "filesize";
 
 import {
     Alert,
@@ -32,16 +32,16 @@ import {
     message,
 } from "antd";
 
-import {LAYOUT_CONTENT_STYLE} from "../../styles/layoutContent";
+import { LAYOUT_CONTENT_STYLE } from "../../styles/layoutContent";
 import DownloadButton from "../DownloadButton";
 import DropBoxTreeSelect from "./DropBoxTreeSelect";
-import DatasetSelectionModal from "./DatasetSelectionModal";
 import FileModal from "../display/FileModal";
 
 import {BENTO_DROP_BOX_FS_BASE_PATH} from "../../config";
-import {STEP_INPUT} from "./workflowCommon";
-import { workflowsStateToPropsMixin } from "../../propTypes";
 import {getFalse} from "../../utils/misc";
+import { useStartIngestionFlow } from "./workflowCommon";
+import { testFileAgainstPattern } from "../../utils/files";
+import { getFalse } from "../../utils/misc";
 import {
     beginDropBoxPuttingObjects,
     endDropBoxPuttingObjects,
@@ -49,8 +49,10 @@ import {
     putDropBoxObject,
     deleteDropBoxObject,
 } from "../../modules/manager/actions";
+import { useFetchDropBoxContentsIfAllowed } from "./hooks";
 
 import { VIEWABLE_FILE_EXTENSIONS } from "../display/FileDisplay";
+import { useWorkflows } from "../../hooks";
 
 const DROP_BOX_CONTENT_CONTAINER_STYLE = { display: "flex", flexDirection: "column", gap: 8 };
 const DROP_BOX_ACTION_CONTAINER_STYLE = {
@@ -286,13 +288,21 @@ const DROP_BOX_ROOT_KEY = "/";
 
 const ManagerDropBoxContent = () => {
     const dispatch = useDispatch();
-    const history = useHistory();
 
-    const {permissions, hasAttempted} = useResourcePermissions(RESOURCE_EVERYTHING) ?? {};
+    const {
+        permissions,
+        isFetching: isFetchingPermissions,
+        hasAttempted: hasAttemptedPermissions,
+    } = useResourcePermissions(RESOURCE_EVERYTHING);
+
+    useFetchDropBoxContentsIfAllowed();
 
     const dropBoxService = useSelector(state => state.services.dropBoxService);
     const {tree, isFetching: treeLoading, isDeleting} = useSelector(state => state.dropBox);
-    const ingestionWorkflows = useSelector(state => workflowsStateToPropsMixin(state).workflows.ingestion);
+
+    const { workflowsByType } = useWorkflows();
+    const ingestionWorkflows = workflowsByType.ingestion.items;
+    const ingestionWorkflowsByID = workflowsByType.ingestion.itemsByID;
 
     const filesByPath = useMemo(() => Object.fromEntries(
         recursivelyFlattenFileTree([], tree).map(f => [f.relativePath, f])), [tree]);
@@ -314,9 +324,6 @@ const ManagerDropBoxContent = () => {
     const [fileDeleteModal, setFileDeleteModal] = useState(false);
     const [fileDeleteModalTitle, setFileDeleteModalTitle] = useState("");  // cache to allow close animation
 
-    const [selectedWorkflow, setSelectedWorkflow] = useState(null);
-    const [datasetSelectionModal, setDatasetSelectionModal] = useState(false);
-
     const showUploadModal = useCallback(() => setUploadModal(true), []);
     const hideUploadModal = useCallback(() => setUploadModal(false), []);
     const showFileInfoModal = useCallback(() => setFileInfoModal(true), []);
@@ -324,39 +331,37 @@ const ManagerDropBoxContent = () => {
     const showFileContentsModal = useCallback(() => setFileContentsModal(true), []);
     const hideFileContentsModal = useCallback(() => setFileContentsModal(false), []);
 
-    const showDatasetSelectionModal = useCallback(workflow => {
-        setSelectedWorkflow(workflow);
-        setDatasetSelectionModal(true);
-    }, []);
-    const hideDatasetSelectionModal = useCallback(() => setDatasetSelectionModal(false), []);
-
     const getWorkflowFit = useCallback(w => {
         let workflowSupported = true;
-        let filesLeft = [...selectedEntries];
+        let entriesLeft = [...selectedEntries];
+
         const inputs = {};
 
-        for (const i of w.inputs.filter(i => i.type.startsWith("file"))) {
-            const isFileArray = i.type.endsWith("[]");
+        for (const i of w.inputs) {
+            const isArray = i.type.endsWith("[]");
+            const isFileType = i.type.startsWith("file");
+            const isDirType = i.type.startsWith("directory");
 
-            // Find datasets that support the data type
-            // TODO
+            if (!isFileType && !isDirType) {
+                continue;  // Nothing for us to do with non-file/directory inputs
+            }
 
-            // Find files where 1+ of the valid extensions (e.g. jpeg or jpg) match.
-            const compatibleFiles = filesLeft.filter(f => !!i.extensions.find(e => f.toLowerCase().endsWith(e)));
-            if (compatibleFiles.length === 0) {
+            // Find compatible entries which match the specified pattern if one is given.
+            const compatEntries = entriesLeft
+                .filter(e => (isFileType ? !e.contents : e.contents !== undefined)
+                    && testFileAgainstPattern(e, i.pattern));
+            if (compatEntries.length === 0) {
                 workflowSupported = false;
                 break;
             }
 
-            // Steal the first compatible file, or all if it's an array
-            const filesToTake = filesLeft.filter(f =>
-                isFileArray ? compatibleFiles.includes(f) : f === compatibleFiles[0]);
-
-            inputs[i.id] = BENTO_DROP_BOX_FS_BASE_PATH + (isFileArray ? filesToTake : filesToTake[0]);
-            filesLeft = filesLeft.filter(f => !filesToTake.includes(f));
+            // Steal the first compatible entry, or all if it's an array
+            const entriesToTake = entriesLeft.filter(e => isArray ? compatEntries.includes(e) : e === compatEntries[0]);
+            inputs[i.id] = BENTO_DROP_BOX_FS_BASE_PATH + (isArray ? entriesToTake : entriesToTake[0]);
+            entriesLeft = entriesLeft.filter(f => !entriesToTake.includes(f));
         }
 
-        if (filesLeft.length > 0) {
+        if (entriesLeft.length > 0) {
             // If there are unclaimed files remaining at the end, the workflow is not compatible with the
             // total selection of files.
             workflowSupported = false;
@@ -365,33 +370,23 @@ const ManagerDropBoxContent = () => {
         return [workflowSupported, inputs];
     }, [selectedEntries]);
 
-    const ingestIntoDataset = useCallback((project, dataset, dataType) => {
-        history.push("/admin/data/manager/ingestion", {
-            step: STEP_INPUT,
-            workflowSelectionValues: {
-                selectedProject: project,
-                selectedDataset: dataset,
-                selectedDataType: dataType,
-            },
-            selectedWorkflow,
-            initialInputValues: getWorkflowFit(selectedWorkflow)[1],
-        });
-    }, [history, selectedWorkflow]);
+    const startIngestionFlow = useStartIngestionFlow();
 
     const handleViewFile = useCallback(() => {
         showFileContentsModal();
     }, []);
 
     const workflowsSupported = useMemo(
-        () => ingestionWorkflows.filter(w => getWorkflowFit(w)[0]),
-        [ingestionWorkflows]);
+        () => Object.fromEntries(ingestionWorkflows.map(w => [w.id, getWorkflowFit(w)])),
+        [ingestionWorkflows, getWorkflowFit]);
 
+    const workflowMenuItemClick = useCallback(
+        (i) => startIngestionFlow(ingestionWorkflowsByID[i.key], workflowsSupported[i.key][1]),
+        [ingestionWorkflowsByID, startIngestionFlow, workflowsSupported]);
     const workflowMenu = (
         <Menu>
             {ingestionWorkflows.map(w => (
-                <Menu.Item key={w.id}
-                           disabled={workflowsSupported.findIndex(w2 => w2.id === w.id) === -1}
-                           onClick={() => showDatasetSelectionModal(w)}>
+                <Menu.Item key={w.id} disabled={!workflowsSupported[w.id][0]} onClick={workflowMenuItemClick}>
                     Ingest with Workflow &ldquo;{w.name}&rdquo;
                 </Menu.Item>
             ))}
@@ -399,10 +394,13 @@ const ManagerDropBoxContent = () => {
     );
 
     const handleIngest = useCallback(() => {
-        if (workflowsSupported.length !== 1) return;
-        showDatasetSelectionModal(workflowsSupported[0]);
-    }, [workflowsSupported]);
+        const wfs = Object.entries(workflowsSupported).filter(([_, ws]) => ws[0]);
+        if (wfs.length !== 1) return;
+        const [wfID, wfSupportedTuple] = wfs[0];
+        startIngestionFlow(ingestionWorkflowsByID[wfID], wfSupportedTuple[1]);
+    }, [ingestionWorkflowsByID, workflowsSupported, startIngestionFlow]);
 
+    const hasViewPermission = permissions.includes(viewDropBox);
     const hasUploadPermission = permissions.includes(ingestDropBox);
     const hasDeletePermission = permissions.includes(deleteDropBox);
 
@@ -478,16 +476,17 @@ const ManagerDropBoxContent = () => {
     const uploadDisabled = !selectedFolder || !hasUploadPermission;
     // TODO: at least one ingest:data on all datasets vvv
     const ingestIntoDatasetDisabled = !dropBoxService ||
-        selectedEntries.length === 0 || workflowsSupported.length === 0;
+        selectedEntries.length === 0 || Object.values(workflowsSupported).filter((w) => w[0]).length === 0;
 
     const handleUpload = useCallback(() => {
+        if (!hasUploadPermission) return;
         if (selectedFolder) setInitialUploadFolder(selectedEntries[0]);
         showUploadModal();
-    }, [selectedFolder, selectedEntries]);
+    }, [hasUploadPermission, selectedFolder, selectedEntries]);
 
     const deleteDisabled = !dropBoxService || selectedFolder || selectedEntries.length !== 1 || !hasDeletePermission;
 
-    if (hasAttempted && !hasUploadPermission) {
+    if (hasAttemptedPermissions && !hasViewPermission) {
         return <Layout>
             <Layout.Content style={LAYOUT_CONTENT_STYLE}>
                 <Result status="error" title="Forbidden" subTitle="You do not have permission to view the drop box." />
@@ -504,14 +503,6 @@ const ManagerDropBoxContent = () => {
                 initialUploadFiles={initialUploadFiles}
                 visible={uploadModal}
                 onCancel={hideUploadModal}
-            />
-
-            <DatasetSelectionModal
-                dataType={selectedWorkflow?.data_type || null}
-                visible={datasetSelectionModal}
-                title="Select a Dataset to Ingest Into"
-                onCancel={hideDatasetSelectionModal}
-                onOk={ingestIntoDataset}
             />
 
             <FileContentsModal
@@ -585,8 +576,8 @@ const ManagerDropBoxContent = () => {
                     </Typography.Text>
                 </div>
 
-                <Spin spinning={treeLoading}>
-                    {(treeLoading || dropBoxService) ? (
+                <Spin spinning={isFetchingPermissions || treeLoading}>
+                    {(isFetchingPermissions || treeLoading || dropBoxService) ? (
                         <div
                             onDragEnter={handleDragEnter}
                             onDragLeave={handleDragLeave}

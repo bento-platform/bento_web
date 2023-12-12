@@ -307,7 +307,6 @@ export const explorer = (
                 ...state,
                 igvPosition: action.igvPosition,
             };
-
         default:
             return state;
     }
