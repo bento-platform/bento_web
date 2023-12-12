@@ -1,8 +1,10 @@
-import React from "react";
-import { Button, Layout, Table } from "antd";
+import React, { useCallback, useMemo } from "react";
+import { Button, Divider, Dropdown, Layout, Menu, Table } from "antd";
 
 import { useReferenceGenomes } from "../../../modules/reference/hooks";
 import { LAYOUT_CONTENT_STYLE } from "../../../styles/layoutContent";
+import { useWorkflows } from "../../../hooks";
+import { useStartIngestionFlow } from "../workflowCommon";
 
 const REFERENCE_GENOME_COLUMNS = [
     {
@@ -41,17 +43,48 @@ const REFERENCE_GENOME_COLUMNS = [
 ];
 
 const ManagerReferenceGenomesContent = () => {
-    const referenceGenomes = useReferenceGenomes();  // Reference service genomes
+    const { items: genomes, isFetching: isFetchingGenomes } = useReferenceGenomes();  // Reference service genomes
+
+    const { workflowsByType } = useWorkflows();
+    const ingestionWorkflows = workflowsByType.ingestion.items;
+    const ingestionWorkflowsByID = workflowsByType.ingestion.itemsByID;
+
+    const startIngestionFlow = useStartIngestionFlow();
+
+    const onWorkflowClick = useCallback(({ key }) => {
+        startIngestionFlow(ingestionWorkflowsByID[key]);
+    }, [startIngestionFlow, ingestionWorkflowsByID]);
+
+    const onWorkflowButtonClick = useCallback(() => {
+        onWorkflowClick({ key: ingestionWorkflows[0].id });
+    }, [onWorkflowClick, ingestionWorkflows]);
+
+    /** @type React.ReactNode */
+    const ingestMenu = useMemo(() => (
+        <Menu onClick={onWorkflowClick}>
+            {ingestionWorkflows.map((w) => (
+                <Menu.Item key={w.id}>{w.name}</Menu.Item>
+            ))}
+        </Menu>
+    ), [onWorkflowClick, ingestionWorkflows]);
 
     return (
         <Layout>
             <Layout.Content style={LAYOUT_CONTENT_STYLE}>
+                <Dropdown.Button
+                    overlay={ingestMenu}
+                    disabled={!ingestionWorkflows.length}
+                    onClick={onWorkflowButtonClick}
+                >
+                    Ingest Genome
+                </Dropdown.Button>
+                <Divider />
                 <Table
                     columns={REFERENCE_GENOME_COLUMNS}
                     size="middle"
                     bordered={true}
-                    dataSource={referenceGenomes.items}
-                    loading={referenceGenomes.isFetching}
+                    dataSource={genomes}
+                    loading={isFetchingGenomes}
                 />
             </Layout.Content>
         </Layout>

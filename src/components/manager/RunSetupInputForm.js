@@ -194,7 +194,7 @@ const RunSetupInputForm = ({initialValues, form, onSubmit, workflow, onBack}) =>
 RunSetupInputForm.propTypes = {
     tree: PropTypes.array,
     workflow: workflowPropTypesShape,
-    initialValues: PropTypes.object,
+    initialValues: PropTypes.object.isRequired,  // can be blank object but not undefined
 
     onBack: PropTypes.func,
     onSubmit: PropTypes.func,
