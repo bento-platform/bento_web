@@ -37,7 +37,7 @@ const REFERENCE_GENOME_COLUMNS = [
                 console.debug("TODO: delete", genome);
             }}>Delete</Button>
         ),
-    }
+    },
 ];
 
 const ManagerReferenceGenomesContent = () => {
@@ -49,6 +49,7 @@ const ManagerReferenceGenomesContent = () => {
                 <Table
                     columns={REFERENCE_GENOME_COLUMNS}
                     size="middle"
+                    bordered={true}
                     dataSource={referenceGenomes.items}
                     loading={referenceGenomes.isFetching}
                 />
