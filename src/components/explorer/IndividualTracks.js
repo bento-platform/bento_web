@@ -43,12 +43,38 @@ const DEBOUNCE_WAIT = 500;
 // verify url set is for this individual (may have stale urls from previous request)
 const hasFreshUrls = (files, urls) => files.every((f) => urls.hasOwnProperty(f.filename));
 
-const VIEWABLE_FORMATS = ["vcf", "bam", "cram", "bigwig", "bigbed"];
-const isViewable = (file) =>
-    !!file.genome_assembly_id && (
-        VIEWABLE_FORMATS.includes(file.file_format?.toLowerCase()) ||
-        VIEWABLE_FORMATS.includes(guessFileType(file.filename))
-    );
+const ALIGNMENT_FORMATS_LOWER = ["bam", "cram"];
+const ANNOTATION_FORMATS_LOWER = ["bigbed"];  // TODO: experiment result: support more
+const MUTATION_FORMATS_LOWER = ["maf"];
+const WIG_FORMATS_LOWER = ["bigwig"];  // TODO: experiment result: support wig/bedGraph?
+const VARIANT_FORMATS_LOWER = ["vcf", "gvcf"];
+const VIEWABLE_FORMATS_LOWER = [
+    ...ALIGNMENT_FORMATS_LOWER,
+    ...ANNOTATION_FORMATS_LOWER,
+    ...MUTATION_FORMATS_LOWER,
+    ...WIG_FORMATS_LOWER,
+    ...VARIANT_FORMATS_LOWER,
+];
+
+const expResFileFormatLower = (expRes) => expRes.file_format?.toLowerCase() ?? guessFileType(expRes.filename);
+
+// For an experiment result to be viewable in IGV.js, it must have:
+//  - an assembly ID, so we can contextualize it correctly
+//  - a file format in the list of file formats we know how to handle
+const isViewableInIgv = (expRes) =>
+    !!expRes.genome_assembly_id && VIEWABLE_FORMATS_LOWER.includes(expResFileFormatLower(expRes));
+
+const expResFileFormatToIgvTypeAndFormat = (fileFormat) => {
+    const ff = fileFormat.toLowerCase();
+
+    if (ALIGNMENT_FORMATS_LOWER.includes(ff)) return ["alignment", ff];
+    if (ANNOTATION_FORMATS_LOWER.includes(ff)) return ["annotation", "bigBed"];  // TODO: expand if we support more
+    if (MUTATION_FORMATS_LOWER.includes(ff)) return ["mut", ff];
+    if (WIG_FORMATS_LOWER.includes(ff)) return ["wig", "bigWig"];  // TODO: expand if we support wig/bedGraph
+    if (VARIANT_FORMATS_LOWER.includes(ff)) return ["variant", "vcf"];
+
+    return [undefined, undefined];
+};
 
 const TrackControlTable = React.memo(({ toggleView, allFoundFiles }) => {
     const trackTableColumns = [
@@ -91,16 +117,20 @@ TrackControlTable.propTypes = {
 // as multiple files may have the same name. Everything *should* be done through DRS IDs.
 // For now, we treat the filenames as unique identifiers (unfortunately).
 
-const buildIgvTrack = (igvUrls, track) => ({
-    format: track.file_format?.toLowerCase() ?? guessFileType(track.filename),
-    url: igvUrls[track.filename].url,
-    indexURL: igvUrls[track.filename].indexUrl,
-    name: track.filename,
-    squishedCallHeight: SQUISHED_CALL_HEIGHT,
-    expandedCallHeight: EXPANDED_CALL_HEIGHT,
-    displayMode: DISPLAY_MODE,
-    visibilityWindow: VISIBILITY_WINDOW,
-});
+const buildIgvTrack = (igvUrls, track) => {
+    const [type, format] = expResFileFormatToIgvTypeAndFormat(track.fileFormatLower);
+    return {
+        type,
+        format,
+        url: igvUrls[track.filename].url,
+        indexURL: igvUrls[track.filename].indexUrl,  // May be undefined if this track is not indexed
+        name: track.filename,
+        squishedCallHeight: SQUISHED_CALL_HEIGHT,
+        expandedCallHeight: EXPANDED_CALL_HEIGHT,
+        displayMode: DISPLAY_MODE,
+        visibilityWindow: VISIBILITY_WINDOW,
+    };
+}
 
 const IndividualTracks = ({ individual }) => {
     const { accessToken } = useSelector((state) => state.auth);
@@ -146,25 +176,31 @@ const IndividualTracks = ({ individual }) => {
         () => {
             const experiments = biosamplesData.flatMap((b) => b?.experiments ?? []);
             const vr = Object.values(
-                Object.fromEntries(
+                Object.fromEntries(  // Deduplicate experiment results by file name by building an object
                     experiments.flatMap((e) => e?.experiment_results ?? [])
-                        .filter(isViewable)
-                        .map((v) => [
-                            v.filename,
-                            {
-                                ...v,
-                                // by default, don't view alignments (user can turn them on in track controls):
-                                viewInIgv: !["BAM", "CRAM"].includes(v.file_format),
-                            },
-                        ]),
+                        .filter(isViewableInIgv)
+                        .map((expRes) => {
+                            /** @type string|undefined */
+                            const fileFormatLower = expResFileFormatLower(expRes);
+                            return [
+                                expRes.filename,
+                                {
+                                    ...expRes,
+                                    // by default, don't view alignments (user can turn them on in track controls):
+                                    fileFormatLower,
+                                    viewInIgv: !ALIGNMENT_FORMATS_LOWER.includes(fileFormatLower),
+                                },
+                            ];
+                        }),
                 ),
-            ).sort((r1, r2) => (r1.file_format > r2.file_format ? 1 : -1));
+            ).sort((r1, r2) => (r1.fileFormatLower ?? "").localeCompare(r2.fileFormatLower ?? ""));
             console.debug("Viewable experiment results:", vr);
             return vr;
         },
         [biosamplesData],
     );
 
+    // augmented experiment results with viewInIgv state + cached lowercase / normalized file format:
     const [allTracks, setAllTracks] = useState(viewableResults);
 
     useEffect(() => {
@@ -205,8 +241,7 @@ const IndividualTracks = ({ individual }) => {
         if (!igvBrowserRef.current) return;
 
         const wasViewing = track.viewInIgv;
-        const updatedTrackObject = { ...track, viewInIgv: !wasViewing };
-        setAllTracks(allTracks.map((t) => (t.filename === track.filename ? updatedTrackObject : t)));
+        setAllTracks(allTracks.map((t) => t.filename === track.filename ? ({ ...track, viewInIgv: !wasViewing }) : t));
 
         if (wasViewing) {
             igvBrowserRef.current.removeTrackByName(track.filename);
@@ -258,7 +293,7 @@ const IndividualTracks = ({ individual }) => {
 
         if (!allFoundFiles.length || !hasFreshUrls(allTracks, igvUrls)) {
             console.debug("urls not ready");
-            console.debug({ igvUrls: igvUrls });
+            console.debug({ igvUrls });
             console.debug({ tracksValid: hasFreshUrls(allTracks, igvUrls) });
             return cleanup;
         }

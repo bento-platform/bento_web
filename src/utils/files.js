@@ -2,21 +2,20 @@
 export const guessFileType = (filename) => {
     const filenameLower = filename.toLowerCase();
 
-    if (filenameLower.endsWith(".vcf.gz")) {
-        return "vcf";
-    }
-    if (filenameLower.endsWith(".bam")) {
-        return "bam";
-    }
-    if (filenameLower.endsWith(".cram")) {
-        return "cram";
-    }
-    if (filenameLower.endsWith(".bw") || filenameLower.endsWith(".bigwig")) {
-        return "bigwig";
-    }
+    // variant:
+    if (filenameLower.endsWith(".g.vcf") || filenameLower.endsWith(".g.vcf.gz")) return "gvcf";
+    if (filenameLower.endsWith(".vcf") || filenameLower.endsWith(".vcf.gz")) return "vcf";
+    // mutation:
+    if (filenameLower.endsWith(".maf")) return "maf";
+    // alignment:
+    if (filenameLower.endsWith(".sam")) return "sam";
+    if (filenameLower.endsWith(".bam")) return "bam";
+    if (filenameLower.endsWith(".cram")) return "cram";
+    // wig:
+    if (filenameLower.endsWith(".bw") || filenameLower.endsWith(".bigwig")) return "bigwig";
 
     // expand here accordingly
-    return null;
+    return undefined;
 };
 
 /** @type {Object.<string, RegExp>} */
