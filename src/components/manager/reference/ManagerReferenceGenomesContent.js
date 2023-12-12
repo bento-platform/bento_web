@@ -1,5 +1,5 @@
 import React, { useCallback, useMemo } from "react";
-import { Button, Divider, Dropdown, Layout, Menu, Table } from "antd";
+import { Button, Dropdown, Layout, Menu, Table } from "antd";
 
 import { useReferenceGenomes } from "../../../modules/reference/hooks";
 import { LAYOUT_CONTENT_STYLE } from "../../../styles/layoutContent";
@@ -62,7 +62,7 @@ const ManagerReferenceGenomesContent = () => {
     /** @type React.ReactNode */
     const ingestMenu = useMemo(() => (
         <Menu onClick={onWorkflowClick}>
-            {ingestionWorkflows.map((w) => (
+            {ingestionWorkflows.filter((w) => (w.tags ?? []).includes("reference")).map((w) => (
                 <Menu.Item key={w.id}>{w.name}</Menu.Item>
             ))}
         </Menu>
@@ -73,12 +73,12 @@ const ManagerReferenceGenomesContent = () => {
             <Layout.Content style={LAYOUT_CONTENT_STYLE}>
                 <Dropdown.Button
                     overlay={ingestMenu}
-                    disabled={!ingestionWorkflows.length}
                     onClick={onWorkflowButtonClick}
+                    disabled={!ingestionWorkflows.length}
+                    style={{ marginBottom: "1rem" }}
                 >
                     Ingest Genome
                 </Dropdown.Button>
-                <Divider />
                 <Table
                     columns={REFERENCE_GENOME_COLUMNS}
                     size="middle"
