@@ -81,7 +81,7 @@ const ExperimentResultActions = ({ result }) => {
                         <Descriptions.Item label="Filename">
                             {result.filename}
                         </Descriptions.Item>
-                        <Descriptions.Item label="File format">
+                        <Descriptions.Item label="Format">
                             {result.file_format}
                         </Descriptions.Item>
                         <Descriptions.Item label="Assembly ID">
