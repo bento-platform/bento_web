@@ -133,7 +133,7 @@ export const deleteProjectIfPossible = (project) => async (dispatch, getState) =
 export const clearDatasetDataTypes = (datasetId) => async (dispatch, getState) => {
     // only clear data types which can yield counts - `queryable` is a proxy for this
     const dataTypes = Object.values(getState().datasetDataTypes.itemsByID[datasetId].itemsByID).filter(
-        (dt) => dt.queryable
+        (dt) => dt.queryable,
     );
     return await Promise.all(dataTypes.map((dt) => dispatch(clearDatasetDataType(datasetId, dt.id))));
 };
@@ -216,15 +216,15 @@ const addDatasetLinkedFieldSet = networkAction((dataset, linkedFieldSet, onSucce
 
 export const addDatasetLinkedFieldSetIfPossible =
     (dataset, linkedFieldSet, onSuccess = nop) =>
-    (dispatch, getState) => {
-        if (
-            getState().projects.isAddingDataset ||
+        (dispatch, getState) => {
+            if (
+                getState().projects.isAddingDataset ||
             getState().projects.isSavingDataset ||
             getState().projects.isDeletingDataset
-        )
-            return;
-        return dispatch(addDatasetLinkedFieldSet(dataset, linkedFieldSet, onSuccess));
-    };
+            )
+                return;
+            return dispatch(addDatasetLinkedFieldSet(dataset, linkedFieldSet, onSuccess));
+        };
 
 const saveDatasetLinkedFieldSet = networkAction(
     (dataset, index, linkedFieldSet, onSuccess) => (dispatch, getState) => ({
@@ -234,27 +234,27 @@ const saveDatasetLinkedFieldSet = networkAction(
             {
                 linked_field_sets: dataset.linked_field_sets.map((l, i) => (i === index ? linkedFieldSet : l)),
             },
-            "PATCH"
+            "PATCH",
         ),
         err: `Error saving linked field set '${linkedFieldSet.name}' in dataset '${dataset.title}'`,
         onSuccess: async () => {
             await onSuccess();
             message.success(`Saved linked field set '${linkedFieldSet.name}' in dataset '${dataset.title}'`);
         },
-    })
+    }),
 );
 
 export const saveDatasetLinkedFieldSetIfPossible =
     (dataset, index, linkedFieldSet, onSuccess = nop) =>
-    (dispatch, getState) => {
-        if (
-            getState().projects.isAddingDataset ||
+        (dispatch, getState) => {
+            if (
+                getState().projects.isAddingDataset ||
             getState().projects.isSavingDataset ||
             getState().projects.isDeletingDataset
-        )
-            return;
-        return dispatch(saveDatasetLinkedFieldSet(dataset, index, linkedFieldSet, onSuccess));
-    };
+            )
+                return;
+            return dispatch(saveDatasetLinkedFieldSet(dataset, index, linkedFieldSet, onSuccess));
+        };
 
 const deleteDatasetLinkedFieldSet = networkAction(
     (dataset, linkedFieldSet, linkedFieldSetIndex) => (dispatch, getState) => ({
@@ -264,12 +264,12 @@ const deleteDatasetLinkedFieldSet = networkAction(
             {
                 linked_field_sets: dataset.linked_field_sets.filter((_, i) => i !== linkedFieldSetIndex),
             },
-            "PATCH"
+            "PATCH",
         ),
         err: `Error deleting linked field set '${linkedFieldSet.name}' from dataset '${dataset.title}'`,
         onSuccess: () =>
             message.success(`Deleted linked field set '${linkedFieldSet.name}' from dataset '${dataset.title}'`),
-    })
+    }),
 );
 
 export const deleteDatasetLinkedFieldSetIfPossible =

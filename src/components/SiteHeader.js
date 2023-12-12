@@ -72,13 +72,13 @@ const SiteHeader = () => {
             // TODO: Only if cBioPortal access is enabled for any project/dataset or something like that...
             ...(BENTO_CBIOPORTAL_ENABLED
                 ? [
-                      {
-                          url: "/cbioportal",
-                          icon: <Icon type="dot-chart" />,
-                          text: "cBioPortal",
-                          key: "cbioportal",
-                      },
-                  ]
+                    {
+                        url: "/cbioportal",
+                        icon: <Icon type="dot-chart" />,
+                        text: "cBioPortal",
+                        key: "cbioportal",
+                    },
+                ]
                 : []),
             // TODO: Only show if admin / can data manage anything
             {
@@ -105,58 +105,58 @@ const SiteHeader = () => {
             },
             ...(isAuthenticated
                 ? [
-                      {
-                          key: "user-menu",
-                          style: { float: "right" },
-                          icon: <Icon type="user" />,
-                          text: idTokenContents?.preferred_username,
-                          children: [
-                              {
-                                  key: "user-profile",
-                                  url: "/profile",
-                                  icon: <Icon type="user" />,
-                                  text: "Profile",
-                              },
-                              {
-                                  key: "sign-out-link",
-                                  onClick: () => {
-                                      const endSessionEndpoint = openIdConfig?.["end_session_endpoint"];
-                                      if (!endSessionEndpoint) {
-                                          dispatch(signOut());
-                                      } else {
-                                          // Sign-out supported, so do that.
-                                          const endSessionUrl = new URL(endSessionEndpoint);
-                                          if (idToken) {
-                                              endSessionUrl.searchParams.append("id_token_hint", idToken);
-                                          }
-                                          endSessionUrl.searchParams.append("client_id", CLIENT_ID);
-                                          endSessionUrl.searchParams.append(
-                                              "post_logout_redirect_uri",
-                                              BENTO_URL_NO_TRAILING_SLASH + "/"
-                                          );
-                                          setLSNotSignedIn(); // Make sure we don't immediately try to sign in again
-                                          window.location.href = endSessionUrl.toString();
-                                      }
-                                  },
-                                  icon: <Icon type="logout" />,
-                                  text: <span className="nav-text">Sign Out</span>,
-                              },
-                          ],
-                      },
-                  ]
+                    {
+                        key: "user-menu",
+                        style: { float: "right" },
+                        icon: <Icon type="user" />,
+                        text: idTokenContents?.preferred_username,
+                        children: [
+                            {
+                                key: "user-profile",
+                                url: "/profile",
+                                icon: <Icon type="user" />,
+                                text: "Profile",
+                            },
+                            {
+                                key: "sign-out-link",
+                                onClick: () => {
+                                    const endSessionEndpoint = openIdConfig?.["end_session_endpoint"];
+                                    if (!endSessionEndpoint) {
+                                        dispatch(signOut());
+                                    } else {
+                                        // Sign-out supported, so do that.
+                                        const endSessionUrl = new URL(endSessionEndpoint);
+                                        if (idToken) {
+                                            endSessionUrl.searchParams.append("id_token_hint", idToken);
+                                        }
+                                        endSessionUrl.searchParams.append("client_id", CLIENT_ID);
+                                        endSessionUrl.searchParams.append(
+                                            "post_logout_redirect_uri",
+                                            BENTO_URL_NO_TRAILING_SLASH + "/",
+                                        );
+                                        setLSNotSignedIn(); // Make sure we don't immediately try to sign in again
+                                        window.location.href = endSessionUrl.toString();
+                                    }
+                                },
+                                icon: <Icon type="logout" />,
+                                text: <span className="nav-text">Sign Out</span>,
+                            },
+                        ],
+                    },
+                ]
                 : [
-                      {
-                          key: "sign-in",
-                          style: { float: "right" },
-                          icon: <Icon type="login" />,
-                          text: (
-                              <span className="nav-text">
-                                  {openIdConfigFetching || isHandingOffCodeForToken ? "Loading..." : "Sign In"}
-                              </span>
-                          ),
-                          onClick: () => performAuth(authzEndpoint, CLIENT_ID, AUTH_CALLBACK_URL),
-                      },
-                  ]),
+                    {
+                        key: "sign-in",
+                        style: { float: "right" },
+                        icon: <Icon type="login" />,
+                        text: (
+                            <span className="nav-text">
+                                {openIdConfigFetching || isHandingOffCodeForToken ? "Loading..." : "Sign In"}
+                            </span>
+                        ),
+                        onClick: () => performAuth(authzEndpoint, CLIENT_ID, AUTH_CALLBACK_URL),
+                    },
+                ]),
             {
                 url: "/notifications",
                 style: { float: "right" },
@@ -183,7 +183,7 @@ const SiteHeader = () => {
                 key: "settings",
             },
         ],
-        [isAuthenticated, authHasAttempted, idTokenContents, unreadNotifications]
+        [isAuthenticated, authHasAttempted, idTokenContents, unreadNotifications],
     );
 
     return (

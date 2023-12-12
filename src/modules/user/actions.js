@@ -19,7 +19,7 @@ export const fetchServiceDependentData = () => (dispatch) =>
             fetchOverviewSummary,
             performGetGohanVariantsOverviewIfPossible,
             fetchExtraPropertiesSchemaTypes,
-        ].map((a) => dispatch(a()))
+        ].map((a) => dispatch(a())),
     );
 
 export const fetchUserDependentData = (servicesCb) => async (dispatch, getState) => {

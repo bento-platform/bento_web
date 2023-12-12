@@ -100,7 +100,7 @@ const App = () => {
         fetchUserDependentData,
         CLIENT_ID,
         AUTH_CALLBACK_URL,
-        isInAuthPopup ? popupOpenerAuthCallback : undefined
+        isInAuthPopup ? popupOpenerAuthCallback : undefined,
     );
 
     // Set up message handling from sign-in popup
@@ -125,7 +125,7 @@ const App = () => {
             console.debug(
                 `considering creating an event-relay connection: 
                 is authenticated? ${isAuthenticated} | 
-                have event relay? ${!!eventRelayUrl}`
+                have event relay? ${!!eventRelayUrl}`,
             );
 
             // Don't bother trying to create the event relay connection if the user isn't authenticated
@@ -245,7 +245,7 @@ const App = () => {
             signInWindow.current = window.open(
                 await createAuthURL(openIdConfig["authorization_endpoint"], CLIENT_ID, AUTH_CALLBACK_URL),
                 "Bento Sign In",
-                `${SIGN_IN_WINDOW_FEATURES}, top=${popupTop}, left=${popupLeft}`
+                `${SIGN_IN_WINDOW_FEATURES}, top=${popupTop}, left=${popupLeft}`,
             );
         })();
     }, [signInWindow, openIdConfig]);

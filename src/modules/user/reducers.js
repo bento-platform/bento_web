@@ -4,7 +4,7 @@ export const user = (
     state = {
         isFetchingUserDependentData: false,
     },
-    action
+    action,
 ) => {
     switch (action.type) {
         // FETCHING_USER_DEPENDENT_DATA

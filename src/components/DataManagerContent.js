@@ -38,7 +38,7 @@ const DataManagerContent = () => {
     const { isFetching: fetchingPermission, hasPermission } = useHasResourcePermission(
         RESOURCE_EVERYTHING,
         authUrl,
-        viewDropBox
+        viewDropBox,
     );
 
     const menuItems = useMemo(
@@ -56,7 +56,7 @@ const DataManagerContent = () => {
             { url: "/admin/data/manager/runs", text: "Workflow Runs" },
             { url: "/admin/data/manager/drs", text: "DRS Objects" },
         ],
-        [fetchingPermission, hasPermission]
+        [fetchingPermission, hasPermission],
     );
 
     const selectedKeys = useMemo(() => matchingMenuKeys(menuItems), [menuItems, window.location.pathname]);
