@@ -1,6 +1,8 @@
 import React, { useMemo, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { Link, withRouter } from "react-router-dom";
+import { performAuth, setLSNotSignedIn, getIsAuthenticated, signOut } from "bento-auth-js";
+
 import { Badge, Icon, Layout, Menu } from "antd";
 
 import {
@@ -14,9 +16,6 @@ import { showNotificationDrawer } from "../modules/notifications/actions";
 import { matchingMenuKeys, renderMenuItem } from "../utils/menu";
 
 import OverviewSettingsControl from "./overview/OverviewSettingsControl";
-import { performAuth, setLSNotSignedIn } from "../lib/auth/performAuth";
-import { getIsAuthenticated } from "../lib/auth/utils";
-import { signOut } from "../lib/auth/redux/authSlice";
 
 const LinkedLogo = React.memo(() => (
     <Link to="/">

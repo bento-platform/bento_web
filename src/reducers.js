@@ -1,4 +1,5 @@
 import { combineReducers } from "redux";
+import {AuthReducer as auth, OIDCReducer as openIdConfiguration} from "bento-auth-js";
 
 import { user } from "./modules/user/reducers";
 import { drs } from "./modules/drs/reducers";
@@ -10,9 +11,6 @@ import { notifications } from "./modules/notifications/reducers";
 import { bentoServices, services, serviceDataTypes, serviceWorkflows } from "./modules/services/reducers";
 import { datasetDataTypes, datasetResources, datasetSummaries } from "./modules/datasets/reducers";
 import { runs } from "./modules/wes/reducers";
-
-import openIdConfiguration from "./lib/auth/redux/openIdConfigSlice";
-import auth from "./lib/auth/redux/authSlice";
 
 const rootReducer = combineReducers({
     // Auth module

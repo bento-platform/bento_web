@@ -1,12 +1,12 @@
 /* eslint-disable camelcase */
 import React, { useEffect, useState } from "react";
 import { useSelector } from "react-redux";
+import { useAuthorizationHeader } from "bento-auth-js";
 
 import { Col, Divider, Modal, Row, Skeleton, Statistic, Typography } from "antd";
 import PieChart from "../charts/PieChart";
 import Histogram from "../charts/Histogram";
 
-import { useAuthorizationHeader } from "../../lib/auth/utils";
 import { explorerSearchResultsPropTypesShape } from "../../propTypes";
 
 const CHART_HEIGHT = 300;

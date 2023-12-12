@@ -2,14 +2,17 @@ import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { Route } from "react-router-dom";
 import PropTypes from "prop-types";
+import {
+    LS_BENTO_WAS_SIGNED_IN,
+    performAuth,
+    setLSNotSignedIn,
+    getIsAuthenticated,
+    signOut,
+} from "bento-auth-js";
 
 import { Button, Empty, Icon, Layout } from "antd";
 
-import { LS_BENTO_WAS_SIGNED_IN, performAuth, setLSNotSignedIn } from "../lib/auth/performAuth";
-
 import SitePageLoading from "./SitePageLoading";
-import { getIsAuthenticated } from "../lib/auth/utils";
-import { signOut } from "../lib/auth/redux/authSlice";
 import { AUTH_CALLBACK_URL, CLIENT_ID } from "../config";
 
 const signInIcon = (

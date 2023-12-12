@@ -2,6 +2,14 @@ import React, { Suspense, lazy, useRef, useState, useEffect, useCallback } from 
 import { useDispatch, useSelector } from "react-redux";
 import { Redirect, Route, Switch, useHistory } from "react-router-dom";
 import { ChartConfigProvider } from "bento-charts";
+import {
+    fetchOpenIdConfiguration,
+    createAuthURL,
+    useHandleCallback,
+    getIsAuthenticated,
+    refreshTokens,
+    tokenHandoff,
+} from "bento-auth-js";
 
 import * as io from "socket.io-client";
 
@@ -13,15 +21,10 @@ const SiteHeader = lazy(() => import("./SiteHeader"));
 import SiteFooter from "./SiteFooter";
 import SitePageLoading from "./SitePageLoading";
 
-import { fetchOpenIdConfiguration } from "../lib/auth/redux/openIdConfigSlice";
-
 import { AUTH_CALLBACK_URL, BENTO_URL_NO_TRAILING_SLASH, CLIENT_ID, OPENID_CONFIG_URL } from "../config";
 import eventHandler from "../events";
-import { createAuthURL, useHandleCallback } from "../lib/auth/performAuth";
-import { getIsAuthenticated } from "../lib/auth/utils";
 import SessionWorker from "../session.worker";
 import { nop } from "../utils/misc";
-import { refreshTokens, tokenHandoff } from "../lib/auth/redux/authSlice";
 import { fetchUserDependentData } from "../modules/user/actions";
 
 // Lazy-load notification drawer

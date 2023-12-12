@@ -2,11 +2,11 @@ import React, { useCallback, useMemo, useState } from "react";
 import { useSelector } from "react-redux";
 import { filesize } from "filesize";
 import { throttle } from "lodash";
+import { useAuthorizationHeader } from "bento-auth-js";
 
 import { Layout, Input, Table, Descriptions, message } from "antd";
 
 import { LAYOUT_CONTENT_STYLE } from "../../../styles/layoutContent";
-import { useAuthorizationHeader } from "../../../lib/auth/utils";
 
 import DownloadButton from "../../DownloadButton";
 

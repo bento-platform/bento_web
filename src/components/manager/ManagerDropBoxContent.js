@@ -1,6 +1,12 @@
 import React, {useCallback, useEffect, useMemo, useRef, useState} from "react";
 import {useDispatch, useSelector} from "react-redux";
 import {useHistory} from "react-router-dom";
+import {
+    useResourcePermissions,
+    RESOURCE_EVERYTHING,
+    deleteDropBox,
+    ingestDropBox,
+} from "bento-auth-js";
 
 import PropTypes from "prop-types";
 
@@ -35,7 +41,6 @@ import FileModal from "../display/FileModal";
 import {BENTO_DROP_BOX_FS_BASE_PATH} from "../../config";
 import {STEP_INPUT} from "./workflowCommon";
 import { workflowsStateToPropsMixin } from "../../propTypes";
-import {useResourcePermissions} from "../../lib/auth/utils";
 import {getFalse} from "../../utils/misc";
 import {
     beginDropBoxPuttingObjects,
@@ -44,8 +49,6 @@ import {
     putDropBoxObject,
     deleteDropBoxObject,
 } from "../../modules/manager/actions";
-import {RESOURCE_EVERYTHING} from "../../lib/auth/resources";
-import {deleteDropBox, ingestDropBox} from "../../lib/auth/permissions";
 
 import { VIEWABLE_FILE_EXTENSIONS } from "../display/FileDisplay";
 
