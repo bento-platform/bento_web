@@ -80,13 +80,15 @@ const TrackControlTable = React.memo(({ toggleView, allFoundFiles }) => {
     const trackTableColumns = [
         {
             title: "File",
-            key: "filename",
-            render: (_, track) => track.filename,
+            dataIndex: "filename",
         },
         {
-            title: "File type",
-            key: "fileType",
-            render: (_, track) => track.description,
+            title: "Format",
+            dataIndex: "file_format",
+        },
+        {
+            title: "Assembly ID",
+            dataIndex: "genome_assembly_id",
         },
         {
             title: "View track",
@@ -364,11 +366,13 @@ const IndividualTracks = ({ individual }) => {
                 )
             )}
             <div ref={igvDivRef} />
-            <Modal visible={modalVisible} onOk={closeModal} onCancel={closeModal} zIndex={MODAL_Z_INDEX} width={600}>
-                Assembly:{" "}
-                <Select value={selectedAssemblyID} onChange={(v) => setSelectedAssemblyID(v)}>
-                    {trackAssemblyIDs.map((a) => <Select.Option key={a} value={a}>{a}</Select.Option>)}
-                </Select>
+            <Modal visible={modalVisible} onCancel={closeModal} footer={null} zIndex={MODAL_Z_INDEX} width={720}>
+                <div style={{ marginBottom: 12 }}>
+                    Assembly:{" "}
+                    <Select value={selectedAssemblyID} onChange={(v) => setSelectedAssemblyID(v)}>
+                        {trackAssemblyIDs.map((a) => <Select.Option key={a} value={a}>{a}</Select.Option>)}
+                    </Select>
+                </div>
                 <TrackControlTable toggleView={toggleView} allFoundFiles={allFoundFiles} />
             </Modal>
         </>
