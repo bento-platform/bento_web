@@ -81,9 +81,10 @@ const ManagerReferenceGenomesContent = () => {
                 </Dropdown.Button>
                 <Table
                     columns={REFERENCE_GENOME_COLUMNS}
+                    dataSource={genomes}
                     size="middle"
                     bordered={true}
-                    dataSource={genomes}
+                    pagination={false}
                     loading={isFetchingGenomes}
                 />
             </Layout.Content>
