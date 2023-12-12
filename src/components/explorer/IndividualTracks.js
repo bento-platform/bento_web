@@ -1,7 +1,7 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import PropTypes from "prop-types";
-import { Button, Divider, Modal, Switch, Table, Empty, Skeleton, message } from "antd";
+import { Button, Divider, Empty, Modal, Table, Select, Skeleton, Switch, message } from "antd";
 import { debounce } from "lodash";
 import igv from "igv/dist/igv.esm";
 
@@ -104,7 +104,6 @@ const TrackControlTable = React.memo(({ toggleView, allFoundFiles }) => {
             columns={trackTableColumns}
             rowKey="filename"
             dataSource={allFoundFiles}
-            style={{ display: "inline-block" }}
         />
     );
 });
@@ -213,7 +212,7 @@ const IndividualTracks = ({ individual }) => {
         [allTracks, igvUrls],
     );
 
-    const [selectedAssemblyID, setSelectedAssemblyID] = useState(null);
+    const [selectedAssemblyID, setSelectedAssemblyID] = useState(undefined);
 
     const trackAssemblyIDs = useMemo(
         () => Array.from(new Set(allFoundFiles.map((t) => t.genome_assembly_id))).sort(),
@@ -366,6 +365,10 @@ const IndividualTracks = ({ individual }) => {
             )}
             <div ref={igvDivRef} />
             <Modal visible={modalVisible} onOk={closeModal} onCancel={closeModal} zIndex={MODAL_Z_INDEX} width={600}>
+                Assembly:{" "}
+                <Select value={selectedAssemblyID} onChange={(v) => setSelectedAssemblyID(v)}>
+                    {trackAssemblyIDs.map((a) => <Select.Option key={a} value={a}>{a}</Select.Option>)}
+                </Select>
                 <TrackControlTable toggleView={toggleView} allFoundFiles={allFoundFiles} />
             </Modal>
         </>
