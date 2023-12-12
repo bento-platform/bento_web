@@ -1,7 +1,8 @@
 import React from "react";
-import { Button, Table } from "antd";
+import { Button, Layout, Table } from "antd";
 
 import { useReferenceGenomes } from "../../../modules/reference/hooks";
+import { LAYOUT_CONTENT_STYLE } from "../../../styles/layoutContent";
 
 const REFERENCE_GENOME_COLUMNS = [
     {
@@ -43,12 +44,16 @@ const ManagerReferenceGenomesContent = () => {
     const referenceGenomes = useReferenceGenomes();  // Reference service genomes
 
     return (
-        <Table
-            columns={REFERENCE_GENOME_COLUMNS}
-            size="middle"
-            dataSource={referenceGenomes.items}
-            loading={referenceGenomes.isFetching}
-        />
+        <Layout>
+            <Layout.Content style={LAYOUT_CONTENT_STYLE}>
+                <Table
+                    columns={REFERENCE_GENOME_COLUMNS}
+                    size="middle"
+                    dataSource={referenceGenomes.items}
+                    loading={referenceGenomes.isFetching}
+                />
+            </Layout.Content>
+        </Layout>
     );
 };
 
