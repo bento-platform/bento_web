@@ -11,6 +11,7 @@ import { matchingMenuKeys, renderMenuItem } from "../utils/menu";
 import SitePageHeader from "./SitePageHeader";
 import ManagerDRSContent from "./manager/drs/ManagerDRSContent";
 import ManagerAnalysisContent from "./manager/ManagerAnalysisContent";
+import { useHasResourcePermissionWrapper } from "../hooks";
 
 const ManagerProjectDatasetContent = lazy(() => import("./manager/projects/ManagerProjectDatasetContent"));
 const ManagerAccessContent = lazy(() => import("./manager/ManagerAccessContent"));
@@ -33,13 +34,7 @@ const DataManagerContent = () => {
         document.title = `${SITE_NAME}: Admin / Data Manager`;
     }, []);
 
-    const authUrl = useSelector((state) => state.services.itemsByKind?.authorization?.url);
-
-    const { isFetching: fetchingPermission, hasPermission } = useHasResourcePermission(
-        RESOURCE_EVERYTHING,
-        authUrl,
-        viewDropBox,
-    );
+    const {fetchingPermission, hasPermission} = useHasResourcePermissionWrapper(RESOURCE_EVERYTHING, viewDropBox);
 
     const menuItems = useMemo(
         () => [

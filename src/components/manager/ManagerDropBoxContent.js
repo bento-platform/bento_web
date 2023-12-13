@@ -1,7 +1,6 @@
 import React, {useCallback, useEffect, useMemo, useRef, useState} from "react";
 import {useDispatch, useSelector} from "react-redux";
 import {
-    useResourcePermissions,
     RESOURCE_EVERYTHING,
     deleteDropBox,
     ingestDropBox,
@@ -51,7 +50,7 @@ import {
 import { useFetchDropBoxContentsIfAllowed } from "./hooks";
 
 import { VIEWABLE_FILE_EXTENSIONS } from "../display/FileDisplay";
-import { useWorkflows } from "../../hooks";
+import { useResourcePermissionsWrapper, useWorkflows } from "../../hooks";
 
 const DROP_BOX_CONTENT_CONTAINER_STYLE = { display: "flex", flexDirection: "column", gap: 8 };
 const DROP_BOX_ACTION_CONTAINER_STYLE = {
@@ -290,9 +289,9 @@ const ManagerDropBoxContent = () => {
 
     const {
         permissions,
-        isFetching: isFetchingPermissions,
-        hasAttempted: hasAttemptedPermissions,
-    } = useResourcePermissions(RESOURCE_EVERYTHING);
+        isFetchingPermissions,
+        hasAttemptedPermissions
+    } = useResourcePermissionsWrapper(RESOURCE_EVERYTHING);
 
     useFetchDropBoxContentsIfAllowed();
 
