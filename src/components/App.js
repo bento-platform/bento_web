@@ -203,7 +203,7 @@ const App = () => {
     useEffect(() => {
         if (didPostLoadEffects) return;
         (async () => {
-            await dispatch(fetchOpenIdConfiguration({ openIdConfigUrl: OPENID_CONFIG_URL }));
+            await dispatch(fetchOpenIdConfiguration(OPENID_CONFIG_URL));
             await dispatch(fetchUserDependentData(createEventRelayConnectionIfNecessary));
             setDidPostLoadEffects(true);
         })();
@@ -215,7 +215,7 @@ const App = () => {
             // Use session worker to send pings to refresh the token set even when the tab is inactive.
             const sw = new SessionWorker();
             sw.addEventListener("message", () => {
-                dispatch(refreshTokens({ clientId: CLIENT_ID }));
+                dispatch(refreshTokens(CLIENT_ID));
                 dispatch(fetchUserDependentData(nop));
             });
             sessionWorker.current = sw;
