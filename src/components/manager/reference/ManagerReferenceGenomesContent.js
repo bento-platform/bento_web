@@ -6,42 +6,6 @@ import { LAYOUT_CONTENT_STYLE } from "../../../styles/layoutContent";
 import { useWorkflows } from "../../../hooks";
 import { useStartIngestionFlow } from "../workflowCommon";
 
-const REFERENCE_GENOME_COLUMNS = [
-    {
-        title: "ID",
-        dataIndex: "id",
-    },
-    {
-        title: "Checksums",
-        key: "checksums",
-        render: (genome) => (
-            <div>
-                <strong>MD5:</strong>&nbsp;{genome.md5}<br />
-                <strong>GA4GH:</strong>&nbsp;{genome.ga4gh}<br />
-            </div>
-        ),
-    },
-    {
-        title: "URIs",
-        key: "uris",
-        render: (genome) => (
-            <div>
-                <strong>FASTA:</strong>&nbsp;{genome.fasta}<br />
-                <strong>FAI:</strong>&nbsp;{genome.fai}
-            </div>
-        ),
-    },
-    {
-        title: "Actions",
-        key: "actions",
-        render: (genome) => (
-            <Button type="danger" icon="delete" onClick={() => {
-                console.debug("TODO: delete", genome);
-            }}>Delete</Button>
-        ),
-    },
-];
-
 const ManagerReferenceGenomesContent = () => {
     const { items: genomes, isFetching: isFetchingGenomes } = useReferenceGenomes();  // Reference service genomes
 
@@ -68,6 +32,42 @@ const ManagerReferenceGenomesContent = () => {
         </Menu>
     ), [onWorkflowClick, ingestionWorkflows]);
 
+    const columns = useMemo(() => [
+        {
+            title: "ID",
+            dataIndex: "id",
+        },
+        {
+            title: "Checksums",
+            key: "checksums",
+            render: (genome) => (
+                <div>
+                    <strong>MD5:</strong>&nbsp;{genome.md5}<br />
+                    <strong>GA4GH:</strong>&nbsp;{genome.ga4gh}<br />
+                </div>
+            ),
+        },
+        {
+            title: "URIs",
+            key: "uris",
+            render: (genome) => (
+                <div>
+                    <strong>FASTA:</strong>&nbsp;{genome.fasta}<br />
+                    <strong>FAI:</strong>&nbsp;{genome.fai}
+                </div>
+            ),
+        },
+        {
+            title: "Actions",
+            key: "actions",
+            render: (genome) => (
+                <Button type="danger" icon="delete" onClick={() => {
+                    console.debug("TODO: delete", genome);
+                }}>Delete</Button>
+            ),
+        },
+    ], []);
+
     return (
         <Layout>
             <Layout.Content style={LAYOUT_CONTENT_STYLE}>
@@ -80,7 +80,7 @@ const ManagerReferenceGenomesContent = () => {
                     Ingest Genome
                 </Dropdown.Button>
                 <Table
-                    columns={REFERENCE_GENOME_COLUMNS}
+                    columns={columns}
                     dataSource={genomes}
                     size="middle"
                     bordered={true}
