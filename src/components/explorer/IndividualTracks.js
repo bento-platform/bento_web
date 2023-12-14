@@ -231,9 +231,6 @@ const IndividualTracks = ({ individual }) => {
                 const asmID = trackAssemblyIDs[0];  // TODO: first available
                 console.debug("auto-selected assembly ID:", asmID);
                 setSelectedAssemblyID(asmID);
-            } else {
-                // Backup: hg38
-                setSelectedAssemblyID("hg38");
             }
         }
     }, [availableBrowserGenomes, trackAssemblyIDs]);
