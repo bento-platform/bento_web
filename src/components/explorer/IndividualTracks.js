@@ -165,7 +165,12 @@ const IndividualTracks = ({ individual }) => {
         referenceGenomes.items.forEach((g) => {
             availableGenomes[g.id] = { id: g.id, fastaURL: g.fasta, indexURL: g.fai };
         });
-        (igvGenomes.data ?? []).forEach((g) => availableGenomes[g.id] = g);
+        (igvGenomes.data ?? []).forEach((g) => {
+            availableGenomes[g.id] = g;
+            // Manual aliasing for well-known human genome aliases:
+            if (g.id === "hg19") availableGenomes["GRCh37"] = {...g, id: "GRCh37"};
+            else if (g.id === "hg38") availableGenomes["GRCh38"] = {...g, id: "GRCh38"};
+        });
 
         console.debug("total available genomes:", availableGenomes);
 
