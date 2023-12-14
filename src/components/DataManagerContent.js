@@ -1,7 +1,6 @@
 import React, { Suspense, lazy, useEffect, useMemo } from "react";
 import { Redirect, Route, Switch } from "react-router-dom";
-import { useSelector } from "react-redux";
-import { viewDropBox, RESOURCE_EVERYTHING, useHasResourcePermission } from "bento-auth-js";
+import { viewDropBox, RESOURCE_EVERYTHING } from "bento-auth-js";
 
 import { Menu, Skeleton } from "antd";
 

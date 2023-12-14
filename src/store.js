@@ -12,8 +12,8 @@ const IMMUTABILITY_OPTIONS = {
     immutableCheck: {
         // Default is 32ms
         warnAfter: 128,
-    }
-}
+    },
+};
 
 const persistedState = {};
 const persistedOpenIDConfig = readFromLocalStorage(LS_OPENID_CONFIG_KEY);
@@ -30,14 +30,14 @@ export const store = configureStore({
 
 /**
  * Custom observeStore utility for enhanced 'store.subscribe' behaviour.
- * 
- * The 'store.subscribe' method has no notion of previous/next state, so it is triggered on 
+ *
+ * The 'store.subscribe' method has no notion of previous/next state, so it is triggered on
  * every action, which leads to unnecessary subscriber executions.
- * 
+ *
  * The onChange callback is only invoked if a change is detected on the selected state.
- * 
+ *
  * See Redux store.subscribe doc: https://redux.js.org/api/store#subscribelistener
- *  
+ *
  * @param {*} store The Redux store
  * @param {(state) => any} select A state selection function
  * @param {(currentState) => void} onChange Callback used when selected state changes
@@ -46,17 +46,17 @@ const observeStore = (store, select, onChange) => {
     let currentState;
 
     const handleChange = () => {
-        let nextState = select(store.getState());
+        const nextState = select(store.getState());
         if (nextState !== currentState) {
-            currentState = nextState
+            currentState = nextState;
             onChange(currentState);
         }
-    }
+    };
 
-    let unsubscribe = store.subscribe(handleChange);
+    const unsubscribe = store.subscribe(handleChange);
     handleChange();
     return unsubscribe;
-}
+};
 
 observeStore(
     store,
@@ -66,5 +66,5 @@ observeStore(
         if (data && expiry && !isFetching) {
             writeToLocalStorage(LS_OPENID_CONFIG_KEY, { data, expiry, isFetching });
         }
-    }
-)
+    },
+);

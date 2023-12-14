@@ -41,7 +41,7 @@ export const useWorkflows = () => {
 
 /**
  * The evaluation of a user permission for a given resource.
- * @typedef {Object} ResourcePermissionEval 
+ * @typedef {Object} ResourcePermissionEval
  * @property {boolean} fetchingPermission Indicates the permission is being fetched from the authz service.
  * @property {boolean} hasPermission Indicates the user has the requested resource permission.
  */
@@ -62,14 +62,14 @@ export const useWorkflows = () => {
  */
 export const useHasResourcePermissionWrapper = (resource, permission) => {
     const authzUrl = useSelector((state) => state.services.itemsByKind?.authorization?.url);
-    
+
     const {isFetching: fetchingPermission, hasPermission} = useHasResourcePermission(resource, authzUrl, permission);
 
     return {
         fetchingPermission,
         hasPermission,
     };
-}
+};
 
 /**
  * Returns the user's permissions for a given resource
@@ -90,4 +90,4 @@ export const useResourcePermissionsWrapper = (resource) => {
         isFetchingPermissions,
         hasAttemptedPermissions,
     };
-}
+};
