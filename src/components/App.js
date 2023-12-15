@@ -9,6 +9,7 @@ import {
     getIsAuthenticated,
     refreshTokens,
     tokenHandoff,
+    LS_SIGN_IN_POPUP,
 } from "bento-auth-js";
 
 import * as io from "socket.io-client";
@@ -38,7 +39,6 @@ const AdminContent = lazy(() => import("./AdminContent"));
 const NotificationsContent = lazy(() => import("./notifications/NotificationsContent"));
 const UserProfileContent = lazy(() => import("./UserProfileContent"));
 
-const LS_SIGN_IN_POPUP = "BENTO_DID_CREATE_SIGN_IN_POPUP";
 const SIGN_IN_WINDOW_FEATURES = "scrollbars=no, toolbar=no, menubar=no, width=800, height=600";
 
 const CALLBACK_PATH = "/callback";
