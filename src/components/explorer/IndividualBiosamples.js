@@ -46,8 +46,7 @@ const BiosampleProcedure = ({ procedure }) => {
             ) : null}
         </div>
     );
-}
-    ;
+};
 BiosampleProcedure.propTypes = {
     procedure: PropTypes.shape({
         code: ontologyShape.isRequired,
