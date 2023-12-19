@@ -1,4 +1,4 @@
-import React, {Fragment, useCallback, useEffect, useMemo} from "react";
+import React, { Fragment, useCallback, useEffect, useMemo } from "react";
 import PropTypes from "prop-types";
 import { Route, Switch, useHistory, useRouteMatch, useParams } from "react-router-dom";
 
@@ -24,29 +24,35 @@ import { MeasurementsTable } from "./IndividualMeasurements";
 // TODO: Only show biosamples from the relevant dataset, if specified;
 //  highlight those found in search results, if specified
 
-const BiosampleProcedure = ({ procedure }) => (
-    <div>
-        <strong>Code:</strong>{" "}<OntologyTerm term={procedure.code} />
-        {procedure.body_site ? (
-            <div>
-                <strong>Body Site:</strong>{" "}
-                <OntologyTerm term={procedure.body_site} />
-            </div>
-        ) : null}
-        {procedure.performed ? (
-            <div>
-                <strong>Performed:</strong>{" "}
-                <TimeElement timeElement={procedure.performed} />
-            </div>
-        ) : null}
-    </div>
-);
+const BiosampleProcedure = ({ procedure }) => {
+    if (!procedure) {
+        return EM_DASH;
+    }
+
+    return (
+        <div>
+            <strong>Code:</strong>{" "}<OntologyTerm term={procedure.code} />
+            {procedure.body_site ? (
+                <div>
+                    <strong>Body Site:</strong>{" "}
+                    <OntologyTerm term={procedure.body_site} />
+                </div>
+            ) : null}
+            {procedure.performed ? (
+                <div>
+                    <strong>Performed:</strong>{" "}
+                    <TimeElement timeElement={procedure.performed} />
+                </div>
+            ) : null}
+        </div>
+    );
+};
 BiosampleProcedure.propTypes = {
     procedure: PropTypes.shape({
         code: ontologyShape.isRequired,
         body_site: ontologyShape,
         performed: PropTypes.object,
-    }).isRequired,
+    }),
 };
 
 const ExperimentsClickList = ({ experiments, handleExperimentClick }) => {
@@ -208,7 +214,7 @@ Biosamples.propTypes = {
     handleExperimentClick: PropTypes.func,
 };
 
-const IndividualBiosamples = ({individual, experimentsUrl}) => {
+const IndividualBiosamples = ({ individual, experimentsUrl }) => {
     const history = useHistory();
     const match = useRouteMatch();
 
