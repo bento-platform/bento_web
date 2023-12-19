@@ -176,7 +176,7 @@ export const biosamplePropTypesShape = PropTypes.shape({
         body_site: ontologyShape,
         created: PropTypes.string,  // ISO datetime string
         updated: PropTypes.string,  // ISO datetime string
-    }).isRequired,
+    }),
     description: PropTypes.string,
     sampled_tissue: ontologyShape.isRequired,
     individual_age_at_collection: PropTypes.oneOfType([agePropTypesShape, ageRangePropTypesShape]),
