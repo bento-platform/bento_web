@@ -25,7 +25,7 @@ import { MeasurementsTable } from "./IndividualMeasurements";
 //  highlight those found in search results, if specified
 
 const BiosampleProcedure = ({ procedure }) => {
-    if (!procedure || !procedure.code) {
+    if (!procedure) {
         return EM_DASH;
     }
 
