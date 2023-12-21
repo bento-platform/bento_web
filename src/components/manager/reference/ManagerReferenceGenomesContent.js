@@ -1,13 +1,18 @@
 import React, { useCallback, useMemo } from "react";
+import { useDispatch } from "react-redux";
+
 import { Button, Dropdown, Layout, Menu, Table } from "antd";
 
 import { useReferenceGenomes } from "../../../modules/reference/hooks";
 import { LAYOUT_CONTENT_STYLE } from "../../../styles/layoutContent";
 import { useWorkflows } from "../../../hooks";
 import { useStartIngestionFlow } from "../workflowCommon";
+import { deleteReferenceGenomeIfPossible } from "../../../modules/reference/actions";
 
 const ManagerReferenceGenomesContent = () => {
-    const { items: genomes, isFetching: isFetchingGenomes } = useReferenceGenomes();  // Reference service genomes
+    const dispatch = useDispatch();
+
+    const { items: genomes, isFetching: isFetchingGenomes, isDeletingIDs } = useReferenceGenomes();
 
     const { workflowsByType } = useWorkflows();
     const ingestionWorkflows = workflowsByType.ingestion.items;
@@ -61,12 +66,17 @@ const ManagerReferenceGenomesContent = () => {
             title: "Actions",
             key: "actions",
             render: (genome) => (
-                <Button type="danger" icon="delete" onClick={() => {
-                    console.debug("TODO: delete", genome);
-                }}>Delete</Button>
+                <Button
+                    type="danger"
+                    icon="delete"
+                    loading={isDeletingIDs[genome.id]}
+                    disabled={isFetchingGenomes || isDeletingIDs[genome.id]}
+                    onClick={() => {
+                        dispatch(deleteReferenceGenomeIfPossible(genome.id));
+                    }}>Delete</Button>
             ),
         },
-    ], []);
+    ], [dispatch, isFetchingGenomes, isDeletingIDs]);
 
     return (
         <Layout>
