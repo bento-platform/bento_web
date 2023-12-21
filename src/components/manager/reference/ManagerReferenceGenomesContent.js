@@ -57,8 +57,10 @@ const ManagerReferenceGenomesContent = () => {
             key: "uris",
             render: (genome) => (
                 <div>
-                    <strong>FASTA:</strong>&nbsp;{genome.fasta}<br />
-                    <strong>FAI:</strong>&nbsp;{genome.fai}
+                    <strong>FASTA:</strong>&nbsp;<a target="_blank" rel="noopener noreferrer" href={genome.fasta}>
+                        {genome.fasta}</a><br />
+                    <strong>FAI:</strong>&nbsp;<a target="_blank" rel="noopener noreferrer" href={genome.fai}>
+                        {genome.fai}</a>
                 </div>
             ),
         },
