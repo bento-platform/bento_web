@@ -1,7 +1,7 @@
 import React, { useCallback, useMemo } from "react";
 import { useDispatch } from "react-redux";
 
-import { Button, Dropdown, Layout, Menu, Modal, Table } from "antd";
+import { Button, Dropdown, Icon, Layout, Menu, Modal, Table } from "antd";
 
 import { useReferenceGenomes } from "../../../modules/reference/hooks";
 import { LAYOUT_CONTENT_STYLE } from "../../../styles/layoutContent";
@@ -96,7 +96,7 @@ const ManagerReferenceGenomesContent = () => {
                     disabled={!ingestionWorkflows.length}
                     style={{ marginBottom: "1rem" }}
                 >
-                    Ingest Genome
+                    <Icon type="import" /> Ingest Genome
                 </Dropdown.Button>
                 <Table
                     columns={columns}
