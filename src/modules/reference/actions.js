@@ -20,6 +20,7 @@ const deleteReferenceGenome = networkAction((genomeID) => (dispatch, getState) =
     types: DELETE_REFERENCE_GENOME,
     params: {genomeID},
     url: `${getState().services.itemsByKind.reference.url}/genomes/${genomeID}`,
+    req: { method: "DELETE" },
     err: `Error deleting reference genome ${genomeID}`,
 }));
 
