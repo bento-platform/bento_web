@@ -26,7 +26,7 @@ export const referenceGenomes = (
 
         // DELETE_REFERENCE_GENOME
         case DELETE_REFERENCE_GENOME.REQUEST:
-            return {...state, isDeletingIDs: {...state.isDeletingIDs, [action.params.genomeID]: true}};
+            return {...state, isDeletingIDs: {...state.isDeletingIDs, [action.genomeID]: true}};
         case DELETE_REFERENCE_GENOME.RECEIVE: {
             const { data, genomeID } = action;
             return {
