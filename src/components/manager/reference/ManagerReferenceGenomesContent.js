@@ -98,6 +98,7 @@ const ManagerReferenceGenomesContent = () => {
                     bordered={true}
                     pagination={false}
                     loading={isFetchingGenomes}
+                    rowKey="id"
                 />
             </Layout.Content>
         </Layout>
