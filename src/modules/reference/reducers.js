@@ -36,7 +36,7 @@ export const referenceGenomes = (
             };
         }
         case DELETE_REFERENCE_GENOME.FINISH: {
-            return {...state, isDeletingIDs: objectWithoutProp(state.isDeletingIDs, action.params.genomeID)};
+            return {...state, isDeletingIDs: objectWithoutProp(state.isDeletingIDs, action.genomeID)};
         }
 
         default:
