@@ -1,8 +1,10 @@
 import { configureStore } from "@reduxjs/toolkit";
+import thunkMiddleware from "redux-thunk";
+
+import { LS_OPENID_CONFIG_KEY } from "bento-auth-js";
+
 import { readFromLocalStorage, writeToLocalStorage } from "./utils/localStorageUtils";
 import rootReducer from "./reducers";
-import thunkMiddleware from "redux-thunk";
-import { LS_OPENID_CONFIG_KEY } from "bento-auth-js"
 
 // The Immutability Middleware is only present in DEV builds.
 // Thes options prevent delay warnings caused by large states in DEV mode by increasing the warning delay.
