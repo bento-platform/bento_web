@@ -1,7 +1,7 @@
 import React, { useCallback, useMemo } from "react";
 import { useDispatch } from "react-redux";
 
-import { Button, Dropdown, Layout, Menu, Table } from "antd";
+import { Button, Dropdown, Layout, Menu, Modal, Table } from "antd";
 
 import { useReferenceGenomes } from "../../../modules/reference/hooks";
 import { LAYOUT_CONTENT_STYLE } from "../../../styles/layoutContent";
@@ -74,7 +74,14 @@ const ManagerReferenceGenomesContent = () => {
                     loading={isDeletingIDs[genome.id]}
                     disabled={isFetchingGenomes || isDeletingIDs[genome.id]}
                     onClick={() => {
-                        dispatch(deleteReferenceGenomeIfPossible(genome.id));
+                        Modal.confirm({
+                            title: `Are you sure you want to delete genome "${genome.id}"?`,
+                            maskClosable: true,
+                            okText: "Delete",
+                            okType: "danger",
+                            // Return a promise that'll be fulfilled when the delete request goes through:
+                            onOk: () => dispatch(deleteReferenceGenomeIfPossible(genome.id)),
+                        });
                     }}>Delete</Button>
             ),
         },
