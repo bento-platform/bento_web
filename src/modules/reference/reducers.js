@@ -28,10 +28,10 @@ export const referenceGenomes = (
         case DELETE_REFERENCE_GENOME.REQUEST:
             return {...state, isDeletingIDs: {...state.isDeletingIDs, [action.params.genomeID]: true}};
         case DELETE_REFERENCE_GENOME.RECEIVE: {
-            const { genomeID } = action.params;
+            const { data, genomeID } = action;
             return {
                 ...state,
-                items: action.data.filter((g) => g.id !== genomeID),
+                items: data.filter((g) => g.id !== genomeID),
                 itemsByID: objectWithoutProp(state.itemsByID, genomeID),
             };
         }
