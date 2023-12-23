@@ -172,7 +172,12 @@ const RunSetupInputForm = ({initialValues, form, onSubmit, workflow, onBack}) =>
                         {form.getFieldDecorator(i.id, {
                             initialValue: initialValues[i.id],  // undefined if not set
                             // Default to requiring the field unless the "required" property is set on the input
-                            rules: [{ required: i.required === undefined ? true : i.required }],
+                            // or the input is a boolean (i.e., checkbox), since booleans will always be present.
+                            // This does mean nullable booleans aren't supported, but that's fine since an enum is a
+                            // better choice in that case anyway.
+                            rules: i.type === "boolean"
+                                ? []
+                                : [{ required: i.required === undefined ? true : i.required }],
                             ...options,
                         })(component)}
                     </Form.Item>
@@ -180,7 +185,7 @@ const RunSetupInputForm = ({initialValues, form, onSubmit, workflow, onBack}) =>
             }),
 
             <Form.Item key="_submit" wrapperCol={FORM_BUTTON_COL}>
-                <> {/* Funny hack to make the type warning for multipe children in a Form.Item go away */}
+                <> {/* Funny hack to make the type warning for multiple children in a Form.Item go away */}
                     {onBack ? <Button icon="left" onClick={handleBack}>Back</Button> : null}
                     <Button type="primary" htmlType="submit" style={{float: "right"}}>
                         Next <Icon type="right" />
