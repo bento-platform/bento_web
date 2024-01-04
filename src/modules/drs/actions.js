@@ -157,16 +157,21 @@ const errorDownloadUrls = () => ({
 
 
 const isIndexedFileType = (fileObj) => hasIndex(fileObj.file_format ?? guessFileType(fileObj.filename));
-const indexFileName = (filename) => filename + indexSuffix[guessFileType(filename)];
 
 const indexSuffix = {
+    "gvcf": ".tbi",
     "vcf": ".tbi",
+    "bam": ".bai",
     "cram": ".crai",
 };
 
+const indexFileName = (filename) => filename + indexSuffix[guessFileType(filename)];
+
 const hasIndex = (fileType) => {
     switch (fileType.toLowerCase()) {
+        case "gvcf":
         case "vcf":
+        case "bam":
         case "cram":
             return true;
 
