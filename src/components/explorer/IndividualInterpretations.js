@@ -50,7 +50,7 @@ VariantInterpretation.propTypes = {
 };
 
 export const GenomicInterpretationDetails = ({ genomicInterpretation }) => {
-    const relatedType = genomicInterpretation?.extra_properties?.related_type ?? "unknown";
+    const relatedType = genomicInterpretation?.extra_properties?.__related_type ?? "unknown";
     const relatedLabel = relatedType[0].toUpperCase() + relatedType.slice(1).toLowerCase();
     const isBiosampleRelated = relatedType === "biosample";
 
