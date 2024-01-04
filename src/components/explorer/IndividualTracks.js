@@ -134,6 +134,13 @@ const buildIgvTrack = (igvUrls, track) => {
     };
 };
 
+const IGV_JS_ANNOTATION_ALIASES = {
+    "hg19": "GRCh37",
+    "hg38": "GRCh38",
+    "mm9": "NCBI37",
+    "mm10": "GRCm38",
+};
+
 const IndividualTracks = ({ individual }) => {
     const { accessToken } = useSelector((state) => state.auth);
 
@@ -168,9 +175,12 @@ const IndividualTracks = ({ individual }) => {
         });
         (igvGenomes.data ?? []).forEach((g) => {
             availableGenomes[g.id] = g;
-            // Manual aliasing for well-known human genome aliases:
-            if (g.id === "hg19") availableGenomes["GRCh37"] = {...g, id: "GRCh37"};
-            else if (g.id === "hg38") availableGenomes["GRCh38"] = {...g, id: "GRCh38"};
+            // Manual aliasing for well-known genome aliases, so that we get extra annotations from the
+            // igv.js genomes.json:
+            if (g.id in IGV_JS_ANNOTATION_ALIASES) {
+                const additionalID = IGV_JS_ANNOTATION_ALIASES[g.id];
+                availableGenomes[additionalID] = {...g, id: additionalID};
+            }
         });
 
         console.debug("total available genomes:", availableGenomes);
