@@ -13,6 +13,7 @@ import { guessFileType } from "../../utils/files";
 import {useDeduplicatedIndividualBiosamples} from "./utils";
 import { useReferenceGenomes } from "../../modules/reference/hooks";
 import { useIgvGenomes } from "../../modules/explorer/hooks";
+import { simpleDeepCopy } from "../../utils/misc";
 
 const SQUISHED_CALL_HEIGHT = 10;
 const EXPANDED_CALL_HEIGHT = 50;
@@ -207,11 +208,11 @@ const IndividualTracks = ({ individual }) => {
     );
 
     // augmented experiment results with viewInIgv state + cached lowercase / normalized file format:
-    const [allTracks, setAllTracks] = useState(viewableResults);
+    const [allTracks, setAllTracks] = useState(simpleDeepCopy(viewableResults));
 
     useEffect(() => {
         // If the set of viewable results changes, reset the track state
-        setAllTracks(viewableResults);
+        setAllTracks(simpleDeepCopy(viewableResults));
     }, [viewableResults]);
 
     const allFoundFiles = useMemo(
@@ -307,7 +308,7 @@ const IndividualTracks = ({ individual }) => {
         }
 
         console.debug("igv.createBrowser effect dependencies:",
-            [igvUrls, allFoundFiles, availableBrowserGenomes, selectedAssemblyID]);
+            [igvUrls, viewableResults, availableBrowserGenomes, selectedAssemblyID]);
 
         if (creatingIgvBrowser || igvBrowserRef.current) {
             console.debug(
@@ -318,17 +319,17 @@ const IndividualTracks = ({ individual }) => {
 
         setCreatingIgvBrowser(true);
 
-        const igvTracks = allFoundFiles
+        const initialIgvTracks = allFoundFiles
             .filter((t) => t.viewInIgv && t.genome_assembly_id === selectedAssemblyID && igvUrls[t.filename].url)
             .map((t) => buildIgvTrack(igvUrls, t));
 
         const igvOptions = {
             genome: availableBrowserGenomes[selectedAssemblyID],
             locus: igvPosition,
-            tracks: igvTracks,
+            tracks: initialIgvTracks,
         };
 
-        console.debug("creating igv.js browser with options:", igvOptions, "; tracks:", igvTracks);
+        console.debug("creating igv.js browser with options:", igvOptions, "; tracks:", initialIgvTracks);
 
         igv.createBrowser(igvDivRef.current, igvOptions).then((browser) => {
             browser.on(
@@ -346,7 +347,10 @@ const IndividualTracks = ({ individual }) => {
         });
 
         return cleanup;
-    }, [igvUrls, allFoundFiles, availableBrowserGenomes, selectedAssemblyID]);
+
+        // Use viewableResults as the track dependency, not allFoundFiles, since allFoundFiles is regenerated if a
+        // track's visibility changes
+    }, [igvUrls, viewableResults, availableBrowserGenomes, selectedAssemblyID]);
 
     return (
         <>
