@@ -9,14 +9,18 @@ import { useWorkflows } from "../../../hooks";
 import { useStartIngestionFlow } from "../workflowCommon";
 import { deleteReferenceGenomeIfPossible } from "../../../modules/reference/actions";
 
+const DEFAULT_REF_INGEST_WORKFLOW_ID = "fasta_ref";
+
 const ManagerReferenceGenomesContent = () => {
     const dispatch = useDispatch();
 
     const { items: genomes, isFetching: isFetchingGenomes, isDeletingIDs } = useReferenceGenomes();
 
-    const { workflowsByType } = useWorkflows();
+    const { workflowsByType, workflowsLoading } = useWorkflows();
     const ingestionWorkflows = workflowsByType.ingestion.items;
     const ingestionWorkflowsByID = workflowsByType.ingestion.itemsByID;
+
+    const defaultIngestionWorkflow = ingestionWorkflowsByID[DEFAULT_REF_INGEST_WORKFLOW_ID];
 
     const startIngestionFlow = useStartIngestionFlow();
 
@@ -25,8 +29,9 @@ const ManagerReferenceGenomesContent = () => {
     }, [startIngestionFlow, ingestionWorkflowsByID]);
 
     const onWorkflowButtonClick = useCallback(() => {
-        onWorkflowClick({ key: ingestionWorkflows[0].id });
-    }, [onWorkflowClick, ingestionWorkflows]);
+        if (!defaultIngestionWorkflow) return;
+        onWorkflowClick({ key: defaultIngestionWorkflow.id });
+    }, [onWorkflowClick, defaultIngestionWorkflow]);
 
     /** @type React.ReactNode */
     const ingestMenu = useMemo(() => (
@@ -93,10 +98,12 @@ const ManagerReferenceGenomesContent = () => {
                 <Dropdown.Button
                     overlay={ingestMenu}
                     onClick={onWorkflowButtonClick}
-                    disabled={!ingestionWorkflows.length}
+                    disabled={!defaultIngestionWorkflow}
                     style={{ marginBottom: "1rem" }}
                 >
-                    <Icon type="import" /> Ingest Genome
+                    <Icon type="import" />{" "}
+                    {defaultIngestionWorkflow?.name
+                        ?? (workflowsLoading ? "Loading..." : "No ingestion workflows available")}
                 </Dropdown.Button>
                 <Table
                     columns={columns}
