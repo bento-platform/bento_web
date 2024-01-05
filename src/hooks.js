@@ -56,7 +56,7 @@ export const useWorkflows = () => {
 
 /**
  * Evaluate if the user has a permission on a given resource
- * @param {string} resource The resource key (e.g. "everything")
+ * @param {Object} resource The resource key (e.g. "everything")
  * @param {string} permission The permission string (e.g. "view:drop_box")
  * @returns {ResourcePermissionEval}
  */

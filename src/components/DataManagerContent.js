@@ -8,16 +8,18 @@ import { SITE_NAME } from "../constants";
 import { matchingMenuKeys, renderMenuItem } from "../utils/menu";
 
 import SitePageHeader from "./SitePageHeader";
-import ManagerDRSContent from "./manager/drs/ManagerDRSContent";
-import ManagerAnalysisContent from "./manager/ManagerAnalysisContent";
 import { useHasResourcePermissionWrapper } from "../hooks";
+import { useFetchDropBoxContentsIfAllowed } from "./manager/hooks";
 
 const ManagerProjectDatasetContent = lazy(() => import("./manager/projects/ManagerProjectDatasetContent"));
 const ManagerAccessContent = lazy(() => import("./manager/ManagerAccessContent"));
 const ManagerDropBoxContent = lazy(() => import("./manager/ManagerDropBoxContent"));
 const ManagerIngestionContent = lazy(() => import("./manager/ManagerIngestionContent"));
+const ManagerAnalysisContent = lazy(() => import("./manager/ManagerAnalysisContent"));
 const ManagerWorkflowsContent = lazy(() => import("./manager/ManagerWorkflowsContent"));
 const ManagerRunsContent = lazy(() => import("./manager/runs/ManagerRunsContent"));
+const ManagerDRSContent = lazy(() => import("./manager/drs/ManagerDRSContent"));
+const ManagerReferenceGenomesContent = lazy(() => import("./manager/reference/ManagerReferenceGenomesContent"));
 
 const styles = {
     menu: {
@@ -33,25 +35,26 @@ const DataManagerContent = () => {
         document.title = `${SITE_NAME}: Admin / Data Manager`;
     }, []);
 
-    const {fetchingPermission, hasPermission} = useHasResourcePermissionWrapper(RESOURCE_EVERYTHING, viewDropBox);
+    useFetchDropBoxContentsIfAllowed();
 
-    const menuItems = useMemo(
-        () => [
-            { url: "/admin/data/manager/projects", style: { marginLeft: "4px" }, text: "Projects and Datasets" },
-            // {url: "/data/manager/access", text: "Access Management"},  // TODO: Re-enable for v0.2
-            {
-                url: "/admin/data/manager/files",
-                text: "Drop Box",
-                disabled: fetchingPermission || !hasPermission,
-            },
-            { url: "/admin/data/manager/ingestion", text: "Ingestion" },
-            { url: "/admin/data/manager/analysis", text: "Analysis" },
-            { url: "/admin/data/manager/workflows", text: "Workflows" },
-            { url: "/admin/data/manager/runs", text: "Workflow Runs" },
-            { url: "/admin/data/manager/drs", text: "DRS Objects" },
-        ],
-        [fetchingPermission, hasPermission],
-    );
+    const { hasPermission: hasViewDropBoxPermission } = useHasResourcePermissionWrapper(
+        RESOURCE_EVERYTHING, viewDropBox);
+
+    const menuItems = useMemo(() => [
+        {url: "/admin/data/manager/projects", style: {marginLeft: "4px"}, text: "Projects and Datasets"},
+        // {url: "/data/manager/access", text: "Access Management"},  // TODO: Re-enable for v0.2
+        {
+            url: "/admin/data/manager/files",
+            text: "Drop Box",
+            disabled: !hasViewDropBoxPermission,
+        },
+        {url: "/admin/data/manager/ingestion", text: "Ingestion"},
+        {url: "/admin/data/manager/analysis", text: "Analysis"},
+        {url: "/admin/data/manager/workflows", text: "Workflows"},
+        {url: "/admin/data/manager/runs", text: "Workflow Runs"},
+        {url: "/admin/data/manager/drs", text: "DRS Objects"},
+        {url: "/admin/data/manager/genomes", text: "Reference Genomes"},
+    ], [hasViewDropBoxPermission]);
 
     const selectedKeys = useMemo(() => matchingMenuKeys(menuItems), [menuItems, window.location.pathname]);
 
@@ -66,13 +69,7 @@ const DataManagerContent = () => {
                     </Menu>
                 }
             />
-            <Suspense
-                fallback={
-                    <div style={styles.suspenseFallback}>
-                        <Skeleton active />
-                    </div>
-                }
-            >
+            <Suspense fallback={<div style={styles.suspenseFallback}><Skeleton active /></div>}>
                 <Switch>
                     <Route path="/admin/data/manager/projects" component={ManagerProjectDatasetContent} />
                     <Route exact path="/admin/data/manager/access" component={ManagerAccessContent} />
@@ -81,6 +78,7 @@ const DataManagerContent = () => {
                     <Route exact path="/admin/data/manager/analysis" component={ManagerAnalysisContent} />
                     <Route exact path="/admin/data/manager/workflows" component={ManagerWorkflowsContent} />
                     <Route exact path="/admin/data/manager/drs" component={ManagerDRSContent} />
+                    <Route exact path="/admin/data/manager/genomes" component={ManagerReferenceGenomesContent} />
                     <Route path="/admin/data/manager/runs" component={ManagerRunsContent} />
                     <Redirect from="/admin/data/manager" to="/admin/data/manager/projects" />
                 </Switch>
