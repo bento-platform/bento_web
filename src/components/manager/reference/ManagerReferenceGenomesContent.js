@@ -20,7 +20,12 @@ const ManagerReferenceGenomesContent = () => {
     const ingestionWorkflows = workflowsByType.ingestion.items;
     const ingestionWorkflowsByID = workflowsByType.ingestion.itemsByID;
 
-    const defaultIngestionWorkflow = ingestionWorkflowsByID[DEFAULT_REF_INGEST_WORKFLOW_ID];
+    const referenceIngestionWorkflows = useMemo(
+        () => ingestionWorkflows.filter((w) => (w.tags ?? []).includes("reference")), [ingestionWorkflows]);
+
+    // Fallback: if our chosen default isn't available, use the first available reference-tagged ingestion workflow.
+    const defaultIngestionWorkflow = ingestionWorkflowsByID[DEFAULT_REF_INGEST_WORKFLOW_ID]
+        ?? referenceIngestionWorkflows[0];
 
     const startIngestionFlow = useStartIngestionFlow();
 
@@ -36,11 +41,11 @@ const ManagerReferenceGenomesContent = () => {
     /** @type React.ReactNode */
     const ingestMenu = useMemo(() => (
         <Menu onClick={onWorkflowClick}>
-            {ingestionWorkflows.filter((w) => (w.tags ?? []).includes("reference")).map((w) => (
+            {referenceIngestionWorkflows.map((w) => (
                 <Menu.Item key={w.id}>{w.name}</Menu.Item>
             ))}
         </Menu>
-    ), [onWorkflowClick, ingestionWorkflows]);
+    ), [onWorkflowClick, referenceIngestionWorkflows]);
 
     const columns = useMemo(() => [
         {
