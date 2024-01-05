@@ -37,9 +37,9 @@ import DropBoxTreeSelect from "./DropBoxTreeSelect";
 import FileModal from "../display/FileModal";
 
 import {BENTO_DROP_BOX_FS_BASE_PATH} from "../../config";
-import {getFalse} from "../../utils/misc";
 import { useStartIngestionFlow } from "./workflowCommon";
 import { testFileAgainstPattern } from "../../utils/files";
+import { getFalse } from "../../utils/misc";
 import {
     beginDropBoxPuttingObjects,
     endDropBoxPuttingObjects,
