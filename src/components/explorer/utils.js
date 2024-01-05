@@ -100,7 +100,7 @@ export const useDatasetResources = (datasetIDOrDatasetIDs) => {
             const r = Object.values(
                 Object.fromEntries(
                     datasetIDs
-                        .flatMap(d => datasetResources[d]?.data ?? [])
+                        .flatMap(d => Object.values(datasetResources[d]?.data ?? []))
                         .map(r => [r.id, r]),
                 ),
             );
