@@ -1,7 +1,7 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import PropTypes from "prop-types";
-import {Button, Divider, Modal, Switch, Table, Empty, Skeleton} from "antd";
+import { Button, Divider, Empty, Modal, Table, Select, Skeleton, Switch, message } from "antd";
 import { debounce } from "lodash";
 import igv from "igv/dist/igv.esm";
 
@@ -11,6 +11,9 @@ import { getIgvUrlsFromDrs } from "../../modules/drs/actions";
 import { setIgvPosition } from "../../modules/explorer/actions";
 import { guessFileType } from "../../utils/files";
 import {useDeduplicatedIndividualBiosamples} from "./utils";
+import { useReferenceGenomes } from "../../modules/reference/hooks";
+import { useIgvGenomes } from "../../modules/explorer/hooks";
+import { simpleDeepCopy } from "../../utils/misc";
 
 const SQUISHED_CALL_HEIGHT = 10;
 const EXPANDED_CALL_HEIGHT = 50;
@@ -41,22 +44,52 @@ const DEBOUNCE_WAIT = 500;
 // verify url set is for this individual (may have stale urls from previous request)
 const hasFreshUrls = (files, urls) => files.every((f) => urls.hasOwnProperty(f.filename));
 
-const isViewable = (file) => {
-    const viewable = ["vcf", "cram", "bigwig", "bw"];
-    return viewable.includes(file.file_format?.toLowerCase()) || viewable.includes(guessFileType(file.filename));
+const ALIGNMENT_FORMATS_LOWER = ["bam", "cram"];
+const ANNOTATION_FORMATS_LOWER = ["bigbed"];  // TODO: experiment result: support more
+const MUTATION_FORMATS_LOWER = ["maf"];
+const WIG_FORMATS_LOWER = ["bigwig"];  // TODO: experiment result: support wig/bedGraph?
+const VARIANT_FORMATS_LOWER = ["vcf", "gvcf"];
+const VIEWABLE_FORMATS_LOWER = [
+    ...ALIGNMENT_FORMATS_LOWER,
+    ...ANNOTATION_FORMATS_LOWER,
+    ...MUTATION_FORMATS_LOWER,
+    ...WIG_FORMATS_LOWER,
+    ...VARIANT_FORMATS_LOWER,
+];
+
+const expResFileFormatLower = (expRes) => expRes.file_format?.toLowerCase() ?? guessFileType(expRes.filename);
+
+// For an experiment result to be viewable in IGV.js, it must have:
+//  - an assembly ID, so we can contextualize it correctly
+//  - a file format in the list of file formats we know how to handle
+const isViewableInIgv = (expRes) =>
+    !!expRes.genome_assembly_id && VIEWABLE_FORMATS_LOWER.includes(expResFileFormatLower(expRes));
+
+const expResFileFormatToIgvTypeAndFormat = (fileFormat) => {
+    const ff = fileFormat.toLowerCase();
+
+    if (ALIGNMENT_FORMATS_LOWER.includes(ff)) return ["alignment", ff];
+    if (ANNOTATION_FORMATS_LOWER.includes(ff)) return ["annotation", "bigBed"];  // TODO: expand if we support more
+    if (MUTATION_FORMATS_LOWER.includes(ff)) return ["mut", ff];
+    if (WIG_FORMATS_LOWER.includes(ff)) return ["wig", "bigWig"];  // TODO: expand if we support wig/bedGraph
+    if (VARIANT_FORMATS_LOWER.includes(ff)) return ["variant", "vcf"];
+
+    return [undefined, undefined];
 };
 
 const TrackControlTable = React.memo(({ toggleView, allFoundFiles }) => {
     const trackTableColumns = [
         {
             title: "File",
-            key: "filename",
-            render: (_, track) => track.filename,
+            dataIndex: "filename",
         },
         {
-            title: "File type",
-            key: "fileType",
-            render: (_, track) => track.description,
+            title: "Format",
+            dataIndex: "file_format",
+        },
+        {
+            title: "Assembly ID",
+            dataIndex: "genome_assembly_id",
         },
         {
             title: "View track",
@@ -74,7 +107,6 @@ const TrackControlTable = React.memo(({ toggleView, allFoundFiles }) => {
             columns={trackTableColumns}
             rowKey="filename"
             dataSource={allFoundFiles}
-            style={{ display: "inline-block" }}
         />
     );
 });
@@ -87,86 +119,148 @@ TrackControlTable.propTypes = {
 // as multiple files may have the same name. Everything *should* be done through DRS IDs.
 // For now, we treat the filenames as unique identifiers (unfortunately).
 
+const buildIgvTrack = (igvUrls, track) => {
+    const [type, format] = expResFileFormatToIgvTypeAndFormat(track.fileFormatLower);
+    return {
+        type,
+        format,
+        url: igvUrls[track.filename].url,
+        indexURL: igvUrls[track.filename].indexUrl,  // May be undefined if this track is not indexed
+        name: track.filename,
+        squishedCallHeight: SQUISHED_CALL_HEIGHT,
+        expandedCallHeight: EXPANDED_CALL_HEIGHT,
+        displayMode: DISPLAY_MODE,
+        visibilityWindow: VISIBILITY_WINDOW,
+    };
+};
+
+const IGV_JS_ANNOTATION_ALIASES = {
+    "hg19": "GRCh37",
+    "hg38": "GRCh38",
+    "mm9": "NCBI37",
+    "mm10": "GRCm38",
+};
+
 const IndividualTracks = ({ individual }) => {
     const { accessToken } = useSelector((state) => state.auth);
 
-    const igvRef = useRef(null);
-    const igvRendered = useRef(false);
-    const {igvUrlsByFilename: igvUrls, isFetchingIgvUrls} = useSelector((state) => state.drs);
+    const igvDivRef = useRef();
+    const igvBrowserRef = useRef(null);
+    const [creatingIgvBrowser, setCreatingIgvBrowser] = useState(false);
+
+    const { igvUrlsByFilename: igvUrls, isFetchingIgvUrls } = useSelector((state) => state.drs);
 
     // read stored position only on first render
     const igvPosition = useSelector(
         (state) => state.explorer.igvPosition,
-        () => true,
+        () => true,  // We don't want to re-render anything when the position changes
     );
 
     const dispatch = useDispatch();
-    const biosamplesData = useDeduplicatedIndividualBiosamples(individual);
-    const experimentsData = biosamplesData.flatMap((b) => b?.experiments ?? []);
 
+    const igvGenomes = useIgvGenomes();  // Built-in igv.js genomes (with annotations)
+    const referenceGenomes = useReferenceGenomes();  // Reference service genomes
+
+    const availableBrowserGenomes = useMemo(() => {
+        if (!igvGenomes.hasAttempted || !referenceGenomes.hasAttempted) {
+            return {};
+        }
+
+        const availableGenomes = {};
+
+        // For now, we prefer igv.js built-in genomes with the same ID over local copies for the browser, since it comes
+        // with gene annotation tracks. TODO: in the future, this should switch to preferring local copies.
+        referenceGenomes.items.forEach((g) => {
+            availableGenomes[g.id] = { id: g.id, fastaURL: g.fasta, indexURL: g.fai };
+        });
+        (igvGenomes.data ?? []).forEach((g) => {
+            availableGenomes[g.id] = g;
+            // Manual aliasing for well-known genome aliases, so that we get extra annotations from the
+            // igv.js genomes.json:
+            if (g.id in IGV_JS_ANNOTATION_ALIASES) {
+                const additionalID = IGV_JS_ANNOTATION_ALIASES[g.id];
+                availableGenomes[additionalID] = {...g, id: additionalID};
+            }
+        });
+
+        console.debug("total available genomes:", availableGenomes);
+
+        return availableGenomes;
+    }, [igvGenomes, referenceGenomes]);
+
+    const biosamplesData = useDeduplicatedIndividualBiosamples(individual);
     const viewableResults = useMemo(
-        () =>
-            Object.values(
-                Object.fromEntries(
-                    experimentsData.flatMap((e) => e?.experiment_results ?? [])
-                        .filter(isViewable)
-                        .map((v) => {  // add properties for visibility and file type
-                            const fileFormat = v.file_format?.toLowerCase() ?? guessFileType(v.filename);
+        () => {
+            const experiments = biosamplesData.flatMap((b) => b?.experiments ?? []);
+            const vr = Object.values(
+                Object.fromEntries(  // Deduplicate experiment results by file name by building an object
+                    experiments.flatMap((e) => e?.experiment_results ?? [])
+                        .filter(isViewableInIgv)
+                        .map((expRes) => {
+                            /** @type string|undefined */
+                            const fileFormatLower = expResFileFormatLower(expRes);
                             return [
-                                v.filename,
+                                expRes.filename,
                                 {
-                                    ...v,
-                                    // by default, don't view crams (user can turn them on in track controls):
-                                    viewInIgv: fileFormat !== "cram",
-                                    file_format: fileFormat,  // re-formatted: to lowercase + guess if missing
+                                    ...expRes,
+                                    // by default, don't view alignments (user can turn them on in track controls):
+                                    fileFormatLower,
+                                    viewInIgv: !ALIGNMENT_FORMATS_LOWER.includes(fileFormatLower),
                                 },
                             ];
                         }),
                 ),
-            ),
-        [experimentsData],
+            ).sort((r1, r2) => (r1.fileFormatLower ?? "").localeCompare(r2.fileFormatLower ?? ""));
+            console.debug("Viewable experiment results:", vr);
+            return vr;
+        },
+        [biosamplesData],
     );
 
-    console.debug("Viewable experiment results:", viewableResults);
+    // augmented experiment results with viewInIgv state + cached lowercase / normalized file format:
+    const [allTracks, setAllTracks] = useState(simpleDeepCopy(viewableResults));
 
-    const [allTracks, setAllTracks] = useState(
-        viewableResults.sort((r1, r2) => (r1.file_format > r2.file_format ? 1 : -1)),
-    );
+    useEffect(() => {
+        // If the set of viewable results changes, reset the track state
+        setAllTracks(simpleDeepCopy(viewableResults));
+    }, [viewableResults]);
 
     const allFoundFiles = useMemo(
-        () =>
-            allTracks.filter(
-                (t) => (igvUrls[t.filename]?.dataUrl && igvUrls[t.filename]?.indexUrl) || igvUrls[t.filename]?.url,
-            ),
+        () => allTracks.filter((t) => !!igvUrls[t.filename]?.url),
         [allTracks, igvUrls],
     );
+
+    const [selectedAssemblyID, setSelectedAssemblyID] = useState(undefined);
+
+    const trackAssemblyIDs = useMemo(
+        () => Array.from(new Set(allFoundFiles.map((t) => t.genome_assembly_id))).sort(),
+        [allFoundFiles]);
+
+    useEffect(() => {
+        if (Object.keys(availableBrowserGenomes).length) {
+            if (trackAssemblyIDs.length && trackAssemblyIDs[0]) {
+                const asmID = trackAssemblyIDs[0];  // TODO: first available
+                console.debug("auto-selected assembly ID:", asmID);
+                setSelectedAssemblyID(asmID);
+            }
+        }
+    }, [availableBrowserGenomes, trackAssemblyIDs]);
 
     const [modalVisible, setModalVisible] = useState(false);
 
     const showModal = useCallback(() => setModalVisible(true), []);
     const closeModal = useCallback(() => setModalVisible(false), []);
 
-    // hardcode for hg19/GRCh37, fix requires updates elsewhere in Bento
-    const genome = "hg19";
-
     const toggleView = useCallback((track) => {
+        if (!igvBrowserRef.current) return;
+
         const wasViewing = track.viewInIgv;
-        const updatedTrackObject = { ...track, viewInIgv: !wasViewing };
-        setAllTracks(allTracks.map((t) => (t.filename === track.filename ? updatedTrackObject : t)));
+        setAllTracks(allTracks.map((t) => t.filename === track.filename ? ({ ...track, viewInIgv: !wasViewing }) : t));
 
         if (wasViewing) {
-            igv.browser.removeTrackByName(track.filename);
+            igvBrowserRef.current.removeTrackByName(track.filename);
         } else {
-            igv.browser.loadTrack({
-                format: track.file_format,
-                url: igvUrls[track.filename].dataUrl,
-                indexURL: igvUrls[track.filename].indexUrl,
-                name: track.filename,
-                squishedCallHeight: SQUISHED_CALL_HEIGHT,
-                expandedCallHeight: EXPANDED_CALL_HEIGHT,
-                displayMode: DISPLAY_MODE,
-                visibilityWindow: VISIBILITY_WINDOW,
-            });
+            igvBrowserRef.current.loadTrack(buildIgvTrack(igvUrls, track)).catch(console.error);
         }
     }, [allTracks]);
 
@@ -183,9 +277,9 @@ const IndividualTracks = ({ individual }) => {
             if (hasFreshUrls(allTracks, igvUrls)) {
                 return;
             }
-            dispatch(getIgvUrlsFromDrs(allTracks));
+            dispatch(getIgvUrlsFromDrs(allTracks)).catch(console.error);
         }
-    }, []);
+    }, [allTracks]);
 
     // update access token whenever necessary
     useEffect(() => {
@@ -197,67 +291,78 @@ const IndividualTracks = ({ individual }) => {
         }
     }, [accessToken]);
 
-    // render igv when track urls ready
+    // render igv when track urls + reference genomes are ready
     useEffect(() => {
-        if (isFetchingIgvUrls) {
-            return;
-        }
-
-        if (!allFoundFiles.length || !hasFreshUrls(allTracks, igvUrls) || igvRendered.current) {
-            console.log("urls not ready");
-            console.log({ igvUrls: igvUrls });
-            console.log({ tracksValid: hasFreshUrls(allTracks, igvUrls) });
-            console.log({ igvRendered: igvRendered.current });
-            return;
-        }
-
-        const indexedTracks = allFoundFiles.filter(
-            (t) => t.viewInIgv && igvUrls[t.filename].dataUrl && igvUrls[t.filename].indexUrl,
-        );
-
-        const unindexedTracks = allFoundFiles.filter((t) => t.viewInIgv && igvUrls[t.filename].url);
-
-        const igvIndexedTracks = indexedTracks.map((t) => ({
-            format: t.file_format,
-            url: igvUrls[t.filename].dataUrl,
-            indexURL: igvUrls[t.filename].indexUrl,
-            name: t.filename,
-            squishedCallHeight: SQUISHED_CALL_HEIGHT,
-            expandedCallHeight: EXPANDED_CALL_HEIGHT,
-            displayMode: DISPLAY_MODE,
-            visibilityWindow: VISIBILITY_WINDOW,
-        }));
-
-        const igvUnindexedTracks = unindexedTracks.map((t) => ({
-            format: t.file_format,
-            url: igvUrls[t.filename].url,
-            name: t.filename,
-            squishedCallHeight: SQUISHED_CALL_HEIGHT,
-            expandedCallHeight: EXPANDED_CALL_HEIGHT,
-            displayMode: DISPLAY_MODE,
-            visibilityWindow: VISIBILITY_WINDOW,
-        }));
-
-        const igvTracks = igvUnindexedTracks.concat(igvIndexedTracks);
-
-        const igvOptions = {
-            genome: genome,
-            locus: igvPosition,
-            tracks: igvTracks,
+        const cleanup = () => {
+            if (igvBrowserRef.current) {
+                console.debug("removing igv.js browser instance");
+                igv.removeBrowser(igvBrowserRef.current);
+                igvBrowserRef.current = null;
+            }
         };
 
-        igv.createBrowser(igvRef.current, igvOptions).then((browser) => {
-            igv.browser = browser;
-            igvRendered.current = true;
+        if (isFetchingIgvUrls) {
+            return cleanup;
+        }
 
-            igv.browser.on(
+        if (!allFoundFiles.length || !hasFreshUrls(allTracks, igvUrls)) {
+            console.debug("urls not ready");
+            console.debug({ igvUrls });
+            console.debug({ tracksValid: hasFreshUrls(allTracks, igvUrls) });
+            return cleanup;
+        }
+
+        if (!Object.keys(availableBrowserGenomes).length || !selectedAssemblyID) {
+            console.debug("no available browser genomes / selected assembly ID yet");
+            return cleanup;
+        }
+
+        console.debug("igv.createBrowser effect dependencies:",
+            [igvUrls, viewableResults, availableBrowserGenomes, selectedAssemblyID]);
+
+        if (creatingIgvBrowser || igvBrowserRef.current) {
+            console.debug(
+                "browser is already being created or exists: creatingIgvBrowser =", creatingIgvBrowser,
+                "igvBrowserRef.current =", igvBrowserRef.current);
+            return cleanup;
+        }
+
+        setCreatingIgvBrowser(true);
+
+        const initialIgvTracks = allFoundFiles
+            .filter((t) => t.viewInIgv && t.genome_assembly_id === selectedAssemblyID && igvUrls[t.filename].url)
+            .map((t) => buildIgvTrack(igvUrls, t));
+
+        const igvOptions = {
+            genome: availableBrowserGenomes[selectedAssemblyID],
+            locus: igvPosition,
+            tracks: initialIgvTracks,
+        };
+
+        console.debug("creating igv.js browser with options:", igvOptions, "; tracks:", initialIgvTracks);
+
+        igv.createBrowser(igvDivRef.current, igvOptions).then((browser) => {
+            browser.on(
                 "locuschange",
                 debounce((referenceFrame) => {
                     storeIgvPosition(referenceFrame);
                 }, DEBOUNCE_WAIT),
             );
+            igvBrowserRef.current = browser;
+            setCreatingIgvBrowser(false);
+            console.debug("created igv.js browser instance:", browser);
+        }).catch((err) => {
+            message.error(`Error creating igv.js browser: ${err}`);
+            console.error(err);
         });
-    }, [igvUrls]);
+
+        return cleanup;
+
+        // Use viewableResults as the track dependency, not allFoundFiles, since allFoundFiles is regenerated if a
+        // track's visibility changes – allFoundFiles is left out of these dependencies on purpose, otherwise the entire
+        // browser will be re-rendered if a track's visibility changes. By using viewableResults as a dependency
+        // instead, the browser is only re-rendered if the overall track set (i.e., individual) changes.
+    }, [igvUrls, viewableResults, availableBrowserGenomes, selectedAssemblyID]);
 
     return (
         <>
@@ -272,14 +377,20 @@ const IndividualTracks = ({ individual }) => {
             </Button>
             <Divider />
             {!allFoundFiles.length && (
-                isFetchingIgvUrls ? (
+                (isFetchingIgvUrls || referenceGenomes.isFetching) ? (
                     <Skeleton title={false} paragraph={{ rows: 4 }} loading={true} />
                 ) : (
                     <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} />
                 )
             )}
-            <div ref={igvRef} />
-            <Modal visible={modalVisible} onOk={closeModal} onCancel={closeModal} zIndex={MODAL_Z_INDEX} width={600}>
+            <div ref={igvDivRef} />
+            <Modal visible={modalVisible} onCancel={closeModal} footer={null} zIndex={MODAL_Z_INDEX} width={720}>
+                <div style={{ marginBottom: 12 }}>
+                    Assembly:{" "}
+                    <Select value={selectedAssemblyID} onChange={(v) => setSelectedAssemblyID(v)}>
+                        {trackAssemblyIDs.map((a) => <Select.Option key={a} value={a}>{a}</Select.Option>)}
+                    </Select>
+                </div>
                 <TrackControlTable toggleView={toggleView} allFoundFiles={allFoundFiles} />
             </Modal>
         </>

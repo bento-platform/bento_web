@@ -9,17 +9,18 @@ import {matchingMenuKeys, renderMenuItem} from "../utils/menu";
 import SitePageHeader from "./SitePageHeader";
 import {viewDropBox} from "../lib/auth/permissions";
 import {RESOURCE_EVERYTHING} from "../lib/auth/resources";
-import ManagerDRSContent from "./manager/drs/ManagerDRSContent";
-import ManagerAnalysisContent from "./manager/ManagerAnalysisContent";
-import {useHasResourcePermission} from "../lib/auth/utils";
+import { useHasResourcePermission } from "../lib/auth/utils";
 import { useFetchDropBoxContentsIfAllowed } from "./manager/hooks";
 
 const ManagerProjectDatasetContent = lazy(() => import("./manager/projects/ManagerProjectDatasetContent"));
 const ManagerAccessContent = lazy(() => import("./manager/ManagerAccessContent"));
 const ManagerDropBoxContent = lazy(() => import("./manager/ManagerDropBoxContent"));
 const ManagerIngestionContent = lazy(() => import("./manager/ManagerIngestionContent"));
+const ManagerAnalysisContent = lazy(() => import("./manager/ManagerAnalysisContent"));
 const ManagerWorkflowsContent = lazy(() => import("./manager/ManagerWorkflowsContent"));
 const ManagerRunsContent = lazy(() => import("./manager/runs/ManagerRunsContent"));
+const ManagerDRSContent = lazy(() => import("./manager/drs/ManagerDRSContent"));
+const ManagerReferenceGenomesContent = lazy(() => import("./manager/reference/ManagerReferenceGenomesContent"));
 
 const styles = {
     menu: {
@@ -52,6 +53,7 @@ const DataManagerContent = () => {
         {url: "/admin/data/manager/workflows", text: "Workflows"},
         {url: "/admin/data/manager/runs", text: "Workflow Runs"},
         {url: "/admin/data/manager/drs", text: "DRS Objects"},
+        {url: "/admin/data/manager/genomes", text: "Reference Genomes"},
     ], [hasViewDropBoxPermission]);
 
     const selectedKeys = useMemo(() => matchingMenuKeys(menuItems), [menuItems, window.location.pathname]);
@@ -75,6 +77,7 @@ const DataManagerContent = () => {
                 <Route exact path="/admin/data/manager/analysis" component={ManagerAnalysisContent} />
                 <Route exact path="/admin/data/manager/workflows" component={ManagerWorkflowsContent} />
                 <Route exact path="/admin/data/manager/drs" component={ManagerDRSContent} />
+                <Route exact path="/admin/data/manager/genomes" component={ManagerReferenceGenomesContent} />
                 <Route path="/admin/data/manager/runs" component={ManagerRunsContent} />
                 <Redirect from="/admin/data/manager" to="/admin/data/manager/projects" />
             </Switch>

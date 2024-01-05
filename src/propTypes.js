@@ -255,6 +255,7 @@ export const experimentResultPropTypesShape = PropTypes.shape({
     identifier: PropTypes.string,
     description: PropTypes.string,
     filename: PropTypes.string,
+    genome_assembly_id: PropTypes.string,
     file_format: PropTypes.oneOf([
         "SAM", "BAM", "CRAM", "BAI", "CRAI", "VCF", "BCF", "MAF", "GVCF", "BigWig", "BigBed", "FASTA",
         "FASTQ", "TAB", "SRA", "SRF", "SFF", "GFF", "TABIX", "PDF", "CSV", "TSV", "JPEG", "PNG", "GIF",

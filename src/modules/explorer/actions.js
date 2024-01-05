@@ -1,3 +1,4 @@
+import { IGV_JS_GENOMES_JSON_URL } from "../../constants";
 import { createNetworkActionTypes, networkAction } from "../../utils/actions";
 import { jsonRequest } from "../../utils/requests";
 import { extractQueriesFromDataTypeForms } from "../../utils/search";
@@ -19,6 +20,7 @@ export const SET_OTHER_THRESHOLD_PERCENTAGE = "EXPLORER.SET_OTHER_THRESHOLD_PERC
 export const SET_TABLE_SORT_ORDER = "EXPLORER.SET_TABLE_SORT_ORDER";
 export const RESET_TABLE_SORT_ORDER = "EXPLORER.RESET_TABLE_SORT_ORDER";
 export const SET_ACTIVE_TAB = "EXPLORER.SET_ACTIVE_TAB";
+export const FETCH_IGV_GENOMES = createNetworkActionTypes("EXPLORER.FETCH_IGV_GENOMES");
 export const SET_IGV_POSITION = "EXPLORER.SET_IGV_POSITION";
 
 const performSearch = networkAction((datasetID, dataTypeQueries, excludeFromAutoJoin = []) => (dispatch, getState) => ({
@@ -200,6 +202,19 @@ export const setIgvPosition = (igvPosition) => ({
     type: SET_IGV_POSITION,
     igvPosition,
 });
+
+const fetchIgvGenomes = networkAction(() => ({
+    types: FETCH_IGV_GENOMES,
+    url: IGV_JS_GENOMES_JSON_URL,
+    err: "Error fetching igv.js genomes",
+}));
+
+export const fetchIgvGenomesIfNeeded = () => (dispatch, getState) => {
+    if (getState().igvGenomes.hasAttempted || getState().igvGenomes.isFetching) {
+        return;
+    }
+    return dispatch(fetchIgvGenomes());
+};
 
 export const performGetGohanVariantsOverviewIfPossible = () => (dispatch, getState) => {
     const gohanUrl = getState()?.services?.itemsByKind?.gohan?.url;

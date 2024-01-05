@@ -15,7 +15,7 @@ export const STEP_CONFIRM = 2;
 
 export const useStartIngestionFlow = () => {
     const history = useHistory();
-    return useCallback((selectedWorkflow, initialInputValues) => {
+    return useCallback((selectedWorkflow, initialInputValues = undefined) => {
         history.push("/admin/data/manager/ingestion", {
             step: STEP_INPUT,
             initialWorkflowFilterValues: {

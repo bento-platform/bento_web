@@ -3,7 +3,7 @@ import {combineReducers} from "redux";
 import {auth, openIdConfiguration} from "./modules/auth/reducers";
 import {drs} from "./modules/drs/reducers";
 import {discovery} from "./modules/discovery/reducers";
-import {explorer} from "./modules/explorer/reducers";
+import { explorer, igvGenomes } from "./modules/explorer/reducers";
 import {
     projects,
 
@@ -14,6 +14,7 @@ import {
 } from "./modules/metadata/reducers";
 import {manager, dropBox} from "./modules/manager/reducers";
 import {notifications} from "./modules/notifications/reducers";
+import { referenceGenomes } from "./modules/reference/reducers";
 import {
     bentoServices,
     services,
@@ -36,6 +37,7 @@ const rootReducer = combineReducers({
 
     // Explorer module
     explorer,
+    igvGenomes,
 
     // Metadata module
     projects,
@@ -50,6 +52,9 @@ const rootReducer = combineReducers({
 
     // Notifications module
     notifications,
+
+    // Reference module
+    referenceGenomes,
 
     // Services module
     bentoServices,

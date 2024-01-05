@@ -30,6 +30,7 @@ import {
     FREE_TEXT_SEARCH,
     SET_OTHER_THRESHOLD_PERCENTAGE,
     SET_IGV_POSITION,
+    FETCH_IGV_GENOMES,
 } from "./actions";
 
 // TODO: Could this somehow be combined with discovery?
@@ -312,6 +313,19 @@ export const explorer = (
     }
 };
 
+export const igvGenomes = (state = { data: null, isFetching: false, hasAttempted: false }, action) => {
+    switch (action.type) {
+        case FETCH_IGV_GENOMES.REQUEST:
+            return {...state, isFetching: true};
+        case FETCH_IGV_GENOMES.RECEIVE:
+            return {...state, data: action.data};
+        case FETCH_IGV_GENOMES.FINISH:
+            return {...state, isFetching: false, hasAttempted: true};
+        default:
+            return state;
+    }
+};
+
 // helpers
 const tableSearchResultsExperiments = (searchResults) => {
     const results = searchResults.results || [];
@@ -327,7 +341,7 @@ const tableSearchResultsExperiments = (searchResults) => {
                 return [];
             }
 
-            const formattedResult = {
+            return {
                 subjectId: result.subject_id,
                 key: experiment.experiment_id,
                 alternateIds: result.alternate_ids,
@@ -340,8 +354,6 @@ const tableSearchResultsExperiments = (searchResults) => {
                     alternate_ids: result.alternate_ids ?? [],
                 },
             };
-
-            return formattedResult;
         });
     });
 };
