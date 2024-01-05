@@ -359,7 +359,9 @@ const IndividualTracks = ({ individual }) => {
         return cleanup;
 
         // Use viewableResults as the track dependency, not allFoundFiles, since allFoundFiles is regenerated if a
-        // track's visibility changes
+        // track's visibility changes – allFoundFiles is left out of these dependencies on purpose, otherwise the entire
+        // browser will be re-rendered if a track's visibility changes. By using viewableResults as a dependency
+        // instead, the browser is only re-rendered if the overall track set (i.e., individual) changes.
     }, [igvUrls, viewableResults, availableBrowserGenomes, selectedAssemblyID]);
 
     return (
