@@ -4,12 +4,13 @@ import { Redirect, Route, Switch, useHistory } from "react-router-dom";
 import { ChartConfigProvider } from "bento-charts";
 import {
     fetchOpenIdConfiguration,
-    createAuthURL,
     useHandleCallback,
     getIsAuthenticated,
-    refreshTokens,
-    tokenHandoff,
-    LS_SIGN_IN_POPUP,
+    popupOpenerAuthCallbackCreator,
+    checkIsInAuthPopup,
+    openSignInWindowCallback,
+    useSignInPopupMessaging,
+    useSessionWorker,
 } from "bento-auth-js";
 
 import * as io from "socket.io-client";
@@ -43,19 +44,7 @@ const SIGN_IN_WINDOW_FEATURES = "scrollbars=no, toolbar=no, menubar=no, width=80
 
 const CALLBACK_PATH = "/callback";
 
-const popupOpenerAuthCallback = async (dispatch, _history, code, verifier) => {
-    if (!window.opener) return;
-
-    // We're inside a popup window for authentication
-
-    // Send the code and verifier to the main thread/page for authentication
-    // IMPORTANT SECURITY: provide BENTO_URL as the target origin:
-    window.opener.postMessage({ type: "authResult", code, verifier }, BENTO_URL_NO_TRAILING_SLASH);
-
-    // We're inside a popup window which has successfully re-authenticated the user, meaning we need to
-    // close ourselves to return focus to the original window.
-    window.close();
-};
+const popupOpenerAuthCallback = popupOpenerAuthCallbackCreator(BENTO_URL_NO_TRAILING_SLASH);
 
 const App = () => {
     const dispatch = useDispatch();
@@ -82,17 +71,7 @@ const App = () => {
 
     const [didPostLoadEffects, setDidPostLoadEffects] = useState(false);
 
-    const isInAuthPopup = (() => {
-        try {
-            const didCreateSignInPopup = localStorage.getItem(LS_SIGN_IN_POPUP);
-            return (
-                window.opener && window.opener.origin === BENTO_URL_NO_TRAILING_SLASH && didCreateSignInPopup === "true"
-            );
-        } catch {
-            // If we are restricted from accessing the opener, we are not in an auth popup.
-            return false;
-        }
-    })();
+    const isInAuthPopup = checkIsInAuthPopup(BENTO_URL_NO_TRAILING_SLASH);
 
     // Set up auth callback handling
     useHandleCallback(
@@ -104,20 +83,7 @@ const App = () => {
     );
 
     // Set up message handling from sign-in popup
-    useEffect(() => {
-        if (windowMessageHandler.current) {
-            window.removeEventListener("message", windowMessageHandler.current);
-        }
-        windowMessageHandler.current = (e) => {
-            if (e.origin !== BENTO_URL_NO_TRAILING_SLASH) return;
-            if (e.data?.type !== "authResult") return;
-            const { code, verifier } = e.data ?? {};
-            if (!code || !verifier) return;
-            localStorage.removeItem(LS_SIGN_IN_POPUP);
-            dispatch(tokenHandoff({ code, verifier, clientId: CLIENT_ID, authCallbackUrl: AUTH_CALLBACK_URL }));
-        };
-        window.addEventListener("message", windowMessageHandler.current);
-    }, [dispatch]);
+    useSignInPopupMessaging(BENTO_URL_NO_TRAILING_SLASH, AUTH_CALLBACK_URL, CLIENT_ID, windowMessageHandler);
 
     const createEventRelayConnectionIfNecessary = useCallback(() => {
         if (eventRelayConnection.current) return;
@@ -209,18 +175,12 @@ const App = () => {
         })();
     }, [dispatch, createEventRelayConnectionIfNecessary, didPostLoadEffects]);
 
-    useEffect(() => {
-        // initialize session refresh worker
-        if (!sessionWorker.current) {
-            // Use session worker to send pings to refresh the token set even when the tab is inactive.
-            const sw = new SessionWorker();
-            sw.addEventListener("message", () => {
-                dispatch(refreshTokens(CLIENT_ID));
-                dispatch(fetchUserDependentData(nop));
-            });
-            sessionWorker.current = sw;
-        }
-    }, [sessionWorker]);
+    useSessionWorker(
+        CLIENT_ID,
+        sessionWorker,
+        () => new SessionWorker(),
+        fetchUserDependentData(nop),
+    );
 
     const clearPingInterval = useCallback(() => {
         if (pingInterval.current === null) return;
@@ -229,25 +189,7 @@ const App = () => {
     }, [pingInterval]);
 
     const openSignInWindow = useCallback(() => {
-        // If we already have a sign-in window open, focus on it instead.
-        if (signInWindow.current && !signInWindow.current.closed) {
-            signInWindow.current.focus();
-            return;
-        }
-
-        if (!openIdConfig) return;
-
-        const popupTop = window.top.outerHeight / 2 + window.top.screenY - 350;
-        const popupLeft = window.top.outerWidth / 2 + window.top.screenX - 400;
-
-        (async () => {
-            localStorage.setItem(LS_SIGN_IN_POPUP, "true");
-            signInWindow.current = window.open(
-                await createAuthURL(openIdConfig["authorization_endpoint"], CLIENT_ID, AUTH_CALLBACK_URL),
-                "Bento Sign In",
-                `${SIGN_IN_WINDOW_FEATURES}, top=${popupTop}, left=${popupLeft}`,
-            );
-        })();
+        openSignInWindowCallback(signInWindow, openIdConfig, CLIENT_ID, AUTH_CALLBACK_URL, SIGN_IN_WINDOW_FEATURES);
     }, [signInWindow, openIdConfig]);
 
     // On the cBioPortal tab only, eliminate the margin around the content
