@@ -45,6 +45,8 @@ const SIGN_IN_WINDOW_FEATURES = "scrollbars=no, toolbar=no, menubar=no, width=80
 
 const CALLBACK_PATH = "/callback";
 
+const createSessionWorker = () => new SessionWorker();
+
 const App = () => {
     const dispatch = useDispatch();
     const history = useHistory();
@@ -180,7 +182,7 @@ const App = () => {
     useSessionWorkerTokenRefresh(
         CLIENT_ID,
         sessionWorker,
-        () => new SessionWorker(),
+        createSessionWorker,
         fetchUserDependentData(nop),
     );
 
