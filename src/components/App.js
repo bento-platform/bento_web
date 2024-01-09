@@ -6,11 +6,12 @@ import {
     fetchOpenIdConfiguration,
     useHandleCallback,
     getIsAuthenticated,
-    popupOpenerAuthCallbackCreator,
     checkIsInAuthPopup,
-    openSignInWindowCallback,
-    useSignInPopupMessaging,
-    useSessionWorker,
+    useOpenSignInWindowCallback,
+    usePopupOpenerAuthCallback,
+    useSignInPopupTokenHandoff,
+    useSessionWorkerTokenRefresh,
+    useOpenIdConfig,
 } from "bento-auth-js";
 
 import * as io from "socket.io-client";
@@ -44,8 +45,6 @@ const SIGN_IN_WINDOW_FEATURES = "scrollbars=no, toolbar=no, menubar=no, width=80
 
 const CALLBACK_PATH = "/callback";
 
-const popupOpenerAuthCallback = popupOpenerAuthCallbackCreator(BENTO_URL_NO_TRAILING_SLASH);
-
 const App = () => {
     const dispatch = useDispatch();
     const history = useHistory();
@@ -65,13 +64,14 @@ const App = () => {
 
     const eventRelay = useSelector((state) => state.services.eventRelay);
     const eventRelayUrl = eventRelay?.url ?? null;
-    const openIdConfig = useSelector((state) => state.openIdConfiguration.data);
 
     const [lastIsAuthenticated, setLastIsAuthenticated] = useState(false);
 
     const [didPostLoadEffects, setDidPostLoadEffects] = useState(false);
 
     const isInAuthPopup = checkIsInAuthPopup(BENTO_URL_NO_TRAILING_SLASH);
+
+    const openIdConfig = useOpenIdConfig(OPENID_CONFIG_URL);
 
     // Set up auth callback handling
     useHandleCallback(
@@ -83,7 +83,9 @@ const App = () => {
     );
 
     // Set up message handling from sign-in popup
-    useSignInPopupMessaging(BENTO_URL_NO_TRAILING_SLASH, AUTH_CALLBACK_URL, CLIENT_ID, windowMessageHandler);
+    useSignInPopupTokenHandoff(BENTO_URL_NO_TRAILING_SLASH, AUTH_CALLBACK_URL, CLIENT_ID, windowMessageHandler);
+
+    const popupOpenerAuthCallback = usePopupOpenerAuthCallback(BENTO_URL_NO_TRAILING_SLASH);
 
     const createEventRelayConnectionIfNecessary = useCallback(() => {
         if (eventRelayConnection.current) return;
@@ -175,7 +177,7 @@ const App = () => {
         })();
     }, [dispatch, createEventRelayConnectionIfNecessary, didPostLoadEffects]);
 
-    useSessionWorker(
+    useSessionWorkerTokenRefresh(
         CLIENT_ID,
         sessionWorker,
         () => new SessionWorker(),
@@ -188,9 +190,8 @@ const App = () => {
         pingInterval.current = null;
     }, [pingInterval]);
 
-    const openSignInWindow = useCallback(() => {
-        openSignInWindowCallback(signInWindow, openIdConfig, CLIENT_ID, AUTH_CALLBACK_URL, SIGN_IN_WINDOW_FEATURES);
-    }, [signInWindow, openIdConfig]);
+    const openSignInWindow = useOpenSignInWindowCallback(
+        signInWindow, openIdConfig, CLIENT_ID, AUTH_CALLBACK_URL, SIGN_IN_WINDOW_FEATURES);
 
     // On the cBioPortal tab only, eliminate the margin around the content
     // to give as much space as possible to the cBioPortal application itself.
