@@ -183,7 +183,7 @@ const App = () => {
         CLIENT_ID,
         sessionWorker,
         createSessionWorker,
-        fetchUserDependentData(nop),
+        fetchUserDependentData,
     );
 
     const clearPingInterval = useCallback(() => {
