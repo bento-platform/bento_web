@@ -75,10 +75,14 @@ const App = () => {
 
     const openIdConfig = useOpenIdConfig(OPENID_CONFIG_URL);
 
+    // Using the fetchUserDependentData thunk creator as a hook argument may lead to unwanted triggers on re-renders.
+    // So we store the thunk inner function of the fetchUserDependentData thunk creator in a const.
+    const onAuthSuccess = fetchUserDependentData(nop);
+
     // Set up auth callback handling
     useHandleCallback(
         CALLBACK_PATH,
-        fetchUserDependentData,
+        onAuthSuccess,
         CLIENT_ID,
         AUTH_CALLBACK_URL,
         isInAuthPopup ? popupOpenerAuthCallback : undefined,
@@ -183,7 +187,7 @@ const App = () => {
         CLIENT_ID,
         sessionWorker,
         createSessionWorker,
-        fetchUserDependentData,
+        onAuthSuccess,
     );
 
     const clearPingInterval = useCallback(() => {
