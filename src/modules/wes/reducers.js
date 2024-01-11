@@ -65,9 +65,11 @@ const streamError = (state = INITIAL_RUNS_STATE, action, stream) => {
 const makeRunSkeleton = (run, request) => ({
     ...run,
     state: "QUEUED",  // Default initial state
+    ts: null,  // Will get replaced with a UTC timestamp when we receive updates or events
     run_log: null,
     request,
     outputs: {},  // TODO: is this the right default value? will be fine for now
+    isFetching: false,
 });
 
 
@@ -97,32 +99,37 @@ export const runs = (
         case FETCH_RUNS.FINISH:
             return {...state, isFetching: false};
 
-        case FETCH_RUN_DETAILS.REQUEST:
+        case FETCH_RUN_DETAILS.REQUEST: {
+            const newItem = { ...(state.itemsByID[action.runID] ?? {}), isFetching: true };
             return {
                 ...state,
-                items: state.items.map(r => r.run_id === action.runID ? ({...r, isFetching: true}) : r),
-                itemsByID: {
-                    ...state.itemsByID,
-                    [action.runID]: {...(state.itemsByID[action.runID] || {}), isFetching: true},
-                },
+                items: state.items.map(r => r.run_id === action.runID ? newItem : r),
+                itemsByID: { ...state.itemsByID, [action.runID]: newItem },
+            };
+        }
+
+        case FETCH_RUN_DETAILS.RECEIVE: {
+            // Pull state out of received details to ensure it's up-to-date in both places
+            // Assign a timestamp when we get this action if there isn't one passed in; technically this can still
+            // create a race condition with the websocket events, since if a websocket event is fired after an HTTP
+            // update response is sent from WES, but before we receive the response, the state will be wrong.
+
+            const ts = action.ts ?? (new Date()).getTime();  // UTC timestamp
+            const existingItem = state.itemsByID[action.runID] ?? {};
+            const stateUpdate = !existingItem.ts || (ts > existingItem.ts) ? { ts, state: action.data.state } : {};
+
+            const newItem = {
+                ...(state.itemsByID[action.runID] ?? {}),
+                ...stateUpdate,
+                details: { ...action.data, state: stateUpdate.state ?? action.data.state },
             };
 
-        case FETCH_RUN_DETAILS.RECEIVE:
-            // Pull state out of received details to ensure it's up-to-date in both places
             return {
                 ...state,
-                items: state.items.map(r => r.run_id === action.runID
-                    ? {...r, state: action.data.state || r.state, details: action.data}
-                    : r),
-                itemsByID: {
-                    ...state.itemsByID,
-                    [action.runID]: {
-                        ...(state.itemsByID[action.runID] || {}),
-                        state: action.data.state,
-                        details: action.data,
-                    },
-                },
+                items: state.items.map(r => r.run_id === action.runID ? newItem : r),
+                itemsByID: { ...state.itemsByID, [action.runID]: newItem },
             };
+        }
 
         case FETCH_RUN_DETAILS.FINISH:
             return {
@@ -149,11 +156,15 @@ export const runs = (
         case FETCH_RUN_LOG_STDERR.ERROR:
             return streamError(state, action, "stderr");
 
+        // SUBMIT_INGESTION_RUN/SUBMIT_ANALYSIS_RUN
 
         case SUBMIT_INGESTION_RUN.REQUEST:
             return {...state, isSubmittingIngestionRun: true};
+        case SUBMIT_ANALYSIS_RUN.REQUEST:
+            return {...state, isSubmittingAnalysisRun: true};
 
-        case SUBMIT_INGESTION_RUN.RECEIVE: {
+        case SUBMIT_INGESTION_RUN.RECEIVE:
+        case SUBMIT_ANALYSIS_RUN.RECEIVE: {
             // Create basic run object with no other details
             //  action.data is of structure {run_id} with no other props
             const {data, request} = action;
@@ -167,23 +178,6 @@ export const runs = (
 
         case SUBMIT_INGESTION_RUN.FINISH:
             return {...state, isSubmittingIngestionRun: false};
-
-
-        case SUBMIT_ANALYSIS_RUN.REQUEST:
-            return {...state, isSubmittingAnalysisRun: true};
-
-        case SUBMIT_ANALYSIS_RUN.RECEIVE: {
-            // Create basic run object with no other details
-            //  action.data is of structure {run_id} with no other props
-            const {data, request} = action;
-            const runSkeleton = makeRunSkeleton(data, request);
-            return {
-                ...state,
-                items: [...state.items, runSkeleton],
-                itemsByID: {...state.itemsByID, [data.run_id]: runSkeleton},
-            };
-        }
-
         case SUBMIT_ANALYSIS_RUN.FINISH:
             return {...state, isSubmittingAnalysisRun: false};
 
