@@ -56,7 +56,7 @@ export const useWorkflows = () => {
 
 /**
  * Evaluate if the user has a permission on a given resource
- * @param {Object} resource The resource key (e.g. "everything")
+ * @param {Record<string, string | boolean>} resource The resource object (e.g. {"everything": true})
  * @param {string} permission The permission string (e.g. "view:drop_box")
  * @returns {ResourcePermissionEval}
  */
@@ -73,7 +73,7 @@ export const useHasResourcePermissionWrapper = (resource, permission) => {
 
 /**
  * Returns the user's permissions for a given resource
- * @param {string} resource The resource (e.g. "everything")
+ * @param {Record<string, string | boolean>} resource The resource (e.g. {"everything": true})
  * @returns {ResourcePermissions}
  */
 export const useResourcePermissionsWrapper = (resource) => {
