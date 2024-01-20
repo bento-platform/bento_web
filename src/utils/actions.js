@@ -125,7 +125,7 @@ const handleNetworkErrorMessaging = (e, reduxErrDetail) => {
 
     // prefer any cause messages to the top-level "message" string
     if (e.cause) {
-        const errorDetails = e.causes.map((c) => c.message ?? "");
+        const errorDetails = e.cause.map((c) => c.message ?? "");
         errorDetails.forEach((ed) => {
             message.error(errorMessageIntro + " " + ed);
         });
