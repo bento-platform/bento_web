@@ -23,7 +23,8 @@ const _unpaginatedNetworkFetch = async (url, _baseUrl, req, parse) => {
     const response = await fetch(url, req);
     if (!response.ok) {
         const errorData = await parse(response);
-        throw new Error(errorData.message || `${response.status} ${response.statusText}`);
+        const errorsArray = errorData.errors ?? [];
+        throw new Error(errorData.message || `${response.status} ${response.statusText}`, {"cause": errorsArray});
     }
     return response.status === 204 ? null : await parse(response);
 };
@@ -104,9 +105,7 @@ const _networkAction =
                 });
                 if (onSuccess) await onSuccess(data);
             } catch (e) {
-                const errorMsg = err ? (err + (e.message ? `: ${e.message}` : "") ) : e.message;
-                console.error(e, errorMsg);
-                message.error(errorMsg);
+                handleNetworkErrorMessaging(e, err);
                 dispatch({ type: types.ERROR, ...params, caughtError: e });
                 if (onError) await onError(e);
             }
@@ -118,6 +117,24 @@ export const networkAction =
     (fn) =>
         (...args) =>
             _networkAction(fn, ...args);
+
+
+const handleNetworkErrorMessaging = (e, reduxErrDetail) => {
+    console.error(e, reduxErrDetail);
+    const errorMessageIntro = reduxErrDetail ? reduxErrDetail : "";
+
+    // prefer any cause messages to the top-level "message" string
+    if (e.cause) {
+        const errorDetails = e.causes.map((c) => c.message ?? "");
+        errorDetails.forEach((ed) => {
+            message.error(errorMessageIntro + " " + ed);
+        });
+    } else {
+        const errorDetail = e.message ?? "";
+        message.error(errorMessageIntro + " " + errorDetail);
+    }
+};
+
 
 export const beginFlow = (types) => async (dispatch) => await dispatch({ type: types.BEGIN });
 export const endFlow = (types) => async (dispatch) => await dispatch({ type: types.END });
