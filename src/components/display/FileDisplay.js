@@ -4,7 +4,7 @@ import { Alert, Skeleton, Spin } from "antd";
 
 import fetch from "cross-fetch";
 
-import { Document, Page } from "react-pdf/dist/esm/entry.webpack5";
+import { pdfjs, Document, Page } from "react-pdf";
 
 import { Light as SyntaxHighlighter } from "react-syntax-highlighter";
 import { a11yLight } from "react-syntax-highlighter/dist/cjs/styles/hljs";
@@ -43,6 +43,8 @@ SyntaxHighlighter.registerLanguage("python", python);
 SyntaxHighlighter.registerLanguage("r", r);
 SyntaxHighlighter.registerLanguage("shell", shell);
 SyntaxHighlighter.registerLanguage("xml", xml);
+
+pdfjs.GlobalWorkerOptions.workerSrc = new URL("pdfjs-dist/build/pdf.worker.min.js", import.meta.url).toString();
 
 const BASE_PDF_OPTIONS = {
     cMapUrl: "cmaps/",
