@@ -9,6 +9,7 @@ import { a11yLight } from "react-syntax-highlighter/dist/cjs/styles/hljs";
 import {
     bash,
     dockerfile,
+    javascript,
     json,
     markdown,
     plaintext,
@@ -35,6 +36,7 @@ import PdfDisplay from "./PdfDisplay";
 
 SyntaxHighlighter.registerLanguage("bash", bash);
 SyntaxHighlighter.registerLanguage("dockerfile", dockerfile);
+SyntaxHighlighter.registerLanguage("javascript", javascript);
 SyntaxHighlighter.registerLanguage("json", json);
 SyntaxHighlighter.registerLanguage("markdown", markdown);
 SyntaxHighlighter.registerLanguage("plaintext", plaintext);
@@ -45,8 +47,10 @@ SyntaxHighlighter.registerLanguage("xml", xml);
 
 const LANGUAGE_HIGHLIGHTERS = {
     "bash": "bash",
+    "js": "javascript",
     "json": "json",
     "md": "markdown",
+    "mjs": "javascript",
     "txt": "plaintext",
     "py": "python",
     "R": "r",
