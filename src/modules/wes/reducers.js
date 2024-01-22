@@ -65,7 +65,7 @@ const streamError = (state = INITIAL_RUNS_STATE, action, stream) => {
 const makeRunSkeleton = (run, request) => ({
     ...run,
     state: "QUEUED",  // Default initial state
-    ts: null,  // Will get replaced with a UTC timestamp when we receive updates or events
+    timestamp: null,  // Will get replaced with a UTC timestamp when we receive updates or events
     run_log: null,
     request,
     outputs: {},  // TODO: is this the right default value? will be fine for now
@@ -114,9 +114,11 @@ export const runs = (
             // create a race condition with the websocket events, since if a websocket event is fired after an HTTP
             // update response is sent from WES, but before we receive the response, the state will be wrong.
 
-            const ts = action.receivedAt;  // UTC timestamp
+            const timestamp = action.receivedAt;  // UTC timestamp
             const existingItem = state.itemsByID[action.runID] ?? {};
-            const stateUpdate = !existingItem.ts || (ts > existingItem.ts) ? { ts, state: action.data.state } : {};
+            const stateUpdate = !existingItem.timestamp || (timestamp > existingItem.timestamp)
+                ? { timestamp, state: action.data.state }
+                : {};
 
             const newItem = {
                 ...(state.itemsByID[action.runID] ?? {}),
