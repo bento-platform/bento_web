@@ -32,7 +32,7 @@ export const receiveRunDetails = (runID, data, ts = undefined) => ({
     type: FETCH_RUN_DETAILS.RECEIVE,
     runID,
     data,
-    ts,
+    receivedAt: ts ?? new Date().getTime(),
 });
 
 export const fetchRunDetails = networkAction(runID => (dispatch, getState) => ({

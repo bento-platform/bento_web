@@ -100,7 +100,7 @@ const _networkAction =
                     type: types.RECEIVE,
                     ...params,
                     ...(data === null ? {} : { data }),
-                    receivedAt: Date.now(),
+                    receivedAt: new Date().getTime(),  // UTC timestamp
                 });
                 if (onSuccess) await onSuccess(data);
             } catch (e) {

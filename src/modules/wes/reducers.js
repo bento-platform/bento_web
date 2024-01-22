@@ -114,7 +114,7 @@ export const runs = (
             // create a race condition with the websocket events, since if a websocket event is fired after an HTTP
             // update response is sent from WES, but before we receive the response, the state will be wrong.
 
-            const ts = action.ts ?? (new Date()).getTime();  // UTC timestamp
+            const ts = action.receivedAt;  // UTC timestamp
             const existingItem = state.itemsByID[action.runID] ?? {};
             const stateUpdate = !existingItem.ts || (ts > existingItem.ts) ? { ts, state: action.data.state } : {};
 
