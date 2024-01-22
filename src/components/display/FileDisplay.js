@@ -1,10 +1,8 @@
-import React, { useCallback, useEffect, useMemo, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import PropTypes from "prop-types";
 import { Alert, Skeleton, Spin } from "antd";
 
 import fetch from "cross-fetch";
-
-import { pdfjs, Document, Page } from "react-pdf";
 
 import { Light as SyntaxHighlighter } from "react-syntax-highlighter";
 import { a11yLight } from "react-syntax-highlighter/dist/cjs/styles/hljs";
@@ -33,6 +31,7 @@ import VideoDisplay from "./VideoDisplay";
 import XlsxDisplay from "./XlsxDisplay";
 import MarkdownDisplay from "./MarkdownDisplay";
 import DocxDisplay from "./DocxDisplay";
+import PdfDisplay from "./PdfDisplay";
 
 SyntaxHighlighter.registerLanguage("bash", bash);
 SyntaxHighlighter.registerLanguage("dockerfile", dockerfile);
@@ -43,14 +42,6 @@ SyntaxHighlighter.registerLanguage("python", python);
 SyntaxHighlighter.registerLanguage("r", r);
 SyntaxHighlighter.registerLanguage("shell", shell);
 SyntaxHighlighter.registerLanguage("xml", xml);
-
-pdfjs.GlobalWorkerOptions.workerSrc = new URL("pdfjs-dist/build/pdf.worker.min.js", import.meta.url).toString();
-
-const BASE_PDF_OPTIONS = {
-    cMapUrl: "cmaps/",
-    cMapPacked: true,
-    standardFontDataUrl: "standard_fonts/",
-};
 
 const LANGUAGE_HIGHLIGHTERS = {
     "bash": "bash",
@@ -133,12 +124,6 @@ const FileDisplay = ({ uri, fileName, loading }) => {
     const [fileLoadError, setFileLoadError] = useState("");
     const [loadingFileContents, setLoadingFileContents] = useState(false);
     const [fileContents, setFileContents] = useState({});
-    const [pdfPageCounts, setPdfPageCounts] = useState({});
-
-    const pdfOptions = useMemo(() => ({
-        ...BASE_PDF_OPTIONS,
-        httpHeaders: authHeader,
-    }), [authHeader]);
 
     const fileExt = fileName ? fileName.split(".").slice(-1)[0].toLowerCase() : null;
 
@@ -190,13 +175,11 @@ const FileDisplay = ({ uri, fileName, loading }) => {
         })();
     }, [uri]);
 
-    const onPdfLoad = useCallback(({numPages}) => {
+    const onPdfLoad = useCallback(() => {
         setLoadingFileContents(false);
-        setPdfPageCounts({...pdfPageCounts, [uri]: numPages});
-    }, [uri]);
+    }, []);
 
-    const onPdfFail = useCallback(err => {
-        console.error(err);
+    const onPdfFail = useCallback((err) => {
         setLoadingFileContents(false);
         setFileLoadError(`Error loading PDF: ${err.message}`);
     }, []);
@@ -220,17 +203,7 @@ const FileDisplay = ({ uri, fileName, loading }) => {
             const fc = fileContents[uri];  // undefined for PDF or if not loaded yet
 
             if (fileExt === "pdf") {  // Non-text, content isn't loaded a priori
-                return (
-                    <Document file={uri} onLoadSuccess={onPdfLoad} onLoadError={onPdfFail} options={pdfOptions}>
-                        {(() => {
-                            const pages = [];
-                            for (let i = 1; i <= pdfPageCounts[uri] ?? 1; i++) {
-                                pages.push(<Page pageNumber={i} key={i} />);
-                            }
-                            return pages;
-                        })()}
-                    </Document>
-                );
+                return <PdfDisplay uri={uri} onLoad={onPdfLoad} onFail={onPdfFail} />;
             } else if (fileExt === "docx") {
                 return <DocxDisplay contents={fc} loading={loadingFileContents} />;
             } else if (CSV_LIKE_FILE_EXTENSIONS.includes(fileExt)) {
