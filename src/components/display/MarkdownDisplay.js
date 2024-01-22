@@ -14,28 +14,49 @@ import { Icon, Radio } from "antd";
 
 const REMARK_PLUGINS = [remarkGfm];
 
+/** @type {Object.<string, React.CSSProperties>} */
+const styles = {
+    container: {
+        position: "relative",
+        maxWidth: 960,
+        overflowX: "auto",
+    },
+    header: {
+        position: "absolute",
+        right: 0,
+        top: 0,
+    },
+    code: {
+        fontSize: "12px",
+    },
+};
+
 const MarkdownDisplay = ({ contents }) => {
     const [displayMode, setDisplayMode] = useState("render");
 
-    return <div style={{ position: "relative" }}>
-        <div style={{ position: "absolute", right: 0, top: 0 }}>
+    // We use a 0-height container for the rendered Markdown instead of trashing it in order to preserve the same width
+    // between the rendered and code views of the same content.
+
+    return <div style={styles.container}>
+        <div style={styles.header}>
             <Radio.Group defaultValue="render" onChange={v => setDisplayMode(v.target.value)}>
                 <Radio.Button value="render"><Icon type="pic-right" /> Render</Radio.Button>
                 <Radio.Button value="code"><Icon type="code" /> Code</Radio.Button>
             </Radio.Group>
         </div>
+        <div style={{ overflowY: "hidden", height: displayMode === "code" ? 0 : "auto" }}>
+            <ReactMarkdown remarkPlugins={REMARK_PLUGINS}>{contents}</ReactMarkdown>
+        </div>
         {displayMode === "code" ? (
             <SyntaxHighlighter
                 language="markdown"
                 style={a11yLight}
-                customStyle={{fontSize: "12px"}}
+                customStyle={styles.code}
                 showLineNumbers={true}
             >
                 {contents || ""}
             </SyntaxHighlighter>
-        ) : (
-            <ReactMarkdown remarkPlugins={REMARK_PLUGINS}>{contents}</ReactMarkdown>
-        )}
+        ) : null}
     </div>;
 };
 MarkdownDisplay.propTypes = {

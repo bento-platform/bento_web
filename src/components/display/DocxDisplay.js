@@ -12,6 +12,13 @@ const MAMMOTH_OPTIONS = {
     ),
 };
 
+const styles = {
+    container: {
+        maxWidth: 960,  // Maximum width to roughly a nice page
+        overflowX: "auto",
+    },
+};
+
 const DocxDisplay = ({ contents, loading }) => {
     const [parsing, setParsing] = useState(false);
     const [error, setError] = useState(null);
@@ -48,7 +55,7 @@ const DocxDisplay = ({ contents, loading }) => {
         {error && (
             <Alert showIcon={true} message="Parsing error" description={error} />
         )}
-        <div dangerouslySetInnerHTML={innerHTML} />
+        <div style={styles.container} dangerouslySetInnerHTML={innerHTML} />
     </Spin>;
 };
 DocxDisplay.propTypes = {
