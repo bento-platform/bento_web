@@ -14,6 +14,7 @@ import { Icon, Radio } from "antd";
 
 const REMARK_PLUGINS = [remarkGfm];
 
+/** @type {Object.<string, React.CSSProperties>} */
 const styles = {
     container: {
         position: "relative",
@@ -36,7 +37,6 @@ const MarkdownDisplay = ({ contents }) => {
     // We use a 0-height container for the rendered Markdown instead of trashing it in order to preserve the same width
     // between the rendered and code views of the same content.
 
-    // noinspection JSValidateTypes
     return <div style={styles.container}>
         <div style={styles.header}>
             <Radio.Group defaultValue="render" onChange={v => setDisplayMode(v.target.value)}>
