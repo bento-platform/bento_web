@@ -2,6 +2,17 @@ import React, { Suspense, lazy, useRef, useState, useEffect, useCallback } from 
 import { useDispatch, useSelector } from "react-redux";
 import { Redirect, Route, Switch, useHistory } from "react-router-dom";
 import { ChartConfigProvider } from "bento-charts";
+import {
+    fetchOpenIdConfiguration,
+    useHandleCallback,
+    getIsAuthenticated,
+    checkIsInAuthPopup,
+    useOpenSignInWindowCallback,
+    usePopupOpenerAuthCallback,
+    useSignInPopupTokenHandoff,
+    useSessionWorkerTokenRefresh,
+    useOpenIdConfig,
+} from "bento-auth-js";
 
 import * as io from "socket.io-client";
 
@@ -13,19 +24,11 @@ const SiteHeader = lazy(() => import("./SiteHeader"));
 import SiteFooter from "./SiteFooter";
 import SitePageLoading from "./SitePageLoading";
 
-import {
-    fetchOpenIdConfigurationIfNeeded,
-    fetchUserDependentData,
-    refreshTokensIfPossible,
-    tokenHandoff,
-} from "../modules/auth/actions";
-
-import { BENTO_URL_NO_TRAILING_SLASH } from "../config";
+import { AUTH_CALLBACK_URL, BENTO_URL_NO_TRAILING_SLASH, CLIENT_ID, OPENID_CONFIG_URL } from "../config";
 import eventHandler from "../events";
-import { createAuthURL, useHandleCallback } from "../lib/auth/performAuth";
-import { getIsAuthenticated } from "../lib/auth/utils";
 import SessionWorker from "../session.worker";
 import { nop } from "../utils/misc";
+import { fetchUserDependentData } from "../modules/user/actions";
 
 // Lazy-load notification drawer
 const NotificationDrawer = lazy(() => import("./notifications/NotificationDrawer"));
@@ -38,24 +41,11 @@ const AdminContent = lazy(() => import("./AdminContent"));
 const NotificationsContent = lazy(() => import("./notifications/NotificationsContent"));
 const UserProfileContent = lazy(() => import("./UserProfileContent"));
 
-const LS_SIGN_IN_POPUP = "BENTO_DID_CREATE_SIGN_IN_POPUP";
 const SIGN_IN_WINDOW_FEATURES = "scrollbars=no, toolbar=no, menubar=no, width=800, height=600";
 
 const CALLBACK_PATH = "/callback";
 
-const popupOpenerAuthCallback = async (dispatch, _history, code, verifier) => {
-    if (!window.opener) return;
-
-    // We're inside a popup window for authentication
-
-    // Send the code and verifier to the main thread/page for authentication
-    // IMPORTANT SECURITY: provide BENTO_URL as the target origin:
-    window.opener.postMessage({ type: "authResult", code, verifier }, BENTO_URL_NO_TRAILING_SLASH);
-
-    // We're inside a popup window which has successfully re-authenticated the user, meaning we need to
-    // close ourselves to return focus to the original window.
-    window.close();
-};
+const createSessionWorker = () => new SessionWorker();
 
 const App = () => {
     const dispatch = useDispatch();
@@ -76,42 +66,32 @@ const App = () => {
 
     const eventRelay = useSelector((state) => state.services.eventRelay);
     const eventRelayUrl = eventRelay?.url ?? null;
-    const openIdConfig = useSelector((state) => state.openIdConfiguration.data);
 
     const [lastIsAuthenticated, setLastIsAuthenticated] = useState(false);
 
     const [didPostLoadEffects, setDidPostLoadEffects] = useState(false);
 
-    const isInAuthPopup = (() => {
-        try {
-            const didCreateSignInPopup = localStorage.getItem(LS_SIGN_IN_POPUP);
-            return (
-                window.opener && window.opener.origin === BENTO_URL_NO_TRAILING_SLASH && didCreateSignInPopup === "true"
-            );
-        } catch {
-            // If we are restricted from accessing the opener, we are not in an auth popup.
-            return false;
-        }
-    })();
+    const isInAuthPopup = checkIsInAuthPopup(BENTO_URL_NO_TRAILING_SLASH);
+
+    const openIdConfig = useOpenIdConfig(OPENID_CONFIG_URL);
+
+    // Using the fetchUserDependentData thunk creator as a hook argument may lead to unwanted triggers on re-renders.
+    // So we store the thunk inner function of the fetchUserDependentData thunk creator in a const.
+    const onAuthSuccess = fetchUserDependentData(nop);
 
     // Set up auth callback handling
-    useHandleCallback(CALLBACK_PATH, isInAuthPopup ? popupOpenerAuthCallback : undefined);
+    useHandleCallback(
+        CALLBACK_PATH,
+        onAuthSuccess,
+        CLIENT_ID,
+        AUTH_CALLBACK_URL,
+        isInAuthPopup ? popupOpenerAuthCallback : undefined,
+    );
 
     // Set up message handling from sign-in popup
-    useEffect(() => {
-        if (windowMessageHandler.current) {
-            window.removeEventListener("message", windowMessageHandler.current);
-        }
-        windowMessageHandler.current = (e) => {
-            if (e.origin !== BENTO_URL_NO_TRAILING_SLASH) return;
-            if (e.data?.type !== "authResult") return;
-            const { code, verifier } = e.data ?? {};
-            if (!code || !verifier) return;
-            localStorage.removeItem(LS_SIGN_IN_POPUP);
-            dispatch(tokenHandoff(code, verifier));
-        };
-        window.addEventListener("message", windowMessageHandler.current);
-    }, [dispatch]);
+    useSignInPopupTokenHandoff(BENTO_URL_NO_TRAILING_SLASH, AUTH_CALLBACK_URL, CLIENT_ID, windowMessageHandler);
+
+    const popupOpenerAuthCallback = usePopupOpenerAuthCallback(BENTO_URL_NO_TRAILING_SLASH);
 
     const createEventRelayConnectionIfNecessary = useCallback(() => {
         if (eventRelayConnection.current) return;
@@ -197,24 +177,18 @@ const App = () => {
     useEffect(() => {
         if (didPostLoadEffects) return;
         (async () => {
-            await dispatch(fetchOpenIdConfigurationIfNeeded());
+            await dispatch(fetchOpenIdConfiguration(OPENID_CONFIG_URL));
             await dispatch(fetchUserDependentData(createEventRelayConnectionIfNecessary));
             setDidPostLoadEffects(true);
         })();
     }, [dispatch, createEventRelayConnectionIfNecessary, didPostLoadEffects]);
 
-    useEffect(() => {
-        // initialize session refresh worker
-        if (!sessionWorker.current) {
-            // Use session worker to send pings to refresh the token set even when the tab is inactive.
-            const sw = new SessionWorker();
-            sw.addEventListener("message", () => {
-                dispatch(refreshTokensIfPossible());
-                dispatch(fetchUserDependentData(nop));
-            });
-            sessionWorker.current = sw;
-        }
-    }, [sessionWorker]);
+    useSessionWorkerTokenRefresh(
+        CLIENT_ID,
+        sessionWorker,
+        createSessionWorker,
+        onAuthSuccess,
+    );
 
     const clearPingInterval = useCallback(() => {
         if (pingInterval.current === null) return;
@@ -222,27 +196,8 @@ const App = () => {
         pingInterval.current = null;
     }, [pingInterval]);
 
-    const openSignInWindow = useCallback(() => {
-        // If we already have a sign-in window open, focus on it instead.
-        if (signInWindow.current && !signInWindow.current.closed) {
-            signInWindow.current.focus();
-            return;
-        }
-
-        if (!openIdConfig) return;
-
-        const popupTop = window.top.outerHeight / 2 + window.top.screenY - 350;
-        const popupLeft = window.top.outerWidth / 2 + window.top.screenX - 400;
-
-        (async () => {
-            localStorage.setItem(LS_SIGN_IN_POPUP, "true");
-            signInWindow.current = window.open(
-                await createAuthURL(openIdConfig["authorization_endpoint"]),
-                "Bento Sign In",
-                `${SIGN_IN_WINDOW_FEATURES}, top=${popupTop}, left=${popupLeft}`,
-            );
-        })();
-    }, [signInWindow, openIdConfig]);
+    const openSignInWindow = useOpenSignInWindowCallback(
+        signInWindow, openIdConfig, CLIENT_ID, AUTH_CALLBACK_URL, SIGN_IN_WINDOW_FEATURES);
 
     // On the cBioPortal tab only, eliminate the margin around the content
     // to give as much space as possible to the cBioPortal application itself.

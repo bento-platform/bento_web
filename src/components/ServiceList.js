@@ -1,11 +1,10 @@
 import React, {useMemo, useState} from "react";
 import { useSelector } from "react-redux";
+import { getIsAuthenticated } from "bento-auth-js";
 
 import { Link } from "react-router-dom";
 
 import {Table, Typography, Tag, Icon, Button} from "antd";
-
-import {getIsAuthenticated} from "../lib/auth/utils";
 
 import ServiceRequestModal from "./services/ServiceRequestModal";
 

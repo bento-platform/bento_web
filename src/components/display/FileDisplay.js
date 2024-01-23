@@ -1,6 +1,7 @@
 import React, { useCallback, useEffect, useState } from "react";
 import PropTypes from "prop-types";
 import { Alert, Skeleton, Spin } from "antd";
+import { useAuthorizationHeader } from "bento-auth-js";
 
 import fetch from "cross-fetch";
 
@@ -21,8 +22,6 @@ import {
 
 import "react-pdf/dist/esm/Page/AnnotationLayer.css";
 import "react-pdf/dist/esm/Page/TextLayer.css";
-
-import { useAuthorizationHeader } from "../../lib/auth/utils";
 
 import AudioDisplay from "./AudioDisplay";
 import CsvDisplay from "./CsvDisplay";
