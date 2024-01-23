@@ -126,16 +126,16 @@ const handleNetworkErrorMessaging = (e, reduxErrDetail) => {
     if (e.cause && e.cause.length) {
         const errorDetails = e.cause.map((c) => c.message ?? "");
         errorDetails.forEach((ed) => {
-            message.error(formatErrorMessage(reduxErrDetail, ed))
+            message.error(formatErrorMessage(reduxErrDetail, ed));
         });
     } else {
-        message.error(formatErrorMessage(reduxErrDetail, e.message))
+        message.error(formatErrorMessage(reduxErrDetail, e.message));
     }
 };
 
 const formatErrorMessage = (errorMessageIntro, errorDetail) => {
-    return errorMessageIntro 
-        ? errorMessageIntro + (errorDetail ? `: ${errorDetail}` : "") 
+    return errorMessageIntro
+        ? errorMessageIntro + (errorDetail ? `: ${errorDetail}` : "")
         : errorDetail;
 };
 
