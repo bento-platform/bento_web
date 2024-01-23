@@ -29,7 +29,7 @@
     "react-icons": "^4.11.0",
     "react-json-view": "^1.21.3",
     "react-markdown": "^8.0.7",
-    "react-pdf": "^6.2.2",
+    "react-pdf": "^7.7.0",
     "react-redux": "^7.2.9",
     "react-router-dom": "^5.3.4",
     "react-router-prop-types": "^1.0.5",
