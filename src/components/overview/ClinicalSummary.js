@@ -8,14 +8,12 @@ import { mapNameValueFields } from "../../utils/mapNameValueFields";
 
 const ClinicalSummary = () => {
     const chartHeight = 300;
-    const chartAspectRatio = 1.8;
 
     const dispatch = useDispatch();
     const setAutoQueryPageTransitionFunc = (priorPageUrl, type, field, value) =>
         dispatch(setAutoQueryPageTransition(priorPageUrl, type, field, value));
 
     const { data, isFetching } = useSelector((state) => state.overviewSummary);
-    const otherThresholdPercentage = useSelector((state) => state.explorer.otherThresholdPercentage);
 
     const statistics = [
         {
@@ -43,13 +41,14 @@ const ClinicalSummary = () => {
     const charts = [
         {
             title: "Individuals",
-            data: mapNameValueFields(data.data_type_specific?.individuals?.sex, -1),
+            data: mapNameValueFields(data.data_type_specific?.individuals?.sex),
             fieldLabel: "[dataset item].subject.sex",
             type: "PIE",
+            thresholdFraction: 0,
         },
         {
             title: "Diseases",
-            data: mapNameValueFields(data.data_type_specific?.diseases?.term, otherThresholdPercentage / 100),
+            data: mapNameValueFields(data.data_type_specific?.diseases?.term),
             fieldLabel: "[dataset item].diseases.[item].term.label",
             type: "PIE",
         },
@@ -60,19 +59,13 @@ const ClinicalSummary = () => {
         },
         {
             title: "Biosamples",
-            data: mapNameValueFields(
-                data.data_type_specific?.biosamples?.sampled_tissue,
-                otherThresholdPercentage / 100,
-            ),
+            data: mapNameValueFields(data.data_type_specific?.biosamples?.sampled_tissue),
             fieldLabel: "[dataset item].biosamples.[item].sampled_tissue.label",
             type: "PIE",
         },
         {
             title: "Phenotypic Features",
-            data: mapNameValueFields(
-                data.data_type_specific?.phenotypic_features?.type,
-                otherThresholdPercentage / 100,
-            ),
+            data: mapNameValueFields(data.data_type_specific?.phenotypic_features?.type),
             fieldLabel: "[dataset item].phenotypic_features.[item].type.label",
             type: "PIE",
         },
@@ -103,7 +96,7 @@ const ClinicalSummary = () => {
                                             title={c.title}
                                             data={c.data}
                                             chartHeight={chartHeight}
-                                            chartAspectRatio={chartAspectRatio}
+                                            chartThreshold={c.thresholdFraction}
                                             labelKey={c.fieldLabel}
                                             onAutoQueryTransition={setAutoQueryPageTransitionFunc}
                                             dataType={autoQueryDataType}
@@ -112,7 +105,6 @@ const ClinicalSummary = () => {
                                         <Histogram
                                             title={c.title}
                                             data={c.data}
-                                            chartAspectRatio={chartAspectRatio}
                                             chartHeight={chartHeight}
                                         />
                                     )}

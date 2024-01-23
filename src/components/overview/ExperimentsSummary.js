@@ -37,7 +37,7 @@ class ExperimentsSummary2 extends Component {
     }
 
     render() {
-        const { overviewSummary, otherThresholdPercentage } = this.props;
+        const { overviewSummary } = this.props;
         const { data, isFetching } = overviewSummary;
 
         // TODO: most of these have "other" categories, so counts here are ambiguous or simply incorrect
@@ -53,26 +53,11 @@ class ExperimentsSummary2 extends Component {
         ).length;
 
         // extract data in pie chart format
-        const experimentTypeData = mapNameValueFields(
-            data.data_type_specific?.experiments?.experiment_type,
-            otherThresholdPercentage / 100,
-        );
-        const studyTypeData = mapNameValueFields(
-            data.data_type_specific?.experiments?.study_type,
-            otherThresholdPercentage / 100,
-        );
-        const moleculeData = mapNameValueFields(
-            data.data_type_specific?.experiments?.molecule,
-            otherThresholdPercentage / 100,
-        );
-        const libraryStrategyData = mapNameValueFields(
-            data.data_type_specific?.experiments?.library_strategy,
-            otherThresholdPercentage / 100,
-        );
-        const librarySelectionData = mapNameValueFields(
-            data.data_type_specific?.experiments?.library_selection,
-            otherThresholdPercentage / 100,
-        );
+        const experimentTypeData = mapNameValueFields(data.data_type_specific?.experiments?.experiment_type);
+        const studyTypeData = mapNameValueFields(data.data_type_specific?.experiments?.study_type);
+        const moleculeData = mapNameValueFields(data.data_type_specific?.experiments?.molecule);
+        const libraryStrategyData = mapNameValueFields(data.data_type_specific?.experiments?.library_strategy);
+        const librarySelectionData = mapNameValueFields(data.data_type_specific?.experiments?.library_selection);
         const autoQueryDataType = "experiment";
 
         const pieRowStyle = { display: "flex", flexWrap: "wrap" };
