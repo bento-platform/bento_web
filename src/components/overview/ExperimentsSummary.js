@@ -4,7 +4,7 @@ import PropTypes from "prop-types";
 import { Row, Typography } from "antd";
 import { setAutoQueryPageTransition } from "../../modules/explorer/actions";
 import { overviewSummaryPropTypesShape } from "../../propTypes";
-import { getPieChart, mapNameValueFields } from "../../utils/overview";
+import { getPieChart } from "../../utils/overview";
 import StatisticCollection from "./StatisticCollection";
 import ChartCollection from "./ChartCollection";
 

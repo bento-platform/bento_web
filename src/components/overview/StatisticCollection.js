@@ -1,4 +1,5 @@
 import React from "react";
+import PropTypes from "prop-types";
 import { Col, Spin, Statistic } from "antd";
 
 const StatisticCollection = React.memo(({statistics, isFetching}) => {
@@ -14,5 +15,9 @@ const StatisticCollection = React.memo(({statistics, isFetching}) => {
         </>
     );
 });
+StatisticCollection.propTypes = {
+    statistics: PropTypes.arrayOf(PropTypes.shape({ title: PropTypes.string, value: PropTypes.number })),
+    isFetching: PropTypes.bool,
+};
 
 export default StatisticCollection;
