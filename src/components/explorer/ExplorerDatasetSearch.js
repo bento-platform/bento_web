@@ -103,14 +103,16 @@ const ExplorerDatasetSearch = () => {
                 !isFetchingSearchResults &&
                 (showTabs ? (
                     <Tabs defaultActiveKey={TAB_KEYS.INDIVIDUAL} onChange={onTabChange} activeKey={activeKey}>
-                        <TabPane tab="Individual" key={TAB_KEYS.INDIVIDUAL}>
+                        <TabPane tab={`Individuals (${searchResults.searchFormattedResults.length})`}
+                                 key={TAB_KEYS.INDIVIDUAL}>
                             <IndividualsTable
                                 data={searchResults.searchFormattedResults}
                                 datasetID={datasetID}
                             />
                         </TabPane>
                         {hasBiosamples && (
-                            <TabPane tab="Biosamples" key={TAB_KEYS.BIOSAMPLES}>
+                            <TabPane tab={`Biosamples (${searchResults.searchFormattedResultsBiosamples.length})`}
+                                     key={TAB_KEYS.BIOSAMPLES}>
                                 <BiosamplesTable
                                     data={searchResults.searchFormattedResultsBiosamples}
                                     datasetID={datasetID}
@@ -118,7 +120,8 @@ const ExplorerDatasetSearch = () => {
                             </TabPane>
                         )}
                         {hasExperiments && (
-                            <TabPane tab="Experiments" key={TAB_KEYS.EXPERIMENTS}>
+                            <TabPane tab={`Experiments (${searchResults.searchFormattedResultsExperiment.length})`}
+                                     key={TAB_KEYS.EXPERIMENTS}>
                                 <ExperimentsTable
                                     data={searchResults.searchFormattedResultsExperiment}
                                     datasetID={datasetID}
