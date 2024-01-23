@@ -17,7 +17,7 @@ const actionCreators = {
     setAutoQueryPageTransition,
 };
 
-class ExperimentsSummary2 extends Component {
+class ExperimentsSummary extends Component {
     static propTypes = {
         overviewSummary: PropTypes.shape({
             isFetching: PropTypes.bool,
@@ -91,4 +91,4 @@ class ExperimentsSummary2 extends Component {
     }
 }
 
-export default connect(mapStateToProps, actionCreators)(ExperimentsSummary2);
+export default connect(mapStateToProps, actionCreators)(ExperimentsSummary);
