@@ -121,18 +121,22 @@ export const networkAction =
 
 const handleNetworkErrorMessaging = (e, reduxErrDetail) => {
     console.error(e, reduxErrDetail);
-    const errorMessageIntro = reduxErrDetail ? reduxErrDetail : "";
 
     // prefer any cause messages to the top-level "message" string
     if (e.cause && e.cause.length) {
         const errorDetails = e.cause.map((c) => c.message ?? "");
         errorDetails.forEach((ed) => {
-            message.error(errorMessageIntro + " " + ed);
+            message.error(formatErrorMessage(reduxErrDetail, ed))
         });
     } else {
-        const errorDetail = e.message ?? "";
-        message.error(errorMessageIntro + " " + errorDetail);
+        message.error(formatErrorMessage(reduxErrDetail, e.message))
     }
+};
+
+const formatErrorMessage = (errorMessageIntro, errorDetail) => {
+    return errorMessageIntro 
+        ? errorMessageIntro + (errorDetail ? `: ${errorDetail}` : "") 
+        : errorDetail;
 };
 
 
