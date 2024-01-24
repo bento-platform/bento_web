@@ -20,7 +20,7 @@ const styles = {
         padding: "24px",
         backgroundColor: "white",
     },
-}
+};
 
 const SuspenseFallback = React.memo(() => (
     <div style={styles.suspenseFallback}><Skeleton active /></div>
