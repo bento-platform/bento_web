@@ -21,10 +21,18 @@ export const fetchRuns = networkAction(() => (dispatch, getState) => ({
     err: "Error fetching WES runs",
 }));
 
-export const receiveRunDetails = (runID, data) => ({
+/**
+ * Manually dispatch a run details receive event, equivalent to what is fired by the network action.
+ * @param {string} runID
+ * @param {Object} data
+ * @param {number | undefined} timestamp
+ * @return {{data, runID, type: string, ts: number | undefined}}
+ */
+export const receiveRunDetails = (runID, data, timestamp = undefined) => ({
     type: FETCH_RUN_DETAILS.RECEIVE,
     runID,
     data,
+    receivedAt: timestamp ?? new Date().getTime(),
 });
 
 export const fetchRunDetails = networkAction(runID => (dispatch, getState) => ({
