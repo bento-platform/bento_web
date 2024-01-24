@@ -1,11 +1,12 @@
 import React, { Component } from "react";
 import { connect } from "react-redux";
 import PropTypes from "prop-types";
-import { Col, Row, Spin, Statistic, Typography } from "antd";
-import PieChart from "../charts/PieChart";
+import { Row, Typography } from "antd";
 import { setAutoQueryPageTransition } from "../../modules/explorer/actions";
 import { overviewSummaryPropTypesShape } from "../../propTypes";
-import { mapNameValueFields } from "../../utils/mapNameValueFields";
+import { getPieChart } from "../../utils/overview";
+import StatisticCollection from "./StatisticCollection";
+import ChartCollection from "./ChartCollection";
 
 const mapStateToProps = (state) => ({
     overviewSummary: state.overviewSummary,
@@ -16,7 +17,7 @@ const actionCreators = {
     setAutoQueryPageTransition,
 };
 
-class ExperimentsSummary2 extends Component {
+class ExperimentsSummary extends Component {
     static propTypes = {
         overviewSummary: PropTypes.shape({
             isFetching: PropTypes.bool,
@@ -30,155 +31,64 @@ class ExperimentsSummary2 extends Component {
         super(props);
         this.state = {
             chartPadding: "1rem",
-            chartHeight: 300,
             chartLabelPaddingTop: 3,
             chartLabelPaddingLeft: 3,
         };
     }
 
     render() {
-        const { overviewSummary, otherThresholdPercentage } = this.props;
+        const { overviewSummary } = this.props;
         const { data, isFetching } = overviewSummary;
+        const experimentsSummary = data?.data_type_specific?.experiments ?? {};
 
         // TODO: most of these have "other" categories, so counts here are ambiguous or simply incorrect
-        const numExperiments = overviewSummary.data?.data_type_specific?.experiments?.count;
-        const numExperimentTypes = Object.keys(
-            overviewSummary.data?.data_type_specific?.experiments?.experiment_type || {},
-        ).length;
-        const numMoleculesUsed = Object.keys(
-            overviewSummary.data?.data_type_specific?.experiments?.molecule || {},
-        ).length;
-        const numLibraryStrategies = Object.keys(
-            overviewSummary.data?.data_type_specific?.experiments?.library_strategy || {},
-        ).length;
+        const statistics = [
+            { title: "Experiments", value: experimentsSummary.count ?? 0 },
+            { title: "Experiment Types", value: Object.keys(experimentsSummary.experiment_type || {}).length },
+            { title: "Molecules Used", value: Object.keys(experimentsSummary.molecule || {}).length },
+            { title: "Library Strategies", value: Object.keys(experimentsSummary.library_strategy || {}).length },
+        ];
 
-        // extract data in pie chart format
-        const experimentTypeData = mapNameValueFields(
-            data.data_type_specific?.experiments?.experiment_type,
-            otherThresholdPercentage / 100,
-        );
-        const studyTypeData = mapNameValueFields(
-            data.data_type_specific?.experiments?.study_type,
-            otherThresholdPercentage / 100,
-        );
-        const moleculeData = mapNameValueFields(
-            data.data_type_specific?.experiments?.molecule,
-            otherThresholdPercentage / 100,
-        );
-        const libraryStrategyData = mapNameValueFields(
-            data.data_type_specific?.experiments?.library_strategy,
-            otherThresholdPercentage / 100,
-        );
-        const librarySelectionData = mapNameValueFields(
-            data.data_type_specific?.experiments?.library_selection,
-            otherThresholdPercentage / 100,
-        );
-        const autoQueryDataType = "experiment";
-
-        const pieRowStyle = { display: "flex", flexWrap: "wrap" };
+        const charts = [
+            getPieChart({
+                title: "Study Types",
+                data: experimentsSummary.experiment_type,
+                fieldLabel: "[dataset item].study_type",
+            }),
+            getPieChart({
+                title: "Experiment Types",
+                data: experimentsSummary.experiment_type,
+                fieldLabel: "[dataset item].experiment_type",
+            }),
+            getPieChart({
+                title: "Molecules Used",
+                data: experimentsSummary.molecule,
+                fieldLabel: "[dataset item].molecule",
+            }),
+            getPieChart({
+                title: "Library Strategies",
+                data: experimentsSummary.library_strategy,
+                fieldLabel: "[dataset item].library_strategy",
+            }),
+            getPieChart({
+                title: "Library Selections",
+                data: experimentsSummary.library_selection,
+                fieldLabel: "[dataset item].library_selection",
+            }),
+        ];
 
         return (
             <>
                 <Row>
                     <Typography.Title level={4}>Experiments</Typography.Title>
                     <Row style={{ marginBottom: "24px" }} gutter={[0, 16]}>
-                        <Col xl={2} lg={3} md={5} sm={6} xs={10}>
-                            <Spin spinning={isFetching}>
-                                <Statistic title="Experiments" value={numExperiments} />
-                            </Spin>
-                        </Col>
-                        <Col xl={2} lg={3} md={5} sm={6} xs={10}>
-                            <Spin spinning={isFetching}>
-                                <Statistic title="Experiment Types" value={numExperimentTypes} />
-                            </Spin>
-                        </Col>
-                        <Col xl={2} lg={3} md={5} sm={6} xs={10}>
-                            <Spin spinning={isFetching}>
-                                <Statistic title="Molecules Used" value={numMoleculesUsed} />
-                            </Spin>
-                        </Col>
-                        <Col xl={2} lg={3} md={5} sm={6} xs={10}>
-                            <Spin spinning={isFetching}>
-                                <Statistic title="Library Strategies" value={numLibraryStrategies} />
-                            </Spin>
-                        </Col>
+                        <StatisticCollection statistics={statistics} isFetching={isFetching} />
                     </Row>
-                    <Row style={pieRowStyle}>
-                        <Col style={{ textAlign: "center" }}>
-                            <Spin spinning={isFetching}>
-                                <PieChart
-                                    title="Study Types"
-                                    style={{ cursor: "pointer" }}
-                                    data={studyTypeData}
-                                    chartHeight={this.state.chartHeight}
-                                    chartAspectRatio={this.state.chartAspectRatio}
-                                    labelKey={"[dataset item].study_type"}
-                                    onAutoQueryTransition={this.props.setAutoQueryPageTransition}
-                                    dataType={autoQueryDataType}
-                                />
-                            </Spin>
-                        </Col>
-
-                        <Col style={{ textAlign: "center" }}>
-                            <Spin spinning={isFetching}>
-                                <PieChart
-                                    title="Experiment Types"
-                                    style={{ cursor: "pointer" }}
-                                    data={experimentTypeData}
-                                    chartHeight={this.state.chartHeight}
-                                    labelKey={"[dataset item].experiment_type"}
-                                    onAutoQueryTransition={this.props.setAutoQueryPageTransition}
-                                    dataType={autoQueryDataType}
-                                />
-                            </Spin>
-                        </Col>
-
-                        <Col style={{ textAlign: "center" }}>
-                            <Spin spinning={isFetching}>
-                                <PieChart
-                                    title="Molecules Used"
-                                    style={{ cursor: "pointer" }}
-                                    data={moleculeData}
-                                    chartHeight={this.state.chartHeight}
-                                    labelKey={"[dataset item].molecule"}
-                                    onAutoQueryTransition={this.props.setAutoQueryPageTransition}
-                                    dataType={autoQueryDataType}
-                                />
-                            </Spin>
-                        </Col>
-
-                        <Col style={{ textAlign: "center" }}>
-                            <Spin spinning={isFetching}>
-                                <PieChart
-                                    title="Library Strategies"
-                                    style={{ cursor: "pointer" }}
-                                    data={libraryStrategyData}
-                                    chartHeight={this.state.chartHeight}
-                                    labelKey={"[dataset item].library_strategy"}
-                                    onAutoQueryTransition={this.props.setAutoQueryPageTransition}
-                                    dataType={autoQueryDataType}
-                                />
-                            </Spin>
-                        </Col>
-
-                        <Col style={{ textAlign: "center" }}>
-                            <Spin spinning={isFetching}>
-                                <PieChart
-                                    title="Library Selections"
-                                    style={{ cursor: "pointer" }}
-                                    data={librarySelectionData}
-                                    chartHeight={this.state.chartHeight}
-                                    labelKey={"[dataset item].library_selection"}
-                                    onAutoQueryTransition={this.props.setAutoQueryPageTransition}
-                                    dataType={autoQueryDataType}
-                                />
-                            </Spin>
-                        </Col>
-                    </Row>
+                    <ChartCollection charts={charts} dataType="experiment" isFetching={isFetching} />
                 </Row>
             </>
         );
     }
 }
 
-export default connect(mapStateToProps, actionCreators)(ExperimentsSummary2);
+export default connect(mapStateToProps, actionCreators)(ExperimentsSummary);
