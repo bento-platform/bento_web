@@ -11,7 +11,7 @@ const AdminContent = () => (
     <div>
         <Switch>
             <OwnerRoute path="/admin/services" exact={true} component={ServiceContent} />
-            <OwnerRoute path="/admin/services/:artifact" component={ServiceDetail} />
+            <OwnerRoute path="/admin/services/:kind" component={ServiceDetail} />
             <OwnerRoute path="/admin/data/manager" component={DataManagerContent} />
             <Redirect from="/" to="/admin/services" />
         </Switch>

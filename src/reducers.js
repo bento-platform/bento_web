@@ -1,6 +1,7 @@
-import {combineReducers} from "redux";
+import { combineReducers } from "redux";
 
-import {auth, openIdConfiguration} from "./modules/auth/reducers";
+import {AuthReducer as auth, OIDCReducer as openIdConfiguration} from "bento-auth-js";
+
 import {drs} from "./modules/drs/reducers";
 import {discovery} from "./modules/discovery/reducers";
 import { explorer, igvGenomes } from "./modules/explorer/reducers";
@@ -22,12 +23,14 @@ import {
     serviceWorkflows,
 } from "./modules/services/reducers";
 import {datasetDataTypes, datasetResources, datasetSummaries} from "./modules/datasets/reducers";
+import { user } from "./modules/user/reducers";
 import {runs} from "./modules/wes/reducers";
 
 const rootReducer = combineReducers({
     // Auth module
     auth,
     openIdConfiguration,
+    user,
 
     // DRS module
     drs,

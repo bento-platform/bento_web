@@ -1,5 +1,11 @@
-import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { useDispatch, useSelector } from "react-redux";
+import React, {useCallback, useEffect, useMemo, useRef, useState} from "react";
+import {useDispatch, useSelector} from "react-redux";
+import {
+    RESOURCE_EVERYTHING,
+    deleteDropBox,
+    ingestDropBox,
+    viewDropBox,
+} from "bento-auth-js";
 
 import PropTypes from "prop-types";
 
@@ -31,7 +37,6 @@ import DropBoxTreeSelect from "./DropBoxTreeSelect";
 import FileModal from "../display/FileModal";
 
 import { BENTO_DROP_BOX_FS_BASE_PATH } from "../../config";
-import { useResourcePermissions } from "../../lib/auth/utils";
 import { useStartIngestionFlow } from "./workflowCommon";
 import { testFileAgainstPattern } from "../../utils/files";
 import { getFalse } from "../../utils/misc";
@@ -42,12 +47,10 @@ import {
     putDropBoxObject,
     deleteDropBoxObject,
 } from "../../modules/manager/actions";
-import { RESOURCE_EVERYTHING } from "../../lib/auth/resources";
-import { deleteDropBox, ingestDropBox, viewDropBox } from "../../lib/auth/permissions";
 import { useFetchDropBoxContentsIfAllowed } from "./hooks";
 
 import { VIEWABLE_FILE_EXTENSIONS } from "../display/FileDisplay";
-import { useWorkflows } from "../../hooks";
+import { useResourcePermissionsWrapper, useWorkflows } from "../../hooks";
 
 const DROP_BOX_CONTENT_CONTAINER_STYLE = { display: "flex", flexDirection: "column", gap: 8 };
 const DROP_BOX_ACTION_CONTAINER_STYLE = {
@@ -286,9 +289,9 @@ const ManagerDropBoxContent = () => {
 
     const {
         permissions,
-        isFetching: isFetchingPermissions,
-        hasAttempted: hasAttemptedPermissions,
-    } = useResourcePermissions(RESOURCE_EVERYTHING);
+        isFetchingPermissions,
+        hasAttemptedPermissions,
+    } = useResourcePermissionsWrapper(RESOURCE_EVERYTHING);
 
     useFetchDropBoxContentsIfAllowed();
 

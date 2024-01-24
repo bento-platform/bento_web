@@ -1,61 +1,66 @@
-import React, {Component, Suspense} from "react";
-import {connect} from "react-redux";
-import PropTypes from "prop-types";
+import React, { Suspense, useCallback, useMemo } from "react";
+import { useSelector } from "react-redux";
+import { Redirect, Route, Switch, useHistory, useParams } from "react-router-dom";
 
-import {Menu, Skeleton} from "antd";
+import { Menu, Skeleton } from "antd";
 
 import SitePageHeader from "../SitePageHeader";
 import ServiceOverview from "./ServiceOverview";
 
-import {matchingMenuKeys, renderMenuItem} from "../../utils/menu";
-import {Redirect, Route, Switch} from "react-router-dom";
+import { matchingMenuKeys, renderMenuItem } from "../../utils/menu";
 
-const pageMenu = artifact => [
-    {url: `/admin/services/${artifact}/overview`, style: {marginLeft: "4px"}, text: "Overview"},
-];
-
-// TODO: Deduplicate with data manager
-const MENU_STYLE = {
-    marginLeft: "-24px",
-    marginRight: "-24px",
-    marginTop: "-12px",
+const styles = {
+    // TODO: Deduplicate with data manager
+    menu: {
+        marginLeft: "-24px",
+        marginRight: "-24px",
+        marginTop: "-12px",
+    },
+    suspenseFallback: {
+        padding: "24px",
+        backgroundColor: "white",
+    },
 };
 
-class ServiceDetail extends Component {
-    render() {
-        // TODO: 404
-        const kind = this.props.match.params.artifact;
-        const serviceInfo = this.props.serviceInfoByKind[kind] || null;
+const SuspenseFallback = React.memo(() => (
+    <div style={styles.suspenseFallback}><Skeleton active /></div>
+));
 
-        const menuItems = pageMenu(kind);
-        const selectedKeys = matchingMenuKeys(menuItems);
+const ServiceDetail = () => {
+    // TODO: 404
+    const history = useHistory();
+    const { kind } = useParams();
 
-        return <>
-            <SitePageHeader title={(serviceInfo || {}).name || ""}
-                            subTitle={(serviceInfo || {}).description || ""}
-                            footer={<Menu mode="horizontal" style={MENU_STYLE} selectedKeys={selectedKeys}>
-                                {menuItems.map(renderMenuItem)}
-                            </Menu>}
-                            withTabBar={true}
-                            onBack={() => this.props.history.push("/admin/services")} />
-            <Suspense fallback={<div style={{padding: "24px", backgroundColor: "white"}}><Skeleton active /></div>}>
+    const serviceInfoByKind = useSelector((state) => state.services.itemsByKind);
+
+    const serviceInfo = useMemo(() => serviceInfoByKind[kind], [kind, serviceInfoByKind]);
+
+    const menuItems = useMemo(() => [
+        {url: `/admin/services/${kind}/overview`, style: {marginLeft: "4px"}, text: "Overview"},
+    ], [kind]);
+    const selectedKeys = matchingMenuKeys(menuItems);
+
+    const onBack = useCallback(() => history.push("/admin/services"), [history]);
+
+    return (
+        <>
+            <SitePageHeader
+                title={serviceInfo?.name || ""}
+                subTitle={serviceInfo?.description || ""}
+                footer={<Menu mode="horizontal" style={styles.menu} selectedKeys={selectedKeys}>
+                    {menuItems.map(renderMenuItem)}
+                </Menu>}
+                withTabBar={true}
+                onBack={onBack}
+            />
+            <Suspense fallback={<SuspenseFallback />}>
                 <Switch>
-                    <Route exact path="/admin/services/:kind/overview"
-                           component={ServiceOverview} />
-                    <Redirect from={`/admin/services/${kind}`}
-                              to={`/admin/services/${kind}/overview`} />
+                    <Route exact path="/admin/services/:kind/overview" component={ServiceOverview} />
+                    <Redirect from={`/admin/services/${kind}`} to={`/admin/services/${kind}/overview`} />
                 </Switch>
             </Suspense>
-        </>;
-    }
-}
-
-ServiceDetail.propTypes = {
-    serviceInfoByKind: PropTypes.objectOf(PropTypes.object),  // TODO
+        </>
+    );
 };
 
-const mapStateToProps = state => ({
-    serviceInfoByKind: state.services.itemsByKind,
-});
-
-export default connect(mapStateToProps)(ServiceDetail);
+export default ServiceDetail;

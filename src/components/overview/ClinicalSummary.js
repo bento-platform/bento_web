@@ -1,125 +1,75 @@
-import React from "react";
-import { useDispatch, useSelector } from "react-redux";
-import { Col, Row, Spin, Statistic, Typography } from "antd";
-import PieChart from "../charts/PieChart";
-import Histogram from "../charts/Histogram";
-import { setAutoQueryPageTransition } from "../../modules/explorer/actions";
-import { mapNameValueFields } from "../../utils/mapNameValueFields";
+import React, { useMemo } from "react";
+import { useSelector } from "react-redux";
+import { Row, Typography } from "antd";
+import { getPieChart } from "../../utils/overview";
+import StatisticCollection from "./StatisticCollection";
+import ChartCollection from "./ChartCollection";
 
 const ClinicalSummary = () => {
-    const chartHeight = 300;
-    const chartAspectRatio = 1.8;
-
-    const dispatch = useDispatch();
-    const setAutoQueryPageTransitionFunc = (priorPageUrl, type, field, value) =>
-        dispatch(setAutoQueryPageTransition(priorPageUrl, type, field, value));
-
     const { data, isFetching } = useSelector((state) => state.overviewSummary);
-    const otherThresholdPercentage = useSelector((state) => state.explorer.otherThresholdPercentage);
 
-    const statistics = [
+    const { data_type_specific: dataTypeSpecific } = data ?? {};
+
+    const statistics = useMemo(() => [
         {
             title: "Participants",
-            value: data.data_type_specific?.individuals?.count,
+            value: dataTypeSpecific?.individuals?.count,
         },
         {
             title: "Biosamples",
-            value: data.data_type_specific?.biosamples?.count,
+            value: dataTypeSpecific?.biosamples?.count,
         },
         {
             title: "Diseases",
-            value: data.data_type_specific?.diseases?.count,
+            value: dataTypeSpecific?.diseases?.count,
         },
         {
             title: "Phenotypic Features",
-            value: data?.data_type_specific?.phenotypic_features?.count,
+            value: dataTypeSpecific?.phenotypic_features?.count,
         },
         {
             title: "Experiments",
-            value: data?.data_type_specific?.experiments?.count,
+            value: dataTypeSpecific?.experiments?.count,
         },
-    ];
+    ], dataTypeSpecific);
 
-    const charts = [
-        {
+    const charts = useMemo(() => [
+        getPieChart({
             title: "Individuals",
-            data: mapNameValueFields(data.data_type_specific?.individuals?.sex, -1),
+            data: dataTypeSpecific?.individuals?.sex,
             fieldLabel: "[dataset item].subject.sex",
-            type: "PIE",
-        },
-        {
+            thresholdFraction: 0,
+        }),
+        getPieChart({
             title: "Diseases",
-            data: mapNameValueFields(data.data_type_specific?.diseases?.term, otherThresholdPercentage / 100),
+            data: dataTypeSpecific?.diseases?.term,
             fieldLabel: "[dataset item].diseases.[item].term.label",
-            type: "PIE",
-        },
+        }),
         {
             title: "Ages",
-            data: binAges(data.data_type_specific?.individuals?.age),
+            data: binAges(dataTypeSpecific?.individuals?.age),
             type: "HISTOGRAM",
         },
-        {
+        getPieChart({
             title: "Biosamples",
-            data: mapNameValueFields(
-                data.data_type_specific?.biosamples?.sampled_tissue,
-                otherThresholdPercentage / 100,
-            ),
+            data: dataTypeSpecific?.biosamples?.sampled_tissue,
             fieldLabel: "[dataset item].biosamples.[item].sampled_tissue.label",
-            type: "PIE",
-        },
-        {
+        }),
+        getPieChart({
             title: "Phenotypic Features",
-            data: mapNameValueFields(
-                data.data_type_specific?.phenotypic_features?.type,
-                otherThresholdPercentage / 100,
-            ),
+            data: dataTypeSpecific?.phenotypic_features?.type,
             fieldLabel: "[dataset item].phenotypic_features.[item].type.label",
-            type: "PIE",
-        },
-    ];
-
-    const autoQueryDataType = "phenopacket";
+        }),
+    ], [dataTypeSpecific]);
 
     return (
         <>
             <Row>
                 <Typography.Title level={4}>Clinical/Phenotypic Data</Typography.Title>
                 <Row style={{ marginBottom: "24px" }} gutter={[0, 16]}>
-                    {statistics.map((s, i) => (
-                        <Col key={i} xl={2} lg={3} md={5} sm={6} xs={10}>
-                            <Spin spinning={isFetching}>
-                                <Statistic title={s.title} value={s.value} />
-                            </Spin>
-                        </Col>
-                    ))}
+                    <StatisticCollection statistics={statistics} isFetching={isFetching} />
                 </Row>
-                <Row style={{ display: "flex", flexWrap: "wrap" }}>
-                    {charts
-                        .map((c, i) => (
-                            <Col key={i} style={{ textAlign: "center" }}>
-                                <Spin spinning={isFetching}>
-                                    {c.type === "PIE" ? (
-                                        <PieChart
-                                            title={c.title}
-                                            data={c.data}
-                                            chartHeight={chartHeight}
-                                            chartAspectRatio={chartAspectRatio}
-                                            labelKey={c.fieldLabel}
-                                            onAutoQueryTransition={setAutoQueryPageTransitionFunc}
-                                            dataType={autoQueryDataType}
-                                        />
-                                    ) : (
-                                        <Histogram
-                                            title={c.title}
-                                            data={c.data}
-                                            chartAspectRatio={chartAspectRatio}
-                                            chartHeight={chartHeight}
-                                        />
-                                    )}
-                                </Spin>
-                            </Col>
-                        ))}
-                </Row>
+                <ChartCollection charts={charts} dataType="phenopacket" isFetching={isFetching} />
             </Row>
         </>
     );

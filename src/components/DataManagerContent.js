@@ -1,15 +1,14 @@
-import React, {Suspense, lazy, useEffect, useMemo} from "react";
-import {Redirect, Route, Switch} from "react-router-dom";
+import React, { Suspense, lazy, useEffect, useMemo } from "react";
+import { Redirect, Route, Switch } from "react-router-dom";
+import { viewDropBox, RESOURCE_EVERYTHING } from "bento-auth-js";
 
-import {Menu, Skeleton} from "antd";
+import { Menu, Skeleton } from "antd";
 
-import {SITE_NAME} from "../constants";
-import {matchingMenuKeys, renderMenuItem} from "../utils/menu";
+import { SITE_NAME } from "../constants";
+import { matchingMenuKeys, renderMenuItem } from "../utils/menu";
 
 import SitePageHeader from "./SitePageHeader";
-import {viewDropBox} from "../lib/auth/permissions";
-import {RESOURCE_EVERYTHING} from "../lib/auth/resources";
-import { useHasResourcePermission } from "../lib/auth/utils";
+import { useHasResourcePermissionWrapper } from "../hooks";
 import { useFetchDropBoxContentsIfAllowed } from "./manager/hooks";
 
 const ManagerProjectDatasetContent = lazy(() => import("./manager/projects/ManagerProjectDatasetContent"));
@@ -28,7 +27,7 @@ const styles = {
         marginRight: "-24px",
         marginTop: "-12px",
     },
-    suspenseFallback: {padding: "24px", backgroundColor: "white"},
+    suspenseFallback: { padding: "24px", backgroundColor: "white" },
 };
 
 const DataManagerContent = () => {
@@ -38,7 +37,8 @@ const DataManagerContent = () => {
 
     useFetchDropBoxContentsIfAllowed();
 
-    const { hasPermission: hasViewDropBoxPermission } = useHasResourcePermission(RESOURCE_EVERYTHING, viewDropBox);
+    const { hasPermission: hasViewDropBoxPermission } = useHasResourcePermissionWrapper(
+        RESOURCE_EVERYTHING, viewDropBox);
 
     const menuItems = useMemo(() => [
         {url: "/admin/data/manager/projects", style: {marginLeft: "4px"}, text: "Projects and Datasets"},
@@ -58,31 +58,33 @@ const DataManagerContent = () => {
 
     const selectedKeys = useMemo(() => matchingMenuKeys(menuItems), [menuItems, window.location.pathname]);
 
-    return <>
-        <SitePageHeader
-            title="Admin › Data Manager"
-            withTabBar={true}
-            footer={
-                <Menu mode="horizontal" style={styles.menu} selectedKeys={selectedKeys}>
-                    {menuItems.map(renderMenuItem)}
-                </Menu>
-            }
-        />
-        <Suspense fallback={<div style={styles.suspenseFallback}><Skeleton active /></div>}>
-            <Switch>
-                <Route path="/admin/data/manager/projects" component={ManagerProjectDatasetContent} />
-                <Route exact path="/admin/data/manager/access" component={ManagerAccessContent} />
-                <Route exact path="/admin/data/manager/files" component={ManagerDropBoxContent} />
-                <Route exact path="/admin/data/manager/ingestion" component={ManagerIngestionContent} />
-                <Route exact path="/admin/data/manager/analysis" component={ManagerAnalysisContent} />
-                <Route exact path="/admin/data/manager/workflows" component={ManagerWorkflowsContent} />
-                <Route exact path="/admin/data/manager/drs" component={ManagerDRSContent} />
-                <Route exact path="/admin/data/manager/genomes" component={ManagerReferenceGenomesContent} />
-                <Route path="/admin/data/manager/runs" component={ManagerRunsContent} />
-                <Redirect from="/admin/data/manager" to="/admin/data/manager/projects" />
-            </Switch>
-        </Suspense>
-    </>;
+    return (
+        <>
+            <SitePageHeader
+                title="Admin › Data Manager"
+                withTabBar={true}
+                footer={
+                    <Menu mode="horizontal" style={styles.menu} selectedKeys={selectedKeys}>
+                        {menuItems.map(renderMenuItem)}
+                    </Menu>
+                }
+            />
+            <Suspense fallback={<div style={styles.suspenseFallback}><Skeleton active /></div>}>
+                <Switch>
+                    <Route path="/admin/data/manager/projects" component={ManagerProjectDatasetContent} />
+                    <Route exact path="/admin/data/manager/access" component={ManagerAccessContent} />
+                    <Route exact path="/admin/data/manager/files" component={ManagerDropBoxContent} />
+                    <Route exact path="/admin/data/manager/ingestion" component={ManagerIngestionContent} />
+                    <Route exact path="/admin/data/manager/analysis" component={ManagerAnalysisContent} />
+                    <Route exact path="/admin/data/manager/workflows" component={ManagerWorkflowsContent} />
+                    <Route exact path="/admin/data/manager/drs" component={ManagerDRSContent} />
+                    <Route exact path="/admin/data/manager/genomes" component={ManagerReferenceGenomesContent} />
+                    <Route path="/admin/data/manager/runs" component={ManagerRunsContent} />
+                    <Redirect from="/admin/data/manager" to="/admin/data/manager/projects" />
+                </Switch>
+            </Suspense>
+        </>
+    );
 };
 
 export default DataManagerContent;
