@@ -1,21 +1,27 @@
-import React, {Component} from "react";
-import {connect} from "react-redux";
-import PropTypes from "prop-types";
+import React, { useMemo } from "react";
+import { useParams } from "react-router-dom";
+import { useSelector } from "react-redux";
 
-import {Col, Layout, Row, Skeleton, Typography} from "antd";
+import { Col, Layout, Row, Skeleton, Typography } from "antd";
 
 import ReactJson from "react-json-view";
 
-import {LAYOUT_CONTENT_STYLE} from "../../styles/layoutContent";
+import { LAYOUT_CONTENT_STYLE } from "../../styles/layoutContent";
 
-class ServiceOverview extends Component {
-    render() {
-        const kind = this.props.match.params.kind;
-        const serviceInfo = this.props.serviceInfoByKind[kind] || null;
-        const bentoServiceInfo = this.props.bentoServicesByKind[kind] || null;
-        const loading = !(serviceInfo && bentoServiceInfo);
+const ServiceOverview = () => {
+    const { kind } = useParams();
 
-        return loading ? <Skeleton /> : <Layout>
+    const serviceInfoByKind = useSelector((state) => state.services.itemsByKind);
+    const bentoServicesByKind = useSelector((state) => state.bentoServices.itemsByKind);
+
+    const serviceInfo = useMemo(() => serviceInfoByKind[kind], [kind, serviceInfoByKind]);
+    const bentoServiceInfo = useMemo(() => bentoServicesByKind[kind], [kind, bentoServicesByKind]);
+
+    const loading = !(serviceInfo && bentoServiceInfo);
+
+    if (loading) return <Skeleton />;
+    return (
+        <Layout>
             <Layout.Content style={LAYOUT_CONTENT_STYLE}>
                 <Row>
                     <Col span={12}>
@@ -38,18 +44,8 @@ class ServiceOverview extends Component {
                     </Col>
                 </Row>
             </Layout.Content>
-        </Layout>;
-    }
-}
-
-ServiceOverview.propTypes = {
-    serviceInfoByKind: PropTypes.objectOf(PropTypes.object),  // TODO
-    bentoServicesByKind: PropTypes.objectOf(PropTypes.object),  // TODO
+        </Layout>
+    );
 };
 
-const mapStateToProps = state => ({
-    serviceInfoByKind: state.services.itemsByKind,
-    bentoServicesByKind: state.bentoServices.itemsByKind,
-});
-
-export default connect(mapStateToProps)(ServiceOverview);
+export default ServiceOverview;
