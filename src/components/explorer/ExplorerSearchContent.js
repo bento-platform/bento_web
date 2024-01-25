@@ -60,7 +60,7 @@ ExplorerSearchContent.propTypes = {
 
 const mapStateToProps = state => ({
     projects: state.projects.items,
-    isFetchingDependentData: state.auth.isFetchingDependentData,
+    isFetchingDependentData: state.user.isFetchingDependentData,
     autoQuery: state.explorer.autoQuery,
 });
 

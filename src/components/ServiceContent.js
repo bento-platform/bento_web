@@ -16,7 +16,7 @@ const ServiceContent = () => {
     }, []);
 
     const projects = useSelector((state) => state.projects.items);
-    const isFetchingProjects = useSelector((state) => state.auth.isFetchingDependentData || state.projects.isFetching);
+    const isFetchingProjects = useSelector((state) => state.user.isFetchingDependentData || state.projects.isFetching);
 
     return (
         <>
