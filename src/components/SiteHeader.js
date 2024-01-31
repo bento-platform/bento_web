@@ -1,7 +1,7 @@
 import React, { useMemo, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { Link, withRouter } from "react-router-dom";
-import { performAuth, setLSNotSignedIn, signOut, useIsAuthenticated } from "bento-auth-js";
+import { performAuth, useIsAuthenticated, usePerformSignOut } from "bento-auth-js";
 
 import { Badge, Icon, Layout, Menu } from "antd";
 
@@ -11,6 +11,7 @@ import {
     BENTO_URL_NO_TRAILING_SLASH,
     CLIENT_ID,
     CUSTOM_HEADER,
+    OPENID_CONFIG_URL,
 } from "../config";
 import { showNotificationDrawer } from "../modules/notifications/actions";
 import { matchingMenuKeys, renderMenuItem } from "../utils/menu";
@@ -41,7 +42,6 @@ const SiteHeader = () => {
 
     const unreadNotifications = useSelector((state) => state.notifications.items.filter((n) => !n.read));
     const {
-        idToken,
         idTokenContents,
         isHandingOffCodeForToken,
         hasAttempted: authHasAttempted,
@@ -53,6 +53,8 @@ const SiteHeader = () => {
     const toggleModalVisibility = () => {
         setModalVisible(!modalVisible);
     };
+
+    const performSignOut = usePerformSignOut(BENTO_URL_NO_TRAILING_SLASH, OPENID_CONFIG_URL, CLIENT_ID);
 
     const menuItems = useMemo(
         () => [
@@ -119,25 +121,7 @@ const SiteHeader = () => {
                             },
                             {
                                 key: "sign-out-link",
-                                onClick: () => {
-                                    const endSessionEndpoint = openIdConfig?.["end_session_endpoint"];
-                                    if (!endSessionEndpoint) {
-                                        dispatch(signOut());
-                                    } else {
-                                        // Sign-out supported, so do that.
-                                        const endSessionUrl = new URL(endSessionEndpoint);
-                                        if (idToken) {
-                                            endSessionUrl.searchParams.append("id_token_hint", idToken);
-                                        }
-                                        endSessionUrl.searchParams.append("client_id", CLIENT_ID);
-                                        endSessionUrl.searchParams.append(
-                                            "post_logout_redirect_uri",
-                                            BENTO_URL_NO_TRAILING_SLASH + "/",
-                                        );
-                                        setLSNotSignedIn(); // Make sure we don't immediately try to sign in again
-                                        window.location.href = endSessionUrl.toString();
-                                    }
-                                },
+                                onClick: performSignOut,
                                 icon: <Icon type="logout" />,
                                 text: <span className="nav-text">Sign Out</span>,
                             },
@@ -183,7 +167,7 @@ const SiteHeader = () => {
                 key: "settings",
             },
         ],
-        [isAuthenticated, authHasAttempted, idTokenContents, unreadNotifications],
+        [isAuthenticated, authHasAttempted, idTokenContents, performSignOut, unreadNotifications],
     );
 
     return (
