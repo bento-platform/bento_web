@@ -49,7 +49,7 @@ ChartCollection.propTypes = {
     charts: PropTypes.arrayOf(PropTypes.shape({
         title: PropTypes.string.isRequired,
         data: PropTypes.arrayOf(PropTypes.shape({ name: PropTypes.string, value: PropTypes.number })),
-        fieldLabel: PropTypes.string.isRequired,
+        fieldLabel: PropTypes.string,
         thresholdFraction: PropTypes.number,
     })),
     dataType: PropTypes.string.isRequired,
