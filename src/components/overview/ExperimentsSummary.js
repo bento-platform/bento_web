@@ -52,7 +52,7 @@ class ExperimentsSummary extends Component {
         const charts = [
             getPieChart({
                 title: "Study Types",
-                data: experimentsSummary.experiment_type,
+                data: experimentsSummary.study_type,
                 fieldLabel: "[dataset item].study_type",
             }),
             getPieChart({
