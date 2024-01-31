@@ -31,7 +31,7 @@ const ClinicalSummary = () => {
             title: "Experiments",
             value: dataTypeSpecific?.experiments?.count,
         },
-    ], dataTypeSpecific);
+    ], [dataTypeSpecific]);
 
     const charts = useMemo(() => [
         getPieChart({
