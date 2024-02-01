@@ -1,9 +1,7 @@
 import React, { useMemo } from "react";
 import { useSelector } from "react-redux";
-import PropTypes from "prop-types";
 import { Row, Typography } from "antd";
 
-import { overviewSummaryPropTypesShape } from "../../propTypes";
 import { getPieChart } from "../../utils/overview";
 
 import StatisticCollection from "./StatisticCollection";
@@ -60,14 +58,6 @@ const ExperimentsSummary = () => {
             </Row>
         </>
     );
-};
-ExperimentsSummary.propTypes = {
-    overviewSummary: PropTypes.shape({
-        isFetching: PropTypes.bool,
-        data: overviewSummaryPropTypesShape,
-    }).isRequired,
-    setAutoQueryPageTransition: PropTypes.func, // temp
-    otherThresholdPercentage: PropTypes.number,
 };
 
 export default ExperimentsSummary;
