@@ -11,7 +11,7 @@ import { matchingMenuKeys, renderMenuItem } from "../../utils/menu";
 
 const ExplorerSearchContent = () => {
     const projects = useSelector((state) => state.projects.items);
-    const isFetchingDependentData = useSelector((state) => state.user.isFetchingDependentData)
+    const isFetchingDependentData = useSelector((state) => state.user.isFetchingDependentData);
 
     const menuItems = useMemo(() => projects.map(project => ({
         // url: `/data/explorer/projects/${project.identifier}`,
@@ -50,6 +50,6 @@ const ExplorerSearchContent = () => {
             </Layout.Content>
         </Layout>
     </>;
-}
+};
 
 export default ExplorerSearchContent;
