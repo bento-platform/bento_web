@@ -14,6 +14,7 @@ const IMMUTABILITY_OPTIONS = {
         // Default is 32ms
         warnAfter: 128,
     },
+    serializableCheck: false,
 };
 
 const persistedState = {};
