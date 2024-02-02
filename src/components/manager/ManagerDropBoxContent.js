@@ -22,7 +22,6 @@ import {
     Layout,
     Menu,
     Modal,
-    Result,
     Spin,
     Statistic,
     Tree,

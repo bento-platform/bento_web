@@ -12,12 +12,7 @@ import ActionContainer from "../ActionContainer";
 import PermissionsList from "./PermissionsList";
 import Subject from "./Subject";
 
-const stringifyJSONRenderIfMultiKey = (x) =>
-    JSON.stringify(
-        x,
-        null,
-        (typeof x === "object" && Object.keys(x).length > 1) ? 2 : null,
-    );
+import { stringifyJSONRenderIfMultiKey } from "./utils";
 
 const GROUPS_COLUMNS = [
     {

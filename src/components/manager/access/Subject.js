@@ -4,6 +4,8 @@ import PropTypes from "prop-types";
 
 import { Popover, Typography } from "antd";
 
+import { stringifyJSONRenderIfMultiKey } from "./utils";
+
 const Subject = ({ subject, groupsByID }) => {
     const currentIDToken = useSelector((state) => state.auth.idTokenContents);
 
@@ -40,12 +42,28 @@ const Subject = ({ subject, groupsByID }) => {
     );
 };
 Subject.propTypes = {
-    // Combinations: sub+iss, client+iss, group, everyone
-    sub: PropTypes.string,
-    client: PropTypes.string,
-    iss: PropTypes.string,
-    group: PropTypes.number,
-    everyone: PropTypes.oneOf([true]),
+    subject: PropTypes.oneOfType([
+        // Combinations: sub+iss, client+iss, group, everyone
+        PropTypes.shape({ sub: PropTypes.string, iss: PropTypes.string }),
+        PropTypes.shape({ client: PropTypes.string, iss: PropTypes.string }),
+        PropTypes.shape({ group: PropTypes.number }),
+        PropTypes.shape({ everyone: PropTypes.oneOf([true]) }),
+    ]),
+    groupsByID: PropTypes.objectOf(PropTypes.shape({
+        name: PropTypes.string,
+        membership: PropTypes.oneOfType([
+            PropTypes.shape({expr: PropTypes.array}),
+            PropTypes.shape({
+                membership: PropTypes.arrayOf(PropTypes.oneOfType([
+                    // Combinations: sub+iss, client+iss
+                    PropTypes.shape({ sub: PropTypes.string, iss: PropTypes.string }),
+                    PropTypes.shape({ client: PropTypes.string, iss: PropTypes.string }),
+                ])),
+            }),
+        ]),
+        expiry: PropTypes.string,
+        notes: PropTypes.string,
+    })),
 };
 
 export default Subject;

@@ -1,4 +1,5 @@
 import React from "react";
+import PropTypes from "prop-types";
 
 const style = {
     display: "flex",
@@ -18,6 +19,9 @@ const ActionContainer = ({ children, ...props }) => {
             {children}
         </div>
     );
+};
+ActionContainer.propTypes = {
+    children: PropTypes.node,
 };
 
 export default ActionContainer;
