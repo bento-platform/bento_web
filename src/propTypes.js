@@ -176,7 +176,7 @@ export const biosamplePropTypesShape = PropTypes.shape({
         body_site: ontologyShape,
         created: PropTypes.string,  // ISO datetime string
         updated: PropTypes.string,  // ISO datetime string
-    }).isRequired,
+    }),
     description: PropTypes.string,
     sampled_tissue: ontologyShape.isRequired,
     individual_age_at_collection: PropTypes.oneOfType([agePropTypesShape, ageRangePropTypesShape]),
@@ -255,6 +255,7 @@ export const experimentResultPropTypesShape = PropTypes.shape({
     identifier: PropTypes.string,
     description: PropTypes.string,
     filename: PropTypes.string,
+    genome_assembly_id: PropTypes.string,
     file_format: PropTypes.oneOf([
         "SAM", "BAM", "CRAM", "BAI", "CRAI", "VCF", "BCF", "MAF", "GVCF", "BigWig", "BigBed", "FASTA",
         "FASTQ", "TAB", "SRA", "SRF", "SFF", "GFF", "TABIX", "PDF", "CSV", "TSV", "JPEG", "PNG", "GIF",

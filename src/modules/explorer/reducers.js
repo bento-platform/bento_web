@@ -30,8 +30,7 @@ import {
     FREE_TEXT_SEARCH,
     SET_OTHER_THRESHOLD_PERCENTAGE,
     SET_IGV_POSITION,
-    SET_INDIVIDUAL_ID,
-    SET_INDIVIDUAL_RESOURCES_TUPLE,
+    FETCH_IGV_GENOMES,
 } from "./actions";
 
 // TODO: Could this somehow be combined with discovery?
@@ -55,8 +54,6 @@ export const explorer = (
         otherThresholdPercentage:
             readFromLocalStorage("otherThresholdPercentage") ?? DEFAULT_OTHER_THRESHOLD_PERCENTAGE,
         igvPosition: undefined,
-        individualId: "",
-        individualResourcesTuple: [],
     },
     action,
 ) => {
@@ -311,16 +308,19 @@ export const explorer = (
                 ...state,
                 igvPosition: action.igvPosition,
             };
-        case SET_INDIVIDUAL_ID:
-            return {
-                ...state,
-                individualId: action.id,
-            };
-        case SET_INDIVIDUAL_RESOURCES_TUPLE:
-            return {
-                ...state,
-                individualResourcesTuple: action.resourcesTuple,
-            };
+        default:
+            return state;
+    }
+};
+
+export const igvGenomes = (state = { data: null, isFetching: false, hasAttempted: false }, action) => {
+    switch (action.type) {
+        case FETCH_IGV_GENOMES.REQUEST:
+            return {...state, isFetching: true};
+        case FETCH_IGV_GENOMES.RECEIVE:
+            return {...state, data: action.data};
+        case FETCH_IGV_GENOMES.FINISH:
+            return {...state, isFetching: false, hasAttempted: true};
         default:
             return state;
     }
@@ -341,7 +341,7 @@ const tableSearchResultsExperiments = (searchResults) => {
                 return [];
             }
 
-            const formattedResult = {
+            return {
                 subjectId: result.subject_id,
                 key: experiment.experiment_id,
                 alternateIds: result.alternate_ids,
@@ -354,8 +354,6 @@ const tableSearchResultsExperiments = (searchResults) => {
                     alternate_ids: result.alternate_ids ?? [],
                 },
             };
-
-            return formattedResult;
         });
     });
 };

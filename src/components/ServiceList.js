@@ -1,11 +1,10 @@
 import React, {useMemo, useState} from "react";
 import { useSelector } from "react-redux";
+import { useIsAuthenticated } from "bento-auth-js";
 
 import { Link } from "react-router-dom";
 
 import {Table, Typography, Tag, Icon, Button} from "antd";
-
-import {getIsAuthenticated} from "../lib/auth/utils";
 
 import ServiceRequestModal from "./services/ServiceRequestModal";
 
@@ -129,8 +128,7 @@ const ServiceList = () => {
         }),
     );
 
-    const isAuthenticated = useSelector(
-        (state) => state.auth.hasAttempted && getIsAuthenticated(state.auth.idTokenContents));
+    const isAuthenticated = useIsAuthenticated();
 
     const columns = useMemo(
         () => serviceColumns(isAuthenticated, setRequestModalService),

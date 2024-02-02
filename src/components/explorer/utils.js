@@ -68,6 +68,7 @@ const useGenomicInterpretationsWithCall = (interpretations, call) =>
                     .map(gi => [gi.subject_or_biosample_id, gi]),
             ),
         ),
+        [interpretations, call],
     );
 
 export const useIndividualVariantInterpretations = (individual) => {
@@ -144,3 +145,5 @@ export const ontologyTermSorter = (k) => (a, b) => {
     }
     return 0;
 };
+
+export const explorerIndividualUrl = (individualID) => `/data/explorer/individuals/${individualID}`;

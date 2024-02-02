@@ -1,4 +1,4 @@
-import React, { memo, useEffect } from "react";
+import React, { memo, useContext, useEffect } from "react";
 import PropTypes from "prop-types";
 
 import { Button, Icon } from "antd";
@@ -7,8 +7,8 @@ import { EM_DASH } from "../../constants";
 import { ontologyShape } from "../../propTypes";
 import { id } from "../../utils/misc";
 
+import { ExplorerIndividualContext } from "./contexts/individual";
 import { useResourcesByNamespacePrefix } from "./utils";
-import { useSelector } from "react-redux";
 
 export const conditionalOntologyRender = (field) => (_, record) => {
     if (record.hasOwnProperty(field)) {
@@ -19,7 +19,7 @@ export const conditionalOntologyRender = (field) => (_, record) => {
 };
 
 const OntologyTerm = memo(({ term, renderLabel, br }) => {
-    const resourcesTuple = useSelector(state => state.explorer.individualResourcesTuple);
+    const { resourcesTuple } = useContext(ExplorerIndividualContext);
 
     // TODO: perf: might be slow to generate this over and over
     const [resourcesByNamespacePrefix, isFetchingResources] = useResourcesByNamespacePrefix(resourcesTuple);

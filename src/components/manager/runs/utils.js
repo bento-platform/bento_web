@@ -9,13 +9,28 @@ export const RUN_REFRESH_TIMEOUT = 7500;
 
 export const renderDate = date => date ? new Date(Date.parse(date)).toLocaleString("en-CA") : "";
 
-export const sortDate = (a, b, dateProperty) =>
+export const sortDate = (a, b, dateProperty, bDateProperty = undefined) =>
     (new Date(Date.parse(a[dateProperty])).getTime() || Infinity) -
-    (new Date(Date.parse(b[dateProperty])).getTime() || Infinity);
+    (new Date(Date.parse(b[bDateProperty ?? dateProperty])).getTime() || Infinity);
 
 // If end times are unset, sort by start times
-const sortEndDate = (a, b) =>
-    sortDate(a, b, (!a.startTime || !b.endTime) ? "startTime" : "endTime");
+const sortEndDate = (a, b) => {
+    let prop = "endTime";
+    let bProp = undefined;
+    if (!a.endTime && !b.endTime) {
+        // If neither workflow has an end time, sort by start time instead
+        prop = "startTime";
+    } else if (!a.startTime && !b.endTime) {
+        // If 'a' has no start time (i.e., it crashed right away), use a.startTime as a.endTime
+        prop = "startTime";
+        bProp = "endTime";
+    } else if (!a.endTime && b.startTime) {
+        // Switched version of above case
+        prop = "endTime";
+        bProp = "startTime";
+    }
+    return sortDate(a, b, prop, bProp);
+};
 
 export const RUN_STATE_TAG_COLORS = {
     UNKNOWN: "",
@@ -30,6 +45,9 @@ export const RUN_STATE_TAG_COLORS = {
     CANCELING: "purple",
 };
 
+const runName = (w) => w.details?.run_log?.name ?? "";
+const runType = (w) => w.details?.request?.tags?.workflow_metadata?.type ?? "";
+
 export const RUN_TABLE_COLUMNS = [
     {
         title: "Run ID",
@@ -40,14 +58,14 @@ export const RUN_TABLE_COLUMNS = [
     },
     {
         title: "Purpose",
-        dataIndex: "purpose",
+        dataIndex: "details.request.tags.workflow_metadata.type",
         width: 120,
-        sorter: (a, b) => a.purpose.localeCompare(b.purpose),
+        sorter: (a, b) => runType(a).localeCompare(runType(b)),
     },
     {
         title: "Name",
-        dataIndex: "name",
-        sorter: (a, b) => a.name.localeCompare(b.name),
+        dataIndex: "details.run_log.name",
+        sorter: (a, b) => runName(a).localeCompare(runName(b)),
     },
     {
         title: "Started",

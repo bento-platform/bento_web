@@ -7,6 +7,7 @@ import ChartContainer from "./ChartContainer";
 const PieChart = ({
     title,
     data = [],
+    chartThreshold,
     chartHeight = 300,
     onAutoQueryTransition,
     dataType,
@@ -17,7 +18,7 @@ const PieChart = ({
 
     const handleChartClick = useCallback(
         (pointData) => {
-            if (onAutoQueryTransition && !pointData.skipAutoquery) {
+            if (onAutoQueryTransition && pointData.name !== "Other") {
                 onAutoQueryTransition(window.location.href, dataType, labelKey, pointData.name);
                 history.push("/data/explorer/search");
             }
@@ -28,7 +29,13 @@ const PieChart = ({
     const pieChartData = useMemo(() => data.map(({ name, value }) => ({ x: name, y: value })), [data]);
     return (
         <ChartContainer title={title} empty={!Array.isArray(data) && !data.length}>
-            <BentoPie data={pieChartData} height={chartHeight} onClick={handleChartClick} sort={sortData} />
+            <BentoPie
+                data={pieChartData}
+                height={chartHeight}
+                onClick={handleChartClick}
+                sort={sortData}
+                chartThreshold={chartThreshold}
+            />
         </ChartContainer>
     );
 };
@@ -41,6 +48,7 @@ PieChart.propTypes = {
             value: PropTypes.number,
         }),
     ).isRequired,
+    chartThreshold: PropTypes.number,
     chartHeight: PropTypes.number,
     onAutoQueryTransition: PropTypes.func,
     dataType: PropTypes.string,

@@ -26,16 +26,18 @@ const getTimeElementTypeLabel = (timeElement) => {
     return [null, "NOT_SUPPORTED"];
 };
 
-const TimeInterval = ({timeInterval}) => {
+export const TimeInterval = ({timeInterval, br}) => {
     return (
         <span>
-            <strong>Start:</strong>{" "}<>{timeInterval.start}</>{" "}
+            <strong>Start:</strong>{" "}<>{timeInterval.start}</>
+            {br ? <br/> : " "}
             <strong>End:</strong>{" "}<>{timeInterval.end}</>
         </span>
     );
 };
 TimeInterval.propTypes = {
     timeInterval: PropTypes.object,
+    br: PropTypes.bool,
 };
 
 const InnerTimeElement = ({type, timeElement}) => {

@@ -1,5 +1,11 @@
-import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { useDispatch, useSelector } from "react-redux";
+import React, {useCallback, useEffect, useMemo, useRef, useState} from "react";
+import {useDispatch, useSelector} from "react-redux";
+import {
+    RESOURCE_EVERYTHING,
+    deleteDropBox,
+    ingestDropBox,
+    viewDropBox,
+} from "bento-auth-js";
 
 import PropTypes from "prop-types";
 
@@ -31,7 +37,6 @@ import DropBoxTreeSelect from "./DropBoxTreeSelect";
 import FileModal from "../display/FileModal";
 
 import { BENTO_DROP_BOX_FS_BASE_PATH } from "../../config";
-import { useResourcePermissions } from "../../lib/auth/utils";
 import { useStartIngestionFlow } from "./workflowCommon";
 import { testFileAgainstPattern } from "../../utils/files";
 import { getFalse } from "../../utils/misc";
@@ -42,11 +47,10 @@ import {
     putDropBoxObject,
     deleteDropBoxObject,
 } from "../../modules/manager/actions";
-import { RESOURCE_EVERYTHING } from "../../lib/auth/resources";
-import { deleteDropBox, ingestDropBox } from "../../lib/auth/permissions";
+import { useFetchDropBoxContentsIfAllowed } from "./hooks";
 
 import { VIEWABLE_FILE_EXTENSIONS } from "../display/FileDisplay";
-import { useWorkflows } from "../../hooks";
+import { useResourcePermissionsWrapper, useWorkflows } from "../../hooks";
 
 const DROP_BOX_CONTENT_CONTAINER_STYLE = { display: "flex", flexDirection: "column", gap: 8 };
 const DROP_BOX_ACTION_CONTAINER_STYLE = {
@@ -283,7 +287,13 @@ const DROP_BOX_ROOT_KEY = "/";
 const ManagerDropBoxContent = () => {
     const dispatch = useDispatch();
 
-    const {permissions, hasAttempted} = useResourcePermissions(RESOURCE_EVERYTHING) ?? {};
+    const {
+        permissions,
+        isFetchingPermissions,
+        hasAttemptedPermissions,
+    } = useResourcePermissionsWrapper(RESOURCE_EVERYTHING);
+
+    useFetchDropBoxContentsIfAllowed();
 
     const dropBoxService = useSelector(state => state.services.dropBoxService);
     const {tree, isFetching: treeLoading, isDeleting} = useSelector(state => state.dropBox);
@@ -388,6 +398,7 @@ const ManagerDropBoxContent = () => {
         startIngestionFlow(ingestionWorkflowsByID[wfID], wfSupportedTuple[1]);
     }, [ingestionWorkflowsByID, workflowsSupported, startIngestionFlow]);
 
+    const hasViewPermission = permissions.includes(viewDropBox);
     const hasUploadPermission = permissions.includes(ingestDropBox);
     const hasDeletePermission = permissions.includes(deleteDropBox);
 
@@ -466,13 +477,14 @@ const ManagerDropBoxContent = () => {
         selectedEntries.length === 0 || Object.values(workflowsSupported).filter((w) => w[0]).length === 0;
 
     const handleUpload = useCallback(() => {
+        if (!hasUploadPermission) return;
         if (selectedFolder) setInitialUploadFolder(selectedEntries[0]);
         showUploadModal();
-    }, [selectedFolder, selectedEntries]);
+    }, [hasUploadPermission, selectedFolder, selectedEntries]);
 
     const deleteDisabled = !dropBoxService || selectedFolder || selectedEntries.length !== 1 || !hasDeletePermission;
 
-    if (hasAttempted && !hasUploadPermission) {
+    if (hasAttemptedPermissions && !hasViewPermission) {
         return <Layout>
             <Layout.Content style={LAYOUT_CONTENT_STYLE}>
                 <Result status="error" title="Forbidden" subTitle="You do not have permission to view the drop box." />
@@ -562,8 +574,8 @@ const ManagerDropBoxContent = () => {
                     </Typography.Text>
                 </div>
 
-                <Spin spinning={treeLoading}>
-                    {(treeLoading || dropBoxService) ? (
+                <Spin spinning={isFetchingPermissions || treeLoading}>
+                    {(isFetchingPermissions || treeLoading || dropBoxService) ? (
                         <div
                             onDragEnter={handleDragEnter}
                             onDragLeave={handleDragLeave}

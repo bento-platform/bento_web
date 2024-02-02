@@ -1,14 +1,12 @@
 import React, { useCallback, useEffect, useMemo, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
+import { useResourcePermissions, viewPermissions, RESOURCE_EVERYTHING } from "bento-auth-js";
+import PropTypes from "prop-types";
 
 import { Button, Layout, Popover, Table, Tabs, Typography } from "antd";
 
+import { fetchGrantsIfNeeded, fetchGroupsIfNeeded } from "../../modules/authz/actions";
 import {LAYOUT_CONTENT_STYLE} from "../../styles/layoutContent";
-import { fetchGrantsIfNeeded, fetchGroupsIfNeeded } from "../../modules/auth/actions";
-import PropTypes from "prop-types";
-import { useResourcePermissions } from "../../lib/auth/utils";
-import { RESOURCE_EVERYTHING } from "../../lib/auth/resources";
-import { viewPermissions } from "../../lib/auth/permissions";
 
 const stringifyJSONRenderIfMultiKey = (x) =>
     JSON.stringify(
@@ -19,6 +17,11 @@ const stringifyJSONRenderIfMultiKey = (x) =>
 
 const PERMISSIONS_LIST_STYLE = { margin: 0, padding: 0, listStyle: "none", lineHeight: "1.6em" };
 
+/**
+ * @param {string[]} permissions
+ * @return {React.JSX.Element}
+ * @constructor
+ */
 const PermissionList = ({ permissions }) => {
     const [showAll, setShowAll] = useState(false);
 
@@ -34,7 +37,7 @@ const PermissionList = ({ permissions }) => {
 
     return (
         <ul style={PERMISSIONS_LIST_STYLE}>
-            {permissions.slice(0, showAll ? permissions.length : 4).map(p => (
+            {permissions.slice(0, showAll ? permissions.length : 4).map((p) => (
                 <li key={p}>
                     <Typography.Text code={true}>{p}</Typography.Text>
                 </li>
@@ -110,7 +113,7 @@ const ManagerAccessContent = () => {
     const {
         permissions,
         isFetching: fetchingPermissions,
-    } = useResourcePermissions(RESOURCE_EVERYTHING);
+    } = useResourcePermissions(RESOURCE_EVERYTHING, authorizationService?.url);
 
     useEffect(() => {
         if (authorizationService && permissions.includes(viewPermissions)) {
@@ -188,7 +191,7 @@ const ManagerAccessContent = () => {
 
     return <Layout>
         <Layout.Content style={LAYOUT_CONTENT_STYLE}>
-            <Typography.Title level={2}>Permissions {/* TODO: Access Management */}</Typography.Title>
+            <Typography.Title level={2}>Access Management</Typography.Title>
             <Tabs>
                 <Tabs.TabPane tab="Grants" key="grants">
                     <Table

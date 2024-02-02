@@ -1,67 +1,55 @@
-import React, {Component} from "react";
-import {connect} from "react-redux";
-import {Redirect, Route, Switch} from "react-router-dom";
-import PropTypes from "prop-types";
+import React, { useMemo } from "react";
+import { useSelector } from "react-redux";
+import { Redirect, Route, Switch } from "react-router-dom";
 
-import {Layout, Menu, Skeleton} from "antd";
+import { Layout, Menu, Skeleton } from "antd";
 
-import SitePageHeader from "../SitePageHeader";
-import {LAYOUT_CONTENT_STYLE} from "../../styles/layoutContent";
 import ExplorerDatasetSearch from "./ExplorerDatasetSearch";
-import {matchingMenuKeys, renderMenuItem} from "../../utils/menu";
-import {projectPropTypesShape} from "../../propTypes";
+import SitePageHeader from "../SitePageHeader";
+import { LAYOUT_CONTENT_STYLE } from "../../styles/layoutContent";
+import { matchingMenuKeys, renderMenuItem } from "../../utils/menu";
 
-class ExplorerSearchContent extends Component {
-    render() {
-        const menuItems = this.props.projects.map(project => ({
-            // url: `/data/explorer/projects/${project.identifier}`,
-            key: project.identifier,
-            text: project.title,
-            children: project.datasets.map(dataset => ({
-                url: `/data/explorer/search/${dataset.identifier}`,
-                text: dataset.title,
-            })),
-        }));
+const ExplorerSearchContent = () => {
+    const projects = useSelector((state) => state.projects.items);
+    const isFetchingDependentData = useSelector((state) => state.user.isFetchingDependentData);
 
-        const datasets = this.props.projects.flatMap(p => p.datasets);
+    const menuItems = useMemo(() => projects.map(project => ({
+        // url: `/data/explorer/projects/${project.identifier}`,
+        key: project.identifier,
+        text: project.title,
+        children: project.datasets.map(dataset => ({
+            url: `/data/explorer/search/${dataset.identifier}`,
+            text: dataset.title,
+        })),
+    })), [projects]);
 
-        return <>
-            <SitePageHeader title="Data Explorer" />
-            <Layout>
-                <Layout.Sider style={{background: "white"}} width={256} breakpoint="lg" collapsedWidth={0}>
-                    <div style={{display: "flex", height: "100%", flexDirection: "column"}}>
-                    <Menu mode="inline"
-                          style={{flex: 1, paddingTop: "8px"}}
-                          defaultOpenKeys={menuItems.map(p => p.key)}
-                          selectedKeys={matchingMenuKeys(menuItems)}>
-                        {menuItems.map(renderMenuItem)}
-                    </Menu>
-                    </div>
-                </Layout.Sider>
-                <Layout.Content style={LAYOUT_CONTENT_STYLE}>
-                    {datasets.length > 0 ? (
-                        <Switch>
-                            <Route path="/data/explorer/search/:dataset" component={ExplorerDatasetSearch} />
-                            <Redirect
-                                from="/data/explorer/search"
-                                to={`/data/explorer/search/${datasets[0].identifier}`} />
-                        </Switch>
-                    ) : (this.props.isFetchingDependentData ? <Skeleton /> : "No datasets available")}
-                </Layout.Content>
-            </Layout>
-        </>;
-    }
-}
+    const datasets = useMemo(() => projects.flatMap(p => p.datasets), [projects]);
 
-ExplorerSearchContent.propTypes = {
-    projects: PropTypes.arrayOf(projectPropTypesShape),
-    isFetchingDependentData: PropTypes.bool,
+    return <>
+        <SitePageHeader title="Data Explorer" />
+        <Layout>
+            <Layout.Sider style={{background: "white"}} width={256} breakpoint="lg" collapsedWidth={0}>
+                <div style={{display: "flex", height: "100%", flexDirection: "column"}}>
+                <Menu mode="inline"
+                      style={{flex: 1, paddingTop: "8px"}}
+                      defaultOpenKeys={menuItems.map(p => p.key)}
+                      selectedKeys={matchingMenuKeys(menuItems)}>
+                    {menuItems.map(renderMenuItem)}
+                </Menu>
+                </div>
+            </Layout.Sider>
+            <Layout.Content style={LAYOUT_CONTENT_STYLE}>
+                {datasets.length > 0 ? (
+                    <Switch>
+                        <Route path="/data/explorer/search/:dataset" component={ExplorerDatasetSearch} />
+                        <Redirect
+                            from="/data/explorer/search"
+                            to={`/data/explorer/search/${datasets[0].identifier}`} />
+                    </Switch>
+                ) : (isFetchingDependentData ? <Skeleton /> : "No datasets available")}
+            </Layout.Content>
+        </Layout>
+    </>;
 };
 
-const mapStateToProps = state => ({
-    projects: state.projects.items,
-    isFetchingDependentData: state.auth.isFetchingDependentData,
-    autoQuery: state.explorer.autoQuery,
-});
-
-export default connect(mapStateToProps)(ExplorerSearchContent);
+export default ExplorerSearchContent;

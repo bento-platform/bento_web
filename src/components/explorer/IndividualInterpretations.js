@@ -10,6 +10,7 @@ import OntologyTerm from "./OntologyTerm";
 import { Route, Switch, useHistory, useParams, useRouteMatch } from "react-router-dom/cjs/react-router-dom.min";
 import { GeneDescriptor } from "./IndividualGenes";
 import VariantDescriptor from "./IndividualVariants";
+import BiosampleIDCell from "./searchResultsTables/BiosampleIDCell";
 
 
 export const VariantInterpretation = ({ variationInterpretation }) => {
@@ -49,8 +50,9 @@ VariantInterpretation.propTypes = {
 };
 
 export const GenomicInterpretationDetails = ({ genomicInterpretation }) => {
-    const relatedType = genomicInterpretation?.extra_properties?.related_type ?? "unknown";
+    const relatedType = genomicInterpretation?.extra_properties?.__related_type ?? "unknown";
     const relatedLabel = relatedType[0].toUpperCase() + relatedType.slice(1).toLowerCase();
+    const isBiosampleRelated = relatedType === "biosample";
 
     const variantInterpretation = genomicInterpretation?.variant_interpretation;
     const geneDescriptor = genomicInterpretation?.gene_descriptor;
@@ -58,7 +60,10 @@ export const GenomicInterpretationDetails = ({ genomicInterpretation }) => {
     return (
         <Descriptions layout="horizontal" bordered={true} column={1} size="small">
             <Descriptions.Item label={`${relatedLabel} ID`}>
-                {genomicInterpretation.subject_or_biosample_id}
+                { isBiosampleRelated
+                    ? <BiosampleIDCell biosample={genomicInterpretation.subject_or_biosample_id}/>
+                    : genomicInterpretation.subject_or_biosample_id
+                }
             </Descriptions.Item>
             {variantInterpretation && <Descriptions.Item label={"Variant Interpretation"}>
                 <VariantInterpretation variationInterpretation={variantInterpretation} />

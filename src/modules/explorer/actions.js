@@ -1,3 +1,4 @@
+import { IGV_JS_GENOMES_JSON_URL } from "../../constants";
 import { createNetworkActionTypes, networkAction } from "../../utils/actions";
 import { jsonRequest } from "../../utils/requests";
 import { extractQueriesFromDataTypeForms } from "../../utils/search";
@@ -19,9 +20,8 @@ export const SET_OTHER_THRESHOLD_PERCENTAGE = "EXPLORER.SET_OTHER_THRESHOLD_PERC
 export const SET_TABLE_SORT_ORDER = "EXPLORER.SET_TABLE_SORT_ORDER";
 export const RESET_TABLE_SORT_ORDER = "EXPLORER.RESET_TABLE_SORT_ORDER";
 export const SET_ACTIVE_TAB = "EXPLORER.SET_ACTIVE_TAB";
+export const FETCH_IGV_GENOMES = createNetworkActionTypes("EXPLORER.FETCH_IGV_GENOMES");
 export const SET_IGV_POSITION = "EXPLORER.SET_IGV_POSITION";
-export const SET_INDIVIDUAL_ID = "EXPLORER.SET_INDIVIDUAL_ID";
-export const SET_INDIVIDUAL_RESOURCES_TUPLE = "EXPLORER.SET_RESOURCES_TUPLE";
 
 const performSearch = networkAction((datasetID, dataTypeQueries, excludeFromAutoJoin = []) => (dispatch, getState) => ({
     types: PERFORM_SEARCH,
@@ -177,7 +177,7 @@ export const neutralizeAutoQueryPageTransition = () => ({
 // search unpaginated for now, since that's how standard queries are currently handled
 const performFreeTextSearch = networkAction(
     (datasetID, term) => (dispatch, getState) => (
-        console.log("performFreeTextSearch", datasetID, term),
+        console.log("performFreeTextSearch", datasetID, term) ||
         {
             types: FREE_TEXT_SEARCH,
             params: { datasetID },
@@ -203,15 +203,18 @@ export const setIgvPosition = (igvPosition) => ({
     igvPosition,
 });
 
-export const setIndividualId = (id) => ({
-    type: SET_INDIVIDUAL_ID,
-    id,
-});
+const fetchIgvGenomes = networkAction(() => ({
+    types: FETCH_IGV_GENOMES,
+    url: IGV_JS_GENOMES_JSON_URL,
+    err: "Error fetching igv.js genomes",
+}));
 
-export const setIndividualResourcesTuple = (tuples) => ({
-    type: SET_INDIVIDUAL_RESOURCES_TUPLE,
-    resourcesTuple: tuples,
-});
+export const fetchIgvGenomesIfNeeded = () => (dispatch, getState) => {
+    if (getState().igvGenomes.hasAttempted || getState().igvGenomes.isFetching) {
+        return;
+    }
+    return dispatch(fetchIgvGenomes());
+};
 
 export const performGetGohanVariantsOverviewIfPossible = () => (dispatch, getState) => {
     const gohanUrl = getState()?.services?.itemsByKind?.gohan?.url;

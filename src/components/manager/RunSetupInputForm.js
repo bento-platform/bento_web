@@ -1,5 +1,8 @@
-import React, { forwardRef, useCallback, useEffect, useState } from "react";
+import React, { forwardRef, useCallback, useEffect, useMemo, useState } from "react";
+import { useSelector } from "react-redux";
 import PropTypes from "prop-types";
+
+import Handlebars from "handlebars";
 
 import { Button, Checkbox, Form, Icon, Input, Select, Spin } from "antd";
 
@@ -9,13 +12,13 @@ import {
     FORM_BUTTON_COL,
 } from "./workflowCommon";
 
-import {BENTO_DROP_BOX_FS_BASE_PATH} from "../../config";
-import {workflowPropTypesShape} from "../../propTypes";
-import {nop} from "../../utils/misc";
+import { BENTO_DROP_BOX_FS_BASE_PATH } from "../../config";
+import { workflowPropTypesShape } from "../../propTypes";
+import { testFileAgainstPattern } from "../../utils/files";
+import { nop } from "../../utils/misc";
 
 import DatasetTreeSelect, { ID_FORMAT_PROJECT_DATASET } from "./DatasetTreeSelect";
 import DropBoxTreeSelect from "./DropBoxTreeSelect";
-import { testFileAgainstPattern } from "../../utils/files";
 
 
 const EnumSelect = forwardRef(({ mode, onChange, values: valuesConfig, value }, ref) => {
@@ -24,10 +27,18 @@ const EnumSelect = forwardRef(({ mode, onChange, values: valuesConfig, value }, 
     const [values, setValues] = useState(isUrl ? [] : valuesConfig);
     const [fetching, setFetching] = useState(false);
 
+    const bentoServicesByKind = useSelector((state) => state.bentoServices.itemsByKind);
+    const serviceUrls = useMemo(
+        () => Object.fromEntries(Object.entries(bentoServicesByKind).map(([k, v]) => [k, v.url])),
+        [bentoServicesByKind]);
+
     useEffect(() => {
         if (isUrl) {
             setFetching(true);
-            fetch(valuesConfig)
+
+            const url = Handlebars.compile(valuesConfig)({ serviceUrls });
+            console.debug(`enum - using values URL: ${url}`);
+            fetch(url)
                 .then(r => r.json())
                 .then(data => {
                     if (Array.isArray(data)) {
@@ -59,7 +70,7 @@ EnumSelect.propTypes = {
     mode: PropTypes.oneOf(["default", "multiple", "tags", "combobox"]),
     onChange: PropTypes.func,
     values: PropTypes.oneOfType([PropTypes.string, PropTypes.arrayOf(PropTypes.string)]),
-    value: PropTypes.arrayOf(PropTypes.string),
+    value: PropTypes.oneOfType([PropTypes.string, PropTypes.arrayOf(PropTypes.string)]),
 };
 
 
@@ -153,11 +164,20 @@ const RunSetupInputForm = ({initialValues, form, onSubmit, workflow, onBack}) =>
                 const [component, options] = getInputComponentAndOptions(i);
 
                 return (
-                    <Form.Item label={i.id} key={i.id}>
+                    <Form.Item
+                        label={i.id}
+                        key={i.id}
+                        extra={i.help ? <span dangerouslySetInnerHTML={{ __html: i.help }} /> : undefined}
+                    >
                         {form.getFieldDecorator(i.id, {
                             initialValue: initialValues[i.id],  // undefined if not set
                             // Default to requiring the field unless the "required" property is set on the input
-                            rules: [{ required: i.required === undefined ? true : i.required }],
+                            // or the input is a boolean (i.e., checkbox), since booleans will always be present.
+                            // This does mean nullable booleans aren't supported, but that's fine since an enum is a
+                            // better choice in that case anyway.
+                            rules: i.type === "boolean"
+                                ? []
+                                : [{ required: i.required === undefined ? true : i.required }],
                             ...options,
                         })(component)}
                     </Form.Item>
@@ -165,7 +185,7 @@ const RunSetupInputForm = ({initialValues, form, onSubmit, workflow, onBack}) =>
             }),
 
             <Form.Item key="_submit" wrapperCol={FORM_BUTTON_COL}>
-                <> {/* Funny hack to make the type warning for multipe children in a Form.Item go away */}
+                <> {/* Funny hack to make the type warning for multiple children in a Form.Item go away */}
                     {onBack ? <Button icon="left" onClick={handleBack}>Back</Button> : null}
                     <Button type="primary" htmlType="submit" style={{float: "right"}}>
                         Next <Icon type="right" />
@@ -179,7 +199,7 @@ const RunSetupInputForm = ({initialValues, form, onSubmit, workflow, onBack}) =>
 RunSetupInputForm.propTypes = {
     tree: PropTypes.array,
     workflow: workflowPropTypesShape,
-    initialValues: PropTypes.object,
+    initialValues: PropTypes.object.isRequired,  // can be blank object but not undefined
 
     onBack: PropTypes.func,
     onSubmit: PropTypes.func,

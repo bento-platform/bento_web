@@ -1,16 +1,16 @@
-import React, { useCallback, useEffect, useMemo, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import PropTypes from "prop-types";
 import { Alert, Skeleton, Spin } from "antd";
+import { useAuthorizationHeader } from "bento-auth-js";
 
 import fetch from "cross-fetch";
-
-import { Document, Page } from "react-pdf/dist/esm/entry.webpack5";
 
 import { Light as SyntaxHighlighter } from "react-syntax-highlighter";
 import { a11yLight } from "react-syntax-highlighter/dist/cjs/styles/hljs";
 import {
     bash,
     dockerfile,
+    javascript,
     json,
     markdown,
     plaintext,
@@ -23,8 +23,6 @@ import {
 import "react-pdf/dist/esm/Page/AnnotationLayer.css";
 import "react-pdf/dist/esm/Page/TextLayer.css";
 
-import { useAuthorizationHeader } from "../../lib/auth/utils";
-
 import AudioDisplay from "./AudioDisplay";
 import CsvDisplay from "./CsvDisplay";
 import ImageBlobDisplay from "./ImageBlobDisplay";
@@ -33,9 +31,11 @@ import VideoDisplay from "./VideoDisplay";
 import XlsxDisplay from "./XlsxDisplay";
 import MarkdownDisplay from "./MarkdownDisplay";
 import DocxDisplay from "./DocxDisplay";
+import PdfDisplay from "./PdfDisplay";
 
 SyntaxHighlighter.registerLanguage("bash", bash);
 SyntaxHighlighter.registerLanguage("dockerfile", dockerfile);
+SyntaxHighlighter.registerLanguage("javascript", javascript);
 SyntaxHighlighter.registerLanguage("json", json);
 SyntaxHighlighter.registerLanguage("markdown", markdown);
 SyntaxHighlighter.registerLanguage("plaintext", plaintext);
@@ -44,16 +44,12 @@ SyntaxHighlighter.registerLanguage("r", r);
 SyntaxHighlighter.registerLanguage("shell", shell);
 SyntaxHighlighter.registerLanguage("xml", xml);
 
-const BASE_PDF_OPTIONS = {
-    cMapUrl: "cmaps/",
-    cMapPacked: true,
-    standardFontDataUrl: "standard_fonts/",
-};
-
 const LANGUAGE_HIGHLIGHTERS = {
     "bash": "bash",
+    "js": "javascript",
     "json": "json",
     "md": "markdown",
+    "mjs": "javascript",
     "txt": "plaintext",
     "py": "python",
     "R": "r",
@@ -131,12 +127,6 @@ const FileDisplay = ({ uri, fileName, loading }) => {
     const [fileLoadError, setFileLoadError] = useState("");
     const [loadingFileContents, setLoadingFileContents] = useState(false);
     const [fileContents, setFileContents] = useState({});
-    const [pdfPageCounts, setPdfPageCounts] = useState({});
-
-    const pdfOptions = useMemo(() => ({
-        ...BASE_PDF_OPTIONS,
-        httpHeaders: authHeader,
-    }), [authHeader]);
 
     const fileExt = fileName ? fileName.split(".").slice(-1)[0].toLowerCase() : null;
 
@@ -188,13 +178,11 @@ const FileDisplay = ({ uri, fileName, loading }) => {
         })();
     }, [uri]);
 
-    const onPdfLoad = useCallback(({numPages}) => {
+    const onPdfLoad = useCallback(() => {
         setLoadingFileContents(false);
-        setPdfPageCounts({...pdfPageCounts, [uri]: numPages});
-    }, [uri]);
+    }, []);
 
-    const onPdfFail = useCallback(err => {
-        console.error(err);
+    const onPdfFail = useCallback((err) => {
         setLoadingFileContents(false);
         setFileLoadError(`Error loading PDF: ${err.message}`);
     }, []);
@@ -218,17 +206,7 @@ const FileDisplay = ({ uri, fileName, loading }) => {
             const fc = fileContents[uri];  // undefined for PDF or if not loaded yet
 
             if (fileExt === "pdf") {  // Non-text, content isn't loaded a priori
-                return (
-                    <Document file={uri} onLoadSuccess={onPdfLoad} onLoadError={onPdfFail} options={pdfOptions}>
-                        {(() => {
-                            const pages = [];
-                            for (let i = 1; i <= pdfPageCounts[uri] ?? 1; i++) {
-                                pages.push(<Page pageNumber={i} key={i} />);
-                            }
-                            return pages;
-                        })()}
-                    </Document>
-                );
+                return <PdfDisplay uri={uri} onLoad={onPdfLoad} onFail={onPdfFail} />;
             } else if (fileExt === "docx") {
                 return <DocxDisplay contents={fc} loading={loadingFileContents} />;
             } else if (CSV_LIKE_FILE_EXTENSIONS.includes(fileExt)) {

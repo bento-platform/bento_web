@@ -30,7 +30,7 @@ const ManagerProjectDatasetContent = () => {
     const dispatch = useDispatch();
 
     const {items} = useSelector(state => state.projects);
-    const {isFetchingDependentData} = useSelector(state => state.auth);
+    const {isFetchingDependentData} = useSelector(state => state.user);
     const {metadataService, isFetchingAll: isFetchingAllServices} = useSelector(state => state.services);
 
     const projectMenuItems = useMemo(() => items.map(project => ({
