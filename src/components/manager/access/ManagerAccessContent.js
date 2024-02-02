@@ -161,9 +161,16 @@ const ManagerAccessContent = () => {
                     />
                 </Tabs.TabPane>
                 <Tabs.TabPane tab="Groups" key="groups">
-                    <Typography.Paragraph>
-                        Expand a table row to see group membership entries.
-                    </Typography.Paragraph>
+                    <ActionContainer style={{ marginBottom: 8 }}>
+                        {hasEditPermission && (
+                            <Button icon="plus" loading={isFetchingPermissions || isFetchingGroups}>
+                                Create Group
+                            </Button>
+                        )}
+                        <Typography.Paragraph>
+                            Expand a table row to see group membership entries.
+                        </Typography.Paragraph>
+                    </ActionContainer>
                     <Table
                         size="middle"
                         bordered={true}
