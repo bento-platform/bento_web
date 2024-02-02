@@ -39,8 +39,11 @@ const DatasetForm = ({ style, initialValue, form }) => {
                 })(<Input.TextArea placeholder={"Name\nInfo@c3g.ca"} />)}
             </Item>
             <Item label="DATS File">
+                {/* TODO: add dats from drop-box. Prettier JSON free form input?*/}
                 {form.getFieldDecorator("dats_file", {
-                    initialValue: initialValue?.dats_file || "",
+                    initialValue: initialValue?.dats_file
+                        ? JSON.stringify(initialValue.dats_file, null, 2)
+                        : "",
                     rules: [{ required: true }, { validator: validateJson }, { min: 2 }],
                 })(<Input.TextArea />)}
             </Item>
@@ -75,7 +78,7 @@ DatasetForm.propTypes = {
         description: PropTypes.string,
         contact_info: PropTypes.string,
         data_use: DATA_USE_PROP_TYPE_SHAPE, // TODO: Shared shape for data use
-        dats_file: PropTypes.string,
+        dats_file: PropTypes.object,
     }),
 };
 
