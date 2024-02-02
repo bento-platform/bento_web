@@ -1,4 +1,4 @@
-import { FETCH_GRANTS, FETCH_GROUPS } from "../auth/actions";
+import { FETCH_GRANTS, FETCH_GROUPS } from "./actions";
 
 export const grants = (
     state = {
