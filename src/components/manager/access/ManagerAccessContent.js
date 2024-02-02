@@ -1,12 +1,16 @@
 import React, { useCallback, useEffect, useMemo, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { useResourcePermissions, viewPermissions, RESOURCE_EVERYTHING } from "bento-auth-js";
+import { viewPermissions, RESOURCE_EVERYTHING, editPermissions } from "bento-auth-js";
 import PropTypes from "prop-types";
 
 import { Button, Layout, Popover, Table, Tabs, Typography } from "antd";
 
 import { fetchGrantsIfNeeded, fetchGroupsIfNeeded } from "../../../modules/authz/actions";
 import {LAYOUT_CONTENT_STYLE} from "../../../styles/layoutContent";
+import { useResourcePermissionsWrapper } from "../../../hooks";
+import ForbiddenContent from "../ForbiddenContent";
+import ActionContainer from "../ActionContainer";
+import Subject from "./Subject";
 
 const stringifyJSONRenderIfMultiKey = (x) =>
     JSON.stringify(
@@ -112,8 +116,12 @@ const ManagerAccessContent = () => {
 
     const {
         permissions,
-        isFetching: fetchingPermissions,
-    } = useResourcePermissions(RESOURCE_EVERYTHING, authorizationService?.url);
+        isFetchingPermissions,
+        hasAttemptedPermissions,
+    } = useResourcePermissionsWrapper(RESOURCE_EVERYTHING);
+
+    const hasViewPermission = permissions.includes(viewPermissions);
+    const hasEditPermission = permissions.includes(editPermissions);
 
     useEffect(() => {
         if (authorizationService && permissions.includes(viewPermissions)) {
@@ -130,30 +138,9 @@ const ManagerAccessContent = () => {
         {
             title: "Subject",
             dataIndex: "subject",
-            render: (subject) => {
-                const { sub, client, iss, group, everyone } = subject;
-
-                if (sub || client) {
-                    return (
-                        <p style={{ margin: 0, lineHeight: "1.6em" }}>
-                            <strong>{sub ? "Subject" : "Client"}:</strong>{" "}
-                            <Typography.Text code={true}>{sub ?? client}</Typography.Text><br />
-                            <strong>Issuer:</strong>{" "}
-                            <Typography.Text code={true}>{iss}</Typography.Text><br />
-                        </p>
-                    );
-                } else if (group) {
-                    const groupDef = groupsByID[group];
-                    // TODO: link
-                    if (!groupDef) return <a>Group {group}</a>;
-                    return <a>Group {group}: {groupDef.name}</a>;
-                } else if (everyone) {
-                    return <Popover content="Everyone, even anonymous users.">Everyone</Popover>;
-                }
-
-                // Base case
-                return <pre>{stringifyJSONRenderIfMultiKey(subject)}</pre>;
-            },
+            render: (subject) => (
+                <Subject subject={subject} groupsByID={groupsByID} />
+            ),
         },
         {
             title: "Resource",
@@ -179,27 +166,44 @@ const ManagerAccessContent = () => {
             dataIndex: "permissions",
             render: (permissions) => <PermissionList permissions={permissions} />,
         },
-        {
-            title: "Actions",
-            key: "actions",
-            // TODO: hook up delete
-            render: () => (
-                <Button size="small" type="danger" icon="delete" disabled={true}>Delete</Button>
-            ),
-        },
-    ], [groupsByID]);
+        ...(hasEditPermission ? [
+            {
+                title: "Actions",
+                key: "actions",
+                // TODO: hook up edit + delete
+                render: () => (
+                    <>
+                        <Button size="small" icon="edit" disabled={true}>Edit</Button>{" "}
+                        <Button size="small" type="danger" icon="delete" disabled={true}>Delete</Button>
+                    </>
+                ),
+            },
+        ] : []),
+    ], [groupsByID, hasEditPermission]);
+
+    if (hasAttemptedPermissions && !hasViewPermission) {
+        return (
+            <ForbiddenContent message="You do not have permission to view grants and groups." />
+        );
+    }
 
     return <Layout>
         <Layout.Content style={LAYOUT_CONTENT_STYLE}>
-            <Typography.Title level={2}>Access Management</Typography.Title>
-            <Tabs>
+            <Tabs type="card">
                 <Tabs.TabPane tab="Grants" key="grants">
+                    {hasEditPermission && (
+                        <ActionContainer style={{ marginBottom: 8 }}>
+                            <Button icon="plus" loading={isFetchingPermissions || isFetchingGrants}>
+                                Create Grant
+                            </Button>
+                        </ActionContainer>
+                    )}
                     <Table
                         size="middle"
                         bordered={true}
                         columns={grantsColumns}
                         dataSource={grants}
-                        loading={fetchingPermissions || isFetchingGrants}
+                        loading={isFetchingPermissions || isFetchingGrants}
                     />
                 </Tabs.TabPane>
                 <Tabs.TabPane tab="Groups" key="groups">
@@ -211,7 +215,7 @@ const ManagerAccessContent = () => {
                         bordered={true}
                         columns={GROUPS_COLUMNS}
                         dataSource={groups}
-                        loading={fetchingPermissions || isFetchingGroups}
+                        loading={isFetchingPermissions || isFetchingGroups}
                     />
                 </Tabs.TabPane>
             </Tabs>

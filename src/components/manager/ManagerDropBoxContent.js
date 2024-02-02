@@ -51,19 +51,10 @@ import { useFetchDropBoxContentsIfAllowed } from "./hooks";
 
 import { VIEWABLE_FILE_EXTENSIONS } from "../display/FileDisplay";
 import { useResourcePermissionsWrapper, useWorkflows } from "../../hooks";
+import ActionContainer from "./ActionContainer";
+import ForbiddenContent from "./ForbiddenContent";
 
 const DROP_BOX_CONTENT_CONTAINER_STYLE = { display: "flex", flexDirection: "column", gap: 8 };
-const DROP_BOX_ACTION_CONTAINER_STYLE = {
-    display: "flex",
-    gap: "12px",
-    alignItems: "baseline",
-    position: "sticky",
-    paddingBottom: 4,
-    backgroundColor: "white",
-    boxShadow: "0 10px 10px white, 0 -10px 0 white",
-    top: 8,
-    zIndex: 10,
-};
 const DROP_BOX_INFO_CONTAINER_STYLE = { display: "flex", gap: "2em", paddingTop: 8 };
 
 const TREE_CONTAINER_STYLE = { minHeight: 72, overflowY: "auto" };
@@ -485,11 +476,9 @@ const ManagerDropBoxContent = () => {
     const deleteDisabled = !dropBoxService || selectedFolder || selectedEntries.length !== 1 || !hasDeletePermission;
 
     if (hasAttemptedPermissions && !hasViewPermission) {
-        return <Layout>
-            <Layout.Content style={LAYOUT_CONTENT_STYLE}>
-                <Result status="error" title="Forbidden" subTitle="You do not have permission to view the drop box." />
-            </Layout.Content>
-        </Layout>;
+        return (
+            <ForbiddenContent message="You do not have permission to view the drop box." />
+        );
     }
 
     return <Layout>
@@ -542,7 +531,7 @@ const ManagerDropBoxContent = () => {
             {/* ------------------------------ End of modals section ------------------------------ */}
 
             <div style={DROP_BOX_CONTENT_CONTAINER_STYLE}>
-                <div style={DROP_BOX_ACTION_CONTAINER_STYLE}>
+                <ActionContainer>
                     <Button icon="upload" onClick={handleUpload} disabled={uploadDisabled}>Upload</Button>
                     <Dropdown.Button overlay={workflowMenu} disabled={ingestIntoDatasetDisabled} onClick={handleIngest}>
                         <Icon type="import" /> Ingest
@@ -572,7 +561,7 @@ const ManagerDropBoxContent = () => {
                     <Typography.Text type="secondary">
                         {selectedEntries.length} item{selectedEntries.length === 1 ? "" : "s"} selected
                     </Typography.Text>
-                </div>
+                </ActionContainer>
 
                 <Spin spinning={isFetchingPermissions || treeLoading}>
                     {(isFetchingPermissions || treeLoading || dropBoxService) ? (
