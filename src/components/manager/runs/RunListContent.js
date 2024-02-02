@@ -44,32 +44,11 @@ const RunListContent = () => {
     }, [dispatch]);
 
     // TODO: Loading for individual rows
-<<<<<<< HEAD
-    render() {
-        return (
-            <div style={{display: "flex", flexDirection: "column", gap: 24}}>
-                <div>
-                    <Typography.Title level={2}>Latest Ingested Files</Typography.Title>
-                    <LastIngestionTable />
-                </div>
-                <div>
-                    <Typography.Title level={2}>Workflow Runs</Typography.Title>
-                    <Table
-                        size="middle"
-                        bordered={true}
-                        columns={RUN_TABLE_COLUMNS}
-                        dataSource={this.props.runs}
-                        loading={this.props.servicesFetching || this.props.runsFetching}
-                        rowKey="run_id"
-                    />
-                </div>
-=======
     return (
         <div style={{display: "flex", flexDirection: "column", gap: 24}}>
             <div>
                 <Typography.Title level={2}>Latest Ingested Files</Typography.Title>
                 <LastIngestionTable />
->>>>>>> origin/master
             </div>
             <div>
                 <Typography.Title level={2}>Workflow Runs</Typography.Title>
