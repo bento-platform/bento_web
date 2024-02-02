@@ -1,7 +1,6 @@
-import React, { useCallback, useEffect, useMemo, useState } from "react";
+import React, { useEffect, useMemo } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { viewPermissions, RESOURCE_EVERYTHING, editPermissions } from "bento-auth-js";
-import PropTypes from "prop-types";
 
 import { Button, Layout, Popover, Table, Tabs, Typography } from "antd";
 
@@ -10,6 +9,7 @@ import {LAYOUT_CONTENT_STYLE} from "../../../styles/layoutContent";
 import { useResourcePermissionsWrapper } from "../../../hooks";
 import ForbiddenContent from "../ForbiddenContent";
 import ActionContainer from "../ActionContainer";
+import PermissionsList from "./PermissionsList";
 import Subject from "./Subject";
 
 const stringifyJSONRenderIfMultiKey = (x) =>
@@ -18,47 +18,6 @@ const stringifyJSONRenderIfMultiKey = (x) =>
         null,
         (typeof x === "object" && Object.keys(x).length > 1) ? 2 : null,
     );
-
-const PERMISSIONS_LIST_STYLE = { margin: 0, padding: 0, listStyle: "none", lineHeight: "1.6em" };
-
-/**
- * @param {string[]} permissions
- * @return {React.JSX.Element}
- * @constructor
- */
-const PermissionList = ({ permissions }) => {
-    const [showAll, setShowAll] = useState(false);
-
-    const onShowAll = useCallback((e) => {
-        setShowAll(true);
-        e.preventDefault();
-    }, []);
-
-    const onCollapse = useCallback((e) => {
-        setShowAll(false);
-        e.preventDefault();
-    }, []);
-
-    return (
-        <ul style={PERMISSIONS_LIST_STYLE}>
-            {permissions.slice(0, showAll ? permissions.length : 4).map((p) => (
-                <li key={p}>
-                    <Typography.Text code={true}>{p}</Typography.Text>
-                </li>
-            ))}
-            {permissions.length > 4 ? (
-                showAll ? (
-                    <li><a href="#" onClick={onCollapse}>- Collapse</a></li>
-                ) : (
-                    <li><a href="#" onClick={onShowAll}>+ {permissions.length - 4} more</a></li>
-                )
-            ) : null}
-        </ul>
-    );
-};
-PermissionList.propTypes = {
-    permissions: PropTypes.arrayOf(PropTypes.string).isRequired,
-};
 
 const GROUPS_COLUMNS = [
     {
@@ -164,7 +123,7 @@ const ManagerAccessContent = () => {
         {
             title: "Permissions",
             dataIndex: "permissions",
-            render: (permissions) => <PermissionList permissions={permissions} />,
+            render: (permissions) => <PermissionsList permissions={permissions} />,
         },
         ...(hasEditPermission ? [
             {
