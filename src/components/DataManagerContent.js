@@ -12,7 +12,7 @@ import SitePageHeader from "./SitePageHeader";
 import { useSelector } from "react-redux";
 
 const ManagerProjectDatasetContent = lazy(() => import("./manager/projects/ManagerProjectDatasetContent"));
-const ManagerAccessContent = lazy(() => import("./manager/ManagerAccessContent"));
+const ManagerAccessContent = lazy(() => import("./manager/access/ManagerAccessContent"));
 const ManagerDropBoxContent = lazy(() => import("./manager/ManagerDropBoxContent"));
 const ManagerIngestionContent = lazy(() => import("./manager/ManagerIngestionContent"));
 const ManagerAnalysisContent = lazy(() => import("./manager/ManagerAnalysisContent"));
@@ -59,7 +59,7 @@ const DataManagerContent = () => {
             url: "/admin/data/manager/access",
             text: "Access Management",
             // TODO: check if we have any viewPermissions in any grant, not just on RESOURCE_EVERYTHING
-            disabled: canViewPermissions,
+            disabled: !canViewPermissions,
         },
         {url: "/admin/data/manager/genomes", text: "Reference Genomes"},
     ], [canViewDropBox, canViewPermissions]);

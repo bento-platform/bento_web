@@ -5,8 +5,8 @@ import PropTypes from "prop-types";
 
 import { Button, Layout, Popover, Table, Tabs, Typography } from "antd";
 
-import { fetchGrantsIfNeeded, fetchGroupsIfNeeded } from "../../modules/authz/actions";
-import {LAYOUT_CONTENT_STYLE} from "../../styles/layoutContent";
+import { fetchGrantsIfNeeded, fetchGroupsIfNeeded } from "../../../modules/authz/actions";
+import {LAYOUT_CONTENT_STYLE} from "../../../styles/layoutContent";
 
 const stringifyJSONRenderIfMultiKey = (x) =>
     JSON.stringify(
