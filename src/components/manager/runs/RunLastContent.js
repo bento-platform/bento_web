@@ -182,7 +182,6 @@ const LastIngestionTable = () => {
     return <Table
         size="middle"
         bordered={true}
-        size="middle"
         columns={COLUMNS_LAST_CONTENT}
         loading={servicesFetching || runsFetching}
         dataSource={ingestions}
