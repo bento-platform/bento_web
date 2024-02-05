@@ -1,7 +1,6 @@
 import React, { memo } from "react";
 
 import { Col, List, Row, Tag, Typography, Popover } from "antd";
-import { Icon } from "@ant-design/compatible";
 
 import {
     DUO_NOT_FOR_PROFIT_USE_ONLY,

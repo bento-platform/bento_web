@@ -27,6 +27,7 @@ const generateFileTree = (directory, valid, folderMode, basePrefix) =>
             return (
                 <TreeSelect.TreeNode
                     title={name}
+                    key={k}
                     value={k}
                     disabled={!isValid}
                     isLeaf={renderAsLeaf}

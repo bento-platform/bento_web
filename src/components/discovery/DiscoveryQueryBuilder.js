@@ -3,7 +3,7 @@ import {connect} from "react-redux";
 import PropTypes from "prop-types";
 
 import {Button, Card, Dropdown, Empty, Menu, Tabs, Typography} from "antd";
-import { Icon } from "@ant-design/compatible";
+import { DownOutlined, PlusOutlined, QuestionCircleOutlined, SearchOutlined } from "@ant-design/icons";
 
 import DataTypeExplorationModal from "./DataTypeExplorationModal";
 import DiscoverySearchForm from "./DiscoverySearchForm";
@@ -13,7 +13,6 @@ import {OP_EQUALS} from "../../utils/search";
 import {getFieldSchema} from "../../utils/schema";
 
 import { neutralizeAutoQueryPageTransition, setIsSubmittingSearch } from "../../modules/explorer/actions";
-import { DownOutlined, PlusOutlined, QuestionCircleOutlined, SearchOutlined } from "@ant-design/icons";
 
 class DiscoveryQueryBuilder extends Component {
     constructor(props) {

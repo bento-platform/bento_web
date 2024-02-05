@@ -1,6 +1,6 @@
 import React, { useMemo } from "react";
 import { useSelector } from "react-redux";
-import { Col, Row, Typography } from "antd";
+import { Row, Typography } from "antd";
 import { getPieChart } from "../../utils/overview";
 import StatisticCollection from "./StatisticCollection";
 import ChartCollection from "./ChartCollection";

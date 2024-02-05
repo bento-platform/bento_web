@@ -5,7 +5,7 @@ import { Provider } from "react-redux";
 import { BrowserRouter } from "react-router-dom";
 
 import "antd/es/message/style/css";
-import '@ant-design/compatible/assets/index.css';
+import "@ant-design/compatible/assets/index.css";
 
 import App from "./components/App";
 import { store } from "./store";
