@@ -1,7 +1,8 @@
 import React, {Component} from "react";
 import PropTypes from "prop-types";
 
-import {Input, Form} from "antd";
+import {Input} from "antd";
+import { Form } from "@ant-design/compatible";
 
 class ProjectForm extends Component {
     // TODO: Unique name check

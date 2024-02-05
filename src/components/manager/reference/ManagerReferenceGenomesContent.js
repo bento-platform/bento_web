@@ -1,7 +1,8 @@
 import React, { useCallback, useMemo } from "react";
 import { useDispatch } from "react-redux";
 
-import { Button, Dropdown, Icon, Layout, Menu, Modal, Table } from "antd";
+import { Button, Dropdown, Layout, Menu, Modal, Table } from "antd";
+import { DeleteOutlined, ImportOutlined } from "@ant-design/icons";
 
 import { useReferenceGenomes } from "../../../modules/reference/hooks";
 import { LAYOUT_CONTENT_STYLE } from "../../../styles/layoutContent";
@@ -80,7 +81,7 @@ const ManagerReferenceGenomesContent = () => {
             render: (genome) => (
                 <Button
                     type="danger"
-                    icon="delete"
+                    icon={<DeleteOutlined />}
                     loading={isDeletingIDs[genome.id]}
                     disabled={isFetchingGenomes || isDeletingIDs[genome.id]}
                     onClick={() => {
@@ -106,7 +107,7 @@ const ManagerReferenceGenomesContent = () => {
                     disabled={!defaultIngestionWorkflow}
                     style={{ marginBottom: "1rem" }}
                 >
-                    <Icon type="import" />{" "}
+                    <ImportOutlined />{" "}
                     {defaultIngestionWorkflow?.name
                         ?? (workflowsLoading ? "Loading..." : "No ingestion workflows available")}
                 </Dropdown.Button>

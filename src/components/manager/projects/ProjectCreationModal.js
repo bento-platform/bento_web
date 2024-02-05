@@ -8,6 +8,7 @@ import ProjectForm from "./ProjectForm";
 
 import { toggleProjectCreationModal } from "../../../modules/manager/actions";
 import { createProjectIfPossible } from "../../../modules/metadata/actions";
+import { PlusOutlined } from "@ant-design/icons";
 
 const ProjectCreationModal = () => {
 
@@ -40,10 +41,10 @@ const ProjectCreationModal = () => {
         });
     }, [dispatch]);
 
-    return <Modal visible={showCreationModal} title="Create Project" width={600} footer={[
+    return <Modal open={showCreationModal} title="Create Project" width={600} footer={[
         <Button key="cancel" onClick={handleCreateCancel}>Cancel</Button>,
         <Button key="create"
-                icon="plus"
+                icon={<PlusOutlined />}
                 type="primary"
                 onClick={handleCreateSubmit}
                 loading={isCreatingProject}>Create</Button>,

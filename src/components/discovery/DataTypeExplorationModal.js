@@ -1,7 +1,8 @@
 import React, {Component} from "react";
 import PropTypes from "prop-types";
 
-import {Divider, Icon, Input, Modal, Radio, Table, Tabs, Typography} from "antd";
+import {Divider, Input, Modal, Radio, Table, Tabs, Typography} from "antd";
+import { Icon } from "@ant-design/compatible";
 
 import SchemaTree from "../schema_trees/SchemaTree";
 import {generateSchemaTreeData, generateSchemaTableData} from "../../utils/schema";
@@ -49,7 +50,7 @@ class DataTypeExplorationModal extends Component {
         const filteredDataTypes = this.props.dataTypes || [];
 
         return <Modal title="Help"
-                      visible={this.props.visible}
+                      open={this.props.open}
                       width={1280}
                       onCancel={this.props.onCancel || nop}
                       footer={null}>
@@ -107,7 +108,7 @@ class DataTypeExplorationModal extends Component {
 
 DataTypeExplorationModal.propTypes = {
     dataTypes: PropTypes.array,  // TODO: Shape
-    visible: PropTypes.bool,
+    open: PropTypes.bool,
     onCancel: PropTypes.func,
 };
 

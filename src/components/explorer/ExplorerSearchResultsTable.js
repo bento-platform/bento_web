@@ -14,6 +14,7 @@ import {
     performExperimentsDownloadCSVIfPossible,
     setTableSortOrder,
 } from "../../modules/explorer/actions";
+import { BarChartOutlined, ExportOutlined } from "@ant-design/icons";
 
 const PAGE_SIZE = 25;
 
@@ -115,14 +116,14 @@ const ExplorerSearchResultsTable = ({
                             Visualize Tracks</Button> */}
 
                     <Button
-                        icon="bar-chart"
+                        icon={<BarChartOutlined />}
                         style={{ marginRight: "8px" }}
                         onClick={() => setSummaryModalVisible(true)}
                     >
                         View Summary
                     </Button>
                     <Button
-                        icon="export"
+                        icon={<ExportOutlined />}
                         style={{ marginRight: "8px" }}
                         loading={isFetchingDownload}
                         onClick={() => handlePerformDownloadCSVIfPossible(selectedRows, data)}
@@ -134,14 +135,14 @@ const ExplorerSearchResultsTable = ({
             {summaryModalVisible && (
                 <SearchSummaryModal
                     searchResults={searchResults}
-                    visible={summaryModalVisible}
+                    open={summaryModalVisible}
                     onCancel={() => setSummaryModalVisible(false)}
                 />
             )}
             {tracksModalVisible && (
                 <SearchTracksModal
                     searchResults={searchResults}
-                    visible={tracksModalVisible}
+                    open={tracksModalVisible}
                     onCancel={() => setTracksModalVisible(false)}
                 />
             )}

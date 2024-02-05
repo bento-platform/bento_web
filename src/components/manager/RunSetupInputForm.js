@@ -4,7 +4,8 @@ import PropTypes from "prop-types";
 
 import Handlebars from "handlebars";
 
-import { Button, Checkbox, Form, Icon, Input, Select, Spin } from "antd";
+import { Button, Checkbox, Input, Select, Spin } from "antd";
+import { Form } from "@ant-design/compatible";
 
 import {
     FORM_LABEL_COL,
@@ -19,6 +20,7 @@ import { nop } from "../../utils/misc";
 
 import DatasetTreeSelect, { ID_FORMAT_PROJECT_DATASET } from "./DatasetTreeSelect";
 import DropBoxTreeSelect from "./DropBoxTreeSelect";
+import { LeftOutlined, RightOutlined } from "@ant-design/icons";
 
 
 const EnumSelect = forwardRef(({ mode, onChange, values: valuesConfig, value }, ref) => {
@@ -186,9 +188,9 @@ const RunSetupInputForm = ({initialValues, form, onSubmit, workflow, onBack}) =>
 
             <Form.Item key="_submit" wrapperCol={FORM_BUTTON_COL}>
                 <> {/* Funny hack to make the type warning for multiple children in a Form.Item go away */}
-                    {onBack ? <Button icon="left" onClick={handleBack}>Back</Button> : null}
+                    {onBack ? <Button icon={<LeftOutlined />} onClick={handleBack}>Back</Button> : null}
                     <Button type="primary" htmlType="submit" style={{float: "right"}}>
-                        Next <Icon type="right" />
+                        Next <RightOutlined />
                     </Button>
                 </>
             </Form.Item>,

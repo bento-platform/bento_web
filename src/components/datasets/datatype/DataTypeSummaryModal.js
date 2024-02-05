@@ -10,7 +10,7 @@ import GenericSummary from "./GenericSummary";
 import PhenopacketSummary from "./PhenopacketSummary";
 import VariantSummary from "./VariantSummary";
 
-const DataTypeSummaryModal = ({dataType, summary, onCancel, visible}) => {
+const DataTypeSummaryModal = ({dataType, summary, onCancel, open}) => {
     const isFetchingSummaries = useSelector((state) => state.datasetDataTypes.isFetchingAll);
 
     if (!dataType) {
@@ -31,7 +31,7 @@ const DataTypeSummaryModal = ({dataType, summary, onCancel, visible}) => {
     }
 
     return <Modal
-        visible={visible}
+        open={open}
         onCancel={onCancel}
         onOk={onCancel}
         title={<Tag>{dataType.id}</Tag>}
@@ -47,7 +47,7 @@ DataTypeSummaryModal.propTypes = {
     dataType: PropTypes.object,
     summary: summaryPropTypesShape,
     onCancel: PropTypes.func,
-    visible: PropTypes.bool,
+    open: PropTypes.bool,
 };
 
 export default DataTypeSummaryModal;

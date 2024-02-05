@@ -10,14 +10,15 @@ import {
     signOut,
 } from "bento-auth-js";
 
-import { Button, Empty, Icon, Layout } from "antd";
+import { Button, Empty, Layout } from "antd";
+import { LoginOutlined } from "@ant-design/icons";
 
 import SitePageLoading from "./SitePageLoading";
 import { AUTH_CALLBACK_URL, CLIENT_ID } from "../config";
 
 const signInIcon = (
     <div style={{ textAlign: "center" }}>
-        <Icon type="login" style={{ fontSize: 48 }} />
+        <LoginOutlined style={{ fontSize: 48 }} />
     </div>
 );
 

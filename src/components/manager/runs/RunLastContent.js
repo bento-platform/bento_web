@@ -1,5 +1,6 @@
 import React, {useState, useMemo} from "react";
-import {Table, Modal, Icon} from "antd";
+import {Table, Modal} from "antd";
+import { Icon } from "@ant-design/compatible";
 import {useSelector} from "react-redux";
 import PropTypes from "prop-types";
 
@@ -79,7 +80,7 @@ function FileNamesCell({fileNames, dataType}) {
             <Modal
                 title={`${dataType.charAt(0).toUpperCase() + dataType.slice(1)} files`}
                 footer={null}
-                visible={isModalVisible}
+                open={isModalVisible}
                 onCancel={closeModal}
                 bodyStyle={{maxHeight: "80vh", overflowY: "auto", whiteSpace: "text-overflow"}}
             >

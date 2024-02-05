@@ -27,7 +27,6 @@ const generateFileTree = (directory, valid, folderMode, basePrefix) =>
             return (
                 <TreeSelect.TreeNode
                     title={name}
-                    key={k}
                     value={k}
                     disabled={!isValid}
                     isLeaf={renderAsLeaf}
@@ -47,7 +46,7 @@ const DropBoxTreeSelect = React.forwardRef(({folderMode, nodeEnabled, basePrefix
     );
 
     return <TreeSelect ref={ref} showSearch={true} treeDefaultExpandAll={true} {...props}>
-        <TreeSelect.TreeNode title="Drop Box" key="root" value={basePrefix ?? "/"} selectable={folderMode}>
+        <TreeSelect.TreeNode title="Drop Box" value={basePrefix ?? "/"} selectable={folderMode}>
             {fileTree}
         </TreeSelect.TreeNode>
     </TreeSelect>;

@@ -1,7 +1,8 @@
 import React, { useCallback, useEffect, useMemo, useState } from "react";
 import PropTypes from "prop-types";
 
-import { Col, Form, Input, List, Row, Select, Skeleton, Spin } from "antd";
+import { Col, Input, List, Row, Select, Skeleton, Spin } from "antd";
+import { Form } from "@ant-design/compatible";
 import WorkflowListItem from "./WorkflowListItem";
 
 import { workflowTypePropType } from "../../propTypes";

@@ -1,6 +1,6 @@
 import React, { useMemo } from "react";
 import { useSelector } from "react-redux";
-import { Row, Typography } from "antd";
+import { Col, Row, Typography } from "antd";
 import { getPieChart } from "../../utils/overview";
 import StatisticCollection from "./StatisticCollection";
 import ChartCollection from "./ChartCollection";
@@ -64,11 +64,11 @@ const ClinicalSummary = () => {
 
     return (
         <>
+            <Typography.Title level={4}>Clinical/Phenotypic Data</Typography.Title>
+            <Row style={{ marginBottom: "24px" }} gutter={[0, 16]}>
+                <StatisticCollection statistics={statistics} isFetching={isFetching} />
+            </Row>
             <Row>
-                <Typography.Title level={4}>Clinical/Phenotypic Data</Typography.Title>
-                <Row style={{ marginBottom: "24px" }} gutter={[0, 16]}>
-                    <StatisticCollection statistics={statistics} isFetching={isFetching} />
-                </Row>
                 <ChartCollection charts={charts} dataType="phenopacket" isFetching={isFetching} />
             </Row>
         </>

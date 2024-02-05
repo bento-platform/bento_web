@@ -3,6 +3,7 @@ import {Redirect, Route, Switch} from "react-router-dom";
 import {useDispatch, useSelector} from "react-redux";
 
 import {Button, Empty, Layout, Menu, Result, Typography} from "antd";
+import { PlusOutlined } from "@ant-design/icons";
 
 import ProjectCreationModal from "./ProjectCreationModal";
 import ProjectSkeleton from "./ProjectSkeleton";
@@ -66,7 +67,8 @@ const ManagerProjectDatasetContent = () => {
                             datasets together. You can then specify project-wide consent codes and data use
                             restrictions to control data access.
                         </Typography.Paragraph>
-                        <Button type="primary" icon="plus" onClick={toggleProjectCreationModal}>Create Project</Button>
+                        <Button type="primary" icon={<PlusOutlined />} onClick={toggleProjectCreationModal}>
+                            Create Project</Button>
                     </Empty>
                 </Layout.Content>
             </Layout>
@@ -89,7 +91,7 @@ const ManagerProjectDatasetContent = () => {
                                 onClick={toggleProjectCreationModal}
                                 loading={isFetchingDependentData}
                                 disabled={isFetchingDependentData}
-                                icon="plus">
+                                icon={<PlusOutlined />}>
                             Create Project
                         </Button>
                     </div>

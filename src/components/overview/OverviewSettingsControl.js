@@ -57,7 +57,7 @@ const OverviewSettingsControl = ({ modalVisible, toggleModalVisibility }) => {
 
     return (
     <Modal
-      visible={modalVisible}
+      open={modalVisible}
       closable={false}
       maskClosable={false}
       destroyOnClose={true}

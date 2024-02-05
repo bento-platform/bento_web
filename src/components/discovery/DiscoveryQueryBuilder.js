@@ -2,7 +2,8 @@ import React, {Component} from "react";
 import {connect} from "react-redux";
 import PropTypes from "prop-types";
 
-import {Button, Card, Dropdown, Empty, Icon, Menu, Tabs, Typography} from "antd";
+import {Button, Card, Dropdown, Empty, Menu, Tabs, Typography} from "antd";
+import { Icon } from "@ant-design/compatible";
 
 import DataTypeExplorationModal from "./DataTypeExplorationModal";
 import DiscoverySearchForm from "./DiscoverySearchForm";
@@ -12,6 +13,7 @@ import {OP_EQUALS} from "../../utils/search";
 import {getFieldSchema} from "../../utils/schema";
 
 import { neutralizeAutoQueryPageTransition, setIsSubmittingSearch } from "../../modules/explorer/actions";
+import { DownOutlined, PlusOutlined, QuestionCircleOutlined, SearchOutlined } from "@ant-design/icons";
 
 class DiscoveryQueryBuilder extends Component {
     constructor(props) {
@@ -174,14 +176,14 @@ class DiscoveryQueryBuilder extends Component {
             <Dropdown
                 overlay={dataTypeMenu}
                 disabled={this.props.dataTypesLoading || this.props.searchLoading || filteredDataTypes?.length === 0 }>
-                <Button {...buttonProps}> <Icon type="plus" /> Data Type <Icon type="down" /></Button>
+                <Button {...buttonProps}><PlusOutlined /> Data Type <DownOutlined /></Button>
             </Dropdown>
         );
 
         return <Card style={{marginBottom: "1.5em"}}>
             <DataTypeExplorationModal
                 dataTypes={filteredDataTypes}
-                visible={this.state.schemasModalShown}
+                open={this.state.schemasModalShown}
                 onCancel={this.handleHelpAndSchemasToggle}
             />
 
@@ -192,7 +194,7 @@ class DiscoveryQueryBuilder extends Component {
                     style={{float: "right", marginRight: "1em"}}
                     disabled={filteredDataTypes?.length === 0}
                     onClick={this.handleHelpAndSchemasToggle}>
-                    <Icon type="question-circle" /> Help
+                    <QuestionCircleOutlined /> Help
                 </Button>
             </Typography.Title>
 
@@ -216,7 +218,7 @@ class DiscoveryQueryBuilder extends Component {
             */}
 
             <Button type="primary"
-                    icon="search"
+                    icon={<SearchOutlined />}
                     loading={this.props.searchLoading}
                     disabled={this.props.dataTypeForms.length === 0 || this.props.isFetchingTextSearch}
                     onClick={() => this.handleSubmit()}>Search</Button>

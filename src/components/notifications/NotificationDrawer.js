@@ -31,7 +31,7 @@ const NotificationDrawer = React.memo(() => {
     const notificationDrawerVisible = useSelector(state => state.notifications.drawerVisible);
 
     return <Drawer bodyStyle={{padding: 0}} title="Unread Notifications"
-                   visible={notificationDrawerVisible}
+                   open={notificationDrawerVisible}
                    width="500"
                    onClose={hideNotificationDrawer_}>
         <div style={{padding: "16px 24px", display: "flex", gap: "16px"}}>

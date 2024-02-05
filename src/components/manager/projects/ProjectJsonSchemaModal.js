@@ -1,11 +1,14 @@
 import React, { useCallback, useState } from "react";
-import { Button, Modal } from "antd";
 import { useDispatch, useSelector } from "react-redux";
+
+import { Button, Modal } from "antd";
+import { PlusOutlined } from "@ant-design/icons";
+
 import { createProjectJsonSchemaIfPossible } from "../../../modules/metadata/actions";
 import ProjectJsonSchemaForm from "./ProjectJsonSchemaForm";
 import PropTypes from "prop-types";
 
-const ProjectJsonSchemaModal = ({projectId, visible, onOk, onCancel}) => {
+const ProjectJsonSchemaModal = ({projectId, open, onOk, onCancel}) => {
     const dispatch = useDispatch();
     const isFetchingExtraPropertiesSchemaTypes = useSelector((state) =>
         state.projects.isFetchingExtraPropertiesSchemaTypes);
@@ -35,7 +38,7 @@ const ProjectJsonSchemaModal = ({projectId, visible, onOk, onCancel}) => {
 
     return (
         <Modal
-            visible={visible}
+            open={open}
             width={648}
             title="Create project level JSON schema"
             bodyStyle={{
@@ -46,7 +49,7 @@ const ProjectJsonSchemaModal = ({projectId, visible, onOk, onCancel}) => {
             footer={[
                 <Button key="cancel" onClick={cancelReset}>Cancel</Button>,
                 <Button key="create"
-                        icon="plus"
+                        icon={<PlusOutlined />}
                         type="primary"
                         onClick={handleCreateSubmit}
                         loading={isCreatingJsonSchema || isFetchingExtraPropertiesSchemaTypes}
@@ -69,7 +72,7 @@ const ProjectJsonSchemaModal = ({projectId, visible, onOk, onCancel}) => {
 
 ProjectJsonSchemaModal.propTypes = {
     projectId: PropTypes.string.isRequired,
-    visible: PropTypes.bool,
+    open: PropTypes.bool,
 
     onOk: PropTypes.func,
     onCancel: PropTypes.func,

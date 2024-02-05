@@ -16,6 +16,7 @@ import {
 import {nop} from "../../utils/misc";
 import {FORM_MODE_ADD} from "../../constants";
 import {datasetPropTypesShape, projectPropTypesShape, propTypesFormMode} from "../../propTypes";
+import { PlusOutlined, SaveOutlined } from "@ant-design/icons";
 
 
 class DatasetFormModal extends Component {
@@ -61,7 +62,7 @@ class DatasetFormModal extends Component {
     render() {
         const mode = this.props.mode || FORM_MODE_ADD;
         return this.props.project ? (
-            <Modal visible={this.props.visible}
+            <Modal open={this.props.open}
                    width={648}
                    title={mode === FORM_MODE_ADD
                        ? `Add Dataset to "${this.props.project.title}"`
@@ -69,7 +70,7 @@ class DatasetFormModal extends Component {
                    footer={[
                        <Button key="cancel" onClick={this.handleCancel}>Cancel</Button>,
                        <Button key="save"
-                               icon={mode === FORM_MODE_ADD ? "plus" : "save"}
+                               icon={mode === FORM_MODE_ADD ? <PlusOutlined /> : <SaveOutlined />}
                                type="primary"
                                onClick={this.handleSubmit}
                                loading={this.props.projectsFetching || this.props.projectDatasetsAdding ||
@@ -94,7 +95,7 @@ DatasetFormModal.propTypes = {
 
     project: projectPropTypesShape,
 
-    visible: PropTypes.bool,
+    open: PropTypes.bool,
 
     // From state
 

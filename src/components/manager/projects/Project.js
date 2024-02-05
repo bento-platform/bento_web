@@ -1,6 +1,9 @@
 import React, { Component } from "react";
 import PropTypes from "prop-types";
+
 import { Button, Col, Empty, Menu, Row, Typography } from "antd";
+import { CheckOutlined, CloseOutlined, DeleteOutlined, EditOutlined, PlusOutlined } from "@ant-design/icons";
+
 import Dataset from "../../datasets/Dataset";
 import ProjectForm from "./ProjectForm";
 import { INITIAL_DATA_USE_VALUE } from "../../../duo";
@@ -79,18 +82,18 @@ class Project extends Component {
                 {this.props.editing ? (
                     <>
                         <Button type="primary"
-                                icon="check"
+                                icon={<CheckOutlined />}
                                 loading={this.props.saving}
                                 onClick={() => this.handleSave()}>Save</Button>
-                        <Button icon="close"
+                        <Button icon={<CloseOutlined />}
                                 style={{marginLeft: "10px"}}
                                 disabled={this.props.saving}
                                 onClick={() => this.handleCancelEdit()}>Cancel</Button>
                     </>
                 ) : (
                     <>
-                        <Button icon="edit" onClick={() => (this.props.onEdit || nop)()}>Edit</Button>
-                        <Button type="danger" icon="delete"
+                        <Button icon={<EditOutlined />} onClick={() => (this.props.onEdit || nop)()}>Edit</Button>
+                        <Button type="danger" icon={<DeleteOutlined />}
                                 style={{marginLeft: "10px"}}
                                 onClick={() => (this.props.onDelete || nop)()}>Delete</Button>
                     </>
@@ -124,7 +127,7 @@ class Project extends Component {
                     <Typography.Title level={3} style={{ marginTop: "1.2em" }}>
                         Datasets
                         <div style={{ float: "right" }}>
-                            <Button icon="plus"
+                            <Button icon={<PlusOutlined />}
                                     style={{ verticalAlign: "top" }}
                                     onClick={() => (this.props.onAddDataset || nop)()}>
                                 Add Dataset
@@ -146,7 +149,7 @@ class Project extends Component {
                             </Row>,
                         ) : (
                             <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} description="No Datasets">
-                                <Button icon="plus" onClick={() => (this.props.onAddDataset || nop)()}>
+                                <Button icon={<PlusOutlined />} onClick={() => (this.props.onAddDataset || nop)()}>
                                     Add Dataset
                                 </Button>
                             </Empty>
@@ -156,7 +159,7 @@ class Project extends Component {
                     <Typography.Title level={3} style={{ marginTop: "1.2em" }}>
                         Extra Properties JSON schemas
                         <div style={{ float: "right" }}>
-                            <Button icon="plus"
+                            <Button icon={<PlusOutlined />}
                                     style={{ verticalAlign: "top" }}
                                     onClick={this.props.onAddJsonSchema}>
                                 Add JSON schema
@@ -172,7 +175,7 @@ class Project extends Component {
                             </Row>,
                         ) : (
                             <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} description="No project JSON schemas">
-                                <Button icon="plus" onClick={this.props.onAddJsonSchema}>
+                                <Button icon={<PlusOutlined />} onClick={this.props.onAddJsonSchema}>
                                     Add JSON schema
                                 </Button>
                             </Empty>

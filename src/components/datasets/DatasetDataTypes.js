@@ -2,7 +2,8 @@ import React, {useCallback, useMemo, useState} from "react";
 import { useSelector, useDispatch } from "react-redux";
 import PropTypes from "prop-types";
 
-import { Button, Col, Dropdown, Icon, Menu, Row, Table, Typography } from "antd";
+import { Button, Col, Dropdown, Menu, Row, Table, Typography } from "antd";
+import { Icon } from "@ant-design/compatible";
 
 import { useWorkflows } from "../../hooks";
 import { useStartIngestionFlow } from "../manager/workflowCommon";
@@ -12,6 +13,7 @@ import { fetchDatasetDataTypesSummariesIfPossible } from "../../modules/datasets
 
 import genericConfirm from "../ConfirmationModal";
 import DataTypeSummaryModal from "./datatype/DataTypeSummaryModal";
+import { DeleteOutlined, ImportOutlined } from "@ant-design/icons";
 
 const NA_TEXT = <span style={{ color: "#999", fontStyle: "italic" }}>N/A</span>;
 
@@ -91,7 +93,9 @@ const DatasetDataTypes = React.memo(({ isPrivate, project, dataset }) => {
 
                     const ingestDropdown = (
                         <Dropdown overlay={ingestMenu} trigger={["click"]}>
-                            <Button icon="import" style={{ width: "100%" }} disabled={!dtIngestionWorkflows.length}>
+                            <Button icon={<ImportOutlined />}
+                                    style={{ width: "100%" }}
+                                    disabled={!dtIngestionWorkflows.length}>
                                 Ingest <Icon type="down" />
                             </Button>
                         </Dropdown>
@@ -105,7 +109,7 @@ const DatasetDataTypes = React.memo(({ isPrivate, project, dataset }) => {
                             <Col span={11}>
                                 <Button
                                     type="danger"
-                                    icon="delete"
+                                    icon={<DeleteOutlined />}
                                     disabled={ !dt.count || dt.count && dt.count === 0}
                                     onClick={() => handleClearDataType(dt)}
                                     style={{ width: "100%" }}
@@ -127,7 +131,7 @@ const DatasetDataTypes = React.memo(({ isPrivate, project, dataset }) => {
             <DataTypeSummaryModal
                 dataType={selectedDataType}
                 summary={selectedSummary}
-                visible={datatypeSummaryVisible}
+                open={datatypeSummaryVisible}
                 onCancel={onDataTypeSummaryModalCancel}
             />
 

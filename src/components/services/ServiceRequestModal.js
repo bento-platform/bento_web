@@ -3,7 +3,8 @@ import {useSelector} from "react-redux";
 import PropTypes from "prop-types";
 import { useAuthorizationHeader } from "bento-auth-js";
 
-import {Button, Divider, Form, Input, Modal, Skeleton} from "antd";
+import {Button, Divider, Input, Modal, Skeleton} from "antd";
+import { Form } from "@ant-design/compatible";
 
 import JsonDisplay from "../display/JsonDisplay";
 
@@ -71,7 +72,7 @@ const ServiceRequestModal = ({service, onCancel}) => {
 
     return (
         <Modal
-            visible={service !== null}
+            open={service !== null}
             title={`${service}: make a request`}
             footer={null}
             width={960}

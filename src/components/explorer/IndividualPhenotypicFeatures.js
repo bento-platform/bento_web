@@ -1,6 +1,7 @@
 import React, { useMemo } from "react";
 
-import { Icon, Table } from "antd";
+import { Table } from "antd";
+import { Icon } from "@ant-design/compatible";
 
 import { EM_DASH } from "../../constants";
 import { individualPropTypesShape } from "../../propTypes";

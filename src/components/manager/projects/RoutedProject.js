@@ -93,19 +93,19 @@ class RoutedProject extends Component {
         return <>
             <DatasetFormModal mode={FORM_MODE_ADD}
                               project={project}
-                              visible={this.state.datasetAdditionModal}
+                              open={this.state.datasetAdditionModal}
                               onCancel={this.hideDatasetAdditionModal}
                               onOk={this.hideDatasetAdditionModal} />
 
             <DatasetFormModal mode={FORM_MODE_EDIT}
                               project={project}
-                              visible={this.state.datasetEditModal}
+                              open={this.state.datasetEditModal}
                               initialValue={this.state.selectedDataset}
                               onCancel={this.hideDatasetEditModal}
                               onOk={this.hideDatasetEditModal} />
 
             <ProjectJsonSchemaModal projectId={project.identifier}
-                                    visible={this.state.jsonSchemaModal}
+                                    open={this.state.jsonSchemaModal}
                                     onOk={() => this.setJsonSchemaModalVisible(false)}
                                     onCancel={() => this.setJsonSchemaModalVisible(false)} />
 

@@ -223,7 +223,7 @@ const App = () => {
                         clearPingInterval(); // Stop pinging until the user decides to sign in again
                         setSignedOutModal(false); // Close the modal
                     }}
-                    visible={signedOutModal}
+                    open={signedOutModal}
                 >
                     Please <a onClick={openSignInWindow}>sign in</a> (uses a popup window) to continue working.
                 </Modal>

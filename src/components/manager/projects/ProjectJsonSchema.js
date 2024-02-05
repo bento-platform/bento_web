@@ -5,6 +5,7 @@ import { Button, Card, Descriptions, Modal, Typography } from "antd";
 import ReactJson from "react-json-view";
 import { useDispatch } from "react-redux";
 import { deleteProjectJsonSchema } from "../../../modules/metadata/actions";
+import { DeleteOutlined } from "@ant-design/icons";
 
 // Custom style based on Typography.Text in 'code' mode, with colors for dark backgrounds
 const CODE_STYLE = {
@@ -64,7 +65,7 @@ const ProjectJsonSchema = ({ projectSchema }) => {
             key={projectSchema.id}
             title={projectSchema.schema_type}
             extra={
-                <Button type="danger" icon="delete" onClick={handleDelete}>Delete</Button>
+                <Button type="danger" icon={<DeleteOutlined />} onClick={handleDelete}>Delete</Button>
             }
         >
             <Descriptions layout="vertical" column={1} bordered>

@@ -4,6 +4,7 @@ import {useHistory} from "react-router-dom";
 import PropTypes from "prop-types";
 
 import {Button, List} from "antd";
+import { ReadOutlined } from "@ant-design/icons";
 
 import {markNotificationAsRead} from "../../modules/notifications/actions";
 
@@ -56,7 +57,7 @@ const NotificationList = ({notifications, small}) => {
             ...(n.read ? [] : [
                 <Button key="mark-as-read"
                         type="link"
-                        icon="read"
+                        icon={<ReadOutlined />}
                         style={{padding: 0}}
                         loading={n.isMarkingAsRead ?? false}
                         onClick={() => markAsRead(n.id)}>

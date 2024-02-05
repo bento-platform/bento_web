@@ -43,6 +43,7 @@ class SchemaTreeSelect extends Component {
                         treeDefaultExpandedKeys={this.props.schema ? [`${ROOT_SCHEMA_ID}`] : []}
                         treeData={this.props.schema ? [generateSchemaTreeData(this.props.schema, ROOT_SCHEMA_ID,
                             "", this.props.isExcluded)] : []}
+                        dropdownMatchSelectWidth={false}
                         value={this.state.selected}
                         onChange={this.onChange.bind(this)}
                         treeNodeLabelProp="titleSelected" />

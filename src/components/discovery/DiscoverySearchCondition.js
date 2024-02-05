@@ -3,6 +3,7 @@ import {connect} from "react-redux";
 import PropTypes from "prop-types";
 
 import {Button, Input, Select} from "antd";
+import { CloseOutlined } from "@ant-design/icons";
 
 import {DEFAULT_SEARCH_PARAMETERS, OP_EQUALS, OPERATION_TEXT} from "../../utils/search";
 
@@ -213,7 +214,7 @@ class DiscoverySearchCondition extends Component {
                     {...this.getInputStyle(valueWidth, 2), borderRadius: "0"},
                 ) : this.getRHSInput(valueWidth)}
             {canRemove ? (  // Condition removal button
-                <Button icon="close"
+                <Button icon={<CloseOutlined />}
                         style={{width: `${CLOSE_WIDTH}px`}}
                         disabled={this.props.removeDisabled}
                         onClick={this.props.onRemoveClick ?? nop}

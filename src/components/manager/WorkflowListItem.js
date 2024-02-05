@@ -1,7 +1,8 @@
 import React, { useMemo } from "react";
 import PropTypes from "prop-types";
 
-import {Icon, List, Tag} from "antd";
+import {List, Tag} from "antd";
+import { Icon } from "@ant-design/compatible";
 
 import {nop} from "../../utils/misc";
 import {workflowPropTypesShape} from "../../propTypes";

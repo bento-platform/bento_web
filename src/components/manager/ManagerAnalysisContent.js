@@ -3,7 +3,8 @@ import { useDispatch, useSelector } from "react-redux";
 import { useHistory } from "react-router-dom";
 import PropTypes from "prop-types";
 
-import { Button, Form, List, message } from "antd";
+import { Button, List, message } from "antd";
+import { Form } from "@ant-design/compatible";
 
 import { submitAnalysisWorkflowRun } from "../../modules/wes/actions";
 import WorkflowListItem from "./WorkflowListItem";

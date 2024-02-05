@@ -1,7 +1,8 @@
 import React, {Component} from "react";
 import PropTypes from "prop-types";
 
-import {Checkbox, List, Icon, Radio, Typography} from "antd";
+import {Checkbox, List, Radio, Typography} from "antd";
+import { Icon } from "@ant-design/compatible";
 
 import {
     PRIMARY_CONSENT_CODE_KEYS,

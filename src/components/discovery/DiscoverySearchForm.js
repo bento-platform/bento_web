@@ -1,6 +1,10 @@
 import React, {Component} from "react";
 import PropTypes from "prop-types";
-import {Button, Dropdown, Form, Icon, Menu, Tooltip} from "antd";
+
+import {Button, Dropdown, Menu, Tooltip} from "antd";
+import { Form } from "@ant-design/compatible";
+import { PlusOutlined } from "@ant-design/icons";
+
 import {getFields, getFieldSchema} from "../../utils/schema";
 import {
     DEFAULT_SEARCH_PARAMETERS,
@@ -409,12 +413,12 @@ class DiscoverySearchForm extends Component {
                     ) : this.state.isPhenopacketSearch ? (
                         <Dropdown overlay={this.phenopacketsSearchOptions} placement="bottomCenter" trigger={["click"]}>
                             <Button type="dashed" style={{ width: "100%" }}>
-                                <Icon type="plus" /> Add condition
+                                <PlusOutlined /> Add condition
                             </Button>
                         </Dropdown>
                     ) : (
                         <Button type="dashed" onClick={() => this.addCondition()} style={{ width: "100%" }}>
-                            <Icon type="plus" /> Add condition
+                            <PlusOutlined /> Add condition
                         </Button>
                     )}
                 </Form.Item>

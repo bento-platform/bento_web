@@ -10,7 +10,8 @@ SyntaxHighlighter.registerLanguage("markdown", markdown);
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 
-import { Icon, Radio } from "antd";
+import { Radio } from "antd";
+import { Icon } from "@ant-design/compatible";
 
 const REMARK_PLUGINS = [remarkGfm];
 

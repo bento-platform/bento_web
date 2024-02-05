@@ -1,6 +1,7 @@
 import React from "react";
 
-import {Col, Icon, Row, Statistic} from "antd";
+import {Col, Row, Statistic} from "antd";
+import { Icon } from "@ant-design/compatible";
 
 import {summaryPropTypesShape} from "../../../propTypes";
 

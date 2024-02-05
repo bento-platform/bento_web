@@ -2,7 +2,8 @@ import React, {Component} from "react";
 import {connect} from "react-redux";
 import PropTypes from "prop-types";
 
-import {Button, Card, Col, Divider, Empty, Icon, Modal, Row, Typography} from "antd";
+import {Button, Card, Col, Divider, Empty, Modal, Row, Typography} from "antd";
+import { Icon } from "@ant-design/compatible";
 
 import DataUseDisplay from "../DataUseDisplay";
 
@@ -25,6 +26,7 @@ import DatasetOverview from "./DatasetOverview";
 import {FORM_MODE_ADD, FORM_MODE_EDIT} from "../../constants";
 import {datasetPropTypesShape, projectPropTypesShape} from "../../propTypes";
 import DatasetDataTypes from "./DatasetDataTypes";
+import { DeleteOutlined, EditOutlined, PlusOutlined } from "@ant-design/icons";
 
 
 const DATASET_CARD_TABS = [
@@ -145,13 +147,13 @@ class Dataset extends Component {
                         Linked Field Sets
                         {isPrivate ? (
                             <div style={{float: "right", display: "flex", flexDirection: "column", gap: "10px"}}>
-                                <Button icon="plus"
+                                <Button icon={<PlusOutlined />}
                                         style={{verticalAlign: "top"}}
                                         type="primary"
                                         onClick={() => this.setState({fieldSetAdditionModalVisible: true})}>
                                     Add Linked Field Set
                                 </Button>
-                                <Button icon="plus"
+                                <Button icon={<PlusOutlined />}
                                         style={{verticalAlign: "top"}}
                                         type="default"
                                         disabled={defaultBiosampleLFSDisabled}
@@ -178,7 +180,7 @@ class Dataset extends Component {
                                 <Divider />
                                 <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} description="No Field Link Sets">
                                     {isPrivate ? (
-                                        <Button icon="plus"
+                                        <Button icon={<PlusOutlined />}
                                                 type="primary"
                                                 onClick={() =>
                                                     this.setState({fieldSetAdditionModalVisible: true})}>
@@ -256,10 +258,10 @@ class Dataset extends Component {
                 onTabChange={t => this.setState({selectedTab: t})}
                 extra={
                     isPrivate ? <>
-                        <Button icon="edit"
+                        <Button icon={<EditOutlined />}
                                 style={{marginRight: "8px"}}
                                 onClick={() => (this.props.onEdit || nop)()}>Edit</Button>
-                        <Button type="danger" icon="delete" onClick={handleDelete}>Delete</Button>
+                        <Button type="danger" icon={<DeleteOutlined />} onClick={handleDelete}>Delete</Button>
                         {/* TODO: Share button (vFuture) */}
                     </> : null
                 }
@@ -267,13 +269,13 @@ class Dataset extends Component {
                 {isPrivate ? <>
                     <LinkedFieldSetModal mode={FORM_MODE_ADD}
                                          dataset={this.state}
-                                         visible={this.state.fieldSetAdditionModalVisible}
+                                         open={this.state.fieldSetAdditionModalVisible}
                                          onSubmit={() => this.setState({fieldSetAdditionModalVisible: false})}
                                          onCancel={() => this.setState({fieldSetAdditionModalVisible: false})} />
 
                     <LinkedFieldSetModal mode={FORM_MODE_EDIT}
                                          dataset={this.state}
-                                         visible={this.state.fieldSetEditModalVisible}
+                                         open={this.state.fieldSetEditModalVisible}
                                          linkedFieldSet={this.state.selectedLinkedFieldSet.data}
                                          linkedFieldSetIndex={this.state.selectedLinkedFieldSet.index}
                                          onSubmit={() => this.setState({fieldSetEditModalVisible: false})}
