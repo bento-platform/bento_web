@@ -1,11 +1,11 @@
 import React from "react";
-import { useDispatch, useSelector } from "react-redux";
+import { useSelector } from "react-redux";
 import { Route } from "react-router-dom";
 import PropTypes from "prop-types";
 import {
-    signOut,
     useIsAuthenticated,
-    usePerformAuth, usePerformSignOut,
+    usePerformAuth,
+    usePerformSignOut,
 } from "bento-auth-js";
 
 import { Button, Empty, Icon, Layout } from "antd";
@@ -20,8 +20,6 @@ const signInIcon = (
 );
 
 const OwnerRoute = ({ component: Component, path, ...rest }) => {
-    const dispatch = useDispatch();
-
     const { isFetching: openIdConfigFetching } = useSelector((state) => state.openIdConfiguration);
     const { isAutoAuthenticating } = useAutoAuthenticate();
     const isAuthenticated = useIsAuthenticated();
@@ -47,11 +45,7 @@ const OwnerRoute = ({ component: Component, path, ...rest }) => {
                             {isAuthenticated ? (
                                 <Button onClick={performSignOut}>Sign Out</Button>
                             ) : (
-                                <Button
-                                    type="primary"
-                                    loading={openIdConfigFetching}
-                                    onClick={() => performAuth()}
-                                >
+                                <Button type="primary" loading={openIdConfigFetching} onClick={performAuth}>
                                     Sign In
                                 </Button>
                             )}
