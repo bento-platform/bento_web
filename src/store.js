@@ -7,7 +7,7 @@ import { readFromLocalStorage, writeToLocalStorage } from "./utils/localStorageU
 import rootReducer from "./reducers";
 
 // The Immutability Middleware is only present in DEV builds.
-// Thes options prevent delay warnings caused by large states in DEV mode by increasing the warning delay.
+// These options prevent delay warnings caused by large states in DEV mode by increasing the warning delay.
 // See Redux Toolkit doc: https://redux-toolkit.js.org/api/getDefaultMiddleware#development
 const IMMUTABILITY_OPTIONS = {
     immutableCheck: {
