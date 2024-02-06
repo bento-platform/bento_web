@@ -22,7 +22,7 @@ document.addEventListener("DOMContentLoaded", () => {
                     openIdConfigUrl: OPENID_CONFIG_URL,
                     clientId: CLIENT_ID,
                     scope: "openid email",
-                    postSignOutUrl: "/",
+                    postSignOutUrl: `${BENTO_URL_NO_TRAILING_SLASH}/`,
                     authCallbackUrl: AUTH_CALLBACK_URL,
                 }}>
                     <App />
