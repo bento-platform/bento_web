@@ -45,7 +45,7 @@ const OwnerRoute = ({ component: Component, path, ...rest }) => {
                             description="You must sign into this node to access this page."
                         >
                             {isAuthenticated ? (
-                                <Button onClick={() => dispatch(signOut())}>Sign Out</Button>
+                                <Button onClick={performSignOut}>Sign Out</Button>
                             ) : (
                                 <Button
                                     type="primary"
