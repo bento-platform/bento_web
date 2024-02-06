@@ -3,6 +3,7 @@ import { useSelector } from "react-redux";
 import { Route } from "react-router-dom";
 import PropTypes from "prop-types";
 import {
+    useAutoAuthenticate,
     useIsAuthenticated,
     usePerformAuth,
     usePerformSignOut,
@@ -11,7 +12,6 @@ import {
 import { Button, Empty, Icon, Layout } from "antd";
 
 import SitePageLoading from "./SitePageLoading";
-import { useAutoAuthenticate } from "bento-auth-js/src";
 
 const signInIcon = (
     <div style={{ textAlign: "center" }}>
