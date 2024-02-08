@@ -14,8 +14,8 @@ const NotificationDrawer = React.memo(() => {
     const history = useHistory();
 
     const markAllAsRead = useCallback(() => {
-        dispatch(markAllNotificationsAsRead());
-    }, []);
+        dispatch(markAllNotificationsAsRead()).catch((err) => console.error(err));
+    }, [dispatch]);
     const seeAllNotifications = useCallback(() => {
         dispatch(hideNotificationDrawer());
         history.push("/notifications");
@@ -24,15 +24,15 @@ const NotificationDrawer = React.memo(() => {
         dispatch(hideNotificationDrawer());
     }, [dispatch]);
 
-    const notifications = useSelector(state => state.notifications.items);
+    const notifications = useSelector((state) => state.notifications.items);
     const unreadNotifications = useMemo(() => notifications.filter(n => !n.read), [notifications]);
-    const isMarkingAllAsRead = useSelector(state => state.notifications.isMarkingAllAsRead);
+    const isMarkingAllAsRead = useSelector((state) => state.notifications.isMarkingAllAsRead);
 
-    const notificationDrawerVisible = useSelector(state => state.notifications.drawerVisible);
+    const notificationDrawerVisible = useSelector((state) => state.notifications.drawerVisible);
 
     return <Drawer bodyStyle={{padding: 0}} title="Unread Notifications"
                    open={notificationDrawerVisible}
-                   width="500"
+                   width={500}
                    onClose={hideNotificationDrawer_}>
         <div style={{padding: "16px 24px", display: "flex", gap: "16px"}}>
             <Button style={{flex: 1}} onClick={markAllAsRead}

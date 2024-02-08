@@ -24,13 +24,14 @@ export const transformMenuItem = (i) => {
 
     return {
         ...baseItem,
+        ...(i.onClick ? {onClick: i.onClick} : {}),
         label: i.url ? (
             <Link to={i.url}>
                 {i.icon ?? null}
                 {i.text ? <span className="nav-text">{i.text}</span> : null}
             </Link>
         ) : (
-            <span {...(i.onClick ? {onClick: i.onClick} : {})}>
+            <span>
                 {i.icon ?? null}
                 {i.text ? <span className="nav-text">{i.text}</span> : null}
             </span>
