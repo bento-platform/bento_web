@@ -1,7 +1,7 @@
 import React, { useCallback, useMemo } from "react";
 import { useDispatch } from "react-redux";
 
-import { Button, Dropdown, Layout, Menu, Modal, Table } from "antd";
+import { Button, Dropdown, Layout, Modal, Table } from "antd";
 import { DeleteOutlined, ImportOutlined } from "@ant-design/icons";
 
 import { useReferenceGenomes } from "../../../modules/reference/hooks";

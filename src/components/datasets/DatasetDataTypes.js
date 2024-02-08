@@ -87,7 +87,7 @@ const DatasetDataTypes = React.memo(({ isPrivate, project, dataset }) => {
                             "project_dataset": `${project.identifier}:${dataset.identifier}`,
                         }),
                         items: dtIngestionWorkflows.map((wf) => ({ key: wf.id, label: wf.name })),
-                    }
+                    };
 
                     const ingestDropdown = (
                         <Dropdown menu={ingestMenu} trigger={["click"]}>
