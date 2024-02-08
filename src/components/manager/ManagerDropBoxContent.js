@@ -1,4 +1,4 @@
-import React, {useCallback, useEffect, useMemo, useRef, useState} from "react";
+import React, {useCallback, useEffect, useMemo, useState} from "react";
 import {useDispatch, useSelector} from "react-redux";
 import {
     RESOURCE_EVERYTHING,
@@ -17,6 +17,7 @@ import {
     Descriptions,
     Dropdown,
     Empty,
+    Form,
     Layout,
     Modal,
     Result,
@@ -27,7 +28,6 @@ import {
     Upload,
     message,
 } from "antd";
-import { Form } from "@ant-design/compatible";
 
 import { LAYOUT_CONTENT_STYLE } from "../../styles/layoutContent";
 import DownloadButton from "../DownloadButton";
@@ -132,71 +132,67 @@ const stopEvent = event => {
 };
 
 
-const FileUploadForm = Form.create()(({initialUploadFolder, initialUploadFiles, form}) => {
+const FileUploadForm = (({initialUploadFolder, initialUploadFiles, form}) => {
     const getFileListFromEvent = useCallback(e => Array.isArray(e) ? e : e && e.fileList, []);
 
-    useEffect(() => {
-        if (!initialUploadFolder) return;
-        form.setFieldsValue({"parent": initialUploadFolder});
-    }, [initialUploadFolder]);
+    const initialValues = useMemo(
+        () => ({
+            ...(initialUploadFolder ? {parent: initialUploadFolder} : {}),
+            ...(initialUploadFiles ? {
+                files: initialUploadFiles.map((u, i) => ({
+                    // ...u doesn't work for File object
+                    lastModified: u.lastModified,
+                    name: u.name,
+                    size: u.size,
+                    type: u.type,
 
-    useEffect(() => {
-        if (!initialUploadFiles?.length) return;
-        form.setFieldsValue({
-            "files": initialUploadFiles.map((u, i) => ({
-                // ...u doesn't work for File object
-                lastModified: u.lastModified,
-                name: u.name,
-                size: u.size,
-                type: u.type,
+                    uid: (-1 * (i + 1)).toString(),
+                    originFileObj: u,
+                })),
+            } : {}),
+        }),
+        [initialUploadFolder, initialUploadFiles]
+    );
 
-                uid: (-1 * (i + 1)).toString(),
-                originFileObj: u,
-            })),
-        });
-    }, [initialUploadFiles]);
-
-    return <Form>
-        <Form.Item label="Parent Folder">
-            {form.getFieldDecorator("parent", {
-                rules: [{required: true, message: "Please select a folder to upload into."}],
-            })(<DropBoxTreeSelect folderMode={true} />)}
+    return <Form initialValues={initialValues} form={form}>
+        <Form.Item label="Parent Folder" name="parent" rules={[
+            {required: true, message: "Please select a folder to upload into."},
+        ]}>
+            <DropBoxTreeSelect folderMode={true} />
         </Form.Item>
-        <Form.Item label="File">
-            {form.getFieldDecorator("files", {
-                valuePropName: "fileList",
-                getValueFromEvent: getFileListFromEvent,
-                rules: [{required: true, message: "Please specify at least one file to upload."}],
-            })(<Upload beforeUpload={getFalse}><Button icon={<UploadOutlined />}>Upload</Button></Upload>)}
+        <Form.Item label="File" name="files" valuePropName="fileList" getValueFromEvent={getFileListFromEvent} rules={[
+            {required: true, message: "Please specify at least one file to upload."},
+        ]}>
+            <Upload beforeUpload={getFalse}><Button icon={<UploadOutlined />}>Upload</Button></Upload>
         </Form.Item>
     </Form>;
 });
+FileUploadForm.propTypes = {
+    initialUploadFolder: PropTypes.string,
+    initialUploadFiles: PropTypes.arrayOf(PropTypes.object),
+    form: PropTypes.object,
+};
 
 const FileUploadModal = ({initialUploadFolder, initialUploadFiles, onCancel, open}) => {
     const dispatch = useDispatch();
-    const form = useRef(null);
+    const [form] = Form.useForm();
 
     const isPutting = useSelector(state => state.dropBox.isPuttingFlow);
 
     useEffect(() => {
-        if (open && form.current) {
+        if (open) {
             // If we just re-opened the model, reset the fields
-            form.current.resetFields();
+            form.resetFields();
         }
-    }, [open]);
+    }, [open, form]);
 
-    const onOk = () => {
-        if (!form.current) {
-            console.error("missing form ref");
+    const onOk = useCallback(() => {
+        if (!form) {
+            console.error("missing form");
             return;
         }
 
-        form.current.validateFields((err, values) => {
-            if (err) {
-                console.error(err);
-                return;
-            }
-
+        form.validateFields().then((values) => {
             (async () => {
                 dispatch(beginDropBoxPuttingObjects());
 
@@ -225,8 +221,10 @@ const FileUploadModal = ({initialUploadFolder, initialUploadFiles, onCancel, ope
                 // Close ourselves (the upload modal)
                 onCancel();
             })();
+        }).catch((err) => {
+            console.error(err);
         });
-    };
+    }, [form]);
 
     return <Modal
         title="Upload"
@@ -236,9 +234,9 @@ const FileUploadModal = ({initialUploadFolder, initialUploadFiles, onCancel, ope
         onOk={onOk}
     >
         <FileUploadForm
+            form={form}
             initialUploadFolder={initialUploadFolder}
             initialUploadFiles={initialUploadFiles}
-            ref={ref => form.current = ref}
         />
     </Modal>;
 };
