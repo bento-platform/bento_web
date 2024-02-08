@@ -15,7 +15,7 @@ import {runPropTypesShape} from "../../../propTypes";
 const TAB_ITEMS = [
     { key: "request", label: "Request" },
     { key: "run_log", label: "Run Log" },
-    /*<Tabs.TabPane tab="Task Logs" key="task_logs" /> TODO: Implement in WES */
+    /* { key: "task_logs", label: "Task Logs" }, TODO: Implement in WES */
 ];
 const TABS = {
     "request": RunRequest,

@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect } from "react";
+import React, { useCallback, useEffect, useMemo } from "react";
 import { useSelector, useDispatch } from "react-redux";
 import { useParams } from "react-router-dom";
 
@@ -23,8 +23,6 @@ import IndividualsTable from "./searchResultsTables/IndividualsTable";
 import BiosamplesTable from "./searchResultsTables/BiosamplesTable";
 import ExperimentsTable from "./searchResultsTables/ExperimentsTable";
 import {fetchDatasetResourcesIfNecessary} from "../../modules/datasets/actions";
-
-const { TabPane } = Tabs;
 
 const TAB_KEYS = {
     INDIVIDUAL: "1",
@@ -84,6 +82,39 @@ const ExplorerDatasetSearch = () => {
     const hasBiosamples = hasNonEmptyArrayProperty(searchResults, "searchFormattedResultsBiosamples");
     const showTabs = hasResults && (hasExperiments || hasBiosamples);
 
+    const tabItems = useMemo(() => searchResults ? [
+        {
+            key: TAB_KEYS.INDIVIDUAL,
+            label: `Individuals (${searchResults.searchFormattedResults.length})`,
+            children: (
+                <IndividualsTable
+                    data={searchResults.searchFormattedResults}
+                    datasetID={datasetID}
+                />
+            ),
+        },
+        ...(hasBiosamples ? [{
+            key: TAB_KEYS.BIOSAMPLES,
+            label: `Biosamples (${searchResults.searchFormattedResultsBiosamples.length})`,
+            children: (
+                <BiosamplesTable
+                    data={searchResults.searchFormattedResultsBiosamples}
+                    datasetID={datasetID}
+                />
+            ),
+        }] : []),
+        ...(hasExperiments ? [{
+            key: TAB_KEYS.EXPERIMENTS,
+            label: `Experiments (${searchResults.searchFormattedResultsExperiment.length})`,
+            children: (
+                <ExperimentsTable
+                    data={searchResults.searchFormattedResultsExperiment}
+                    datasetID={datasetID}
+                />
+            ),
+        }] : []),
+    ] : [], [searchResults, datasetID]);
+
     if (!selectedDataset) return null;
     return (
         <>
@@ -102,33 +133,12 @@ const ExplorerDatasetSearch = () => {
             {hasResults &&
                 !isFetchingSearchResults &&
                 (showTabs ? (
-                    <Tabs defaultActiveKey={TAB_KEYS.INDIVIDUAL} onChange={onTabChange} activeKey={activeKey}>
-                        <TabPane tab={`Individuals (${searchResults.searchFormattedResults.length})`}
-                                 key={TAB_KEYS.INDIVIDUAL}>
-                            <IndividualsTable
-                                data={searchResults.searchFormattedResults}
-                                datasetID={datasetID}
-                            />
-                        </TabPane>
-                        {hasBiosamples && (
-                            <TabPane tab={`Biosamples (${searchResults.searchFormattedResultsBiosamples.length})`}
-                                     key={TAB_KEYS.BIOSAMPLES}>
-                                <BiosamplesTable
-                                    data={searchResults.searchFormattedResultsBiosamples}
-                                    datasetID={datasetID}
-                                />
-                            </TabPane>
-                        )}
-                        {hasExperiments && (
-                            <TabPane tab={`Experiments (${searchResults.searchFormattedResultsExperiment.length})`}
-                                     key={TAB_KEYS.EXPERIMENTS}>
-                                <ExperimentsTable
-                                    data={searchResults.searchFormattedResultsExperiment}
-                                    datasetID={datasetID}
-                                />
-                            </TabPane>
-                        )}
-                    </Tabs>
+                    <Tabs
+                        defaultActiveKey={TAB_KEYS.INDIVIDUAL}
+                        onChange={onTabChange}
+                        activeKey={activeKey}
+                        items={tabItems}
+                    />
                 ) : (
                     <IndividualsTable data={searchResults.searchFormattedResults} datasetID={datasetID} />
                 ))}

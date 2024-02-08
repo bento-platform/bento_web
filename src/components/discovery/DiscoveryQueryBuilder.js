@@ -150,25 +150,28 @@ class DiscoveryQueryBuilder extends Component {
             })),
         };
 
-        const dataTypeTabPanes = this.props.dataTypeForms.map(({dataType, formValues}) => {
+        const dataTypeTabItems = this.props.dataTypeForms.map(({dataType, formValues}) => {
             // Use data type label for tab name, unless it isn't specified - then fall back to ID.
             // This behaviour should be the same everywhere in bento_web or almost anywhere the
             // data type is shown to 'end users'.
-            const {id, label} = dataType;
-            return <Tabs.TabPane tab={label ?? id}
-                                 key={id}
-                                 closable={!(this.props.requiredDataTypes ?? []).includes(id)}>
-                <DiscoverySearchForm
-                    conditionType="data-type"
-                    isInternal={this.props.isInternal ?? false}
-                    dataType={dataType}
-                    formValues={formValues}
-                    loading={this.props.searchLoading}
-                    wrappedComponentRef={form => this.forms[id] = form}
-                    onChange={fields => this.handleFormChange(dataType, fields)}
-                    handleVariantHiddenFieldChange={this.handleVariantHiddenFieldChange}
-                />
-            </Tabs.TabPane>;
+            const { id, label } = dataType;
+            return ({
+                key: id,
+                label: label ?? id,
+                closable: !(this.props.requiredDataTypes ?? []).includes(id),
+                children: (
+                    <DiscoverySearchForm
+                        conditionType="data-type"
+                        isInternal={this.props.isInternal ?? false}
+                        dataType={dataType}
+                        formValues={formValues}
+                        loading={this.props.searchLoading}
+                        wrappedComponentRef={form => this.forms[id] = form}
+                        onChange={fields => this.handleFormChange(dataType, fields)}
+                        handleVariantHiddenFieldChange={this.handleVariantHiddenFieldChange}
+                    />
+                ),
+            });
         });
 
         const addConditionsOnDataType = (buttonProps = {style: {float: "right"}}) => (
@@ -198,7 +201,7 @@ class DiscoveryQueryBuilder extends Component {
             </Typography.Title>
 
             {this.props.dataTypeForms.length > 0
-                ? <Tabs type="editable-card" hideAdd onEdit={this.handleTabsEdit}>{dataTypeTabPanes}</Tabs>
+                ? <Tabs type="editable-card" hideAdd onEdit={this.handleTabsEdit} items={dataTypeTabItems} />
                 : (
                     <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} description="No Data Types Added">
                         {addConditionsOnDataType({type: "primary"})}
