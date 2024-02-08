@@ -46,7 +46,7 @@ class Project extends Component {
         this._onCancelEdit = props.onCancelEdit || nop;
         this._onSave = props.onSave || nop;
 
-        this.editingForm = null;
+        this.editingForm = React.createRef();
 
         this.handleCancelEdit = this.handleCancelEdit.bind(this);
         this.handleSave = this.handleSave.bind(this);
@@ -64,12 +64,9 @@ class Project extends Component {
     }
 
     handleSave() {
-        this.editingForm.validateFields((err, values) => {
-            if (err) {
-                console.error(err);
-                return;
-            }
-
+        const form = this.editingForm.current;
+        if (!form) return;
+        form.validateFields().then((values) => {
             // Don't save datasets since it's a related set.
             this._onSave({
                 identifier: this.state.identifier,
@@ -77,6 +74,8 @@ class Project extends Component {
                 description: values.description || this.state.description,
                 data_use: values.data_use || this.state.data_use,
             });
+        }).catch((err) => {
+            console.error(err);
         });
     }
 
@@ -104,13 +103,15 @@ class Project extends Component {
                 )}
             </div>
             {this.props.editing ? (
-                <ProjectForm style={{maxWidth: "600px"}}
-                             initialValue={{
-                                 title: this.state.title,
-                                 description: this.state.description,
-                                 data_use: this.state.data_use,
-                             }}
-                             ref={form => this.editingForm = form} />
+                <ProjectForm
+                    style={{maxWidth: "600px"}}
+                    initialValues={{
+                        title: this.state.title,
+                        description: this.state.description,
+                        data_use: this.state.data_use,
+                    }}
+                    formRef={this.editingForm}
+                />
             ) : (
                 <>
                     <Typography.Title level={2}>
