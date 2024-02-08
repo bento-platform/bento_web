@@ -12,7 +12,7 @@ import rootReducer from "./reducers";
 const IMMUTABILITY_OPTIONS = {
     immutableCheck: {
         // Default is 32ms
-        warnAfter: 128,
+        warnAfter: 200,
     },
     serializableCheck: false,
 };
