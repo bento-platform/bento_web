@@ -124,7 +124,6 @@ const SiteHeader = () => {
                 key: "settings",
             },
             {
-                url: "/notifications",
                 disabled: !isAuthenticated,
                 icon: (
                     <Badge dot count={unreadNotifications.length}>
