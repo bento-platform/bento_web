@@ -4,34 +4,40 @@ import {Link} from "react-router-dom";
 import {Menu} from "antd";
 
 // Custom menu renderer
-export const renderMenuItem = i => {
+export const transformMenuItem = (i, level = 0) => {
+    const baseItem = {
+        key: i.key ?? i.url,
+        style: i.style ?? {},
+        disabled: i.disabled ?? false,
+    };
+
     if (i.hasOwnProperty("children")) {
-        return <Menu.SubMenu style={i.style ?? {}}
-                             disabled={i.disabled ?? false} title={
-            <span className="submenu-title-wrapper">
+        return {
+            ...baseItem,
+            label: (
+                <span className="submenu-title-wrapper">
+                    {i.icon ?? null}
+                    {i.text ? <span className="nav-text">{i.text}</span> : null}
+                </span>
+            ),
+            children: (i.children ?? []).map((ii) => transformMenuItem(ii)),
+        };
+    }
+
+    return {
+        ...baseItem,
+        label: i.url ? (
+            <Link to={i.url}>
+                {i.icon ?? null}
+                {i.text ? <span className="nav-text">{i.text}</span> : null}
+            </Link>
+        ) : (
+            <span {...(i.onClick ? {onClick: i.onClick} : {})}>
                 {i.icon ?? null}
                 {i.text ? <span className="nav-text">{i.text}</span> : null}
             </span>
-        } key={i.key || ""}>
-            {(i.children ?? []).map(ii => renderMenuItem(ii))}
-        </Menu.SubMenu>;
-    }
-
-    return (
-        <Menu.Item key={i.key ?? i.url ?? ""}
-                   onClick={i.onClick ?? undefined}
-                   style={i.style ?? {}}
-                   disabled={i.disabled ?? false}>
-            {i.url && !i.onClick ?
-                <Link to={i.url}>
-                    {i.icon ?? null}
-                    {i.text ? <span className="nav-text">{i.text}</span> : null}
-                </Link> : <span>
-                    {i.icon ?? null}
-                    {i.text ? <span className="nav-text">{i.text}</span> : null}
-                </span>}
-        </Menu.Item>
-    );
+        ),
+    };
 };
 
 export const matchingMenuKeys = menuItems => menuItems

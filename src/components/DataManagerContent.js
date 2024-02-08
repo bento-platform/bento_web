@@ -5,7 +5,7 @@ import { viewDropBox, RESOURCE_EVERYTHING } from "bento-auth-js";
 import { Menu, Skeleton } from "antd";
 
 import { SITE_NAME } from "../constants";
-import { matchingMenuKeys, renderMenuItem } from "../utils/menu";
+import { matchingMenuKeys, transformMenuItem } from "../utils/menu";
 
 import SitePageHeader from "./SitePageHeader";
 import { useHasResourcePermissionWrapper } from "../hooks";
@@ -64,9 +64,12 @@ const DataManagerContent = () => {
                 title="Admin › Data Manager"
                 withTabBar={true}
                 footer={
-                    <Menu mode="horizontal" style={styles.menu} selectedKeys={selectedKeys}>
-                        {menuItems.map(renderMenuItem)}
-                    </Menu>
+                    <Menu
+                        mode="horizontal"
+                        style={styles.menu}
+                        selectedKeys={selectedKeys}
+                        items={menuItems.map(transformMenuItem)}
+                    />
                 }
             />
             <Suspense fallback={<div style={styles.suspenseFallback}><Skeleton active /></div>}>

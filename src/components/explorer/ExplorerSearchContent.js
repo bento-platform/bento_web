@@ -7,7 +7,7 @@ import { Layout, Menu, Skeleton } from "antd";
 import ExplorerDatasetSearch from "./ExplorerDatasetSearch";
 import SitePageHeader from "../SitePageHeader";
 import { LAYOUT_CONTENT_STYLE } from "../../styles/layoutContent";
-import { matchingMenuKeys, renderMenuItem } from "../../utils/menu";
+import { matchingMenuKeys, transformMenuItem } from "../../utils/menu";
 
 const ExplorerSearchContent = () => {
     const projects = useSelector((state) => state.projects.items);
@@ -17,7 +17,7 @@ const ExplorerSearchContent = () => {
         // url: `/data/explorer/projects/${project.identifier}`,
         key: project.identifier,
         text: project.title,
-        children: project.datasets.map(dataset => ({
+        children: project.datasets.map((dataset) => ({
             url: `/data/explorer/search/${dataset.identifier}`,
             text: dataset.title,
         })),
@@ -30,12 +30,13 @@ const ExplorerSearchContent = () => {
         <Layout>
             <Layout.Sider style={{background: "white"}} width={256} breakpoint="lg" collapsedWidth={0}>
                 <div style={{display: "flex", height: "100%", flexDirection: "column"}}>
-                <Menu mode="inline"
-                      style={{flex: 1, paddingTop: "8px"}}
-                      defaultOpenKeys={menuItems.map(p => p.key)}
-                      selectedKeys={matchingMenuKeys(menuItems)}>
-                    {menuItems.map(renderMenuItem)}
-                </Menu>
+                    <Menu
+                        mode="inline"
+                        style={{flex: 1, paddingTop: "8px"}}
+                        defaultOpenKeys={menuItems.map(p => p.key)}
+                        selectedKeys={matchingMenuKeys(menuItems)}
+                        items={menuItems.map(transformMenuItem)}
+                    />
                 </div>
             </Layout.Sider>
             <Layout.Content style={LAYOUT_CONTENT_STYLE}>

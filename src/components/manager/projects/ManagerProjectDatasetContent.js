@@ -11,7 +11,7 @@ import RoutedProject from "./RoutedProject";
 
 import {toggleProjectCreationModal as toggleProjectCreationModalAction} from "../../../modules/manager/actions";
 import {LAYOUT_CONTENT_STYLE} from "../../../styles/layoutContent";
-import {matchingMenuKeys, renderMenuItem} from "../../../utils/menu";
+import {matchingMenuKeys, transformMenuItem} from "../../../utils/menu";
 
 
 const PROJECT_HELP_TEXT_STYLE = {
@@ -80,11 +80,12 @@ const ManagerProjectDatasetContent = () => {
         <Layout>
             <Layout.Sider style={SIDEBAR_STYLE} width={256} breakpoint="lg" collapsedWidth={0}>
                 <div style={SIDEBAR_INNER_STYLE}>
-                    <Menu style={SIDEBAR_MENU_STYLE}
-                          mode="inline"
-                          selectedKeys={matchingMenuKeys(projectMenuItems)}>
-                        {projectMenuItems.map(renderMenuItem)}
-                    </Menu>
+                    <Menu
+                        style={SIDEBAR_MENU_STYLE}
+                        mode="inline"
+                        selectedKeys={matchingMenuKeys(projectMenuItems)}
+                        items={projectMenuItems.map(transformMenuItem)}
+                    />
                     <div style={SIDEBAR_BUTTON_CONTAINER}>
                         <Button type="primary"
                                 style={SIDEBAR_BUTTON_STYLE}

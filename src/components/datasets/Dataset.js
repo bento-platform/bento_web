@@ -22,9 +22,10 @@ import {INITIAL_DATA_USE_VALUE} from "../../duo";
 import {simpleDeepCopy, nop} from "../../utils/misc";
 import LinkedFieldSetTable from "./linked_field_set/LinkedFieldSetTable";
 import LinkedFieldSetModal from "./linked_field_set/LinkedFieldSetModal";
-import DatasetOverview from "./DatasetOverview";
 import {FORM_MODE_ADD, FORM_MODE_EDIT} from "../../constants";
 import {datasetPropTypesShape, projectPropTypesShape} from "../../propTypes";
+
+import DatasetOverview from "./DatasetOverview";
 import DatasetDataTypes from "./DatasetDataTypes";
 
 
@@ -254,6 +255,7 @@ class Dataset extends Component {
                 }}>{identifier}</span></span>}
                 tabList={DATASET_CARD_TABS}
                 activeTabKey={selectedTab}
+                tabProps={{ size: "middle" }}
                 onTabChange={t => this.setState({selectedTab: t})}
                 extra={
                     isPrivate ? <>

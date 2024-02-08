@@ -1,7 +1,7 @@
 import React, { Component } from "react";
 import PropTypes from "prop-types";
 
-import { Button, Col, Empty, Menu, Row, Typography } from "antd";
+import { Button, Col, Empty, Row, Tabs, Typography } from "antd";
 import { CheckOutlined, CloseOutlined, DeleteOutlined, EditOutlined, PlusOutlined } from "@ant-design/icons";
 
 import Dataset from "../../datasets/Dataset";
@@ -15,6 +15,10 @@ const SUB_TAB_KEYS = {
     DATASETS: "project-datasets",
     EXTRA_PROPERTIES: "project-json-schemas",
 };
+const SUB_TAB_ITEMS = [
+    { key: SUB_TAB_KEYS.DATASETS, label: "Datasets" },
+    { key: SUB_TAB_KEYS.EXTRA_PROPERTIES, label: "Extra Properties" },
+];
 
 class Project extends Component {
     static getDerivedStateFromProps(nextProps) {
@@ -32,8 +36,8 @@ class Project extends Component {
         this._onCancelEdit();
     }
 
-    handleContentTabClick(event) {
-        this.setState({ selectedKey: event.key });
+    handleContentTabClick(tab) {
+        this.setState({ selectedKey: tab });
     }
 
     constructor(props) {
@@ -117,14 +121,16 @@ class Project extends Component {
                 </>
             )}
 
-            <Menu mode="horizontal" onClick={this.handleContentTabClick} selectedKeys={this.state.selectedKey}>
-                <Menu.Item key={SUB_TAB_KEYS.DATASETS}>Datasets</Menu.Item>
-                <Menu.Item key={SUB_TAB_KEYS.EXTRA_PROPERTIES}>Extra Properties</Menu.Item>
-            </Menu>
+            <Tabs
+                onChange={this.handleContentTabClick}
+                activeKey={this.state.selectedKey}
+                items={SUB_TAB_ITEMS}
+                size="large"
+            />
 
             {this.state.selectedKey === SUB_TAB_KEYS.DATASETS
                 ? <>
-                    <Typography.Title level={3} style={{ marginTop: "1.2em" }}>
+                    <Typography.Title level={3} style={{ marginTop: "0.6em" }}>
                         Datasets
                         <div style={{ float: "right" }}>
                             <Button icon={<PlusOutlined />}
@@ -156,7 +162,7 @@ class Project extends Component {
                         )}
                 </>
                 : <>
-                    <Typography.Title level={3} style={{ marginTop: "1.2em" }}>
+                    <Typography.Title level={3} style={{ marginTop: "0.6em" }}>
                         Extra Properties JSON schemas
                         <div style={{ float: "right" }}>
                             <Button icon={<PlusOutlined />}

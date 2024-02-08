@@ -25,7 +25,7 @@ import {
     OPENID_CONFIG_URL,
 } from "../config";
 import { showNotificationDrawer } from "../modules/notifications/actions";
-import { matchingMenuKeys, renderMenuItem } from "../utils/menu";
+import { matchingMenuKeys, transformMenuItem } from "../utils/menu";
 
 import OverviewSettingsControl from "./overview/OverviewSettingsControl";
 
@@ -188,9 +188,8 @@ const SiteHeader = () => {
                     mode="horizontal"
                     selectedKeys={matchingMenuKeys(menuItems)}
                     style={{ lineHeight: "64px" }}
-                >
-                    {menuItems.map((i) => renderMenuItem(i))}
-                </Menu>
+                    items={menuItems.map((i) => transformMenuItem(i))}
+                />
             </Layout.Header>
             <OverviewSettingsControl modalVisible={modalVisible} toggleModalVisibility={toggleModalVisibility} />
         </>
