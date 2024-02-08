@@ -1,10 +1,8 @@
 import React from "react";
 import {Link} from "react-router-dom";
 
-import {Menu} from "antd";
-
 // Custom menu renderer
-export const transformMenuItem = (i, level = 0) => {
+export const transformMenuItem = (i) => {
     const baseItem = {
         key: i.key ?? i.url,
         style: i.style ?? {},
