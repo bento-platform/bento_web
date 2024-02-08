@@ -12,8 +12,8 @@ import {nop} from "../../utils/misc";
 const FIELD_COLUMNS = [
     {title: "Key", dataIndex: "key", render: t =>
             <span style={{fontFamily: "monospace", fontSize: "12px", whiteSpace: "nowrap"}}>{t}</span>},
-    {title: "JSON Type", dataIndex: "data.type"},
-    {title: "Description", dataIndex: "data.description"},
+    {title: "JSON Type", dataIndex: ["data", "type"]},
+    {title: "Description", dataIndex: ["data", "description"]},
 ];
 
 class DataTypeExplorationModal extends Component {
