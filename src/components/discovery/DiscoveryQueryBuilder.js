@@ -2,7 +2,7 @@ import React, {Component} from "react";
 import {connect} from "react-redux";
 import PropTypes from "prop-types";
 
-import {Button, Card, Dropdown, Empty, Menu, Tabs, Typography} from "antd";
+import { Button, Card, Dropdown, Empty, Tabs, Typography } from "antd";
 import { DownOutlined, PlusOutlined, QuestionCircleOutlined, SearchOutlined } from "@ant-design/icons";
 
 import DataTypeExplorationModal from "./DataTypeExplorationModal";
@@ -142,13 +142,13 @@ class DiscoveryQueryBuilder extends Component {
             .filter(dt => (dt.queryable ?? true) && dt.count > 0);
 
         // Filter out services without data types and then flat-map the service's data types to make the dropdown.
-        const dataTypeMenu = (
-            <Menu onClick={this.handleAddDataTypeQueryForm}>
-                {filteredDataTypes.map(dt => (
-                    <Menu.Item key={`${activeDataset}:${dt.id}`}>{dt.label ?? dt.id}</Menu.Item>
-                ))}
-            </Menu>
-        );
+        const dataTypeMenu = {
+            onClick: this.handleAddDataTypeQueryForm,
+            items: filteredDataTypes.map((dt) => ({
+                key: `${activeDataset}:${dt.id}`,
+                label: <>{dt.label ?? dt.id}</>,
+            })),
+        };
 
         const dataTypeTabPanes = this.props.dataTypeForms.map(({dataType, formValues}) => {
             // Use data type label for tab name, unless it isn't specified - then fall back to ID.
@@ -173,7 +173,7 @@ class DiscoveryQueryBuilder extends Component {
 
         const addConditionsOnDataType = (buttonProps = {style: {float: "right"}}) => (
             <Dropdown
-                overlay={dataTypeMenu}
+                menu={dataTypeMenu}
                 disabled={this.props.dataTypesLoading || this.props.searchLoading || filteredDataTypes?.length === 0 }>
                 <Button {...buttonProps}><PlusOutlined /> Data Type <DownOutlined /></Button>
             </Dropdown>

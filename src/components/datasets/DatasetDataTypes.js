@@ -2,7 +2,7 @@ import React, {useCallback, useMemo, useState} from "react";
 import { useSelector, useDispatch } from "react-redux";
 import PropTypes from "prop-types";
 
-import { Button, Col, Dropdown, Menu, Row, Table, Typography } from "antd";
+import { Button, Col, Dropdown, Row, Table, Typography } from "antd";
 import { DeleteOutlined, DownOutlined, ImportOutlined } from "@ant-design/icons";
 
 import { useWorkflows } from "../../hooks";
@@ -80,18 +80,17 @@ const DatasetDataTypes = React.memo(({ isPrivate, project, dataset }) => {
                     const dtIngestionWorkflowsByID = Object.fromEntries(
                         dtIngestionWorkflows.map((wf) => [wf.id, wf]));
 
-                    const ingestMenu = (
-                        <Menu onClick={(i) => startIngestionFlow(dtIngestionWorkflowsByID[i.key], {
+                    const ingestMenu = {
+                        onClick: (i) => startIngestionFlow(dtIngestionWorkflowsByID[i.key], {
                             // TODO: this requires that exactly this input is present, and may break in the future
                             //  in a bit of a non-obvious way.
                             "project_dataset": `${project.identifier}:${dataset.identifier}`,
-                        })}>
-                            {dtIngestionWorkflows.map((wf) => (<Menu.Item key={wf.id}>{wf.name}</Menu.Item>))}
-                        </Menu>
-                    );
+                        }),
+                        items: dtIngestionWorkflows.map((wf) => ({ key: wf.id, label: wf.name })),
+                    }
 
                     const ingestDropdown = (
-                        <Dropdown overlay={ingestMenu} trigger={["click"]}>
+                        <Dropdown menu={ingestMenu} trigger={["click"]}>
                             <Button icon={<ImportOutlined />}
                                     style={{ width: "100%" }}
                                     disabled={!dtIngestionWorkflows.length}>

@@ -39,14 +39,13 @@ const ManagerReferenceGenomesContent = () => {
         onWorkflowClick({ key: defaultIngestionWorkflow.id });
     }, [onWorkflowClick, defaultIngestionWorkflow]);
 
-    /** @type React.ReactNode */
-    const ingestMenu = useMemo(() => (
-        <Menu onClick={onWorkflowClick}>
-            {referenceIngestionWorkflows.map((w) => (
-                <Menu.Item key={w.id}>{w.name}</Menu.Item>
-            ))}
-        </Menu>
-    ), [onWorkflowClick, referenceIngestionWorkflows]);
+    const ingestMenu = useMemo(() => ({
+        onClick: onWorkflowClick,
+        items: referenceIngestionWorkflows.map((w) => ({
+            key: w.id,
+            label: w.name,
+        })),
+    }), [onWorkflowClick, referenceIngestionWorkflows]);
 
     const columns = useMemo(() => [
         {
@@ -102,7 +101,7 @@ const ManagerReferenceGenomesContent = () => {
         <Layout>
             <Layout.Content style={LAYOUT_CONTENT_STYLE}>
                 <Dropdown.Button
-                    overlay={ingestMenu}
+                    menu={ingestMenu}
                     onClick={onWorkflowButtonClick}
                     disabled={!defaultIngestionWorkflow}
                     style={{ marginBottom: "1rem" }}

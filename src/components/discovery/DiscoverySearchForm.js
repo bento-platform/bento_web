@@ -1,7 +1,7 @@
 import React, {Component} from "react";
 import PropTypes from "prop-types";
 
-import {Button, Dropdown, Menu, Tooltip} from "antd";
+import { Button, Dropdown, Tooltip } from "antd";
 import { Form } from "@ant-design/compatible";
 import { PlusOutlined } from "@ant-design/icons";
 
@@ -307,41 +307,54 @@ class DiscoverySearchForm extends Component {
             }),
         };
 
-        const optionsMenuItems = (options) => {
-            return options.map(o => (
-                    <Menu.Item key={o.path}>
-                        <DropdownOption option={o} />
-                    </Menu.Item>
-            ),
-            );
-        };
+        const optionsMenuItems = (options) =>
+            options.map((o) => ({
+                key: o.path,
+                label: <DropdownOption option={o} />,
+            }));
 
         // longest title padded with marginRight
-        return (
-            <Menu style={{ display: "inline-block" }} onClick={this.addConditionFromPulldown}>
-                <Menu.SubMenu title={<span>Subject</span>}>
-                    {optionsMenuItems(subjectOptions)}
-                </Menu.SubMenu>
-                <Menu.SubMenu title={<span style={{ marginRight: "10px" }}>Phenotypic Features </span>}>
-                    {optionsMenuItems(phenotypicFeaturesOptions)}
-                </Menu.SubMenu>
-                <Menu.SubMenu title={<span>Biosamples</span>}>
-                    {optionsMenuItems(biosamplesOptions)}
-                </Menu.SubMenu>
-                <Menu.SubMenu title={<span>Measurements</span>}>
-                    {optionsMenuItems(measurementsOptions)}
-                </Menu.SubMenu>
-                <Menu.SubMenu title={<span>Diseases</span>}>
-                    {optionsMenuItems(diseasesOptions)}
-                </Menu.SubMenu>
-                <Menu.SubMenu title={<span>Interpretations</span>}>
-                    {optionsMenuItems(interpretationOptions)}
-                </Menu.SubMenu>
-                <Menu.SubMenu title={<span>Medical Actions</span>}>
-                    {optionsMenuItems(medicalActionsOptions)}
-                </Menu.SubMenu>
-            </Menu>
-        );
+        return {
+            style: { display: "inline-block" },
+            onClick: this.addConditionFromPulldown,
+            items: [
+                {
+                    key: "subject",
+                    label: <span>Subject</span>,
+                    children: optionsMenuItems(subjectOptions),
+                },
+                {
+                    key: "phenotypicFeatures",
+                    label: <span style={{ marginRight: "10px" }}>Phenotypic Features </span>,
+                    children: optionsMenuItems(phenotypicFeaturesOptions),
+                },
+                {
+                    key: "biosamples",
+                    label: <span>Biosamples</span>,
+                    children: optionsMenuItems(biosamplesOptions),
+                },
+                {
+                    key: "measurements",
+                    label: <span>Measurements</span>,
+                    children: optionsMenuItems(measurementsOptions),
+                },
+                {
+                    key: "diseases",
+                    label: <span>Diseases</span>,
+                    children: optionsMenuItems(diseasesOptions),
+                },
+                {
+                    key: "interpretations",
+                    label: <span>Interpretations</span>,
+                    children: optionsMenuItems(interpretationOptions),
+                },
+                {
+                    key: "medicalActions",
+                    label: <span>Medical Actions</span>,
+                    children: optionsMenuItems(medicalActionsOptions),
+                },
+            ],
+        };
     };
 
     addConditionFromPulldown = ({ key }) => {
@@ -411,7 +424,7 @@ class DiscoverySearchForm extends Component {
                     {this.state.isVariantSearch ? (
                         <></>
                     ) : this.state.isPhenopacketSearch ? (
-                        <Dropdown overlay={this.phenopacketsSearchOptions} placement="bottomCenter" trigger={["click"]}>
+                        <Dropdown menu={this.phenopacketsSearchOptions()} placement="bottom" trigger={["click"]}>
                             <Button type="dashed" style={{ width: "100%" }}>
                                 <PlusOutlined /> Add condition
                             </Button>

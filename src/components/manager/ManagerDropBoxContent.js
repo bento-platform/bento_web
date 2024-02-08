@@ -18,7 +18,6 @@ import {
     Dropdown,
     Empty,
     Layout,
-    Menu,
     Modal,
     Result,
     Spin,
@@ -387,15 +386,15 @@ const ManagerDropBoxContent = () => {
     const workflowMenuItemClick = useCallback(
         (i) => startIngestionFlow(ingestionWorkflowsByID[i.key], workflowsSupported[i.key][1]),
         [ingestionWorkflowsByID, startIngestionFlow, workflowsSupported]);
-    const workflowMenu = (
-        <Menu>
-            {ingestionWorkflows.map(w => (
-                <Menu.Item key={w.id} disabled={!workflowsSupported[w.id][0]} onClick={workflowMenuItemClick}>
-                    Ingest with Workflow &ldquo;{w.name}&rdquo;
-                </Menu.Item>
-            ))}
-        </Menu>
-    );
+
+    const workflowMenu = useMemo(() => ({
+        onClick: workflowMenuItemClick,
+        items: ingestionWorkflows.map((w) => ({
+            key: w.id,
+            disabled: !workflowsSupported[w.id][0],
+            label: <>Ingest with Workflow &ldquo;{w.name}&rdquo;</>,
+        })),
+    }), [workflowMenuItemClick, ingestionWorkflows, workflowsSupported]);
 
     const handleIngest = useCallback(() => {
         const wfs = Object.entries(workflowsSupported).filter(([_, ws]) => ws[0]);
@@ -550,7 +549,7 @@ const ManagerDropBoxContent = () => {
             <div style={DROP_BOX_CONTENT_CONTAINER_STYLE}>
                 <div style={DROP_BOX_ACTION_CONTAINER_STYLE}>
                     <Button icon={<UploadOutlined />} onClick={handleUpload} disabled={uploadDisabled}>Upload</Button>
-                    <Dropdown.Button overlay={workflowMenu} disabled={ingestIntoDatasetDisabled} onClick={handleIngest}
+                    <Dropdown.Button menu={workflowMenu} disabled={ingestIntoDatasetDisabled} onClick={handleIngest}
                                      style={{ width: "auto" }}>
                         <ImportOutlined /> Ingest
                     </Dropdown.Button>
