@@ -1,6 +1,6 @@
 {
   "name": "bento_web",
-  "version": "4.1.1",
+  "version": "4.1.2",
   "description": "Bento platform front-end",
   "main": "src/index.js",
   "dependencies": {
@@ -10,7 +10,7 @@
     "ajv": "^8.12.0",
     "ansi_up": "^6.0.2",
     "antd": "^4.24.15",
-    "bento-auth-js": "^2.4.0",
+    "bento-auth-js": "^3.2.1",
     "bento-charts": "~2.3.0",
     "cross-fetch": "^3.1.8",
     "file-saver": "^2.0.5",

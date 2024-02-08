@@ -1,20 +1,18 @@
-import React, { useEffect, useState } from "react";
-import { useDispatch, useSelector } from "react-redux";
+import React from "react";
+import { useSelector } from "react-redux";
 import { Route } from "react-router-dom";
 import PropTypes from "prop-types";
 import {
-    LS_BENTO_WAS_SIGNED_IN,
-    performAuth,
-    setLSNotSignedIn,
-    getIsAuthenticated,
-    signOut,
+    useAutoAuthenticate,
+    useIsAuthenticated,
+    usePerformAuth,
+    usePerformSignOut,
 } from "bento-auth-js";
 
 import { Button, Empty, Layout } from "antd";
 import { LoginOutlined } from "@ant-design/icons";
 
 import SitePageLoading from "./SitePageLoading";
-import { AUTH_CALLBACK_URL, CLIENT_ID } from "../config";
 
 const signInIcon = (
     <div style={{ textAlign: "center" }}>
@@ -23,30 +21,11 @@ const signInIcon = (
 );
 
 const OwnerRoute = ({ component: Component, path, ...rest }) => {
-    const dispatch = useDispatch();
-
-    const [isAutoAuthenticating, setIsAutoAuthenticating] = useState(false);
-
-    const idTokenContents = useSelector((state) => state.auth.idTokenContents);
-    const isAuthenticated = getIsAuthenticated(idTokenContents);
-
-    const { data: openIdConfig, isFetching: openIdConfigFetching } = useSelector((state) => state.openIdConfiguration);
-
-    const authzEndpoint = openIdConfig?.["authorization_endpoint"];
-
-    useEffect(() => {
-        if (
-            !isAuthenticated &&
-            !isAutoAuthenticating &&
-            authzEndpoint &&
-            localStorage.getItem(LS_BENTO_WAS_SIGNED_IN) === "true"
-        ) {
-            console.debug("auto-authenticating");
-            setLSNotSignedIn();
-            setIsAutoAuthenticating(true);
-            performAuth(authzEndpoint, CLIENT_ID, AUTH_CALLBACK_URL).catch(console.error);
-        }
-    }, [authzEndpoint, isAuthenticated, isAutoAuthenticating]);
+    const { isFetching: openIdConfigFetching } = useSelector((state) => state.openIdConfiguration);
+    const { isAutoAuthenticating } = useAutoAuthenticate();
+    const isAuthenticated = useIsAuthenticated();
+    const performAuth = usePerformAuth();
+    const performSignOut = usePerformSignOut();
 
     if (openIdConfigFetching || isAutoAuthenticating) {
         return <SitePageLoading />;
@@ -65,13 +44,9 @@ const OwnerRoute = ({ component: Component, path, ...rest }) => {
                             description="You must sign into this node to access this page."
                         >
                             {isAuthenticated ? (
-                                <Button onClick={() => dispatch(signOut())}>Sign Out</Button>
+                                <Button onClick={performSignOut}>Sign Out</Button>
                             ) : (
-                                <Button
-                                    type="primary"
-                                    loading={openIdConfigFetching}
-                                    onClick={() => performAuth(authzEndpoint, CLIENT_ID, AUTH_CALLBACK_URL)}
-                                >
+                                <Button type="primary" loading={openIdConfigFetching} onClick={performAuth}>
                                     Sign In
                                 </Button>
                             )}

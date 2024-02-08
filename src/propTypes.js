@@ -220,6 +220,7 @@ export const diseasePropTypesShape = PropTypes.shape({
 // Prop types object shape for a single phenopacket phenotypic feature object.
 export const phenotypicFeaturePropTypesShape = PropTypes.shape({
     type: ontologyShape.isRequired,
+    excluded: PropTypes.bool,
     created: PropTypes.string,  // ISO datetime string
     updated: PropTypes.string,  // ISO datetime string
 });

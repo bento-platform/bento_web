@@ -11,7 +11,7 @@ const PHENOTYPIC_FEATURES_COLUMNS = [
     {
         title: "Feature",
         key: "feature",
-        render: ({ header, type, negated }) => ({
+        render: ({ header, type, excluded }) => ({
             children: header ? (
                 <h4 style={{ marginBottom: 0 }} className="phenotypic-features--phenopacket-header">
                     Phenopacket:{" "}
@@ -21,7 +21,7 @@ const PHENOTYPIC_FEATURES_COLUMNS = [
                 </h4>
             ) : <>
                 <OntologyTerm term={type} />{" "}
-                {negated ? (
+                {excluded ? (
                     <span style={{ color: "#CC3333" }}>
                         (<span style={{ fontWeight: "bold" }}>Excluded:</span>{" "}
                         Found to be absent{" "}
@@ -74,7 +74,7 @@ const IndividualPhenotypicFeatures = ({ individual }) => {
             }] : []),  // If there is just 1 phenopacket, don't include a header row
             ...(p.phenotypic_features ?? []).map((pf) => ({
                 ...pf,
-                key: `${p.id}:${pf.type.id}:${pf.negated}`,
+                key: `${p.id}:${pf.type.id}:${pf.excluded}`,
             })),
         ]);
     }, [individual]);
