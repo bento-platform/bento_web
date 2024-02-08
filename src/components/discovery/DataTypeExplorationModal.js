@@ -2,7 +2,7 @@ import React, {Component} from "react";
 import PropTypes from "prop-types";
 
 import {Divider, Input, Modal, Radio, Table, Tabs, Typography} from "antd";
-import { Icon } from "@ant-design/compatible";
+import { ShareAltOutlined, TableOutlined } from "@ant-design/icons";
 
 import SchemaTree from "../schema_trees/SchemaTree";
 import {generateSchemaTreeData, generateSchemaTableData} from "../../utils/schema";
@@ -75,8 +75,8 @@ class DataTypeExplorationModal extends Component {
                              onChange={e => this.setState({view: e.target.value})}
                              buttonStyle="solid"
                              style={{position: "absolute", top: 0, right: 0, zIndex: 50}}>
-                    <Radio.Button value="tree"><Icon type="share-alt" /> Tree View</Radio.Button>
-                    <Radio.Button value="table"><Icon type="table" /> Table Detail View</Radio.Button>
+                    <Radio.Button value="tree"><ShareAltOutlined /> Tree View</Radio.Button>
+                    <Radio.Button value="table"><TableOutlined /> Table Detail View</Radio.Button>
                 </Radio.Group>
                 <Tabs>
                 {filteredDataTypes.map(dataType => (

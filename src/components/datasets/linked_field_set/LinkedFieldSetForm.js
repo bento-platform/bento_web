@@ -2,13 +2,13 @@ import React, {Component} from "react";
 import PropTypes from "prop-types";
 
 import {Button, Input} from "antd";
-import { Form, Icon } from "@ant-design/compatible";
+import { Form } from "@ant-design/compatible";
 
 import SchemaTreeSelect from "../../schema_trees/SchemaTreeSelect";
 import {getFieldSchema} from "../../../utils/schema";
 import {FORM_MODE_ADD, FORM_MODE_EDIT} from "../../../constants";
 import {propTypesFormMode} from "../../../propTypes";
-import { CloseOutlined } from "@ant-design/icons";
+import { CloseOutlined, PlusOutlined } from "@ant-design/icons";
 
 const FIELD_KEYS = "fieldKeys";
 let fieldKey = 0;
@@ -114,8 +114,8 @@ class LinkedFieldSetForm extends Component {
             </Form.Item>
             {fieldItems}
             <Form.Item>
-                <Button type="dashed" onClick={() => this.addField()} block={true}>
-                    <Icon type="plus" /> Add Linked Field
+                <Button type="dashed" onClick={() => this.addField()} block={true} icon={<PlusOutlined />}>
+                    Add Linked Field
                 </Button>
             </Form.Item>
         </Form>;

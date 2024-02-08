@@ -2,7 +2,16 @@ import React, { useMemo } from "react";
 import PropTypes from "prop-types";
 
 import {List, Tag} from "antd";
-import { Icon } from "@ant-design/compatible";
+import {
+    CheckSquareOutlined,
+    DatabaseOutlined,
+    FileOutlined,
+    FolderOutlined,
+    FontSizeOutlined,
+    MenuOutlined,
+    NumberOutlined,
+    RightOutlined,
+} from "@ant-design/icons";
 
 import {nop} from "../../utils/misc";
 import {workflowPropTypesShape} from "../../propTypes";
@@ -10,31 +19,31 @@ import {workflowPropTypesShape} from "../../propTypes";
 const TYPE_TAG_DISPLAY = {
     number: {
         color: "green",
-        icon: "number",
+        icon: <NumberOutlined />,
     },
     string: {
         color: "purple",
-        icon: "font-size",
+        icon: <FontSizeOutlined />,
     },
     boolean: {
         color: "cyan",
-        icon: "check-square",
+        icon: <CheckSquareOutlined />,
     },
     enum: {
         color: "blue",
-        icon: "menu",
+        icon: <MenuOutlined />,
     },
     "project:dataset": {
         color: "magenta",
-        icon: "database",
+        icon: <DatabaseOutlined />,
     },
     file: {
         color: "volcano",
-        icon: "file",
+        icon: <FileOutlined />,
     },
     directory: {
         color: "orange",
-        icon: "folder",
+        icon: <FolderOutlined />,
     },
 };
 
@@ -42,7 +51,7 @@ const WorkflowInputTag = ({ id, type, children }) => {
     const display = useMemo(() => TYPE_TAG_DISPLAY[type.replace("[]", "")], [type]);
     return (
         <Tag key={id} color={display.color} style={{marginBottom: "2px"}}>
-            <Icon type={display.icon} />&nbsp;
+            {display.icon}&nbsp;
             {id} ({children || type}{type.endsWith("[]") ? " array" : ""})
         </Tag>
     );
@@ -83,7 +92,7 @@ const WorkflowListItem = ({ onClick, workflow, rightAlignedTags }) => {
                 ? <a onClick={() => (onClick || nop)()} style={{ display: "flex" }}>
                     <span style={workflowNameStyle}>
                         {name}
-                        <Icon type="right" style={{marginLeft: "0.3rem"}} />
+                        <RightOutlined style={{marginLeft: "0.3rem"}} />
                     </span><span>{typeTag}</span></a>
                 : <span style={{ display: "flex" }}>
                     <span style={workflowNameStyle}>{name}</span>

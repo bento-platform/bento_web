@@ -2,7 +2,8 @@ import React, { useCallback, useMemo, useState } from "react";
 import PropTypes from "prop-types";
 
 import { Document, Page, pdfjs } from "react-pdf";
-import { Button, Icon } from "antd";
+import { Button } from "antd";
+import { MinusOutlined, PlusOutlined } from "@ant-design/icons";
 
 import { useAuthorizationHeader } from "bento-auth-js";
 
@@ -76,8 +77,8 @@ const PdfDisplay = ({uri, onLoad, onFail}) => {
         <div style={styles.container}>
             <div style={styles.header}>
                 <Button.Group>
-                    <Button disabled={scale === 0} onClick={decreaseScale}><Icon type="minus"/></Button>
-                    <Button disabled={scale === MAX_SCALE} onClick={increaseScale}><Icon type="plus"/></Button>
+                    <Button disabled={scale === 0} onClick={decreaseScale}><MinusOutlined /></Button>
+                    <Button disabled={scale === MAX_SCALE} onClick={increaseScale}><PlusOutlined /></Button>
                 </Button.Group>
             </div>
             <Document file={uri} onLoadSuccess={onLoadSuccess} onLoadError={onLoadError} options={pdfOptions}>

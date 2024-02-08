@@ -3,7 +3,7 @@ import { useSelector, useDispatch } from "react-redux";
 import PropTypes from "prop-types";
 
 import { Button, Col, Dropdown, Menu, Row, Table, Typography } from "antd";
-import { Icon } from "@ant-design/compatible";
+import { DeleteOutlined, DownOutlined, ImportOutlined } from "@ant-design/icons";
 
 import { useWorkflows } from "../../hooks";
 import { useStartIngestionFlow } from "../manager/workflowCommon";
@@ -13,7 +13,6 @@ import { fetchDatasetDataTypesSummariesIfPossible } from "../../modules/datasets
 
 import genericConfirm from "../ConfirmationModal";
 import DataTypeSummaryModal from "./datatype/DataTypeSummaryModal";
-import { DeleteOutlined, ImportOutlined } from "@ant-design/icons";
 
 const NA_TEXT = <span style={{ color: "#999", fontStyle: "italic" }}>N/A</span>;
 
@@ -96,7 +95,7 @@ const DatasetDataTypes = React.memo(({ isPrivate, project, dataset }) => {
                             <Button icon={<ImportOutlined />}
                                     style={{ width: "100%" }}
                                     disabled={!dtIngestionWorkflows.length}>
-                                Ingest <Icon type="down" />
+                                Ingest <DownOutlined />
                             </Button>
                         </Dropdown>
                     );

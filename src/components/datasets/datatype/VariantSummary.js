@@ -1,7 +1,7 @@
 import React from "react";
 
 import {Col, Row, Statistic} from "antd";
-import { Icon } from "@ant-design/compatible";
+import { FileOutlined } from "@ant-design/icons";
 
 import {summaryPropTypesShape} from "../../../propTypes";
 
@@ -11,7 +11,7 @@ const VariantSummary = ({summary}) =>
         <Col span={8}><Statistic title="Samples" value={summary.data_type_specific.samples} /></Col>
         {summary.data_type_specific?.vcf_files !== undefined ? (
             <Col span={8}><Statistic title="VCF Files"
-                                     prefix={<Icon type="file" />}
+                                     prefix={<FileOutlined />}
                                      value={summary.data_type_specific.vcf_files} /></Col>
         ) : null}
     </Row>;

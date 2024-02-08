@@ -3,9 +3,9 @@ import {connect} from "react-redux";
 import PropTypes from "prop-types";
 
 import {Button, Card, Col, Divider, Empty, Modal, Row, Typography} from "antd";
-import { Icon } from "@ant-design/compatible";
 
 import DataUseDisplay from "../DataUseDisplay";
+import { DeleteOutlined, EditOutlined, PlusOutlined } from "@ant-design/icons";
 
 import {
     addDatasetLinkedFieldSetIfPossible,
@@ -26,7 +26,6 @@ import DatasetOverview from "./DatasetOverview";
 import {FORM_MODE_ADD, FORM_MODE_EDIT} from "../../constants";
 import {datasetPropTypesShape, projectPropTypesShape} from "../../propTypes";
 import DatasetDataTypes from "./DatasetDataTypes";
-import { DeleteOutlined, EditOutlined, PlusOutlined } from "@ant-design/icons";
 
 
 const DATASET_CARD_TABS = [
@@ -201,13 +200,13 @@ class Dataset extends Component {
                                                     index: i,
                                                 },
                                             })}>
-                                                <Icon type="edit"
-                                                      style={{width: "auto", display: "inline"}}
-                                                      key="edit_field_sets" /> Manage Fields</span>,
+                                                <EditOutlined style={{width: "auto", display: "inline"}} />{" "}
+                                                Manage Fields
+                                            </span>,
                                             <span key="delete" onClick={() => this.handleFieldSetDeletion(fieldSet, i)}>
-                                                <Icon type="delete"
-                                                      style={{width: "auto", display: "inline"}}
-                                                      key="delete_field_set" /> Delete Set</span>,
+                                                <DeleteOutlined style={{width: "auto", display: "inline"}} />{" "}
+                                                Delete Set
+                                            </span>,
                                         ] : []}>
                                             <LinkedFieldSetTable linkedFieldSet={fieldSet} />
                                         </Card>

@@ -11,7 +11,7 @@ import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 
 import { Radio } from "antd";
-import { Icon } from "@ant-design/compatible";
+import { CodeOutlined, PicRightOutlined } from "@ant-design/icons";
 
 const REMARK_PLUGINS = [remarkGfm];
 
@@ -41,8 +41,8 @@ const MarkdownDisplay = ({ contents }) => {
     return <div style={styles.container}>
         <div style={styles.header}>
             <Radio.Group defaultValue="render" onChange={v => setDisplayMode(v.target.value)}>
-                <Radio.Button value="render"><Icon type="pic-right" /> Render</Radio.Button>
-                <Radio.Button value="code"><Icon type="code" /> Code</Radio.Button>
+                <Radio.Button value="render" ><PicRightOutlined /> Render</Radio.Button>
+                <Radio.Button value="code"><CodeOutlined /> Code</Radio.Button>
             </Radio.Group>
         </div>
         <div style={{ overflowY: "hidden", height: displayMode === "code" ? 0 : "auto" }}>
