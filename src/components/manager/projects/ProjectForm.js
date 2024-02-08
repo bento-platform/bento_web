@@ -17,7 +17,7 @@ const ProjectForm = ({formRef, style, initialValues}) => (
 ProjectForm.propTypes = {
     formRef: PropTypes.object,
     style: PropTypes.object,
-    initialValue: PropTypes.shape({
+    initialValues: PropTypes.shape({
         title: PropTypes.string,
         description: PropTypes.string,
     }),

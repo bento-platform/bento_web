@@ -151,7 +151,7 @@ const FileUploadForm = (({initialUploadFolder, initialUploadFiles, form}) => {
                 })),
             } : {}),
         }),
-        [initialUploadFolder, initialUploadFiles]
+        [initialUploadFolder, initialUploadFiles],
     );
 
     return <Form initialValues={initialValues} form={form}>
