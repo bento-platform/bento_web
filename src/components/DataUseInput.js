@@ -94,7 +94,7 @@ class DataUseInput extends Component {
                                 <div style={{ maxWidth: 800 }}>
                                     {/* Replicate the style of list item without all the extra bloat / styling mishaps
                                       * that come with putting it inside a Radio. */}
-                                    <Typography.Title level={6} style={{
+                                    <Typography.Title level={5} style={{
                                         fontSize: 14,
                                         fontWeight: 500,
                                         color: "rgba(0, 0, 0, 0.85)",
