@@ -39,6 +39,10 @@ export const transformMenuItem = (i) => {
     };
 };
 
+const currentUrlMatches = (i) => i.url && window.location.pathname.startsWith(i.url);
 export const matchingMenuKeys = menuItems => menuItems
-    .filter(i => (i.url && window.location.pathname.startsWith(i.url)) || (i.children ?? []).length > 0)
-    .flatMap(i => [i.key ?? i.url ?? "", ...matchingMenuKeys(i.children ?? [])]);
+    .filter(i => currentUrlMatches(i) || (i.children ?? []).length > 0)
+    .flatMap(i => [
+        ...(currentUrlMatches(i) ? [i.key ?? i.url ?? ""] : []),
+        ...matchingMenuKeys(i.children ?? [])
+    ]);
