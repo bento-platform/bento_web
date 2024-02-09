@@ -44,5 +44,5 @@ export const matchingMenuKeys = menuItems => menuItems
     .filter(i => currentUrlMatches(i) || (i.children ?? []).length > 0)
     .flatMap(i => [
         ...(currentUrlMatches(i) ? [i.key ?? i.url ?? ""] : []),
-        ...matchingMenuKeys(i.children ?? [])
+        ...matchingMenuKeys(i.children ?? []),
     ]);
