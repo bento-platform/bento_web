@@ -18,13 +18,23 @@ const validateJson = (rule, value, callback) => {
     }
 };
 
-const DatasetForm = ({ style, initialValue, formRef }) => {
+const DatasetForm = ({ initialValue, formRef }) => {
     return (
-        <Form ref={formRef} style={style || {}} layout="vertical">
-            <Item label="Title" name="title" initialValue={initialValue?.title || ""} rules={[{ required: true }, { min: 3 }]}>
+        <Form ref={formRef} layout="vertical">
+            <Item
+                label="Title"
+                name="title"
+                initialValue={initialValue?.title || ""}
+                rules={[{ required: true }, { min: 3 }]}
+            >
                 <Input placeholder="My Dataset" size="large" />
             </Item>
-            <Item label="Description" name="description" initialValue={initialValue?.description || ""} rules={[{ required: true }]}>
+            <Item
+                label="Description"
+                name="description"
+                initialValue={initialValue?.description || ""}
+                rules={[{ required: true }]}
+            >
                 <Input.TextArea placeholder="This is a dataset" />
             </Item>
             <Item label="Contact Information" name="contact_info" initialValue={initialValue?.contact_info ?? ""}>
@@ -62,7 +72,6 @@ const DatasetForm = ({ style, initialValue, formRef }) => {
 };
 
 DatasetForm.propTypes = {
-    style: PropTypes.object,
     initialValue: PropTypes.shape({
         title: PropTypes.string,
         description: PropTypes.string,
@@ -70,6 +79,7 @@ DatasetForm.propTypes = {
         data_use: DATA_USE_PROP_TYPE_SHAPE, // TODO: Shared shape for data use
         dats_file: PropTypes.object,
     }),
+    formRef: PropTypes.object,
 };
 
 export default DatasetForm;

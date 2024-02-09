@@ -33,7 +33,7 @@ class DatasetFormModal extends Component {
     }
 
     handleSubmit() {
-        let form = this.form.current;
+        const form = this.form.current;
         if (!form) return;
         form.validateFields(async (err, values) => {
             if (err) {
