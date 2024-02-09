@@ -65,7 +65,7 @@ const ClinicalSummary = () => {
     return (
         <>
             <Typography.Title level={4}>Clinical/Phenotypic Data</Typography.Title>
-            <Row style={{ marginBottom: "24px" }} gutter={[0, 16]}>
+            <Row style={{ marginBottom: 24 }} gutter={[0, 16]}>
                 <StatisticCollection statistics={statistics} isFetching={isFetching} />
             </Row>
             <Row>
