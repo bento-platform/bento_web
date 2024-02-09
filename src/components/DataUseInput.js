@@ -1,7 +1,7 @@
 import React, {Component} from "react";
 import PropTypes from "prop-types";
 
-import {Checkbox, List, Radio, Typography} from "antd";
+import { Checkbox, List, Radio, Space, Typography } from "antd";
 
 import {
     PRIMARY_CONSENT_CODE_KEYS,
@@ -84,30 +84,35 @@ class DataUseInput extends Component {
             <div>
                 <Typography.Title level={4} style={{fontSize: "20px"}}>Consent Code</Typography.Title>
 
-                <div style={{fontWeight: "bold", marginBottom: "4px"}}>Primary</div>
+                <Typography.Title level={5}>Primary</Typography.Title>
                 <Radio.Group name="primary_consent_code"
                              value={(this.state.consent_code.primary_category ?? {code: null}).code}
                              onChange={e => this.handlePCCChange(e.target.value)}>
-                    <List itemLayout="horizontal" style={{maxWidth: "600px"}}>
-                    {PRIMARY_CONSENT_CODE_KEYS.map(pcc =>
-                        <Radio key={pcc} value={pcc} style={{display: "block"}}>
-                            <List.Item style={{
-                                display: "inline-block",
-                                verticalAlign: "top",
-                                paddingTop: "2px",
-                                paddingRight: "16px",
-                                whiteSpace: "normal",
-                            }}>
-                                <List.Item.Meta title={PRIMARY_CONSENT_CODE_INFO[pcc].title}
-                                                description={PRIMARY_CONSENT_CODE_INFO[pcc].content} />
-                            </List.Item>
-                        </Radio>,
-                    )}
-                    </List>
+                    <Space direction="vertical">
+                        {PRIMARY_CONSENT_CODE_KEYS.map((pcc) => (
+                            <Radio key={pcc} value={pcc}>
+                                <div style={{ maxWidth: 800 }}>
+                                    {/* Replicate the style of list item without all the extra bloat / styling mishaps
+                                      * that come with putting it inside a Radio. */}
+                                    <Typography.Title level={6} style={{
+                                        fontSize: 14,
+                                        fontWeight: 500,
+                                        color: "rgba(0, 0, 0, 0.85)",
+                                        marginBottom: 4,
+                                    }}>
+                                        {PRIMARY_CONSENT_CODE_INFO[pcc].title}
+                                    </Typography.Title>
+                                    <Typography.Paragraph style={{ marginBottom: 0, color: "rgba(0, 0, 0, 0.45)" }}>
+                                        {PRIMARY_CONSENT_CODE_INFO[pcc].content}
+                                    </Typography.Paragraph>
+                                </div>
+                            </Radio>
+                        ))}
+                    </Space>
                 </Radio.Group>
 
-                <div style={{fontWeight: "bold"}}>Secondary</div>
-                <List itemLayout="horizontal" style={{maxWidth: "600px"}}>
+                <Typography.Title level={5} style={{ marginTop: 16 }}>Secondary</Typography.Title>
+                <List itemLayout="horizontal" style={{ maxWidth: 800 }}>
                     {SECONDARY_CONSENT_CODE_KEYS.map(scc =>
                         <List.Item key={scc}>
                             <List.Item.Meta title={
@@ -129,7 +134,7 @@ class DataUseInput extends Component {
                 <Typography.Title level={4}>
                     Restrictions and Conditions
                 </Typography.Title>
-                <List itemLayout="horizontal" style={{maxWidth: "600px"}}
+                <List itemLayout="horizontal" style={{ maxWidth: 800 }}
                       dataSource={DATA_USE_KEYS}
                       renderItem={u => {
                           const { title, content, Icon } = DATA_USE_INFO[u];

@@ -24,6 +24,8 @@ class DatasetFormModal extends Component {
         this.handleCancel = this.handleCancel.bind(this);
         this.handleSubmit = this.handleSubmit.bind(this);
         this.handleSuccess = this.handleSuccess.bind(this);
+
+        this.form = React.createRef();
     }
 
     handleCancel() {
@@ -31,7 +33,9 @@ class DatasetFormModal extends Component {
     }
 
     handleSubmit() {
-        this.form.validateFields(async (err, values) => {
+        let form = this.form.current;
+        if (!form) return;
+        form.validateFields(async (err, values) => {
             if (err) {
                 console.error(err);
                 return;
@@ -56,14 +60,14 @@ class DatasetFormModal extends Component {
     async handleSuccess(values) {
         await this.props.fetchProjectsWithDatasets();  // TODO: If needed / only this project...
         await (this.props.onOk || nop)({...(this.props.initialValue || {}), values});
-        if ((this.props.mode || FORM_MODE_ADD) === FORM_MODE_ADD) this.form.resetFields();
+        if (this.form.current && (this.props.mode || FORM_MODE_ADD) === FORM_MODE_ADD) this.form.current.resetFields();
     }
 
     render() {
         const mode = this.props.mode || FORM_MODE_ADD;
         return this.props.project ? (
             <Modal open={this.props.open}
-                   width={648}
+                   width={848}
                    title={mode === FORM_MODE_ADD
                        ? `Add Dataset to "${this.props.project.title}"`
                        : `Edit Dataset "${(this.props.initialValue || {}).title || ""}"`}
@@ -79,8 +83,8 @@ class DatasetFormModal extends Component {
                        </Button>,
                    ]}
                    onCancel={this.handleCancel}>
-                <DatasetForm ref={form => this.form = form}
-                             initialValue={mode === FORM_MODE_ADD ? null : this.props.initialValue} />
+                <DatasetForm formRef={this.form}
+                             initialValue={mode === FORM_MODE_ADD ? undefined : this.props.initialValue} />
             </Modal>
         ) : null;
     }
