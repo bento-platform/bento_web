@@ -154,7 +154,7 @@ const FileUploadForm = (({initialUploadFolder, initialUploadFiles, form}) => {
         [initialUploadFolder, initialUploadFiles],
     );
 
-    return <Form initialValues={initialValues} form={form}>
+    return <Form initialValues={initialValues} form={form} layout="vertical">
         <Form.Item label="Parent Folder" name="parent" rules={[
             {required: true, message: "Please select a folder to upload into."},
         ]}>
