@@ -7,12 +7,6 @@ import { performGohanGeneSearchIfPossible } from "../../modules/discovery/action
 // TODOs:
 // style options
 
-const { Option } = AutoComplete;
-
-const geneDropdownText = (g) => {
-    return `${g.name} chromosome: ${g.chrom} start: ${g.start} end: ${g.end}`;
-};
-
 const parsePosition = (value) => {
     const parse = /(?:CHR|chr)([0-9]{1,2}|X|x|Y|y|M|m):(\d+)-(\d+)/;
     const result = parse.exec(value);
@@ -89,11 +83,11 @@ const LocusSearch = ({assemblyId, addVariantSearchValues, handleLocusChange, set
         }
     };
 
-    const handleSelect = (value, options) => {
+    const handleSelect = (value, option) => {
         setInputValue(value);
-        const locus = options.props?.locus;
+        const locus = option.props?.locus;
 
-    // may not need error checking here, since this is user selection, not user input
+        // may not need error checking here, since this is user selection, not user input
         if (!locus) {
             return;
         }
@@ -103,32 +97,24 @@ const LocusSearch = ({assemblyId, addVariantSearchValues, handleLocusChange, set
     };
 
     useEffect(() => {
-        setAutoCompleteOptions((geneSearchResults ?? []).sort((a, b) => (a.name > b.name) ? 1 : -1));
+        setAutoCompleteOptions(
+            (geneSearchResults ?? [])
+                .sort((a, b) => (a.name > b.name) ? 1 : -1)
+                .map((g) => ({
+                    value: `${g.name}_${g.assemblyId}_autocomplete_option`,
+                    label: `${g.name} (${g.chrom}:${g.start}-${g.end})`,
+                    locus: { "chrom": g.chrom, "start": g.start, "end": g.end },
+                }))
+        );
     }, [geneSearchResults]);
 
     return (
         <AutoComplete
-            options={autoCompleteOptions}
+            options={showAutoCompleteOptions ? autoCompleteOptions : []}
             onChange={handleChange}
             onSelect={handleSelect}
             onBlur={handleOnBlur}
-            // dropdownMenuStyle={}
-            // backfill={true}
-        >
-            {showAutoCompleteOptions &&
-                autoCompleteOptions.map((g) => (
-                    <Option
-                        key={`${g.name}_${g.assemblyId}`}
-
-                        //add suffix to selection text to distinguish from user text, this text is not shown
-                        value={`${g.name}_${g.assemblyId}_autocomplete_option`}
-
-                        label={`${g.name} chrom: ${g.chrom}`}
-                        locus={{ "chrom": g.chrom, "start": g.start, "end": g.end }}
-                        // style={optionStyle}
-                    >{geneDropdownText(g)}</Option>
-                ))}
-        </AutoComplete>
+        />
     );
 };
 
