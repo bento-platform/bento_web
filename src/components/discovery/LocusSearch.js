@@ -40,7 +40,7 @@ const LocusSearch = ({assemblyId, addVariantSearchValues, handleLocusChange, set
 
         setInputValue(value);
 
-        if (value.includes(":")) {
+        if (!value.includes(" ") && value.includes(":")) {
             handlePositionNotation(value);
 
             // let user finish typing position before showing error
@@ -67,8 +67,8 @@ const LocusSearch = ({assemblyId, addVariantSearchValues, handleLocusChange, set
 
         // incorrect values are passed as null for handling elsewhere
 
-        const isAutoCompleteOption = inputValue.endsWith("_autocomplete_option");
-        const isPositionNotation = inputValue.includes(":");
+        const isAutoCompleteOption = inputValue.includes(" ");
+        const isPositionNotation = inputValue.includes(":") && !isAutoCompleteOption;
 
         if (!(isAutoCompleteOption || isPositionNotation)) {
             handleLocusChange({chrom: null, start: null, end: null});
@@ -101,8 +101,7 @@ const LocusSearch = ({assemblyId, addVariantSearchValues, handleLocusChange, set
             (geneSearchResults ?? [])
                 .sort((a, b) => (a.name > b.name) ? 1 : -1)
                 .map((g) => ({
-                    value: `${g.name}_${g.assemblyId}_autocomplete_option`,
-                    label: `${g.name} (${g.chrom}:${g.start}-${g.end})`,
+                    value: `${g.name} (${g.chrom}:${g.start}-${g.end})`,
                     locus: { "chrom": g.chrom, "start": g.start, "end": g.end },
                 })),
         );
