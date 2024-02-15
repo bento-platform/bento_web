@@ -104,7 +104,7 @@ const LocusSearch = ({assemblyId, addVariantSearchValues, handleLocusChange, set
                     value: `${g.name}_${g.assemblyId}_autocomplete_option`,
                     label: `${g.name} (${g.chrom}:${g.start}-${g.end})`,
                     locus: { "chrom": g.chrom, "start": g.start, "end": g.end },
-                }))
+                })),
         );
     }, [geneSearchResults]);
 
