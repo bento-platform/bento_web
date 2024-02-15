@@ -107,28 +107,28 @@ const LocusSearch = ({assemblyId, addVariantSearchValues, handleLocusChange, set
     }, [geneSearchResults]);
 
     return (
-    <AutoComplete
-      options={autoCompleteOptions}
-      onChange={handleChange}
-      onSelect={handleSelect}
-      onBlur={handleOnBlur}
-      // dropdownMenuStyle={}
-      // backfill={true}
-    >
-      {showAutoCompleteOptions &&
-        autoCompleteOptions.map((g) => (
-          <Option
-            key={`${g.name}_${g.assemblyId}`}
+        <AutoComplete
+            options={autoCompleteOptions}
+            onChange={handleChange}
+            onSelect={handleSelect}
+            onBlur={handleOnBlur}
+            // dropdownMenuStyle={}
+            // backfill={true}
+        >
+            {showAutoCompleteOptions &&
+                autoCompleteOptions.map((g) => (
+                    <Option
+                        key={`${g.name}_${g.assemblyId}`}
 
-            //add suffix to selection text to distinguish from user text, this text is not shown
-            value={`${g.name}_${g.assemblyId}_autocomplete_option`}
+                        //add suffix to selection text to distinguish from user text, this text is not shown
+                        value={`${g.name}_${g.assemblyId}_autocomplete_option`}
 
-            label={`${g.name} chrom: ${g.chrom}`}
-            locus={{"chrom": g.chrom, "start": g.start, "end": g.end}}
-            // style={optionStyle}
-          >{geneDropdownText(g)}</Option>
-        ))}
-    </AutoComplete>
+                        label={`${g.name} chrom: ${g.chrom}`}
+                        locus={{ "chrom": g.chrom, "start": g.start, "end": g.end }}
+                        // style={optionStyle}
+                    >{geneDropdownText(g)}</Option>
+                ))}
+        </AutoComplete>
     );
 };
 
