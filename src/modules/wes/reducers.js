@@ -120,8 +120,12 @@ export const runs = (
                 ? { timestamp, state: action.data.state }
                 : {};
 
+            console.debug(
+                `run ${action.runID}: existing item timestamp:`, existingItem.timestamp, "| new timestamp:", timestamp,
+                "new state:", stateUpdate ?? `keep existing (${existingItem.state})`);
+
             const newItem = {
-                ...(state.itemsByID[action.runID] ?? {}),
+                ...existingItem,
                 ...stateUpdate,
                 details: { ...action.data, state: stateUpdate.state ?? action.data.state },
             };
