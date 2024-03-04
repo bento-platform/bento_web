@@ -7,7 +7,7 @@ import { Menu, Skeleton } from "antd";
 import SitePageHeader from "../SitePageHeader";
 import ServiceOverview from "./ServiceOverview";
 
-import { matchingMenuKeys, renderMenuItem } from "../../utils/menu";
+import { matchingMenuKeys, transformMenuItem } from "../../utils/menu";
 
 const styles = {
     // TODO: Deduplicate with data manager
@@ -47,9 +47,14 @@ const ServiceDetail = () => {
             <SitePageHeader
                 title={serviceInfo?.name || ""}
                 subTitle={serviceInfo?.description || ""}
-                footer={<Menu mode="horizontal" style={styles.menu} selectedKeys={selectedKeys}>
-                    {menuItems.map(renderMenuItem)}
-                </Menu>}
+                footer={
+                    <Menu
+                        mode="horizontal"
+                        style={styles.menu}
+                        selectedKeys={selectedKeys}
+                        items={menuItems.map(transformMenuItem)}
+                    />
+                }
                 withTabBar={true}
                 onBack={onBack}
             />

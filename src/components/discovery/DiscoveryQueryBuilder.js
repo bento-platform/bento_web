@@ -2,7 +2,8 @@ import React, {Component} from "react";
 import {connect} from "react-redux";
 import PropTypes from "prop-types";
 
-import {Button, Card, Dropdown, Empty, Icon, Menu, Tabs, Typography} from "antd";
+import { Button, Card, Dropdown, Empty, Tabs, Typography } from "antd";
+import { DownOutlined, PlusOutlined, QuestionCircleOutlined, SearchOutlined } from "@ant-design/icons";
 
 import DataTypeExplorationModal from "./DataTypeExplorationModal";
 import DiscoverySearchForm from "./DiscoverySearchForm";
@@ -141,47 +142,50 @@ class DiscoveryQueryBuilder extends Component {
             .filter(dt => (dt.queryable ?? true) && dt.count > 0);
 
         // Filter out services without data types and then flat-map the service's data types to make the dropdown.
-        const dataTypeMenu = (
-            <Menu onClick={this.handleAddDataTypeQueryForm}>
-                {filteredDataTypes.map(dt => (
-                    <Menu.Item key={`${activeDataset}:${dt.id}`}>{dt.label ?? dt.id}</Menu.Item>
-                ))}
-            </Menu>
-        );
+        const dataTypeMenu = {
+            onClick: this.handleAddDataTypeQueryForm,
+            items: filteredDataTypes.map((dt) => ({
+                key: `${activeDataset}:${dt.id}`,
+                label: <>{dt.label ?? dt.id}</>,
+            })),
+        };
 
-        const dataTypeTabPanes = this.props.dataTypeForms.map(({dataType, formValues}) => {
+        const dataTypeTabItems = this.props.dataTypeForms.map(({dataType, formValues}) => {
             // Use data type label for tab name, unless it isn't specified - then fall back to ID.
             // This behaviour should be the same everywhere in bento_web or almost anywhere the
             // data type is shown to 'end users'.
-            const {id, label} = dataType;
-            return <Tabs.TabPane tab={label ?? id}
-                                 key={id}
-                                 closable={!(this.props.requiredDataTypes ?? []).includes(id)}>
-                <DiscoverySearchForm
-                    conditionType="data-type"
-                    isInternal={this.props.isInternal ?? false}
-                    dataType={dataType}
-                    formValues={formValues}
-                    loading={this.props.searchLoading}
-                    wrappedComponentRef={form => this.forms[id] = form}
-                    onChange={fields => this.handleFormChange(dataType, fields)}
-                    handleVariantHiddenFieldChange={this.handleVariantHiddenFieldChange}
-                />
-            </Tabs.TabPane>;
+            const { id, label } = dataType;
+            return ({
+                key: id,
+                label: label ?? id,
+                closable: !(this.props.requiredDataTypes ?? []).includes(id),
+                children: (
+                    <DiscoverySearchForm
+                        conditionType="data-type"
+                        isInternal={this.props.isInternal ?? false}
+                        dataType={dataType}
+                        formValues={formValues}
+                        loading={this.props.searchLoading}
+                        wrappedComponentRef={form => this.forms[id] = form}
+                        onChange={fields => this.handleFormChange(dataType, fields)}
+                        handleVariantHiddenFieldChange={this.handleVariantHiddenFieldChange}
+                    />
+                ),
+            });
         });
 
         const addConditionsOnDataType = (buttonProps = {style: {float: "right"}}) => (
             <Dropdown
-                overlay={dataTypeMenu}
+                menu={dataTypeMenu}
                 disabled={this.props.dataTypesLoading || this.props.searchLoading || filteredDataTypes?.length === 0 }>
-                <Button {...buttonProps}> <Icon type="plus" /> Data Type <Icon type="down" /></Button>
+                <Button {...buttonProps}><PlusOutlined /> Data Type <DownOutlined /></Button>
             </Dropdown>
         );
 
         return <Card style={{marginBottom: "1.5em"}}>
             <DataTypeExplorationModal
                 dataTypes={filteredDataTypes}
-                visible={this.state.schemasModalShown}
+                open={this.state.schemasModalShown}
                 onCancel={this.handleHelpAndSchemasToggle}
             />
 
@@ -192,12 +196,12 @@ class DiscoveryQueryBuilder extends Component {
                     style={{float: "right", marginRight: "1em"}}
                     disabled={filteredDataTypes?.length === 0}
                     onClick={this.handleHelpAndSchemasToggle}>
-                    <Icon type="question-circle" /> Help
+                    <QuestionCircleOutlined /> Help
                 </Button>
             </Typography.Title>
 
             {this.props.dataTypeForms.length > 0
-                ? <Tabs type="editable-card" hideAdd onEdit={this.handleTabsEdit}>{dataTypeTabPanes}</Tabs>
+                ? <Tabs type="editable-card" hideAdd onEdit={this.handleTabsEdit} items={dataTypeTabItems} />
                 : (
                     <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} description="No Data Types Added">
                         {addConditionsOnDataType({type: "primary"})}
@@ -216,7 +220,7 @@ class DiscoveryQueryBuilder extends Component {
             */}
 
             <Button type="primary"
-                    icon="search"
+                    icon={<SearchOutlined />}
                     loading={this.props.searchLoading}
                     disabled={this.props.dataTypeForms.length === 0 || this.props.isFetchingTextSearch}
                     onClick={() => this.handleSubmit()}>Search</Button>

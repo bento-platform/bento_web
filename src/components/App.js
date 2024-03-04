@@ -19,7 +19,7 @@ import { Layout, message, Modal } from "antd";
 
 import OwnerRoute from "./OwnerRoute";
 
-const SiteHeader = lazy(() => import("./SiteHeader"));
+import SiteHeader from "./SiteHeader";
 import SiteFooter from "./SiteFooter";
 import SitePageLoading from "./SitePageLoading";
 
@@ -29,8 +29,7 @@ import SessionWorker from "../session.worker";
 import { nop } from "../utils/misc";
 import { fetchUserDependentData } from "../modules/user/actions";
 
-// Lazy-load notification drawer
-const NotificationDrawer = lazy(() => import("./notifications/NotificationDrawer"));
+import NotificationDrawer from "./notifications/NotificationDrawer";
 
 // Lazy-load route components
 const OverviewContent = lazy(() => import("./OverviewContent"));
@@ -217,17 +216,13 @@ const App = () => {
                         clearPingInterval(); // Stop pinging until the user decides to sign in again
                         setSignedOutModal(false); // Close the modal
                     }}
-                    visible={signedOutModal}
+                    open={signedOutModal}
                 >
                     Please <a onClick={openSignInWindow}>sign in</a> (uses a popup window) to continue working.
                 </Modal>
                 <Layout style={{ minHeight: "100vh" }}>
-                    <Suspense fallback={<div />}>
-                        <NotificationDrawer />
-                    </Suspense>
-                    <Suspense fallback={<Layout.Header />}>
-                        <SiteHeader />
-                    </Suspense>
+                    <NotificationDrawer />
+                    <SiteHeader />
                     <Layout.Content style={{ margin, display: "flex", flexDirection: "column" }}>
                         <Suspense fallback={<SitePageLoading />}>
                             <Switch>

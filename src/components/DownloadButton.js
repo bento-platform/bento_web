@@ -3,6 +3,7 @@ import { useSelector } from "react-redux";
 import PropTypes from "prop-types";
 
 import { Button } from "antd";
+import { DownloadOutlined } from "@ant-design/icons";
 
 import { AUDIO_FILE_EXTENSIONS, IMAGE_FILE_EXTENSIONS, VIDEO_FILE_EXTENSIONS } from "./display/FileDisplay";
 
@@ -43,7 +44,12 @@ const DownloadButton = ({ disabled, uri, fileName, children, size, type, onClick
     }, [uri, accessToken, propsOnClick]);
 
     return (
-        <Button key="download" icon="download" size={size} type={type} disabled={disabled} onClick={onClick} {...props}>
+        <Button key="download" icon={<DownloadOutlined />}
+                size={size}
+                type={type}
+                disabled={disabled}
+                onClick={onClick}
+                {...props}>
             {children === undefined ? "Download" : children}
         </Button>
     );

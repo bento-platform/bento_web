@@ -1,7 +1,8 @@
 import React, { useCallback, useMemo, useState } from "react";
 import PropTypes from "prop-types";
 
-import { Button, Descriptions, Empty, Icon, Modal, Table, Typography } from "antd";
+import { Button, Descriptions, Empty, Modal, Table, Typography } from "antd";
+import { ExperimentOutlined, MedicineBoxOutlined } from "@ant-design/icons";
 
 import { useIndividualInterpretations } from "./utils";
 import "./explorer.css";
@@ -31,7 +32,7 @@ export const VariantInterpretation = ({ variationInterpretation }) => {
                 </Button>
                 <Modal
                     title={"Variation Descriptor"}
-                    visible={modalVisible}
+                    open={modalVisible}
                     onOk={closeModal}
                     onCancel={closeModal}
                     width={"50%"}
@@ -201,7 +202,7 @@ const InterpretationDetail = ({ interpretation }) => {
 
     return (<div className="experiment_and_results">
         <Typography.Title level={4}>
-            <Icon type="medicine-box" />{" "}Diagnosis
+            <MedicineBoxOutlined />{" "}Diagnosis
         </Typography.Title>
         {diagnosis ? <Descriptions layout="horizontal" bordered column={2} size="small">
             <Descriptions.Item label="Disease">
@@ -210,7 +211,7 @@ const InterpretationDetail = ({ interpretation }) => {
         </Descriptions> : <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} />}
 
         <Typography.Title level={4}>
-            <Icon type="experiment" />{" "}Genomic Interpretations
+            <ExperimentOutlined />{" "}Genomic Interpretations
         </Typography.Title>
         {sortedGenomicInterpretations.length ? <IndividualGenomicInterpretations
             genomicInterpretations={sortedGenomicInterpretations}

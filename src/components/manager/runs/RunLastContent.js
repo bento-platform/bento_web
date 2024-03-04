@@ -1,7 +1,9 @@
 import React, {useState, useMemo} from "react";
-import {Table, Modal, Icon} from "antd";
 import {useSelector} from "react-redux";
 import PropTypes from "prop-types";
+
+import {Table, Modal} from "antd";
+import { MoreOutlined } from "@ant-design/icons";
 
 const COLUMNS_LAST_CONTENT = [
     {
@@ -52,7 +54,7 @@ function FileNamesCell({fileNames, dataType}) {
     // with the middle replaced by an 'more' icon.
     const isTruncated = fileNames.length > 4;
     const truncatedFileNames = isTruncated
-        ? [...fileNames.slice(0, 2), <Icon type="more" key="more-icon"/>, ...fileNames.slice(-2)]
+        ? [...fileNames.slice(0, 2), <MoreOutlined key="more-icon" />, ...fileNames.slice(-2)]
         : fileNames;
 
     const divStyle = isTruncated
@@ -79,7 +81,7 @@ function FileNamesCell({fileNames, dataType}) {
             <Modal
                 title={`${dataType.charAt(0).toUpperCase() + dataType.slice(1)} files`}
                 footer={null}
-                visible={isModalVisible}
+                open={isModalVisible}
                 onCancel={closeModal}
                 bodyStyle={{maxHeight: "80vh", overflowY: "auto", whiteSpace: "text-overflow"}}
             >

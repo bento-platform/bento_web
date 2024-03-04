@@ -67,7 +67,7 @@ class LinkedFieldSetModal extends Component {
 
         return (
             <Modal title={modalTitle}
-                   visible={this.props.visible}
+                   open={this.props.open}
                    confirmLoading={this.props.isSavingDataset}
                    width={768}
                    onOk={() => this.handleSubmit()}
@@ -83,7 +83,7 @@ class LinkedFieldSetModal extends Component {
 
 LinkedFieldSetModal.propTypes = {
     mode: propTypesFormMode,
-    visible: PropTypes.bool,
+    open: PropTypes.bool,
     dataset: datasetPropTypesShape,
     onSubmit: PropTypes.func,
     onCancel: PropTypes.func,

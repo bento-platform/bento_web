@@ -1,6 +1,9 @@
 import React, { Component } from "react";
 import PropTypes from "prop-types";
-import { Button, Col, Empty, Menu, Row, Typography } from "antd";
+
+import { Button, Col, Empty, Row, Tabs, Typography } from "antd";
+import { CheckOutlined, CloseOutlined, DeleteOutlined, EditOutlined, PlusOutlined } from "@ant-design/icons";
+
 import Dataset from "../../datasets/Dataset";
 import ProjectForm from "./ProjectForm";
 import { INITIAL_DATA_USE_VALUE } from "../../../duo";
@@ -12,6 +15,10 @@ const SUB_TAB_KEYS = {
     DATASETS: "project-datasets",
     EXTRA_PROPERTIES: "project-json-schemas",
 };
+const SUB_TAB_ITEMS = [
+    { key: SUB_TAB_KEYS.DATASETS, label: "Datasets" },
+    { key: SUB_TAB_KEYS.EXTRA_PROPERTIES, label: "Extra Properties" },
+];
 
 class Project extends Component {
     static getDerivedStateFromProps(nextProps) {
@@ -29,8 +36,8 @@ class Project extends Component {
         this._onCancelEdit();
     }
 
-    handleContentTabClick(event) {
-        this.setState({ selectedKey: event.key });
+    handleContentTabClick(tab) {
+        this.setState({ selectedKey: tab });
     }
 
     constructor(props) {
@@ -39,7 +46,7 @@ class Project extends Component {
         this._onCancelEdit = props.onCancelEdit || nop;
         this._onSave = props.onSave || nop;
 
-        this.editingForm = null;
+        this.editingForm = React.createRef();
 
         this.handleCancelEdit = this.handleCancelEdit.bind(this);
         this.handleSave = this.handleSave.bind(this);
@@ -57,12 +64,9 @@ class Project extends Component {
     }
 
     handleSave() {
-        this.editingForm.validateFields((err, values) => {
-            if (err) {
-                console.error(err);
-                return;
-            }
-
+        const form = this.editingForm.current;
+        if (!form) return;
+        form.validateFields().then((values) => {
             // Don't save datasets since it's a related set.
             this._onSave({
                 identifier: this.state.identifier,
@@ -70,6 +74,8 @@ class Project extends Component {
                 description: values.description || this.state.description,
                 data_use: values.data_use || this.state.data_use,
             });
+        }).catch((err) => {
+            console.error(err);
         });
     }
 
@@ -79,31 +85,33 @@ class Project extends Component {
                 {this.props.editing ? (
                     <>
                         <Button type="primary"
-                                icon="check"
+                                icon={<CheckOutlined />}
                                 loading={this.props.saving}
                                 onClick={() => this.handleSave()}>Save</Button>
-                        <Button icon="close"
+                        <Button icon={<CloseOutlined />}
                                 style={{marginLeft: "10px"}}
                                 disabled={this.props.saving}
                                 onClick={() => this.handleCancelEdit()}>Cancel</Button>
                     </>
                 ) : (
                     <>
-                        <Button icon="edit" onClick={() => (this.props.onEdit || nop)()}>Edit</Button>
-                        <Button type="danger" icon="delete"
+                        <Button icon={<EditOutlined />} onClick={() => (this.props.onEdit || nop)()}>Edit</Button>
+                        <Button type="danger" icon={<DeleteOutlined />}
                                 style={{marginLeft: "10px"}}
                                 onClick={() => (this.props.onDelete || nop)()}>Delete</Button>
                     </>
                 )}
             </div>
             {this.props.editing ? (
-                <ProjectForm style={{maxWidth: "600px"}}
-                             initialValue={{
-                                 title: this.state.title,
-                                 description: this.state.description,
-                                 data_use: this.state.data_use,
-                             }}
-                             ref={form => this.editingForm = form} />
+                <ProjectForm
+                    style={{maxWidth: "600px"}}
+                    initialValues={{
+                        title: this.state.title,
+                        description: this.state.description,
+                        data_use: this.state.data_use,
+                    }}
+                    formRef={this.editingForm}
+                />
             ) : (
                 <>
                     <Typography.Title level={2}>
@@ -114,17 +122,19 @@ class Project extends Component {
                 </>
             )}
 
-            <Menu mode="horizontal" onClick={this.handleContentTabClick} selectedKeys={this.state.selectedKey}>
-                <Menu.Item key={SUB_TAB_KEYS.DATASETS}>Datasets</Menu.Item>
-                <Menu.Item key={SUB_TAB_KEYS.EXTRA_PROPERTIES}>Extra Properties</Menu.Item>
-            </Menu>
+            <Tabs
+                onChange={this.handleContentTabClick}
+                activeKey={this.state.selectedKey}
+                items={SUB_TAB_ITEMS}
+                size="large"
+            />
 
             {this.state.selectedKey === SUB_TAB_KEYS.DATASETS
                 ? <>
-                    <Typography.Title level={3} style={{ marginTop: "1.2em" }}>
+                    <Typography.Title level={3} style={{ marginTop: "0.6em" }}>
                         Datasets
                         <div style={{ float: "right" }}>
-                            <Button icon="plus"
+                            <Button icon={<PlusOutlined />}
                                     style={{ verticalAlign: "top" }}
                                     onClick={() => (this.props.onAddDataset || nop)()}>
                                 Add Dataset
@@ -146,17 +156,17 @@ class Project extends Component {
                             </Row>,
                         ) : (
                             <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} description="No Datasets">
-                                <Button icon="plus" onClick={() => (this.props.onAddDataset || nop)()}>
+                                <Button icon={<PlusOutlined />} onClick={() => (this.props.onAddDataset || nop)()}>
                                     Add Dataset
                                 </Button>
                             </Empty>
                         )}
                 </>
                 : <>
-                    <Typography.Title level={3} style={{ marginTop: "1.2em" }}>
+                    <Typography.Title level={3} style={{ marginTop: "0.6em" }}>
                         Extra Properties JSON schemas
                         <div style={{ float: "right" }}>
-                            <Button icon="plus"
+                            <Button icon={<PlusOutlined />}
                                     style={{ verticalAlign: "top" }}
                                     onClick={this.props.onAddJsonSchema}>
                                 Add JSON schema
@@ -172,7 +182,7 @@ class Project extends Component {
                             </Row>,
                         ) : (
                             <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} description="No project JSON schemas">
-                                <Button icon="plus" onClick={this.props.onAddJsonSchema}>
+                                <Button icon={<PlusOutlined />} onClick={this.props.onAddJsonSchema}>
                                     Add JSON schema
                                 </Button>
                             </Empty>

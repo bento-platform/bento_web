@@ -1,6 +1,7 @@
 import React, { useMemo } from "react";
 
-import { Icon, Table } from "antd";
+import { Table } from "antd";
+import { LinkOutlined } from "@ant-design/icons";
 
 import { EM_DASH } from "../../constants";
 import { individualPropTypesShape } from "../../propTypes";
@@ -27,7 +28,7 @@ const PHENOTYPIC_FEATURES_COLUMNS = [
                         <a href="https://phenopacket-schema.readthedocs.io/en/2.0.0/phenotype.html#excluded"
                            target="_blank"
                            rel="noopener noreferrer">
-                            <Icon type="link" />
+                            <LinkOutlined />
                         </a>)
                     </span>
                 ) : null}

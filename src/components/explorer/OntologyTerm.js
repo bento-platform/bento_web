@@ -1,7 +1,8 @@
 import React, { memo, useContext, useEffect } from "react";
 import PropTypes from "prop-types";
 
-import { Button, Icon } from "antd";
+import { Button } from "antd";
+import { LinkOutlined } from "@ant-design/icons";
 
 import { EM_DASH } from "../../constants";
 import { ontologyShape } from "../../propTypes";
@@ -69,7 +70,7 @@ const OntologyTerm = memo(({ term, renderLabel, br }) => {
                     href={defLink ?? "#"}
                     style={{ padding: 0 }}
                 >
-                    <Icon type="link" />
+                    <LinkOutlined />
                 </Button>
             </span>
             {br && <br/>}

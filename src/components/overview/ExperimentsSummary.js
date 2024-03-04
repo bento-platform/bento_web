@@ -49,11 +49,11 @@ const ExperimentsSummary = () => {
 
     return (
         <>
+            <Typography.Title level={4}>Experiments</Typography.Title>
+            <Row style={{ marginBottom: 24 }} gutter={[0, 16]}>
+                <StatisticCollection statistics={statistics} isFetching={isFetching} />
+            </Row>
             <Row>
-                <Typography.Title level={4}>Experiments</Typography.Title>
-                <Row style={{ marginBottom: "24px" }} gutter={[0, 16]}>
-                    <StatisticCollection statistics={statistics} isFetching={isFetching} />
-                </Row>
                 <ChartCollection charts={charts} dataType="experiment" isFetching={isFetching} />
             </Row>
         </>

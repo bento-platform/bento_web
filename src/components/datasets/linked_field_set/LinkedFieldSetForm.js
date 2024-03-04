@@ -1,12 +1,14 @@
 import React, {Component} from "react";
 import PropTypes from "prop-types";
 
-import {Button, Form, Icon, Input} from "antd";
+import {Button, Input} from "antd";
+import { Form } from "@ant-design/compatible";
 
 import SchemaTreeSelect from "../../schema_trees/SchemaTreeSelect";
 import {getFieldSchema} from "../../../utils/schema";
 import {FORM_MODE_ADD, FORM_MODE_EDIT} from "../../../constants";
 import {propTypesFormMode} from "../../../propTypes";
+import { CloseOutlined, PlusOutlined } from "@ant-design/icons";
 
 const FIELD_KEYS = "fieldKeys";
 let fieldKey = 0;
@@ -97,7 +99,8 @@ class LinkedFieldSetForm extends Component {
                     {getFieldDecorator(`fields[${k}]`, {
                         rules: [{required: true, message: "Please specify a field"}],
                     })(<SchemaTreeSelect schema={joinedSchema} style={{width: "calc(100% - 33px)"}} /> )}
-                    <Button icon="close" type="danger" disabled={i < 2} onClick={() => this.removeField(k)} />
+                    <Button icon={<CloseOutlined />} type="danger" disabled={i < 2}
+                            onClick={() => this.removeField(k)} />
                 </Input.Group>
             </Form.Item>
         ));
@@ -111,8 +114,8 @@ class LinkedFieldSetForm extends Component {
             </Form.Item>
             {fieldItems}
             <Form.Item>
-                <Button type="dashed" onClick={() => this.addField()} block={true}>
-                    <Icon type="plus" /> Add Linked Field
+                <Button type="dashed" onClick={() => this.addField()} block={true} icon={<PlusOutlined />}>
+                    Add Linked Field
                 </Button>
             </Form.Item>
         </Form>;

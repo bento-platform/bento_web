@@ -4,10 +4,10 @@ import { Modal } from "antd";
 
 import FileDisplay from "./FileDisplay";
 
-const FileModal = ({ title, visible, onCancel, hasTriggered, url, fileName, loading }) => (
+const FileModal = ({ title, open, onCancel, hasTriggered, url, fileName, loading }) => (
     <Modal
         title={title}
-        visible={visible}
+        open={open}
         onCancel={onCancel}
         width="90vw"
         style={{
@@ -32,7 +32,7 @@ const FileModal = ({ title, visible, onCancel, hasTriggered, url, fileName, load
 );
 FileModal.propTypes = {
     title: PropTypes.oneOfType([PropTypes.string, PropTypes.node]).isRequired,
-    visible: PropTypes.bool.isRequired,
+    open: PropTypes.bool.isRequired,
     onCancel: PropTypes.func.isRequired,
     hasTriggered: PropTypes.bool,
     url: PropTypes.string,

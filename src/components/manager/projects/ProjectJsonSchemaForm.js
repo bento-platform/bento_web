@@ -1,6 +1,7 @@
 import React, { useCallback } from "react";
 import PropTypes from "prop-types";
-import { Form, Select, Checkbox, Tooltip, Button, message } from "antd";
+import { Select, Checkbox, Tooltip, Button, message } from "antd";
+import { Form } from "@ant-design/compatible";
 import { useDropzone } from "react-dropzone";
 import ReactJson from "react-json-view";
 import Ajv from "ajv";

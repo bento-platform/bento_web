@@ -1,4 +1,4 @@
-import React, {useCallback, useEffect, useState} from "react";
+import React, { useCallback, useEffect, useMemo, useState } from "react";
 import {useLocation} from "react-router-dom";
 import PropTypes from "prop-types";
 
@@ -75,6 +75,23 @@ const RunSetupWizard = ({
         onSubmit({ selectedWorkflow, inputs });
     }, [selectedWorkflow, inputs]);
 
+    const stepItems = useMemo(() => [
+        {
+            title: workflowSelectionTitle ?? "Workflow",
+            description: workflowSelectionDescription ?? "Choose a workflow.",
+        },
+        {
+            title: "Input",
+            description: "Select input data for the workflow.",
+            disabled: step < STEP_INPUT && Object.keys(inputs).length === 0,
+        },
+        {
+            title: "Run",
+            description: "Confirm details and run the workflow.",
+            disabled: step < STEP_CONFIRM && (selectedWorkflow === null || Object.keys(inputs).length === 0),
+        },
+    ], [workflowSelectionTitle, workflowSelectionDescription, step, inputs, selectedWorkflow]);
+
     const getStepContents = useCallback(() => {
         switch (step) {
             case STEP_WORKFLOW_SELECTION:
@@ -108,27 +125,14 @@ const RunSetupWizard = ({
         handleRunWorkflow,
     ]);
 
-    return <Layout>
-        <Layout.Content style={LAYOUT_CONTENT_STYLE}>
-            <Steps current={step} onChange={setStep}>
-                <Steps.Step
-                    title={workflowSelectionTitle ?? "Workflow"}
-                    description={workflowSelectionDescription ?? "Choose a workflow."}
-                />
-                <Steps.Step
-                    title="Input"
-                    description="Select input data for the workflow."
-                    disabled={step < STEP_INPUT && Object.keys(inputs).length === 0}
-                />
-                <Steps.Step
-                    title="Run"
-                    description="Confirm details and run the workflow."
-                    disabled={step < STEP_CONFIRM && (selectedWorkflow === null || Object.keys(inputs).length === 0)}
-                />
-            </Steps>
-            <div style={{marginTop: "16px"}}>{getStepContents()}</div>
-        </Layout.Content>
-    </Layout>;
+    return (
+        <Layout>
+            <Layout.Content style={LAYOUT_CONTENT_STYLE}>
+                <Steps current={step} onChange={setStep} items={stepItems} />
+                <div style={{marginTop: "16px"}}>{getStepContents()}</div>
+            </Layout.Content>
+        </Layout>
+    );
 };
 RunSetupWizard.propTypes = {
     workflowType: workflowTypePropType,

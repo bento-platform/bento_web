@@ -3,7 +3,18 @@ import { useDispatch, useSelector } from "react-redux";
 import { Link, withRouter } from "react-router-dom";
 import { performAuth, useIsAuthenticated, usePerformSignOut } from "bento-auth-js";
 
-import { Badge, Icon, Layout, Menu } from "antd";
+import { Badge, Layout, Menu } from "antd";
+import {
+    BarChartOutlined,
+    BellOutlined,
+    DashboardOutlined,
+    DotChartOutlined,
+    FolderOpenOutlined,
+    LoginOutlined,
+    LogoutOutlined,
+    SettingOutlined,
+    UserOutlined,
+} from "@ant-design/icons";
 
 import {
     AUTH_CALLBACK_URL,
@@ -14,7 +25,7 @@ import {
     OPENID_CONFIG_URL,
 } from "../config";
 import { showNotificationDrawer } from "../modules/notifications/actions";
-import { matchingMenuKeys, renderMenuItem } from "../utils/menu";
+import { matchingMenuKeys, transformMenuItem } from "../utils/menu";
 
 import OverviewSettingsControl from "./overview/OverviewSettingsControl";
 
@@ -60,13 +71,13 @@ const SiteHeader = () => {
         () => [
             {
                 url: "/overview",
-                icon: <Icon type="user" />,
+                icon: <UserOutlined />,
                 text: "Overview",
                 key: "overview",
             },
             {
                 url: "/data/explorer",
-                icon: <Icon type="bar-chart" />,
+                icon: <BarChartOutlined />,
                 text: "Explorer",
                 disabled: !isAuthenticated,
                 key: "explorer",
@@ -76,7 +87,7 @@ const SiteHeader = () => {
                 ? [
                     {
                         url: "/cbioportal",
-                        icon: <Icon type="dot-chart" />,
+                        icon: <DotChartOutlined />,
                         text: "cBioPortal",
                         key: "cbioportal",
                     },
@@ -85,69 +96,38 @@ const SiteHeader = () => {
             // TODO: Only show if admin / can data manage anything
             {
                 url: "/admin",
-                icon: <Icon type="user" />,
+                icon: <UserOutlined />,
                 text: "Admin",
                 disabled: !isAuthenticated,
                 children: [
                     {
                         key: "admin-services",
                         url: "/admin/services",
-                        icon: <Icon type="dashboard" />,
+                        icon: <DashboardOutlined />,
                         text: "Services",
                         disabled: !isAuthenticated,
                     },
                     {
                         key: "admin-data-manager",
                         url: "/admin/data/manager",
-                        icon: <Icon type="folder-open" />,
+                        icon: <FolderOpenOutlined />,
                         text: "Data Manager",
                         disabled: !isAuthenticated,
                     },
                 ],
             },
-            ...(isAuthenticated
-                ? [
-                    {
-                        key: "user-menu",
-                        style: { float: "right" },
-                        icon: <Icon type="user" />,
-                        text: idTokenContents?.preferred_username,
-                        children: [
-                            {
-                                key: "user-profile",
-                                url: "/profile",
-                                icon: <Icon type="user" />,
-                                text: "Profile",
-                            },
-                            {
-                                key: "sign-out-link",
-                                onClick: performSignOut,
-                                icon: <Icon type="logout" />,
-                                text: <span className="nav-text">Sign Out</span>,
-                            },
-                        ],
-                    },
-                ]
-                : [
-                    {
-                        key: "sign-in",
-                        style: { float: "right" },
-                        icon: <Icon type="login" />,
-                        text: (
-                            <span className="nav-text">
-                                {openIdConfigFetching || isHandingOffCodeForToken ? "Loading..." : "Sign In"}
-                            </span>
-                        ),
-                        onClick: () => performAuth(authzEndpoint, CLIENT_ID, AUTH_CALLBACK_URL),
-                    },
-                ]),
             {
-                url: "/notifications",
-                style: { float: "right" },
+                style: { marginLeft: "auto" },
+                icon: <SettingOutlined />,
+                text: <span className="nav-text">Settings</span>,
+                onClick: toggleModalVisibility,
+                key: "settings",
+            },
+            {
                 disabled: !isAuthenticated,
                 icon: (
                     <Badge dot count={unreadNotifications.length}>
-                        <Icon type="bell" style={{ marginRight: "0" }} />
+                        <BellOutlined style={{ marginRight: 0, color: "rgba(255, 255, 255, 0.65)" }} />
                     </Badge>
                 ),
                 text: (
@@ -159,13 +139,40 @@ const SiteHeader = () => {
                 onClick: () => dispatch(showNotificationDrawer()),
                 key: "notifications",
             },
-            {
-                style: { float: "right" },
-                icon: <Icon type="setting" />,
-                text: <span className="nav-text">Settings</span>,
-                onClick: toggleModalVisibility,
-                key: "settings",
-            },
+            ...(isAuthenticated
+                ? [
+                    {
+                        key: "user-menu",
+                        icon: <UserOutlined />,
+                        text: idTokenContents?.preferred_username,
+                        children: [
+                            {
+                                key: "user-profile",
+                                url: "/profile",
+                                icon: <UserOutlined />,
+                                text: "Profile",
+                            },
+                            {
+                                key: "sign-out-link",
+                                onClick: performSignOut,
+                                icon: <LogoutOutlined />,
+                                text: <span className="nav-text">Sign Out</span>,
+                            },
+                        ],
+                    },
+                ]
+                : [
+                    {
+                        key: "sign-in",
+                        icon: <LoginOutlined />,
+                        text: (
+                            <span className="nav-text">
+                                {openIdConfigFetching || isHandingOffCodeForToken ? "Loading..." : "Sign In"}
+                            </span>
+                        ),
+                        onClick: () => performAuth(authzEndpoint, CLIENT_ID, AUTH_CALLBACK_URL),
+                    },
+                ]),
         ],
         [isAuthenticated, authHasAttempted, idTokenContents, performSignOut, unreadNotifications],
     );
@@ -180,9 +187,8 @@ const SiteHeader = () => {
                     mode="horizontal"
                     selectedKeys={matchingMenuKeys(menuItems)}
                     style={{ lineHeight: "64px" }}
-                >
-                    {menuItems.map((i) => renderMenuItem(i))}
-                </Menu>
+                    items={menuItems.map((i) => transformMenuItem(i))}
+                />
             </Layout.Header>
             <OverviewSettingsControl modalVisible={modalVisible} toggleModalVisibility={toggleModalVisibility} />
         </>

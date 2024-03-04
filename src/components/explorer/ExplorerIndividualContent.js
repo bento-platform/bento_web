@@ -7,7 +7,7 @@ import { Layout, Menu, Skeleton } from "antd";
 import { BENTO_URL } from "../../config";
 import { fetchIndividualIfNecessary } from "../../modules/metadata/actions";
 import { LAYOUT_CONTENT_STYLE } from "../../styles/layoutContent";
-import { matchingMenuKeys, renderMenuItem } from "../../utils/menu";
+import { matchingMenuKeys, transformMenuItem } from "../../utils/menu";
 import { urlPath } from "../../utils/url";
 
 import { ExplorerIndividualContext } from "./contexts/individual";
@@ -146,9 +146,12 @@ const ExplorerIndividualContent = () => {
                 setBackUrl(undefined);  // Clear back button if we use it
             }) : undefined}
             footer={
-                <Menu mode="horizontal" style={MENU_STYLE} selectedKeys={selectedKeys}>
-                    {individualMenu.map(renderMenuItem)}
-                </Menu>
+                <Menu
+                    mode="horizontal"
+                    style={MENU_STYLE}
+                    selectedKeys={selectedKeys}
+                    items={individualMenu.map(transformMenuItem)}
+                />
             }
         />
         <Layout>
