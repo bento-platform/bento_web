@@ -22,7 +22,7 @@ const renderOutputValue = (value) => {
             <span style={{ fontFamily: "monospace" }}>{value.toString()}</span>
         );
     }
-}
+};
 
 const COLUMNS = [
     {

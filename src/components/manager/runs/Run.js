@@ -42,7 +42,7 @@ const Run = memo(({ run: runOrUndefined, tab, onChangeTab, onBack }) => {
                     // If we have the outputs key, but there aren't any outputs or the workflow isn't finished yet,
                     // leave the tab disabled:
                     disabled: !endTime || (run.details?.outputs ?? {}).length === 0,
-                }
+                },
             ] : []),
     ];
 
