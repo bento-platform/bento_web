@@ -1,4 +1,4 @@
-import React, {Component} from "react";
+import React, { useCallback, useEffect, useMemo, useState } from "react";
 import PropTypes from "prop-types";
 
 import { Button, Input, Select } from "antd";
@@ -10,10 +10,26 @@ import {DEFAULT_SEARCH_PARAMETERS, OP_EQUALS, OPERATION_TEXT} from "@/utils/sear
 
 
 const BOOLEAN_OPTIONS = ["true", "false"];
+const NEGATE_SELECT_OPTIONS = [
+    { value: "pos", label: "is" },
+    { value: "neg", label: "is not" },
+];
 const DATA_TYPE_FIELD_WIDTH = 224;
 const NEGATION_WIDTH = 88;
 const OPERATION_WIDTH = 116;
 const CLOSE_WIDTH = 50;
+
+const styles = {
+    schemaTreeSelect: {
+        float: "left",
+        width: `${DATA_TYPE_FIELD_WIDTH}px`,
+        borderTopRightRadius: "0",
+        borderBottomRightRadius: "0",
+    },
+    negationSelect: { width: `${NEGATION_WIDTH}px`, float: "left" },
+    operationSelect: { width: `${OPERATION_WIDTH}px`, float: "left" },
+    closeButton: { width: `${CLOSE_WIDTH}px` },
+};
 
 const toStringOrNull = x => x === null ? null : x.toString();
 
@@ -32,173 +48,156 @@ export const getSchemaTypeTransformer = type => {
     }
 };
 
+const DEFAULT_FIELD_SCHEMA = {
+    search: {...DEFAULT_SEARCH_PARAMETERS},
+};
 
-class DiscoverySearchCondition extends Component {
-    static getDerivedStateFromProps(nextProps) {
-        return "value" in nextProps
-            ? {...(nextProps.value ?? {})}
-            : null;
-    }
+const DiscoverySearchCondition = ({ dataType, value, onChange, onFieldChange, isExcluded, onRemoveClick }) => {
+    const [fieldState, setFieldState] = useState({
+        field: value.field ?? undefined,
+        fieldSchema: value.fieldSchema ?? DEFAULT_FIELD_SCHEMA,
+        negated: value.negated ?? false,
+        operation: value.operation ?? OP_EQUALS,
+        searchValue: value.searchValue ?? "",
+    })
 
-    constructor(props) {
-        super(props);
+    useEffect(() => {
+        if (value) {
+            setFieldState({
+                field: value.field ?? undefined,
+                fieldSchema: value.fieldSchema ?? DEFAULT_FIELD_SCHEMA,
+                negated: value.negated ?? false,
+                operation: value.operation ?? OP_EQUALS,
+                searchValue: value.searchValue ?? "",
+            });
+        }
+    }, [value]);
 
-        const value = this.props.value ?? {};
-        this.state = {
-            field: value.field ?? undefined,
+    const handleChange = useCallback((change) => {
+        const newState = {...fieldState, ...change};
+        if (value === undefined) setFieldState(newState)
+        if (onChange) onChange(newState);
+    }, [fieldState, onChange]);
 
-            fieldSchema: value.fieldSchema ?? {
-                search: {...DEFAULT_SEARCH_PARAMETERS},
-            },
+    const { field, fieldSchema, operation, negated, searchValue } = fieldState;
 
-            negated: value.negated ?? false,
-            operation: value.operation ?? OP_EQUALS,
-            searchValue: value.searchValue ?? "",
-
-            // Non-value props
-            dataType: props.dataType ?? null,
-        };
-
-        this.handleChange = this.handleChange.bind(this);
-    }
-
-    handleField = (value) => {
-        if (this.state.field === value.selected) return;
+    const handleField = useCallback((value) => {
+        if (field === value.selected) return;
         const fieldOperations = value.schema.search?.operations ?? [];
+
         const change = {
             field: value.selected,
             fieldSchema: value.schema,
             searchValue: "",  // Clear search value if the field changes
-            operation: fieldOperations.includes(this.state.operation) ? this.state.operation : fieldOperations[0],
+            operation: fieldOperations.includes(fieldState.operation) ? fieldState.operation : fieldOperations[0],
         };
 
-        (this.props.onFieldChange ?? nop)(change);
-        this.handleChange(change);
-    };
+        (onFieldChange ?? nop)(change);
+        handleChange(change);
+    }, [handleChange, onFieldChange, field]);
 
-    handleNegation = (value) => {
-        this.handleChange({negated: (value === true || value === "neg")});
-    };
+    const handleNegation = useCallback((value) => {
+        handleChange({ negated: (value === true || value === "neg") });
+    }, [handleChange]);
 
-    handleOperation = (value) => {
-        this.handleChange({operation: value});
-    };
+    const handleOperation = useCallback((value) => handleChange({ operation: value }), [handleChange]);
 
-    handleSearchValue = (e) => {
-        this.handleChange({
-            searchValue: getSchemaTypeTransformer(this.state.fieldSchema.type)[0](e.target.value),
-        });
-    };
+    const handleSearchValue = useCallback((e) => {
+        handleChange({ searchValue: getSchemaTypeTransformer(fieldSchema.type)[0](e.target.value) });
+    }, [handleChange, fieldSchema]);
 
-    handleSearchSelectValue = (searchValue) => {
-        this.handleChange({
-            searchValue: getSchemaTypeTransformer(this.state.fieldSchema.type)[0](searchValue),
-        });
-    };
+    const handleSearchSelectValue = useCallback((sv) => {
+        handleChange({ searchValue: getSchemaTypeTransformer(fieldSchema.type)[0](sv) });
+    }, [handleChange, fieldSchema]);
 
-    handleChange = (change) => {
-        if (!("value" in this.props)) this.setState(change);
-        if (this.props.onChange) this.props.onChange({...this.state, ...change});
-    };
+    const searchValueTransformed = useMemo(
+        () => fieldSchema ? getSchemaTypeTransformer(fieldSchema.type)[1](searchValue) : null,
+        [fieldSchema, searchValue]);
 
-    getSearchValue() {
-        return getSchemaTypeTransformer(this.state.fieldSchema.type)[1](this.state.searchValue);
-    }
+    const operations = useMemo(() => fieldSchema.search?.operations ?? [], [fieldSchema]);
+    const equalsOnly = useMemo(() => operations.includes(OP_EQUALS) && operations.length === 1, [operations]);
+    const operationOptions = useMemo(
+        () => operations.map((o) => ({ value: o, label: OPERATION_TEXT[o] ?? o })),
+        [operations]);
 
-    equalsOnly() {
-        const operations = this.state.fieldSchema.search?.operations ?? [];
-        return operations.includes(OP_EQUALS) && operations.length === 1;
-    }
+    const { canNegate, required, type: fieldSchemaSearchType } = fieldSchema.search;
+    const canRemove = !(fieldSchemaSearchType === "single" && required);
 
-    getRHSInput(valueWidth) {
-        const { fieldSchema } = this.state;
+    // Subtract 1 from different elements' widths due to -1 margin-left
+    const valueWidth = DATA_TYPE_FIELD_WIDTH
+        + (canNegate ? NEGATION_WIDTH - 1 : 0)
+        + (equalsOnly ? 0 : OPERATION_WIDTH - 1)
+        + (canRemove ? CLOSE_WIDTH - 1 : 0);
+
+    const rhsInput = useMemo(() => {
+        const inputStyle = { width: `calc(100% - ${valueWidth}px)` };
 
         if (fieldSchema.hasOwnProperty("enum") || fieldSchema.type === "boolean") {
             // Prefix select keys in case there's a "blank" item in the enum, which throws an error
             return (
-                 <Select style={this.getInputStyle(valueWidth)} onChange={this.handleSearchSelectValue}
-                         value={this.getSearchValue()} showSearch
-                         filterOption={(i, o) =>
-                             o.props.children.toLocaleLowerCase().includes(i.toLocaleLowerCase())}>
-                    {(fieldSchema.type === "boolean" ? BOOLEAN_OPTIONS : fieldSchema.enum)
-                        .map(v => <Select.Option key={`_${v}`} value={v}>{v}</Select.Option>)}
-                </Select>
+                <Select
+                    style={inputStyle}
+                    onChange={handleSearchSelectValue}
+                    value={searchValueTransformed}
+                    showSearch={true}
+                    filterOption={(i, o) => o.props.children.toLocaleLowerCase().includes(i.toLocaleLowerCase())}
+                    options={(fieldSchema.type === "boolean" ? BOOLEAN_OPTIONS : fieldSchema.enum).map((v) => ({
+                        value: v,
+                        label: v,
+                    }))}
+                />
             );
         }
 
         return (
             <Input
-                style={this.getInputStyle(valueWidth)}
+                style={inputStyle}
                 placeholder="value"
-                onChange={this.handleSearchValue}
-                value={this.getSearchValue()}
+                onChange={handleSearchValue}
+                value={searchValueTransformed}
             />
         );
-    }
+    }, [fieldSchema, valueWidth, handleSearchSelectValue, handleSearchValue, searchValueTransformed]);
 
-    getInputStyle = (valueWidth, div = 1) => ({width: `calc(${100 / div}% - ${valueWidth / div}px)`});
+    if (!fieldSchema) return <div />;
 
-    render() {
-        const { fieldSchema } = this.state;
-
-        if (!fieldSchema) return <div />;
-
-        const canRemove = !(fieldSchema.search.hasOwnProperty("type")
-            && fieldSchema.search.type === "single" && fieldSchema.search.required);
-
-        const canNegate = fieldSchema.search.canNegate;
-
-        // Subtract 1 from different elements' widths due to -1 margin-left
-        const valueWidth = DATA_TYPE_FIELD_WIDTH
-            + (canNegate ? NEGATION_WIDTH - 1 : 0)
-            + (this.equalsOnly() ? 0 : OPERATION_WIDTH - 1)
-            + (canRemove ? CLOSE_WIDTH - 1 : 0);
-
-
-        const operationOptions = fieldSchema.search.operations.map(o =>
-            <Select.Option key={o}>{OPERATION_TEXT[o]}</Select.Option>);
-
-        return <Input.Group compact>
+    return (
+        <Input.Group compact={true}>
             <SchemaTreeSelect
-                style={{
-                    float: "left",
-                    width: `${DATA_TYPE_FIELD_WIDTH}px`,
-                    borderTopRightRadius: "0",
-                    borderBottomRightRadius: "0",
-                }}
+                style={styles.schemaTreeSelect}
                 disabled={!canRemove}
-                schema={this.state.dataType?.schema}
-                isExcluded={this.props.isExcluded}
-                value={{selected: this.state.field, schema: fieldSchema}}
-                onChange={v => this.handleField(v)} />
-            {canNegate ? (  // Negation
-                <Select style={{width: `${NEGATION_WIDTH}px`, float: "left"}}
-                        value={this.state.negated ? "neg" : "pos"}
-                        onChange={this.handleNegation}
-                        >
-                    <Select.Option key="pos">is</Select.Option>
-                    <Select.Option key="neg">is not</Select.Option>
-                </Select>
-            ) : null}
-            {this.equalsOnly() ? null : (  // Operation select
-                <Select style={{width: `${OPERATION_WIDTH}px`, float: "left"}}
-                        value={this.state.operation}
-                        onChange={this.handleOperation}
-                        >
-                    {operationOptions}
-                </Select>
+                schema={dataType?.schema}
+                isExcluded={isExcluded}
+                value={{ selected: field, schema: fieldSchema }}
+                onChange={handleField}
+            />
+            {canNegate && (  // Negation
+                <Select
+                    style={styles.negationSelect}
+                    value={negated ? "neg" : "pos"}
+                    onChange={handleNegation}
+                    options={NEGATE_SELECT_OPTIONS}
+                />
             )}
-            {this.getRHSInput(valueWidth)}
-            {canRemove ? (  // Condition removal button
-                <Button icon={<CloseOutlined />}
-                        style={{width: `${CLOSE_WIDTH}px`}}
-                        disabled={this.props.removeDisabled}
-                        onClick={this.props.onRemoveClick ?? nop}
-                        />
-            ) : null}
-        </Input.Group>;
-    }
-}
+            {equalsOnly ? null : (  // Operation select
+                <Select
+                    style={styles.operationSelect}
+                    value={operation}
+                    onChange={handleOperation}
+                    options={operationOptions}
+                />
+            )}
+            {rhsInput}
+            {canRemove && (  // Condition removal button
+                <Button
+                    icon={<CloseOutlined />}
+                    style={styles.closeButton}
+                    onClick={onRemoveClick ?? nop}
+                />
+            )}
+        </Input.Group>
+    );
+};
 
 DiscoverySearchCondition.propTypes = {
     dataType: PropTypes.object,
@@ -207,7 +206,6 @@ DiscoverySearchCondition.propTypes = {
     onFieldChange: PropTypes.func,
     onChange: PropTypes.func,
     onRemoveClick: PropTypes.func,
-    removeDisabled: PropTypes.bool,
 };
 
 export default DiscoverySearchCondition;

@@ -388,7 +388,6 @@ class DiscoverySearchForm extends Component {
                         }
                         onFieldChange={(change) => this.handleFieldChange(k, change)}
                         onRemoveClick={() => this.removeCondition(k)}
-                        removeDisabled={false}
                     />,
                 )}
             </Form.Item>
