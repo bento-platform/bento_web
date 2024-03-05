@@ -23,11 +23,11 @@ import SiteHeader from "./SiteHeader";
 import SiteFooter from "./SiteFooter";
 import SitePageLoading from "./SitePageLoading";
 
-import { BENTO_URL_NO_TRAILING_SLASH, OPENID_CONFIG_URL } from "../config";
-import eventHandler from "../events";
-import SessionWorker from "../session.worker";
-import { nop } from "../utils/misc";
-import { fetchUserDependentData } from "../modules/user/actions";
+import { BENTO_URL_NO_TRAILING_SLASH, OPENID_CONFIG_URL } from "@/config";
+import eventHandler from "@/events";
+import SessionWorker from "@/session.worker";
+import { nop } from "@/utils/misc";
+import { fetchUserDependentData } from "@/modules/user/actions";
 
 import NotificationDrawer from "./notifications/NotificationDrawer";
 
