@@ -1,7 +1,7 @@
 import React, { useEffect, useMemo, useRef } from "react";
 import PropTypes from "prop-types";
 
-import { Button, Form, FormInstance, Input } from "antd";
+import { Button, Form, Input } from "antd";
 import { CloseCircleOutlined, PlusOutlined } from "@ant-design/icons";
 
 import SchemaTreeSelect from "../../schema_trees/SchemaTreeSelect";
@@ -9,16 +9,9 @@ import { FORM_MODE_ADD } from "@/constants";
 import { propTypesFormMode } from "@/propTypes";
 import { getFieldSchema } from "@/utils/schema";
 
+
 const FORM_NAME_RULES = [{ required: true }, { min: 3 }];
 
-/**
- * @param {FormInstance} form
- * @param dataTypes
- * @param initialValue
- * @param mode
- * @return {JSX.Element}
- * @constructor
- */
 const LinkedFieldSetForm = ({ form, dataTypes, initialValue, mode }) => {
     const itemAddRef = useRef(null);
 
@@ -63,7 +56,7 @@ const LinkedFieldSetForm = ({ form, dataTypes, initialValue, mode }) => {
                     return (
                         <>
                             {fields.map((field, i) => (
-                                <Form.Item label={`Field ${i+1}`} key={field.key} required={i < 2}>
+                                <Form.Item label={`Field ${i + 1}`} key={field.key} required={i < 2}>
                                     <Form.Item {...field} noStyle={true}>
                                         <SchemaTreeSelect
                                             schema={rootSchema}
