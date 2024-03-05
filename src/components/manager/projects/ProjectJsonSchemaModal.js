@@ -1,4 +1,4 @@
-import React, { useCallback, useState } from "react";
+import React, { useCallback } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import PropTypes from "prop-types";
 
@@ -8,7 +8,7 @@ import { PlusOutlined } from "@ant-design/icons";
 import { createProjectJsonSchemaIfPossible } from "@/modules/metadata/actions";
 import ProjectJsonSchemaForm from "./ProjectJsonSchemaForm";
 
-const ProjectJsonSchemaModal = ({projectId, open, onOk, onCancel}) => {
+const ProjectJsonSchemaModal = ({ projectId, open, onOk, onCancel }) => {
     const dispatch = useDispatch();
 
     const isFetchingExtraPropertiesSchemaTypes = useSelector((state) =>
