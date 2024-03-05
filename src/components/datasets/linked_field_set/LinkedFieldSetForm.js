@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useRef } from "react";
+import React, { useEffect, useMemo } from "react";
 import PropTypes from "prop-types";
 
 import { Button, Form, Input } from "antd";
@@ -13,8 +13,6 @@ import { getFieldSchema } from "@/utils/schema";
 const FORM_NAME_RULES = [{ required: true }, { min: 3 }];
 
 const LinkedFieldSetForm = ({ form, dataTypes, initialValue, mode }) => {
-    const itemAddRef = useRef(null);
-
     const rootSchema = useMemo(() => ({
         "type": "object",
         "properties": Object.fromEntries(Object.entries(dataTypes).map(([k, v]) => [k, {
@@ -51,36 +49,33 @@ const LinkedFieldSetForm = ({ form, dataTypes, initialValue, mode }) => {
                 <Input placeholder="Sample IDs" />
             </Form.Item>
             <Form.List name="fields" initialValue={initialListValue}>
-                {(fields, { add, remove }) => {
-                    itemAddRef.current = add;
-                    return (
-                        <>
-                            {fields.map((field, i) => (
-                                <Form.Item label={`Field ${i + 1}`} key={field.key} required={i < 2}>
-                                    <Form.Item {...field} noStyle={true}>
-                                        <SchemaTreeSelect
-                                            schema={rootSchema}
-                                            style={{ width: "calc(100% - 33px)" }}
-                                        />
-                                    </Form.Item>
-                                    <Button
-                                        icon={<CloseCircleOutlined />}
-                                        type="link"
-                                        danger={true}
-                                        disabled={i < 2}
-                                        style={{ cursor: i < 2 ? "not-allowed" : "pointer" }}
-                                        onClick={() => remove(field.name)}
+                {(fields, { add, remove }) => (
+                    <>
+                        {fields.map((field, i) => (
+                            <Form.Item label={`Field ${i + 1}`} key={field.key} required={i < 2}>
+                                <Form.Item {...field} noStyle={true}>
+                                    <SchemaTreeSelect
+                                        schema={rootSchema}
+                                        style={{ width: "calc(100% - 33px)" }}
                                     />
                                 </Form.Item>
-                            ))}
-                            <Form.Item>
-                                <Button type="dashed" onClick={add} icon={<PlusOutlined />} style={{ width: "100%" }}>
-                                    Add Linked Field
-                                </Button>
+                                <Button
+                                    icon={<CloseCircleOutlined />}
+                                    type="link"
+                                    danger={true}
+                                    disabled={i < 2}
+                                    style={{ cursor: i < 2 ? "not-allowed" : "pointer" }}
+                                    onClick={() => remove(field.name)}
+                                />
                             </Form.Item>
-                        </>
-                    );
-                }}
+                        ))}
+                        <Form.Item>
+                            <Button type="dashed" onClick={add} icon={<PlusOutlined />} style={{ width: "100%" }}>
+                                Add Linked Field
+                            </Button>
+                        </Form.Item>
+                    </>
+                )}
             </Form.List>
         </Form>
     );
