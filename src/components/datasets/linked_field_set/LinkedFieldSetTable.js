@@ -1,8 +1,5 @@
 import React from "react";
-import PropTypes from "prop-types";
-
 import {Table} from "antd";
-
 import {linkedFieldSetPropTypesShape} from "@/propTypes";
 
 const COLUMNS = [
@@ -10,7 +7,7 @@ const COLUMNS = [
     {dataIndex: "field", title: "Field", render: f => <span style={{fontFamily: "monospace"}}>{f.join(".")}</span>},
 ];
 
-const LinkedFieldSetTable = ({ linkedFieldSet, inModal }) => {
+const LinkedFieldSetTable = ({ linkedFieldSet }) => {
     const data = Object.entries(linkedFieldSet.fields)
         .map(([dataType, field]) => ({dataType, field}))
         .sort((a, b) =>
@@ -22,7 +19,7 @@ const LinkedFieldSetTable = ({ linkedFieldSet, inModal }) => {
             dataSource={data}
             rowKey="dataType"
             pagination={false}
-            size={inModal ? "small" : "middle"}
+            size="small"
             bordered={true}
         />
     );
@@ -30,7 +27,6 @@ const LinkedFieldSetTable = ({ linkedFieldSet, inModal }) => {
 
 LinkedFieldSetTable.propTypes = {
     linkedFieldSet: linkedFieldSetPropTypesShape,
-    inModal: PropTypes.bool,
 };
 
 export default LinkedFieldSetTable;

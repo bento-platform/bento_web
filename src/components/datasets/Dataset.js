@@ -112,7 +112,7 @@ class Dataset extends Component {
                     search results across the data types specified via the following
                     linked fields:
                 </Typography.Paragraph>
-                <LinkedFieldSetTable linkedFieldSet={fieldSet} inModal={true} />
+                <LinkedFieldSetTable linkedFieldSet={fieldSet} />
             </>,
             width: 720,
             autoFocusButton: "cancel",
