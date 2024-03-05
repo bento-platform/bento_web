@@ -1,40 +1,45 @@
 import React, { useCallback, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
+import PropTypes from "prop-types";
 
-import { Button, Modal } from "antd";
+import { Button, Form, Modal } from "antd";
 import { PlusOutlined } from "@ant-design/icons";
 
-import { createProjectJsonSchemaIfPossible } from "../../../modules/metadata/actions";
+import { createProjectJsonSchemaIfPossible } from "@/modules/metadata/actions";
 import ProjectJsonSchemaForm from "./ProjectJsonSchemaForm";
-import PropTypes from "prop-types";
 
 const ProjectJsonSchemaModal = ({projectId, open, onOk, onCancel}) => {
     const dispatch = useDispatch();
+
     const isFetchingExtraPropertiesSchemaTypes = useSelector((state) =>
         state.projects.isFetchingExtraPropertiesSchemaTypes);
     const extraPropertiesSchemaTypes = useSelector((state) => state.projects.extraPropertiesSchemaTypes);
     const isCreatingJsonSchema = useSelector((state) => state.projects.isCreatingJsonSchema);
-    const [inputFormFields, setInputFormFields] = useState({});
-    const [fileContent, setFileContent] = useState(null);
+
+    const [form] = Form.useForm();
 
     const cancelReset = useCallback(() => {
-        setInputFormFields({});
-        setFileContent(null);
+        form.resetFields();
         onCancel();
-    }, [onCancel]);
+    }, [form, onCancel]);
 
     const handleCreateSubmit = useCallback(() => {
-        const payload = {
-            "project": projectId,
-            "schemaType": inputFormFields.schemaType.value,
-            "required": inputFormFields.required.value,
-            "jsonSchema": fileContent,
-        };
-        dispatch(createProjectJsonSchemaIfPossible(payload));
-        setInputFormFields({});
-        setFileContent(null);
-        onOk();
-    }, [projectId, inputFormFields, fileContent, onOk]);
+
+        form.validateFields().then((values) => {
+            console.log(values);
+
+            const payload = {
+                "project": projectId,
+                "schemaType": values.schemaType,
+                "required": values.required,
+                "jsonSchema": values.jsonSchema,
+            };
+            dispatch(createProjectJsonSchemaIfPossible(payload));
+
+            form.resetFields();
+            onOk();
+        }).catch((err) => console.error(err));
+    }, [projectId, onOk]);
 
     return (
         <Modal
@@ -42,30 +47,23 @@ const ProjectJsonSchemaModal = ({projectId, open, onOk, onCancel}) => {
             width={648}
             title="Create project level JSON schema"
             bodyStyle={{
-                "overflowY": "auto",
-                "maxHeight": 800,
+                overflowY: "auto",
+                maxHeight: 800,
             }}
             onCancel={cancelReset}
             footer={[
                 <Button key="cancel" onClick={cancelReset}>Cancel</Button>,
-                <Button key="create"
-                        icon={<PlusOutlined />}
-                        type="primary"
-                        onClick={handleCreateSubmit}
-                        loading={isCreatingJsonSchema || isFetchingExtraPropertiesSchemaTypes}
-                        disabled={!extraPropertiesSchemaTypes || Object.keys(
-                            extraPropertiesSchemaTypes).length === 0}
-                        >Create</Button>,
+                <Button
+                    key="create"
+                    icon={<PlusOutlined />}
+                    type="primary"
+                    onClick={handleCreateSubmit}
+                    loading={isCreatingJsonSchema || isFetchingExtraPropertiesSchemaTypes}
+                    disabled={!extraPropertiesSchemaTypes || Object.keys(extraPropertiesSchemaTypes).length === 0}
+                >Create</Button>,
             ]}
         >
-            <ProjectJsonSchemaForm
-                schemaTypes={extraPropertiesSchemaTypes || {}}
-                initialValues={{}}
-                formValues={inputFormFields}
-                onChange={setInputFormFields}
-                fileContent={fileContent}
-                setFileContent={setFileContent}
-                />
+            <ProjectJsonSchemaForm form={form} schemaTypes={extraPropertiesSchemaTypes || {}} initialValues={{}} />
         </Modal>
     );
 };
