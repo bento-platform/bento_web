@@ -3,12 +3,11 @@ import {useDispatch, useSelector} from "react-redux";
 import {useHistory} from "react-router-dom";
 import PropTypes from "prop-types";
 
-import {Button, List, message} from "antd";
-import { Form } from "@ant-design/compatible";
+import {Button, Form, List, message} from "antd";
 
 import WorkflowListItem from "./WorkflowListItem";
 
-import {submitIngestionWorkflowRun} from "../../modules/wes/actions";
+import {submitIngestionWorkflowRun} from "@/modules/wes/actions";
 
 import {
     FORM_LABEL_COL,
