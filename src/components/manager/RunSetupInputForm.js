@@ -4,8 +4,7 @@ import PropTypes from "prop-types";
 
 import Handlebars from "handlebars";
 
-import { Button, Checkbox, Input, Select, Spin } from "antd";
-import { Form } from "@ant-design/compatible";
+import { Button, Checkbox, Form, Input, Select, Spin } from "antd";
 
 import {
     FORM_LABEL_COL,
@@ -13,10 +12,10 @@ import {
     FORM_BUTTON_COL,
 } from "./workflowCommon";
 
-import { BENTO_DROP_BOX_FS_BASE_PATH } from "../../config";
-import { workflowPropTypesShape } from "../../propTypes";
-import { testFileAgainstPattern } from "../../utils/files";
-import { nop } from "../../utils/misc";
+import { BENTO_DROP_BOX_FS_BASE_PATH } from "@/config";
+import { workflowPropTypesShape } from "@/propTypes";
+import { testFileAgainstPattern } from "@/utils/files";
+import { nop } from "@/utils/misc";
 
 import DatasetTreeSelect, { ID_FORMAT_PROJECT_DATASET } from "./DatasetTreeSelect";
 import DropBoxTreeSelect from "./DropBoxTreeSelect";
@@ -80,39 +79,34 @@ EnumSelect.propTypes = {
 // For all possible workflow input types, see:
 // https://github.com/bento-platform/bento_lib/blob/master/bento_lib/workflows/models.py
 // This component is responsible for transforming these workflow input definitions into form elements.
-const getInputComponentAndOptions = ({ id, type, pattern, values, required, repeatable }) => {
+const getInputComponentAndOptions = ({ id, type, pattern, values, repeatable }) => {
     const dropBoxTreeNodeEnabled = ({ name, contents }) =>
         contents !== undefined || testFileAgainstPattern(name, pattern);
-
-    const options = {
-        // Default to requiring the field unless the "required" property is set on the input
-        rules: [{ required: required ?? true }],
-    };
 
     const key = `input-${id}`;
     const isArray = type.endsWith("[]");
 
     switch (type) {
         case "string":
-            return [<Input key={key} />, options];
+            return [<Input key={key} />, {}];
         case "string[]": {
             // TODO: string[] - need to be able to reselect if repeatable
-            return [<Select key={key} mode="tags" />, options];
+            return [<Select key={key} mode="tags" />, {}];
         }
 
         case "number":
-            return [<Input key={key} type="number" />, options];
+            return [<Input key={key} type="number" />, {}];
         // case "number[]":
 
         case "boolean":
-            return [<Checkbox key={key} />, { ...options, valuePropName: "checked" }];
+            return [<Checkbox key={key} />, { valuePropName: "checked" }];
 
         case "enum":
         case "enum[]": {
             const mode = (isArray && !repeatable) ? "multiple" : "default";
 
             // TODO: enum[] - need to be able to reselect if repeatable
-            return [<EnumSelect key={key} mode={mode} values={values} />, options];
+            return [<EnumSelect key={key} mode={mode} values={values} />, {}];
         }
 
         case "file":
@@ -126,7 +120,7 @@ const getInputComponentAndOptions = ({ id, type, pattern, values, required, repe
                     multiple={isArray}
                     nodeEnabled={dropBoxTreeNodeEnabled}
                 />,
-                options,
+                {},
             ];
 
         case "directory":
@@ -138,50 +132,55 @@ const getInputComponentAndOptions = ({ id, type, pattern, values, required, repe
                     multiple={isArray}
                     folderMode={true}
                 />,
-                options,
+                {},
             ];
 
         case "project:dataset":
-            return [<DatasetTreeSelect key={key} idFormat={ID_FORMAT_PROJECT_DATASET} />, options];
+            return [<DatasetTreeSelect key={key} idFormat={ID_FORMAT_PROJECT_DATASET} />, {}];
 
         default:
-            return [<Input key={key} />, options];
+            return [<Input key={key} />, {}];
     }
 };
 
-const RunSetupInputForm = ({initialValues, form, onSubmit, workflow, onBack}) => {
-    const handleSubmit = useCallback((e) => {
-        e.preventDefault();
-        form.validateFieldsAndScroll((err, values) => {
-            if (err) return;
-            (onSubmit || nop)(values);
-        });
-    }, [form, onSubmit]);
+const RunSetupInputForm = ({ initialValues, onSubmit, workflow, onBack, onChange }) => {
+    const handleFinish = useCallback((values) => {
+        (onSubmit || nop)(values);
+    }, [onSubmit]);
 
     const handleBack = useCallback(() => onBack(), [onBack]);
 
-    return <Form labelCol={FORM_LABEL_COL} wrapperCol={FORM_WRAPPER_COL} onSubmit={handleSubmit}>
+    const handleFieldsChange = useCallback((_, allFields) => onChange({...allFields}), [onChange]);
+
+    return <Form
+        labelCol={FORM_LABEL_COL}
+        wrapperCol={FORM_WRAPPER_COL}
+        onFinish={handleFinish}
+        onFieldsChange={handleFieldsChange}
+        scrollToFirstError={true}
+    >
         {[
             ...workflow.inputs.filter(i => !i.hidden && !i.injected).map(i => {
                 const [component, options] = getInputComponentAndOptions(i);
-
                 return (
                     <Form.Item
-                        label={i.id}
                         key={i.id}
-                        extra={i.help ? <span dangerouslySetInnerHTML={{ __html: i.help }} /> : undefined}
-                    >
-                        {form.getFieldDecorator(i.id, {
-                            initialValue: initialValues[i.id],  // undefined if not set
+                        label={i.id}
+                        name={i.id}
+                        initialValue={initialValues[i.id]}
+                        rules={
                             // Default to requiring the field unless the "required" property is set on the input
                             // or the input is a boolean (i.e., checkbox), since booleans will always be present.
                             // This does mean nullable booleans aren't supported, but that's fine since an enum is a
                             // better choice in that case anyway.
-                            rules: i.type === "boolean"
+                            i.type === "boolean"
                                 ? []
-                                : [{ required: i.required === undefined ? true : i.required }],
-                            ...options,
-                        })(component)}
+                                : [{ required: i.required === undefined ? true : i.required }]
+                        }
+                        extra={i.help ? <span dangerouslySetInnerHTML={{ __html: i.help }} /> : undefined}
+                        {...options}
+                    >
+                        {component}
                     </Form.Item>
                 );
             }),
@@ -205,13 +204,7 @@ RunSetupInputForm.propTypes = {
 
     onBack: PropTypes.func,
     onSubmit: PropTypes.func,
+    onChange: PropTypes.func,
 };
 
-export default Form.create({
-    name: "run_setup_input_form",
-    mapPropsToFields: ({workflow, formValues}) =>
-        Object.fromEntries((workflow?.inputs ?? []).map(i => [i.id, Form.createFormField({...formValues[i.id]})])),
-    onFieldsChange: ({onChange}, _, allFields) => {
-        onChange({...allFields});
-    },
-})(RunSetupInputForm);
+export default RunSetupInputForm;

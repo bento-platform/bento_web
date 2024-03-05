@@ -6,14 +6,14 @@ import {Layout, Steps} from "antd";
 
 import RunSetupInputForm from "./RunSetupInputForm";
 
-import {LAYOUT_CONTENT_STYLE} from "../../styles/layoutContent";
+import {LAYOUT_CONTENT_STYLE} from "@/styles/layoutContent";
 import {
     STEP_WORKFLOW_SELECTION,
     STEP_INPUT,
     STEP_CONFIRM,
 } from "./workflowCommon";
 import WorkflowSelection from "./WorkflowSelection";
-import { workflowTypePropType } from "../../propTypes";
+import { workflowTypePropType } from "@/propTypes";
 
 const RunSetupWizard = ({
     workflowType,
