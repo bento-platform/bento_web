@@ -7,12 +7,12 @@ import { DownOutlined, PlusOutlined, QuestionCircleOutlined, SearchOutlined } fr
 
 import DataTypeExplorationModal from "./DataTypeExplorationModal";
 import DiscoverySearchForm from "./DiscoverySearchForm";
-import {nop} from "../../utils/misc";
+import {nop} from "@/utils/misc";
 
-import {OP_EQUALS} from "../../utils/search";
-import {getFieldSchema} from "../../utils/schema";
+import {OP_EQUALS} from "@/utils/search";
+import {getFieldSchema} from "@/utils/schema";
 
-import { neutralizeAutoQueryPageTransition, setIsSubmittingSearch } from "../../modules/explorer/actions";
+import { neutralizeAutoQueryPageTransition, setIsSubmittingSearch } from "@/modules/explorer/actions";
 
 class DiscoveryQueryBuilder extends Component {
     constructor(props) {
@@ -161,7 +161,6 @@ class DiscoveryQueryBuilder extends Component {
                 closable: !(this.props.requiredDataTypes ?? []).includes(id),
                 children: (
                     <DiscoverySearchForm
-                        conditionType="data-type"
                         isInternal={this.props.isInternal ?? false}
                         dataType={dataType}
                         formValues={formValues}
@@ -207,17 +206,6 @@ class DiscoveryQueryBuilder extends Component {
                         {addConditionsOnDataType({type: "primary"})}
                     </Empty>
                 )}
-
-            {/* TODO: Allow this to be optionally specified for advanced users
-            <Divider />
-
-            <Typography.Title level={3}>Join Query</Typography.Title>
-
-            <DiscoverySearchForm conditionType="join"
-                                 formValues={this.props.joinFormValues}
-                                 loading={this.props.searchLoading}
-                                 onChange={fields => this.props.updateJoinForm(fields)} />
-            */}
 
             <Button type="primary"
                     icon={<SearchOutlined />}

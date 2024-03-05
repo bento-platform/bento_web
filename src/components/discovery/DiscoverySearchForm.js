@@ -5,7 +5,7 @@ import { Button, Dropdown, Tooltip } from "antd";
 import { Form } from "@ant-design/compatible";
 import { PlusOutlined } from "@ant-design/icons";
 
-import {getFields, getFieldSchema} from "../../utils/schema";
+import {getFields, getFieldSchema} from "@/utils/schema";
 import {
     DEFAULT_SEARCH_PARAMETERS,
     OP_CASE_INSENSITIVE_CONTAINING,
@@ -13,7 +13,7 @@ import {
     OP_GREATER_THAN_OR_EQUAL,
     OP_LESS_THAN_OR_EQUAL,
     searchUiMappings,
-} from "../../utils/search";
+} from "@/utils/search";
 
 import DiscoverySearchCondition, {getSchemaTypeTransformer} from "./DiscoverySearchCondition";
 import VariantSearchHeader from "./VariantSearchHeader";
@@ -94,14 +94,9 @@ class DiscoverySearchForm extends Component {
         const stateUpdates = this.state.isVariantSearch
             ? VARIANT_REQUIRED_FIELDS
                 .concat(VARIANT_OPTIONAL_FIELDS)
-                .map((c) => this.addCondition(c, undefined, true))
+                .map((c) => this.addCondition(c, true))
             // currently unused, since only variant search has required fields
-            : requiredFields.map((c) => this.addCondition(c, undefined, true));
-
-        // Add a single default condition if necessary
-        // if (requiredFields.length === 0 && this.props.conditionType !== "join") {
-        //     stateUpdates.push(this.addCondition(undefined, undefined, true));
-        // }
+            : requiredFields.map((c) => this.addCondition(c, true));
 
         this.setState({
             ...stateUpdates.reduce((acc, v) => ({
@@ -137,8 +132,7 @@ class DiscoverySearchForm extends Component {
         };
     }
 
-    addCondition(field = undefined, field2 = undefined, didMount = false) {
-        const conditionType = this.props.conditionType ?? "data-type";
+    addCondition(field = undefined, didMount = false) {
 
         // new key either 0 or max key value + 1
         const oldKeys = this.props.form.getFieldValue("keys") ?? [];
@@ -146,9 +140,7 @@ class DiscoverySearchForm extends Component {
 
         // TODO: What if operations is an empty list?
 
-        const fieldSchema = conditionType === "data-type"
-            ? this.getDataTypeFieldSchema(field)
-            : {search: {...DEFAULT_SEARCH_PARAMETERS}};  // Join search conditions have all operators "available" TODO
+        const fieldSchema = this.getDataTypeFieldSchema(field);
 
         const stateUpdate = {
             conditionsHelp: {
@@ -163,11 +155,10 @@ class DiscoverySearchForm extends Component {
             ...this.initialValues,
             [`conditions[${newKey}]`]: {
                 field,
-                ...(conditionType === "data-type" ? {} : {field2}),
                 fieldSchema,
                 negated: false,
                 operation:  this.getInitialOperator(field, fieldSchema),
-                ...(conditionType === "data-type" ? {searchValue: ""} : {}),
+                searchValue: "",
             },
         };
 
@@ -186,13 +177,11 @@ class DiscoverySearchForm extends Component {
     }
 
     cannotBeUsed(fieldString) {
-        if (this.props.conditionType === "join") return;
         const fs = getFieldSchema(this.props.dataType.schema, fieldString);
         return fs.search?.type === "single";
     }
 
     isNotPublic(fieldString) {
-        if (this.props.conditionType === "join") return;
         const fs = getFieldSchema(this.props.dataType.schema, fieldString);
         return ["internal", "none"].includes(fs.search?.queryable);
     }
@@ -393,7 +382,6 @@ class DiscoverySearchForm extends Component {
                     rules: CONDITION_RULES,
                 })(
                     <DiscoverySearchCondition
-                        conditionType={this.props.conditionType ?? "data-type"}
                         dataType={this.props.dataType}
                         isExcluded={(f) =>
                             existingUniqueFields.includes(f) || (!this.props.isInternal && this.isNotPublic(f))
@@ -442,7 +430,6 @@ class DiscoverySearchForm extends Component {
 
 DiscoverySearchForm.propTypes = {
     form: PropTypes.object,
-    conditionType: PropTypes.oneOf(["data-type", "join"]),
     dataType: PropTypes.object,  // TODO: Shape?
     isInternal: PropTypes.bool,
     formValues: PropTypes.object,
