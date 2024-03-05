@@ -1,128 +1,100 @@
-import React, {Component} from "react";
+import React, { useEffect, useMemo, useRef } from "react";
 import PropTypes from "prop-types";
 
-import {Button, Input} from "antd";
-import { Form } from "@ant-design/compatible";
+import { Button, Form, FormInstance, Input } from "antd";
+import { CloseCircleOutlined, PlusOutlined } from "@ant-design/icons";
 
 import SchemaTreeSelect from "../../schema_trees/SchemaTreeSelect";
-import {getFieldSchema} from "../../../utils/schema";
-import {FORM_MODE_ADD, FORM_MODE_EDIT} from "../../../constants";
-import {propTypesFormMode} from "../../../propTypes";
-import { CloseOutlined, PlusOutlined } from "@ant-design/icons";
+import { FORM_MODE_ADD } from "@/constants";
+import { propTypesFormMode } from "@/propTypes";
+import { getFieldSchema } from "@/utils/schema";
 
-const FIELD_KEYS = "fieldKeys";
-let fieldKey = 0;
+const FORM_NAME_RULES = [{ required: true }, { min: 3 }];
 
-class LinkedFieldSetForm extends Component {
-    constructor(props) {
-        super(props);
-        this.addField = this.addField.bind(this);
-        this.removeField = this.removeField.bind(this);
-        this.syncForm = this.syncForm.bind(this);
-        this.rootSchema = this.rootSchema.bind(this);
-    }
+/**
+ * @param {FormInstance} form
+ * @param dataTypes
+ * @param initialValue
+ * @param mode
+ * @return {JSX.Element}
+ * @constructor
+ */
+const LinkedFieldSetForm = ({ form, dataTypes, initialValue, mode }) => {
+    const itemAddRef = useRef(null);
 
-    addField() {
-        this.props.form.setFieldsValue({[FIELD_KEYS]: [...this.props.form.getFieldValue(FIELD_KEYS), fieldKey++]});
-    }
+    const rootSchema = useMemo(() => ({
+        "type": "object",
+        "properties": Object.fromEntries(Object.entries(dataTypes).map(([k, v]) => [k, {
+            "type": "array",
+            "items": v.schema,
+        }])),
+    }), [dataTypes]);
 
-    removeField(key) {
-        this.props.form.setFieldsValue({
-            [FIELD_KEYS]: this.props.form.getFieldValue(FIELD_KEYS).filter(k => k !== key),
-        });
-    }
+    useEffect(() => {
+        form.resetFields();
+    }, [initialValue]);
 
-    syncForm(prevProps = {}) {
-        if (!prevProps.mode && this.props.mode) {
-            if (this.props.mode === FORM_MODE_ADD) {
-                this.addField();
-                this.addField();
-            }
-        }
-
-        if (JSON.stringify(prevProps.initialValue ?? {}) !==
-                JSON.stringify(this.props.initialValue ?? {}) && this.props.mode === FORM_MODE_EDIT) {
-            const initialValueObj = this.props.initialValue ?? {};
-            fieldKey = Object.entries(initialValueObj.fields ?? {}).length;
-
-            this.props.form.getFieldDecorator("name", {initialValue: initialValueObj.name ?? ""});
-            this.props.form.setFieldsValue({[FIELD_KEYS]: [...(new Array(fieldKey)).keys()]});
-
-            const rootSchema = this.rootSchema();
-
-            Object.entries(initialValueObj.fields ?? {})
+    const initialListValue = useMemo(
+        () => mode === FORM_MODE_ADD
+            ? [{}, {}]
+            : Object.entries(initialValue?.fields ?? {})
                 .sort((a, b) => a[0].localeCompare(b[0]))
-                .forEach(([dt, f], i) => {
+                .map(([dt, f]) => {
                     const selected = `[dataset item].${dt}.[item].${f.join(".")}`;
                     try {
-                        this.props.form.getFieldDecorator(`fields[${i}]`, {
-                            initialValue: {selected, schema: getFieldSchema(rootSchema, selected)},
-                        });
+                        return { selected, schema: getFieldSchema(rootSchema, selected) };
                     } catch (err) {
                         // Possibly invalid field (due to migration / data model change), skip it.
-                        console.log(`Encountered invalid field: ${selected}`);
-                        console.error(err);
+                        console.error(`Encountered invalid field: ${selected}`);
+                        return null;
                     }
-                });
-        }
-    }
+                })
+                .filter((f) => f !== null),
+        [mode, initialValue, rootSchema]);
 
-    componentDidMount() {
-        this.syncForm();
-    }
-
-    componentDidUpdate(prevProps, _prevState, _snapshot) {
-        this.syncForm(prevProps);
-    }
-
-    rootSchema() {
-        return {
-            "type": "object",
-            "properties": Object.fromEntries(Object.entries(this.props.dataTypes).map(([k, v]) => [k, {
-                "type": "array",
-                "items": v.schema,
-            }])),
-        };
-    }
-
-    render() {
-        const {getFieldDecorator, getFieldValue} = this.props.form;
-
-        const joinedSchema = this.rootSchema();
-
-        // TODO: isExcluded
-        // Initialize fieldKeys if needed  TODO: do this once?
-        getFieldDecorator("fieldKeys", {initialValue: []});
-        const fieldItems = getFieldValue(FIELD_KEYS).map((k, i) => (
-            <Form.Item required={i < 2} key={k} label={`Field ${i + 1}`}>
-                <Input.Group compact={true}>
-                    {getFieldDecorator(`fields[${k}]`, {
-                        rules: [{required: true, message: "Please specify a field"}],
-                    })(<SchemaTreeSelect schema={joinedSchema} style={{width: "calc(100% - 33px)"}} /> )}
-                    <Button icon={<CloseOutlined />} type="danger" disabled={i < 2}
-                            onClick={() => this.removeField(k)} />
-                </Input.Group>
+    return (
+        <Form form={form}>
+            <Form.Item label="Name" name="name" initialValue={initialValue?.name ?? ""} rules={FORM_NAME_RULES}>
+                <Input placeholder="Sample IDs" />
             </Form.Item>
-        ));
-
-        return <Form>
-            <Form.Item label="Name">
-                {getFieldDecorator("name", {
-                    initialValue: this.props.initialValue?.name ?? "",
-                    rules: [{required: true}, {min: 3}],
-                })(<Input placeholder="Sample IDs" />)}
-            </Form.Item>
-            {fieldItems}
-            <Form.Item>
-                <Button type="dashed" onClick={() => this.addField()} block={true} icon={<PlusOutlined />}>
-                    Add Linked Field
-                </Button>
-            </Form.Item>
-        </Form>;
-    }
-}
+            <Form.List name="fields" initialValue={initialListValue}>
+                {(fields, { add, remove }) => {
+                    itemAddRef.current = add;
+                    return (
+                        <>
+                            {fields.map((field, i) => (
+                                <Form.Item label={`Field ${i+1}`} key={field.key} required={i < 2}>
+                                    <Form.Item {...field} noStyle={true}>
+                                        <SchemaTreeSelect
+                                            schema={rootSchema}
+                                            style={{ width: "calc(100% - 33px)" }}
+                                        />
+                                    </Form.Item>
+                                    <Button
+                                        icon={<CloseCircleOutlined />}
+                                        type="link"
+                                        danger={true}
+                                        disabled={i < 2}
+                                        style={{ cursor: i < 2 ? "not-allowed" : "pointer" }}
+                                        onClick={() => remove(field.name)}
+                                    />
+                                </Form.Item>
+                            ))}
+                            <Form.Item>
+                                <Button type="dashed" onClick={add} icon={<PlusOutlined />} style={{ width: "100%" }}>
+                                    Add Linked Field
+                                </Button>
+                            </Form.Item>
+                        </>
+                    );
+                }}
+            </Form.List>
+        </Form>
+    );
+};
 
 LinkedFieldSetForm.propTypes = {
+    form: PropTypes.object,
     mode: propTypesFormMode,
     dataTypes: PropTypes.objectOf(PropTypes.object),
     initialValue: PropTypes.shape({
@@ -131,4 +103,4 @@ LinkedFieldSetForm.propTypes = {
     }),
 };
 
-export default Form.create({name: "linked_field_set_form"})(LinkedFieldSetForm);
+export default LinkedFieldSetForm;
