@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useRef, useState } from "react";
+import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import PropTypes from "prop-types";
 
 import { Button, Dropdown, Tooltip } from "antd";
@@ -33,6 +33,12 @@ const VARIANT_OPTIONAL_FIELDS = [
     "[dataset item].alternative",
     "[dataset item].reference",
 ];
+
+const updateVariantConditions = (conditions, fieldName, searchValue) =>
+    conditions.map((c) =>
+        c.value.field === fieldName
+            ? {...c, value: { ...c.value, searchValue }}
+            : c);
 
 // noinspection JSUnusedGlobalSymbols
 const CONDITION_RULES = [
@@ -75,6 +81,21 @@ const CONDITION_WRAPPER_COL = {
 const conditionLabel = (i) => `Condition ${i + 1}`;
 
 
+const PhenopacketDropdownOption = ({ option: { path, ui_name: uiName }, getDataTypeFieldSchema }) => (
+    <Tooltip title={getDataTypeFieldSchema(`[dataset item].${path}`).description}
+             mouseEnterDelay={TOOLTIP_DELAY_SECONDS}>
+        {uiName}
+    </Tooltip>
+);
+PhenopacketDropdownOption.propTypes = {
+    option: PropTypes.shape({
+        path: PropTypes.string,
+        ui_name: PropTypes.string,
+    }),
+    schema: PropTypes.object,
+};
+
+
 const DiscoverySearchForm = ({ form, onSubmit, dataType, formValues, handleVariantHiddenFieldChange }) => {
     const [conditionsHelp, setConditionsHelp] = useState({});
     const initialValues = useRef({});
@@ -82,13 +103,13 @@ const DiscoverySearchForm = ({ form, onSubmit, dataType, formValues, handleVaria
     const isPhenopacketSearch = dataType.id === "phenopacket";
     const isVariantSearch = dataType.id === "variant";
 
-    const getDataTypeFieldSchema = (field) => {
+    const getDataTypeFieldSchema = useCallback((field) => {
         const fs = field ? getFieldSchema(dataType.schema, field) : {};
         return {
             ...fs,
             search: { ...DEFAULT_SEARCH_PARAMETERS, ...(fs.search ?? {}) },
         };
-    };
+    }, [dataType]);
 
     const updateHelpFromFieldChange = useCallback((k, change) => {
         setConditionsHelp({
@@ -97,7 +118,7 @@ const DiscoverySearchForm = ({ form, onSubmit, dataType, formValues, handleVaria
         });
     }, [conditionsHelp]);
 
-    const getInitialOperator = (field, fieldSchema) => {
+    const getInitialOperator = useCallback((field, fieldSchema) => {
         if (!isVariantSearch) {
             return fieldSchema?.search?.operations?.includes(OP_CASE_INSENSITIVE_CONTAINING)
                 ? OP_CASE_INSENSITIVE_CONTAINING
@@ -115,7 +136,7 @@ const DiscoverySearchForm = ({ form, onSubmit, dataType, formValues, handleVaria
             default:
                 return OP_EQUALS;
         }
-    };
+    }, [isVariantSearch]);
 
     const addCondition = useCallback((field = undefined) => {
         // new key either 0 or max key value + 1
@@ -180,12 +201,8 @@ const DiscoverySearchForm = ({ form, onSubmit, dataType, formValues, handleVaria
 
     // methods for user-friendly variant search
 
-    const updateConditions = (conditions, fieldName, newValue) =>
-        conditions.map((c) =>
-            c.value.field === fieldName ? {...c, value: {...c.value, searchValue: newValue}} : c);
-
     // fill hidden variant forms according to input in user-friendly variant search
-    const addVariantSearchValues = (values) => {
+    const addVariantSearchValues = useCallback((values) => {
         const { assemblyId, chrom, start, end, genotypeType, ref, alt } = values;
 
         let updatedConditionsArray = formValues?.conditions;
@@ -197,46 +214,46 @@ const DiscoverySearchForm = ({ form, onSubmit, dataType, formValues, handleVaria
         // some fields may be undefined, so check for key names, not values
 
         if (values.hasOwnProperty("assemblyId")) {
-            updatedConditionsArray = updateConditions(
-                updatedConditionsArray,
-                "[dataset item].assembly_id",
-                assemblyId,
-            );
+            updatedConditionsArray = updateVariantConditions(
+                updatedConditionsArray, "[dataset item].assembly_id", assemblyId);
         }
 
         if (values.hasOwnProperty("chrom") && values.hasOwnProperty("start") && values.hasOwnProperty("end")) {
-            updatedConditionsArray = updateConditions(updatedConditionsArray, "[dataset item].chromosome", chrom);
-            updatedConditionsArray = updateConditions(updatedConditionsArray, "[dataset item].start", start);
-            updatedConditionsArray = updateConditions(updatedConditionsArray, "[dataset item].end", end);
+            updatedConditionsArray = updateVariantConditions(
+                updatedConditionsArray, "[dataset item].chromosome", chrom);
+            updatedConditionsArray = updateVariantConditions(updatedConditionsArray, "[dataset item].start", start);
+            updatedConditionsArray = updateVariantConditions(updatedConditionsArray, "[dataset item].end", end);
         }
 
         if (values.hasOwnProperty("genotypeType")) {
-            updatedConditionsArray = updateConditions(
-                updatedConditionsArray,
-                "[dataset item].calls.[item].genotype_type",
-                genotypeType,
-            );
+            updatedConditionsArray = updateVariantConditions(
+                updatedConditionsArray, "[dataset item].calls.[item].genotype_type", genotypeType);
         }
 
         if (values.hasOwnProperty("ref")) {
-            updatedConditionsArray = updateConditions(updatedConditionsArray, "[dataset item].reference", ref);
+            updatedConditionsArray = updateVariantConditions(updatedConditionsArray, "[dataset item].reference", ref);
         }
 
         if (values.hasOwnProperty("alt")) {
-            updatedConditionsArray = updateConditions(updatedConditionsArray, "[dataset item].alternative", alt);
+            updatedConditionsArray = updateVariantConditions(
+                updatedConditionsArray, "[dataset item].alternative", alt);
         }
 
         handleVariantHiddenFieldChange({
             keys: formValues.keys,
             conditions: updatedConditionsArray,
         });
-    };
+    }, [formValues, handleVariantHiddenFieldChange]);
 
-    const getHelpText = (key) => isVariantSearch ? "" : conditionsHelp[key] ?? undefined;
+    const getHelpText = useCallback(
+        (key) => isVariantSearch ? "" : conditionsHelp[key] ?? undefined,
+        [isVariantSearch, conditionsHelp]);
 
-    const addConditionFromDropdown = ({ key }) => addCondition(`[dataset item].${key}`);
+    const addConditionFromDropdown = useCallback(
+        ({ key }) => addCondition(`[dataset item].${key}`),
+        [addCondition]);
 
-    const phenopacketsSearchOptions = () => {
+    const phenopacketsSearchOptions = useMemo(() => {
         const phenopacketSearchOptions = searchUiMappings.phenopacket;
         const subjectOptions = Object.values(phenopacketSearchOptions.subject);
         const phenotypicFeaturesOptions = Object.values(phenopacketSearchOptions.phenotypic_features);
@@ -246,26 +263,10 @@ const DiscoverySearchForm = ({ form, onSubmit, dataType, formValues, handleVaria
         const measurementsOptions = Object.values(phenopacketSearchOptions.measurements);
         const medicalActionsOptions = Object.values(phenopacketSearchOptions.medical_actions);
 
-        // eslint-disable-next-line react/prop-types
-        const DropdownOption = ({option: {path, ui_name: uiName}}) => {
-            const schema = getDataTypeFieldSchema(`[dataset item].${path}`);
-            return (
-                <Tooltip title={schema.description} mouseEnterDelay={TOOLTIP_DELAY_SECONDS}>
-                    {uiName}
-                </Tooltip>
-            );
-        };
-        DropdownOption.propTypes = {
-            option: PropTypes.shape({
-                path: PropTypes.string,
-                ui_name: PropTypes.string,
-            }),
-        };
-
         const optionsMenuItems = (options) =>
             options.map((o) => ({
                 key: o.path,
-                label: <DropdownOption option={o} />,
+                label: <PhenopacketDropdownOption option={o} getDataTypeFieldSchema={getDataTypeFieldSchema} />,
             }));
 
         // longest title padded with marginRight
@@ -310,7 +311,7 @@ const DiscoverySearchForm = ({ form, onSubmit, dataType, formValues, handleVaria
                 },
             ],
         };
-    };
+    }, [getDataTypeFieldSchema]);
 
     const getCondition = (ck) => form.getFieldValue(`conditions[${ck}]`);
 
@@ -361,7 +362,7 @@ const DiscoverySearchForm = ({ form, onSubmit, dataType, formValues, handleVaria
                         }}
                     >
                         {isPhenopacketSearch ? (
-                            <Dropdown menu={phenopacketsSearchOptions()}
+                            <Dropdown menu={phenopacketsSearchOptions}
                                       placement="bottom"
                                       trigger={["click"]}>
                                 <Button type="dashed" style={{ width: "100%" }} icon={<PlusOutlined />}>
