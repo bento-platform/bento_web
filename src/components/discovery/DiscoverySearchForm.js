@@ -91,7 +91,7 @@ PhenopacketDropdownOption.propTypes = {
         path: PropTypes.string,
         ui_name: PropTypes.string,
     }),
-    schema: PropTypes.object,
+    getDataTypeFieldSchema: PropTypes.func,
 };
 
 
@@ -344,7 +344,7 @@ const DiscoverySearchForm = ({ onChange, dataType, formValues, setFormRef, handl
                                             onRemoveClick={() => removeCondition(i)}
                                         />
                                     </Form.Item>
-                                ))
+                                ));
                             }
                         }
                     </Form.List>
