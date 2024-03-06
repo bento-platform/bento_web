@@ -61,6 +61,19 @@ const CONDITION_RULES = [
 
 ];
 
+const CONDITION_LABEL_COL = {
+    lg: { span: 24 },
+    xl: { span: 4 },
+    xxl: { span: 3 },
+};
+const CONDITION_WRAPPER_COL = {
+    lg: { span: 24 },
+    xl: { span: 20 },
+    xxl: { span: 18 },
+};
+
+const conditionLabel = (i) => `Condition ${i + 1}`;
+
 
 class DiscoverySearchForm extends Component {
     constructor(props) {
@@ -82,16 +95,19 @@ class DiscoverySearchForm extends Component {
     }
 
     componentDidMount() {
-        // TODO: MAKE THIS WORK this.addCondition(); // Make sure there's one condition at least
-        if (this.props.form.getFieldValue("keys").length !== 0) return;
+        const { form, dataType } = this.props;
+        const { isVariantSearch } = this.state;
 
-        const requiredFields = this.props.dataType
-            ? getFields(this.props.dataType.schema).filter(
-                (f) => getFieldSchema(this.props.dataType.schema, f).search?.required ?? false,
+        // TODO: MAKE THIS WORK this.addCondition(); // Make sure there's one condition at least
+        if (form.getFieldValue("keys").length !== 0) return;
+
+        const requiredFields = dataType
+            ? getFields(dataType.schema).filter(
+                (f) => getFieldSchema(dataType.schema, f).search?.required ?? false,
             )
             : [];
 
-        const stateUpdates = this.state.isVariantSearch
+        const stateUpdates = isVariantSearch
             ? VARIANT_REQUIRED_FIELDS
                 .concat(VARIANT_OPTIONAL_FIELDS)
                 .map((c) => this.addCondition(c, true))
@@ -116,9 +132,8 @@ class DiscoverySearchForm extends Component {
 
 
     removeCondition(k) {
-        this.props.form.setFieldsValue({
-            keys: this.props.form.getFieldValue("keys").filter(key => key !== k),
-        });
+        const { form } = this.props;
+        form.setFieldsValue({ keys: form.getFieldValue("keys").filter(key => key !== k) });
     }
 
     getDataTypeFieldSchema(field) {
@@ -133,9 +148,11 @@ class DiscoverySearchForm extends Component {
     }
 
     addCondition(field = undefined, didMount = false) {
+        const { form } = this.props;
+        const { conditionsHelp } = this.state;
 
         // new key either 0 or max key value + 1
-        const oldKeys = this.props.form.getFieldValue("keys") ?? [];
+        const oldKeys = form.getFieldValue("keys") ?? [];
         const newKey = oldKeys.length ? oldKeys.reduce((a, b) => Math.max(a, b), 0) + 1 : 0;
 
         // TODO: What if operations is an empty list?
@@ -144,7 +161,7 @@ class DiscoverySearchForm extends Component {
 
         const stateUpdate = {
             conditionsHelp: {
-                ...this.state.conditionsHelp,
+                ...conditionsHelp,
                 [newKey]: fieldSchema.description ?? undefined,
             },
         };
@@ -163,13 +180,13 @@ class DiscoverySearchForm extends Component {
         };
 
         // Initialize new condition, otherwise the state won't get it
-        this.props.form.getFieldDecorator(`conditions[${newKey}]`, {
+        form.getFieldDecorator(`conditions[${newKey}]`, {
             initialValue: this.initialValues[`conditions[${newKey}]`],
             validateTrigger: false,  // only when called manually
             rules: CONDITION_RULES,
         });
 
-        this.props.form.setFieldsValue({
+        form.setFieldsValue({
             keys: this.props.form.getFieldValue("keys").concat(newKey),
         });
 
@@ -194,9 +211,10 @@ class DiscoverySearchForm extends Component {
 
     // fill hidden variant forms according to input in user-friendly variant search
     addVariantSearchValues = (values) => {
-        const {assemblyId, chrom, start, end, genotypeType, ref, alt } = values;
-        const fields = this.props.formValues;
-        let updatedConditionsArray = fields?.conditions;
+        const { formValues, handleVariantHiddenFieldChange } = this.props;
+        const { assemblyId, chrom, start, end, genotypeType, ref, alt } = values;
+
+        let updatedConditionsArray = formValues?.conditions;
 
         if (updatedConditionsArray === undefined) {
             return;
@@ -235,19 +253,16 @@ class DiscoverySearchForm extends Component {
         }
 
         const updatedFields = {
-            keys: fields.keys,
+            keys: formValues.keys,
             conditions: updatedConditionsArray,
         };
 
-        this.props.handleVariantHiddenFieldChange(updatedFields);
-    };
-
-    getLabel = (i) => {
-        return `Condition ${i + 1}`;
+        handleVariantHiddenFieldChange(updatedFields);
     };
 
     getHelpText = (key) => {
-        return this.state.isVariantSearch ? "" : this.state.conditionsHelp[key] ?? undefined;
+        const { isVariantSearch, conditionsHelp } = this.state;
+        return isVariantSearch ? "" : conditionsHelp[key] ?? undefined;
     };
 
     getInitialOperator = (field, fieldSchema) => {
@@ -347,14 +362,17 @@ class DiscoverySearchForm extends Component {
     };
 
     addConditionFromPulldown = ({ key }) => {
-        this.addCondition("[dataset item]." + key);
+        this.addCondition(`[dataset item].${key}`);
     };
 
     render() {
-        const getCondition = (ck) => this.props.form.getFieldValue(`conditions[${ck}]`);
+        const { dataType, form, isInternal } = this.props;
+        const { isPhenopacketSearch, isVariantSearch } = this.state;
+
+        const getCondition = (ck) => form.getFieldValue(`conditions[${ck}]`);
 
         this.props.form.getFieldDecorator("keys", { initialValue: [] }); // Initialize keys if needed
-        const keys = this.props.form.getFieldValue("keys");
+        const keys = form.getFieldValue("keys");
         const existingUniqueFields = keys
             .filter((k) => k !== undefined)
             .map((k) => getCondition(k).field)
@@ -363,29 +381,19 @@ class DiscoverySearchForm extends Component {
         const formItems = keys.map((k, i) => (
             <Form.Item
                 key={k}
-                labelCol={{
-                    lg: { span: 24 },
-                    xl: { span: 4 },
-                    xxl: { span: 3 },
-                }}
-                wrapperCol={{
-                    lg: { span: 24 },
-                    xl: { span: 20 },
-                    xxl: { span: 18 },
-                }}
-                label={this.getLabel(i)}
+                labelCol={CONDITION_LABEL_COL}
+                wrapperCol={CONDITION_WRAPPER_COL}
+                label={conditionLabel(i)}
                 help={this.getHelpText(k)}
             >
-                {this.props.form.getFieldDecorator(`conditions[${k}]`, {
+                {form.getFieldDecorator(`conditions[${k}]`, {
                     initialValue: this.initialValues[`conditions[${k}]`],
                     validateTrigger: false, // only when called manually
                     rules: CONDITION_RULES,
                 })(
                     <DiscoverySearchCondition
-                        dataType={this.props.dataType}
-                        isExcluded={(f) =>
-                            existingUniqueFields.includes(f) || (!this.props.isInternal && this.isNotPublic(f))
-                        }
+                        dataType={dataType}
+                        isExcluded={(f) => existingUniqueFields.includes(f) || (!isInternal && this.isNotPublic(f))}
                         onFieldChange={(change) => this.handleFieldChange(k, change)}
                         onRemoveClick={() => this.removeCondition(k)}
                     />,
@@ -395,33 +403,39 @@ class DiscoverySearchForm extends Component {
 
         return (
             <Form onSubmit={this.onSubmit}>
-                {this.props.dataType.id === "variant" && (
+                {isVariantSearch ? (
                     <VariantSearchHeader
                         addVariantSearchValues={this.addVariantSearchValues}
                         dataType={this.props.dataType}
                     />
+                ) : (
+                    <>
+                        {formItems}
+                        <Form.Item
+                            wrapperCol={{
+                                xl: { span: 24 },
+                                xxl: { offset: 3, span: 18 },
+                            }}
+                        >
+                            {isPhenopacketSearch ? (
+                                <Dropdown menu={this.phenopacketsSearchOptions()}
+                                          placement="bottom"
+                                          trigger={["click"]}>
+                                    <Button type="dashed" style={{ width: "100%" }} icon={<PlusOutlined />}>
+                                        Add condition
+                                    </Button>
+                                </Dropdown>
+                            ) : (
+                                <Button type="dashed"
+                                        onClick={() => this.addCondition()}
+                                        style={{ width: "100%" }}
+                                        icon={<PlusOutlined />}>
+                                    Add condition
+                                </Button>
+                            )}
+                        </Form.Item>
+                    </>
                 )}
-                {this.state.isVariantSearch ? [] : formItems}
-                <Form.Item
-                    wrapperCol={{
-                        xl: { span: 24 },
-                        xxl: { offset: 3, span: 18 },
-                    }}
-                >
-                    {this.state.isVariantSearch ? (
-                        <></>
-                    ) : this.state.isPhenopacketSearch ? (
-                        <Dropdown menu={this.phenopacketsSearchOptions()} placement="bottom" trigger={["click"]}>
-                            <Button type="dashed" style={{ width: "100%" }}>
-                                <PlusOutlined /> Add condition
-                            </Button>
-                        </Dropdown>
-                    ) : (
-                        <Button type="dashed" onClick={() => this.addCondition()} style={{ width: "100%" }}>
-                            <PlusOutlined /> Add condition
-                        </Button>
-                    )}
-                </Form.Item>
             </Form>
         );
     }
@@ -432,7 +446,7 @@ DiscoverySearchForm.propTypes = {
     dataType: PropTypes.object,  // TODO: Shape?
     isInternal: PropTypes.bool,
     formValues: PropTypes.object,
-    handleVariantHiddenFieldChange: PropTypes.func,
+    handleVariantHiddenFieldChange: PropTypes.func.isRequired,
 };
 
 export default Form.create({

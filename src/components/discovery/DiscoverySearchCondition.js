@@ -59,7 +59,7 @@ const DiscoverySearchCondition = ({ dataType, value, onChange, onFieldChange, is
         negated: value.negated ?? false,
         operation: value.operation ?? OP_EQUALS,
         searchValue: value.searchValue ?? "",
-    })
+    });
 
     useEffect(() => {
         if (value) {
@@ -75,7 +75,7 @@ const DiscoverySearchCondition = ({ dataType, value, onChange, onFieldChange, is
 
     const handleChange = useCallback((change) => {
         const newState = {...fieldState, ...change};
-        if (value === undefined) setFieldState(newState)
+        if (value === undefined) setFieldState(newState);
         if (onChange) onChange(newState);
     }, [fieldState, onChange]);
 
