@@ -1,7 +1,8 @@
 import React, {Component} from "react";
 import PropTypes from "prop-types";
 
-import {Divider, Icon, Input, Modal, Radio, Table, Tabs, Typography} from "antd";
+import {Divider, Input, Modal, Radio, Table, Tabs, Typography} from "antd";
+import { ShareAltOutlined, TableOutlined } from "@ant-design/icons";
 
 import SchemaTree from "../schema_trees/SchemaTree";
 import {generateSchemaTreeData, generateSchemaTableData} from "../../utils/schema";
@@ -11,8 +12,8 @@ import {nop} from "../../utils/misc";
 const FIELD_COLUMNS = [
     {title: "Key", dataIndex: "key", render: t =>
             <span style={{fontFamily: "monospace", fontSize: "12px", whiteSpace: "nowrap"}}>{t}</span>},
-    {title: "JSON Type", dataIndex: "data.type"},
-    {title: "Description", dataIndex: "data.description"},
+    {title: "JSON Type", dataIndex: ["data", "type"]},
+    {title: "Description", dataIndex: ["data", "description"]},
 ];
 
 class DataTypeExplorationModal extends Component {
@@ -48,8 +49,30 @@ class DataTypeExplorationModal extends Component {
     render() {
         const filteredDataTypes = this.props.dataTypes || [];
 
+        const tabItems = filteredDataTypes.map((dataType) => ({
+            key: dataType.id,
+            label: dataType.label ?? dataType.id,
+            children: this.state.view === "tree" ? (
+                <SchemaTree schema={dataType.schema} />
+            ) : (
+                <>
+                    <Input.Search
+                        allowClear={true}
+                        onChange={e => this.onFilterChange(e.target.value)}
+                        placeholder="Search for a field..."
+                        style={{marginBottom: "16px"}}
+                    />
+                    <Table
+                        bordered={true}
+                        columns={FIELD_COLUMNS}
+                        dataSource={this.getTableData(dataType)}
+                    />
+                </>
+            ),
+        }));
+
         return <Modal title="Help"
-                      visible={this.props.visible}
+                      open={this.props.open}
                       width={1280}
                       onCancel={this.props.onCancel || nop}
                       footer={null}>
@@ -74,32 +97,10 @@ class DataTypeExplorationModal extends Component {
                              onChange={e => this.setState({view: e.target.value})}
                              buttonStyle="solid"
                              style={{position: "absolute", top: 0, right: 0, zIndex: 50}}>
-                    <Radio.Button value="tree"><Icon type="share-alt" /> Tree View</Radio.Button>
-                    <Radio.Button value="table"><Icon type="table" /> Table Detail View</Radio.Button>
+                    <Radio.Button value="tree"><ShareAltOutlined /> Tree View</Radio.Button>
+                    <Radio.Button value="table"><TableOutlined /> Table Detail View</Radio.Button>
                 </Radio.Group>
-                <Tabs>
-                {filteredDataTypes.map(dataType => (
-                    <Tabs.TabPane tab={dataType.label ?? dataType.id} key={dataType.id}>
-                        {this.state.view === "tree" ? (
-                            <SchemaTree schema={dataType.schema} />
-                        ) : (
-                            <>
-                                <Input.Search
-                                    allowClear={true}
-                                    onChange={e => this.onFilterChange(e.target.value)}
-                                    placeholder="Search for a field..."
-                                    style={{marginBottom: "16px"}}
-                                />
-                                <Table
-                                    bordered={true}
-                                    columns={FIELD_COLUMNS}
-                                    dataSource={this.getTableData(dataType)}
-                                />
-                            </>
-                        )}
-                    </Tabs.TabPane>
-                ))}
-            </Tabs>
+                <Tabs items={tabItems} />
             </div>
         </Modal>;
     }
@@ -107,7 +108,7 @@ class DataTypeExplorationModal extends Component {
 
 DataTypeExplorationModal.propTypes = {
     dataTypes: PropTypes.array,  // TODO: Shape
-    visible: PropTypes.bool,
+    open: PropTypes.bool,
     onCancel: PropTypes.func,
 };
 

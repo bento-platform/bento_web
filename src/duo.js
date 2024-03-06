@@ -1,4 +1,16 @@
 import PropTypes from "prop-types";
+import {
+    AuditOutlined,
+    BankOutlined,
+    ClockCircleOutlined,
+    DatabaseOutlined,
+    DollarOutlined,
+    ExceptionOutlined,
+    FileDoneOutlined,
+    GlobalOutlined,
+    ReconciliationOutlined,
+    TeamOutlined, UserOutlined,
+} from "@ant-design/icons";
 
 const DUO_PCC_GENERAL_RESEARCH_USE = "GRU";
 const DUO_PCC_GENERAL_RESEARCH_USE_AND_CLINICAL_CARE = "GRU-CC";
@@ -116,62 +128,62 @@ export const DATA_USE_KEYS = [
 
 export const DATA_USE_INFO = {
     [DUO_COLLABORATION_REQUIRED]: {
-        icon: "team",
+        Icon: TeamOutlined,
         title: "Collaboration Required",
         content: "This requirement indicates that the requester must agree to collaboration with the primary " +
             "study investigator(s).",
     },
     [DUO_ETHICS_APPROVAL_REQUIRED]: {
-        icon: "reconciliation",
+        Icon: ReconciliationOutlined,
         title: "Ethics Approval Required",
         content: "This requirement indicates that the requester must provide documentation of local IRB/ERB approval.",
     },
     [DUO_GEOGRAPHICAL_RESTRICTION]: {
-        icon: "global",
+        Icon: GlobalOutlined,
         title: "Geographical Restriction",
         content: "This requirement indicates that use is limited to within a specific geographic region.",
     },
     [DUO_INSTITUTION_SPECIFIC_RESTRICTION]: {
-        icon: "bank",
+        Icon: BankOutlined,
         title: "Institution-Specific Restriction",
         content: "This requirement indicates that use is limited to use within an approved institution.",
     },
     [DUO_NOT_FOR_PROFIT_USE_ONLY]: {
-        icon: "dollar", // Gets modified below
+        Icon: DollarOutlined, // Gets modified elsewhere via stacking
         title: "Not-For-Profit Use Only",
         content: "This requirement indicates that use of the data is limited to not-for-profit organizations " +
             "and not-for-profit use, non-commercial use.",
     },
     [DUO_PROJECT_SPECIFIC_RESTRICTION]: {
-        icon: "audit",
+        Icon: AuditOutlined,
         title: "Project-Specific Restriction",
         content: "This requirement indicates that use is limited to use within an approved project.",
     },
     [DUO_PUBLICATION_MORATORIUM]: {
-        icon: "exception",
+        Icon: ExceptionOutlined,
         title: "Publication Moratorium",
         content: "This requirement indicates that requester agrees not to publish results of studies until a " +
             "specific date",
     },
     [DUO_PUBLICATION_REQUIRED]: {
-        icon: "file-done",
+        Icon: FileDoneOutlined,
         title: "Publication Required",
         content: "This requirement indicates that requester agrees to make results of studies using the data " +
             "available to the larger scientific community.",
     },
     [DUO_RETURN_TO_DATABASE_OR_RESOURCE]: {
-        icon: "database",
+        Icon: DatabaseOutlined,
         title: "Return to Database or Resource",
         content: "This requirement indicates that the requester must return derived/enriched data to the " +
             "database/resource.",
     },
     [DUO_TIME_LIMIT_ON_USE]: {
-        icon: "clock-circle",
+        Icon: ClockCircleOutlined,
         title: "Time Limit on Use",
         content: "This requirement indicates that use is approved for a specific number of months.",
     },
     [DUO_USER_SPECIFIC_RESTRICTION]: {
-        icon: "user",
+        Icon: UserOutlined,
         title: "User-Specific Restriction",
         content: "This requirement indicates that use is limited to use by approved users.",
     },

@@ -3,7 +3,8 @@ import { useDispatch, useSelector } from "react-redux";
 import { Route, Switch, useHistory, useParams, useRouteMatch } from "react-router-dom";
 import PropTypes from "prop-types";
 
-import { Button, Descriptions, Icon, Popover, Table, Tooltip, Typography } from "antd";
+import { Button, Descriptions, Popover, Table, Tooltip, Typography } from "antd";
+import { BarsOutlined, EyeOutlined, FileTextOutlined, ProfileOutlined } from "@ant-design/icons";
 
 import { EM_DASH } from "../../constants";
 import { experimentPropTypesShape, experimentResultPropTypesShape, individualPropTypesShape } from "../../propTypes";
@@ -55,7 +56,7 @@ const ExperimentResultActions = ({ result }) => {
         </> : null}
         {resultViewable ? <>
             <FileModal
-                visible={viewModalVisible}
+                open={viewModalVisible}
                 onCancel={onViewCancel}
                 title={<span>View: {result.filename}</span>}
                 url={url}
@@ -63,7 +64,7 @@ const ExperimentResultActions = ({ result }) => {
                 hasTriggered={hasTriggeredViewModal}
             />
             <Tooltip title="View">
-                <Button size="small" icon="eye" onClick={onViewClick} />
+                <Button size="small" icon={<EyeOutlined />} onClick={onViewClick} />
             </Tooltip>{" "}
         </> : null}
         <Popover
@@ -105,7 +106,7 @@ const ExperimentResultActions = ({ result }) => {
             trigger="click"
         >
             <Tooltip title="Details">
-                <Button size="small" icon="bars" />
+                <Button size="small" icon={<BarsOutlined />} />
             </Tooltip>
         </Popover>
     </div>;
@@ -163,7 +164,7 @@ const ExperimentDetail = ({ experiment }) => {
 
     return (
         <div className="experiment_and_results">
-            <Typography.Title level={4}><Icon type="profile" /> Details</Typography.Title>
+            <Typography.Title level={4}><ProfileOutlined /> Details</Typography.Title>
             <Descriptions layout="horizontal" bordered={true} column={2} size="small" style={{ maxWidth: 1200 }}>
                 <Descriptions.Item span={2} label="ID">
                     <span style={{ fontFamily: "monospace" }}>{id}</span>
@@ -210,7 +211,7 @@ const ExperimentDetail = ({ experiment }) => {
                 </Descriptions.Item>
             </Descriptions>
             <Typography.Title level={4}>
-                <Icon type="file-text" /> {sortedExperimentResults.length ? "Results" : "No experiment results"}
+                <FileTextOutlined /> {sortedExperimentResults.length ? "Results" : "No experiment results"}
             </Typography.Title>
             {sortedExperimentResults.length ? <Table
                 bordered={true}

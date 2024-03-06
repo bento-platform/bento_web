@@ -1,6 +1,6 @@
 import React, { memo } from "react";
 
-import { Col, List, Icon, Row, Tag, Typography, Popover } from "antd";
+import { Col, List, Row, Tag, Typography, Popover } from "antd";
 
 import {
     DUO_NOT_FOR_PROFIT_USE_ONLY,
@@ -10,6 +10,7 @@ import {
     PRIMARY_CONSENT_CODE_INFO,
     SECONDARY_CONSENT_CODE_INFO,
 } from "../duo";
+import { StopOutlined } from "@ant-design/icons";
 
 
 const TAG_LABEL_STYLING = {
@@ -62,22 +63,23 @@ const DataUseDisplay = memo(({ dataUse }) => {
             <List
                 itemLayout="horizontal" style={{maxWidth: "600px"}}
                 dataSource={DATA_USE_KEYS.filter(u => uses.includes(u))}
-                renderItem={(u) => (
-                    <List.Item>
-                        <List.Item.Meta avatar={
-                            u === DUO_NOT_FOR_PROFIT_USE_ONLY ? (
-                                // Special case for non-profit use; stack two icons (dollar + stop) to
-                                // create a custom synthetic icon.
-                                <div style={{opacity: 0.65}}>
-                                    <Icon style={{fontSize: "24px", color: "black"}}
-                                          type={DATA_USE_INFO[u].icon} />
-                                    <Icon style={{fontSize: "24px", marginLeft: "-24px", color: "black"}}
-                                          type="stop" />
-                                </div>
-                            ) : <Icon style={{fontSize: "24px"}} type={DATA_USE_INFO[u].icon} />
-                        } title={DATA_USE_INFO[u].title} description={DATA_USE_INFO[u].content} />
-                    </List.Item>
-                )}
+                renderItem={(u) => {
+                    const DataUseIcon = DATA_USE_INFO[u].Icon;
+                    return (
+                        <List.Item>
+                            <List.Item.Meta avatar={
+                                u === DUO_NOT_FOR_PROFIT_USE_ONLY ? (
+                                    // Special case for non-profit use; stack two icons (dollar + stop) to
+                                    // create a custom synthetic icon.
+                                    <div style={{opacity: 0.65}}>
+                                        <DataUseIcon style={{fontSize: "24px", color: "black"}} />
+                                        <StopOutlined style={{fontSize: "24px", marginLeft: "-24px", color: "black"}} />
+                                    </div>
+                                ) : <DataUseIcon style={{fontSize: "24px"}} />
+                            } title={DATA_USE_INFO[u].title} description={DATA_USE_INFO[u].content} />
+                        </List.Item>
+                    );
+                }}
             />
         </div>
     </>;

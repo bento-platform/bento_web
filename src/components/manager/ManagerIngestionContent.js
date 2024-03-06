@@ -7,7 +7,7 @@ import {Button, Form, List, message} from "antd";
 
 import WorkflowListItem from "./WorkflowListItem";
 
-import {submitIngestionWorkflowRun} from "../../modules/wes/actions";
+import {submitIngestionWorkflowRun} from "@/modules/wes/actions";
 
 import {
     FORM_LABEL_COL,

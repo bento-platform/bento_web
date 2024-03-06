@@ -178,7 +178,7 @@ export const biosamplePropTypesShape = PropTypes.shape({
         updated: PropTypes.string,  // ISO datetime string
     }),
     description: PropTypes.string,
-    sampled_tissue: ontologyShape.isRequired,
+    sampled_tissue: ontologyShape,
     individual_age_at_collection: PropTypes.oneOfType([agePropTypesShape, ageRangePropTypesShape]),
     histological_diagnosis: ontologyShape,
     tumor_progression: ontologyShape,
@@ -220,6 +220,7 @@ export const diseasePropTypesShape = PropTypes.shape({
 // Prop types object shape for a single phenopacket phenotypic feature object.
 export const phenotypicFeaturePropTypesShape = PropTypes.shape({
     type: ontologyShape.isRequired,
+    excluded: PropTypes.bool,
     created: PropTypes.string,  // ISO datetime string
     updated: PropTypes.string,  // ISO datetime string
 });

@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
-import { Input, Form, Select } from "antd";
+import { Input, Select } from "antd";
+import { Form } from "@ant-design/compatible";
 import PropTypes from "prop-types";
 import LocusSearch from "./LocusSearch";
 import { useSelector } from "react-redux";

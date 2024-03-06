@@ -4,9 +4,9 @@ import PropTypes from "prop-types";
 import { Col, Form, Input, List, Row, Select, Skeleton, Spin } from "antd";
 import WorkflowListItem from "./WorkflowListItem";
 
-import { workflowTypePropType } from "../../propTypes";
+import { useWorkflows } from "@/hooks";
+import { workflowTypePropType } from "@/propTypes";
 import { FORM_LABEL_COL, FORM_WRAPPER_COL } from "./workflowCommon";
-import { useWorkflows } from "../../hooks";
 
 const filterValuesPropType = PropTypes.shape({
     text: PropTypes.string,

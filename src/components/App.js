@@ -11,27 +11,25 @@ import {
     usePopupOpenerAuthCallback,
     useSignInPopupTokenHandoff,
     useSessionWorkerTokenRefresh,
-    useOpenIdConfig,
 } from "bento-auth-js";
 
 import * as io from "socket.io-client";
 
-import { Layout, Modal } from "antd";
+import { Layout, message, Modal } from "antd";
 
 import OwnerRoute from "./OwnerRoute";
 
-const SiteHeader = lazy(() => import("./SiteHeader"));
+import SiteHeader from "./SiteHeader";
 import SiteFooter from "./SiteFooter";
 import SitePageLoading from "./SitePageLoading";
 
-import { AUTH_CALLBACK_URL, BENTO_URL_NO_TRAILING_SLASH, CLIENT_ID, OPENID_CONFIG_URL } from "../config";
-import eventHandler from "../events";
-import SessionWorker from "../session.worker";
-import { nop } from "../utils/misc";
-import { fetchUserDependentData } from "../modules/user/actions";
+import { BENTO_URL_NO_TRAILING_SLASH, OPENID_CONFIG_URL } from "@/config";
+import eventHandler from "@/events";
+import SessionWorker from "@/session.worker";
+import { nop } from "@/utils/misc";
+import { fetchUserDependentData } from "@/modules/user/actions";
 
-// Lazy-load notification drawer
-const NotificationDrawer = lazy(() => import("./notifications/NotificationDrawer"));
+import NotificationDrawer from "./notifications/NotificationDrawer";
 
 // Lazy-load route components
 const OverviewContent = lazy(() => import("./OverviewContent"));
@@ -73,25 +71,22 @@ const App = () => {
 
     const isInAuthPopup = checkIsInAuthPopup(BENTO_URL_NO_TRAILING_SLASH);
 
-    const openIdConfig = useOpenIdConfig(OPENID_CONFIG_URL);
-
     // Using the fetchUserDependentData thunk creator as a hook argument may lead to unwanted triggers on re-renders.
     // So we store the thunk inner function of the fetchUserDependentData thunk creator in a const.
     const onAuthSuccess = fetchUserDependentData(nop);
+
+    const popupOpenerAuthCallback = usePopupOpenerAuthCallback();
 
     // Set up auth callback handling
     useHandleCallback(
         CALLBACK_PATH,
         onAuthSuccess,
-        CLIENT_ID,
-        AUTH_CALLBACK_URL,
         isInAuthPopup ? popupOpenerAuthCallback : undefined,
+        (msg) => message.error(msg),
     );
 
     // Set up message handling from sign-in popup
-    useSignInPopupTokenHandoff(BENTO_URL_NO_TRAILING_SLASH, AUTH_CALLBACK_URL, CLIENT_ID, windowMessageHandler);
-
-    const popupOpenerAuthCallback = usePopupOpenerAuthCallback(BENTO_URL_NO_TRAILING_SLASH);
+    useSignInPopupTokenHandoff(windowMessageHandler);
 
     const createEventRelayConnectionIfNecessary = useCallback(() => {
         if (eventRelayConnection.current) return;
@@ -184,7 +179,6 @@ const App = () => {
     }, [dispatch, createEventRelayConnectionIfNecessary, didPostLoadEffects]);
 
     useSessionWorkerTokenRefresh(
-        CLIENT_ID,
         sessionWorker,
         createSessionWorker,
         onAuthSuccess,
@@ -196,8 +190,7 @@ const App = () => {
         pingInterval.current = null;
     }, [pingInterval]);
 
-    const openSignInWindow = useOpenSignInWindowCallback(
-        signInWindow, openIdConfig, CLIENT_ID, AUTH_CALLBACK_URL, SIGN_IN_WINDOW_FEATURES);
+    const openSignInWindow = useOpenSignInWindowCallback(signInWindow, SIGN_IN_WINDOW_FEATURES);
 
     // On the cBioPortal tab only, eliminate the margin around the content
     // to give as much space as possible to the cBioPortal application itself.
@@ -223,17 +216,13 @@ const App = () => {
                         clearPingInterval(); // Stop pinging until the user decides to sign in again
                         setSignedOutModal(false); // Close the modal
                     }}
-                    visible={signedOutModal}
+                    open={signedOutModal}
                 >
                     Please <a onClick={openSignInWindow}>sign in</a> (uses a popup window) to continue working.
                 </Modal>
                 <Layout style={{ minHeight: "100vh" }}>
-                    <Suspense fallback={<div />}>
-                        <NotificationDrawer />
-                    </Suspense>
-                    <Suspense fallback={<Layout.Header />}>
-                        <SiteHeader />
-                    </Suspense>
+                    <NotificationDrawer />
+                    <SiteHeader />
                     <Layout.Content style={{ margin, display: "flex", flexDirection: "column" }}>
                         <Suspense fallback={<SitePageLoading />}>
                             <Switch>

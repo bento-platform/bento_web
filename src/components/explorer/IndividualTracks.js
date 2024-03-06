@@ -1,9 +1,12 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import PropTypes from "prop-types";
-import { Button, Divider, Empty, Modal, Table, Select, Skeleton, Switch, message } from "antd";
 import { debounce } from "lodash";
+
 import igv from "igv/dist/igv.esm";
+
+import { Button, Divider, Empty, Modal, Table, Select, Skeleton, Switch, message } from "antd";
+import { SettingOutlined } from "@ant-design/icons";
 
 import { BENTO_PUBLIC_URL, BENTO_URL } from "../../config";
 import { individualPropTypesShape } from "../../propTypes";
@@ -367,7 +370,7 @@ const IndividualTracks = ({ individual }) => {
     return (
         <>
             <Button
-                icon="setting"
+                icon={<SettingOutlined />}
                 style={{ marginRight: "8px" }}
                 onClick={showModal}
                 disabled={!allFoundFiles.length}
@@ -384,7 +387,7 @@ const IndividualTracks = ({ individual }) => {
                 )
             )}
             <div ref={igvDivRef} />
-            <Modal visible={modalVisible} onCancel={closeModal} footer={null} zIndex={MODAL_Z_INDEX} width={720}>
+            <Modal open={modalVisible} onCancel={closeModal} footer={null} zIndex={MODAL_Z_INDEX} width={720}>
                 <div style={{ marginBottom: 12 }}>
                     Assembly:{" "}
                     <Select value={selectedAssemblyID} onChange={(v) => setSelectedAssemblyID(v)}>

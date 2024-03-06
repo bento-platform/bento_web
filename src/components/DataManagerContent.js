@@ -1,15 +1,15 @@
 import React, { Suspense, lazy, useEffect, useMemo } from "react";
 import { Redirect, Route, Switch } from "react-router-dom";
+import { useSelector } from "react-redux";
 import { viewDropBox, viewPermissions, RESOURCE_EVERYTHING, useResourcePermissions } from "bento-auth-js";
 
 import { Menu, Skeleton } from "antd";
 
-import { SITE_NAME } from "../constants";
+import { SITE_NAME } from "@/constants";
 import { useFetchDropBoxContentsIfAllowed } from "./manager/hooks";
-import { matchingMenuKeys, renderMenuItem } from "../utils/menu";
+import { matchingMenuKeys, transformMenuItem } from "@/utils/menu";
 
 import SitePageHeader from "./SitePageHeader";
-import { useSelector } from "react-redux";
 
 const ManagerProjectDatasetContent = lazy(() => import("./manager/projects/ManagerProjectDatasetContent"));
 const ManagerAccessContent = lazy(() => import("./manager/access/ManagerAccessContent"));
@@ -72,9 +72,12 @@ const DataManagerContent = () => {
                 title="Admin › Data Manager"
                 withTabBar={true}
                 footer={
-                    <Menu mode="horizontal" style={styles.menu} selectedKeys={selectedKeys}>
-                        {menuItems.map(renderMenuItem)}
-                    </Menu>
+                    <Menu
+                        mode="horizontal"
+                        style={styles.menu}
+                        selectedKeys={selectedKeys}
+                        items={menuItems.map(transformMenuItem)}
+                    />
                 }
             />
             <Suspense fallback={<div style={styles.suspenseFallback}><Skeleton active /></div>}>

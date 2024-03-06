@@ -1,89 +1,88 @@
-import React, {Component} from "react";
-import {connect} from "react-redux";
+import React, { useCallback } from "react";
+import { useDispatch, useSelector } from "react-redux";
 import PropTypes from "prop-types";
 
-import {Modal} from "antd";
+import { Form, Modal } from "antd";
 
 import LinkedFieldSetForm from "./LinkedFieldSetForm";
 
-import {
-    addDatasetLinkedFieldSetIfPossible,
-    saveDatasetLinkedFieldSetIfPossible,
-} from "../../../modules/metadata/actions";
-
-import {nop} from "../../../utils/misc";
-import {FORM_MODE_ADD} from "../../../constants";
-import {datasetPropTypesShape, linkedFieldSetPropTypesShape, propTypesFormMode} from "../../../propTypes";
+import { FORM_MODE_ADD } from "@/constants";
+import { addDatasetLinkedFieldSetIfPossible, saveDatasetLinkedFieldSetIfPossible } from "@/modules/metadata/actions";
+import { datasetPropTypesShape, linkedFieldSetPropTypesShape, propTypesFormMode } from "@/propTypes";
+import { nop } from "@/utils/misc";
 
 
-class LinkedFieldSetModal extends Component {
-    constructor(props) {
-        super(props);
-        this.form = null;
-        this.handleSubmit = this.handleSubmit.bind(this);
-    }
+const LinkedFieldSetModal = ({ dataset, linkedFieldSetIndex, linkedFieldSet, mode, open, onCancel, onSubmit }) => {
+    const dispatch = useDispatch();
 
-    handleSubmit() {
-        const mode = this.props.mode || FORM_MODE_ADD;
+    const [form] = Form.useForm();
 
-        this.form.validateFields(async (err, values) => {
-            if (err) {
-                console.error("Encountered error validating fields", err);
-                return;
-            }
+    const dataTypes = useSelector((state) => state.serviceDataTypes.itemsByID);
+    const isSavingDataset = useSelector((state) => state.projects.isSavingDataset);
 
-            console.log("Field set form values", values);
+    const addLinkedFieldSet = useCallback(
+        (newLinkedFieldSet, onSuccess) =>
+            dispatch(addDatasetLinkedFieldSetIfPossible(dataset, newLinkedFieldSet, onSuccess)),
+        [dispatch, dataset],
+    );
+
+    const saveLinkedFieldSet = useCallback(
+        (linkedFieldSet, onSuccess) =>
+            dispatch(saveDatasetLinkedFieldSetIfPossible(dataset, linkedFieldSetIndex, linkedFieldSet, onSuccess)),
+        [dispatch, dataset, linkedFieldSetIndex, linkedFieldSet],
+    );
+
+    const handleSubmit = useCallback(() => {
+        form.validateFields().then(async (values) => {
+            console.debug("Field set form values", values);
 
             const newLinkedFieldSet = {
                 name: values.name,
                 fields: Object.fromEntries(values.fields.map(f => {
                     const parts = f.selected.split(".").slice(1);  // TODO: Condense this with filter (_, i)
                     const entry = [parts[0], parts.slice(2)];
-                    console.log("Linked field set entry", entry);
+                    console.debug("Linked field set entry", entry);
                     return entry;
                 })),
             };
 
-            const onSuccess = async () => {
-                if (this.props.onSubmit) await this.props.onSubmit();
-                this.form.resetFields();
+            const onSuccess = () => {
+                if (onSubmit) onSubmit();
             };
 
             if (mode === FORM_MODE_ADD) {
-                await this.props.addLinkedFieldSet(newLinkedFieldSet, onSuccess);
+                await addLinkedFieldSet(newLinkedFieldSet, onSuccess);
             } else {
-                await this.props.saveLinkedFieldSet(newLinkedFieldSet, onSuccess);
+                await saveLinkedFieldSet(newLinkedFieldSet, onSuccess);
             }
+        }).catch((err) => {
+            console.error("Encountered error validating fields", err);
         });
-    }
+    }, [form, onSubmit, mode, addLinkedFieldSet, saveLinkedFieldSet]);
+    const handleCancel = useCallback(() => (onCancel ?? nop)(), [onCancel]);
 
-    render() {
-        const mode = this.props.mode ?? FORM_MODE_ADD;
+    const modalTitle = mode === FORM_MODE_ADD
+        ? `Add New Linked Field Set to Dataset "${dataset.title}"`
+        : `Edit Linked Field Set "${linkedFieldSet?.name ?? ""}" on Dataset "${dataset.title}"`;
 
-        const modalTitle = mode === FORM_MODE_ADD
-            ? `Add New Linked Field Set to Dataset "${this.props.dataset.title}"`
-            : `Edit Linked Field Set "${this.props.linkedFieldSet?.name ?? ""}" on Dataset "${
-                this.props.dataset.title}"`;
-
-        return (
-            <Modal title={modalTitle}
-                   visible={this.props.visible}
-                   confirmLoading={this.props.isSavingDataset}
-                   width={768}
-                   onOk={() => this.handleSubmit()}
-                   onCancel={() => (this.props.onCancel ?? nop)()}>
-                <LinkedFieldSetForm dataTypes={this.props.dataTypes}
-                                    initialValue={this.props.linkedFieldSet ?? null}
-                                    mode={this.props.mode}
-                                    ref={form => this.form = form} />
-            </Modal>
-        );
-    }
-}
-
+    return (
+        <Modal title={modalTitle}
+               open={open}
+               confirmLoading={isSavingDataset}
+               destroyOnClose={true}
+               width={768}
+               onOk={handleSubmit}
+               onCancel={handleCancel}>
+            <LinkedFieldSetForm dataTypes={dataTypes} initialValue={linkedFieldSet} mode={mode} form={form} />
+        </Modal>
+    );
+};
+LinkedFieldSetModal.defaultProps = {
+    mode: FORM_MODE_ADD,
+};
 LinkedFieldSetModal.propTypes = {
     mode: propTypesFormMode,
-    visible: PropTypes.bool,
+    open: PropTypes.bool,
     dataset: datasetPropTypesShape,
     onSubmit: PropTypes.func,
     onCancel: PropTypes.func,
@@ -91,25 +90,6 @@ LinkedFieldSetModal.propTypes = {
     // For editing
     linkedFieldSetIndex: PropTypes.number,
     linkedFieldSet: linkedFieldSetPropTypesShape,
-
-    dataTypes: PropTypes.object,  // TODO: shape
-    isSavingDataset: PropTypes.bool,
-
-    addLinkedFieldSet: PropTypes.func,
-    saveLinkedFieldSet: PropTypes.func,
 };
 
-const mapStateToProps = state => ({
-    dataTypes: state.serviceDataTypes.itemsByID,
-    isSavingDataset: state.projects.isSavingDataset,
-});
-
-const mapDispatchToProps = (dispatch, ownProps) => ({
-    addLinkedFieldSet: (newLinkedFieldSet, onSuccess) =>
-        dispatch(addDatasetLinkedFieldSetIfPossible(ownProps.dataset, newLinkedFieldSet, onSuccess)),
-    saveLinkedFieldSet: (linkedFieldSet, onSuccess) =>
-        dispatch(saveDatasetLinkedFieldSetIfPossible(ownProps.dataset, ownProps.linkedFieldSetIndex, linkedFieldSet,
-            onSuccess)),
-});
-
-export default connect(mapStateToProps, mapDispatchToProps)(LinkedFieldSetModal);
+export default LinkedFieldSetModal;

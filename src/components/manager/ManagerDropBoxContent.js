@@ -1,4 +1,4 @@
-import React, {useCallback, useEffect, useMemo, useRef, useState} from "react";
+import React, {useCallback, useEffect, useMemo, useState} from "react";
 import {useDispatch, useSelector} from "react-redux";
 import {
     RESOURCE_EVERYTHING,
@@ -18,9 +18,7 @@ import {
     Dropdown,
     Empty,
     Form,
-    Icon,
     Layout,
-    Menu,
     Modal,
     Spin,
     Statistic,
@@ -29,29 +27,38 @@ import {
     Upload,
     message,
 } from "antd";
+import {
+    DeleteOutlined,
+    FileTextOutlined,
+    ImportOutlined,
+    InfoCircleOutlined,
+    PlusCircleOutlined,
+    UploadOutlined,
+} from "@ant-design/icons";
 
-import { LAYOUT_CONTENT_STYLE } from "../../styles/layoutContent";
+import { LAYOUT_CONTENT_STYLE } from "@/styles/layoutContent";
+
+import ActionContainer from "./ActionContainer";
 import DownloadButton from "../DownloadButton";
 import DropBoxTreeSelect from "./DropBoxTreeSelect";
 import FileModal from "../display/FileModal";
+import ForbiddenContent from "./ForbiddenContent";
 
-import { BENTO_DROP_BOX_FS_BASE_PATH } from "../../config";
+import { BENTO_DROP_BOX_FS_BASE_PATH } from "@/config";
 import { useStartIngestionFlow } from "./workflowCommon";
-import { testFileAgainstPattern } from "../../utils/files";
-import { getFalse } from "../../utils/misc";
+import { testFileAgainstPattern } from "@/utils/files";
+import { getFalse } from "@/utils/misc";
 import {
     beginDropBoxPuttingObjects,
     endDropBoxPuttingObjects,
     fetchDropBoxTreeOrFail,
     putDropBoxObject,
     deleteDropBoxObject,
-} from "../../modules/manager/actions";
+} from "@/modules/manager/actions";
 import { useFetchDropBoxContentsIfAllowed } from "./hooks";
 
 import { VIEWABLE_FILE_EXTENSIONS } from "../display/FileDisplay";
-import { useResourcePermissionsWrapper, useWorkflows } from "../../hooks";
-import ActionContainer from "./ActionContainer";
-import ForbiddenContent from "./ForbiddenContent";
+import { useResourcePermissionsWrapper, useWorkflows } from "@/hooks";
 
 const DROP_BOX_CONTENT_CONTAINER_STYLE = { display: "flex", flexDirection: "column", gap: 8 };
 const DROP_BOX_INFO_CONTAINER_STYLE = { display: "flex", gap: "2em", paddingTop: 8 };
@@ -117,71 +124,67 @@ const stopEvent = event => {
 };
 
 
-const FileUploadForm = Form.create()(({initialUploadFolder, initialUploadFiles, form}) => {
+const FileUploadForm = (({initialUploadFolder, initialUploadFiles, form}) => {
     const getFileListFromEvent = useCallback(e => Array.isArray(e) ? e : e && e.fileList, []);
 
-    useEffect(() => {
-        if (!initialUploadFolder) return;
-        form.setFieldsValue({"parent": initialUploadFolder});
-    }, [initialUploadFolder]);
+    const initialValues = useMemo(
+        () => ({
+            ...(initialUploadFolder ? {parent: initialUploadFolder} : {}),
+            ...(initialUploadFiles ? {
+                files: initialUploadFiles.map((u, i) => ({
+                    // ...u doesn't work for File object
+                    lastModified: u.lastModified,
+                    name: u.name,
+                    size: u.size,
+                    type: u.type,
 
-    useEffect(() => {
-        if (!initialUploadFiles?.length) return;
-        form.setFieldsValue({
-            "files": initialUploadFiles.map((u, i) => ({
-                // ...u doesn't work for File object
-                lastModified: u.lastModified,
-                name: u.name,
-                size: u.size,
-                type: u.type,
+                    uid: (-1 * (i + 1)).toString(),
+                    originFileObj: u,
+                })),
+            } : {}),
+        }),
+        [initialUploadFolder, initialUploadFiles],
+    );
 
-                uid: (-1 * (i + 1)).toString(),
-                originFileObj: u,
-            })),
-        });
-    }, [initialUploadFiles]);
-
-    return <Form>
-        <Form.Item label="Parent Folder">
-            {form.getFieldDecorator("parent", {
-                rules: [{required: true, message: "Please select a folder to upload into."}],
-            })(<DropBoxTreeSelect folderMode={true} />)}
+    return <Form initialValues={initialValues} form={form} layout="vertical">
+        <Form.Item label="Parent Folder" name="parent" rules={[
+            {required: true, message: "Please select a folder to upload into."},
+        ]}>
+            <DropBoxTreeSelect folderMode={true} />
         </Form.Item>
-        <Form.Item label="File">
-            {form.getFieldDecorator("files", {
-                valuePropName: "fileList",
-                getValueFromEvent: getFileListFromEvent,
-                rules: [{required: true, message: "Please specify at least one file to upload."}],
-            })(<Upload beforeUpload={getFalse}><Button><Icon type="upload" /> Upload</Button></Upload>)}
+        <Form.Item label="File" name="files" valuePropName="fileList" getValueFromEvent={getFileListFromEvent} rules={[
+            {required: true, message: "Please specify at least one file to upload."},
+        ]}>
+            <Upload beforeUpload={getFalse}><Button icon={<UploadOutlined />}>Upload</Button></Upload>
         </Form.Item>
     </Form>;
 });
+FileUploadForm.propTypes = {
+    initialUploadFolder: PropTypes.string,
+    initialUploadFiles: PropTypes.arrayOf(PropTypes.object),
+    form: PropTypes.object,
+};
 
-const FileUploadModal = ({initialUploadFolder, initialUploadFiles, onCancel, visible}) => {
+const FileUploadModal = ({initialUploadFolder, initialUploadFiles, onCancel, open}) => {
     const dispatch = useDispatch();
-    const form = useRef(null);
+    const [form] = Form.useForm();
 
     const isPutting = useSelector(state => state.dropBox.isPuttingFlow);
 
     useEffect(() => {
-        if (visible && form.current) {
+        if (open) {
             // If we just re-opened the model, reset the fields
-            form.current.resetFields();
+            form.resetFields();
         }
-    }, [visible]);
+    }, [open, form]);
 
-    const onOk = () => {
-        if (!form.current) {
-            console.error("missing form ref");
+    const onOk = useCallback(() => {
+        if (!form) {
+            console.error("missing form");
             return;
         }
 
-        form.current.validateFields((err, values) => {
-            if (err) {
-                console.error(err);
-                return;
-            }
-
+        form.validateFields().then((values) => {
             (async () => {
                 dispatch(beginDropBoxPuttingObjects());
 
@@ -210,20 +213,22 @@ const FileUploadModal = ({initialUploadFolder, initialUploadFiles, onCancel, vis
                 // Close ourselves (the upload modal)
                 onCancel();
             })();
+        }).catch((err) => {
+            console.error(err);
         });
-    };
+    }, [form]);
 
     return <Modal
         title="Upload"
         okButtonProps={{loading: isPutting}}
         onCancel={onCancel}
-        visible={visible}
+        open={open}
         onOk={onOk}
     >
         <FileUploadForm
+            form={form}
             initialUploadFolder={initialUploadFolder}
             initialUploadFiles={initialUploadFiles}
-            ref={ref => form.current = ref}
         />
     </Modal>;
 };
@@ -231,11 +236,11 @@ FileUploadModal.propTypes = {
     initialUploadFolder: PropTypes.string,
     initialUploadFiles: PropTypes.arrayOf(PropTypes.instanceOf(File)),
     onCancel: PropTypes.func,
-    visible: PropTypes.bool,
+    open: PropTypes.bool,
 };
 
 
-const FileContentsModal = ({selectedFilePath, visible, onCancel}) => {
+const FileContentsModal = ({selectedFilePath, open, onCancel}) => {
     const {tree, isFetching: treeLoading} = useSelector(state => state.dropBox);
 
     const urisByFilePath = useMemo(() => generateURIsByRelPath(tree, {}), [tree]);
@@ -244,7 +249,7 @@ const FileContentsModal = ({selectedFilePath, visible, onCancel}) => {
     // destroyOnClose in order to stop audio/video from playing & avoid memory leaks at the cost of re-fetching
     return (
         <FileModal
-            visible={visible}
+            open={open}
             onCancel={onCancel}
             title={selectedFilePath ? `${selectedFilePath.split("/").at(-1)} - contents` : ""}
             url={uri}
@@ -255,7 +260,7 @@ const FileContentsModal = ({selectedFilePath, visible, onCancel}) => {
 };
 FileContentsModal.propTypes = {
     selectedFilePath: PropTypes.string,
-    visible: PropTypes.bool,
+    open: PropTypes.bool,
     onCancel: PropTypes.func,
 };
 
@@ -371,15 +376,15 @@ const ManagerDropBoxContent = () => {
     const workflowMenuItemClick = useCallback(
         (i) => startIngestionFlow(ingestionWorkflowsByID[i.key], workflowsSupported[i.key][1]),
         [ingestionWorkflowsByID, startIngestionFlow, workflowsSupported]);
-    const workflowMenu = (
-        <Menu>
-            {ingestionWorkflows.map(w => (
-                <Menu.Item key={w.id} disabled={!workflowsSupported[w.id][0]} onClick={workflowMenuItemClick}>
-                    Ingest with Workflow &ldquo;{w.name}&rdquo;
-                </Menu.Item>
-            ))}
-        </Menu>
-    );
+
+    const workflowMenu = useMemo(() => ({
+        onClick: workflowMenuItemClick,
+        items: ingestionWorkflows.map((w) => ({
+            key: w.id,
+            disabled: !workflowsSupported[w.id][0],
+            label: <>Ingest with Workflow &ldquo;{w.name}&rdquo;</>,
+        })),
+    }), [workflowMenuItemClick, ingestionWorkflows, workflowsSupported]);
 
     const handleIngest = useCallback(() => {
         const wfs = Object.entries(workflowsSupported).filter(([_, ws]) => ws[0]);
@@ -487,17 +492,17 @@ const ManagerDropBoxContent = () => {
             <FileUploadModal
                 initialUploadFolder={initialUploadFolder}
                 initialUploadFiles={initialUploadFiles}
-                visible={uploadModal}
+                open={uploadModal}
                 onCancel={hideUploadModal}
             />
 
             <FileContentsModal
                 selectedFilePath={selectedEntries.length === 1 ? firstSelectedEntry : null}
-                visible={fileContentsModal}
+                open={fileContentsModal}
                 onCancel={hideFileContentsModal}
             />
 
-            <Modal visible={fileInfoModal}
+            <Modal open={fileInfoModal}
                    title={`${fileForInfo.split("/").at(-1)} - information`}
                    width={960}
                    footer={[<DownloadButton key="download" uri={filesByPath[fileForInfo]?.uri} />]}
@@ -516,7 +521,7 @@ const ManagerDropBoxContent = () => {
                 </Descriptions>
             </Modal>
 
-            <Modal visible={fileDeleteModal}
+            <Modal open={fileDeleteModal}
                    title={fileDeleteModalTitle}
                    okType="danger"
                    okText="Delete"
@@ -531,16 +536,18 @@ const ManagerDropBoxContent = () => {
 
             <div style={DROP_BOX_CONTENT_CONTAINER_STYLE}>
                 <ActionContainer>
-                    <Button icon="upload" onClick={handleUpload} disabled={uploadDisabled}>Upload</Button>
-                    <Dropdown.Button overlay={workflowMenu} disabled={ingestIntoDatasetDisabled} onClick={handleIngest}>
-                        <Icon type="import" /> Ingest
+                    <Button icon={<UploadOutlined />} onClick={handleUpload} disabled={uploadDisabled}>Upload</Button>
+                    <Dropdown.Button menu={workflowMenu} disabled={ingestIntoDatasetDisabled} onClick={handleIngest}
+                                     style={{ width: "auto" }}>
+                        <ImportOutlined /> Ingest
                     </Dropdown.Button>
 
                     <Button.Group>
-                        <Button icon="info-circle" onClick={showFileInfoModal} disabled={!selectedFileInfoAvailable}>
+                        <Button icon={<InfoCircleOutlined />} onClick={showFileInfoModal}
+                                disabled={!selectedFileInfoAvailable}>
                             File Info
                         </Button>
-                        <Button icon="file-text" onClick={handleViewFile} disabled={!selectedFileViewable}>
+                        <Button icon={<FileTextOutlined />} onClick={handleViewFile} disabled={!selectedFileViewable}>
                             View
                         </Button>
                         <DownloadButton
@@ -551,13 +558,13 @@ const ManagerDropBoxContent = () => {
                     </Button.Group>
 
                     <Button type="danger"
-                            icon="delete"
+                            icon={<DeleteOutlined />}
                             disabled={deleteDisabled}
                             loading={isDeleting}
                             onClick={showFileDeleteModal}>
                         Delete</Button>
 
-                    <Typography.Text type="secondary">
+                    <Typography.Text type="secondary" style={{ whiteSpace: "nowrap" }}>
                         {selectedEntries.length} item{selectedEntries.length === 1 ? "" : "s"} selected
                     </Typography.Text>
                 </ActionContainer>
@@ -572,7 +579,7 @@ const ManagerDropBoxContent = () => {
                             style={TREE_CONTAINER_STYLE}
                         >
                             {draggingOver && <div style={TREE_DROP_ZONE_OVERLAY_STYLE}>
-                                <Icon type="plus-circle" style={TREE_DROP_ZONE_OVERLAY_ICON_STYLE} />
+                                <PlusCircleOutlined style={TREE_DROP_ZONE_OVERLAY_ICON_STYLE} />
                             </div>}
                             <Tree.DirectoryTree
                                 defaultExpandAll={true}

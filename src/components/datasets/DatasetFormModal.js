@@ -16,6 +16,7 @@ import {
 import {nop} from "../../utils/misc";
 import {FORM_MODE_ADD} from "../../constants";
 import {datasetPropTypesShape, projectPropTypesShape, propTypesFormMode} from "../../propTypes";
+import { PlusOutlined, SaveOutlined } from "@ant-design/icons";
 
 
 class DatasetFormModal extends Component {
@@ -23,6 +24,8 @@ class DatasetFormModal extends Component {
         this.handleCancel = this.handleCancel.bind(this);
         this.handleSubmit = this.handleSubmit.bind(this);
         this.handleSuccess = this.handleSuccess.bind(this);
+
+        this.form = React.createRef();
     }
 
     handleCancel() {
@@ -30,7 +33,9 @@ class DatasetFormModal extends Component {
     }
 
     handleSubmit() {
-        this.form.validateFields(async (err, values) => {
+        const form = this.form.current;
+        if (!form) return;
+        form.validateFields(async (err, values) => {
             if (err) {
                 console.error(err);
                 return;
@@ -55,21 +60,21 @@ class DatasetFormModal extends Component {
     async handleSuccess(values) {
         await this.props.fetchProjectsWithDatasets();  // TODO: If needed / only this project...
         await (this.props.onOk || nop)({...(this.props.initialValue || {}), values});
-        if ((this.props.mode || FORM_MODE_ADD) === FORM_MODE_ADD) this.form.resetFields();
+        if (this.form.current && (this.props.mode || FORM_MODE_ADD) === FORM_MODE_ADD) this.form.current.resetFields();
     }
 
     render() {
         const mode = this.props.mode || FORM_MODE_ADD;
         return this.props.project ? (
-            <Modal visible={this.props.visible}
-                   width={648}
+            <Modal open={this.props.open}
+                   width={848}
                    title={mode === FORM_MODE_ADD
                        ? `Add Dataset to "${this.props.project.title}"`
                        : `Edit Dataset "${(this.props.initialValue || {}).title || ""}"`}
                    footer={[
                        <Button key="cancel" onClick={this.handleCancel}>Cancel</Button>,
                        <Button key="save"
-                               icon={mode === FORM_MODE_ADD ? "plus" : "save"}
+                               icon={mode === FORM_MODE_ADD ? <PlusOutlined /> : <SaveOutlined />}
                                type="primary"
                                onClick={this.handleSubmit}
                                loading={this.props.projectsFetching || this.props.projectDatasetsAdding ||
@@ -78,8 +83,8 @@ class DatasetFormModal extends Component {
                        </Button>,
                    ]}
                    onCancel={this.handleCancel}>
-                <DatasetForm ref={form => this.form = form}
-                             initialValue={mode === FORM_MODE_ADD ? null : this.props.initialValue} />
+                <DatasetForm formRef={this.form}
+                             initialValue={mode === FORM_MODE_ADD ? undefined : this.props.initialValue} />
             </Modal>
         ) : null;
     }
@@ -94,7 +99,7 @@ DatasetFormModal.propTypes = {
 
     project: projectPropTypesShape,
 
-    visible: PropTypes.bool,
+    open: PropTypes.bool,
 
     // From state
 

@@ -1,4 +1,4 @@
-import React, {Component} from "react";
+import React, { memo } from "react";
 import PropTypes from "prop-types";
 
 import {PageHeader, Row, Statistic, Tabs, Tag} from "antd";
@@ -12,6 +12,11 @@ import {nop} from "../../../utils/misc";
 import {runPropTypesShape} from "../../../propTypes";
 
 
+const TAB_ITEMS = [
+    { key: "request", label: "Request" },
+    { key: "run_log", label: "Run Log" },
+    /* { key: "task_logs", label: "Task Logs" }, TODO: Implement in WES */
+];
 const TABS = {
     "request": RunRequest,
     "run_log": RunLog,
@@ -19,23 +24,19 @@ const TABS = {
 };
 
 
-class Run extends Component {
-    render() {
-        const run = this.props.run ?? {};
-        const tab = this.props.tab ?? "request";
-        const Content = TABS[tab];
-        return <>
+const Run = memo(({ run: runOrUndefined, tab, onChangeTab, onBack }) => {
+    const run = runOrUndefined ?? {};
+    const currentTab = tab ?? "request";
+
+    const Content = TABS[tab];
+
+    return (
+        <>
             <PageHeader title={<>Run <span style={{fontFamily: "monospace"}}>{run.run_id}</span></>}
                         tags={<Tag color={RUN_STATE_TAG_COLORS[run.state]}>{run.state}</Tag>}
                         style={{padding: 0}}
-                        footer={
-                            <Tabs activeKey={tab} onChange={this.props.onChangeTab || nop}>
-                                <Tabs.TabPane tab="Request" key="request" />
-                                <Tabs.TabPane tab="Run Log" key="run_log" />
-                                {/*<Tabs.TabPane tab="Task Logs" key="task_logs" /> TODO: Implement v0.2 */}
-                            </Tabs>
-                        }
-                        onBack={this.props.onBack || nop}>
+                        footer={<Tabs activeKey={currentTab} onChange={onChangeTab || nop} items={TAB_ITEMS} />}
+                        onBack={onBack || nop}>
                 <Row type="flex">
                     <Statistic title="Started" value={renderDate(run.details.run_log.start_time) || "N/A"} />
                     <Statistic title="Ended" value={renderDate(run.details.run_log.end_time) || "N/A"}
@@ -45,9 +46,9 @@ class Run extends Component {
             <div style={{margin: "24px 0 16px 0"}}>
                 <Content run={run} />
             </div>
-        </>;
-    }
-}
+        </>
+    );
+});
 
 Run.propTypes = {
     tab: PropTypes.oneOf(["request", "run_log", "task_logs"]),

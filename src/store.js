@@ -1,5 +1,4 @@
 import { configureStore } from "@reduxjs/toolkit";
-import thunkMiddleware from "redux-thunk";
 
 import { LS_OPENID_CONFIG_KEY } from "bento-auth-js";
 
@@ -7,13 +6,11 @@ import { readFromLocalStorage, writeToLocalStorage } from "./utils/localStorageU
 import rootReducer from "./reducers";
 
 // The Immutability Middleware is only present in DEV builds.
-// Thes options prevent delay warnings caused by large states in DEV mode by increasing the warning delay.
+// These options prevent delay warnings caused by large states in DEV mode by increasing the warning delay.
 // See Redux Toolkit doc: https://redux-toolkit.js.org/api/getDefaultMiddleware#development
 const IMMUTABILITY_OPTIONS = {
-    immutableCheck: {
-        // Default is 32ms
-        warnAfter: 128,
-    },
+    thunk: true,
+    immutableCheck: false,
     serializableCheck: false,
 };
 
@@ -26,7 +23,7 @@ if (persistedOpenIDConfig) {
 
 export const store = configureStore({
     reducer: rootReducer,
-    middleware: (getDefaultMiddleware) => getDefaultMiddleware(IMMUTABILITY_OPTIONS).concat(thunkMiddleware),
+    middleware: (getDefaultMiddleware) => getDefaultMiddleware(IMMUTABILITY_OPTIONS),
     preloadedState: persistedState,
 });
 

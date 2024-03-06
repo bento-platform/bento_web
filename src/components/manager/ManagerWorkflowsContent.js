@@ -1,4 +1,4 @@
-import React from "react";
+import React, { memo } from "react";
 
 import {Layout, List, Skeleton, Spin, Tabs, Typography} from "antd";
 
@@ -13,32 +13,36 @@ const workflowTypesToTitles = {
     export: "Export",
 };
 
-const ManagerWorkflowsContent = () => {
+const ManagerWorkflowsContent = memo(() => {
     const { workflowsByType, workflowsLoading } = useWorkflows();
 
     // noinspection JSValidateTypes
     return <Layout>
         <Layout.Content style={LAYOUT_CONTENT_STYLE}>
-            <Tabs defaultActiveKey="ingestion" type="card">
-                {Object.entries(workflowsByType)
+            <Tabs defaultActiveKey="ingestion" type="card" items={
+                Object.entries(workflowsByType)
                     .filter(([wt, _]) => wt in workflowTypesToTitles)
-                    .map(([wt, { items }]) => (
-                        <Tabs.TabPane tab={workflowTypesToTitles[wt]} key={wt}>
-                            <Typography.Title level={2}>{workflowTypesToTitles[wt]} Workflows</Typography.Title>
-                            <Spin spinning={workflowsLoading}>
-                                {workflowsLoading
-                                    ? <Skeleton />
-                                    : <List itemLayout="vertical">
-                                        {items.map(w => (
-                                            <WorkflowListItem key={w.id} workflow={w} rightAlignedTags={true} />
-                                        ))}
-                                    </List>}
-                            </Spin>
-                        </Tabs.TabPane>
-                    ))}
-            </Tabs>
+                    .map(([wt, { items }]) => ({
+                        key: wt,
+                        label: workflowTypesToTitles[wt],
+                        children: (
+                            <>
+                                <Typography.Title level={2}>{workflowTypesToTitles[wt]} Workflows</Typography.Title>
+                                <Spin spinning={workflowsLoading}>
+                                    {workflowsLoading
+                                        ? <Skeleton />
+                                        : <List itemLayout="vertical">
+                                            {items.map(w => (
+                                                <WorkflowListItem key={w.id} workflow={w} rightAlignedTags={true} />
+                                            ))}
+                                        </List>}
+                                </Spin>
+                            </>
+                        ),
+                    }))
+            } />
         </Layout.Content>
     </Layout>;
-};
+});
 
 export default ManagerWorkflowsContent;

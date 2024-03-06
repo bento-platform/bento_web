@@ -4,7 +4,8 @@ import { useIsAuthenticated } from "bento-auth-js";
 
 import { Link } from "react-router-dom";
 
-import {Table, Typography, Tag, Icon, Button} from "antd";
+import {Table, Typography, Tag, Button} from "antd";
+import { BranchesOutlined, GithubOutlined } from "@ant-design/icons";
 
 import ServiceRequestModal from "./services/ServiceRequestModal";
 
@@ -25,12 +26,12 @@ const getServiceTags = serviceInfo => [
     // {color: null, logo: <Icon type="tag"/>, value: ({repository}) => `${repository.split("@")[1]}`},
     {
         color: null,
-        logo: <Icon type="github"/>,
+        logo: <GithubOutlined />,
         value: serviceInfo.bento?.gitTag ?? serviceInfo.git_tag,
     },
     {
         color: null,
-        logo: <Icon type="branches"/>,
+        logo: <BranchesOutlined />,
         value: (() => {
             const {bento} = serviceInfo;
 
@@ -66,11 +67,11 @@ const serviceColumns = (isAuthenticated, setRequestModalService) => [
     },
     {
         title: "Name",
-        dataIndex: "serviceInfo.name",
+        dataIndex: ["serviceInfo", "name"],
     },
     {
         title: "Version",
-        dataIndex: "serviceInfo.version",
+        dataIndex: ["serviceInfo", "version"],
         render: (version, record) => {
             const {serviceInfo} = record;
             return serviceInfo ? <>
@@ -138,10 +139,7 @@ const ServiceList = () => {
     const isLoading = useSelector((state) => state.bentoServices.isFetching || state.services.isFetching);
 
     return <>
-        <ServiceRequestModal
-            visible={requestModalService !== null}
-            service={requestModalService}
-            onCancel={() => setRequestModalService(null)} />
+        <ServiceRequestModal service={requestModalService} onCancel={() => setRequestModalService(null)} />
         <Table
             bordered
             style={{marginBottom: 24}}

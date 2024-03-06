@@ -3,6 +3,7 @@ import {Redirect, Route, Switch} from "react-router-dom";
 import {useDispatch, useSelector} from "react-redux";
 
 import {Button, Empty, Layout, Menu, Result, Typography} from "antd";
+import { PlusOutlined } from "@ant-design/icons";
 
 import ProjectCreationModal from "./ProjectCreationModal";
 import ProjectSkeleton from "./ProjectSkeleton";
@@ -10,7 +11,7 @@ import RoutedProject from "./RoutedProject";
 
 import {toggleProjectCreationModal as toggleProjectCreationModalAction} from "../../../modules/manager/actions";
 import {LAYOUT_CONTENT_STYLE} from "../../../styles/layoutContent";
-import {matchingMenuKeys, renderMenuItem} from "../../../utils/menu";
+import {matchingMenuKeys, transformMenuItem} from "../../../utils/menu";
 
 
 const PROJECT_HELP_TEXT_STYLE = {
@@ -66,7 +67,8 @@ const ManagerProjectDatasetContent = () => {
                             datasets together. You can then specify project-wide consent codes and data use
                             restrictions to control data access.
                         </Typography.Paragraph>
-                        <Button type="primary" icon="plus" onClick={toggleProjectCreationModal}>Create Project</Button>
+                        <Button type="primary" icon={<PlusOutlined />} onClick={toggleProjectCreationModal}>
+                            Create Project</Button>
                     </Empty>
                 </Layout.Content>
             </Layout>
@@ -78,18 +80,19 @@ const ManagerProjectDatasetContent = () => {
         <Layout>
             <Layout.Sider style={SIDEBAR_STYLE} width={256} breakpoint="lg" collapsedWidth={0}>
                 <div style={SIDEBAR_INNER_STYLE}>
-                    <Menu style={SIDEBAR_MENU_STYLE}
-                          mode="inline"
-                          selectedKeys={matchingMenuKeys(projectMenuItems)}>
-                        {projectMenuItems.map(renderMenuItem)}
-                    </Menu>
+                    <Menu
+                        style={SIDEBAR_MENU_STYLE}
+                        mode="inline"
+                        selectedKeys={matchingMenuKeys(projectMenuItems)}
+                        items={projectMenuItems.map(transformMenuItem)}
+                    />
                     <div style={SIDEBAR_BUTTON_CONTAINER}>
                         <Button type="primary"
                                 style={SIDEBAR_BUTTON_STYLE}
                                 onClick={toggleProjectCreationModal}
                                 loading={isFetchingDependentData}
                                 disabled={isFetchingDependentData}
-                                icon="plus">
+                                icon={<PlusOutlined />}>
                             Create Project
                         </Button>
                     </div>

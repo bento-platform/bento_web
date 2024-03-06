@@ -5,7 +5,7 @@ import PropTypes from "prop-types";
 
 import { Button, Form, List, message } from "antd";
 
-import { submitAnalysisWorkflowRun } from "../../modules/wes/actions";
+import { submitAnalysisWorkflowRun } from "@/modules/wes/actions";
 import WorkflowListItem from "./WorkflowListItem";
 import RunSetupWizard from "./RunSetupWizard";
 import RunSetupInputsTable from "./RunSetupInputsTable";
