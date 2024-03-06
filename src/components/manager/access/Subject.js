@@ -1,5 +1,6 @@
 import React from "react";
 import { useSelector } from "react-redux";
+import { Link } from "react-router-dom";
 import PropTypes from "prop-types";
 
 import { Popover, Typography } from "antd";
@@ -23,16 +24,14 @@ const Subject = ({ subject, groupsByID }) => {
         );
     } else if (group) {
         const groupDef = groupsByID[group];
-
-        // TODO: Link
         return (
             <>
                 <strong>Group:</strong>{" "}
-                <a>
+                <Link to={`/admin/data/manager/access/groups#group-${group}`}>
                     {groupDef
                         ? (<>{groupDef.name} (ID: {group})</>)
                         : (<>ID: {group}</>)}
-                </a>
+                </Link>
             </>
         );
     } else if (everyone) {
