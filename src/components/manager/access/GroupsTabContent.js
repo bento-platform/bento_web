@@ -1,13 +1,76 @@
-import React from "react";
+import React, { useState } from "react";
 import { useSelector } from "react-redux";
+import PropTypes from "prop-types";
 
-import { Table } from "antd";
+import { Button, List, Modal, Table } from "antd";
 // import { PlusOutlined } from "@ant-design/icons";
 
 import { RESOURCE_EVERYTHING } from "bento-auth-js";
 import { useResourcePermissionsWrapper } from "@/hooks";
 
+import Subject from "./Subject";
+
 import { rowKey } from "./utils";
+
+const GroupMembershipCell = ({ group }) => {
+    const [modalOpen, setModalOpen] = useState(false);
+
+    const { id, name, membership } = group;
+    const { expr, members: membersList } = membership;
+
+    if (expr) {
+        return (
+            <>
+                <strong>Expression:</strong>
+                <pre style={{ margin: 0 }}>{expr}</pre>
+            </>
+        );
+    }
+
+    if (membersList.length === 0) {
+        return <Button type="link" size="small" disabled={true}>0 entries</Button>;
+    }
+
+    return (
+        <>
+            <Modal
+                open={modalOpen}
+                onCancel={() => setModalOpen(false)}
+                title={`Group: ${name} (ID: ${id}) - Membership`}
+                footer={null}
+                width={768}
+            >
+                <List dataSource={membersList} renderItem={(item) => <Subject subject={item} />} />
+            </Modal>
+            <Button type="link" size="small" onClick={() => setModalOpen(true)}>
+                {membersList.length} {membersList.length === 1 ? "entry" : "entries"}
+            </Button>
+        </>
+    );
+};
+GroupMembershipCell.propTypes = {
+    group: PropTypes.shape({
+        id: PropTypes.number.isRequired,
+        name: PropTypes.string.isRequired,
+        membership: PropTypes.oneOfType([
+            PropTypes.shape({
+                expr: PropTypes.array,
+            }),
+            PropTypes.shape({
+                members: PropTypes.arrayOf(PropTypes.oneOfType([
+                    PropTypes.shape({
+                        iss: PropTypes.string,
+                        sub: PropTypes.string,
+                    }),
+                    PropTypes.shape({
+                        iss: PropTypes.string,
+                        client: PropTypes.string,
+                    }),
+                ])),
+            }),
+        ]).isRequired,
+    }).isRequired,
+};
 
 const GROUPS_COLUMNS = [
     {
@@ -23,22 +86,7 @@ const GROUPS_COLUMNS = [
     {
         title: "Membership",
         dataIndex: "membership",
-        render: (membership) => {
-            const { expr, members: membersList } = membership;
-
-            if (expr) {
-                return (
-                    <>
-                        <strong>Expression:</strong>
-                        <pre style={{ margin: 0 }}>{expr}</pre>
-                    </>
-                );
-            }
-
-            return (
-                <span>{membersList.length} {membersList.length === 1 ? "entry" : "entries"}</span>
-            );
-        },
+        render: (_, group) => <GroupMembershipCell group={group} />,
     },
     {
         title: "Expiry",

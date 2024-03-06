@@ -45,6 +45,9 @@ const Subject = ({ subject, groupsByID }) => {
         <pre>{stringifyJSONRenderIfMultiKey(subject)}</pre>
     );
 };
+Subject.defaultProps = {
+    groupsByID: {},
+};
 Subject.propTypes = {
     subject: PropTypes.oneOfType([
         // Combinations: sub+iss, client+iss, group, everyone
