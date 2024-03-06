@@ -1,8 +1,7 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import PropTypes from "prop-types";
 
-import { Button, Dropdown, Tooltip } from "antd";
-import { Form } from "@ant-design/compatible";
+import { Button, Dropdown, Form, Tooltip } from "antd";
 import { PlusOutlined } from "@ant-design/icons";
 
 import {getFields, getFieldSchema} from "@/utils/schema";
@@ -43,9 +42,9 @@ const updateVariantConditions = (conditions, fieldName, searchValue) =>
 // noinspection JSUnusedGlobalSymbols
 const CONDITION_RULES = [
     {
-        validator: (rule, value, cb) => {
+        validator: (rule, value) => new Promise((resolve, reject) => {
             if (value.field === undefined) {
-                cb("A field must be specified for this search condition.");
+                reject("A field must be specified for this search condition.");
             }
 
             const searchValue = getSchemaTypeTransformer(value.fieldSchema.type)[1](value.searchValue);
@@ -58,11 +57,11 @@ const CONDITION_RULES = [
                     (!isEnum && !searchValue) ||
                     (isEnum && !value.fieldSchema.enum.includes(searchValue)))
             ) {
-                cb(`This field is required: ${searchValue}`);
+                reject(`This field is required: ${searchValue}`);
             }
 
-            cb();
-        },
+            resolve();
+        }),
     },
 
 ];
@@ -96,7 +95,13 @@ PhenopacketDropdownOption.propTypes = {
 };
 
 
-const DiscoverySearchForm = ({ form, onSubmit, dataType, formValues, handleVariantHiddenFieldChange }) => {
+const DiscoverySearchForm = ({ onChange, dataType, formValues, setFormRef, handleVariantHiddenFieldChange }) => {
+    const [form] = Form.useForm();
+
+    useEffect(() => {
+        if (setFormRef) setFormRef(form);
+    }, [form, setFormRef]);
+
     const [conditionsHelp, setConditionsHelp] = useState({});
     const initialValues = useRef({});
 
@@ -139,9 +144,8 @@ const DiscoverySearchForm = ({ form, onSubmit, dataType, formValues, handleVaria
     }, [isVariantSearch]);
 
     const addCondition = useCallback((field = undefined) => {
-        // new key either 0 or max key value + 1
-        const oldKeys = form.getFieldValue("keys") ?? [];
-        const newKey = oldKeys.length ? oldKeys.reduce((a, b) => Math.max(a, b), 0) + 1 : 0;
+        const existingConditions = form.getFieldValue("conditions") ?? [];
+        const newKey = existingConditions.length;
 
         const fieldSchema = getDataTypeFieldSchema(field);
 
@@ -157,25 +161,19 @@ const DiscoverySearchForm = ({ form, onSubmit, dataType, formValues, handleVaria
 
         initialValues.current = {
             ...initialValues.current,
-            [`conditions[${newKey}]`]: fieldInitialValue,
+            conditions: [...(initialValues.current.conditions ?? []), fieldInitialValue],
         };
 
-        // Initialize new condition, otherwise the state won't get it
-        form.getFieldDecorator(`conditions[${newKey}]`, {
-            initialValue: fieldInitialValue,
-            validateTrigger: false,  // only when called manually
-            rules: CONDITION_RULES,
-        });
-
-        // Add new key to the list of keys
         form.setFieldsValue({
-            keys: form.getFieldValue("keys").concat(newKey),
+            conditions: [...existingConditions, fieldInitialValue],
         });
 
     }, [conditionsHelp]);
 
     const removeCondition = useCallback((k) => {
-        form.setFieldsValue({ keys: form.getFieldValue("keys").filter(key => key !== k) });
+        form.setFieldsValue({
+            conditions: (form.getFieldValue("conditions") ?? []).filter((_, i) => k !== i),
+        });
     }, [form]);
 
     const cannotBeUsed = useCallback(
@@ -183,8 +181,7 @@ const DiscoverySearchForm = ({ form, onSubmit, dataType, formValues, handleVaria
         [dataType]);
 
     useEffect(() => {
-        // TODO: MAKE THIS WORK this.addCondition(); // Make sure there's one condition at least
-        if (form.getFieldValue("keys").length !== 0) return;
+        if ((form.getFieldValue("conditions") ?? []).length !== 0) return;
 
         const requiredFields = dataType
             ? getFields(dataType.schema).filter(
@@ -240,7 +237,6 @@ const DiscoverySearchForm = ({ form, onSubmit, dataType, formValues, handleVaria
         }
 
         handleVariantHiddenFieldChange({
-            keys: formValues.keys,
             conditions: updatedConditionsArray,
         });
     }, [formValues, handleVariantHiddenFieldChange]);
@@ -313,40 +309,12 @@ const DiscoverySearchForm = ({ form, onSubmit, dataType, formValues, handleVaria
         };
     }, [getDataTypeFieldSchema]);
 
-    const getCondition = (ck) => form.getFieldValue(`conditions[${ck}]`);
-
-    form.getFieldDecorator("keys", { initialValue: [] }); // Initialize keys if needed
-    const keys = form.getFieldValue("keys");
-    const existingUniqueFields = keys
-        .filter((k) => k !== undefined)
-        .map((k) => getCondition(k).field)
+    const existingUniqueFields = (form.getFieldValue("conditions") ?? [])
+        .map(({ field }) => field)
         .filter((f) => f !== undefined && cannotBeUsed(f));
 
-    const formItems = keys.map((k, i) => (
-        <Form.Item
-            key={k}
-            labelCol={CONDITION_LABEL_COL}
-            wrapperCol={CONDITION_WRAPPER_COL}
-            label={conditionLabel(i)}
-            help={getHelpText(k)}
-        >
-            {form.getFieldDecorator(`conditions[${k}]`, {
-                initialValue: initialValues.current[`conditions[${k}]`],
-                validateTrigger: false, // only when called manually
-                rules: CONDITION_RULES,
-            })(
-                <DiscoverySearchCondition
-                    dataType={dataType}
-                    isExcluded={(f) => existingUniqueFields.includes(f)}
-                    onFieldChange={(change) => updateHelpFromFieldChange(k, change)}
-                    onRemoveClick={() => removeCondition(k)}
-                />,
-            )}
-        </Form.Item>
-    ));
-
     return (
-        <Form onSubmit={onSubmit}>
+        <Form form={form} onFieldsChange={(_, allFields) => onChange({...allFields})}>
             {isVariantSearch ? (
                 <VariantSearchHeader
                     addVariantSearchValues={addVariantSearchValues}
@@ -354,7 +322,33 @@ const DiscoverySearchForm = ({ form, onSubmit, dataType, formValues, handleVaria
                 />
             ) : (
                 <>
-                    {formItems}
+                    <Form.List name="conditions">
+                        {
+                            /** @return React.ReactNode[] */
+                            (fields) => {
+                                return fields.map((field, i) => (
+                                    <Form.Item
+                                        key={field.key}
+                                        {...field}
+                                        labelCol={CONDITION_LABEL_COL}
+                                        wrapperCol={CONDITION_WRAPPER_COL}
+                                        label={conditionLabel(i)}
+                                        help={getHelpText(i)}
+                                        initialValue={initialValues.current.conditions[i]}
+                                        rules={CONDITION_RULES}
+                                    >
+                                        <DiscoverySearchCondition
+                                            dataType={dataType}
+                                            isExcluded={(f) => existingUniqueFields.includes(f)}
+                                            onFieldChange={(change) => updateHelpFromFieldChange(i, change)}
+                                            onRemoveClick={() => removeCondition(i)}
+                                        />
+                                    </Form.Item>
+                                ))
+                            }
+                        }
+                    </Form.List>
+                    {/*{formItems}*/}
                     <Form.Item
                         wrapperCol={{
                             xl: { span: 24 },
@@ -386,20 +380,11 @@ const DiscoverySearchForm = ({ form, onSubmit, dataType, formValues, handleVaria
 
 DiscoverySearchForm.propTypes = {
     form: PropTypes.object,
-    onSubmit: PropTypes.func,
+    onChange: PropTypes.func,
     dataType: PropTypes.object,  // TODO: Shape?
     formValues: PropTypes.object,
+    setFormRef: PropTypes.func,
     handleVariantHiddenFieldChange: PropTypes.func.isRequired,
 };
 
-export default Form.create({
-    mapPropsToFields: ({formValues}) => ({
-        keys: Form.createFormField({...formValues.keys}),
-        ...Object.assign({}, ...(formValues["conditions"] ?? [])
-            .filter(c => c !== null)  // TODO: Why does this happen?
-            .map(c => ({[c.name]: Form.createFormField({...c})}))),
-    }),
-    onFieldsChange: ({onChange}, _, allFields) => {
-        onChange({...allFields});
-    },
-})(DiscoverySearchForm);
+export default DiscoverySearchForm;

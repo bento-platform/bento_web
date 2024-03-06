@@ -88,17 +88,8 @@ class DiscoveryQueryBuilder extends Component {
         this.props.setIsSubmittingSearch(true);
 
         try {
-            await Promise.all(Object.entries(this.forms).filter(f => f[1]).map(([_dt, f]) =>
-                new Promise((resolve, reject) => {
-                    f.props.form.validateFields({force: true}, err => {
-                        if (err) {
-                            // TODO: If error, switch to errored tab
-                            reject(err);
-                        }
-                        resolve();  // TODO: data?
-                    });
-                })));
-
+            await Promise.all(Object.values(this.forms).map((f) => f.validateFields()));
+            // TODO: If error, switch to errored tab
             (this.props.onSubmit ?? nop)();
         } catch (err) {
             console.error(err);
@@ -164,7 +155,7 @@ class DiscoveryQueryBuilder extends Component {
                         dataType={dataType}
                         formValues={formValues}
                         loading={this.props.searchLoading}
-                        wrappedComponentRef={form => this.forms[id] = form}
+                        setFormRef={(form) => this.forms[id] = form}
                         onChange={fields => this.handleFormChange(dataType, fields)}
                         handleVariantHiddenFieldChange={this.handleVariantHiddenFieldChange}
                     />

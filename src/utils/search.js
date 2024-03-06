@@ -46,27 +46,24 @@ export const removeDataTypeFormIfPossible = (dataTypeForms, dataType) =>
     dataTypeForms.filter(d => d.dataType.id !== dataType.id);
 
 
-export const extractQueryConditionsFromFormValues = formValues =>
-    (formValues?.keys?.value ?? [])
-        .map(k => formValues?.conditions?.[k] ?? null)
-        .filter(c => c !== null);
+export const extractQueryConditionsFromFormValues = formValues => formValues[0]?.value ?? [];
 
 export const conditionsToQuery = conditions => {
 
     // temp hack: remove any optional variant fields that are empty
     // greatly simplifies management of variant forms UI
-    const afterVariantCleaning = conditions.filter(c =>
-        (!(VARIANT_OPTIONAL_FIELDS.includes(c.value.field) && !c.value.searchValue)));
+    const afterVariantCleaning = conditions.filter(({ field, searchValue }) =>
+        (!(VARIANT_OPTIONAL_FIELDS.includes(field) && !searchValue)));
 
-    const filteredConditions = afterVariantCleaning.filter(c => c.value && c.value.field);
+    const filteredConditions = afterVariantCleaning.filter(c => c.field);
     if (filteredConditions.length === 0) return null;
 
     return filteredConditions
-        .map(({value}) =>
-            (exp => value.negated ? ["#not", exp] : exp)(  // Negate expression if needed
-                [`#${value.operation}`,
-                    ["#resolve", ...value.field.split(".").slice(1)],
-                    value.field2 ? ["#resolve", ...value.field2.split(".").slice(1)] : value.searchValue],
+        .map(({ field, negated, operation, searchValue }) =>
+            (exp => negated ? ["#not", exp] : exp)(  // Negate expression if needed
+                [`#${operation}`,
+                    ["#resolve", ...field.split(".").slice(1)],
+                    searchValue],
             ))
         .reduce((se, v) => ["#and", se, v]);
 };
