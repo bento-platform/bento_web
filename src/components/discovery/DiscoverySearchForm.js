@@ -75,7 +75,7 @@ const CONDITION_WRAPPER_COL = {
 const conditionLabel = (i) => `Condition ${i + 1}`;
 
 
-const DiscoverySearchForm = ({ form, onSubmit, dataType, isInternal, formValues, handleVariantHiddenFieldChange }) => {
+const DiscoverySearchForm = ({ form, onSubmit, dataType, formValues, handleVariantHiddenFieldChange }) => {
     const [conditionsHelp, setConditionsHelp] = useState({});
     const initialValues = useRef({});
 
@@ -159,11 +159,6 @@ const DiscoverySearchForm = ({ form, onSubmit, dataType, isInternal, formValues,
 
     const cannotBeUsed = useCallback(
         (fieldString) => getFieldSchema(dataType.schema, fieldString).search?.type === "single",
-        [dataType]);
-
-    const isNotPublic = useCallback(
-        (fieldString) => ["internal", "none"]
-            .includes(getFieldSchema(dataType.schema, fieldString).search?.queryable),
         [dataType]);
 
     useEffect(() => {
@@ -341,7 +336,7 @@ const DiscoverySearchForm = ({ form, onSubmit, dataType, isInternal, formValues,
             })(
                 <DiscoverySearchCondition
                     dataType={dataType}
-                    isExcluded={(f) => existingUniqueFields.includes(f) || (!isInternal && isNotPublic(f))}
+                    isExcluded={(f) => existingUniqueFields.includes(f)}
                     onFieldChange={(change) => updateHelpFromFieldChange(k, change)}
                     onRemoveClick={() => removeCondition(k)}
                 />,
@@ -392,7 +387,6 @@ DiscoverySearchForm.propTypes = {
     form: PropTypes.object,
     onSubmit: PropTypes.func,
     dataType: PropTypes.object,  // TODO: Shape?
-    isInternal: PropTypes.bool,
     formValues: PropTypes.object,
     handleVariantHiddenFieldChange: PropTypes.func.isRequired,
 };

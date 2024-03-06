@@ -161,7 +161,6 @@ class DiscoveryQueryBuilder extends Component {
                 closable: !(this.props.requiredDataTypes ?? []).includes(id),
                 children: (
                     <DiscoverySearchForm
-                        isInternal={this.props.isInternal ?? false}
                         dataType={dataType}
                         formValues={formValues}
                         loading={this.props.searchLoading}
@@ -218,7 +217,6 @@ class DiscoveryQueryBuilder extends Component {
 
 DiscoveryQueryBuilder.propTypes = {
     activeDataset: PropTypes.string,
-    isInternal: PropTypes.bool,
     requiredDataTypes: PropTypes.arrayOf(PropTypes.string),
 
     servicesInfo: PropTypes.arrayOf(PropTypes.object),
