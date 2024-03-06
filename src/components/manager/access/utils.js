@@ -4,3 +4,5 @@ export const stringifyJSONRenderIfMultiKey = (x) =>
         null,
         (typeof x === "object" && Object.keys(x).length > 1) ? 2 : null,
     );
+
+export const rowKey = (row) => row.id.toString();
