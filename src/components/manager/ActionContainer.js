@@ -13,13 +13,11 @@ const style = {
     zIndex: 10,
 };
 
-const ActionContainer = ({ children, ...props }) => {
-    return (
-        <div style={style} {...props}>
-            {children}
-        </div>
-    );
-};
+const ActionContainer = ({ children, ...props }) => (
+    <div style={style} {...props}>
+        {children}
+    </div>
+);
 ActionContainer.propTypes = {
     children: PropTypes.node,
 };
