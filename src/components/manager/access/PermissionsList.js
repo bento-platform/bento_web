@@ -1,4 +1,4 @@
-import React, { useCallback, useState } from "react";
+import React, { useCallback, useMemo, useState } from "react";
 import PropTypes from "prop-types";
 
 import { Typography } from "antd";
@@ -13,6 +13,14 @@ const PERMISSIONS_LIST_STYLE = { margin: 0, padding: 0, listStyle: "none", lineH
 const PermissionsList = ({ permissions }) => {
     const [showAll, setShowAll] = useState(false);
 
+    const sortedPermissions = useMemo(
+        () => permissions.sort((a, b) => {
+            const as = a.split(":");
+            const bs = b.split(":");
+            return as[1].localeCompare(bs[1]) || as[0].localeCompare(bs[0]);
+        }),
+        [permissions]);
+
     const onShowAll = useCallback((e) => {
         setShowAll(true);
         e.preventDefault();
@@ -25,16 +33,16 @@ const PermissionsList = ({ permissions }) => {
 
     return (
         <ul style={PERMISSIONS_LIST_STYLE}>
-            {permissions.slice(0, showAll ? permissions.length : 4).map((p) => (
+            {sortedPermissions.slice(0, showAll ? sortedPermissions.length : 4).map((p) => (
                 <li key={p}>
                     <Typography.Text code={true}>{p}</Typography.Text>
                 </li>
             ))}
-            {permissions.length > 4 ? (
+            {sortedPermissions.length > 4 ? (
                 showAll ? (
                     <li><a href="#" onClick={onCollapse}>- Collapse</a></li>
                 ) : (
-                    <li><a href="#" onClick={onShowAll}>+ {permissions.length - 4} more</a></li>
+                    <li><a href="#" onClick={onShowAll}>+ {sortedPermissions.length - 4} more</a></li>
                 )
             ) : null}
         </ul>
