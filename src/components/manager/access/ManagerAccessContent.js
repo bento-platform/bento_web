@@ -1,212 +1,22 @@
-import React, { useEffect, useMemo } from "react";
-import { useDispatch, useSelector } from "react-redux";
-import { viewPermissions, RESOURCE_EVERYTHING/*, editPermissions*/ } from "bento-auth-js";
+import React from "react";
+import { Redirect, Route, Switch, useRouteMatch } from "react-router-dom";
 
-import { /*Button, */Layout, Popover, Table, Tabs, Typography } from "antd";
-// import { PlusOutlined } from "@ant-design/icons";
+import { Layout } from "antd";
 
-import { useResourcePermissionsWrapper } from "@/hooks";
-import { fetchGrantsIfNeeded, fetchGroupsIfNeeded } from "@/modules/authz/actions";
 import { LAYOUT_CONTENT_STYLE } from "@/styles/layoutContent";
 
-// import ActionContainer from "../ActionContainer";
-import ForbiddenContent from "../ForbiddenContent";
-import PermissionsList from "./PermissionsList";
-import Subject from "./Subject";
-
-import { stringifyJSONRenderIfMultiKey } from "./utils";
-
-const GROUPS_COLUMNS = [
-    {
-        title: "ID",
-        dataIndex: "id",
-        render: (id) => <span id={`group-${id}`}>{id}</span>,
-    },
-    {
-        title: "Name",
-        dataIndex: "name",
-    },
-    {
-        title: "Membership",
-        dataIndex: "membership",
-        render: (membership) => {
-            const { expr, members: membersList } = membership;
-
-            if (expr) {
-                return (
-                    <>
-                        <strong>Expression:</strong>
-                        <pre style={{ margin: 0 }}>{expr}</pre>
-                    </>
-                );
-            }
-
-            return (
-                <span>{membersList.length} {membersList.length === 1 ? "entry" : "entries"}</span>
-            );
-        },
-    },
-    {
-        title: "Expiry",
-        dataIndex: "expiry",
-        render: (expiry) => <span>{expiry ?? "—"}</span>,
-    },
-    {
-        title: "Notes",
-        dataIndex: "notes",
-    },
-    // TODO: enable when this becomes more than a viewer
-    // {
-    //     title: "Actions",
-    //     key: "actions",
-    //     // TODO: hook up delete
-    //     render: () => (
-    //         <Button size="small" type="danger" icon="delete" disabled={true}>Delete</Button>
-    //     ),
-    // },
-];
-
-const rowKey = (row) => row.id.toString();
+import AccessTabs from "./AccessTabs";
 
 const ManagerAccessContent = () => {
-    const dispatch = useDispatch();
-
-    const isFetchingAllServices = useSelector((state) => state.services.isFetchingAll);
-    const authorizationService = useSelector(state => state.services.itemsByKind.authorization);
-    const { data: grants, isFetching: isFetchingGrants } = useSelector(state => state.grants);
-    const { data: groups, isFetching: isFetchingGroups } = useSelector(state => state.groups);
-
-    const groupsByID = useMemo(() => Object.fromEntries(groups.map(g => [g.id, g])), [groups]);
-
-    const {
-        permissions,
-        isFetchingPermissions,
-        hasAttemptedPermissions,
-    } = useResourcePermissionsWrapper(RESOURCE_EVERYTHING);
-
-    const hasViewPermission = permissions.includes(viewPermissions);
-    // const hasEditPermission = permissions.includes(editPermissions);
-
-    useEffect(() => {
-        if (authorizationService && permissions.includes(viewPermissions)) {
-            dispatch(fetchGrantsIfNeeded());
-            dispatch(fetchGroupsIfNeeded());
-        }
-    }, [authorizationService, permissions]);
-
-    const grantsColumns = useMemo(() => [
-        {
-            title: "ID",
-            dataIndex: "id",
-        },
-        {
-            title: "Subject",
-            dataIndex: "subject",
-            render: (subject) => (
-                <Subject subject={subject} groupsByID={groupsByID} />
-            ),
-        },
-        {
-            title: "Resource",
-            dataIndex: "resource",
-            render: (resource) => {
-                if (resource.everything) {
-                    return <Popover content="Everything in this Bento instance.">Everything</Popover>;
-                }
-                return <pre>{stringifyJSONRenderIfMultiKey(resource)}</pre>;
-            },
-        },
-        {
-            title: "Expiry",
-            dataIndex: "expiry",
-            render: (expiry) => <span>{expiry ?? "—"}</span>,
-        },
-        {
-            title: "Notes",
-            dataIndex: "notes",
-        },
-        {
-            title: "Permissions",
-            dataIndex: "permissions",
-            render: (permissions) => <PermissionsList permissions={permissions} />,
-        },
-        // TODO: enable when this becomes more than a viewer
-        // ...(hasEditPermission ? [
-        //     {
-        //         title: "Actions",
-        //         key: "actions",
-        //         // TODO: hook up edit + delete
-        //         render: () => (
-        //             <>
-        //                 <Button size="small" icon="edit" disabled={true}>Edit</Button>{" "}
-        //                 <Button size="small" type="danger" icon="delete" disabled={true}>Delete</Button>
-        //             </>
-        //         ),
-        //     },
-        // ] : []),
-    ], [groupsByID/*, hasEditPermission*/]);
-
-    if (hasAttemptedPermissions && !hasViewPermission) {
-        return (
-            <ForbiddenContent message="You do not have permission to view grants and groups." />
-        );
-    }
-
+    const { path } = useRouteMatch();
     return (
         <Layout>
             <Layout.Content style={LAYOUT_CONTENT_STYLE}>
-                <Tabs type="card" items={[
-                    {
-                        key: "grants",
-                        label: "Grants",
-                        children: (
-                            <>
-                                {/*{hasEditPermission && (*/}
-                                {/*    <ActionContainer style={{ marginBottom: 8 }}>*/}
-                                {/*        <Button icon={<PlusOutlined />}*/}
-                                {/*                loading={isFetchingPermissions || isFetchingGrants}>*/}
-                                {/*            Create Grant*/}
-                                {/*        </Button>*/}
-                                {/*    </ActionContainer>*/}
-                                {/*)}*/}
-                                <Table
-                                    size="middle"
-                                    bordered={true}
-                                    columns={grantsColumns}
-                                    dataSource={grants}
-                                    rowKey={rowKey}
-                                    loading={isFetchingAllServices || isFetchingPermissions || isFetchingGrants}
-                                />
-                            </>
-                        ),
-                    },
-                    {
-                        key: "groups",
-                        label: "Groups",
-                        children: (
-                            <>
-                                {/*<ActionContainer style={{ marginBottom: 8 }}>*/}
-                                {/*    {hasEditPermission && (*/}
-                                {/*        <Button icon={<PlusOutlined />}*/}
-                                {/*                loading={isFetchingPermissions || isFetchingGroups}>*/}
-                                {/*            Create Group*/}
-                                {/*        </Button>*/}
-                                {/*    )}*/}
-                                {/*</ActionContainer>*/}
-                                {/* No pagination on this table, so we can link to all group ID anchors: */}
-                                <Table
-                                    size="middle"
-                                    bordered={true}
-                                    pagination={false}
-                                    columns={GROUPS_COLUMNS}
-                                    dataSource={groups}
-                                    rowKey={rowKey}
-                                    loading={isFetchingAllServices || isFetchingPermissions || isFetchingGroups}
-                                />
-                            </>
-                        ),
-                    }
-                ]} />
+                <Switch>
+                    <Route path={`${path}/grants`} component={AccessTabs} />
+                    <Route path={`${path}/groups`} component={AccessTabs} />
+                    <Redirect from={`${path}`} to={`${path}/grants`} />
+                </Switch>
             </Layout.Content>
         </Layout>
     );

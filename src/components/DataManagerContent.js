@@ -83,7 +83,7 @@ const DataManagerContent = () => {
             <Suspense fallback={<div style={styles.suspenseFallback}><Skeleton active /></div>}>
                 <Switch>
                     <Route path="/admin/data/manager/projects" component={ManagerProjectDatasetContent} />
-                    <Route exact path="/admin/data/manager/access" component={ManagerAccessContent} />
+                    <Route path="/admin/data/manager/access" component={ManagerAccessContent} />
                     <Route exact path="/admin/data/manager/files" component={ManagerDropBoxContent} />
                     <Route exact path="/admin/data/manager/ingestion" component={ManagerIngestionContent} />
                     <Route exact path="/admin/data/manager/analysis" component={ManagerAnalysisContent} />
