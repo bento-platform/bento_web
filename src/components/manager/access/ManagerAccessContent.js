@@ -4,9 +4,10 @@ import { viewPermissions, RESOURCE_EVERYTHING, editPermissions } from "bento-aut
 
 import { Button, Layout, Popover, Table, Tabs, Typography } from "antd";
 
-import { fetchGrantsIfNeeded, fetchGroupsIfNeeded } from "../../../modules/authz/actions";
-import {LAYOUT_CONTENT_STYLE} from "../../../styles/layoutContent";
-import { useResourcePermissionsWrapper } from "../../../hooks";
+import { useResourcePermissionsWrapper } from "@/hooks";
+import { fetchGrantsIfNeeded, fetchGroupsIfNeeded } from "@/modules/authz/actions";
+import { LAYOUT_CONTENT_STYLE } from "@/styles/layoutContent";
+
 import ForbiddenContent from "../ForbiddenContent";
 import ActionContainer from "../ActionContainer";
 import PermissionsList from "./PermissionsList";
@@ -49,14 +50,15 @@ const GROUPS_COLUMNS = [
         title: "Notes",
         dataIndex: "notes",
     },
-    {
-        title: "Actions",
-        key: "actions",
-        // TODO: hook up delete
-        render: () => (
-            <Button size="small" type="danger" icon="delete" disabled={true}>Delete</Button>
-        ),
-    },
+    // TODO: enable when this becomes more than a viewer
+    // {
+    //     title: "Actions",
+    //     key: "actions",
+    //     // TODO: hook up delete
+    //     render: () => (
+    //         <Button size="small" type="danger" icon="delete" disabled={true}>Delete</Button>
+    //     ),
+    // },
 ];
 
 const ManagerAccessContent = () => {
@@ -120,20 +122,21 @@ const ManagerAccessContent = () => {
             dataIndex: "permissions",
             render: (permissions) => <PermissionsList permissions={permissions} />,
         },
-        ...(hasEditPermission ? [
-            {
-                title: "Actions",
-                key: "actions",
-                // TODO: hook up edit + delete
-                render: () => (
-                    <>
-                        <Button size="small" icon="edit" disabled={true}>Edit</Button>{" "}
-                        <Button size="small" type="danger" icon="delete" disabled={true}>Delete</Button>
-                    </>
-                ),
-            },
-        ] : []),
-    ], [groupsByID, hasEditPermission]);
+        // TODO: enable when this becomes more than a viewer
+        // ...(hasEditPermission ? [
+        //     {
+        //         title: "Actions",
+        //         key: "actions",
+        //         // TODO: hook up edit + delete
+        //         render: () => (
+        //             <>
+        //                 <Button size="small" icon="edit" disabled={true}>Edit</Button>{" "}
+        //                 <Button size="small" type="danger" icon="delete" disabled={true}>Delete</Button>
+        //             </>
+        //         ),
+        //     },
+        // ] : []),
+    ], [groupsByID/*, hasEditPermission*/]);
 
     if (hasAttemptedPermissions && !hasViewPermission) {
         return (
