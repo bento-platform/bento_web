@@ -23,16 +23,21 @@ const Subject = ({ subject, groupsByID }) => {
         );
     } else if (group) {
         const groupDef = groupsByID[group];
-        // TODO: link
-        if (!groupDef) return (
-            <a>Group {group}</a>
-        );
+
+        // TODO: Link
         return (
-            <a>Group {group}: {groupDef.name}</a>
+            <>
+                <strong>Group:</strong>{" "}
+                <a>
+                    {groupDef
+                        ? (<>{groupDef.name} (ID: {group})</>)
+                        : (<>ID: {group}</>)}
+                </a>
+            </>
         );
     } else if (everyone) {
         return (
-            <Popover content="Everyone, even anonymous users.">Everyone</Popover>
+            <Popover content="Everyone, even anonymous users."><strong>Everyone</strong></Popover>
         );
     }
 

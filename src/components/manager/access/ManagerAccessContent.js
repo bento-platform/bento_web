@@ -1,15 +1,16 @@
 import React, { useEffect, useMemo } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { viewPermissions, RESOURCE_EVERYTHING, editPermissions } from "bento-auth-js";
+import { viewPermissions, RESOURCE_EVERYTHING/*, editPermissions*/ } from "bento-auth-js";
 
-import { Button, Layout, Popover, Table, Tabs, Typography } from "antd";
+import { /*Button, */Layout, Popover, Table, Tabs, Typography } from "antd";
+// import { PlusOutlined } from "@ant-design/icons";
 
 import { useResourcePermissionsWrapper } from "@/hooks";
 import { fetchGrantsIfNeeded, fetchGroupsIfNeeded } from "@/modules/authz/actions";
 import { LAYOUT_CONTENT_STYLE } from "@/styles/layoutContent";
 
+// import ActionContainer from "../ActionContainer";
 import ForbiddenContent from "../ForbiddenContent";
-import ActionContainer from "../ActionContainer";
 import PermissionsList from "./PermissionsList";
 import Subject from "./Subject";
 
@@ -19,6 +20,7 @@ const GROUPS_COLUMNS = [
     {
         title: "ID",
         dataIndex: "id",
+        render: (id) => <span id={`group-${id}`}>{id}</span>,
     },
     {
         title: "Name",
@@ -28,17 +30,20 @@ const GROUPS_COLUMNS = [
         title: "Membership",
         dataIndex: "membership",
         render: (membership) => {
-            const { expr, membership: membershipList } = membership;
+            const { expr, members: membersList } = membership;
 
             if (expr) {
-                return <>
-                    <strong>Expression:</strong>
-                    <pre style={{ margin: 0 }}>{expr}</pre>
-                </>;
+                return (
+                    <>
+                        <strong>Expression:</strong>
+                        <pre style={{ margin: 0 }}>{expr}</pre>
+                    </>
+                );
             }
 
-            // TODO: for now
-            return <span>{membershipList.length} members</span>;
+            return (
+                <span>{membersList.length} {membersList.length === 1 ? "entry" : "entries"}</span>
+            );
         },
     },
     {
@@ -61,9 +66,12 @@ const GROUPS_COLUMNS = [
     // },
 ];
 
+const rowKey = (row) => row.id.toString();
+
 const ManagerAccessContent = () => {
     const dispatch = useDispatch();
 
+    const isFetchingAllServices = useSelector((state) => state.services.isFetchingAll);
     const authorizationService = useSelector(state => state.services.itemsByKind.authorization);
     const { data: grants, isFetching: isFetchingGrants } = useSelector(state => state.grants);
     const { data: groups, isFetching: isFetchingGroups } = useSelector(state => state.groups);
@@ -77,7 +85,7 @@ const ManagerAccessContent = () => {
     } = useResourcePermissionsWrapper(RESOURCE_EVERYTHING);
 
     const hasViewPermission = permissions.includes(viewPermissions);
-    const hasEditPermission = permissions.includes(editPermissions);
+    // const hasEditPermission = permissions.includes(editPermissions);
 
     useEffect(() => {
         if (authorizationService && permissions.includes(viewPermissions)) {
@@ -144,47 +152,64 @@ const ManagerAccessContent = () => {
         );
     }
 
-    return <Layout>
-        <Layout.Content style={LAYOUT_CONTENT_STYLE}>
-            <Tabs type="card">
-                <Tabs.TabPane tab="Grants" key="grants">
-                    {hasEditPermission && (
-                        <ActionContainer style={{ marginBottom: 8 }}>
-                            <Button icon="plus" loading={isFetchingPermissions || isFetchingGrants}>
-                                Create Grant
-                            </Button>
-                        </ActionContainer>
-                    )}
-                    <Table
-                        size="middle"
-                        bordered={true}
-                        columns={grantsColumns}
-                        dataSource={grants}
-                        loading={isFetchingPermissions || isFetchingGrants}
-                    />
-                </Tabs.TabPane>
-                <Tabs.TabPane tab="Groups" key="groups">
-                    <ActionContainer style={{ marginBottom: 8 }}>
-                        {hasEditPermission && (
-                            <Button icon="plus" loading={isFetchingPermissions || isFetchingGroups}>
-                                Create Group
-                            </Button>
-                        )}
-                        <Typography.Paragraph>
-                            Expand a table row to see group membership entries.
-                        </Typography.Paragraph>
-                    </ActionContainer>
-                    <Table
-                        size="middle"
-                        bordered={true}
-                        columns={GROUPS_COLUMNS}
-                        dataSource={groups}
-                        loading={isFetchingPermissions || isFetchingGroups}
-                    />
-                </Tabs.TabPane>
-            </Tabs>
-        </Layout.Content>
-    </Layout>;
+    return (
+        <Layout>
+            <Layout.Content style={LAYOUT_CONTENT_STYLE}>
+                <Tabs type="card" items={[
+                    {
+                        key: "grants",
+                        label: "Grants",
+                        children: (
+                            <>
+                                {/*{hasEditPermission && (*/}
+                                {/*    <ActionContainer style={{ marginBottom: 8 }}>*/}
+                                {/*        <Button icon={<PlusOutlined />}*/}
+                                {/*                loading={isFetchingPermissions || isFetchingGrants}>*/}
+                                {/*            Create Grant*/}
+                                {/*        </Button>*/}
+                                {/*    </ActionContainer>*/}
+                                {/*)}*/}
+                                <Table
+                                    size="middle"
+                                    bordered={true}
+                                    columns={grantsColumns}
+                                    dataSource={grants}
+                                    rowKey={rowKey}
+                                    loading={isFetchingAllServices || isFetchingPermissions || isFetchingGrants}
+                                />
+                            </>
+                        ),
+                    },
+                    {
+                        key: "groups",
+                        label: "Groups",
+                        children: (
+                            <>
+                                {/*<ActionContainer style={{ marginBottom: 8 }}>*/}
+                                {/*    {hasEditPermission && (*/}
+                                {/*        <Button icon={<PlusOutlined />}*/}
+                                {/*                loading={isFetchingPermissions || isFetchingGroups}>*/}
+                                {/*            Create Group*/}
+                                {/*        </Button>*/}
+                                {/*    )}*/}
+                                {/*</ActionContainer>*/}
+                                {/* No pagination on this table, so we can link to all group ID anchors: */}
+                                <Table
+                                    size="middle"
+                                    bordered={true}
+                                    pagination={false}
+                                    columns={GROUPS_COLUMNS}
+                                    dataSource={groups}
+                                    rowKey={rowKey}
+                                    loading={isFetchingAllServices || isFetchingPermissions || isFetchingGroups}
+                                />
+                            </>
+                        ),
+                    }
+                ]} />
+            </Layout.Content>
+        </Layout>
+    );
 };
 
 export default ManagerAccessContent;
