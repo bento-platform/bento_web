@@ -104,7 +104,6 @@ class DiscoveryQueryBuilder extends Component {
     };
 
     handleFormChange(dataType, fields) {
-        console.log(fields);
         this.props.updateDataTypeQueryForm(dataType, fields);
     }
 
