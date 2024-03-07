@@ -17,12 +17,6 @@ import * as io from "socket.io-client";
 
 import { Layout, message, Modal } from "antd";
 
-import OwnerRoute from "./OwnerRoute";
-
-import SiteHeader from "./SiteHeader";
-import SiteFooter from "./SiteFooter";
-import SitePageLoading from "./SitePageLoading";
-
 import { BENTO_URL_NO_TRAILING_SLASH, OPENID_CONFIG_URL } from "@/config";
 import eventHandler from "@/events";
 import SessionWorker from "@/session.worker";
@@ -30,6 +24,10 @@ import { nop } from "@/utils/misc";
 import { fetchUserDependentData } from "@/modules/user/actions";
 
 import NotificationDrawer from "./notifications/NotificationDrawer";
+import RequireAuth from "./RequireAuth";
+import SiteHeader from "./SiteHeader";
+import SiteFooter from "./SiteFooter";
+import SitePageLoading from "./SitePageLoading";
 
 // Lazy-load route components
 const OverviewContent = lazy(() => import("./OverviewContent"));
@@ -227,13 +225,13 @@ const App = () => {
                         <Suspense fallback={<SitePageLoading />}>
                             <Switch>
                                 <Route path={CALLBACK_PATH}><SitePageLoading /></Route>
-                                <OwnerRoute path="/overview" component={OverviewContent} />
-                                <OwnerRoute path="/data/explorer" component={DataExplorerContent} />
-                                <OwnerRoute path="/cbioportal" component={CBioPortalContent} />
-                                <OwnerRoute path="/admin" component={AdminContent} />
-                                <OwnerRoute path="/notifications" component={NotificationsContent} />
-                                <OwnerRoute path="/profile" component={UserProfileContent} />
-                                <Route path="/" render={<Redirect to="/overview" />} />
+                                <Route path="/overview"><RequireAuth><OverviewContent /></RequireAuth></Route>
+                                <Route path="/data/explorer"><RequireAuth><DataExplorerContent /></RequireAuth></Route>
+                                <Route path="/cbioportal"><RequireAuth><CBioPortalContent /></RequireAuth></Route>
+                                <Route path="/admin"><RequireAuth><AdminContent /></RequireAuth></Route>
+                                <Route path="/notifications"><RequireAuth><NotificationsContent /></RequireAuth></Route>
+                                <Route path="/profile"><RequireAuth><UserProfileContent /></RequireAuth></Route>
+                                <Route path="/" render={() => <Redirect to="/overview" />} />
                             </Switch>
                         </Suspense>
                     </Layout.Content>
