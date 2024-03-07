@@ -13,9 +13,9 @@ const ManagerAccessContent = () => {
         <Layout>
             <Layout.Content style={LAYOUT_CONTENT_STYLE}>
                 <Switch>
-                    <Route path={`${path}/grants`} component={AccessTabs} />
-                    <Route path={`${path}/groups`} component={AccessTabs} />
-                    <Redirect from={`${path}`} to={`${path}/grants`} />
+                    <Route path={`${path}/grants`}><AccessTabs /></Route>
+                    <Route path={`${path}/groups`}><AccessTabs /></Route>
+                    <Route path={path} render={() => <Redirect to={`${path}/grants`} />} />
                 </Switch>
             </Layout.Content>
         </Layout>
