@@ -18,7 +18,7 @@
     "handlebars": "^4.7.8",
     "igv": "~2.15.11",
     "iso8601-duration": "^1.2.0",
-    "jose": "^4.14.6",
+    "jose": "^4.15.5",
     "lodash": "^4.17.21",
     "lodash.debounce": "^4.0.8",
     "mammoth": "^1.6.0",
