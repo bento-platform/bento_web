@@ -76,6 +76,10 @@ const CONDITION_WRAPPER_COL = {
     xl: { span: 20 },
     xxl: { span: 18 },
 };
+const ADD_CONDITION_WRAPPER_COL = {
+    xl: { span: 24 },
+    xxl: { offset: 3, span: 18 },
+};
 
 const conditionLabel = (i) => `Condition ${i + 1}`;
 
@@ -145,10 +149,10 @@ const DiscoverySearchForm = ({ onChange, dataType, formValues, setFormRef, handl
 
     const addCondition = useCallback((field = undefined) => {
         const existingConditions = form.getFieldValue("conditions") ?? [];
-        const newKey = existingConditions.length;
 
         const fieldSchema = getDataTypeFieldSchema(field);
 
+        const newKey = existingConditions.length;
         updateHelpFromFieldChange(newKey, { fieldSchema });
 
         const fieldInitialValue = {
@@ -314,19 +318,16 @@ const DiscoverySearchForm = ({ onChange, dataType, formValues, setFormRef, handl
         .filter((f) => f !== undefined && cannotBeUsed(f));
 
     return (
-        <Form form={form} onFieldsChange={(_, allFields) => onChange({...allFields})}>
+        <Form form={form} fields={formValues} onFieldsChange={(_, allFields) => onChange([...allFields])}>
             {isVariantSearch ? (
-                <VariantSearchHeader
-                    addVariantSearchValues={addVariantSearchValues}
-                    dataType={dataType}
-                />
+                <VariantSearchHeader addVariantSearchValues={addVariantSearchValues} dataType={dataType} />
             ) : (
                 <>
                     <Form.List name="conditions">
                         {
                             /** @return React.ReactNode[] */
-                            (fields) => {
-                                return fields.map((field, i) => (
+                            (fields) => (
+                                fields.map((field, i) => (
                                     <Form.Item
                                         key={field.key}
                                         {...field}
@@ -334,7 +335,7 @@ const DiscoverySearchForm = ({ onChange, dataType, formValues, setFormRef, handl
                                         wrapperCol={CONDITION_WRAPPER_COL}
                                         label={conditionLabel(i)}
                                         help={getHelpText(i)}
-                                        initialValue={initialValues.current.conditions[i]}
+                                        initialValue={initialValues.current?.conditions?.[i]}
                                         rules={CONDITION_RULES}
                                     >
                                         <DiscoverySearchCondition
@@ -344,17 +345,11 @@ const DiscoverySearchForm = ({ onChange, dataType, formValues, setFormRef, handl
                                             onRemoveClick={() => removeCondition(i)}
                                         />
                                     </Form.Item>
-                                ));
-                            }
+                                ))
+                            )
                         }
                     </Form.List>
-                    {/*{formItems}*/}
-                    <Form.Item
-                        wrapperCol={{
-                            xl: { span: 24 },
-                            xxl: { offset: 3, span: 18 },
-                        }}
-                    >
+                    <Form.Item wrapperCol={ADD_CONDITION_WRAPPER_COL}>
                         {isPhenopacketSearch ? (
                             <Dropdown menu={phenopacketsSearchOptions}
                                       placement="bottom"
