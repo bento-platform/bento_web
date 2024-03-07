@@ -1,5 +1,5 @@
 import React from "react";
-import {Redirect, Switch} from "react-router-dom";
+import { Redirect, Route, Switch } from "react-router-dom";
 
 import OwnerRoute from "./OwnerRoute";
 import ServiceContent from "./ServiceContent";
@@ -13,7 +13,7 @@ const AdminContent = () => (
             <OwnerRoute path="/admin/services" exact={true} component={ServiceContent} />
             <OwnerRoute path="/admin/services/:kind" component={ServiceDetail} />
             <OwnerRoute path="/admin/data/manager" component={DataManagerContent} />
-            <Redirect from="/" to="/admin/services" />
+            <Route path="/admin/" render={() => <Redirect to="/admin/services" />} />
         </Switch>
     </div>
 );

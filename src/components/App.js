@@ -226,14 +226,14 @@ const App = () => {
                     <Layout.Content style={{ margin, display: "flex", flexDirection: "column" }}>
                         <Suspense fallback={<SitePageLoading />}>
                             <Switch>
-                                <Route path={CALLBACK_PATH} component={SitePageLoading} />
+                                <Route path={CALLBACK_PATH}><SitePageLoading /></Route>
                                 <OwnerRoute path="/overview" component={OverviewContent} />
                                 <OwnerRoute path="/data/explorer" component={DataExplorerContent} />
                                 <OwnerRoute path="/cbioportal" component={CBioPortalContent} />
                                 <OwnerRoute path="/admin" component={AdminContent} />
                                 <OwnerRoute path="/notifications" component={NotificationsContent} />
                                 <OwnerRoute path="/profile" component={UserProfileContent} />
-                                <Redirect from="/" to="/overview" />
+                                <Route path="/" render={<Redirect to="/overview" />} />
                             </Switch>
                         </Suspense>
                     </Layout.Content>
