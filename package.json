@@ -4,7 +4,6 @@
   "description": "Bento platform front-end",
   "main": "src/index.js",
   "dependencies": {
-    "@ant-design/compatible": "1.1.0",
     "@ant-design/icons": "^5.3.0",
     "@reduxjs/toolkit": "^1.9.7",
     "ajv": "^8.12.0",
