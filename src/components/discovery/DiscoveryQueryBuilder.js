@@ -72,8 +72,9 @@ class DiscoveryQueryBuilder extends Component {
                     }],
                 }];
 
-                // "Simulate" form data structure and trigger update
-                await this.handleFormChange(dataType, fields);
+                // Force-override fields in the form
+                this.forms[dataType.id]?.setFields(fields);
+                await this.handleFormChange(dataType, fields);  // Not triggered by setFields; do it manually
 
                 // Simulate form submission click
                 const s = this.handleSubmit();

@@ -39,31 +39,29 @@ const updateVariantConditions = (conditions, fieldName, searchValue) =>
             ? {...c, value: { ...c.value, searchValue }}
             : c);
 
-// noinspection JSUnusedGlobalSymbols
+const conditionValidator = (rule, { field, fieldSchema, searchValue }) => {
+    if (field === undefined) {
+        return Promise.reject("A field must be specified for this search condition.");
+    }
+
+    const transformedSearchValue = getSchemaTypeTransformer(fieldSchema.type)[1](searchValue);
+    const isEnum = fieldSchema.hasOwnProperty("enum");
+
+    // noinspection JSCheckFunctionSignatures
+    if (
+        !VARIANT_OPTIONAL_FIELDS.includes(field) &&
+        (transformedSearchValue === null ||
+            (!isEnum && !transformedSearchValue) ||
+            (isEnum && !fieldSchema.enum.includes(transformedSearchValue)))
+    ) {
+        return Promise.reject(`This field is must have a value: ${field}`);
+    }
+
+    return Promise.resolve();
+};
+
 const CONDITION_RULES = [
-    {
-        validator: (rule, value) => new Promise((resolve, reject) => {
-            if (value.field === undefined) {
-                reject("A field must be specified for this search condition.");
-            }
-
-            const searchValue = getSchemaTypeTransformer(value.fieldSchema.type)[1](value.searchValue);
-            const isEnum = value.fieldSchema.hasOwnProperty("enum");
-
-            // noinspection JSCheckFunctionSignatures
-            if (
-                !VARIANT_OPTIONAL_FIELDS.includes(value.field) &&
-                (searchValue === null ||
-                    (!isEnum && !searchValue) ||
-                    (isEnum && !value.fieldSchema.enum.includes(searchValue)))
-            ) {
-                reject(`This field is required: ${searchValue}`);
-            }
-
-            resolve();
-        }),
-    },
-
+    { validator: conditionValidator },
 ];
 
 const CONDITION_LABEL_COL = {
@@ -323,7 +321,7 @@ const DiscoverySearchForm = ({ onChange, dataType, formValues, setFormRef, handl
         [getConditionsArray, cannotBeUsed]);
 
     return (
-        <Form form={form} fields={formValues} onFieldsChange={(_, allFields) => onChange([...allFields])}>
+        <Form form={form} onFieldsChange={(_, allFields) => onChange([...allFields])}>
             {isVariantSearch ? (
                 <VariantSearchHeader addVariantSearchValues={addVariantSearchValues} dataType={dataType} />
             ) : (
@@ -382,7 +380,7 @@ DiscoverySearchForm.propTypes = {
     form: PropTypes.object,
     onChange: PropTypes.func,
     dataType: PropTypes.object,  // TODO: Shape?
-    formValues: PropTypes.object,
+    formValues: PropTypes.arrayOf(PropTypes.object),
     setFormRef: PropTypes.func,
     handleVariantHiddenFieldChange: PropTypes.func.isRequired,
 };
