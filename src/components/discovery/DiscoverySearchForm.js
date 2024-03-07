@@ -147,8 +147,10 @@ const DiscoverySearchForm = ({ onChange, dataType, formValues, setFormRef, handl
         }
     }, [isVariantSearch]);
 
+    const getConditionsArray = useCallback(() => form.getFieldValue("conditions") ?? [], [form]);
+
     const addCondition = useCallback((field = undefined) => {
-        const existingConditions = form.getFieldValue("conditions") ?? [];
+        const existingConditions = getConditionsArray();
 
         const fieldSchema = getDataTypeFieldSchema(field);
 
@@ -172,20 +174,22 @@ const DiscoverySearchForm = ({ onChange, dataType, formValues, setFormRef, handl
             conditions: [...existingConditions, fieldInitialValue],
         });
 
-    }, [conditionsHelp]);
+    }, [conditionsHelp, getConditionsArray]);
 
     const removeCondition = useCallback((k) => {
         form.setFieldsValue({
-            conditions: (form.getFieldValue("conditions") ?? []).filter((_, i) => k !== i),
+            conditions: getConditionsArray().filter((_, i) => k !== i),
         });
-    }, [form]);
+    }, [form, getConditionsArray]);
 
     const cannotBeUsed = useCallback(
         (fieldString) => getFieldSchema(dataType.schema, fieldString).search?.type === "single",
         [dataType]);
 
+    // On initial component mounting, add required fields (or for variants, add all fields) to the form if no conditions
+    // have already been added.
     useEffect(() => {
-        if ((form.getFieldValue("conditions") ?? []).length !== 0) return;
+        if (getConditionsArray().length !== 0) return;
 
         const requiredFields = dataType
             ? getFields(dataType.schema).filter(
@@ -193,10 +197,8 @@ const DiscoverySearchForm = ({ onChange, dataType, formValues, setFormRef, handl
             : [];
 
         isVariantSearch
-            ? VARIANT_REQUIRED_FIELDS
-                .concat(VARIANT_OPTIONAL_FIELDS)
-                .map((c) => addCondition(c))
-            // currently unused, since only variant search has required fields
+            ? [...VARIANT_REQUIRED_FIELDS, ...VARIANT_OPTIONAL_FIELDS].map((c) => addCondition(c))
+            // currently unused, since only variant search has required fields:
             : requiredFields.map((c) => addCondition(c));
     }, []);
 
@@ -313,9 +315,12 @@ const DiscoverySearchForm = ({ onChange, dataType, formValues, setFormRef, handl
         };
     }, [getDataTypeFieldSchema]);
 
-    const existingUniqueFields = (form.getFieldValue("conditions") ?? [])
-        .map(({ field }) => field)
-        .filter((f) => f !== undefined && cannotBeUsed(f));
+    const existingUniqueFields = useMemo(
+        () =>
+            getConditionsArray()
+                .map(({ field: f }) => f)
+                .filter((f) => f !== undefined && cannotBeUsed(f)),
+        [getConditionsArray, cannotBeUsed]);
 
     return (
         <Form form={form} fields={formValues} onFieldsChange={(_, allFields) => onChange([...allFields])}>
