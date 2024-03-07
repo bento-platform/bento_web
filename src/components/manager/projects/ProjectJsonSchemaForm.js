@@ -38,7 +38,7 @@ const JsonSchemaInput = ({ value, onChange }) => {
                     // Validate against draft-07 meta schema
                     onChange(json);
                 } else {
-                    message.error("Selected file is an invalid JSON schema definition.").catch(console.error);
+                    message.error("Selected file is an invalid JSON schema definition.");
                 }
             };
             reader.readAsText(file);
@@ -100,6 +100,9 @@ const ProjectJsonSchemaForm = ({ form, schemaTypes, initialValues }) => {
                     ))}
                 </Select>
             </Form.Item>
+            <Form.Item label="JSON Schema" name="jsonSchema" rules={[{ required: true }]}>
+                <JsonSchemaInput />
+            </Form.Item>
             <Form.Item
                 label={
                     <Tooltip title={
@@ -113,9 +116,6 @@ const ProjectJsonSchemaForm = ({ form, schemaTypes, initialValues }) => {
                 valuePropName="checked"
             >
                 <Checkbox />
-            </Form.Item>
-            <Form.Item label="JSON Schema" name="jsonSchema" rules={[{ required: true }]}>
-                <JsonSchemaInput />
             </Form.Item>
         </Form >
     );
