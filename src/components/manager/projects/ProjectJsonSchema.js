@@ -1,18 +1,20 @@
 import React, { useCallback } from "react";
-import PropTypes from "prop-types";
-import { projectJsonSchemaTypesShape } from "../../../propTypes";
-import { Button, Card, Descriptions, Modal, Typography } from "antd";
-import ReactJson from "react-json-view";
 import { useDispatch } from "react-redux";
-import { deleteProjectJsonSchema } from "../../../modules/metadata/actions";
+import PropTypes from "prop-types";
+
+import { Button, Card, Descriptions, Modal, Typography } from "antd";
 import { DeleteOutlined } from "@ant-design/icons";
+import ReactJson from "react-json-view";
+
+import { deleteProjectJsonSchema } from "@/modules/metadata/actions";
+import { projectJsonSchemaTypesShape } from "@/propTypes";
 
 // Custom style based on Typography.Text in 'code' mode, with colors for dark backgrounds
 const CODE_STYLE = {
     "margin": "0 0.2em",
     "padding": "0.2em 0.4em 0.1em",
     "fontSize": "85%",
-    "fontFamily": "Liberation Mono",
+    "fontFamily": "monospace",
     "background": "rgba(0, 0, 0, 0.06)",
     "border": "1px solid",
     "borderColor": "white",
