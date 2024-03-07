@@ -56,8 +56,7 @@ const RequireAuth = ({ children }) => {
 };
 
 RequireAuth.propTypes = {
-    component: PropTypes.elementType,
-    path: PropTypes.string,
+    children: PropTypes.node,
 };
 
 export default RequireAuth;
