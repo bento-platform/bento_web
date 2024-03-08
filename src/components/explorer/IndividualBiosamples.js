@@ -1,17 +1,17 @@
 import React, { Fragment, useCallback, useEffect, useMemo } from "react";
 import PropTypes from "prop-types";
-import { Route, Switch, useHistory, useRouteMatch, useParams } from "react-router-dom";
+import { useHistory, useParams } from "react-router-dom";
 
 import { Button, Descriptions, Table } from "antd";
 
-import { EM_DASH } from "../../constants";
-import { useDeduplicatedIndividualBiosamples } from "./utils";
+import { EM_DASH } from "@/constants";
 import {
     biosamplePropTypesShape,
     experimentPropTypesShape,
     individualPropTypesShape,
     ontologyShape,
-} from "../../propTypes";
+} from "@/propTypes";
+import { useDeduplicatedIndividualBiosamples } from "./utils";
 
 import JsonView from "./JsonView";
 import OntologyTerm from "./OntologyTerm";
@@ -20,6 +20,7 @@ import TimeElement from "./TimeElement";
 import "./explorer.css";
 import BiosampleIDCell from "./searchResultsTables/BiosampleIDCell";
 import { MeasurementsTable } from "./IndividualMeasurements";
+import { RoutedIndividualContent } from "./RoutedIndividualContent";
 
 // TODO: Only show biosamples from the relevant dataset, if specified;
 //  highlight those found in search results, if specified
@@ -57,7 +58,7 @@ BiosampleProcedure.propTypes = {
 
 const ExperimentsClickList = ({ experiments, handleExperimentClick }) => {
     if (!experiments?.length) return EM_DASH;
-    return (
+    return experiments?.length ? (
         <>
             {(experiments ?? []).map((e, i) => (
                 <Fragment key={i}>
@@ -68,7 +69,7 @@ const ExperimentsClickList = ({ experiments, handleExperimentClick }) => {
                 </Fragment>
             ))}
         </>
-    );
+    ) : EM_DASH;
 };
 ExperimentsClickList.propTypes = {
     experiments: PropTypes.arrayOf(experimentPropTypesShape),
@@ -134,7 +135,7 @@ BiosampleDetail.propTypes = {
 
 const Biosamples = ({ individual, handleBiosampleClick, handleExperimentClick }) => {
     const { selectedBiosample } = useParams();
-    const selectedRowKeys = useMemo(
+    const expandedRowKeys = useMemo(
         () => selectedBiosample ? [selectedBiosample] : [],
         [selectedBiosample],
     );
@@ -186,10 +187,7 @@ const Biosamples = ({ individual, handleBiosampleClick, handleExperimentClick })
 
     const expandedRowRender = useCallback(
         (biosample) => (
-            <BiosampleDetail
-                biosample={biosample}
-                handleExperimentClick={handleExperimentClick}
-            />
+            <BiosampleDetail biosample={biosample} handleExperimentClick={handleExperimentClick} />
         ),
         [handleExperimentClick],
     );
@@ -200,9 +198,7 @@ const Biosamples = ({ individual, handleBiosampleClick, handleExperimentClick })
             pagination={false}
             size="middle"
             columns={columns}
-            onExpand={onExpand}
-            expandedRowKeys={selectedRowKeys}
-            expandedRowRender={expandedRowRender}
+            expandable={{ onExpand, expandedRowKeys, expandedRowRender }}
             dataSource={biosamples}
             rowKey="id"
         />
@@ -216,33 +212,22 @@ Biosamples.propTypes = {
 
 const IndividualBiosamples = ({ individual, experimentsUrl }) => {
     const history = useHistory();
-    const match = useRouteMatch();
-
-    const handleBiosampleClick = useCallback((bID) => {
-        if (!bID) {
-            history.replace(match.url);
-            return;
-        }
-        history.replace(`${match.url}/${bID}`);
-    }, [history, match]);
 
     const handleExperimentClick = useCallback((eid) => {
         history.push(`${experimentsUrl}/${eid}`);
     }, [experimentsUrl, history]);
 
-    const biosamplesNode = (
-        <Biosamples
-            individual={individual}
-            handleBiosampleClick={handleBiosampleClick}
-            handleExperimentClick={handleExperimentClick}
-        />
-    );
-
     return (
-        <Switch>
-            <Route path={`${match.path}/:selectedBiosample`}>{biosamplesNode}</Route>
-            <Route path={match.path} exact={true}>{biosamplesNode}</Route>
-        </Switch>
+        <RoutedIndividualContent
+            urlParam="selectedBiosample"
+            renderContent={({ onContentSelect }) => (
+                <Biosamples
+                    individual={individual}
+                    handleBiosampleClick={onContentSelect}
+                    handleExperimentClick={handleExperimentClick}
+                />
+            )}
+        />
     );
 };
 

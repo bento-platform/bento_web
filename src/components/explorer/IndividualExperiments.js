@@ -1,15 +1,15 @@
 import React, {useCallback, useEffect, useMemo, useState} from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { Route, Switch, useHistory, useParams, useRouteMatch } from "react-router-dom";
+import { useParams } from "react-router-dom";
 import PropTypes from "prop-types";
 
 import { Button, Descriptions, Popover, Table, Tooltip, Typography } from "antd";
 import { BarsOutlined, EyeOutlined, FileTextOutlined, ProfileOutlined } from "@ant-design/icons";
 
-import { EM_DASH } from "../../constants";
-import { experimentPropTypesShape, experimentResultPropTypesShape, individualPropTypesShape } from "../../propTypes";
-import { getFileDownloadUrlsFromDrs } from "../../modules/drs/actions";
-import { guessFileType } from "../../utils/files";
+import { EM_DASH } from "@/constants";
+import { experimentPropTypesShape, experimentResultPropTypesShape, individualPropTypesShape } from "@/propTypes";
+import { getFileDownloadUrlsFromDrs } from "@/modules/drs/actions";
+import { guessFileType } from "@/utils/files";
 
 import { useDeduplicatedIndividualBiosamples } from "./utils";
 import { VIEWABLE_FILE_EXTENSIONS } from "../display/FileDisplay";
@@ -18,6 +18,7 @@ import JsonView from "./JsonView";
 import OntologyTerm from "./OntologyTerm";
 import DownloadButton from "../DownloadButton";
 import FileModal from "../display/FileModal";
+import { RoutedIndividualContent } from "@/components/explorer/RoutedIndividualContent";
 
 
 const VIEWABLE_FILE_FORMATS = ["PDF", "CSV", "TSV"];
@@ -34,7 +35,7 @@ const ExperimentResultActions = ({ result }) => {
     // view button and results in file loading being triggered. if FileDisplay was always
     // immediately shown, it would load all experiment results immediately, which is undesirable
     // behaviour. Instead, we wait until a user clicks it, then load the file, but we don't unmount
-    // the component after so we have the file contents cached.
+    // the component after, so we have the file contents cached.
     const [hasTriggeredViewModal, setHasTriggeredViewModal] = useState(false);
 
     const onViewClick = useCallback(() => {
@@ -229,11 +230,15 @@ ExperimentDetail.propTypes = {
     experiment: experimentPropTypesShape,
 };
 
+const expandedExperimentRowRender = (experiment) => (
+    <ExperimentDetail experiment={experiment}/>
+);
+
 const Experiments = ({ individual, handleExperimentClick }) => {
     const dispatch = useDispatch();
 
     const { selectedExperiment } = useParams();
-    const selectedRowKeys = useMemo(
+    const expandedRowKeys = useMemo(
         () => selectedExperiment ? [selectedExperiment] : [],
         [selectedExperiment],
     );
@@ -299,19 +304,13 @@ const Experiments = ({ individual, handleExperimentClick }) => {
         [handleExperimentClick],
     );
 
-    const expandedRowRender = (experiment) => (
-            <ExperimentDetail experiment={experiment}/>
-    );
-
     return (
         <Table
             bordered={true}
             pagination={false}
             size="middle"
             columns={columns}
-            onExpand={onExpand}
-            expandedRowKeys={selectedRowKeys}
-            expandedRowRender={expandedRowRender}
+            expandable={{ onExpand, expandedRowKeys, expandedRowRender: expandedExperimentRowRender }}
             dataSource={experimentsData}
             rowKey="id"
         />
@@ -322,29 +321,14 @@ Experiments.propTypes = {
     handleExperimentClick: PropTypes.func,
 };
 
-const IndividualExperiments = ({ individual }) => {
-    const history = useHistory();
-    const match = useRouteMatch();
-
-    const handleExperimentClick = useCallback((eID) => {
-        if (!eID) {
-            history.replace(match.url);
-            return;
-        }
-        history.replace(`${match.url}/${eID}`);
-    }, [history, match]);
-
-    const experimentsNode = (
-        <Experiments individual={individual} handleExperimentClick={handleExperimentClick} />
-    );
-
-    return (
-        <Switch>
-            <Route path={`${match.path}/:selectedExperiment`}>{experimentsNode}</Route>
-            <Route path={match.path} exact={true}>{experimentsNode}</Route>
-        </Switch>
-    );
-};
+const IndividualExperiments = ({ individual }) => (
+    <RoutedIndividualContent
+        urlParam="selectedExperiment"
+        renderContent={({ onContentSelect }) => (
+            <Experiments individual={individual} handleExperimentClick={onContentSelect} />
+        )}
+    />
+);
 
 IndividualExperiments.propTypes = {
     individual: individualPropTypesShape,

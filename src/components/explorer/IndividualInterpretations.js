@@ -1,17 +1,19 @@
 import React, { useCallback, useMemo, useState } from "react";
+import { Route, Switch, useHistory, useParams, useRouteMatch } from "react-router-dom";
 import PropTypes from "prop-types";
 
 import { Button, Descriptions, Empty, Modal, Table, Typography } from "antd";
 import { ExperimentOutlined, MedicineBoxOutlined } from "@ant-design/icons";
 
-import { useIndividualInterpretations } from "./utils";
+import { individualPropTypesShape } from "@/propTypes";
+
 import "./explorer.css";
-import { individualPropTypesShape } from "../../propTypes";
+import { useIndividualInterpretations } from "./utils";
 import OntologyTerm from "./OntologyTerm";
-import { Route, Switch, useHistory, useParams, useRouteMatch } from "react-router-dom/cjs/react-router-dom.min";
 import { GeneDescriptor } from "./IndividualGenes";
 import VariantDescriptor from "./IndividualVariants";
 import BiosampleIDCell from "./searchResultsTables/BiosampleIDCell";
+import { RoutedIndividualContent } from "@/components/explorer/RoutedIndividualContent";
 
 
 export const VariantInterpretation = ({ variationInterpretation }) => {
@@ -118,13 +120,14 @@ const GENOMIC_INTERPRETATION_COLUMNS = [
     },
 ];
 
+const expandedGIRowRender = (gi) => (<GenomicInterpretationDetails genomicInterpretation={gi} />);
+
 const GenomicInterpretations = ({ genomicInterpretations, onGenomicInterpretationClick }) => {
     const { selectedGenomicInterpretation } = useParams();
-    const selectedRowKeys = useMemo(
+    const expandedRowKeys = useMemo(
         () => selectedGenomicInterpretation ? [selectedGenomicInterpretation] : [],
         [selectedGenomicInterpretation],
     );
-
 
     const onExpand = useCallback(
         (e, gi) => {
@@ -133,22 +136,13 @@ const GenomicInterpretations = ({ genomicInterpretations, onGenomicInterpretatio
         [onGenomicInterpretationClick],
     );
 
-    const giRowRender = useCallback(
-        (gi) => (<GenomicInterpretationDetails
-            genomicInterpretation={gi}
-        />),
-        [],
-    );
-
     return (
         <Table
             bordered={true}
             pagination={false}
             size="middle"
             columns={GENOMIC_INTERPRETATION_COLUMNS}
-            onExpand={onExpand}
-            expandedRowKeys={selectedRowKeys}
-            expandedRowRender={giRowRender}
+            expandable={{ onExpand, expandedRowKeys, expandedRowRender: expandedGIRowRender }}
             dataSource={genomicInterpretations}
             // GenomicInterpretation.id are PK integers, expandedRowKeys expects strings
             rowKey={(gi) => gi.id.toString()}
@@ -222,9 +216,13 @@ InterpretationDetail.propTypes = {
     interpretation: PropTypes.object,
 };
 
+const expandedInterpretationRowRender = (interpretation) => (
+    <InterpretationDetail interpretation={interpretation} />
+);
+
 const Interpretations = ({ individual, handleInterpretationClick }) => {
     const { selectedInterpretation } = useParams();
-    const selectedRowKeys = useMemo(
+    const expandedRowKeys = useMemo(
         () => selectedInterpretation ? [selectedInterpretation] : [],
         [selectedInterpretation],
     );
@@ -238,20 +236,13 @@ const Interpretations = ({ individual, handleInterpretationClick }) => {
         [handleInterpretationClick],
     );
 
-
     return (
         <Table
             bordered={true}
             pagination={false}
             size="middle"
             columns={INTERPRETATIONS_COLUMNS}
-            onExpand={onExpand}
-            expandedRowKeys={selectedRowKeys}
-            expandedRowRender={(interpretation) => (
-                <InterpretationDetail
-                    interpretation={interpretation}
-                />
-            )}
+            expandable={{ onExpand, expandedRowKeys, expandedRowRender: expandedInterpretationRowRender }}
             dataSource={interpretationsData}
             rowKey="id"
         />
@@ -262,32 +253,15 @@ Interpretations.propTypes = {
     handleInterpretationClick: PropTypes.func,
 };
 
-const IndividualInterpretations = ({ individual }) => {
-    const history = useHistory();
-    const match = useRouteMatch();
-
-    const handleInterpretationClick = useCallback((interpID) => {
-        if (!interpID) {
-            history.replace(match.url);
-            return;
-        }
-        history.replace(`${match.url}/${interpID}`);
-    }, [history, match]);
-
-    const interpretationsNode = (
-        <Interpretations
-            individual={individual}
-            handleInterpretationClick={handleInterpretationClick}
-        />
-    );
-
-    return (
-        <Switch>
-            <Route path={`${match.path}/:selectedInterpretation`}>{interpretationsNode}</Route>
-            <Route path={match.path} exact={true}>{interpretationsNode}</Route>
-        </Switch>
-    );
-};
+const IndividualInterpretations = ({ individual }) => (
+    <RoutedIndividualContent
+        data={individual}
+        urlParam="selectedInterpretation"
+        renderContent={({ onContentSelect }) => (
+            <Interpretations individual={individual} handleInterpretationClick={onContentSelect} />
+        )}
+    />
+);
 
 IndividualInterpretations.propTypes = {
     individual: individualPropTypesShape,
