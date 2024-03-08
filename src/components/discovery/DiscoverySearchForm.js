@@ -46,15 +46,17 @@ const conditionValidator = (rule, { field, fieldSchema, searchValue }) => {
 
     const transformedSearchValue = getSchemaTypeTransformer(fieldSchema.type)[1](searchValue);
     const isEnum = fieldSchema.hasOwnProperty("enum");
+    const isString = fieldSchema.type === "string";
 
     // noinspection JSCheckFunctionSignatures
     if (
         !VARIANT_OPTIONAL_FIELDS.includes(field) &&
         (transformedSearchValue === null ||
             (!isEnum && !transformedSearchValue) ||
+            (!isEnum && isString && !transformedSearchValue.trim()) ||  // Forbid whitespace-only free-text searches
             (isEnum && !fieldSchema.enum.includes(transformedSearchValue)))
     ) {
-        return Promise.reject(`This field is must have a value: ${field}`);
+        return Promise.reject(`This field must have a value: ${field}`);
     }
 
     return Promise.resolve();
