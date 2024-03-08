@@ -12,6 +12,14 @@ const Subject = ({ subject, groupsByID }) => {
 
     const { sub, client, iss, group, everyone } = subject;
 
+    /*
+    There are four possible configurations of a subject:
+     - { iss: "<issuer>", sub: "<subject>" } (1)
+     - { iss: "<issuer>", client: "<client ID>" } (2)
+     - { group: "<group ID>" } --> group itself contains either an expression or a list of (1) and/or (2)
+     - { everyone: true }
+     */
+
     if (sub || client) {
         return (
             <p style={{ margin: 0, lineHeight: "1.6em" }}>
