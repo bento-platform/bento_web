@@ -20,7 +20,6 @@ import {
     Form,
     Layout,
     Modal,
-    Result,
     Spin,
     Statistic,
     Tree,
@@ -28,47 +27,40 @@ import {
     Upload,
     message,
 } from "antd";
+import {
+    DeleteOutlined,
+    FileTextOutlined,
+    ImportOutlined,
+    InfoCircleOutlined,
+    PlusCircleOutlined,
+    UploadOutlined,
+} from "@ant-design/icons";
 
-import { LAYOUT_CONTENT_STYLE } from "../../styles/layoutContent";
+import { LAYOUT_CONTENT_STYLE } from "@/styles/layoutContent";
+
+import ActionContainer from "./ActionContainer";
 import DownloadButton from "../DownloadButton";
 import DropBoxTreeSelect from "./DropBoxTreeSelect";
 import FileModal from "../display/FileModal";
+import ForbiddenContent from "./ForbiddenContent";
 
-import { BENTO_DROP_BOX_FS_BASE_PATH } from "../../config";
+import { BENTO_DROP_BOX_FS_BASE_PATH } from "@/config";
 import { useStartIngestionFlow } from "./workflowCommon";
-import { testFileAgainstPattern } from "../../utils/files";
-import { getFalse } from "../../utils/misc";
+import { testFileAgainstPattern } from "@/utils/files";
+import { getFalse } from "@/utils/misc";
 import {
     beginDropBoxPuttingObjects,
     endDropBoxPuttingObjects,
     fetchDropBoxTreeOrFail,
     putDropBoxObject,
     deleteDropBoxObject,
-} from "../../modules/manager/actions";
+} from "@/modules/manager/actions";
 import { useFetchDropBoxContentsIfAllowed } from "./hooks";
 
 import { VIEWABLE_FILE_EXTENSIONS } from "../display/FileDisplay";
-import { useResourcePermissionsWrapper, useWorkflows } from "../../hooks";
-import {
-    DeleteOutlined,
-    FileTextOutlined,
-    ImportOutlined,
-    InfoCircleOutlined, PlusCircleOutlined,
-    UploadOutlined,
-} from "@ant-design/icons";
+import { useResourcePermissionsWrapper, useWorkflows } from "@/hooks";
 
 const DROP_BOX_CONTENT_CONTAINER_STYLE = { display: "flex", flexDirection: "column", gap: 8 };
-const DROP_BOX_ACTION_CONTAINER_STYLE = {
-    display: "flex",
-    gap: "12px",
-    alignItems: "baseline",
-    position: "sticky",
-    paddingBottom: 4,
-    backgroundColor: "white",
-    boxShadow: "0 10px 10px white, 0 -10px 0 white",
-    top: 8,
-    zIndex: 10,
-};
 const DROP_BOX_INFO_CONTAINER_STYLE = { display: "flex", gap: "2em", paddingTop: 8 };
 
 const TREE_CONTAINER_STYLE = { minHeight: 72, overflowY: "auto" };
@@ -488,11 +480,9 @@ const ManagerDropBoxContent = () => {
     const deleteDisabled = !dropBoxService || selectedFolder || selectedEntries.length !== 1 || !hasDeletePermission;
 
     if (hasAttemptedPermissions && !hasViewPermission) {
-        return <Layout>
-            <Layout.Content style={LAYOUT_CONTENT_STYLE}>
-                <Result status="error" title="Forbidden" subTitle="You do not have permission to view the drop box." />
-            </Layout.Content>
-        </Layout>;
+        return (
+            <ForbiddenContent message="You do not have permission to view the drop box." />
+        );
     }
 
     return <Layout>
@@ -545,7 +535,7 @@ const ManagerDropBoxContent = () => {
             {/* ------------------------------ End of modals section ------------------------------ */}
 
             <div style={DROP_BOX_CONTENT_CONTAINER_STYLE}>
-                <div style={DROP_BOX_ACTION_CONTAINER_STYLE}>
+                <ActionContainer>
                     <Button icon={<UploadOutlined />} onClick={handleUpload} disabled={uploadDisabled}>Upload</Button>
                     <Dropdown.Button menu={workflowMenu} disabled={ingestIntoDatasetDisabled} onClick={handleIngest}
                                      style={{ width: "auto" }}>
@@ -577,7 +567,7 @@ const ManagerDropBoxContent = () => {
                     <Typography.Text type="secondary" style={{ whiteSpace: "nowrap" }}>
                         {selectedEntries.length} item{selectedEntries.length === 1 ? "" : "s"} selected
                     </Typography.Text>
-                </div>
+                </ActionContainer>
 
                 <Spin spinning={isFetchingPermissions || treeLoading}>
                     {(isFetchingPermissions || treeLoading || dropBoxService) ? (

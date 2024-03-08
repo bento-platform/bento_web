@@ -2,6 +2,7 @@ import { combineReducers } from "redux";
 
 import {AuthReducer as auth, OIDCReducer as openIdConfiguration} from "bento-auth-js";
 
+import { grants, groups } from "./modules/authz/reducers";
 import {drs} from "./modules/drs/reducers";
 import {discovery} from "./modules/discovery/reducers";
 import { explorer, igvGenomes } from "./modules/explorer/reducers";
@@ -31,6 +32,10 @@ const rootReducer = combineReducers({
     auth,
     openIdConfiguration,
     user,
+
+    // Authz module
+    grants,
+    groups,
 
     // DRS module
     drs,
