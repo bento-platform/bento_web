@@ -6,10 +6,10 @@ import { viewDropBox, viewPermissions, RESOURCE_EVERYTHING, useResourcePermissio
 import { Menu, Skeleton } from "antd";
 
 import { SITE_NAME } from "@/constants";
-import { useFetchDropBoxContentsIfAllowed } from "./manager/hooks";
 import { matchingMenuKeys, transformMenuItem } from "@/utils/menu";
 
 import SitePageHeader from "./SitePageHeader";
+import { useFetchDropBoxContentsIfAllowed } from "./manager/hooks";
 
 const ManagerProjectDatasetContent = lazy(() => import("./manager/projects/ManagerProjectDatasetContent"));
 const ManagerAccessContent = lazy(() => import("./manager/access/ManagerAccessContent"));
@@ -82,16 +82,16 @@ const DataManagerContent = () => {
             />
             <Suspense fallback={<div style={styles.suspenseFallback}><Skeleton active /></div>}>
                 <Switch>
-                    <Route path="/admin/data/manager/projects" component={ManagerProjectDatasetContent} />
-                    <Route path="/admin/data/manager/access" component={ManagerAccessContent} />
-                    <Route exact path="/admin/data/manager/files" component={ManagerDropBoxContent} />
-                    <Route exact path="/admin/data/manager/ingestion" component={ManagerIngestionContent} />
-                    <Route exact path="/admin/data/manager/analysis" component={ManagerAnalysisContent} />
-                    <Route exact path="/admin/data/manager/workflows" component={ManagerWorkflowsContent} />
-                    <Route exact path="/admin/data/manager/drs" component={ManagerDRSContent} />
-                    <Route exact path="/admin/data/manager/genomes" component={ManagerReferenceGenomesContent} />
-                    <Route path="/admin/data/manager/runs" component={ManagerRunsContent} />
-                    <Redirect from="/admin/data/manager" to="/admin/data/manager/projects" />
+                    <Route path="/admin/data/manager/projects"><ManagerProjectDatasetContent /></Route>
+                    <Route path="/admin/data/manager/access"><ManagerAccessContent /></Route>
+                    <Route exact path="/admin/data/manager/files"><ManagerDropBoxContent /></Route>
+                    <Route exact path="/admin/data/manager/ingestion"><ManagerIngestionContent /></Route>
+                    <Route exact path="/admin/data/manager/analysis"><ManagerAnalysisContent /></Route>
+                    <Route exact path="/admin/data/manager/workflows"><ManagerWorkflowsContent /></Route>
+                    <Route exact path="/admin/data/manager/drs"><ManagerDRSContent /></Route>
+                    <Route exact path="/admin/data/manager/genomes"><ManagerReferenceGenomesContent /></Route>
+                    <Route path="/admin/data/manager/runs"><ManagerRunsContent /></Route>
+                    <Route path="/admin/data/manager" render={() => <Redirect to="/admin/data/manager/projects" />} />
                 </Switch>
             </Suspense>
         </>

@@ -1,17 +1,17 @@
-import React, {useCallback, useMemo} from "react";
-import {Redirect, Route, Switch} from "react-router-dom";
-import {useDispatch, useSelector} from "react-redux";
+import React, { useCallback, useMemo } from "react";
+import { Redirect, Route, Switch } from "react-router-dom";
+import { useDispatch, useSelector } from "react-redux";
 
-import {Button, Empty, Layout, Menu, Result, Typography} from "antd";
+import { Button, Empty, Layout, Menu, Result, Typography } from "antd";
 import { PlusOutlined } from "@ant-design/icons";
 
 import ProjectCreationModal from "./ProjectCreationModal";
 import ProjectSkeleton from "./ProjectSkeleton";
 import RoutedProject from "./RoutedProject";
 
-import {toggleProjectCreationModal as toggleProjectCreationModalAction} from "../../../modules/manager/actions";
-import {LAYOUT_CONTENT_STYLE} from "../../../styles/layoutContent";
-import {matchingMenuKeys, transformMenuItem} from "../../../utils/menu";
+import { toggleProjectCreationModal as toggleProjectCreationModalAction } from "@/modules/manager/actions";
+import { LAYOUT_CONTENT_STYLE } from "@/styles/layoutContent";
+import { matchingMenuKeys, transformMenuItem } from "@/utils/menu";
 
 
 const PROJECT_HELP_TEXT_STYLE = {
@@ -20,19 +20,19 @@ const PROJECT_HELP_TEXT_STYLE = {
     marginRight: "auto",
 };
 
-const SIDEBAR_STYLE = {background: "white"};
-const SIDEBAR_INNER_STYLE = {display: "flex", height: "100%", flexDirection: "column"};
-const SIDEBAR_MENU_STYLE = {flex: 1, paddingTop: "8px"};
-const SIDEBAR_BUTTON_CONTAINER = {borderRight: "1px solid #e8e8e8", padding: "24px"};
-const SIDEBAR_BUTTON_STYLE = {width: "100%"};
+const SIDEBAR_STYLE = { background: "white" };
+const SIDEBAR_INNER_STYLE = { display: "flex", height: "100%", flexDirection: "column" };
+const SIDEBAR_MENU_STYLE = { flex: 1, paddingTop: "8px" };
+const SIDEBAR_BUTTON_CONTAINER = { borderRight: "1px solid #e8e8e8", padding: "24px" };
+const SIDEBAR_BUTTON_STYLE = { width: "100%" };
 
 
 const ManagerProjectDatasetContent = () => {
     const dispatch = useDispatch();
 
-    const {items} = useSelector(state => state.projects);
-    const {isFetchingDependentData} = useSelector(state => state.user);
-    const {metadataService, isFetchingAll: isFetchingAllServices} = useSelector(state => state.services);
+    const { items } = useSelector(state => state.projects);
+    const { isFetchingDependentData } = useSelector(state => state.user);
+    const { metadataService, isFetchingAll: isFetchingAllServices} = useSelector(state => state.services);
 
     const projectMenuItems = useMemo(() => items.map(project => ({
         url: `/admin/data/manager/projects/${project.identifier}`,
@@ -102,9 +102,9 @@ const ManagerProjectDatasetContent = () => {
                 {/* TODO: Fix project datasets */}
                 {projectMenuItems.length > 0 ? (
                     <Switch>
-                        <Route path="/admin/data/manager/projects/:project" component={RoutedProject} />
-                        <Redirect from="/admin/data/manager/projects"
-                                  to={`/admin/data/manager/projects/${items[0].identifier}`} />
+                        <Route path="/admin/data/manager/projects/:project"><RoutedProject /></Route>
+                        <Route path="/admin/data/manager/projects"
+                               render={() => <Redirect to={`/admin/data/manager/projects/${items[0].identifier}`} />} />
                     </Switch>
                 ) : (
                     isFetchingDependentData ? (
