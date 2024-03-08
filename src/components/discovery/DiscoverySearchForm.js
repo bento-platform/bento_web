@@ -1,11 +1,10 @@
-import React, {Component} from "react";
+import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import PropTypes from "prop-types";
 
-import { Button, Dropdown, Tooltip } from "antd";
-import { Form } from "@ant-design/compatible";
+import { Button, Dropdown, Form, Tooltip } from "antd";
 import { PlusOutlined } from "@ant-design/icons";
 
-import {getFields, getFieldSchema} from "../../utils/schema";
+import {getFields, getFieldSchema} from "@/utils/schema";
 import {
     DEFAULT_SEARCH_PARAMETERS,
     OP_CASE_INSENSITIVE_CONTAINING,
@@ -13,7 +12,7 @@ import {
     OP_GREATER_THAN_OR_EQUAL,
     OP_LESS_THAN_OR_EQUAL,
     searchUiMappings,
-} from "../../utils/search";
+} from "@/utils/search";
 
 import DiscoverySearchCondition, {getSchemaTypeTransformer} from "./DiscoverySearchCondition";
 import VariantSearchHeader from "./VariantSearchHeader";
@@ -34,235 +33,102 @@ const VARIANT_OPTIONAL_FIELDS = [
     "[dataset item].reference",
 ];
 
-// noinspection JSUnusedGlobalSymbols
+const updateVariantConditions = (conditions, fieldName, searchValue) =>
+    conditions.map((c) =>
+        c.value.field === fieldName
+            ? {...c, value: { ...c.value, searchValue }}
+            : c);
+
+const conditionValidator = (rule, { field, fieldSchema, searchValue }) => {
+    if (field === undefined) {
+        return Promise.reject("A field must be specified for this search condition.");
+    }
+
+    const transformedSearchValue = getSchemaTypeTransformer(fieldSchema.type)[1](searchValue);
+    const isEnum = fieldSchema.hasOwnProperty("enum");
+    const isString = fieldSchema.type === "string";
+
+    // noinspection JSCheckFunctionSignatures
+    if (
+        !VARIANT_OPTIONAL_FIELDS.includes(field) &&
+        (transformedSearchValue === null ||
+            (!isEnum && !transformedSearchValue) ||
+            (!isEnum && isString && !transformedSearchValue.trim()) ||  // Forbid whitespace-only free-text searches
+            (isEnum && !fieldSchema.enum.includes(transformedSearchValue)))
+    ) {
+        return Promise.reject(`This field must have a value: ${field}`);
+    }
+
+    return Promise.resolve();
+};
+
 const CONDITION_RULES = [
-    {
-        validator: (rule, value, cb) => {
-            if (value.field === undefined) {
-                cb("A field must be specified for this search condition.");
-            }
-
-            const searchValue = getSchemaTypeTransformer(value.fieldSchema.type)[1](value.searchValue);
-            const isEnum = value.fieldSchema.hasOwnProperty("enum");
-
-            // noinspection JSCheckFunctionSignatures
-            if (
-                !VARIANT_OPTIONAL_FIELDS.includes(value.field) &&
-                (searchValue === null ||
-                    (!isEnum && !searchValue) ||
-                    (isEnum && !value.fieldSchema.enum.includes(searchValue)))
-            ) {
-                cb(`This field is required: ${searchValue}`);
-            }
-
-            cb();
-        },
-    },
-
+    { validator: conditionValidator },
 ];
 
+const CONDITION_LABEL_COL = {
+    lg: { span: 24 },
+    xl: { span: 4 },
+    xxl: { span: 3 },
+};
+const CONDITION_WRAPPER_COL = {
+    lg: { span: 24 },
+    xl: { span: 20 },
+    xxl: { span: 18 },
+};
+const ADD_CONDITION_WRAPPER_COL = {
+    xl: { span: 24 },
+    xxl: { offset: 3, span: 18 },
+};
 
-class DiscoverySearchForm extends Component {
-    constructor(props) {
-        super(props);
-
-        this.state = {
-            conditionsHelp: {},
-            fieldSchemas: {},
-            isVariantSearch: props.dataType.id === "variant",
-            isPhenopacketSearch: props.dataType.id === "phenopacket",
-        };
-        this.initialValues = {};
-
-        this.handleFieldChange = this.handleFieldChange.bind(this);
-        this.getDataTypeFieldSchema = this.getDataTypeFieldSchema.bind(this);
-        this.addCondition = this.addCondition.bind(this);
-        this.removeCondition = this.removeCondition.bind(this);
-        this.addVariantSearchValues = this.addVariantSearchValues.bind(this);
-    }
-
-    componentDidMount() {
-        // TODO: MAKE THIS WORK this.addCondition(); // Make sure there's one condition at least
-        if (this.props.form.getFieldValue("keys").length !== 0) return;
-
-        const requiredFields = this.props.dataType
-            ? getFields(this.props.dataType.schema).filter(
-                (f) => getFieldSchema(this.props.dataType.schema, f).search?.required ?? false,
-            )
-            : [];
-
-        const stateUpdates = this.state.isVariantSearch
-            ? VARIANT_REQUIRED_FIELDS
-                .concat(VARIANT_OPTIONAL_FIELDS)
-                .map((c) => this.addCondition(c, undefined, true))
-            // currently unused, since only variant search has required fields
-            : requiredFields.map((c) => this.addCondition(c, undefined, true));
-
-        // Add a single default condition if necessary
-        // if (requiredFields.length === 0 && this.props.conditionType !== "join") {
-        //     stateUpdates.push(this.addCondition(undefined, undefined, true));
-        // }
-
-        this.setState({
-            ...stateUpdates.reduce((acc, v) => ({
-                ...acc, conditionsHelp: {...(acc.conditionsHelp ?? {}), ...(v.conditionsHelp ?? {})},
-            }), {}),
-        });
-    }
-
-    handleFieldChange(k, change) {
-        this.setState({
-            conditionsHelp: {
-                ...this.state.conditionsHelp,
-                [k]: change.fieldSchema.description ?? undefined,
-            },
-        });
-    }
+const conditionLabel = (i) => `Condition ${i + 1}`;
 
 
-    removeCondition(k) {
-        this.props.form.setFieldsValue({
-            keys: this.props.form.getFieldValue("keys").filter(key => key !== k),
-        });
-    }
+const PhenopacketDropdownOption = ({ option: { path, ui_name: uiName }, getDataTypeFieldSchema }) => (
+    <Tooltip title={getDataTypeFieldSchema(`[dataset item].${path}`).description}
+             mouseEnterDelay={TOOLTIP_DELAY_SECONDS}>
+        {uiName}
+    </Tooltip>
+);
+PhenopacketDropdownOption.propTypes = {
+    option: PropTypes.shape({
+        path: PropTypes.string,
+        ui_name: PropTypes.string,
+    }),
+    getDataTypeFieldSchema: PropTypes.func,
+};
 
-    getDataTypeFieldSchema(field) {
-        const fs = field ? getFieldSchema(this.props.dataType.schema, field) : {};
+
+const DiscoverySearchForm = ({ onChange, dataType, formValues, setFormRef, handleVariantHiddenFieldChange }) => {
+    const [form] = Form.useForm();
+
+    useEffect(() => {
+        if (setFormRef) setFormRef(form);
+    }, [form, setFormRef]);
+
+    const [conditionsHelp, setConditionsHelp] = useState({});
+    const initialValues = useRef({});
+
+    const isPhenopacketSearch = dataType.id === "phenopacket";
+    const isVariantSearch = dataType.id === "variant";
+
+    const getDataTypeFieldSchema = useCallback((field) => {
+        const fs = field ? getFieldSchema(dataType.schema, field) : {};
         return {
             ...fs,
-            search: {
-                ...DEFAULT_SEARCH_PARAMETERS,
-                ...(fs.search ?? {}),
-            },
+            search: { ...DEFAULT_SEARCH_PARAMETERS, ...(fs.search ?? {}) },
         };
-    }
+    }, [dataType]);
 
-    addCondition(field = undefined, field2 = undefined, didMount = false) {
-        const conditionType = this.props.conditionType ?? "data-type";
-
-        // new key either 0 or max key value + 1
-        const oldKeys = this.props.form.getFieldValue("keys") ?? [];
-        const newKey = oldKeys.length ? oldKeys.reduce((a, b) => Math.max(a, b), 0) + 1 : 0;
-
-        // TODO: What if operations is an empty list?
-
-        const fieldSchema = conditionType === "data-type"
-            ? this.getDataTypeFieldSchema(field)
-            : {search: {...DEFAULT_SEARCH_PARAMETERS}};  // Join search conditions have all operators "available" TODO
-
-        const stateUpdate = {
-            conditionsHelp: {
-                ...this.state.conditionsHelp,
-                [newKey]: fieldSchema.description ?? undefined,
-            },
-        };
-
-        if (!didMount) this.setState(stateUpdate);  // Won't fire properly in componentDidMount
-
-        this.initialValues = {
-            ...this.initialValues,
-            [`conditions[${newKey}]`]: {
-                field,
-                ...(conditionType === "data-type" ? {} : {field2}),
-                fieldSchema,
-                negated: false,
-                operation:  this.getInitialOperator(field, fieldSchema),
-                ...(conditionType === "data-type" ? {searchValue: ""} : {}),
-            },
-        };
-
-        // Initialize new condition, otherwise the state won't get it
-        this.props.form.getFieldDecorator(`conditions[${newKey}]`, {
-            initialValue: this.initialValues[`conditions[${newKey}]`],
-            validateTrigger: false,  // only when called manually
-            rules: CONDITION_RULES,
+    const updateHelpFromFieldChange = useCallback((k, change) => {
+        setConditionsHelp({
+            ...conditionsHelp,
+            [k]: change.fieldSchema.description,  // can be undefined
         });
+    }, [conditionsHelp]);
 
-        this.props.form.setFieldsValue({
-            keys: this.props.form.getFieldValue("keys").concat(newKey),
-        });
-
-        return stateUpdate;
-    }
-
-    cannotBeUsed(fieldString) {
-        if (this.props.conditionType === "join") return;
-        const fs = getFieldSchema(this.props.dataType.schema, fieldString);
-        return fs.search?.type === "single";
-    }
-
-    isNotPublic(fieldString) {
-        if (this.props.conditionType === "join") return;
-        const fs = getFieldSchema(this.props.dataType.schema, fieldString);
-        return ["internal", "none"].includes(fs.search?.queryable);
-    }
-
-    // methods for user-friendly variant search
-
-    updateConditions = (conditions, fieldName, newValue) =>
-        conditions.map((c) =>
-            c.value.field === fieldName ? {...c, value: {...c.value, searchValue: newValue}} : c);
-
-    // fill hidden variant forms according to input in user-friendly variant search
-    addVariantSearchValues = (values) => {
-        const {assemblyId, chrom, start, end, genotypeType, ref, alt } = values;
-        const fields = this.props.formValues;
-        let updatedConditionsArray = fields?.conditions;
-
-        if (updatedConditionsArray === undefined) {
-            return;
-        }
-
-        // some fields may be undefined, so check for key names, not values
-
-        if (values.hasOwnProperty("assemblyId")) {
-            updatedConditionsArray = this.updateConditions(
-                updatedConditionsArray,
-                "[dataset item].assembly_id",
-                assemblyId,
-            );
-        }
-
-        if (values.hasOwnProperty("chrom") && values.hasOwnProperty("start") && values.hasOwnProperty("end")) {
-            updatedConditionsArray = this.updateConditions(updatedConditionsArray, "[dataset item].chromosome", chrom);
-            updatedConditionsArray = this.updateConditions(updatedConditionsArray, "[dataset item].start", start);
-            updatedConditionsArray = this.updateConditions(updatedConditionsArray, "[dataset item].end", end);
-        }
-
-        if (values.hasOwnProperty("genotypeType")) {
-            updatedConditionsArray = this.updateConditions(
-                updatedConditionsArray,
-                "[dataset item].calls.[item].genotype_type",
-                genotypeType,
-            );
-        }
-
-        if (values.hasOwnProperty("ref")) {
-            updatedConditionsArray = this.updateConditions(updatedConditionsArray, "[dataset item].reference", ref);
-        }
-
-        if (values.hasOwnProperty("alt")) {
-            updatedConditionsArray = this.updateConditions(updatedConditionsArray, "[dataset item].alternative", alt);
-        }
-
-        const updatedFields = {
-            keys: fields.keys,
-            conditions: updatedConditionsArray,
-        };
-
-        this.props.handleVariantHiddenFieldChange(updatedFields);
-    };
-
-    getLabel = (i) => {
-        return `Condition ${i + 1}`;
-    };
-
-    getHelpText = (key) => {
-        return this.state.isVariantSearch ? "" : this.state.conditionsHelp[key] ?? undefined;
-    };
-
-    getInitialOperator = (field, fieldSchema) => {
-        if (!this.state.isVariantSearch) {
+    const getInitialOperator = useCallback((field, fieldSchema) => {
+        if (!isVariantSearch) {
             return fieldSchema?.search?.operations?.includes(OP_CASE_INSENSITIVE_CONTAINING)
                 ? OP_CASE_INSENSITIVE_CONTAINING
                 : OP_EQUALS;
@@ -275,13 +141,121 @@ class DiscoverySearchForm extends Component {
             case "[dataset item].end":
                 return OP_LESS_THAN_OR_EQUAL;
 
-          // assemblyID, chromosome, genotype, ref, alt
+            // assemblyID, chromosome, genotype, ref, alt
             default:
                 return OP_EQUALS;
         }
-    };
+    }, [isVariantSearch]);
 
-    phenopacketsSearchOptions = () => {
+    const getConditionsArray = useCallback(() => form.getFieldValue("conditions") ?? [], [form]);
+
+    const addCondition = useCallback((field = undefined) => {
+        const existingConditions = getConditionsArray();
+
+        const fieldSchema = getDataTypeFieldSchema(field);
+
+        const newKey = existingConditions.length;
+        updateHelpFromFieldChange(newKey, { fieldSchema });
+
+        const fieldInitialValue = {
+            field,
+            fieldSchema,
+            negated: false,
+            operation:  getInitialOperator(field, fieldSchema),
+            searchValue: "",
+        };
+
+        initialValues.current = {
+            ...initialValues.current,
+            conditions: [...(initialValues.current.conditions ?? []), fieldInitialValue],
+        };
+
+        form.setFieldsValue({
+            conditions: [...existingConditions, fieldInitialValue],
+        });
+
+    }, [conditionsHelp, getConditionsArray]);
+
+    const removeCondition = useCallback((k) => {
+        form.setFieldsValue({
+            conditions: getConditionsArray().filter((_, i) => k !== i),
+        });
+    }, [form, getConditionsArray]);
+
+    const cannotBeUsed = useCallback(
+        (fieldString) => getFieldSchema(dataType.schema, fieldString).search?.type === "single",
+        [dataType]);
+
+    // On initial component mounting, add required fields (or for variants, add all fields) to the form if no conditions
+    // have already been added.
+    useEffect(() => {
+        if (getConditionsArray().length !== 0) return;
+
+        const requiredFields = dataType
+            ? getFields(dataType.schema).filter(
+                (f) => getFieldSchema(dataType.schema, f).search?.required ?? false)
+            : [];
+
+        isVariantSearch
+            ? [...VARIANT_REQUIRED_FIELDS, ...VARIANT_OPTIONAL_FIELDS].map((c) => addCondition(c))
+            // currently unused, since only variant search has required fields:
+            : requiredFields.map((c) => addCondition(c));
+    }, []);
+
+    // methods for user-friendly variant search
+
+    // fill hidden variant forms according to input in user-friendly variant search
+    const addVariantSearchValues = useCallback((values) => {
+        const { assemblyId, chrom, start, end, genotypeType, ref, alt } = values;
+
+        let updatedConditionsArray = formValues?.conditions;
+
+        if (updatedConditionsArray === undefined) {
+            return;
+        }
+
+        // some fields may be undefined, so check for key names, not values
+
+        if (values.hasOwnProperty("assemblyId")) {
+            updatedConditionsArray = updateVariantConditions(
+                updatedConditionsArray, "[dataset item].assembly_id", assemblyId);
+        }
+
+        if (values.hasOwnProperty("chrom") && values.hasOwnProperty("start") && values.hasOwnProperty("end")) {
+            updatedConditionsArray = updateVariantConditions(
+                updatedConditionsArray, "[dataset item].chromosome", chrom);
+            updatedConditionsArray = updateVariantConditions(updatedConditionsArray, "[dataset item].start", start);
+            updatedConditionsArray = updateVariantConditions(updatedConditionsArray, "[dataset item].end", end);
+        }
+
+        if (values.hasOwnProperty("genotypeType")) {
+            updatedConditionsArray = updateVariantConditions(
+                updatedConditionsArray, "[dataset item].calls.[item].genotype_type", genotypeType);
+        }
+
+        if (values.hasOwnProperty("ref")) {
+            updatedConditionsArray = updateVariantConditions(updatedConditionsArray, "[dataset item].reference", ref);
+        }
+
+        if (values.hasOwnProperty("alt")) {
+            updatedConditionsArray = updateVariantConditions(
+                updatedConditionsArray, "[dataset item].alternative", alt);
+        }
+
+        handleVariantHiddenFieldChange({
+            conditions: updatedConditionsArray,
+        });
+    }, [formValues, handleVariantHiddenFieldChange]);
+
+    const getHelpText = useCallback(
+        (key) => isVariantSearch ? "" : conditionsHelp[key] ?? undefined,
+        [isVariantSearch, conditionsHelp]);
+
+    const addConditionFromDropdown = useCallback(
+        ({ key }) => addCondition(`[dataset item].${key}`),
+        [addCondition]);
+
+    const phenopacketsSearchOptions = useMemo(() => {
         const phenopacketSearchOptions = searchUiMappings.phenopacket;
         const subjectOptions = Object.values(phenopacketSearchOptions.subject);
         const phenotypicFeaturesOptions = Object.values(phenopacketSearchOptions.phenotypic_features);
@@ -291,32 +265,16 @@ class DiscoverySearchForm extends Component {
         const measurementsOptions = Object.values(phenopacketSearchOptions.measurements);
         const medicalActionsOptions = Object.values(phenopacketSearchOptions.medical_actions);
 
-        // eslint-disable-next-line react/prop-types
-        const DropdownOption = ({option: {path, ui_name: uiName}}) => {
-            const schema = this.getDataTypeFieldSchema(`[dataset item].${path}`);
-            return (
-                <Tooltip title={schema.description} mouseEnterDelay={TOOLTIP_DELAY_SECONDS}>
-                    {uiName}
-                </Tooltip>
-            );
-        };
-        DropdownOption.propTypes = {
-            option: PropTypes.shape({
-                path: PropTypes.string,
-                ui_name: PropTypes.string,
-            }),
-        };
-
         const optionsMenuItems = (options) =>
             options.map((o) => ({
                 key: o.path,
-                label: <DropdownOption option={o} />,
+                label: <PhenopacketDropdownOption option={o} getDataTypeFieldSchema={getDataTypeFieldSchema} />,
             }));
 
         // longest title padded with marginRight
         return {
             style: { display: "inline-block" },
-            onClick: this.addConditionFromPulldown,
+            onClick: addConditionFromDropdown,
             items: [
                 {
                     key: "subject",
@@ -355,108 +313,78 @@ class DiscoverySearchForm extends Component {
                 },
             ],
         };
-    };
+    }, [getDataTypeFieldSchema]);
 
-    addConditionFromPulldown = ({ key }) => {
-        this.addCondition("[dataset item]." + key);
-    };
+    const existingUniqueFields = useMemo(
+        () =>
+            getConditionsArray()
+                .map(({ field: f }) => f)
+                .filter((f) => f !== undefined && cannotBeUsed(f)),
+        [getConditionsArray, cannotBeUsed]);
 
-    render() {
-        const getCondition = (ck) => this.props.form.getFieldValue(`conditions[${ck}]`);
-
-        this.props.form.getFieldDecorator("keys", { initialValue: [] }); // Initialize keys if needed
-        const keys = this.props.form.getFieldValue("keys");
-        const existingUniqueFields = keys
-            .filter((k) => k !== undefined)
-            .map((k) => getCondition(k).field)
-            .filter((f) => f !== undefined && this.cannotBeUsed(f));
-
-        const formItems = keys.map((k, i) => (
-            <Form.Item
-                key={k}
-                labelCol={{
-                    lg: { span: 24 },
-                    xl: { span: 4 },
-                    xxl: { span: 3 },
-                }}
-                wrapperCol={{
-                    lg: { span: 24 },
-                    xl: { span: 20 },
-                    xxl: { span: 18 },
-                }}
-                label={this.getLabel(i)}
-                help={this.getHelpText(k)}
-            >
-                {this.props.form.getFieldDecorator(`conditions[${k}]`, {
-                    initialValue: this.initialValues[`conditions[${k}]`],
-                    validateTrigger: false, // only when called manually
-                    rules: CONDITION_RULES,
-                })(
-                    <DiscoverySearchCondition
-                        conditionType={this.props.conditionType ?? "data-type"}
-                        dataType={this.props.dataType}
-                        isExcluded={(f) =>
-                            existingUniqueFields.includes(f) || (!this.props.isInternal && this.isNotPublic(f))
+    return (
+        <Form form={form} onFieldsChange={(_, allFields) => onChange([...allFields])}>
+            {isVariantSearch ? (
+                <VariantSearchHeader addVariantSearchValues={addVariantSearchValues} dataType={dataType} />
+            ) : (
+                <>
+                    <Form.List name="conditions">
+                        {
+                            /** @return React.ReactNode[] */
+                            (fields) => (
+                                fields.map((field, i) => (
+                                    <Form.Item
+                                        key={field.key}
+                                        {...field}
+                                        labelCol={CONDITION_LABEL_COL}
+                                        wrapperCol={CONDITION_WRAPPER_COL}
+                                        label={conditionLabel(i)}
+                                        help={getHelpText(i)}
+                                        initialValue={initialValues.current?.conditions?.[i]}
+                                        rules={CONDITION_RULES}
+                                    >
+                                        <DiscoverySearchCondition
+                                            dataType={dataType}
+                                            isExcluded={(f) => existingUniqueFields.includes(f)}
+                                            onFieldChange={(change) => updateHelpFromFieldChange(i, change)}
+                                            onRemoveClick={() => removeCondition(i)}
+                                        />
+                                    </Form.Item>
+                                ))
+                            )
                         }
-                        onFieldChange={(change) => this.handleFieldChange(k, change)}
-                        onRemoveClick={() => this.removeCondition(k)}
-                        removeDisabled={false}
-                    />,
-                )}
-            </Form.Item>
-        ));
-
-        return (
-            <Form onSubmit={this.onSubmit}>
-                {this.props.dataType.id === "variant" && (
-                    <VariantSearchHeader
-                        addVariantSearchValues={this.addVariantSearchValues}
-                        dataType={this.props.dataType}
-                    />
-                )}
-                {this.state.isVariantSearch ? [] : formItems}
-                <Form.Item
-                    wrapperCol={{
-                        xl: { span: 24 },
-                        xxl: { offset: 3, span: 18 },
-                    }}
-                >
-                    {this.state.isVariantSearch ? (
-                        <></>
-                    ) : this.state.isPhenopacketSearch ? (
-                        <Dropdown menu={this.phenopacketsSearchOptions()} placement="bottom" trigger={["click"]}>
-                            <Button type="dashed" style={{ width: "100%" }}>
-                                <PlusOutlined /> Add condition
+                    </Form.List>
+                    <Form.Item wrapperCol={ADD_CONDITION_WRAPPER_COL}>
+                        {isPhenopacketSearch ? (
+                            <Dropdown menu={phenopacketsSearchOptions}
+                                      placement="bottom"
+                                      trigger={["click"]}>
+                                <Button type="dashed" style={{ width: "100%" }} icon={<PlusOutlined />}>
+                                    Add condition
+                                </Button>
+                            </Dropdown>
+                        ) : (
+                            <Button type="dashed"
+                                    onClick={() => addCondition()}
+                                    style={{ width: "100%" }}
+                                    icon={<PlusOutlined />}>
+                                Add condition
                             </Button>
-                        </Dropdown>
-                    ) : (
-                        <Button type="dashed" onClick={() => this.addCondition()} style={{ width: "100%" }}>
-                            <PlusOutlined /> Add condition
-                        </Button>
-                    )}
-                </Form.Item>
-            </Form>
-        );
-    }
-}
+                        )}
+                    </Form.Item>
+                </>
+            )}
+        </Form>
+    );
+};
 
 DiscoverySearchForm.propTypes = {
     form: PropTypes.object,
-    conditionType: PropTypes.oneOf(["data-type", "join"]),
+    onChange: PropTypes.func,
     dataType: PropTypes.object,  // TODO: Shape?
-    isInternal: PropTypes.bool,
-    formValues: PropTypes.object,
-    handleVariantHiddenFieldChange: PropTypes.func,
+    formValues: PropTypes.arrayOf(PropTypes.object),
+    setFormRef: PropTypes.func,
+    handleVariantHiddenFieldChange: PropTypes.func.isRequired,
 };
 
-export default Form.create({
-    mapPropsToFields: ({formValues}) => ({
-        keys: Form.createFormField({...formValues.keys}),
-        ...Object.assign({}, ...(formValues["conditions"] ?? [])
-            .filter(c => c !== null)  // TODO: Why does this happen?
-            .map(c => ({[c.name]: Form.createFormField({...c})}))),
-    }),
-    onFieldsChange: ({onChange}, _, allFields) => {
-        onChange({...allFields});
-    },
-})(DiscoverySearchForm);
+export default DiscoverySearchForm;
