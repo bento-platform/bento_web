@@ -4,6 +4,7 @@ import PropTypes from "prop-types";
 import { Typography } from "antd";
 
 const PERMISSIONS_LIST_STYLE = { margin: 0, padding: 0, listStyle: "none", lineHeight: "1.6em" };
+const MAX_COLLAPSED_PERMISSIONS = 4;
 
 /**
  * @param {string[]} permissions
@@ -33,16 +34,20 @@ const PermissionsList = ({ permissions }) => {
 
     return (
         <ul style={PERMISSIONS_LIST_STYLE}>
-            {sortedPermissions.slice(0, showAll ? sortedPermissions.length : 4).map((p) => (
+            {sortedPermissions.slice(0, showAll ? sortedPermissions.length : MAX_COLLAPSED_PERMISSIONS).map((p) => (
                 <li key={p}>
                     <Typography.Text code={true}>{p}</Typography.Text>
                 </li>
             ))}
-            {sortedPermissions.length > 4 ? (
+            {sortedPermissions.length > MAX_COLLAPSED_PERMISSIONS ? (
                 showAll ? (
                     <li><a href="#" onClick={onCollapse}>- Collapse</a></li>
                 ) : (
-                    <li><a href="#" onClick={onShowAll}>+ {sortedPermissions.length - 4} more</a></li>
+                    <li>
+                        <a href="#" onClick={onShowAll}>
+                            + {sortedPermissions.length - MAX_COLLAPSED_PERMISSIONS} more
+                        </a>
+                    </li>
                 )
             ) : null}
         </ul>
