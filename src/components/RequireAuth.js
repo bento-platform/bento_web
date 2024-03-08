@@ -2,12 +2,7 @@ import React from "react";
 import { useSelector } from "react-redux";
 import PropTypes from "prop-types";
 
-import {
-    useAutoAuthenticate,
-    useIsAuthenticated,
-    usePerformAuth,
-    usePerformSignOut,
-} from "bento-auth-js";
+import { useAutoAuthenticate, useIsAuthenticated, usePerformAuth } from "bento-auth-js";
 
 import { Button, Empty, Layout } from "antd";
 import { LoginOutlined } from "@ant-design/icons";
@@ -30,12 +25,13 @@ const RequireAuth = ({ children }) => {
     const { isAutoAuthenticating } = useAutoAuthenticate();
     const isAuthenticated = useIsAuthenticated();
     const performAuth = usePerformAuth();
-    const performSignOut = usePerformSignOut();
 
     if (openIdConfigFetching || isAutoAuthenticating) {
         return <SitePageLoading />;
     }
 
+    // If we are already authenticated, this component transparently renders its children. Otherwise, it presents an
+    // info screen requesting that the user signs in.
     return isAuthenticated ? children : (
         <Layout.Content style={styles.layout}>
             <Empty
@@ -43,13 +39,9 @@ const RequireAuth = ({ children }) => {
                 imageStyle={styles.emptyImage}
                 description="You must sign into this node to access this page."
             >
-                {isAuthenticated ? (
-                    <Button onClick={performSignOut}>Sign Out</Button>
-                ) : (
-                    <Button type="primary" loading={openIdConfigFetching} onClick={performAuth}>
-                        Sign In
-                    </Button>
-                )}
+                <Button type="primary" loading={openIdConfigFetching} onClick={performAuth}>
+                    Sign In
+                </Button>
             </Empty>
         </Layout.Content>
     );
