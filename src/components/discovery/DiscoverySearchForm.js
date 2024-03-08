@@ -39,31 +39,31 @@ const updateVariantConditions = (conditions, fieldName, searchValue) =>
             ? {...c, value: { ...c.value, searchValue }}
             : c);
 
-// noinspection JSUnusedGlobalSymbols
+const conditionValidator = (rule, { field, fieldSchema, searchValue }) => {
+    if (field === undefined) {
+        return Promise.reject("A field must be specified for this search condition.");
+    }
+
+    const transformedSearchValue = getSchemaTypeTransformer(fieldSchema.type)[1](searchValue);
+    const isEnum = fieldSchema.hasOwnProperty("enum");
+    const isString = fieldSchema.type === "string";
+
+    // noinspection JSCheckFunctionSignatures
+    if (
+        !VARIANT_OPTIONAL_FIELDS.includes(field) &&
+        (transformedSearchValue === null ||
+            (!isEnum && !transformedSearchValue) ||
+            (!isEnum && isString && !transformedSearchValue.trim()) ||  // Forbid whitespace-only free-text searches
+            (isEnum && !fieldSchema.enum.includes(transformedSearchValue)))
+    ) {
+        return Promise.reject(`This field must have a value: ${field}`);
+    }
+
+    return Promise.resolve();
+};
+
 const CONDITION_RULES = [
-    {
-        validator: (rule, value) => new Promise((resolve, reject) => {
-            if (value.field === undefined) {
-                reject("A field must be specified for this search condition.");
-            }
-
-            const searchValue = getSchemaTypeTransformer(value.fieldSchema.type)[1](value.searchValue);
-            const isEnum = value.fieldSchema.hasOwnProperty("enum");
-
-            // noinspection JSCheckFunctionSignatures
-            if (
-                !VARIANT_OPTIONAL_FIELDS.includes(value.field) &&
-                (searchValue === null ||
-                    (!isEnum && !searchValue) ||
-                    (isEnum && !value.fieldSchema.enum.includes(searchValue)))
-            ) {
-                reject(`This field is required: ${searchValue}`);
-            }
-
-            resolve();
-        }),
-    },
-
+    { validator: conditionValidator },
 ];
 
 const CONDITION_LABEL_COL = {
@@ -75,6 +75,10 @@ const CONDITION_WRAPPER_COL = {
     lg: { span: 24 },
     xl: { span: 20 },
     xxl: { span: 18 },
+};
+const ADD_CONDITION_WRAPPER_COL = {
+    xl: { span: 24 },
+    xxl: { offset: 3, span: 18 },
 };
 
 const conditionLabel = (i) => `Condition ${i + 1}`;
@@ -143,12 +147,14 @@ const DiscoverySearchForm = ({ onChange, dataType, formValues, setFormRef, handl
         }
     }, [isVariantSearch]);
 
+    const getConditionsArray = useCallback(() => form.getFieldValue("conditions") ?? [], [form]);
+
     const addCondition = useCallback((field = undefined) => {
-        const existingConditions = form.getFieldValue("conditions") ?? [];
-        const newKey = existingConditions.length;
+        const existingConditions = getConditionsArray();
 
         const fieldSchema = getDataTypeFieldSchema(field);
 
+        const newKey = existingConditions.length;
         updateHelpFromFieldChange(newKey, { fieldSchema });
 
         const fieldInitialValue = {
@@ -168,20 +174,22 @@ const DiscoverySearchForm = ({ onChange, dataType, formValues, setFormRef, handl
             conditions: [...existingConditions, fieldInitialValue],
         });
 
-    }, [conditionsHelp]);
+    }, [conditionsHelp, getConditionsArray]);
 
     const removeCondition = useCallback((k) => {
         form.setFieldsValue({
-            conditions: (form.getFieldValue("conditions") ?? []).filter((_, i) => k !== i),
+            conditions: getConditionsArray().filter((_, i) => k !== i),
         });
-    }, [form]);
+    }, [form, getConditionsArray]);
 
     const cannotBeUsed = useCallback(
         (fieldString) => getFieldSchema(dataType.schema, fieldString).search?.type === "single",
         [dataType]);
 
+    // On initial component mounting, add required fields (or for variants, add all fields) to the form if no conditions
+    // have already been added.
     useEffect(() => {
-        if ((form.getFieldValue("conditions") ?? []).length !== 0) return;
+        if (getConditionsArray().length !== 0) return;
 
         const requiredFields = dataType
             ? getFields(dataType.schema).filter(
@@ -189,10 +197,8 @@ const DiscoverySearchForm = ({ onChange, dataType, formValues, setFormRef, handl
             : [];
 
         isVariantSearch
-            ? VARIANT_REQUIRED_FIELDS
-                .concat(VARIANT_OPTIONAL_FIELDS)
-                .map((c) => addCondition(c))
-            // currently unused, since only variant search has required fields
+            ? [...VARIANT_REQUIRED_FIELDS, ...VARIANT_OPTIONAL_FIELDS].map((c) => addCondition(c))
+            // currently unused, since only variant search has required fields:
             : requiredFields.map((c) => addCondition(c));
     }, []);
 
@@ -309,24 +315,24 @@ const DiscoverySearchForm = ({ onChange, dataType, formValues, setFormRef, handl
         };
     }, [getDataTypeFieldSchema]);
 
-    const existingUniqueFields = (form.getFieldValue("conditions") ?? [])
-        .map(({ field }) => field)
-        .filter((f) => f !== undefined && cannotBeUsed(f));
+    const existingUniqueFields = useMemo(
+        () =>
+            getConditionsArray()
+                .map(({ field: f }) => f)
+                .filter((f) => f !== undefined && cannotBeUsed(f)),
+        [getConditionsArray, cannotBeUsed]);
 
     return (
-        <Form form={form} onFieldsChange={(_, allFields) => onChange({...allFields})}>
+        <Form form={form} onFieldsChange={(_, allFields) => onChange([...allFields])}>
             {isVariantSearch ? (
-                <VariantSearchHeader
-                    addVariantSearchValues={addVariantSearchValues}
-                    dataType={dataType}
-                />
+                <VariantSearchHeader addVariantSearchValues={addVariantSearchValues} dataType={dataType} />
             ) : (
                 <>
                     <Form.List name="conditions">
                         {
                             /** @return React.ReactNode[] */
-                            (fields) => {
-                                return fields.map((field, i) => (
+                            (fields) => (
+                                fields.map((field, i) => (
                                     <Form.Item
                                         key={field.key}
                                         {...field}
@@ -334,7 +340,7 @@ const DiscoverySearchForm = ({ onChange, dataType, formValues, setFormRef, handl
                                         wrapperCol={CONDITION_WRAPPER_COL}
                                         label={conditionLabel(i)}
                                         help={getHelpText(i)}
-                                        initialValue={initialValues.current.conditions[i]}
+                                        initialValue={initialValues.current?.conditions?.[i]}
                                         rules={CONDITION_RULES}
                                     >
                                         <DiscoverySearchCondition
@@ -344,17 +350,11 @@ const DiscoverySearchForm = ({ onChange, dataType, formValues, setFormRef, handl
                                             onRemoveClick={() => removeCondition(i)}
                                         />
                                     </Form.Item>
-                                ));
-                            }
+                                ))
+                            )
                         }
                     </Form.List>
-                    {/*{formItems}*/}
-                    <Form.Item
-                        wrapperCol={{
-                            xl: { span: 24 },
-                            xxl: { offset: 3, span: 18 },
-                        }}
-                    >
+                    <Form.Item wrapperCol={ADD_CONDITION_WRAPPER_COL}>
                         {isPhenopacketSearch ? (
                             <Dropdown menu={phenopacketsSearchOptions}
                                       placement="bottom"
@@ -382,7 +382,7 @@ DiscoverySearchForm.propTypes = {
     form: PropTypes.object,
     onChange: PropTypes.func,
     dataType: PropTypes.object,  // TODO: Shape?
-    formValues: PropTypes.object,
+    formValues: PropTypes.arrayOf(PropTypes.object),
     setFormRef: PropTypes.func,
     handleVariantHiddenFieldChange: PropTypes.func.isRequired,
 };

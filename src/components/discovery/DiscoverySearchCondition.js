@@ -5,8 +5,8 @@ import { Button, Input, Select } from "antd";
 import { CloseOutlined } from "@ant-design/icons";
 
 import SchemaTreeSelect from "../schema_trees/SchemaTreeSelect";
-import {constFn, id, nop} from "@/utils/misc";
-import {DEFAULT_SEARCH_PARAMETERS, OP_EQUALS, OPERATION_TEXT} from "@/utils/search";
+import { constFn, id, nop } from "@/utils/misc";
+import { DEFAULT_SEARCH_PARAMETERS, OP_EQUALS, OPERATION_TEXT } from "@/utils/search";
 
 
 const BOOLEAN_OPTIONS = ["true", "false"];
@@ -52,24 +52,20 @@ const DEFAULT_FIELD_SCHEMA = {
     search: {...DEFAULT_SEARCH_PARAMETERS},
 };
 
+const fieldStateWithDefaults = ({ field, fieldSchema, negated, operation, searchValue }) => ({
+    field: field ?? undefined,
+    fieldSchema: fieldSchema ?? DEFAULT_FIELD_SCHEMA,
+    negated: negated ?? false,
+    operation: operation ?? OP_EQUALS,
+    searchValue: searchValue ?? "",
+});
+
 const DiscoverySearchCondition = ({ dataType, value, onChange, onFieldChange, isExcluded, onRemoveClick }) => {
-    const [fieldState, setFieldState] = useState({
-        field: value.field ?? undefined,
-        fieldSchema: value.fieldSchema ?? DEFAULT_FIELD_SCHEMA,
-        negated: value.negated ?? false,
-        operation: value.operation ?? OP_EQUALS,
-        searchValue: value.searchValue ?? "",
-    });
+    const [fieldState, setFieldState] = useState(fieldStateWithDefaults(value));
 
     useEffect(() => {
         if (value) {
-            setFieldState({
-                field: value.field ?? undefined,
-                fieldSchema: value.fieldSchema ?? DEFAULT_FIELD_SCHEMA,
-                negated: value.negated ?? false,
-                operation: value.operation ?? OP_EQUALS,
-                searchValue: value.searchValue ?? "",
-            });
+            setFieldState(fieldStateWithDefaults(value));
         }
     }, [value]);
 
@@ -81,26 +77,31 @@ const DiscoverySearchCondition = ({ dataType, value, onChange, onFieldChange, is
 
     const { field, fieldSchema, operation, negated, searchValue } = fieldState;
 
-    const handleField = useCallback((value) => {
-        if (field === value.selected) return;
-        const fieldOperations = value.schema.search?.operations ?? [];
+    const handleSelectedFieldChange = useCallback(
+        ({ selected: selectedField, schema: selectedFieldSchema }) => {
+            if (field === selectedField) return;
 
-        const change = {
-            field: value.selected,
-            fieldSchema: value.schema,
-            searchValue: "",  // Clear search value if the field changes
-            operation: fieldOperations.includes(fieldState.operation) ? fieldState.operation : fieldOperations[0],
-        };
+            const selectedFieldOperations = selectedFieldSchema.search?.operations ?? [];
 
-        (onFieldChange ?? nop)(change);
-        handleChange(change);
-    }, [handleChange, onFieldChange, field]);
+            const change = {
+                field: selectedField,
+                fieldSchema: selectedFieldSchema,
+                searchValue: "",  // Clear search value if the field changes
+                // If the new field doesn't have our previously-selected operation, we replace it with the first valid
+                // operation for the newly-selected field:
+                operation: selectedFieldOperations.includes(operation) ? operation : selectedFieldOperations[0],
+            };
 
-    const handleNegation = useCallback((value) => {
-        handleChange({ negated: (value === true || value === "neg") });
+            (onFieldChange ?? nop)(change);
+            handleChange(change);
+        },
+        [handleChange, onFieldChange, field, operation]);
+
+    const handleNegation = useCallback((v) => {
+        handleChange({ negated: (v === true || v === "neg") });
     }, [handleChange]);
 
-    const handleOperation = useCallback((value) => handleChange({ operation: value }), [handleChange]);
+    const handleOperation = useCallback((v) => handleChange({ operation: v }), [handleChange]);
 
     const handleSearchValue = useCallback((e) => {
         handleChange({ searchValue: getSchemaTypeTransformer(fieldSchema.type)[0](e.target.value) });
@@ -169,7 +170,7 @@ const DiscoverySearchCondition = ({ dataType, value, onChange, onFieldChange, is
                 schema={dataType?.schema}
                 isExcluded={isExcluded}
                 value={{ selected: field, schema: fieldSchema }}
-                onChange={handleField}
+                onChange={handleSelectedFieldChange}
             />
             {canNegate && (  // Negation
                 <Select
@@ -179,7 +180,7 @@ const DiscoverySearchCondition = ({ dataType, value, onChange, onFieldChange, is
                     options={NEGATE_SELECT_OPTIONS}
                 />
             )}
-            {equalsOnly ? null : (  // Operation select
+            {!equalsOnly && (  // Operation select
                 <Select
                     style={styles.operationSelect}
                     value={operation}

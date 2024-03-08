@@ -35,49 +35,53 @@ class DiscoveryQueryBuilder extends Component {
     }
 
     componentDidMount() {
-        (this.props.requiredDataTypes ?? []).forEach(dt => this.props.addDataTypeQueryForm(dt));
+        const {
+            dataTypesByID,
+            requiredDataTypes,
+            addDataTypeQueryForm,
+            autoQuery,
+            neutralizeAutoQueryPageTransition,
+        } = this.props;
 
-        if (this.props.autoQuery?.isAutoQuery) {
+        (requiredDataTypes ?? []).forEach(dt => addDataTypeQueryForm(dt));
+
+        if (autoQuery?.isAutoQuery) {
+            const { autoQueryType, autoQueryField, autoQueryValue } = autoQuery;
+
             // Trigger a cascade of async functions
             // that involve waiting for redux actions to reduce (complete)
             // before triggering others
             (async () => {
                 // Clean old queries (if any)
-                Object.values(this.props.dataTypesByID).forEach(value =>
-                    this.handleTabsEdit(value.id, "remove"));
+                Object.values(dataTypesByID).forEach(value => this.handleTabsEdit(value.id, "remove"));
 
                 // Set type of query
-                await this.handleAddDataTypeQueryForm({key: this.props.autoQuery.autoQueryType});
+                await this.handleAddDataTypeQueryForm({ key: autoQueryType });
 
                 // Set term
-                const dataType = this.props.dataTypesByID[this.props.autoQuery.autoQueryType];
-                const fields = {
-                    keys: {
-                        value:[0],
-                    },
-                    conditions: [{
-                        name: "conditions[0]",
-                        value: {
-                            dataType: dataType,
-                            field: this.props.autoQuery.autoQueryField,
-                            // from utils/schema:
-                            fieldSchema: getFieldSchema(dataType.schema, this.props.autoQuery.autoQueryField),
-                            negated: false,
-                            operation: OP_EQUALS,
-                            searchValue: this.props.autoQuery.autoQueryValue,
-                        },
+                const dataType = dataTypesByID[autoQueryType];
+                const fields = [{
+                    name: ["conditions"],
+                    value: [{
+                        field: autoQueryField,
+                        // from utils/schema:
+                        fieldSchema: getFieldSchema(dataType.schema, autoQueryField),
+                        negated: false,
+                        operation: OP_EQUALS,
+                        searchValue: autoQueryValue,
                     }],
-                };
+                }];
 
-                // "Simulate" form data structure and trigger update
-                await this.handleFormChange(dataType, fields);
+                // Force-override fields in the form
+                this.forms[dataType.id]?.setFields(fields);
+                await this.handleFormChange(dataType, fields);  // Not triggered by setFields; do it manually
 
                 // Simulate form submission click
                 const s = this.handleSubmit();
 
                 // Clean up auto-query "paper trail" (that is, the state segment that
                 // was introduced in order to transfer intent from the OverviewContent page)
-                this.props.neutralizeAutoQueryPageTransition();
+                neutralizeAutoQueryPageTransition();
 
                 await s;
             })();

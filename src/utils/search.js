@@ -36,7 +36,7 @@ const VARIANT_OPTIONAL_FIELDS = [
 export const addDataTypeFormIfPossible = (dataTypeForms, dataType) =>
     (dataTypeForms.map(d => d.dataType.id).includes(dataType.id))
         ? dataTypeForms
-        : [...(dataTypeForms ?? []), {dataType, formValues: {}}];
+        : [...(dataTypeForms ?? []), {dataType, formValues: []}];
 
 export const updateDataTypeFormIfPossible = (dataTypeForms, dataType, fields) =>
     dataTypeForms.map(d => d.dataType.id === dataType.id
