@@ -9,6 +9,7 @@ import "./explorer.css";
 import DiscoveryQueryBuilder from "../discovery/DiscoveryQueryBuilder";
 import SearchAllRecords from "./SearchAllRecords";
 
+import { fetchDatasetResourcesIfNecessary } from "@/modules/datasets/actions";
 import {
     addDataTypeQueryForm,
     performSearchIfPossible,
@@ -17,12 +18,11 @@ import {
     setSelectedRows,
     resetTableSortOrder,
     setActiveTab,
-} from "../../modules/explorer/actions";
+} from "@/modules/explorer/actions";
 
 import IndividualsTable from "./searchResultsTables/IndividualsTable";
 import BiosamplesTable from "./searchResultsTables/BiosamplesTable";
 import ExperimentsTable from "./searchResultsTables/ExperimentsTable";
-import {fetchDatasetResourcesIfNecessary} from "../../modules/datasets/actions";
 
 const TAB_KEYS = {
     INDIVIDUAL: "1",
@@ -124,7 +124,6 @@ const ExplorerDatasetSearch = () => {
             <SearchAllRecords datasetID={datasetID} />
             <DiscoveryQueryBuilder
                 activeDataset={datasetID}
-                isInternal={true}
                 dataTypeForms={dataTypeForms}
                 onSubmit={performSearch}
                 searchLoading={fetchingSearch}

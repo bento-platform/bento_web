@@ -1,11 +1,12 @@
 import React, { useState, useEffect } from "react";
-import { Input, Select } from "antd";
-import { Form } from "@ant-design/compatible";
-import PropTypes from "prop-types";
-import LocusSearch from "./LocusSearch";
 import { useSelector } from "react-redux";
+import PropTypes from "prop-types";
 
-import { notAlleleCharactersRegex } from "../../utils/misc";
+import { Form, Input, Select } from "antd";
+
+import LocusSearch from "./LocusSearch";
+
+import { notAlleleCharactersRegex } from "@/utils/misc";
 
 const VariantSearchHeader = ({dataType, addVariantSearchValues}) => {
     const [refFormReceivedValidKeystroke, setRefFormReceivedValidKeystroke ] = useState(true);
@@ -148,73 +149,74 @@ const VariantSearchHeader = ({dataType, addVariantSearchValues}) => {
     }, [shouldTriggerAssemblyIdChange]);
 
 
-    return (<>
-    <Form.Item
-      labelCol={labelCol}
-      wrapperCol={wrapperCol}
-      label={"Assembly ID"}
-      help={helpText["assemblyId"]}
-      validateStatus={fieldsValidity.assemblyId ? "success" : "error"}
-      required
-    >
-      <Select
-        onChange={handleAssemblyIdChange}
-        defaultValue={overviewAssemblyIds && shouldTriggerAssemblyIdChange && overviewAssemblyIds[0]}
-      >
-       {overviewAssemblyIds.map(v => <Select.Option key={v} value={v}>{v}</Select.Option>)}
-      </Select>
-    </Form.Item>
-    <Form.Item
-        labelCol={labelCol}
-        wrapperCol={wrapperCol}
-        label={"Gene / position"}
-        help={helpText["locus"]}
-        validateStatus={fieldsValidity.locus ? "success" : "error"}
-        required
-    >
-      <LocusSearch assemblyId={assemblyId}
-                   addVariantSearchValues={addVariantSearchValues}
-                   handleLocusChange={handleLocusChange}
-                   setLocusValidity={setLocusValidity}/>
-    </Form.Item>
-    <Form.Item
-      labelCol={labelCol}
-      wrapperCol={wrapperCol}
-      label={"Genotype"}
-      help={helpText["genotype"]}
-    >
-      <Select
-        onChange={handleGenotypeChange}
-        allowClear
-      >
-       {genotypeSchema.enum.map(v => <Select.Option key={v} value={v}>{v}</Select.Option>)}
-      </Select>
-    </Form.Item>
-    <Form.Item
-      labelCol={labelCol}
-      wrapperCol={wrapperCol}
-      label={"Reference Allele"}
-      help={helpText["ref/alt"]}
-    >
-      <Input
-        onChange={handleRefChange}
-        value={activeRefValue} style={{
-            borderColor: refFormReceivedValidKeystroke ? "" : "red",
-        }} />
-    </Form.Item>
-    <Form.Item
-      labelCol={labelCol}
-      wrapperCol={wrapperCol}
-      label={"Alternate Allele"}
-      help={helpText["ref/alt"]}
-    >
-      <Input
-        onChange={handleAltChange}
-        value={activeAltValue} style={{
-            borderColor: altFormReceivedValidKeystroke ? "" : "red",
-        }} />
-    </Form.Item>
-    </>
+    return (
+        <>
+            <Form.Item
+                labelCol={labelCol}
+                wrapperCol={wrapperCol}
+                label={"Assembly ID"}
+                help={helpText["assemblyId"]}
+                validateStatus={fieldsValidity.assemblyId ? "success" : "error"}
+                required
+            >
+                <Select
+                    onChange={handleAssemblyIdChange}
+                    defaultValue={overviewAssemblyIds && shouldTriggerAssemblyIdChange && overviewAssemblyIds[0]}
+                >
+                    {overviewAssemblyIds.map(v => <Select.Option key={v} value={v}>{v}</Select.Option>)}
+                </Select>
+            </Form.Item>
+            <Form.Item
+                labelCol={labelCol}
+                wrapperCol={wrapperCol}
+                label={"Gene / position"}
+                help={helpText["locus"]}
+                validateStatus={fieldsValidity.locus ? "success" : "error"}
+                required
+            >
+                <LocusSearch assemblyId={assemblyId}
+                             addVariantSearchValues={addVariantSearchValues}
+                             handleLocusChange={handleLocusChange}
+                             setLocusValidity={setLocusValidity} />
+            </Form.Item>
+            <Form.Item
+                labelCol={labelCol}
+                wrapperCol={wrapperCol}
+                label={"Genotype"}
+                help={helpText["genotype"]}
+            >
+                <Select
+                    onChange={handleGenotypeChange}
+                    allowClear
+                >
+                    {genotypeSchema.enum.map(v => <Select.Option key={v} value={v}>{v}</Select.Option>)}
+                </Select>
+            </Form.Item>
+            <Form.Item
+                labelCol={labelCol}
+                wrapperCol={wrapperCol}
+                label={"Reference Allele"}
+                help={helpText["ref/alt"]}
+            >
+                <Input
+                    onChange={handleRefChange}
+                    value={activeRefValue}
+                    style={{ borderColor: refFormReceivedValidKeystroke ? "" : "red" }}
+                />
+            </Form.Item>
+            <Form.Item
+                labelCol={labelCol}
+                wrapperCol={wrapperCol}
+                label={"Alternate Allele"}
+                help={helpText["ref/alt"]}
+            >
+                <Input
+                    onChange={handleAltChange}
+                    value={activeAltValue}
+                    style={{ borderColor: altFormReceivedValidKeystroke ? "" : "red" }}
+                />
+            </Form.Item>
+        </>
     );
 };
 
