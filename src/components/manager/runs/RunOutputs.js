@@ -1,6 +1,6 @@
 import React, { memo } from "react";
 import { Table } from "antd";
-import { runPropTypesShape } from "../../../propTypes";
+import { runPropTypesShape } from "@/propTypes";
 
 const renderOutputValue = (value) => {
     if (Array.isArray(value)) {
@@ -31,6 +31,10 @@ const COLUMNS = [
         render: (name) => <span style={{ fontFamily: "monospace" }}>{name}</span>,
     },
     {
+        title: "Type",
+        dataIndex: "type",
+    },
+    {
         title: "Value",
         dataIndex: "value",
         render: (value) => renderOutputValue(value),
@@ -45,6 +49,7 @@ const COLUMNS = [
 const RunOutputs = memo(({ run }) => {
     const outputItems = Object.entries(run.details?.outputs ?? {}).map(([k, v]) => ({
         name: k,
+        type: v.type,
         value: v,
     }));
 

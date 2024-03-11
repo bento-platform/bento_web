@@ -126,6 +126,11 @@ export const runPropTypesShape = PropTypes.shape({
             stderr: PropTypes.string,
             exit_code: PropTypes.number,
         }),
+        // with outputs
+        outputs: PropTypes.objectOf(PropTypes.shape({
+            type: PropTypes.string,
+            value: PropTypes.oneOfType([PropTypes.string, PropTypes.array, PropTypes.number, PropTypes.bool]),
+        })),
     }),
 });
 
