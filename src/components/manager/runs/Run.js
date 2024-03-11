@@ -1,16 +1,16 @@
 import React, { memo } from "react";
 import PropTypes from "prop-types";
 
-import {PageHeader, Row, Statistic, Tabs, Tag} from "antd";
+import { PageHeader, Row, Statistic, Tabs, Tag } from "antd";
 
 import RunRequest from "./RunRequest";
 import RunLog from "./RunLog";
 import RunTaskLogs from "./RunTaskLogs";
 import RunOutputs from "./RunOutputs";
 
-import {renderDate, RUN_STATE_TAG_COLORS} from "./utils";
-import {nop} from "../../../utils/misc";
-import {runPropTypesShape} from "../../../propTypes";
+import { renderDate, RUN_STATE_TAG_COLORS } from "./utils";
+import { runPropTypesShape } from "@/propTypes";
+import { nop } from "@/utils/misc";
 
 
 const TABS = {

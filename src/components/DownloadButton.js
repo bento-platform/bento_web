@@ -1,9 +1,10 @@
 import React, { useCallback } from "react";
-import { useSelector } from "react-redux";
 import PropTypes from "prop-types";
 
 import { Button } from "antd";
 import { DownloadOutlined } from "@ant-design/icons";
+
+import { useAccessToken } from "bento-auth-js";
 
 import { AUDIO_FILE_EXTENSIONS, IMAGE_FILE_EXTENSIONS, VIDEO_FILE_EXTENSIONS } from "./display/FileDisplay";
 
@@ -15,8 +16,18 @@ const BROWSER_RENDERED_EXTENSIONS = [
     ...VIDEO_FILE_EXTENSIONS,
 ];
 
-const DownloadButton = ({ disabled, uri, fileName, children, size, type, onClick: propsOnClick, ...props }) => {
-    const { accessToken } = useSelector((state) => state.auth);
+const DownloadButton = ({
+    disabled,
+    uri,
+    fileName,
+    extraFormData,
+    children,
+    size,
+    type,
+    onClick: propsOnClick,
+    ...props
+}) => {
+    const accessToken = useAccessToken();
 
     const onClick = useCallback((e) => {
         if (!uri) return;
@@ -30,8 +41,23 @@ const DownloadButton = ({ disabled, uri, fileName, children, size, type, onClick
         }
         form.method = "post";
         form.action = uri;
-        form.innerHTML = `<input type="hidden" name="token" value="${accessToken}" />`;
+
+        const tokenInput = document.createElement("input");
+        tokenInput.setAttribute("type", "hidden");
+        tokenInput.setAttribute("name", "token");
+        tokenInput.setAttribute("value", accessToken);
+        form.appendChild(tokenInput);
+
+        Object.entries(extraFormData).forEach(([k, v]) => {
+            const extraInput = document.createElement("input");
+            extraInput.setAttribute("type", "hidden");
+            extraInput.setAttribute("name", k);
+            extraInput.setAttribute("value", v.toString());
+            form.appendChild(extraInput);
+        });
+
         document.body.appendChild(form);
+
         try {
             form.submit();
         } finally {
@@ -44,7 +70,8 @@ const DownloadButton = ({ disabled, uri, fileName, children, size, type, onClick
     }, [uri, accessToken, propsOnClick]);
 
     return (
-        <Button key="download" icon={<DownloadOutlined />}
+        <Button key="download"
+                icon={<DownloadOutlined />}
                 size={size}
                 type={type}
                 disabled={disabled}
@@ -65,6 +92,7 @@ DownloadButton.propTypes = {
     disabled: PropTypes.bool,
     uri: PropTypes.string,
     fileName: PropTypes.string,
+    extraFormData: PropTypes.object,
     children: PropTypes.oneOfType([PropTypes.object, PropTypes.string]),
     size: PropTypes.oneOf(["small", "default", "large"]),
     type: PropTypes.oneOf(["primary", "ghost", "dashed", "danger", "link", "default"]),
