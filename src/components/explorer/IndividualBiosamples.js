@@ -4,14 +4,14 @@ import { Route, Switch, useHistory, useRouteMatch, useParams } from "react-route
 
 import { Button, Descriptions, Table } from "antd";
 
-import { EM_DASH } from "../../constants";
-import { useDeduplicatedIndividualBiosamples } from "./utils";
+import { EM_DASH } from "@/constants";
 import {
     biosamplePropTypesShape,
     experimentPropTypesShape,
     individualPropTypesShape,
     ontologyShape,
-} from "../../propTypes";
+} from "@/propTypes";
+import { useDeduplicatedIndividualBiosamples } from "./utils";
 
 import JsonView from "./JsonView";
 import OntologyTerm from "./OntologyTerm";
@@ -216,15 +216,15 @@ Biosamples.propTypes = {
 
 const IndividualBiosamples = ({ individual, experimentsUrl }) => {
     const history = useHistory();
-    const match = useRouteMatch();
+    const { path, url } = useRouteMatch();
 
     const handleBiosampleClick = useCallback((bID) => {
         if (!bID) {
-            history.replace(match.url);
+            history.replace(url);
             return;
         }
-        history.replace(`${match.url}/${bID}`);
-    }, [history, match]);
+        history.replace(`${url}/${bID}`);
+    }, [history, url]);
 
     const handleExperimentClick = useCallback((eid) => {
         history.push(`${experimentsUrl}/${eid}`);
@@ -240,8 +240,8 @@ const IndividualBiosamples = ({ individual, experimentsUrl }) => {
 
     return (
         <Switch>
-            <Route path={`${match.path}/:selectedBiosample`}>{biosamplesNode}</Route>
-            <Route path={match.path} exact={true}>{biosamplesNode}</Route>
+            <Route path={`${path}/:selectedBiosample`}>{biosamplesNode}</Route>
+            <Route path={path} exact={true}>{biosamplesNode}</Route>
         </Switch>
     );
 };

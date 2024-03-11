@@ -7,12 +7,12 @@ import { DownOutlined, PlusOutlined, QuestionCircleOutlined, SearchOutlined } fr
 
 import DataTypeExplorationModal from "./DataTypeExplorationModal";
 import DiscoverySearchForm from "./DiscoverySearchForm";
-import {nop} from "../../utils/misc";
+import {nop} from "@/utils/misc";
 
-import {OP_EQUALS} from "../../utils/search";
-import {getFieldSchema} from "../../utils/schema";
+import {OP_EQUALS} from "@/utils/search";
+import {getFieldSchema} from "@/utils/schema";
 
-import { neutralizeAutoQueryPageTransition, setIsSubmittingSearch } from "../../modules/explorer/actions";
+import { neutralizeAutoQueryPageTransition, setIsSubmittingSearch } from "@/modules/explorer/actions";
 
 class DiscoveryQueryBuilder extends Component {
     constructor(props) {
@@ -35,49 +35,53 @@ class DiscoveryQueryBuilder extends Component {
     }
 
     componentDidMount() {
-        (this.props.requiredDataTypes ?? []).forEach(dt => this.props.addDataTypeQueryForm(dt));
+        const {
+            dataTypesByID,
+            requiredDataTypes,
+            addDataTypeQueryForm,
+            autoQuery,
+            neutralizeAutoQueryPageTransition,
+        } = this.props;
 
-        if (this.props.autoQuery?.isAutoQuery) {
+        (requiredDataTypes ?? []).forEach(dt => addDataTypeQueryForm(dt));
+
+        if (autoQuery?.isAutoQuery) {
+            const { autoQueryType, autoQueryField, autoQueryValue } = autoQuery;
+
             // Trigger a cascade of async functions
             // that involve waiting for redux actions to reduce (complete)
             // before triggering others
             (async () => {
                 // Clean old queries (if any)
-                Object.values(this.props.dataTypesByID).forEach(value =>
-                    this.handleTabsEdit(value.id, "remove"));
+                Object.values(dataTypesByID).forEach(value => this.handleTabsEdit(value.id, "remove"));
 
                 // Set type of query
-                await this.handleAddDataTypeQueryForm({key: this.props.autoQuery.autoQueryType});
+                await this.handleAddDataTypeQueryForm({ key: autoQueryType });
 
                 // Set term
-                const dataType = this.props.dataTypesByID[this.props.autoQuery.autoQueryType];
-                const fields = {
-                    keys: {
-                        value:[0],
-                    },
-                    conditions: [{
-                        name: "conditions[0]",
-                        value: {
-                            dataType: dataType,
-                            field: this.props.autoQuery.autoQueryField,
-                            // from utils/schema:
-                            fieldSchema: getFieldSchema(dataType.schema, this.props.autoQuery.autoQueryField),
-                            negated: false,
-                            operation: OP_EQUALS,
-                            searchValue: this.props.autoQuery.autoQueryValue,
-                        },
+                const dataType = dataTypesByID[autoQueryType];
+                const fields = [{
+                    name: ["conditions"],
+                    value: [{
+                        field: autoQueryField,
+                        // from utils/schema:
+                        fieldSchema: getFieldSchema(dataType.schema, autoQueryField),
+                        negated: false,
+                        operation: OP_EQUALS,
+                        searchValue: autoQueryValue,
                     }],
-                };
+                }];
 
-                // "Simulate" form data structure and trigger update
-                await this.handleFormChange(dataType, fields);
+                // Force-override fields in the form
+                this.forms[dataType.id]?.setFields(fields);
+                await this.handleFormChange(dataType, fields);  // Not triggered by setFields; do it manually
 
                 // Simulate form submission click
                 const s = this.handleSubmit();
 
                 // Clean up auto-query "paper trail" (that is, the state segment that
                 // was introduced in order to transfer intent from the OverviewContent page)
-                this.props.neutralizeAutoQueryPageTransition();
+                neutralizeAutoQueryPageTransition();
 
                 await s;
             })();
@@ -88,17 +92,8 @@ class DiscoveryQueryBuilder extends Component {
         this.props.setIsSubmittingSearch(true);
 
         try {
-            await Promise.all(Object.entries(this.forms).filter(f => f[1]).map(([_dt, f]) =>
-                new Promise((resolve, reject) => {
-                    f.props.form.validateFields({force: true}, err => {
-                        if (err) {
-                            // TODO: If error, switch to errored tab
-                            reject(err);
-                        }
-                        resolve();  // TODO: data?
-                    });
-                })));
-
+            await Promise.all(Object.values(this.forms).map((f) => f.validateFields()));
+            // TODO: If error, switch to errored tab
             (this.props.onSubmit ?? nop)();
         } catch (err) {
             console.error(err);
@@ -161,12 +156,10 @@ class DiscoveryQueryBuilder extends Component {
                 closable: !(this.props.requiredDataTypes ?? []).includes(id),
                 children: (
                     <DiscoverySearchForm
-                        conditionType="data-type"
-                        isInternal={this.props.isInternal ?? false}
                         dataType={dataType}
                         formValues={formValues}
                         loading={this.props.searchLoading}
-                        wrappedComponentRef={form => this.forms[id] = form}
+                        setFormRef={(form) => this.forms[id] = form}
                         onChange={fields => this.handleFormChange(dataType, fields)}
                         handleVariantHiddenFieldChange={this.handleVariantHiddenFieldChange}
                     />
@@ -208,17 +201,6 @@ class DiscoveryQueryBuilder extends Component {
                     </Empty>
                 )}
 
-            {/* TODO: Allow this to be optionally specified for advanced users
-            <Divider />
-
-            <Typography.Title level={3}>Join Query</Typography.Title>
-
-            <DiscoverySearchForm conditionType="join"
-                                 formValues={this.props.joinFormValues}
-                                 loading={this.props.searchLoading}
-                                 onChange={fields => this.props.updateJoinForm(fields)} />
-            */}
-
             <Button type="primary"
                     icon={<SearchOutlined />}
                     loading={this.props.searchLoading}
@@ -230,7 +212,6 @@ class DiscoveryQueryBuilder extends Component {
 
 DiscoveryQueryBuilder.propTypes = {
     activeDataset: PropTypes.string,
-    isInternal: PropTypes.bool,
     requiredDataTypes: PropTypes.arrayOf(PropTypes.string),
 
     servicesInfo: PropTypes.arrayOf(PropTypes.object),

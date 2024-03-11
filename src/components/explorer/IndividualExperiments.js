@@ -6,10 +6,10 @@ import PropTypes from "prop-types";
 import { Button, Descriptions, Popover, Table, Tooltip, Typography } from "antd";
 import { BarsOutlined, EyeOutlined, FileTextOutlined, ProfileOutlined } from "@ant-design/icons";
 
-import { EM_DASH } from "../../constants";
-import { experimentPropTypesShape, experimentResultPropTypesShape, individualPropTypesShape } from "../../propTypes";
-import { getFileDownloadUrlsFromDrs } from "../../modules/drs/actions";
-import { guessFileType } from "../../utils/files";
+import { EM_DASH } from "@/constants";
+import { experimentPropTypesShape, experimentResultPropTypesShape, individualPropTypesShape } from "@/propTypes";
+import { getFileDownloadUrlsFromDrs } from "@/modules/drs/actions";
+import { guessFileType } from "@/utils/files";
 
 import { useDeduplicatedIndividualBiosamples } from "./utils";
 import { VIEWABLE_FILE_EXTENSIONS } from "../display/FileDisplay";
@@ -324,15 +324,15 @@ Experiments.propTypes = {
 
 const IndividualExperiments = ({ individual }) => {
     const history = useHistory();
-    const match = useRouteMatch();
+    const { path, url } = useRouteMatch();
 
     const handleExperimentClick = useCallback((eID) => {
         if (!eID) {
-            history.replace(match.url);
+            history.replace(url);
             return;
         }
-        history.replace(`${match.url}/${eID}`);
-    }, [history, match]);
+        history.replace(`${url}/${eID}`);
+    }, [history, url]);
 
     const experimentsNode = (
         <Experiments individual={individual} handleExperimentClick={handleExperimentClick} />
@@ -340,8 +340,8 @@ const IndividualExperiments = ({ individual }) => {
 
     return (
         <Switch>
-            <Route path={`${match.path}/:selectedExperiment`}>{experimentsNode}</Route>
-            <Route path={match.path} exact={true}>{experimentsNode}</Route>
+            <Route path={`${path}/:selectedExperiment`}>{experimentsNode}</Route>
+            <Route path={path} exact={true}>{experimentsNode}</Route>
         </Switch>
     );
 };

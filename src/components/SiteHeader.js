@@ -1,6 +1,6 @@
 import React, { useMemo, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { Link, withRouter } from "react-router-dom";
+import { Link } from "react-router-dom";
 import { performAuth, useIsAuthenticated, usePerformSignOut } from "bento-auth-js";
 
 import { Badge, Layout, Menu } from "antd";
@@ -16,16 +16,9 @@ import {
     UserOutlined,
 } from "@ant-design/icons";
 
-import {
-    AUTH_CALLBACK_URL,
-    BENTO_CBIOPORTAL_ENABLED,
-    BENTO_URL_NO_TRAILING_SLASH,
-    CLIENT_ID,
-    CUSTOM_HEADER,
-    OPENID_CONFIG_URL,
-} from "../config";
-import { showNotificationDrawer } from "../modules/notifications/actions";
-import { matchingMenuKeys, transformMenuItem } from "../utils/menu";
+import { AUTH_CALLBACK_URL, BENTO_CBIOPORTAL_ENABLED, CLIENT_ID, CUSTOM_HEADER } from "@/config";
+import { showNotificationDrawer } from "@/modules/notifications/actions";
+import { matchingMenuKeys, transformMenuItem } from "@/utils/menu";
 
 import OverviewSettingsControl from "./overview/OverviewSettingsControl";
 
@@ -65,7 +58,7 @@ const SiteHeader = () => {
         setModalVisible(!modalVisible);
     };
 
-    const performSignOut = usePerformSignOut(BENTO_URL_NO_TRAILING_SLASH, OPENID_CONFIG_URL, CLIENT_ID);
+    const performSignOut = usePerformSignOut();
 
     const menuItems = useMemo(
         () => [
@@ -195,4 +188,4 @@ const SiteHeader = () => {
     );
 };
 
-export default withRouter(SiteHeader);
+export default SiteHeader;
