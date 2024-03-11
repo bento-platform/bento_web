@@ -18,6 +18,6 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - name: Install modules
-        run: npm install --force
+        run: npm install
       - name: Run linter
         run: npm run lint
