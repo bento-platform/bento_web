@@ -1,19 +1,19 @@
 import React from "react";
-import {Redirect, Switch} from "react-router-dom";
+import { Redirect, Route, Switch } from "react-router-dom";
 
-import OwnerRoute from "./OwnerRoute";
-import ServiceContent from "./ServiceContent";
 import DataManagerContent from "./DataManagerContent";
+import RequireAuth from "@/components/RequireAuth";
+import ServiceContent from "./ServiceContent";
 import ServiceDetail from "./services/ServiceDetail";
 
 
 const AdminContent = () => (
     <div>
         <Switch>
-            <OwnerRoute path="/admin/services" exact={true} component={ServiceContent} />
-            <OwnerRoute path="/admin/services/:kind" component={ServiceDetail} />
-            <OwnerRoute path="/admin/data/manager" component={DataManagerContent} />
-            <Redirect from="/" to="/admin/services" />
+            <Route path="/admin/services" exact={true}><RequireAuth><ServiceContent /></RequireAuth></Route>
+            <Route path="/admin/services/:kind"><RequireAuth><ServiceDetail /></RequireAuth></Route>
+            <Route path="/admin/data/manager"><RequireAuth><DataManagerContent /></RequireAuth></Route>
+            <Route path="/admin/" render={() => <Redirect to="/admin/services" />} />
         </Switch>
     </div>
 );

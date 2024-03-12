@@ -6,8 +6,8 @@ import { Layout, Menu, Skeleton } from "antd";
 
 import ExplorerDatasetSearch from "./ExplorerDatasetSearch";
 import SitePageHeader from "../SitePageHeader";
-import { LAYOUT_CONTENT_STYLE } from "../../styles/layoutContent";
-import { matchingMenuKeys, transformMenuItem } from "../../utils/menu";
+import { LAYOUT_CONTENT_STYLE } from "@/styles/layoutContent";
+import { matchingMenuKeys, transformMenuItem } from "@/utils/menu";
 
 const ExplorerSearchContent = () => {
     const projects = useSelector((state) => state.projects.items);
@@ -42,10 +42,9 @@ const ExplorerSearchContent = () => {
             <Layout.Content style={LAYOUT_CONTENT_STYLE}>
                 {datasets.length > 0 ? (
                     <Switch>
-                        <Route path="/data/explorer/search/:dataset" component={ExplorerDatasetSearch} />
-                        <Redirect
-                            from="/data/explorer/search"
-                            to={`/data/explorer/search/${datasets[0].identifier}`} />
+                        <Route path="/data/explorer/search/:dataset"><ExplorerDatasetSearch /></Route>
+                        <Route path="/data/explorer/search"
+                               render={() => <Redirect to={`/data/explorer/search/${datasets[0].identifier}`}/>} />
                     </Switch>
                 ) : (isFetchingDependentData ? <Skeleton /> : "No datasets available")}
             </Layout.Content>
