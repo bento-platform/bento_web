@@ -8,15 +8,15 @@ import igv from "igv/dist/igv.esm";
 import { Button, Divider, Empty, Modal, Table, Select, Skeleton, Switch, message } from "antd";
 import { SettingOutlined } from "@ant-design/icons";
 
-import { BENTO_PUBLIC_URL, BENTO_URL } from "../../config";
-import { individualPropTypesShape } from "../../propTypes";
-import { getIgvUrlsFromDrs } from "../../modules/drs/actions";
-import { setIgvPosition } from "../../modules/explorer/actions";
-import { guessFileType } from "../../utils/files";
-import {useDeduplicatedIndividualBiosamples} from "./utils";
-import { useReferenceGenomes } from "../../modules/reference/hooks";
-import { useIgvGenomes } from "../../modules/explorer/hooks";
-import { simpleDeepCopy } from "../../utils/misc";
+import { BENTO_PUBLIC_URL, BENTO_URL } from "@/config";
+import { individualPropTypesShape } from "@/propTypes";
+import { getIgvUrlsFromDrs } from "@/modules/drs/actions";
+import { setIgvPosition } from "@/modules/explorer/actions";
+import { useIgvGenomes } from "@/modules/explorer/hooks";
+import { useReferenceGenomes } from "@/modules/reference/hooks";
+import { guessFileType } from "@/utils/files";
+import { simpleDeepCopy } from "@/utils/misc";
+import { useDeduplicatedIndividualBiosamples } from "./utils";
 
 const SQUISHED_CALL_HEIGHT = 10;
 const EXPANDED_CALL_HEIGHT = 50;

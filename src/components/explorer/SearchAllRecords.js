@@ -4,7 +4,7 @@ import PropTypes from "prop-types";
 import { Card, Typography, Input } from "antd";
 
 const { Search } = Input;
-import { performFreeTextSearchIfPossible } from "../../modules/explorer/actions";
+import { performFreeTextSearchIfPossible } from "@/modules/explorer/actions";
 
 class SearchAllRecords extends Component {
     constructor(props) {

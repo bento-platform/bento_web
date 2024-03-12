@@ -2,7 +2,7 @@ import React, { Fragment, useCallback, useEffect, useMemo } from "react";
 import PropTypes from "prop-types";
 import { useHistory, useParams } from "react-router-dom";
 
-import { Button, Descriptions, Table } from "antd";
+import { Button, Descriptions } from "antd";
 
 import { EM_DASH } from "@/constants";
 import {
@@ -20,7 +20,7 @@ import TimeElement from "./TimeElement";
 import "./explorer.css";
 import BiosampleIDCell from "./searchResultsTables/BiosampleIDCell";
 import { MeasurementsTable } from "./IndividualMeasurements";
-import { RoutedIndividualContent } from "./RoutedIndividualContent";
+import { RoutedIndividualContent, RoutedIndividualContentTable } from "./RoutedIndividualContent";
 
 // TODO: Only show biosamples from the relevant dataset, if specified;
 //  highlight those found in search results, if specified
@@ -135,10 +135,6 @@ BiosampleDetail.propTypes = {
 
 const Biosamples = ({ individual, handleBiosampleClick, handleExperimentClick }) => {
     const { selectedBiosample } = useParams();
-    const expandedRowKeys = useMemo(
-        () => selectedBiosample ? [selectedBiosample] : [],
-        [selectedBiosample],
-    );
 
     useEffect(() => {
         // If, on first load, there's a selected biosample:
@@ -178,13 +174,6 @@ const Biosamples = ({ individual, handleBiosampleClick, handleExperimentClick })
         [handleExperimentClick],
     );
 
-    const onExpand = useCallback(
-        (e, biosample) => {
-            handleBiosampleClick(e ? biosample.id : undefined);
-        },
-        [handleBiosampleClick],
-    );
-
     const expandedRowRender = useCallback(
         (biosample) => (
             <BiosampleDetail biosample={biosample} handleExperimentClick={handleExperimentClick} />
@@ -193,14 +182,13 @@ const Biosamples = ({ individual, handleBiosampleClick, handleExperimentClick })
     );
 
     return (
-        <Table
-            bordered={true}
-            pagination={false}
-            size="middle"
+        <RoutedIndividualContentTable
+            data={biosamples}
+            urlParam="selectedBiosample"
             columns={columns}
-            expandable={{ onExpand, expandedRowKeys, expandedRowRender }}
-            dataSource={biosamples}
             rowKey="id"
+            handleRowSelect={handleBiosampleClick}
+            expandedRowRender={expandedRowRender}
         />
     );
 };

@@ -18,7 +18,7 @@ import JsonView from "./JsonView";
 import OntologyTerm from "./OntologyTerm";
 import DownloadButton from "../DownloadButton";
 import FileModal from "../display/FileModal";
-import { RoutedIndividualContent } from "@/components/explorer/RoutedIndividualContent";
+import { RoutedIndividualContent, RoutedIndividualContentTable } from "@/components/explorer/RoutedIndividualContent";
 
 
 const VIEWABLE_FILE_FORMATS = ["PDF", "CSV", "TSV"];
@@ -238,10 +238,6 @@ const Experiments = ({ individual, handleExperimentClick }) => {
     const dispatch = useDispatch();
 
     const { selectedExperiment } = useParams();
-    const expandedRowKeys = useMemo(
-        () => selectedExperiment ? [selectedExperiment] : [],
-        [selectedExperiment],
-    );
 
     useEffect(() => {
         // If, on first load, there's a selected experiment:
@@ -297,22 +293,14 @@ const Experiments = ({ individual, handleExperimentClick }) => {
         [handleExperimentClick],
     );
 
-    const onExpand = useCallback(
-        (e, experiment) => {
-            handleExperimentClick(e ? experiment.id : undefined);
-        },
-        [handleExperimentClick],
-    );
-
     return (
-        <Table
-            bordered={true}
-            pagination={false}
-            size="middle"
+        <RoutedIndividualContentTable
+            data={experimentsData}
+            urlParam="selectedExperiment"
             columns={columns}
-            expandable={{ onExpand, expandedRowKeys, expandedRowRender: expandedExperimentRowRender }}
-            dataSource={experimentsData}
             rowKey="id"
+            handleRowSelect={handleExperimentClick}
+            expandedRowRender={expandedExperimentRowRender}
         />
     );
 };

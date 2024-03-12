@@ -2,8 +2,8 @@ import React from "react";
 
 import { Table } from "antd";
 
-import { individualPropTypesShape } from "../../propTypes";
-import { EM_DASH } from "../../constants";
+import { EM_DASH } from "@/constants";
+import { individualPropTypesShape } from "@/propTypes";
 import { ontologyTermSorter } from "./utils";
 
 import OntologyTerm from "./OntologyTerm";

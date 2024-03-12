@@ -1,8 +1,7 @@
-import React, { useCallback, useMemo, useState } from "react";
-import { Route, Switch, useHistory, useParams, useRouteMatch } from "react-router-dom";
+import React, { useMemo, useState } from "react";
 import PropTypes from "prop-types";
 
-import { Button, Descriptions, Empty, Modal, Table, Typography } from "antd";
+import { Button, Descriptions, Empty, Modal, Typography } from "antd";
 import { ExperimentOutlined, MedicineBoxOutlined } from "@ant-design/icons";
 
 import { individualPropTypesShape } from "@/propTypes";
@@ -13,7 +12,7 @@ import OntologyTerm from "./OntologyTerm";
 import { GeneDescriptor } from "./IndividualGenes";
 import VariantDescriptor from "./IndividualVariants";
 import BiosampleIDCell from "./searchResultsTables/BiosampleIDCell";
-import { RoutedIndividualContent } from "@/components/explorer/RoutedIndividualContent";
+import { RoutedIndividualContent, RoutedIndividualContentTable } from "./RoutedIndividualContent";
 
 
 export const VariantInterpretation = ({ variationInterpretation }) => {
@@ -123,27 +122,13 @@ const GENOMIC_INTERPRETATION_COLUMNS = [
 const expandedGIRowRender = (gi) => (<GenomicInterpretationDetails genomicInterpretation={gi} />);
 
 const GenomicInterpretations = ({ genomicInterpretations, onGenomicInterpretationClick }) => {
-    const { selectedGenomicInterpretation } = useParams();
-    const expandedRowKeys = useMemo(
-        () => selectedGenomicInterpretation ? [selectedGenomicInterpretation] : [],
-        [selectedGenomicInterpretation],
-    );
-
-    const onExpand = useCallback(
-        (e, gi) => {
-            onGenomicInterpretationClick(e ? gi.id : undefined);
-        },
-        [onGenomicInterpretationClick],
-    );
-
     return (
-        <Table
-            bordered={true}
-            pagination={false}
-            size="middle"
+        <RoutedIndividualContentTable
+            data={genomicInterpretations}
+            urlParam="selectedGenomicInterpretation"
             columns={GENOMIC_INTERPRETATION_COLUMNS}
-            expandable={{ onExpand, expandedRowKeys, expandedRowRender: expandedGIRowRender }}
-            dataSource={genomicInterpretations}
+            handleRowSelect={onGenomicInterpretationClick}
+            expandedRowRender={expandedGIRowRender}
             // GenomicInterpretation.id are PK integers, expandedRowKeys expects strings
             rowKey={(gi) => gi.id.toString()}
         />
@@ -156,29 +141,16 @@ GenomicInterpretations.propTypes = {
 
 
 const IndividualGenomicInterpretations = ({ genomicInterpretations }) => {
-    const history = useHistory();
-    const match = useRouteMatch();
-
-    const handleGenomicInterpClick = useCallback((giID) => {
-        if (!giID) {
-            history.replace(match.url);
-            return;
-        }
-        history.replace(`${match.url}/${giID}`);
-    }, [history, match]);
-
-    const genomicInterpretationsNode = (
-        <GenomicInterpretations
-            genomicInterpretations={genomicInterpretations}
-            onGenomicInterpretationClick={handleGenomicInterpClick}
-        />
-    );
-
     return (
-        <Switch>
-            <Route path={`${match.path}/:selectedGenomicInterpretation`}>{genomicInterpretationsNode}</Route>
-            <Route path={match.path} exact={true}>{genomicInterpretationsNode}</Route>
-        </Switch>
+        <RoutedIndividualContent
+            urlParam="selectedGenomicInterpretation"
+            renderContent={({ onContentSelect }) => (
+                <GenomicInterpretations
+                    genomicInterpretations={genomicInterpretations}
+                    onGenomicInterpretationClick={onContentSelect}
+                />
+            )}
+        />
     );
 };
 IndividualGenomicInterpretations.propTypes = {
@@ -221,30 +193,15 @@ const expandedInterpretationRowRender = (interpretation) => (
 );
 
 const Interpretations = ({ individual, handleInterpretationClick }) => {
-    const { selectedInterpretation } = useParams();
-    const expandedRowKeys = useMemo(
-        () => selectedInterpretation ? [selectedInterpretation] : [],
-        [selectedInterpretation],
-    );
-
     const interpretationsData = useIndividualInterpretations(individual);
-
-    const onExpand = useCallback(
-        (e, interpretation) => {
-            handleInterpretationClick(e ? interpretation.id : undefined);
-        },
-        [handleInterpretationClick],
-    );
-
     return (
-        <Table
-            bordered={true}
-            pagination={false}
-            size="middle"
+        <RoutedIndividualContentTable
             columns={INTERPRETATIONS_COLUMNS}
-            expandable={{ onExpand, expandedRowKeys, expandedRowRender: expandedInterpretationRowRender }}
-            dataSource={interpretationsData}
+            data={interpretationsData}
+            expandedRowRender={expandedInterpretationRowRender}
+            handleRowSelect={handleInterpretationClick}
             rowKey="id"
+            urlParam="selectedInterpretation"
         />
     );
 };

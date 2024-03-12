@@ -27,7 +27,7 @@ RoutedIndividualContentTable.propTypes = {
     data: PropTypes.array,
     urlParam: PropTypes.string,
     columns: PropTypes.array,
-    rowKey: PropTypes.string,
+    rowKey: PropTypes.oneOfType([PropTypes.string, PropTypes.func]),
     handleRowSelect: PropTypes.func,
     expandedRowRender: PropTypes.func,
 };

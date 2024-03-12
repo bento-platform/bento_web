@@ -2,7 +2,7 @@ import React from "react";
 
 import {Modal} from "antd";
 
-import {explorerSearchResultsPropTypesShape} from "../../propTypes";
+import {explorerSearchResultsPropTypesShape} from "@/propTypes";
 import GenomeBrowser from "./GenomeBrowser";
 
 const SearchTracksModal = ({searchResults, ...props}) => {

@@ -2,7 +2,7 @@ import React from "react";
 
 import { Table } from "antd";
 
-import { individualPropTypesShape } from "../../propTypes";
+import { individualPropTypesShape } from "@/propTypes";
 import { useIndividualResources } from "./utils";
 
 
