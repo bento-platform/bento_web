@@ -1,19 +1,15 @@
 import React, { memo } from "react";
-import { Space, Table } from "antd";
+import { useSelector } from "react-redux";
 import PropTypes from "prop-types";
+
+import { Space, Table } from "antd";
 
 import { EM_DASH } from "@/constants";
 import { runPropTypesShape } from "@/propTypes";
 
 import DownloadButton from "@/components/DownloadButton";
-import { useSelector } from "react-redux";
+import MonospaceText from "@/components/MonospaceText";
 
-const MonospaceText = memo(({ children }) => (
-    <span style={{ fontFamily: "monospace" }}>{children}</span>
-));
-MonospaceText.propTypes = {
-    children: PropTypes.node,
-};
 
 const RunOutputValue = ({ runID, item: { name, type, value } }) => {
     const wesUrl = useSelector((state) => state.services.wesService?.url);
@@ -25,17 +21,20 @@ const RunOutputValue = ({ runID, item: { name, type, value } }) => {
             .replace(/^Array\[/, "")
             .replace(/]$/, "");
         return (
-            <ul>
+            <ul style={{ paddingLeft: "1.2rem", marginBottom: 0 }}>
                 {(value ?? []).map((v, vi) => (
-                    <RunOutputValue key={`item-${vi}`} item={{ name: `${name}-${vi}`, type: innerType, value: v }} />
+                    <li key={`${name}-${vi}`}>
+                        <RunOutputValue item={{ name: `${name}-${vi}`, type: innerType, value: v }} />
+                    </li>
                 ))}
             </ul>
         );
-    } else if (["String", "Float", "Int", "Boolean"].includes(typeNoOpt)) {
+    } else if (typeNoOpt === "String") {
+        return <MonospaceText style={{ whiteSpace: "pre-wrap" }}>{value}</MonospaceText>;
+    } else if (["Float", "Int", "Boolean"].includes(typeNoOpt)) {
         return <MonospaceText>{(value ?? EM_DASH).toString()}</MonospaceText>;
     } else if (typeNoOpt === "File") {
         if (value) {
-            // TODO: Link
             return (
                 <Space>
                     <MonospaceText>{value}</MonospaceText>
