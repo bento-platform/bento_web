@@ -7,7 +7,7 @@ import { Col, Divider, Modal, Row, Skeleton, Statistic, Typography } from "antd"
 import PieChart from "../charts/PieChart";
 import Histogram from "../charts/Histogram";
 
-import { explorerSearchResultsPropTypesShape } from "../../propTypes";
+import { explorerSearchResultsPropTypesShape } from "@/propTypes";
 
 const CHART_HEIGHT = 300;
 const MODAL_WIDTH = 1000;

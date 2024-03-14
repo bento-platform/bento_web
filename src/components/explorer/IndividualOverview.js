@@ -3,8 +3,8 @@ import ReactJson from "react-json-view";
 
 import { Descriptions } from "antd";
 
-import { EM_DASH } from "../../constants";
-import { individualPropTypesShape } from "../../propTypes";
+import { EM_DASH } from "@/constants";
+import { individualPropTypesShape } from "@/propTypes";
 import OntologyTerm from "./OntologyTerm";
 import TimeElement from "./TimeElement";
 

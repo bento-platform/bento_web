@@ -1,6 +1,6 @@
 import React, {useCallback, useEffect, useMemo, useState} from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { Route, Switch, useHistory, useParams, useRouteMatch } from "react-router-dom";
+import { useParams } from "react-router-dom";
 import PropTypes from "prop-types";
 
 import { Button, Descriptions, Popover, Table, Tooltip, Typography } from "antd";
@@ -18,6 +18,7 @@ import JsonView from "./JsonView";
 import OntologyTerm from "./OntologyTerm";
 import DownloadButton from "../DownloadButton";
 import FileModal from "../display/FileModal";
+import { RoutedIndividualContent, RoutedIndividualContentTable } from "@/components/explorer/RoutedIndividualContent";
 
 
 const VIEWABLE_FILE_FORMATS = ["PDF", "CSV", "TSV"];
@@ -34,7 +35,7 @@ const ExperimentResultActions = ({ result }) => {
     // view button and results in file loading being triggered. if FileDisplay was always
     // immediately shown, it would load all experiment results immediately, which is undesirable
     // behaviour. Instead, we wait until a user clicks it, then load the file, but we don't unmount
-    // the component after so we have the file contents cached.
+    // the component after, so we have the file contents cached.
     const [hasTriggeredViewModal, setHasTriggeredViewModal] = useState(false);
 
     const onViewClick = useCallback(() => {
@@ -229,14 +230,14 @@ ExperimentDetail.propTypes = {
     experiment: experimentPropTypesShape,
 };
 
+const expandedExperimentRowRender = (experiment) => (
+    <ExperimentDetail experiment={experiment}/>
+);
+
 const Experiments = ({ individual, handleExperimentClick }) => {
     const dispatch = useDispatch();
 
     const { selectedExperiment } = useParams();
-    const selectedRowKeys = useMemo(
-        () => selectedExperiment ? [selectedExperiment] : [],
-        [selectedExperiment],
-    );
 
     useEffect(() => {
         // If, on first load, there's a selected experiment:
@@ -292,28 +293,14 @@ const Experiments = ({ individual, handleExperimentClick }) => {
         [handleExperimentClick],
     );
 
-    const onExpand = useCallback(
-        (e, experiment) => {
-            handleExperimentClick(e ? experiment.id : undefined);
-        },
-        [handleExperimentClick],
-    );
-
-    const expandedRowRender = (experiment) => (
-            <ExperimentDetail experiment={experiment}/>
-    );
-
     return (
-        <Table
-            bordered={true}
-            pagination={false}
-            size="middle"
+        <RoutedIndividualContentTable
+            data={experimentsData}
+            urlParam="selectedExperiment"
             columns={columns}
-            onExpand={onExpand}
-            expandedRowKeys={selectedRowKeys}
-            expandedRowRender={expandedRowRender}
-            dataSource={experimentsData}
             rowKey="id"
+            handleRowSelect={handleExperimentClick}
+            expandedRowRender={expandedExperimentRowRender}
         />
     );
 };
@@ -322,29 +309,14 @@ Experiments.propTypes = {
     handleExperimentClick: PropTypes.func,
 };
 
-const IndividualExperiments = ({ individual }) => {
-    const history = useHistory();
-    const { path, url } = useRouteMatch();
-
-    const handleExperimentClick = useCallback((eID) => {
-        if (!eID) {
-            history.replace(url);
-            return;
-        }
-        history.replace(`${url}/${eID}`);
-    }, [history, url]);
-
-    const experimentsNode = (
-        <Experiments individual={individual} handleExperimentClick={handleExperimentClick} />
-    );
-
-    return (
-        <Switch>
-            <Route path={`${path}/:selectedExperiment`}>{experimentsNode}</Route>
-            <Route path={path} exact={true}>{experimentsNode}</Route>
-        </Switch>
-    );
-};
+const IndividualExperiments = ({ individual }) => (
+    <RoutedIndividualContent
+        urlParam="selectedExperiment"
+        renderContent={({ onContentSelect }) => (
+            <Experiments individual={individual} handleExperimentClick={onContentSelect} />
+        )}
+    />
+);
 
 IndividualExperiments.propTypes = {
     individual: individualPropTypesShape,

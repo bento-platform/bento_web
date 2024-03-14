@@ -3,8 +3,8 @@ import React, { useMemo } from "react";
 import { Table } from "antd";
 import { LinkOutlined } from "@ant-design/icons";
 
-import { EM_DASH } from "../../constants";
-import { individualPropTypesShape } from "../../propTypes";
+import { EM_DASH } from "@/constants";
+import { individualPropTypesShape } from "@/propTypes";
 import OntologyTerm from "./OntologyTerm";
 
 const PHENOTYPIC_FEATURES_COLUMNS = [
