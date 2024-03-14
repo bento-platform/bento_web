@@ -1,7 +1,7 @@
 import React from "react";
 import PropTypes from "prop-types";
 
-import { EM_DASH } from "../../constants";
+import { EM_DASH } from "@/constants";
 import OntologyTerm from "./OntologyTerm";
 
 const TIME_ELEMENT_TYPES_LABELS = {

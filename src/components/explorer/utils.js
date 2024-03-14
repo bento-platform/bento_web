@@ -1,6 +1,6 @@
 import { useEffect, useMemo } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { fetchDatasetResourcesIfNecessary } from "../../modules/datasets/actions";
+import { fetchDatasetResourcesIfNecessary } from "@/modules/datasets/actions";
 
 export const useDeduplicatedIndividualBiosamples = (individual) =>
     useMemo(

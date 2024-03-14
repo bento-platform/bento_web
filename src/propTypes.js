@@ -176,6 +176,7 @@ const ageRangePropTypesShape = PropTypes.shape({
 // Prop types object shape for a single biosample object from the metadata service.
 export const biosamplePropTypesShape = PropTypes.shape({
     id: PropTypes.string.isRequired,
+    derived_from_id: PropTypes.string,
     procedure: PropTypes.shape({
         code: ontologyShape.isRequired,
         body_site: ontologyShape,
@@ -184,11 +185,20 @@ export const biosamplePropTypesShape = PropTypes.shape({
     }),
     description: PropTypes.string,
     sampled_tissue: ontologyShape,
+    sample_type: ontologyShape,
     individual_age_at_collection: PropTypes.oneOfType([agePropTypesShape, ageRangePropTypesShape]),
+
     histological_diagnosis: ontologyShape,
     tumor_progression: ontologyShape,
     tumor_grade: ontologyShape,
+    pathological_stage: ontologyShape,
+    pathological_tnm_finding: PropTypes.arrayOf(ontologyShape),
     diagnostic_markers: PropTypes.arrayOf(ontologyShape),
+
+    material_sample: ontologyShape,
+    sample_processing: ontologyShape,
+    sample_storage: ontologyShape,
+
     created: PropTypes.string,  // ISO datetime string
     updated: PropTypes.string,  // ISO datetime string
 });

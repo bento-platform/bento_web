@@ -1,10 +1,13 @@
 import React, { useMemo, useState } from "react";
 import PropTypes from "prop-types";
-import { individualPropTypesShape, measurementPropTypesShape } from "../../propTypes";
+
+import { Descriptions, Table } from "antd";
+
+import { EM_DASH } from "@/constants";
+import { individualPropTypesShape, measurementPropTypesShape } from "@/propTypes";
+
 import { ontologyTermSorter, useIndividualPhenopacketDataIndex } from "./utils";
 import { RoutedIndividualContent, RoutedIndividualContentTable } from "./RoutedIndividualContent";
-import { EM_DASH } from "../../constants";
-import { Descriptions, Table } from "antd";
 import OntologyTerm, { conditionalOntologyRender } from "./OntologyTerm";
 import { Procedure } from "./IndividualMedicalActions";
 
@@ -15,31 +18,29 @@ const FLEX_COLUMN_STYLE = {
     "gap": "1em",
 };
 
-export const Quantity = ({quantity, title}) => {
-    return (
-        <Descriptions bordered={true} column={1} size="small" title={title}>
-            <Descriptions.Item label="Unit">
-                <OntologyTerm term={quantity.unit}/>
-            </Descriptions.Item>
-            <Descriptions.Item label="Value">{quantity.value}</Descriptions.Item>
-            {quantity?.reference_range && (
-                <Descriptions.Item label="Reference Range">
-                    <div style={FLEX_COLUMN_STYLE}>
-                        <div>
-                            <strong>Unit:</strong>{" "}<OntologyTerm term={quantity.reference_range.unit}/>
-                        </div>
-                        <div>
-                            <strong>Low:</strong>{` ${quantity.reference_range.low}`}
-                        </div>
-                        <div>
-                            <strong>High:</strong>{` ${quantity.reference_range.high}`}
-                        </div>
+export const Quantity = ({ quantity, title }) => (
+    <Descriptions bordered={true} column={1} size="small" title={title}>
+        <Descriptions.Item label="Unit">
+            <OntologyTerm term={quantity.unit}/>
+        </Descriptions.Item>
+        <Descriptions.Item label="Value">{quantity.value}</Descriptions.Item>
+        {quantity?.reference_range && (
+            <Descriptions.Item label="Reference Range">
+                <div style={FLEX_COLUMN_STYLE}>
+                    <div>
+                        <strong>Unit:</strong>{" "}<OntologyTerm term={quantity.reference_range.unit}/>
                     </div>
-                </Descriptions.Item>
-            )}
-        </Descriptions>
-    );
-};
+                    <div>
+                        <strong>Low:</strong>{` ${quantity.reference_range.low}`}
+                    </div>
+                    <div>
+                        <strong>High:</strong>{` ${quantity.reference_range.high}`}
+                    </div>
+                </div>
+            </Descriptions.Item>
+        )}
+    </Descriptions>
+);
 Quantity.propTypes = {
     quantity: PropTypes.object,
     title: PropTypes.string,
@@ -78,7 +79,7 @@ const ComplexValue = ({complexValue}) => {
             size="small"
             columns={COMPLEX_VALUE_COLUMNS}
             dataSource={indexedData}
-            rowKey={"idx"}
+            rowKey="idx"
         />
     );
 };
@@ -87,53 +88,47 @@ ComplexValue.propTypes = {
 };
 
 
-const Value = ({value}) => {
-    return (
-        <>
-            {value?.quantity && <Quantity quantity={value.quantity}/>}
-            {value?.ontology_class && <OntologyTerm term={value.ontology_class}/>}
-        </>
-    );
-};
+const Value = ({value}) => (
+    <>
+        {value?.quantity && <Quantity quantity={value.quantity}/>}
+        {value?.ontology_class && <OntologyTerm term={value.ontology_class}/>}
+    </>
+);
 Value.propTypes = {
     value: PropTypes.object,
 };
 
 
-const MeasurementValue = ({measurement}) => {
-    return (
-        <>
-            {measurement?.value && (
-                <Value value={measurement.value}/>
-            )}
-            {measurement?.complex_value && (
-                <ComplexValue
-                    complexValue={measurement.complex_value}
-                />
-            )}
-        </>
-    );
-};
+const MeasurementValue = ({measurement}) => (
+    <>
+        {measurement?.value && (
+            <Value value={measurement.value}/>
+        )}
+        {measurement?.complex_value && (
+            <ComplexValue
+                complexValue={measurement.complex_value}
+            />
+        )}
+    </>
+);
 MeasurementValue.propTypes = {
     measurement: measurementPropTypesShape,
 };
 
 
-const MeasurementDetails = ({ measurement }) => {
-    return (
-        <Descriptions bordered column={1} size="small">
-            <Descriptions.Item label="Measurement Value">
-                <MeasurementValue measurement={measurement}/>
-            </Descriptions.Item>
-            <Descriptions.Item label="Procedure">
-                {measurement?.procedure
-                    ? <Procedure procedure={measurement.procedure}/>
-                    : EM_DASH
-                }
-            </Descriptions.Item>
-        </Descriptions>
-    );
-};
+const MeasurementDetails = ({ measurement }) => (
+    <Descriptions bordered column={1} size="small">
+        <Descriptions.Item label="Measurement Value">
+            <MeasurementValue measurement={measurement}/>
+        </Descriptions.Item>
+        <Descriptions.Item label="Procedure">
+            {measurement?.procedure
+                ? <Procedure procedure={measurement.procedure}/>
+                : EM_DASH
+            }
+        </Descriptions.Item>
+    </Descriptions>
+);
 MeasurementDetails.propTypes = {
     measurement: measurementPropTypesShape,
 };
@@ -170,17 +165,20 @@ const MEASUREMENTS_COLUMNS = [
     {
         title: "Procedure Code",
         key: "procedure",
-        render: (_, measurement) => {
-            return <OntologyTerm term={measurement?.procedure?.code}/>;
-        },
+        render: (_, measurement) => (
+            <OntologyTerm term={measurement?.procedure?.code}/>
+        ),
     },
 ];
 
-export const MeasurementsTable = ({measurements}) => {
+const expandedMeasurementRowRender = (measurement) => (
+    <MeasurementDetails measurement={measurement} />
+);
+export const MeasurementsTable = ({ measurements }) => {
     const indexedMeasurements = measurements.map((m, idx) => ({...m, idx: `${idx}`}));
-    const [selectedRowKeys, setSelectedRowKeys] = useState([]);
+    const [expandedRowKeys, setExpandedRowKeys] = useState([]);
     const onExpand = (e, measurement) => {
-        setSelectedRowKeys([e ? measurement.idx : undefined]);
+        setExpandedRowKeys([e ? measurement.idx : undefined]);
     };
     return (
         <Table
@@ -188,15 +186,9 @@ export const MeasurementsTable = ({measurements}) => {
             pagination={false}
             size="middle"
             columns={MEASUREMENTS_COLUMNS}
-            onExpand={onExpand}
-            expandedRowKeys={selectedRowKeys}
-            expandedRowRender={(measurement) => (
-                <MeasurementDetails
-                    measurement={measurement}
-                />
-            )}
+            expandable={{ onExpand, expandedRowKeys, expandedRowRender: expandedMeasurementRowRender }}
             dataSource={indexedMeasurements}
-            rowKey={"idx"}
+            rowKey="idx"
         />
     );
 };
@@ -204,38 +196,28 @@ MeasurementsTable.propTypes = {
     measurements: PropTypes.arrayOf(measurementPropTypesShape),
 };
 
-const RoutedMeasurementsTable = ({measurements, handleMeasurementClick}) => {
-    return (
-        <RoutedIndividualContentTable
-            data={measurements}
-            urlParam="selectedMeasurement"
-            columns={MEASUREMENTS_COLUMNS}
-            rowKey="idx"
-            handleRowSelect={handleMeasurementClick}
-            expandedRowRender={(measurement) => (
-                <MeasurementDetails
-                    measurement={measurement}
-                />
-            )}
-        />
-    );
-};
+const RoutedMeasurementsTable = ({ measurements, handleMeasurementClick }) => (
+    <RoutedIndividualContentTable
+        data={measurements}
+        urlParam="selectedMeasurement"
+        columns={MEASUREMENTS_COLUMNS}
+        rowKey="idx"
+        handleRowSelect={handleMeasurementClick}
+        expandedRowRender={expandedMeasurementRowRender}
+    />
+);
 RoutedMeasurementsTable.propTypes = {
     measurements: PropTypes.arrayOf(measurementPropTypesShape),
     handleMeasurementClick: PropTypes.func,
 };
 
-const IndividualMeasurements = ({individual}) => {
+const IndividualMeasurements = ({ individual }) => {
     const measurements = useIndividualPhenopacketDataIndex(individual, "measurements");
     return (
         <RoutedIndividualContent
-            data={measurements}
             urlParam="selectedMeasurement"
-            renderContent={({data, onContentSelect}) => (
-                <RoutedMeasurementsTable
-                    measurements={data}
-                    handleMeasurementClick={onContentSelect}
-                />
+            renderContent={({ onContentSelect }) => (
+                <RoutedMeasurementsTable measurements={measurements} handleMeasurementClick={onContentSelect} />
             )}
         />
     );

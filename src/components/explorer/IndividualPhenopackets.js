@@ -4,8 +4,8 @@ import { useDispatch, useSelector } from "react-redux";
 import { Divider, Skeleton } from "antd";
 import ReactJson from "react-json-view";
 
-import { fetchIndividualPhenopacketsIfNecessary } from "../../modules/metadata/actions";
-import { individualPropTypesShape } from "../../propTypes";
+import { fetchIndividualPhenopacketsIfNecessary } from "@/modules/metadata/actions";
+import { individualPropTypesShape } from "@/propTypes";
 
 import DownloadButton from "../DownloadButton";
 

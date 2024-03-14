@@ -5,7 +5,7 @@ import PropTypes from "prop-types";
 
 import { Button, Descriptions } from "antd";
 
-import { setIgvPosition } from "../../modules/explorer/actions";
+import { setIgvPosition } from "@/modules/explorer/actions";
 
 import "./explorer.css";
 import { ExplorerIndividualContext } from "./contexts/individual";

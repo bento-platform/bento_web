@@ -5,8 +5,8 @@ import PropTypes from "prop-types";
 
 import { Button, Descriptions, List, Table, Typography } from "antd";
 
-import { setIgvPosition } from "../../modules/explorer/actions";
-import { individualPropTypesShape } from "../../propTypes";
+import { setIgvPosition } from "@/modules/explorer/actions";
+import { individualPropTypesShape } from "@/propTypes";
 
 // TODO: Only show genes from the relevant dataset, if specified;
 //  highlight those found in search results, if specified

@@ -1,12 +1,12 @@
 import React, { useCallback, useMemo } from "react";
+import { Route, Switch, useHistory, useParams, useRouteMatch } from "react-router-dom";
 import PropTypes from "prop-types";
 
 import { Table } from "antd";
-import { Route, Switch, useHistory, useParams, useRouteMatch } from "react-router-dom/cjs/react-router-dom.min";
 
 export const RoutedIndividualContentTable = ({data, urlParam, columns, rowKey, handleRowSelect, expandedRowRender}) => {
     const paramValue = useParams()[urlParam];
-    const selectedRowKeys = useMemo(() => paramValue ? [paramValue] : [], [paramValue]);
+    const expandedRowKeys = useMemo(() => paramValue ? [paramValue] : [], [paramValue]);
     const onExpand = useCallback(
         (e, record) => handleRowSelect(e ? record[rowKey] : undefined),
         [handleRowSelect, rowKey],
@@ -17,9 +17,7 @@ export const RoutedIndividualContentTable = ({data, urlParam, columns, rowKey, h
             pagination={false}
             size="middle"
             columns={columns}
-            onExpand={onExpand}
-            expandedRowKeys={selectedRowKeys}
-            expandedRowRender={expandedRowRender}
+            expandable={{ onExpand, expandedRowKeys, expandedRowRender }}
             dataSource={data}
             rowKey={rowKey}
         />
@@ -29,37 +27,35 @@ RoutedIndividualContentTable.propTypes = {
     data: PropTypes.array,
     urlParam: PropTypes.string,
     columns: PropTypes.array,
-    rowKey: PropTypes.string,
+    rowKey: PropTypes.oneOfType([PropTypes.string, PropTypes.func]),
     handleRowSelect: PropTypes.func,
     expandedRowRender: PropTypes.func,
 };
 
-export const RoutedIndividualContent = ({data, renderContent, urlParam}) => {
+export const RoutedIndividualContent = ({ renderContent, urlParam }) => {
     const history = useHistory();
-    const match = useRouteMatch();
+    const { path, url } = useRouteMatch();
 
     const handleRoutedSelection = useCallback((selected) => {
         if (!selected) {
-            history.replace(match.url);
+            history.replace(url);
             return;
         }
-        history.replace(`${match.url}/${selected}`);
-    });
+        history.replace(`${url}/${selected}`);
+    }, [history, url]);
 
-    const contentNode = useMemo(() => renderContent({
-        "data": data,
-        "onContentSelect": handleRoutedSelection,
-    }), [data, handleRoutedSelection]);
+    const contentNode = useMemo(
+        () => renderContent({ onContentSelect: handleRoutedSelection }),
+        [handleRoutedSelection]);
 
     return (
         <Switch>
-            <Route path={`${match.path}/:${urlParam}`}>{contentNode}</Route>
-            <Route path={match.path}>{contentNode}</Route>
+            <Route path={`${path}/:${urlParam}`}>{contentNode}</Route>
+            <Route path={path}>{contentNode}</Route>
         </Switch>
     );
 };
 RoutedIndividualContent.propTypes = {
-    data: PropTypes.array,
     renderContent: PropTypes.func,
     urlParam: PropTypes.string,
 };
