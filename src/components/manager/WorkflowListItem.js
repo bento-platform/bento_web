@@ -1,7 +1,7 @@
 import React, { useMemo } from "react";
 import PropTypes from "prop-types";
 
-import {List, Tag} from "antd";
+import { List, Tag } from "antd";
 import {
     CheckSquareOutlined,
     DatabaseOutlined,
@@ -13,8 +13,8 @@ import {
     RightOutlined,
 } from "@ant-design/icons";
 
-import {nop} from "../../utils/misc";
-import {workflowPropTypesShape} from "../../propTypes";
+import { workflowPropTypesShape } from "@/propTypes";
+import { nop } from "@/utils/misc";
 
 const TYPE_TAG_DISPLAY = {
     number: {
@@ -50,7 +50,7 @@ const TYPE_TAG_DISPLAY = {
 const WorkflowInputTag = ({ id, type, children }) => {
     const display = useMemo(() => TYPE_TAG_DISPLAY[type.replace("[]", "")], [type]);
     return (
-        <Tag key={id} color={display.color} style={{marginBottom: "2px"}}>
+        <Tag key={id} color={display.color} style={{ marginBottom: "2px" }}>
             {display.icon}&nbsp;
             {id} ({children || type}{type.endsWith("[]") ? " array" : ""})
         </Tag>
@@ -65,7 +65,7 @@ WorkflowInputTag.propTypes = {
 const FLEX_1 = { flex: 1 };
 const MARGIN_RIGHT_1EM = { marginRight: "1em" };
 
-const WorkflowListItem = ({ onClick, workflow, rightAlignedTags }) => {
+const WorkflowListItem = ({ onClick, workflow, rightAlignedTags, style }) => {
     const { inputs, name, description, data_type: dt } = workflow;
 
     const typeTag = dt ? <Tag key={dt}>{dt}</Tag> : null;
@@ -86,13 +86,13 @@ const WorkflowListItem = ({ onClick, workflow, rightAlignedTags }) => {
 
     const workflowNameStyle = rightAlignedTags ? FLEX_1 : MARGIN_RIGHT_1EM;
 
-    return <List.Item>
+    return <List.Item style={style}>
         <List.Item.Meta
             title={selectable
                 ? <a onClick={() => (onClick || nop)()} style={{ display: "flex" }}>
                     <span style={workflowNameStyle}>
                         {name}
-                        <RightOutlined style={{marginLeft: "0.3rem"}} />
+                        <RightOutlined style={{ marginLeft: "0.3rem" }} />
                     </span><span>{typeTag}</span></a>
                 : <span style={{ display: "flex" }}>
                     <span style={workflowNameStyle}>{name}</span>
@@ -119,6 +119,7 @@ WorkflowListItem.propTypes = {
     selectable: PropTypes.bool,
     onClick: PropTypes.func,
     rightAlignedTags: PropTypes.bool,
+    style: PropTypes.object,
 };
 
 export default WorkflowListItem;

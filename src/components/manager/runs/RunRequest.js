@@ -41,7 +41,7 @@ const RunRequest = ({run}) => {
         </Descriptions.Item>
         <Descriptions.Item label="Workflow" span={3}>
             <List itemLayout="vertical">
-                <WorkflowListItem workflow={details.request.tags.workflow_metadata} />
+                <WorkflowListItem workflow={details.request.tags.workflow_metadata} style={{ paddingBottom: 0 }} />
             </List>
         </Descriptions.Item>
         <Descriptions.Item label="Tags">
