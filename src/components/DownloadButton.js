@@ -16,6 +16,10 @@ const BROWSER_RENDERED_EXTENSIONS = [
     ...VIDEO_FILE_EXTENSIONS,
 ];
 
+const FORM_ALLOWED_EXTRA_KEYS = new Set([
+    "path",  // Used by RunOutputs to download specific WES run artifacts
+]);
+
 const DownloadButton = ({
     disabled,
     uri,
@@ -48,13 +52,15 @@ const DownloadButton = ({
         tokenInput.setAttribute("value", accessToken);
         form.appendChild(tokenInput);
 
-        Object.entries(extraFormData).forEach(([k, v]) => {
-            const extraInput = document.createElement("input");
-            extraInput.setAttribute("type", "hidden");
-            extraInput.setAttribute("name", k);
-            extraInput.setAttribute("value", v.toString());
-            form.appendChild(extraInput);
-        });
+        Object.entries(extraFormData)
+            .filter(([k, _]) => FORM_ALLOWED_EXTRA_KEYS.has(k))  // Only allowed extra keys
+            .forEach(([k, v]) => {
+                const extraInput = document.createElement("input");
+                extraInput.setAttribute("type", "hidden");
+                extraInput.setAttribute("name", k);
+                extraInput.setAttribute("value", v.toString());
+                form.appendChild(extraInput);
+            });
 
         document.body.appendChild(form);
 
