@@ -10,8 +10,8 @@ import { FORM_BUTTON_COL, FORM_LABEL_COL, FORM_WRAPPER_COL } from "./workflowCom
 
 /** @type {Object.<string, React.CSSProperties>} */
 const styles = {
-    workflowListItem: { marginBottom: "14px" },
-    runButton: { marginTop: "16px", float: "right" },
+    workflowListItem: { paddingTop: 4 },
+    runButton: { marginTop: 16, float: "right" },
 };
 
 const RunSetupConfirmDisplay = ({ selectedWorkflow, inputs, handleRunWorkflow, runButtonText }) => {
@@ -20,8 +20,8 @@ const RunSetupConfirmDisplay = ({ selectedWorkflow, inputs, handleRunWorkflow, r
     return (
         <Form labelCol={FORM_LABEL_COL} wrapperCol={FORM_WRAPPER_COL}>
             <Form.Item label="Workflow">
-                <List itemLayout="vertical" style={styles.workflowListItem}>
-                    <WorkflowListItem workflow={selectedWorkflow}/>
+                <List itemLayout="vertical">
+                    <WorkflowListItem workflow={selectedWorkflow} style={styles.workflowListItem} />
                 </List>
             </Form.Item>
             <Form.Item label="Inputs">
