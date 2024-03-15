@@ -11,8 +11,6 @@ export const FETCH_RUN_LOG_STDOUT = createNetworkActionTypes("FETCH_RUN_LOG_STDO
 export const FETCH_RUN_LOG_STDERR = createNetworkActionTypes("FETCH_RUN_LOG_STDERR");
 
 export const SUBMIT_WORKFLOW_RUN = createNetworkActionTypes("SUBMIT_WORKFLOW_RUN");
-export const SUBMIT_INGESTION_RUN = createNetworkActionTypes("SUBMIT_INGESTION_RUN");
-export const SUBMIT_ANALYSIS_RUN = createNetworkActionTypes("SUBMIT_ANALYSIS_RUN");
 
 
 // TODO: If needed
