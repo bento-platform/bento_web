@@ -12,8 +12,7 @@ import {
 
 const INITIAL_RUNS_STATE = {
     isFetching: false,
-    isSubmittingIngestionRun: false,
-    isSubmittingAnalysisRun: false,
+    isSubmittingRun: false,
     items: [],
     itemsByID: {},
     streamsByID: {},
@@ -165,9 +164,8 @@ export const runs = (
         // SUBMIT_INGESTION_RUN/SUBMIT_ANALYSIS_RUN
 
         case SUBMIT_INGESTION_RUN.REQUEST:
-            return {...state, isSubmittingIngestionRun: true};
         case SUBMIT_ANALYSIS_RUN.REQUEST:
-            return {...state, isSubmittingAnalysisRun: true};
+            return {...state, isSubmittingRun: true};
 
         case SUBMIT_INGESTION_RUN.RECEIVE:
         case SUBMIT_ANALYSIS_RUN.RECEIVE: {
@@ -183,9 +181,8 @@ export const runs = (
         }
 
         case SUBMIT_INGESTION_RUN.FINISH:
-            return {...state, isSubmittingIngestionRun: false};
         case SUBMIT_ANALYSIS_RUN.FINISH:
-            return {...state, isSubmittingAnalysisRun: false};
+            return {...state, isSubmittingRun: false};
 
 
         default:
