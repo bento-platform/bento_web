@@ -10,7 +10,7 @@ import { FORM_BUTTON_COL, FORM_LABEL_COL, FORM_WRAPPER_COL } from "./workflowCom
 
 /** @type {Object.<string, React.CSSProperties>} */
 const styles = {
-    workflowListItem: { paddingTop: 4 },
+    workflowListItem: { paddingTop: 4, paddingBottom: 0 },
     runButton: { marginTop: 16, float: "right" },
 };
 
