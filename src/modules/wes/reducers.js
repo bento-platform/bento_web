@@ -6,8 +6,6 @@ import {
     FETCH_RUN_LOG_STDERR,
 
     SUBMIT_WORKFLOW_RUN,
-    SUBMIT_INGESTION_RUN,
-    SUBMIT_ANALYSIS_RUN,
 } from "./actions";
 
 
