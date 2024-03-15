@@ -125,7 +125,7 @@ export const submitWorkflowRun = networkAction(
         };
 
         return {
-            SUBMIT_WORKFLOW_RUN,
+            types: SUBMIT_WORKFLOW_RUN,
             params: { request: runRequest },
             url: `${getState().services.wesService.url}/runs`,
             req: {
