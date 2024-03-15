@@ -16,6 +16,7 @@ const ManagerAccessContent = lazy(() => import("./manager/access/ManagerAccessCo
 const ManagerDropBoxContent = lazy(() => import("./manager/ManagerDropBoxContent"));
 const ManagerIngestionContent = lazy(() => import("./manager/ManagerIngestionContent"));
 const ManagerAnalysisContent = lazy(() => import("./manager/ManagerAnalysisContent"));
+const ManagerExportContent = lazy(() => import("./manager/ManagerExportContent"));
 const ManagerWorkflowsContent = lazy(() => import("./manager/ManagerWorkflowsContent"));
 const ManagerRunsContent = lazy(() => import("./manager/runs/ManagerRunsContent"));
 const ManagerDRSContent = lazy(() => import("./manager/drs/ManagerDRSContent"));
@@ -52,6 +53,7 @@ const DataManagerContent = () => {
         },
         {url: "/admin/data/manager/ingestion", text: "Ingestion"},
         {url: "/admin/data/manager/analysis", text: "Analysis"},
+        {url: "/admin/data/manager/export", text: "Export"},
         {url: "/admin/data/manager/workflows", text: "Workflows"},
         {url: "/admin/data/manager/runs", text: "Workflow Runs"},
         {url: "/admin/data/manager/drs", text: "DRS Objects"},
@@ -87,6 +89,7 @@ const DataManagerContent = () => {
                     <Route exact path="/admin/data/manager/files"><ManagerDropBoxContent /></Route>
                     <Route exact path="/admin/data/manager/ingestion"><ManagerIngestionContent /></Route>
                     <Route exact path="/admin/data/manager/analysis"><ManagerAnalysisContent /></Route>
+                    <Route exact path="/admin/data/manager/export"><ManagerExportContent /></Route>
                     <Route exact path="/admin/data/manager/workflows"><ManagerWorkflowsContent /></Route>
                     <Route exact path="/admin/data/manager/drs"><ManagerDRSContent /></Route>
                     <Route exact path="/admin/data/manager/genomes"><ManagerReferenceGenomesContent /></Route>

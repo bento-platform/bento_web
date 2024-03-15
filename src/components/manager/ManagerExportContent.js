@@ -4,27 +4,26 @@ import { useHistory } from "react-router-dom";
 
 import { message } from "antd";
 
-import { submitIngestionWorkflowRun } from "@/modules/wes/actions";
+import { submitExportWorkflowRun } from "@/modules/wes/actions";
 
 import RunSetupWizard from "./RunSetupWizard";
 import RunSetupConfirmDisplay from "./RunSetupConfirmDisplay";
 
-const ManagerIngestionContent = () => {
+const ManagerExportContent = () => {
     const dispatch = useDispatch();
     const history = useHistory();
 
     return <RunSetupWizard
-        workflowType="ingestion"
-        workflowSelectionDescription="Choose an ingestion workflow."
-        confirmDisplay={(props) => <RunSetupConfirmDisplay runButtonText="Run Ingestion" {...props} />}
-        onSubmit={({ selectedWorkflow, inputs }) => {
+        workflowType="export"
+        confirmDisplay={(props) => <RunSetupConfirmDisplay runButtonText="Run Export" {...props} />}
+        onSubmit={({selectedWorkflow, inputs}) => {
             if (!selectedWorkflow) {
                 message.error("Missing workflow selection; cannot submit run!");
                 return;
             }
-            dispatch(submitIngestionWorkflowRun(selectedWorkflow, inputs, "/admin/data/manager/runs", history));
+            dispatch(submitExportWorkflowRun(selectedWorkflow, inputs, "/admin/data/manager/runs", history));
         }}
     />;
 };
 
-export default ManagerIngestionContent;
+export default ManagerExportContent;

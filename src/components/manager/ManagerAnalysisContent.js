@@ -21,14 +21,7 @@ const ManagerAnalysisContent = () => {
                 message.error("Missing workflow selection; cannot submit run!");
                 return;
             }
-
-            dispatch(submitAnalysisWorkflowRun(
-                selectedWorkflow.service_base_url,
-                selectedWorkflow,
-                inputs,
-                "/admin/data/manager/runs",
-                history,
-            ));
+            dispatch(submitAnalysisWorkflowRun(selectedWorkflow, inputs, "/admin/data/manager/runs", history));
         }}
     />;
 };

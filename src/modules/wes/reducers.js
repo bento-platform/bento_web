@@ -5,6 +5,7 @@ import {
     FETCH_RUN_LOG_STDOUT,
     FETCH_RUN_LOG_STDERR,
 
+    SUBMIT_WORKFLOW_RUN,
     SUBMIT_INGESTION_RUN,
     SUBMIT_ANALYSIS_RUN,
 } from "./actions";
@@ -161,14 +162,12 @@ export const runs = (
         case FETCH_RUN_LOG_STDERR.ERROR:
             return streamError(state, action, "stderr");
 
-        // SUBMIT_INGESTION_RUN/SUBMIT_ANALYSIS_RUN
+        // SUBMIT_WORKFLOW_RUN
 
-        case SUBMIT_INGESTION_RUN.REQUEST:
-        case SUBMIT_ANALYSIS_RUN.REQUEST:
+        case SUBMIT_WORKFLOW_RUN.REQUEST:
             return {...state, isSubmittingRun: true};
 
-        case SUBMIT_INGESTION_RUN.RECEIVE:
-        case SUBMIT_ANALYSIS_RUN.RECEIVE: {
+        case SUBMIT_WORKFLOW_RUN.RECEIVE: {
             // Create basic run object with no other details
             //  action.data is of structure {run_id} with no other props
             const {data, request} = action;
@@ -180,8 +179,7 @@ export const runs = (
             };
         }
 
-        case SUBMIT_INGESTION_RUN.FINISH:
-        case SUBMIT_ANALYSIS_RUN.FINISH:
+        case SUBMIT_WORKFLOW_RUN.FINISH:
             return {...state, isSubmittingRun: false};
 
 
