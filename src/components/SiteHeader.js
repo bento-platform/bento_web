@@ -75,7 +75,22 @@ const SiteHeader = () => {
                 disabled: !isAuthenticated,
                 key: "explorer",
             },
-            // TODO: Only if cBioPortal access is enabled for any project/dataset or something like that...
+            // TODO: Only show if admin / can data manage anything
+            {
+                key: "admin-data-manager",
+                url: "/admin/data/manager",
+                icon: <FolderOpenOutlined />,
+                text: "Data Manager",
+                disabled: !isAuthenticated,
+            },
+            {
+                key: "admin-services",
+                url: "/admin/services",
+                icon: <DashboardOutlined />,
+                text: "Services",
+                disabled: !isAuthenticated,
+            },
+            // ---
             ...(BENTO_CBIOPORTAL_ENABLED
                 ? [
                     {
@@ -86,29 +101,6 @@ const SiteHeader = () => {
                     },
                 ]
                 : []),
-            // TODO: Only show if admin / can data manage anything
-            {
-                url: "/admin",
-                icon: <UserOutlined />,
-                text: "Admin",
-                disabled: !isAuthenticated,
-                children: [
-                    {
-                        key: "admin-services",
-                        url: "/admin/services",
-                        icon: <DashboardOutlined />,
-                        text: "Services",
-                        disabled: !isAuthenticated,
-                    },
-                    {
-                        key: "admin-data-manager",
-                        url: "/admin/data/manager",
-                        icon: <FolderOpenOutlined />,
-                        text: "Data Manager",
-                        disabled: !isAuthenticated,
-                    },
-                ],
-            },
             {
                 style: { marginLeft: "auto" },
                 icon: <SettingOutlined />,
