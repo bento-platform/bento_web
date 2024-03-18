@@ -1,16 +1,13 @@
 import React, { useCallback, useEffect, useState } from "react";
 import PropTypes from "prop-types";
 import { Collapse, Select, Typography } from "antd";
-import ReactJson from "react-json-view";
+import ReactJson from "react18-json-view";
 
 const { Panel } = Collapse;
 
-// TODO: replace react-json-view with a maintained package.
-
 const DEFAULT_REACT_JSON_OPTIONS = {
-    "displayDataTypes": false,
     "enableClipboard": false,
-    "name": false,
+    "theme": "github",
 };
 
 const JSON_ARRAY_GROUP_SIZE = 100;

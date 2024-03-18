@@ -1,10 +1,9 @@
 import React from "react";
 import PropTypes from "prop-types";
 
-import {Descriptions, List, Tag} from "antd";
+import { Descriptions, List, Tag } from "antd";
 
-import ReactJson from "react-json-view";
-
+import JsonView from "@/components/JsonView";
 import WorkflowListItem from "../WorkflowListItem";
 
 const RunRequest = ({run}) => {
@@ -21,12 +20,7 @@ const RunRequest = ({run}) => {
             </Descriptions.Item>
         )}
         <Descriptions.Item label="Parameters" span={3}>
-            <ReactJson
-                src={details.request.workflow_params}
-                displayDataTypes={false}
-                enableClipboard={false}
-                name={null}
-            />
+            <JsonView src={details.request.workflow_params} collapsed={false} />
         </Descriptions.Item>
         <Descriptions.Item label="Workflow Type">
             {details.request.workflow_type}
@@ -45,12 +39,7 @@ const RunRequest = ({run}) => {
             </List>
         </Descriptions.Item>
         <Descriptions.Item label="Tags">
-            <ReactJson
-                src={details.request.tags}
-                displayDataTypes={false}
-                enableClipboard={false}
-                name={null}
-            />
+            <JsonView src={details.request.tags} collapsed={false} />
         </Descriptions.Item>
     </Descriptions>;
 };

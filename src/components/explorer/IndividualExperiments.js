@@ -14,7 +14,7 @@ import { guessFileType } from "@/utils/files";
 import { useDeduplicatedIndividualBiosamples } from "./utils";
 import { VIEWABLE_FILE_EXTENSIONS } from "../display/FileDisplay";
 
-import JsonView from "./JsonView";
+import JsonView from "../JsonView";
 import OntologyTerm from "./OntologyTerm";
 import DownloadButton from "../DownloadButton";
 import FileModal from "../display/FileModal";
@@ -208,7 +208,7 @@ const ExperimentDetail = ({ experiment }) => {
                     </div>
                 </Descriptions.Item>
                 <Descriptions.Item span={2} label="Extra Properties">
-                    <JsonView inputJson={extraProperties} />
+                    <JsonView src={extraProperties} />
                 </Descriptions.Item>
             </Descriptions>
             <Typography.Title level={4}>

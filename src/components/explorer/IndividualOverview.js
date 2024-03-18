@@ -1,9 +1,9 @@
 import React from "react";
-import ReactJson from "react-json-view";
 
 import { Descriptions } from "antd";
 
 import { EM_DASH } from "@/constants";
+import JsonView from "@/components/JsonView";
 import { individualPropTypesShape } from "@/propTypes";
 import OntologyTerm from "./OntologyTerm";
 import TimeElement from "./TimeElement";
@@ -28,15 +28,8 @@ const IndividualOverview = ({individual}) => {
             </Descriptions.Item>
             <Descriptions.Item label="Extra Properties" span={6}>
                 {(individual.hasOwnProperty("extra_properties") && Object.keys(individual.extra_properties).length)
-                    ?  (
-                        <ReactJson
-                            src={individual.extra_properties}
-                            displayDataTypes={false}
-                            name={null}
-                            collapsed={1}
-                            enableClipboard={false}
-                        />
-                    ) : EM_DASH
+                    ? <JsonView src={individual.extra_properties} />
+                    : EM_DASH
                 }
             </Descriptions.Item>
         </Descriptions>

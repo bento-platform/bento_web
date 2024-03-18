@@ -4,9 +4,8 @@ import { useSelector } from "react-redux";
 
 import { Col, Layout, Row, Skeleton, Typography } from "antd";
 
-import ReactJson from "react-json-view";
-
-import { LAYOUT_CONTENT_STYLE } from "../../styles/layoutContent";
+import JsonView from "@/components/JsonView";
+import { LAYOUT_CONTENT_STYLE } from "@/styles/layoutContent";
 
 const ServiceOverview = () => {
     const { kind } = useParams();
@@ -26,21 +25,11 @@ const ServiceOverview = () => {
                 <Row>
                     <Col span={12}>
                         <Typography.Title level={4}>Service Info</Typography.Title>
-                        <ReactJson
-                            src={serviceInfo ?? {}}
-                            displayDataTypes={false}
-                            enableClipboard={false}
-                            name={null}
-                        />
+                        <JsonView src={serviceInfo ?? {}} collapsed={false} />
                     </Col>
                     <Col span={12}>
                         <Typography.Title level={4}>Bento Service Configuration</Typography.Title>
-                        <ReactJson
-                            src={bentoServiceInfo ?? {}}
-                            displayDataTypes={false}
-                            enableClipboard={false}
-                            name={null}
-                        />
+                        <JsonView src={bentoServiceInfo ?? {}} collapsed={false} />
                     </Col>
                 </Row>
             </Layout.Content>

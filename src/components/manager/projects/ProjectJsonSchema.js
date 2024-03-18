@@ -4,8 +4,8 @@ import PropTypes from "prop-types";
 
 import { Button, Card, Descriptions, Modal, Typography } from "antd";
 import { DeleteOutlined } from "@ant-design/icons";
-import ReactJson from "react-json-view";
 
+import JsonView from "@/components/JsonView";
 import { deleteProjectJsonSchema } from "@/modules/metadata/actions";
 import { projectJsonSchemaTypesShape } from "@/propTypes";
 
@@ -76,13 +76,7 @@ const ProjectJsonSchema = ({ projectSchema }) => {
                 </Descriptions.Item>
 
                 <Descriptions.Item label="JSON Schema">
-                    <ReactJson
-                        src={projectSchema.json_schema ?? {}}
-                        collapsed={true}
-                        displayDataTypes={false}
-                        enableClipboard={false}
-                        name={null}
-                    />
+                    <JsonView src={projectSchema.json_schema ?? {}} collapsed={true} />
                 </Descriptions.Item>
             </Descriptions>
         </Card>

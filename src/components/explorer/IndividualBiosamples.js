@@ -13,7 +13,7 @@ import {
 } from "@/propTypes";
 import { useDeduplicatedIndividualBiosamples } from "./utils";
 
-import JsonView from "./JsonView";
+import JsonView from "../JsonView";
 import OntologyTerm from "./OntologyTerm";
 import TimeElement from "./TimeElement";
 
@@ -114,7 +114,7 @@ const BiosampleDetail = ({ biosample, handleExperimentClick }) => {
             <Descriptions.Item label="Extra Properties">
                 {biosample.hasOwnProperty("extra_properties") &&
                     Object.keys(biosample.extra_properties).length ? (
-                        <JsonView inputJson={biosample.extra_properties} />
+                        <JsonView src={biosample.extra_properties} />
                     ) : (
                         EM_DASH
                     )}
