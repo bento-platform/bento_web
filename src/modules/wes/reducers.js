@@ -5,15 +5,13 @@ import {
     FETCH_RUN_LOG_STDOUT,
     FETCH_RUN_LOG_STDERR,
 
-    SUBMIT_INGESTION_RUN,
-    SUBMIT_ANALYSIS_RUN,
+    SUBMIT_WORKFLOW_RUN,
 } from "./actions";
 
 
 const INITIAL_RUNS_STATE = {
     isFetching: false,
-    isSubmittingIngestionRun: false,
-    isSubmittingAnalysisRun: false,
+    isSubmittingRun: false,
     items: [],
     itemsByID: {},
     streamsByID: {},
@@ -162,15 +160,12 @@ export const runs = (
         case FETCH_RUN_LOG_STDERR.ERROR:
             return streamError(state, action, "stderr");
 
-        // SUBMIT_INGESTION_RUN/SUBMIT_ANALYSIS_RUN
+        // SUBMIT_WORKFLOW_RUN
 
-        case SUBMIT_INGESTION_RUN.REQUEST:
-            return {...state, isSubmittingIngestionRun: true};
-        case SUBMIT_ANALYSIS_RUN.REQUEST:
-            return {...state, isSubmittingAnalysisRun: true};
+        case SUBMIT_WORKFLOW_RUN.REQUEST:
+            return {...state, isSubmittingRun: true};
 
-        case SUBMIT_INGESTION_RUN.RECEIVE:
-        case SUBMIT_ANALYSIS_RUN.RECEIVE: {
+        case SUBMIT_WORKFLOW_RUN.RECEIVE: {
             // Create basic run object with no other details
             //  action.data is of structure {run_id} with no other props
             const {data, request} = action;
@@ -182,10 +177,8 @@ export const runs = (
             };
         }
 
-        case SUBMIT_INGESTION_RUN.FINISH:
-            return {...state, isSubmittingIngestionRun: false};
-        case SUBMIT_ANALYSIS_RUN.FINISH:
-            return {...state, isSubmittingAnalysisRun: false};
+        case SUBMIT_WORKFLOW_RUN.FINISH:
+            return {...state, isSubmittingRun: false};
 
 
         default:

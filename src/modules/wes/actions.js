@@ -2,16 +2,15 @@ import {message} from "antd";
 
 import "antd/es/message/style/css";
 
-import {createNetworkActionTypes, networkAction} from "../../utils/actions";
-import {createFormData} from "../../utils/requests";
+import { createNetworkActionTypes, networkAction } from "@/utils/actions";
+import { createFormData } from "@/utils/requests";
 
 export const FETCH_RUNS = createNetworkActionTypes("FETCH_RUNS");
 export const FETCH_RUN_DETAILS = createNetworkActionTypes("FETCH_RUN_DETAILS");
 export const FETCH_RUN_LOG_STDOUT = createNetworkActionTypes("FETCH_RUN_LOG_STDOUT");
 export const FETCH_RUN_LOG_STDERR = createNetworkActionTypes("FETCH_RUN_LOG_STDERR");
 
-export const SUBMIT_INGESTION_RUN = createNetworkActionTypes("SUBMIT_INGESTION_RUN");
-export const SUBMIT_ANALYSIS_RUN = createNetworkActionTypes("SUBMIT_ANALYSIS_RUN");
+export const SUBMIT_WORKFLOW_RUN = createNetworkActionTypes("SUBMIT_WORKFLOW_RUN");
 
 
 // TODO: If needed
@@ -107,7 +106,7 @@ export const fetchRunLogStreamsIfPossibleAndNeeded = runID => (dispatch, getStat
 
 
 export const submitWorkflowRun = networkAction(
-    (types, serviceBaseUrl, workflow, inputs, onSuccess, errorMessage, tags) => (dispatch, getState) => {
+    (serviceBaseUrl, workflow, inputs, onSuccess, errorMessage) => (dispatch, getState) => {
         const serviceUrlRStrip = serviceBaseUrl.replace(/\/$/, "");
 
         const runRequest = {
@@ -120,12 +119,11 @@ export const submitWorkflowRun = networkAction(
             tags: {
                 workflow_id: workflow.id,
                 workflow_metadata: workflow,
-                ...(tags ?? {}),
             },
         };
 
         return {
-            types,
+            types: SUBMIT_WORKFLOW_RUN,
             params: { request: runRequest },
             url: `${getState().services.wesService.url}/runs`,
             req: {
@@ -137,30 +135,19 @@ export const submitWorkflowRun = networkAction(
         };
     });
 
-
-export const submitIngestionWorkflowRun = (serviceBaseUrl, workflow, inputs, redirect, hist) => (dispatch) =>
+const _workflowSubmitAction = (type) => (workflow, inputs, redirect, hist) => (dispatch) =>
     dispatch(submitWorkflowRun(
-        SUBMIT_INGESTION_RUN,
-        serviceBaseUrl,
+        workflow.service_base_url,
         workflow,
         inputs,
         run => {  // onSuccess
-            message.success(`Ingestion with run ID "${run.run_id}" submitted!`);
+            message.success(
+                `${type.charAt(0).toUpperCase()}${type.substring(1)} with run ID "${run.run_id}" submitted!`);
             if (redirect) hist.push(redirect);
         },
-        "Error submitting ingestion workflow",  // errorMessage
+        `Error submitting ${type} workflow`,  // errorMessage
     ));
 
-
-export const submitAnalysisWorkflowRun = (serviceBaseUrl, workflow, inputs, redirect, hist) => (dispatch) =>
-    dispatch(submitWorkflowRun(
-        SUBMIT_ANALYSIS_RUN,
-        serviceBaseUrl,
-        workflow,
-        inputs,
-        run => {  // onSuccess
-            message.success(`Analysis with run ID "${run.run_id}" submitted!`);
-            if (redirect) hist.push(redirect);
-        },
-        "Error submitting analysis workflow",  // errorMessage
-    ));
+export const submitIngestionWorkflowRun = _workflowSubmitAction("ingestion");
+export const submitAnalysisWorkflowRun = _workflowSubmitAction("analysis");
+export const submitExportWorkflowRun = _workflowSubmitAction("export");

@@ -72,6 +72,10 @@ const RunSetupWizard = ({
     }, []);
 
     const handleRunWorkflow = useCallback(() => {
+        if (!selectedWorkflow) {
+            console.error("handleRunWorkflow called without a selected workflow");
+            return;
+        }
         onSubmit({ selectedWorkflow, inputs });
     }, [selectedWorkflow, inputs]);
 
