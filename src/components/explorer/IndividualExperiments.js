@@ -12,13 +12,13 @@ import { getFileDownloadUrlsFromDrs } from "@/modules/drs/actions";
 import { guessFileType } from "@/utils/files";
 
 import { useDeduplicatedIndividualBiosamples } from "./utils";
-import { VIEWABLE_FILE_EXTENSIONS } from "../display/FileDisplay";
+import { VIEWABLE_FILE_EXTENSIONS } from "@/components/display/FileDisplay";
 
-import JsonView from "../JsonView";
-import OntologyTerm from "./OntologyTerm";
-import DownloadButton from "../DownloadButton";
-import FileModal from "../display/FileModal";
+import DownloadButton from "@/components/DownloadButton";
+import FileModal from "@/components/display/FileModal";
+import JsonView from "@/components/JsonView";
 import { RoutedIndividualContent, RoutedIndividualContentTable } from "@/components/explorer/RoutedIndividualContent";
+import OntologyTerm from "./OntologyTerm";
 
 
 const VIEWABLE_FILE_FORMATS = ["PDF", "CSV", "TSV"];

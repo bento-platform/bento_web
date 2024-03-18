@@ -13,7 +13,7 @@ import {
 } from "@/propTypes";
 import { useDeduplicatedIndividualBiosamples } from "./utils";
 
-import JsonView from "../JsonView";
+import JsonView from "@/components/JsonView";
 import OntologyTerm from "./OntologyTerm";
 import TimeElement from "./TimeElement";
 
