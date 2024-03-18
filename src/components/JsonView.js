@@ -8,7 +8,6 @@ const JsonView = ({ src, collapsed }) => (
         enableClipboard={false}
         indentWidth={2}
         collapsed={collapsed}
-        theme="github"
     />
 );
 
