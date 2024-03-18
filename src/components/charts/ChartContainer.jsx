@@ -7,8 +7,8 @@ const TITLE_STYLE = {
     marginBottom: "10px",
 };
 
-const ChartContainer = ({ title, children, empty }) => (
-    <div style={{ marginBottom: "20px", width: "420px" }}>
+const ChartContainer = ({ title, children, empty, width }) => (
+    <div style={{ marginBottom: 20, width: width ?? 420 }}>
         <h2 style={TITLE_STYLE}>{title}</h2>
         {empty ? <NoDataComponent height={300} /> : children}
     </div>
@@ -18,6 +18,7 @@ ChartContainer.propTypes = {
     title: PropTypes.string.isRequired,
     children: PropTypes.node.isRequired,
     empty: PropTypes.bool,
+    width: PropTypes.oneOfType([PropTypes.number, PropTypes.string]),
 };
 const NoDataComponent = ({ height }) => (
     <div

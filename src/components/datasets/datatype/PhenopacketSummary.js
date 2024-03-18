@@ -1,19 +1,17 @@
 import React from "react";
 import { Col, Divider, Row, Statistic, Typography } from "antd";
 
-import { VictoryLabel, VictoryPie } from "victory";
-import VictoryPieWrapSVG from "../../VictoryPieWrapSVG";
+import PieChart from "@/components/charts/PieChart";
 
-import { summaryPropTypesShape } from "../../../propTypes";
-import { VICTORY_PIE_LABEL_PROPS, VICTORY_PIE_PROPS } from "../../../styles/victory";
+import { summaryPropTypesShape } from "@/propTypes";
 
 const PhenopacketSummary = ({ summary }) => {
     const individualsBySex = Object.entries(summary.data_type_specific?.individuals?.sex ?? {})
         .filter(e => e[1] > 0)
-        .map(([x, y]) => ({ x, y }));
+        .map(([name, value]) => ({ name, value }));
     const individualsByKaryotype = Object.entries(summary.data_type_specific?.individuals?.karyotypic_sex ?? {})
         .filter(e => e[1] > 0)
-        .map(([x, y]) => ({ x, y }));
+        .map(([name, value]) => ({ name, value }));
     return <>
         <Typography.Title level={4}>Object Counts</Typography.Title>
         <Row gutter={16}>
@@ -28,17 +26,25 @@ const PhenopacketSummary = ({ summary }) => {
                 <Divider />
                 <Typography.Title level={4}>Overview: Individuals</Typography.Title>
                 <Row gutter={16}>
-                    <Col span={12}>
-                        <VictoryPieWrapSVG>
-                            <VictoryPie data={individualsBySex} {...VICTORY_PIE_PROPS} />
-                            <VictoryLabel text="SEX" {...VICTORY_PIE_LABEL_PROPS} />
-                        </VictoryPieWrapSVG>
+                    <Col span={24}>
+                        <PieChart
+                            title="Sex"
+                            data={individualsBySex}
+                            containerWidth="100%"
+                            chartHeight={250}
+                            dataType="phenopacket"
+                            labelKey="[dataset item].subject.sex"
+                        />
                     </Col>
-                    <Col span={12}>
-                        <VictoryPieWrapSVG>
-                            <VictoryPie data={individualsByKaryotype} {...VICTORY_PIE_PROPS} />
-                            <VictoryLabel text="KARYOTYPE" {...VICTORY_PIE_LABEL_PROPS} />
-                        </VictoryPieWrapSVG>
+                    <Col span={24}>
+                        <PieChart
+                            title="Karyotypic Sex"
+                            data={individualsByKaryotype}
+                            containerWidth="100%"
+                            chartHeight={250}
+                            dataType="phenopacket"
+                            labelKey="[dataset item].subject.karyotypic_sex"
+                        />
                     </Col>
                 </Row>
             </>

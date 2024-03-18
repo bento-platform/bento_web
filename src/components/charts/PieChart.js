@@ -9,6 +9,7 @@ const PieChart = ({
     data = [],
     chartThreshold,
     chartHeight = 300,
+    containerWidth,
     onAutoQueryTransition,
     dataType,
     labelKey,
@@ -28,7 +29,7 @@ const PieChart = ({
 
     const pieChartData = useMemo(() => data.map(({ name, value }) => ({ x: name, y: value })), [data]);
     return (
-        <ChartContainer title={title} empty={!Array.isArray(data) && !data.length}>
+        <ChartContainer title={title} empty={!Array.isArray(data) && !data.length} width={containerWidth}>
             <BentoPie
                 data={pieChartData}
                 height={chartHeight}
@@ -50,6 +51,7 @@ PieChart.propTypes = {
     ).isRequired,
     chartThreshold: PropTypes.number,
     chartHeight: PropTypes.number,
+    containerWidth: PropTypes.oneOfType([PropTypes.number, PropTypes.string]),
     onAutoQueryTransition: PropTypes.func,
     dataType: PropTypes.string,
     labelKey: PropTypes.string,
