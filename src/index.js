@@ -31,6 +31,6 @@ document.addEventListener("DOMContentLoaded", () => {
                     <App />
                 </BentoAuthContextProvider>
             </BrowserRouter>
-        </Provider>
+        </Provider>,
     );
 });

@@ -73,17 +73,17 @@ const ExplorerIndividualContent = () => {
 
     const individualUrl = `/data/explorer/individuals/${individualID}`;
 
-    const overviewPath = "overview"
+    const overviewPath = "overview";
     const phenotypicFeaturesPath = "phenotypic-features";
-    const biosamplesPath = "biosamples"
+    const biosamplesPath = "biosamples";
     const experimentsPath = "experiments";
-    const diseasesPath = "diseases"
+    const diseasesPath = "diseases";
     const ontologiesPath = "ontologies";
-    const tracksPath = "tracks"
+    const tracksPath = "tracks";
     const phenopacketsPath = "phenopackets";
-    const interpretationsPath = "interpretations"
+    const interpretationsPath = "interpretations";
     const medicalActionsPath = "medical-actions";
-    const measurementsPath = "measurements"
+    const measurementsPath = "measurements";
 
     const individualPhenopackets = individual?.phenopackets ?? [];
     const individualMenu = [

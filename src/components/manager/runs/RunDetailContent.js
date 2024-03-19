@@ -1,7 +1,6 @@
 import React, { useCallback } from "react";
 import { useSelector } from "react-redux";
 import { Navigate, Route, Routes, useNavigate, useParams } from "react-router-dom";
-import PropTypes from "prop-types";
 
 import { Skeleton } from "antd";
 
