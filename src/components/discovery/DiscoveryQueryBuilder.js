@@ -222,7 +222,7 @@ DiscoveryQueryBuilder.propTypes = {
 
     searchLoading: PropTypes.bool,
     formValues: PropTypes.object,
-    dataTypeForms: PropTypes.arrayOf(PropTypes.object),
+    dataTypeForms: PropTypes.arrayOf(PropTypes.object).isRequired,
     joinFormValues: PropTypes.object,
     isFetchingTextSearch: PropTypes.bool,
 

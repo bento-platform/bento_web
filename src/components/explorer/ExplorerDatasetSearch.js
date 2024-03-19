@@ -34,6 +34,8 @@ const hasNonEmptyArrayProperty = (targetObject, propertyKey) => {
     return targetObject && Array.isArray(targetObject[propertyKey]) && targetObject[propertyKey].length;
 };
 
+const EMPTY_ARRAY = [];
+
 const ExplorerDatasetSearch = () => {
     const { dataset: datasetID } = useParams();
     const dispatch = useDispatch();
@@ -41,7 +43,7 @@ const ExplorerDatasetSearch = () => {
     const datasetsByID = useSelector((state) => state.projects.datasetsByID);
 
     const activeKey = useSelector((state) => state.explorer.activeTabByDatasetID[datasetID]) || TAB_KEYS.INDIVIDUAL;
-    const dataTypeForms = useSelector((state) => state.explorer.dataTypeFormsByDatasetID[datasetID] || []);
+    const dataTypeForms = useSelector((state) => state.explorer.dataTypeFormsByDatasetID[datasetID]) ?? EMPTY_ARRAY;
     const fetchingSearch = useSelector((state) => state.explorer.fetchingSearchByDatasetID[datasetID] || false);
     const fetchingTextSearch = useSelector((state) => state.explorer.fetchingTextSearch || false);
     const searchResults = useSelector((state) => state.explorer.searchResultsByDatasetID[datasetID] || null);

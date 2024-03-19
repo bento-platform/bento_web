@@ -36,7 +36,7 @@ const DataManagerContent = () => {
         document.title = `${SITE_NAME}: Admin / Data Manager`;
     }, []);
 
-    const authorizationService = useSelector(state => state.services.itemsByKind.authorization);
+    const authorizationService = useSelector((state) => state.services.itemsByKind.authorization);
 
     const { permissions } = useResourcePermissions(RESOURCE_EVERYTHING, authorizationService?.url);
     useFetchDropBoxContentsIfAllowed();

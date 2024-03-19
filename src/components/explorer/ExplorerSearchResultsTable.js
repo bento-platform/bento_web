@@ -2,7 +2,9 @@ import React, {useState, useMemo, useCallback} from "react";
 import PropTypes from "prop-types";
 import { useParams } from "react-router-dom";
 import { useSelector, useDispatch } from "react-redux";
+
 import { Table, Typography, Button, Spin } from "antd";
+import { BarChartOutlined, ExportOutlined } from "@ant-design/icons";
 
 import SearchSummaryModal from "./SearchSummaryModal";
 import SearchTracksModal from "./SearchTracksModal";
@@ -13,8 +15,7 @@ import {
     performBiosamplesDownloadCSVIfPossible,
     performExperimentsDownloadCSVIfPossible,
     setTableSortOrder,
-} from "../../modules/explorer/actions";
-import { BarChartOutlined, ExportOutlined } from "@ant-design/icons";
+} from "@/modules/explorer/actions";
 
 const PAGE_SIZE = 25;
 
@@ -40,7 +41,7 @@ const ExplorerSearchResultsTable = ({
     }, [currentPage, PAGE_SIZE, numResults]);
 
     const searchResults = useSelector((state) => state.explorer.searchResultsByDatasetID[dataset] || null);
-    const selectedRows = useSelector((state) => state.explorer.selectedRowsByDatasetID[dataset] || []);
+    const selectedRows = useSelector((state) => state.explorer.selectedRowsByDatasetID[dataset]);
     const isFetchingDownload = useSelector((state) => state.explorer.isFetchingDownload || false);
     const fetchingSearch = useSelector((state) => state.explorer.fetchingSearchByDatasetID[dataset] || false);
     const dispatch = useDispatch();
@@ -73,7 +74,7 @@ const ExplorerSearchResultsTable = ({
 
     const rowSelection = useMemo(() => ({
         type: "checkbox",
-        selectedRowKeys: selectedRows,
+        selectedRowKeys: selectedRows ?? [],
         onChange: (selectedRowKeys) => {
             handleSetSelectedRows(selectedRowKeys);
         },
@@ -126,7 +127,7 @@ const ExplorerSearchResultsTable = ({
                         icon={<ExportOutlined />}
                         style={{ marginRight: "8px" }}
                         loading={isFetchingDownload}
-                        onClick={() => handlePerformDownloadCSVIfPossible(selectedRows, data)}
+                        onClick={() => handlePerformDownloadCSVIfPossible(selectedRows ?? [], data)}
                     >
                         Export as CSV
                     </Button>

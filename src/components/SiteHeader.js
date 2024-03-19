@@ -44,7 +44,8 @@ const SiteHeader = () => {
     const { data: openIdConfig, isFetching: openIdConfigFetching } = useSelector((state) => state.openIdConfiguration);
     const authzEndpoint = openIdConfig?.["authorization_endpoint"];
 
-    const unreadNotifications = useSelector((state) => state.notifications.items.filter((n) => !n.read));
+    const notifications = useSelector((state) => state.notifications.items);
+    const unreadNotifications = useMemo(() => notifications.filter((n) => !n.read), [notifications]);
     const {
         idTokenContents,
         isHandingOffCodeForToken,

@@ -5,12 +5,13 @@ import { ChartConfigProvider } from "bento-charts";
 import {
     fetchOpenIdConfiguration,
     useHandleCallback,
-    getIsAuthenticated,
     checkIsInAuthPopup,
     useOpenSignInWindowCallback,
     usePopupOpenerAuthCallback,
     useSignInPopupTokenHandoff,
     useSessionWorkerTokenRefresh,
+    useAccessToken,
+    useIsAuthenticated,
 } from "bento-auth-js";
 
 import * as io from "socket.io-client";
@@ -59,8 +60,9 @@ const App = () => {
 
     const sessionWorker = useRef(null);
 
-    const { accessToken, idTokenContents } = useSelector((state) => state.auth);
-    const isAuthenticated = getIsAuthenticated(idTokenContents);
+    const accessToken = useAccessToken();
+    const idTokenContents = useSelector((state) => state.auth.idTokenContents);
+    const isAuthenticated = useIsAuthenticated();
 
     const eventRelay = useSelector((state) => state.services.eventRelay);
     const eventRelayUrl = eventRelay?.url ?? null;

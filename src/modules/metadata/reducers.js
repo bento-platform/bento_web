@@ -1,4 +1,4 @@
-import {objectWithoutProp} from "../../utils/misc";
+import {objectWithoutProp} from "@/utils/misc";
 
 import {
     FETCH_PROJECTS,
@@ -58,7 +58,7 @@ export const projects = (
         case FETCH_PROJECTS.RECEIVE:
             return {
                 ...state,
-                items: action.data.sort(projectSort),
+                items: action.data.toSorted(projectSort),
                 itemsByID: Object.fromEntries(action.data.map(p => [p.identifier, p])),
                 datasetsByID: Object.fromEntries(
                     action.data.flatMap(p => p.datasets)
