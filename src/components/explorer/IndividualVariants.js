@@ -11,7 +11,7 @@ import "./explorer.css";
 import { ExplorerIndividualContext } from "./contexts/individual";
 import { explorerIndividualUrl } from "./utils";
 
-import JsonView from "./JsonView";
+import JsonView from "@/components/JsonView";
 import OntologyTerm from "./OntologyTerm";
 import { GeneDescriptor } from "./IndividualGenes";
 
@@ -66,7 +66,7 @@ const VariantDescriptor = ({variationDescriptor}) => {
             {variationDescriptor.variation &&
                 <Descriptions.Item label="Variation">
                     {/* TODO: VRS type specific display ?*/}
-                    <JsonView inputJson={variationDescriptor.variation}/>
+                    <JsonView src={variationDescriptor.variation} />
                 </Descriptions.Item>
             }
             {variationDescriptor.label &&
@@ -91,7 +91,7 @@ const VariantDescriptor = ({variationDescriptor}) => {
             }
             {variationDescriptor.vfc_record &&
                 <Descriptions.Item label={"VCF Record"}>
-                    <JsonView inputJson={variationDescriptor.vfc_record}/>
+                    <JsonView src={variationDescriptor.vfc_record}/>
                 </Descriptions.Item>
             }
             {variationDescriptor.xrefs &&

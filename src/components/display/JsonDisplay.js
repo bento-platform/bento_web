@@ -1,16 +1,13 @@
 import React, { useCallback, useEffect, useState } from "react";
 import PropTypes from "prop-types";
 import { Collapse, Select, Typography } from "antd";
-import ReactJson from "react-json-view";
+
+import JsonView from "@/components/JsonView";
 
 const { Panel } = Collapse;
 
-// TODO: replace react-json-view with a maintained package.
-
-const DEFAULT_REACT_JSON_OPTIONS = {
-    "displayDataTypes": false,
-    "enableClipboard": false,
-    "name": false,
+const DEFAULT_JSON_VIEW_OPTIONS = {
+    collapsed: true,
 };
 
 const JSON_ARRAY_GROUP_SIZE = 100;
@@ -65,12 +62,11 @@ const JsonArrayDisplay = ({ doc, standalone }) => {
                     </Select>
                 </>
             }
-            <ReactJson
+            <JsonView
                 key={selectedJsonGroup} // remount ReactJson with group change to force collapse
                 src={src}
-                collapsed={true}
-                groupArraysAfterLength={JSON_ARRAY_GROUP_SIZE}
-                {...DEFAULT_REACT_JSON_OPTIONS}
+                collapseObjectsAfterLength={JSON_ARRAY_GROUP_SIZE}
+                {...DEFAULT_JSON_VIEW_OPTIONS}
             />
         </>
     );
@@ -114,7 +110,7 @@ const JsonDisplay = ({ jsonSrc, showObjectWithReactJson }) => {
     if (typeof jsonSrc === "object") {
         // Display for objects
         return showObjectWithReactJson
-            ? <ReactJson src={jsonSrc || {}} collapsed={true} {...DEFAULT_REACT_JSON_OPTIONS} />
+            ? <JsonView src={jsonSrc || {}} {...DEFAULT_JSON_VIEW_OPTIONS} />
             : <JsonObjectDisplay doc={jsonSrc || {}} />;
     }
 

@@ -7,6 +7,8 @@ import { BrowserRouter } from "react-router-dom";
 import { BentoAuthContextProvider } from "bento-auth-js";
 
 import "antd/es/message/style/css";
+import "react18-json-view/src/style.css";
+import "@/styles/react18_json_viewer.css";
 
 import { AUTH_CALLBACK_URL, BENTO_URL_NO_TRAILING_SLASH, CLIENT_ID, OPENID_CONFIG_URL } from "./config";
 import App from "./components/App";

@@ -2,12 +2,12 @@ import React, { useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 
 import { Divider, Skeleton } from "antd";
-import ReactJson from "react-json-view";
 
 import { fetchIndividualPhenopacketsIfNecessary } from "@/modules/metadata/actions";
 import { individualPropTypesShape } from "@/propTypes";
 
-import DownloadButton from "../DownloadButton";
+import DownloadButton from "@/components/DownloadButton";
+import JsonView from "@/components/JsonView";
 
 const IndividualPhenopackets = ({ individual }) => {
     const dispatch = useDispatch();
@@ -30,12 +30,7 @@ const IndividualPhenopackets = ({ individual }) => {
             {(data === undefined || isFetching) ? (
                 <Skeleton title={false} loading={true} />
             ) : (
-                <ReactJson
-                    src={data ?? []}
-                    collapsed={false}
-                    displayDataTypes={false}
-                    name={false}
-                />
+                <JsonView src={data ?? []} collapsed={false} />
             )}
         </>
     );

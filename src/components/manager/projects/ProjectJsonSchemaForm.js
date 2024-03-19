@@ -2,8 +2,9 @@ import React, { useCallback } from "react";
 import PropTypes from "prop-types";
 import { Button, Checkbox, Form, Select, Tooltip, message } from "antd";
 import { useDropzone } from "react-dropzone";
-import ReactJson from "react-json-view";
 import Ajv from "ajv";
+
+import JsonView from "@/components/JsonView";
 import { ExtraPropertiesCode } from "./ProjectJsonSchema";
 
 const ajv = new Ajv({
@@ -65,7 +66,7 @@ const JsonSchemaInput = ({ value, onChange }) => {
             </div>
             {value && (
                 <>
-                    <ReactJson src={value || {}} name={false} collapsed={true} />
+                    <JsonView src={value || {}} collapsed={true} />
                     <Button key="cancel" onClick={() => onChange(null)}>Remove</Button>
                 </>
             )}
