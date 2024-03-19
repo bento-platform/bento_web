@@ -1,6 +1,6 @@
 import React, {useCallback, useMemo} from "react";
 import PropTypes from "prop-types";
-import { useHistory } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { PieChart as BentoPie } from "bento-charts";
 import ChartContainer from "./ChartContainer";
 
@@ -14,16 +14,16 @@ const PieChart = ({
     labelKey,
     sortData = true,
 }) => {
-    const history = useHistory();
+    const navigate = useNavigate();
 
     const handleChartClick = useCallback(
         (pointData) => {
             if (onAutoQueryTransition && pointData.name !== "Other") {
                 onAutoQueryTransition(window.location.href, dataType, labelKey, pointData.name);
-                history.push("/data/explorer/search");
+                navigate("/data/explorer/search");
             }
         },
-        [onAutoQueryTransition, dataType, labelKey, history],
+        [onAutoQueryTransition, dataType, labelKey, navigate],
     );
 
     const pieChartData = useMemo(() => data.map(({ name, value }) => ({ x: name, y: value })), [data]);

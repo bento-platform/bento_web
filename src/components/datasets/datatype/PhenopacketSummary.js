@@ -1,11 +1,7 @@
 import React from "react";
 import { Col, Divider, Row, Statistic, Typography } from "antd";
 
-import { VictoryLabel, VictoryPie } from "victory";
-import VictoryPieWrapSVG from "../../VictoryPieWrapSVG";
-
-import { summaryPropTypesShape } from "../../../propTypes";
-import { VICTORY_PIE_LABEL_PROPS, VICTORY_PIE_PROPS } from "../../../styles/victory";
+import { summaryPropTypesShape } from "@/propTypes";
 
 const PhenopacketSummary = ({ summary }) => {
     const individualsBySex = Object.entries(summary.data_type_specific?.individuals?.sex ?? {})
@@ -29,16 +25,16 @@ const PhenopacketSummary = ({ summary }) => {
                 <Typography.Title level={4}>Overview: Individuals</Typography.Title>
                 <Row gutter={16}>
                     <Col span={12}>
-                        <VictoryPieWrapSVG>
-                            <VictoryPie data={individualsBySex} {...VICTORY_PIE_PROPS} />
-                            <VictoryLabel text="SEX" {...VICTORY_PIE_LABEL_PROPS} />
-                        </VictoryPieWrapSVG>
+                        {/*<VictoryPieWrapSVG>*/}
+                        {/*    <VictoryPie data={individualsBySex} {...VICTORY_PIE_PROPS} />*/}
+                        {/*    <VictoryLabel text="SEX" {...VICTORY_PIE_LABEL_PROPS} />*/}
+                        {/*</VictoryPieWrapSVG>*/}
                     </Col>
                     <Col span={12}>
-                        <VictoryPieWrapSVG>
-                            <VictoryPie data={individualsByKaryotype} {...VICTORY_PIE_PROPS} />
-                            <VictoryLabel text="KARYOTYPE" {...VICTORY_PIE_LABEL_PROPS} />
-                        </VictoryPieWrapSVG>
+                        {/*<VictoryPieWrapSVG>*/}
+                        {/*    <VictoryPie data={individualsByKaryotype} {...VICTORY_PIE_PROPS} />*/}
+                        {/*    <VictoryLabel text="KARYOTYPE" {...VICTORY_PIE_LABEL_PROPS} />*/}
+                        {/*</VictoryPieWrapSVG>*/}
                     </Col>
                 </Row>
             </>

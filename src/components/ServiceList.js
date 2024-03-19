@@ -57,7 +57,7 @@ const serviceColumns = (isAuthenticated, setRequestModalService) => [
         render: (serviceKind) =>
             serviceKind ? (
                 isAuthenticated ? (
-                    <Link style={SERVICE_KIND_STYLING} to={`/admin/services/${serviceKind}`}>
+                    <Link style={SERVICE_KIND_STYLING} to={`/services/${serviceKind}`}>
                         {serviceKind}
                     </Link>
                 ) : (

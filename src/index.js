@@ -1,5 +1,5 @@
 import React from "react";
-import { render } from "react-dom";
+import { createRoot } from "react-dom/client";
 
 import { Provider } from "react-redux";
 import { BrowserRouter } from "react-router-dom";
@@ -15,8 +15,9 @@ import App from "./components/App";
 import { store } from "./store";
 
 document.addEventListener("DOMContentLoaded", () => {
-    const root = document.getElementById("root");
-    render(
+    const container = document.getElementById("root");
+    const root = createRoot(container);
+    root.render(
         <Provider store={store}>
             <BrowserRouter>
                 <BentoAuthContextProvider value={{
@@ -30,7 +31,6 @@ document.addEventListener("DOMContentLoaded", () => {
                     <App />
                 </BentoAuthContextProvider>
             </BrowserRouter>
-        </Provider>,
-        root,
+        </Provider>
     );
 });

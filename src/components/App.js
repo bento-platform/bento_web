@@ -1,6 +1,6 @@
 import React, { Suspense, lazy, useRef, useState, useEffect, useCallback } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { Redirect, Route, Switch, useHistory } from "react-router-dom";
+import { Navigate, Route, Routes, useNavigate } from "react-router-dom";
 import { ChartConfigProvider } from "bento-charts";
 import {
     fetchOpenIdConfiguration,
@@ -32,9 +32,11 @@ import SitePageLoading from "./SitePageLoading";
 // Lazy-load route components
 const OverviewContent = lazy(() => import("./OverviewContent"));
 const DataExplorerContent = lazy(() => import("./DataExplorerContent"));
+const DataManagerContent = lazy(() => import("./DataManagerContent"));
 const CBioPortalContent = lazy(() => import("./CBioPortalContent"));
-const AdminContent = lazy(() => import("./AdminContent"));
 const NotificationsContent = lazy(() => import("./notifications/NotificationsContent"));
+const ServiceContent = lazy(() => import("./ServiceContent"));
+const ServiceDetail = lazy(() => import("./services/ServiceDetail"));
 const UserProfileContent = lazy(() => import("./UserProfileContent"));
 
 const SIGN_IN_WINDOW_FEATURES = "scrollbars=no, toolbar=no, menubar=no, width=800, height=600";
@@ -45,7 +47,7 @@ const createSessionWorker = () => new SessionWorker();
 
 const App = () => {
     const dispatch = useDispatch();
-    const history = useHistory();
+    const navigate = useNavigate();
 
     const eventRelayConnection = useRef(null);
     const signInWindow = useRef(null);
@@ -112,13 +114,13 @@ const App = () => {
                     token: accessToken,
                 },
             }); // Connect to the main socket.io namespace on the server side
-            socket.on("events", (message) => eventHandler(message, history));
+            socket.on("events", (message) => eventHandler(message, navigate));
             socket.on("connect_error", (err) => {
                 console.error(`socket.io: connect_error - ${err.message}`);
             });
             return socket;
         })();
-    }, [history, isAuthenticated, eventRelay, eventRelayConnection]);
+    }, [navigate, isAuthenticated, eventRelay, eventRelayConnection]);
 
     const handleUserChange = useCallback(() => {
         if (lastIsAuthenticated && !isAuthenticated) {
@@ -201,44 +203,48 @@ const App = () => {
     const threshold = useSelector((state) => state.explorer.otherThresholdPercentage) / 100;
 
     return (
-        <>
-            <ChartConfigProvider
-                Lng="en"
-                translationMap={{ en: { Count: "Count", Other: "Other" } }}
-                globalThreshold={threshold}
+        <ChartConfigProvider
+            Lng="en"
+            translationMap={{ en: { Count: "Count", Other: "Other" } }}
+            globalThreshold={threshold}
+        >
+            <Modal
+                title="You have been signed out"
+                footer={null}
+                onCancel={() => {
+                    clearPingInterval(); // Stop pinging until the user decides to sign in again
+                    setSignedOutModal(false); // Close the modal
+                }}
+                open={signedOutModal}
             >
-                <Modal
-                    title="You have been signed out"
-                    footer={null}
-                    onCancel={() => {
-                        clearPingInterval(); // Stop pinging until the user decides to sign in again
-                        setSignedOutModal(false); // Close the modal
-                    }}
-                    open={signedOutModal}
-                >
-                    Please <a onClick={openSignInWindow}>sign in</a> (uses a popup window) to continue working.
-                </Modal>
-                <Layout style={{ minHeight: "100vh" }}>
-                    <NotificationDrawer />
-                    <SiteHeader />
-                    <Layout.Content style={{ margin, display: "flex", flexDirection: "column" }}>
-                        <Suspense fallback={<SitePageLoading />}>
-                            <Switch>
-                                <Route path={CALLBACK_PATH}><SitePageLoading /></Route>
-                                <Route path="/overview"><RequireAuth><OverviewContent /></RequireAuth></Route>
-                                <Route path="/data/explorer"><RequireAuth><DataExplorerContent /></RequireAuth></Route>
-                                <Route path="/cbioportal"><RequireAuth><CBioPortalContent /></RequireAuth></Route>
-                                <Route path="/admin"><RequireAuth><AdminContent /></RequireAuth></Route>
-                                <Route path="/notifications"><RequireAuth><NotificationsContent /></RequireAuth></Route>
-                                <Route path="/profile"><RequireAuth><UserProfileContent /></RequireAuth></Route>
-                                <Route path="/" render={() => <Redirect to="/overview" />} />
-                            </Switch>
-                        </Suspense>
-                    </Layout.Content>
-                    <SiteFooter />
-                </Layout>
-            </ChartConfigProvider>
-        </>
+                Please <a onClick={openSignInWindow}>sign in</a> (uses a popup window) to continue working.
+            </Modal>
+            <Layout style={{ minHeight: "100vh" }}>
+                <NotificationDrawer />
+                <SiteHeader />
+                <Layout.Content style={{ margin, display: "flex", flexDirection: "column" }}>
+                    <Suspense fallback={<SitePageLoading />}>
+                        <Routes>
+                            <Route path={CALLBACK_PATH} element={<SitePageLoading />} />
+                            <Route path="/overview" element={<RequireAuth><OverviewContent /></RequireAuth>} />
+                            <Route path="/data/explorer/*"
+                                   element={<RequireAuth><DataExplorerContent /></RequireAuth>} />
+                            <Route path="/cbioportal" element={<RequireAuth><CBioPortalContent /></RequireAuth>} />
+                            <Route path="/services/:kind/*"
+                                   element={<RequireAuth><ServiceDetail /></RequireAuth>} />
+                            <Route path="/services" element={<RequireAuth><ServiceContent /></RequireAuth>} />
+                            <Route path="/data/manager/*"
+                                   element={<RequireAuth><DataManagerContent /></RequireAuth>} />
+                            <Route path="/notifications"
+                                   element={<RequireAuth><NotificationsContent /></RequireAuth>} />
+                            <Route path="/profile" element={<RequireAuth><UserProfileContent /></RequireAuth>} />
+                            <Route path="/*" element={<Navigate to="/overview" replace={true} />} />
+                        </Routes>
+                    </Suspense>
+                </Layout.Content>
+                <SiteFooter />
+            </Layout>
+        </ChartConfigProvider>
     );
 };
 

@@ -53,8 +53,7 @@ export const RUN_TABLE_COLUMNS = [
         title: "Run ID",
         dataIndex: "run_id",
         sorter: (a, b) => a.run_id.localeCompare(b.run_id),
-        render: runID => <Link to={`/admin/data/manager/runs/${runID}`}
-                               style={{fontFamily: "monospace"}}>{runID}</Link>,
+        render: runID => <Link to={`/data/manager/runs/${runID}`} style={{fontFamily: "monospace"}}>{runID}</Link>,
     },
     {
         title: "Purpose",

@@ -1,5 +1,5 @@
 import React, { Suspense, lazy, useEffect, useMemo } from "react";
-import { Redirect, Route, Switch } from "react-router-dom";
+import { Navigate, Route, Routes } from "react-router-dom";
 import { useSelector } from "react-redux";
 import { viewDropBox, viewPermissions, RESOURCE_EVERYTHING, useResourcePermissions } from "bento-auth-js";
 
@@ -45,25 +45,21 @@ const DataManagerContent = () => {
     const canViewPermissions = permissions.includes(viewPermissions);
 
     const menuItems = useMemo(() => [
-        {url: "/admin/data/manager/projects", style: {marginLeft: "4px"}, text: "Projects and Datasets"},
+        { url: "/data/manager/projects", style: { marginLeft: "4px" }, text: "Projects and Datasets" },
+        { url: "/data/manager/files", text: "Drop Box", disabled: !canViewDropBox },
+        { url: "/data/manager/ingestion", text: "Ingestion" },
+        { url: "/data/manager/analysis", text: "Analysis" },
+        { url: "/data/manager/export", text: "Export" },
+        { url: "/data/manager/workflows", text: "Workflows" },
+        { url: "/data/manager/runs", text: "Workflow Runs" },
+        { url: "/data/manager/drs", text: "DRS Objects" },
         {
-            url: "/admin/data/manager/files",
-            text: "Drop Box",
-            disabled: !canViewDropBox,
-        },
-        {url: "/admin/data/manager/ingestion", text: "Ingestion"},
-        {url: "/admin/data/manager/analysis", text: "Analysis"},
-        {url: "/admin/data/manager/export", text: "Export"},
-        {url: "/admin/data/manager/workflows", text: "Workflows"},
-        {url: "/admin/data/manager/runs", text: "Workflow Runs"},
-        {url: "/admin/data/manager/drs", text: "DRS Objects"},
-        {
-            url: "/admin/data/manager/access",
+            url: "/data/manager/access",
             text: "Access Management",
             // TODO: check if we have any viewPermissions in any grant, not just on RESOURCE_EVERYTHING
             disabled: !canViewPermissions,
         },
-        {url: "/admin/data/manager/genomes", text: "Reference Genomes"},
+        { url: "/data/manager/genomes", text: "Reference Genomes" },
     ], [canViewDropBox, canViewPermissions]);
 
     const selectedKeys = useMemo(() => matchingMenuKeys(menuItems), [menuItems, window.location.pathname]);
@@ -83,19 +79,19 @@ const DataManagerContent = () => {
                 }
             />
             <Suspense fallback={<div style={styles.suspenseFallback}><Skeleton active /></div>}>
-                <Switch>
-                    <Route path="/admin/data/manager/projects"><ManagerProjectDatasetContent /></Route>
-                    <Route path="/admin/data/manager/access"><ManagerAccessContent /></Route>
-                    <Route exact path="/admin/data/manager/files"><ManagerDropBoxContent /></Route>
-                    <Route exact path="/admin/data/manager/ingestion"><ManagerIngestionContent /></Route>
-                    <Route exact path="/admin/data/manager/analysis"><ManagerAnalysisContent /></Route>
-                    <Route exact path="/admin/data/manager/export"><ManagerExportContent /></Route>
-                    <Route exact path="/admin/data/manager/workflows"><ManagerWorkflowsContent /></Route>
-                    <Route exact path="/admin/data/manager/drs"><ManagerDRSContent /></Route>
-                    <Route exact path="/admin/data/manager/genomes"><ManagerReferenceGenomesContent /></Route>
-                    <Route path="/admin/data/manager/runs"><ManagerRunsContent /></Route>
-                    <Route path="/admin/data/manager" render={() => <Redirect to="/admin/data/manager/projects" />} />
-                </Switch>
+                <Routes>
+                    <Route path="projects/*" element={<ManagerProjectDatasetContent />} />
+                    <Route path="access/*" element={<ManagerAccessContent />} />
+                    <Route path="files" element={<ManagerDropBoxContent />} />
+                    <Route path="ingestion" element={<ManagerIngestionContent />} />
+                    <Route path="analysis" element={<ManagerAnalysisContent />} />
+                    <Route path="export" element={<ManagerExportContent />} />
+                    <Route path="workflows" element={<ManagerWorkflowsContent />} />
+                    <Route path="drs" element={<ManagerDRSContent />} />
+                    <Route path="genomes" element={<ManagerReferenceGenomesContent />} />
+                    <Route path="runs/*" element={<ManagerRunsContent />} />
+                    <Route path="*" element={<Navigate to="projects" replace={true} />} />
+                </Routes>
             </Suspense>
         </>
     );

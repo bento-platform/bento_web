@@ -77,15 +77,15 @@ const SiteHeader = () => {
             },
             // TODO: Only show if admin / can data manage anything
             {
-                key: "admin-data-manager",
-                url: "/admin/data/manager",
+                key: "data-manager",
+                url: "/data/manager",
                 icon: <FolderOpenOutlined />,
                 text: "Data Manager",
                 disabled: !isAuthenticated,
             },
             {
-                key: "admin-services",
-                url: "/admin/services",
+                key: "services",
+                url: "/services",
                 icon: <DashboardOutlined />,
                 text: "Services",
                 disabled: !isAuthenticated,

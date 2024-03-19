@@ -1,5 +1,5 @@
 import React, { useCallback, useMemo } from "react";
-import { Route, Switch, useHistory, useParams, useRouteMatch } from "react-router-dom";
+import { Route, Routes, useNavigate, useParams } from "react-router-dom";
 import PropTypes from "prop-types";
 
 import { Table } from "antd";
@@ -33,26 +33,25 @@ RoutedIndividualContentTable.propTypes = {
 };
 
 export const RoutedIndividualContent = ({ renderContent, urlParam }) => {
-    const history = useHistory();
-    const { path, url } = useRouteMatch();
+    const navigate = useNavigate();
 
     const handleRoutedSelection = useCallback((selected) => {
         if (!selected) {
-            history.replace(url);
+            navigate("", { replace: true });
             return;
         }
-        history.replace(`${url}/${selected}`);
-    }, [history, url]);
+        navigate(`${selected}`, { replace: true });
+    }, [navigate]);
 
     const contentNode = useMemo(
         () => renderContent({ onContentSelect: handleRoutedSelection }),
         [handleRoutedSelection]);
 
     return (
-        <Switch>
-            <Route path={`${path}/:${urlParam}`}>{contentNode}</Route>
-            <Route path={path}>{contentNode}</Route>
-        </Switch>
+        <Routes>
+            <Route path={`:${urlParam}`} element={contentNode} />
+            <Route path="/" element={contentNode} />
+        </Routes>
     );
 };
 RoutedIndividualContent.propTypes = {
