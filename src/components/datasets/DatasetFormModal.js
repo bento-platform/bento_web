@@ -1,94 +1,86 @@
-import React, {Component} from "react";
-import {connect} from "react-redux";
+import React, { useCallback, useRef } from "react";
+import { useDispatch, useSelector } from "react-redux";
 import PropTypes from "prop-types";
 
-import {Button, Modal} from "antd";
-
+import { Button, Modal } from "antd";
+import { PlusOutlined, SaveOutlined } from "@ant-design/icons";
 
 import DatasetForm from "./DatasetForm";
 
-import {
-    addProjectDataset,
-    saveProjectDataset,
-    fetchProjectsWithDatasets,
-} from "../../modules/metadata/actions";
-
-import {nop} from "../../utils/misc";
-import {FORM_MODE_ADD} from "../../constants";
-import {datasetPropTypesShape, projectPropTypesShape, propTypesFormMode} from "../../propTypes";
-import { PlusOutlined, SaveOutlined } from "@ant-design/icons";
+import { FORM_MODE_ADD } from "@/constants";
+import { addProjectDataset, saveProjectDataset, fetchProjectsWithDatasets } from "@/modules/metadata/actions";
+import { datasetPropTypesShape, projectPropTypesShape, propTypesFormMode } from "@/propTypes";
+import { nop } from "@/utils/misc";
 
 
-class DatasetFormModal extends Component {
-    componentDidMount() {
-        this.handleCancel = this.handleCancel.bind(this);
-        this.handleSubmit = this.handleSubmit.bind(this);
-        this.handleSuccess = this.handleSuccess.bind(this);
+const DatasetFormModal = ({ project, mode, initialValue, onCancel, onOk, open }) => {
+    const dispatch = useDispatch();
 
-        this.form = React.createRef();
-    }
+    const projectsFetching = useSelector((state) => state.projects.isFetching);
+    const projectDatasetsAdding = useSelector((state) => state.projects.isAddingDataset);
+    const projectDatasetsSaving = useSelector((state) => state.projects.isSavingDataset);
 
-    handleCancel() {
-        (this.props.onCancel || nop)();
-    }
+    const formRef = useRef(null);
 
-    handleSubmit() {
-        const form = this.form.current;
+    const handleSuccess = useCallback(async (values) => {
+        await dispatch(fetchProjectsWithDatasets());  // TODO: If needed / only this project...
+        await (onOk || nop)({ ...(initialValue || {}), values });
+        if (formRef.current && mode === FORM_MODE_ADD) formRef.current.resetFields();
+    }, [dispatch]);
+
+    const handleCancel = useCallback(() => (onCancel || nop)(), [onCancel]);
+    const handleSubmit = useCallback(() => {
+        const form = formRef.current;
         if (!form) return;
-        form.validateFields(async (err, values) => {
-            if (err) {
-                console.error(err);
-                return;
-            }
 
-            const mode = this.props.mode || FORM_MODE_ADD;
+        form.validateFields().then((values) => {
+            const onSuccess = () => handleSuccess(values);
 
-            const onSuccess = async () => await this.handleSuccess(values);
-
-            await (mode === FORM_MODE_ADD
-                ? this.props.addProjectDataset(this.props.project, values, onSuccess)
-                : this.props.saveProjectDataset({
-                    ...(this.props.initialValue || {}),
-                    project: this.props.project.identifier,
-                    ...values,
-                    description: (values.description || "").trim(),
-                    contact_info: (values.contact_info || "").trim(),
-                }, onSuccess));
+            return (
+                mode === FORM_MODE_ADD
+                    ? dispatch(addProjectDataset(project, values, onSuccess))
+                    : dispatch(saveProjectDataset({
+                        ...(this.props.initialValue || {}),
+                        project: this.props.project.identifier,
+                        ...values,
+                        description: (values.description || "").trim(),
+                        contact_info: (values.contact_info || "").trim(),
+                    }, onSuccess))
+            );
+        }).catch((err) => {
+            console.error(err);
         });
-    }
+    }, [dispatch, handleSuccess, mode, project]);
 
-    async handleSuccess(values) {
-        await this.props.fetchProjectsWithDatasets();  // TODO: If needed / only this project...
-        await (this.props.onOk || nop)({...(this.props.initialValue || {}), values});
-        if (this.form.current && (this.props.mode || FORM_MODE_ADD) === FORM_MODE_ADD) this.form.current.resetFields();
-    }
+    if (!project) return null;
+    return (
+        <Modal
+            open={open}
+            width={848}
+            title={mode === FORM_MODE_ADD
+                ? `Add Dataset to "${project.title}"`
+                : `Edit Dataset "${initialValue?.title || ""}"`}
+            footer={[
+                <Button key="cancel" onClick={handleCancel}>Cancel</Button>,
+                <Button
+                    key="save"
+                    icon={mode === FORM_MODE_ADD ? <PlusOutlined /> : <SaveOutlined />}
+                    type="primary"
+                    onClick={handleSubmit}
+                    loading={projectsFetching || projectDatasetsAdding || projectDatasetsSaving}>
+                    {mode === FORM_MODE_ADD ? "Add" : "Save"}
+                </Button>,
+            ]}
+            onCancel={handleCancel}
+        >
+            <DatasetForm formRef={formRef} initialValue={mode === FORM_MODE_ADD ? undefined : initialValue} />
+        </Modal>
+    );
+};
 
-    render() {
-        const mode = this.props.mode || FORM_MODE_ADD;
-        return this.props.project ? (
-            <Modal open={this.props.open}
-                   width={848}
-                   title={mode === FORM_MODE_ADD
-                       ? `Add Dataset to "${this.props.project.title}"`
-                       : `Edit Dataset "${(this.props.initialValue || {}).title || ""}"`}
-                   footer={[
-                       <Button key="cancel" onClick={this.handleCancel}>Cancel</Button>,
-                       <Button key="save"
-                               icon={mode === FORM_MODE_ADD ? <PlusOutlined /> : <SaveOutlined />}
-                               type="primary"
-                               onClick={this.handleSubmit}
-                               loading={this.props.projectsFetching || this.props.projectDatasetsAdding ||
-                                   this.props.projectDatasetsSaving || this.props.projectsFetchingWithTables}>
-                           {mode === FORM_MODE_ADD ? "Add" : "Save"}
-                       </Button>,
-                   ]}
-                   onCancel={this.handleCancel}>
-                <DatasetForm formRef={this.form}
-                             initialValue={mode === FORM_MODE_ADD ? undefined : this.props.initialValue} />
-            </Modal>
-        ) : null;
-    }
-}
+DatasetFormModal.defaultProps = {
+    mode: FORM_MODE_ADD,
+};
 
 DatasetFormModal.propTypes = {
     mode: propTypesFormMode,
@@ -100,30 +92,6 @@ DatasetFormModal.propTypes = {
     project: projectPropTypesShape,
 
     open: PropTypes.bool,
-
-    // From state
-
-    projectsFetching: PropTypes.bool,
-    projectDatasetsAdding: PropTypes.bool,
-    projectDatasetsSaving: PropTypes.bool,
-    projectsFetchingWithTables: PropTypes.bool,
-
-    // From dispatch
-
-    addProjectDataset: PropTypes.func,
-    saveProjectDataset: PropTypes.func,
-    fetchProjectsWithDatasets: PropTypes.func,
 };
 
-const mapStateToProps = state => ({
-    projectsFetching: state.projects.isFetching,
-    projectDatasetsAdding: state.projects.isAddingDataset,
-    projectDatasetsSaving: state.projects.isSavingDataset,
-    projectsFetchingWithTables: state.projects.projectsFetchingWithTables,
-});
-
-export default connect(mapStateToProps, {
-    addProjectDataset,
-    saveProjectDataset,
-    fetchProjectsWithDatasets,
-})(DatasetFormModal);
+export default DatasetFormModal;

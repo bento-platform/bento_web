@@ -6,15 +6,15 @@ const { Item } = Form;
 
 import DataUseInput from "../DataUseInput";
 
-import { DATA_USE_PROP_TYPE_SHAPE, INITIAL_DATA_USE_VALUE } from "../../duo";
-import { simpleDeepCopy } from "../../utils/misc";
+import { DATA_USE_PROP_TYPE_SHAPE, INITIAL_DATA_USE_VALUE } from "@/duo";
+import { simpleDeepCopy } from "@/utils/misc";
 
-const validateJson = (rule, value, callback) => {
+const validateJson = (rule, value) => {
     try {
         JSON.parse(value);
-        callback();
+        return Promise.resolve();
     } catch (e) {
-        callback("Please enter valid JSON");
+        return Promise.reject("Please enter valid JSON");
     }
 };
 
