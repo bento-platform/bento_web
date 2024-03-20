@@ -1,10 +1,10 @@
-import React, {useMemo, useState} from "react";
+import React, { useMemo, useState } from "react";
 import { useSelector } from "react-redux";
 import { useIsAuthenticated } from "bento-auth-js";
 
 import { Link } from "react-router-dom";
 
-import {Table, Typography, Tag, Button} from "antd";
+import { Table, Typography, Tag, Button } from "antd";
 import { BranchesOutlined, GithubOutlined } from "@ant-design/icons";
 
 import ServiceRequestModal from "./services/ServiceRequestModal";
@@ -33,7 +33,7 @@ const getServiceTags = serviceInfo => [
         color: null,
         logo: <BranchesOutlined />,
         value: (() => {
-            const {bento} = serviceInfo;
+            const { bento } = serviceInfo;
 
             const branch = bento?.gitBranch ?? serviceInfo.git_branch;
             /** @type {string|undefined} */
@@ -73,9 +73,9 @@ const serviceColumns = (isAuthenticated, setRequestModalService) => [
         title: "Version",
         dataIndex: ["serviceInfo", "version"],
         render: (version, record) => {
-            const {serviceInfo} = record;
+            const { serviceInfo } = record;
             return serviceInfo ? <>
-                <Typography.Text style={{marginRight: "1em"}}>{version || "-"}</Typography.Text>
+                <Typography.Text style={{ marginRight: "1em" }}>{version || "-"}</Typography.Text>
                 {getServiceTags(serviceInfo).map((tag, i) => renderGitInfo(tag, record, i))}
             </> : null;
         },
@@ -113,21 +113,25 @@ const serviceColumns = (isAuthenticated, setRequestModalService) => [
 const ServiceList = () => {
     const [requestModalService, setRequestModalService] = useState(null);
 
-    const dataSource = useSelector((state) =>
-        Object.entries(state.bentoServices.itemsByKind).map(([kind, service]) => {
-            const serviceInfo = state.services.itemsByKind[kind] ?? null;
-            return {
-                ...service,
-                key: kind,
-                serviceInfo,
-                status: {
-                    status: kind in state.services.itemsByKind,
-                    dataService: serviceInfo?.bento?.dataService,
-                },
-                loading: state.services.isFetching,
-            };
-        }),
-    );
+    const servicesFetching = useSelector((state) => state.services.isFetching);
+    const bentoServicesFetching = useSelector((state) => state.bentoServices.isFetching);
+
+    const servicesByKind = useSelector((state) => state.services.itemsByKind);
+    const bentoServicesByKind = useSelector((state) => state.bentoServices.itemsByKind);
+
+    const dataSource = useMemo(() => Object.entries(bentoServicesByKind).map(([kind, service]) => {
+        const serviceInfo = servicesByKind[kind] ?? null;
+        return {
+            ...service,
+            key: kind,
+            serviceInfo,
+            status: {
+                status: kind in servicesByKind,
+                dataService: serviceInfo?.bento?.dataService,
+            },
+            loading: servicesFetching,
+        };
+    }), [servicesByKind, bentoServicesByKind]);
 
     const isAuthenticated = useIsAuthenticated();
 
@@ -136,13 +140,13 @@ const ServiceList = () => {
         [isAuthenticated]);
 
     /** @type boolean */
-    const isLoading = useSelector((state) => state.bentoServices.isFetching || state.services.isFetching);
+    const isLoading = servicesFetching || bentoServicesFetching;
 
     return <>
         <ServiceRequestModal service={requestModalService} onCancel={() => setRequestModalService(null)} />
         <Table
             bordered
-            style={{marginBottom: 24}}
+            style={{ marginBottom: 24 }}
             size="middle"
             columns={columns}
             dataSource={dataSource}
