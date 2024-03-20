@@ -1,4 +1,3 @@
-/* eslint-disable camelcase */
 import React, { useEffect, useState } from "react";
 import { useSelector } from "react-redux";
 import { useAuthorizationHeader } from "bento-auth-js";
