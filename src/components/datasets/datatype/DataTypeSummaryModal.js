@@ -34,8 +34,9 @@ const DataTypeSummaryModal = ({dataType, summary, onCancel, open}) => {
         open={open}
         onCancel={onCancel}
         onOk={onCancel}
-        title={<Tag>{dataType.id}</Tag>}
-        width={760}
+        title={dataType.label ?? dataType.id}
+        width={960}
+        footer={null}
     >
         {(!summaryData || isFetchingSummaries)
             ? <Skeleton/>

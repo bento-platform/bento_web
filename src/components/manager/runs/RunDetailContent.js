@@ -24,9 +24,7 @@ const RunDetailContentInner = () => {
     const run = runsByID[id] || null;
     const loading = (run?.details ?? null) === null;
 
-    const onChangeTab = useCallback(
-        (key) => navigate(`../${key}`),
-        [navigate, run]);
+    const onChangeTab = useCallback((key) => navigate(`../${key}`), [navigate, run]);
     const onBack = useCallback(() => navigate("/data/manager/runs"), [navigate]);
 
     return loading

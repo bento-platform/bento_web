@@ -3,22 +3,28 @@ import PropTypes from "prop-types";
 import { useNavigate } from "react-router-dom";
 import { PieChart as BentoPie } from "bento-charts";
 import ChartContainer from "./ChartContainer";
+import { setAutoQueryPageTransition } from "@/modules/explorer/actions";
+import { useDispatch } from "react-redux";
 
 const PieChart = ({
     title,
     data = [],
     chartThreshold,
     chartHeight = 300,
-    onAutoQueryTransition,
     dataType,
     labelKey,
+    clickable = false,
     sortData = true,
 }) => {
+    const dispatch = useDispatch();
     const navigate = useNavigate();
+
+    const onAutoQueryTransition = useCallback((priorPageUrl, type, field, value) =>
+        dispatch(setAutoQueryPageTransition(priorPageUrl, type, field, value)), [dispatch]);
 
     const handleChartClick = useCallback(
         (pointData) => {
-            if (onAutoQueryTransition && pointData.name !== "Other") {
+            if (dataType && labelKey && pointData.name !== "Other") {
                 onAutoQueryTransition(window.location.href, dataType, labelKey, pointData.name);
                 navigate("/data/explorer/search");
             }
@@ -32,7 +38,7 @@ const PieChart = ({
             <BentoPie
                 data={pieChartData}
                 height={chartHeight}
-                onClick={handleChartClick}
+                onClick={clickable ? handleChartClick : undefined}
                 sort={sortData}
                 chartThreshold={chartThreshold}
             />
@@ -50,9 +56,9 @@ PieChart.propTypes = {
     ).isRequired,
     chartThreshold: PropTypes.number,
     chartHeight: PropTypes.number,
-    onAutoQueryTransition: PropTypes.func,
     dataType: PropTypes.string,
     labelKey: PropTypes.string,
+    clickable: PropTypes.bool,
     sortData: PropTypes.bool,
 };
 
