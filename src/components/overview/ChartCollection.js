@@ -8,10 +8,10 @@ import Histogram from "../charts/Histogram";
 const CHART_HEIGHT = 260;
 
 const ChartCollection = ({ charts, dataType, isFetching }) => (
-    <Row style={{ display: "flex", flexWrap: "wrap", width: "92%" }}>
+    <Row style={{ display: "flex", flexWrap: "wrap", width: "100%" }}>
         {charts
             .map((c, i) => (
-                <Col key={i} style={{ textAlign: "center" }} span={6}>
+                <Col key={i} style={{ textAlign: "center", width: 420 }}>
                     <Spin spinning={isFetching}>
                         {c.type === "PIE" ? (
                             <PieChart
