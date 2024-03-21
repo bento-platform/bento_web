@@ -1,7 +1,7 @@
 import React, { Component } from "react";
 import PropTypes from "prop-types";
 
-import { Button, Col, Empty, Row, Tabs, Typography } from "antd";
+import { Button, Col, Empty, Row, Space, Tabs, Typography } from "antd";
 import { CheckOutlined, CloseOutlined, DeleteOutlined, EditOutlined, PlusOutlined } from "@ant-design/icons";
 
 import Dataset from "../../datasets/Dataset";
@@ -142,18 +142,20 @@ class Project extends Component {
                         </div>
                     </Typography.Title>
                     {(this.state.datasets || []).length > 0
-                        ? this.state.datasets.sort((d1, d2) => d1.title.localeCompare(d2.title)).map(d =>
-                            <Row gutter={[0, 16]} key={d.identifier}>
-                                <Col span={24}>
-                                    <Dataset
-                                        key={d.identifier}
-                                        mode="private"
-                                        project={this.props.value}
-                                        value={d}
-                                        onEdit={() => (this.props.onEditDataset || nop)(d)}
-                                    />
-                                </Col>
-                            </Row>,
+                        ? (
+                            <Space direction="vertical" size={16} style={{ width: "100%" }}>
+                                {this.state.datasets.sort((d1, d2) => d1.title.localeCompare(d2.title)).map(d => (
+                                    <Col span={24} key={d.identifier}>
+                                        <Dataset
+                                            key={d.identifier}
+                                            mode="private"
+                                            project={this.props.value}
+                                            value={d}
+                                            onEdit={() => (this.props.onEditDataset || nop)(d)}
+                                        />
+                                    </Col>
+                                ))}
+                            </Space>
                         ) : (
                             <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} description="No Datasets">
                                 <Button icon={<PlusOutlined />} onClick={() => (this.props.onAddDataset || nop)()}>
