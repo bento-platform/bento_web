@@ -4,7 +4,7 @@ import { Table } from "antd";
 
 import { EM_DASH } from "@/constants";
 import { individualPropTypesShape } from "@/propTypes";
-import { ontologyTermSorter } from "./utils";
+import { booleanFieldSorter, ontologyTermSorter } from "./utils";
 
 import OntologyTerm from "./OntologyTerm";
 import TimeElement from "./TimeElement";
@@ -22,6 +22,24 @@ const DISEASES_COLUMNS = [
             <OntologyTerm term={term} data-disease-id={disease.id} />
         ),
         sorter: ontologyTermSorter("term"),
+    },
+    {
+        title: "Excluded",
+        dataIndex: "excluded",
+        key: "excluded",
+        render: (_, disease) => {
+            const excluded = disease.excluded
+            if (typeof excluded === 'boolean') {
+                return String(excluded)
+            }
+            return EM_DASH;
+        },
+        sorter: booleanFieldSorter("excluded"),
+    },
+    {
+        title: "Resolution age",
+        key: "resolution",
+        render: (_, disease) => (<TimeElement timeElement={disease?.resolution}/>)
     },
     {
         title: "Onset Age(s)",

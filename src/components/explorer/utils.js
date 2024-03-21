@@ -146,4 +146,13 @@ export const ontologyTermSorter = (k) => (a, b) => {
     return 0;
 };
 
+export const booleanFieldSorter = (k) => (a, b) => {
+    const a_val = a[k];
+    const b_val = b[k];
+    if (typeof a_val === 'boolean' && typeof b_val === 'boolean') {
+        return a_val - b_val
+    }
+    return 0;
+}
+
 export const explorerIndividualUrl = (individualID) => `/data/explorer/individuals/${individualID}`;
