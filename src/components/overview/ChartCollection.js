@@ -5,13 +5,13 @@ import { Col, Row, Spin } from "antd";
 import PieChart from "../charts/PieChart";
 import Histogram from "../charts/Histogram";
 
-const CHART_HEIGHT = 300;
+const CHART_HEIGHT = 285;
 
 const ChartCollection = ({ charts, dataType, isFetching }) => (
-    <Row style={{ display: "flex", flexWrap: "wrap", width: "100%" }} gutter={[16, 0]}>
+    <Row style={{ display: "flex", flexWrap: "wrap", width: "100%" }} gutter={[8, 0]}>
         {charts
             .map((c, i) => (
-                <Col key={i} style={{ textAlign: "center", width: 440 }}>
+                <Col key={i} style={{ textAlign: "center", width: 445 }}>
                     <Spin spinning={isFetching}>
                         {c.type === "PIE" ? (
                             <PieChart
