@@ -40,8 +40,8 @@ const DatasetFormModal = ({ project, mode, initialValue, onCancel, onOk, open })
                 mode === FORM_MODE_ADD
                     ? dispatch(addProjectDataset(project, values, onSuccess))
                     : dispatch(saveProjectDataset({
-                        ...(this.props.initialValue || {}),
-                        project: this.props.project.identifier,
+                        ...(initialValue || {}),
+                        project: project.identifier,
                         ...values,
                         description: (values.description || "").trim(),
                         contact_info: (values.contact_info || "").trim(),
@@ -50,7 +50,7 @@ const DatasetFormModal = ({ project, mode, initialValue, onCancel, onOk, open })
         }).catch((err) => {
             console.error(err);
         });
-    }, [dispatch, handleSuccess, mode, project]);
+    }, [dispatch, handleSuccess, mode, project, initialValue]);
 
     if (!project) return null;
     return (
