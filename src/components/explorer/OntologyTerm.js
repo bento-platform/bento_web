@@ -88,4 +88,15 @@ OntologyTerm.defaultProps = {
     br: false,
 };
 
+export const OntologyTermList = (items) => {
+    if (!Array.isArray(items)) {
+        return EM_DASH;
+    }
+    return items.map(ontology => <OntologyTerm term={ontology} br/>);
+}
+
+OntologyTermList.propTypes = {
+    items: PropTypes.arrayOf(ontologyShape)
+}
+
 export default OntologyTerm;

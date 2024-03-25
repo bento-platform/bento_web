@@ -4,8 +4,12 @@ import { Table } from "antd";
 import { LinkOutlined } from "@ant-design/icons";
 
 import { EM_DASH } from "@/constants";
-import { individualPropTypesShape } from "@/propTypes";
+import { individualPropTypesShape, phenopacketPropTypesShape, phenotypicFeaturePropTypesShape } from "@/propTypes";
 import OntologyTerm from "./OntologyTerm";
+import { booleanFieldSorter, renderBoolean } from "./utils";
+import TimeElement from "./TimeElement";
+import { Descriptions } from "../../../node_modules/antd/lib/index";
+import { RoutedIndividualContentTable } from "./RoutedIndividualContent";
 
 const PHENOTYPIC_FEATURES_COLUMNS = [
     {
@@ -26,8 +30,8 @@ const PHENOTYPIC_FEATURES_COLUMNS = [
                         (<span style={{ fontWeight: "bold" }}>Excluded:</span>{" "}
                         Found to be absent{" "}
                         <a href="https://phenopacket-schema.readthedocs.io/en/2.0.0/phenotype.html#excluded"
-                           target="_blank"
-                           rel="noopener noreferrer">
+                            target="_blank"
+                            rel="noopener noreferrer">
                             <LinkOutlined />
                         </a>)
                     </span>
@@ -39,6 +43,37 @@ const PHENOTYPIC_FEATURES_COLUMNS = [
         }),
     },
     {
+        title: "Excluded",
+        key: "excluded",
+        render: renderBoolean("excluded"),
+        sorter: booleanFieldSorter("excluded"),
+    },
+    {
+        title: "Severity",
+        key: "severity",
+        render: (_, feature) => <OntologyTerm term={feature?.severity} />
+    },
+    {
+        title: "Modifiers",
+        key: "modifiers",
+        render: (_, feature) => {
+            if (Array.isArray(feature?.modifiers)) {
+                return feature.modifiers.map(mod => <OntologyTerm term={mod} br />)
+            }
+            return EM_DASH;
+        }
+    },
+    {
+        title: "Onset",
+        key: "onset",
+        render: (_, feature) => <TimeElement timeElement={feature?.onset} />
+    },
+    {
+        title: "Resolution",
+        key: "resolution",
+        render: (_, feature) => <TimeElement timeElement={feature?.resolution} />
+    },
+    {
         title: "Extra Properties",
         dataIndex: "extra_properties",
         render: (extraProperties, feature) => {
@@ -46,7 +81,7 @@ const PHENOTYPIC_FEATURES_COLUMNS = [
             return {
                 children: nExtraProperties ? (
                     <div>
-                        <pre style={{marginBottom: 0, fontSize: "12px"}}>
+                        <pre style={{ marginBottom: 0, fontSize: "12px" }}>
                             {JSON.stringify(
                                 extraProperties,
                                 null,
@@ -62,6 +97,55 @@ const PHENOTYPIC_FEATURES_COLUMNS = [
         },
     },
 ];
+
+const PhenotypicFeatureDetail = ({ pf, handleFeatureClick }) => {
+    const description = pf?.description ?? "";
+    const modifiers = pf?.modifiers ?? [];
+    const evidence = pf?.evidence ?? [];
+    return (
+        <Descriptions bordered={true} column={1} size="small">
+            <Descriptions.Item label="Description">
+                {description}
+            </Descriptions.Item>
+            <Descriptions.Item label="Modifiers">
+                {modifiers ? modifiers.map(modifier => <OntologyTerm term={modifier} br />) : EM_DASH}
+            </Descriptions.Item>
+            <Descriptions.Item label="Evidence">
+                {evidence ? evidence.map(evidence => <OntologyTerm term={evidence} br />) : EM_DASH}
+            </Descriptions.Item>
+            <Descriptions.Item label="Extra Properties">
+                {pf.hasOwnProperty("extra_properties") &&
+                    Object.keys(pf.extra_properties).length ? (
+                    <JsonView src={pf.extra_properties} />
+                ) : (
+                    EM_DASH
+                )}
+            </Descriptions.Item>
+        </Descriptions>
+
+    );
+};
+PhenotypicFeatureDetail.propTypes = {
+    pf: phenotypicFeaturePropTypesShape,
+    handleFeatureClick: PropTypes.func,
+};
+
+const PhenotypicFeatures = ({phenotypicFeatures, handleSelect}) => (
+    <RoutedIndividualContentTable
+        data={phenotypicFeatures}
+        urlParam="selectedPhenotypicFeature"
+        columns={PHENOTYPIC_FEATURES_COLUMNS}
+        rowKey="key"
+        handleRowSelect={handleSelect}
+        expandedRowRender={(phenotypicFeature) => (
+            <PhenotypicFeatureDetail pf={phenotypicFeature}/>
+        )} 
+    />
+);
+PhenotypicFeatures.propTypes = {
+    phenotypicFeature: phenopacketPropTypesShape,
+    handleSelect: PropTypes.func,
+};
 
 const IndividualPhenotypicFeatures = ({ individual }) => {
 

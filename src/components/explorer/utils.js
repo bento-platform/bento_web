@@ -1,6 +1,7 @@
 import { useEffect, useMemo } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { fetchDatasetResourcesIfNecessary } from "@/modules/datasets/actions";
+import { EM_DASH } from "@/constants";
 
 export const useDeduplicatedIndividualBiosamples = (individual) =>
     useMemo(
@@ -153,6 +154,14 @@ export const booleanFieldSorter = (k) => (a, b) => {
         return a_val - b_val
     }
     return 0;
+}
+
+export const renderBoolean = (k) => (_, record) => {
+    const value = record[k];
+    if (typeof value === 'boolean') {
+        return String(value);
+    }
+    return EM_DASH;
 }
 
 export const explorerIndividualUrl = (individualID) => `/data/explorer/individuals/${individualID}`;
