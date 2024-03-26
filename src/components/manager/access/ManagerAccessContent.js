@@ -12,7 +12,7 @@ const ManagerAccessContent = () => (
         <Layout.Content style={LAYOUT_CONTENT_STYLE}>
             <Routes>
                 <Route path=":tab" element={<AccessTabs />} />
-                <Route path="/" element={<Navigate to="grants" replace="true" />} />
+                <Route path="/" element={<Navigate to="grants" replace={true} />} />
             </Routes>
         </Layout.Content>
     </Layout>

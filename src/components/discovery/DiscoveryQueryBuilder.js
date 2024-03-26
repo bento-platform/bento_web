@@ -73,7 +73,13 @@ class DiscoveryQueryBuilder extends Component {
                 }];
 
                 // Force-override fields in the form
-                this.forms[dataType.id]?.setFields(fields);
+                const form = this.forms[dataType.id];
+
+                if (!form) {
+                    console.warn(`Missing form ref for data type with ID ${dataType.id}`);
+                }
+
+                form?.setFields(fields);
                 await this.handleFormChange(dataType, fields);  // Not triggered by setFields; do it manually
 
                 // Simulate form submission click
