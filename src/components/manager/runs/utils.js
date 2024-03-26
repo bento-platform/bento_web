@@ -12,7 +12,7 @@ export const renderDate = date => date ? new Date(Date.parse(date)).toLocaleStri
 export const sortDate = (a, b, dateProperty, bDateProperty = undefined) => {
     const aDate = new Date(Date.parse(a[dateProperty])).getTime();
     const bDate = new Date(Date.parse(b[bDateProperty ?? dateProperty])).getTime();
-    
+
     if (aDate && bDate) {
         return aDate - bDate;
     } else if (aDate && !bDate) {
