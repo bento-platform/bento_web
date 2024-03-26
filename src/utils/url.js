@@ -7,3 +7,11 @@ export const urlPath = url => {
         throw e;
     }
 };
+
+export const isValidUrl = url => {
+    try {
+        return Boolean(new URL(url));
+    } catch (e) {
+        return false;
+    }
+};

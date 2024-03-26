@@ -26,29 +26,28 @@ const DISEASES_COLUMNS = [
     {
         title: "Excluded",
         dataIndex: "excluded",
-        key: "excluded",
         render: renderBoolean("excluded"),
         sorter: booleanFieldSorter("excluded"),
     },
     {
         title: "Onset Age(s)",
-        key: "t_onset_ages",
-        render: (_, disease) => (<TimeElement timeElement={disease?.onset}/>),
+        dataIndex: "onset",
+        render: (onset) => (<TimeElement timeElement={onset}/>),
     },
     {
         title: "Resolution age",
-        key: "resolution",
-        render: (_, disease) => (<TimeElement timeElement={disease?.resolution}/>),
+        dataIndex: "resolution",
+        render: (resolution) => (<TimeElement timeElement={resolution}/>),
     },
     {
         title: "Disease Stage(s)",
-        key: "disease_stage",
-        render: (_, disease) => (<OntologyTermList items={disease?.disease_stage}/>),
+        dataIndex: "disease_stage",
+        render: (diseaseStage) => (<OntologyTermList items={diseaseStage}/>),
     },
     {
         title: "Clinical TNM finding(s)",
-        key: "clinical_tnm_finding",
-        render: (_, disease) => (<OntologyTermList items={disease?.clinical_tnm_finding} />),
+        dataIndex: "clinical_tnm_finding",
+        render: (clinicalTnmFinding) => (<OntologyTermList items={clinicalTnmFinding} />),
     },
     {
         title: "Primary site",
@@ -57,11 +56,11 @@ const DISEASES_COLUMNS = [
     },
     {
         title: "Extra Properties",
-        key: "extra_properties",
-        render: (_, disease) =>
-            (Object.keys(disease.extra_properties ?? {}).length)
+        dataIndex: "extra_properties",
+        render: (extraProperties) =>
+            (Object.keys(extraProperties ?? {}).length)
                 ? <div>
-                    <pre>{JSON.stringify(disease.extra_properties, null, 2)}</pre>
+                    <pre>{JSON.stringify(extraProperties, null, 2)}</pre>
                 </div>
                 : EM_DASH,
     },

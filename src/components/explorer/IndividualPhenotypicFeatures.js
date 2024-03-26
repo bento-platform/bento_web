@@ -7,21 +7,21 @@ import { EM_DASH } from "@/constants";
 import {
     evidencePropTypesShape,
     individualPropTypesShape,
-    phenopacketPropTypesShape,
     phenotypicFeaturePropTypesShape,
 } from "@/propTypes";
-import OntologyTerm from "./OntologyTerm";
+import OntologyTerm, { conditionalOntologyRender } from "./OntologyTerm";
 import { booleanFieldSorter, renderBoolean } from "./utils";
 import TimeElement from "./TimeElement";
 import { Descriptions } from "../../../node_modules/antd/lib/index";
 import { RoutedIndividualContent, RoutedIndividualContentTable } from "./RoutedIndividualContent";
+import { isValidUrl } from "@/utils/url";
 
 const PHENOTYPIC_FEATURES_COLUMNS = [
     {
         title: "Feature",
         key: "feature",
-        render: ({ header, type, excluded }) => ({
-            children: header ? (
+        render: ({ header, type, excluded }) => (
+            header ? (
                 <h4 style={{ marginBottom: 0 }} className="phenotypic-features--phenopacket-header">
                     Phenopacket:{" "}
                     <span style={{ fontFamily: "monospace", fontStyle: "italic", fontWeight: "normal" }}>
@@ -41,10 +41,10 @@ const PHENOTYPIC_FEATURES_COLUMNS = [
                         </a>)
                     </span>
                 ) : null}
-            </>,
-            props: {
-                colSpan: header ? 2 : 1,
-            },
+            </>
+        ),
+        onCell: ({ header }) => ({
+            colSpan: header ? 2 : 1,
         }),
     },
     {
@@ -56,17 +56,17 @@ const PHENOTYPIC_FEATURES_COLUMNS = [
     {
         title: "Severity",
         key: "severity",
-        render: (_, feature) => <OntologyTerm term={feature?.severity} />,
+        render: conditionalOntologyRender("severity"),
     },
     {
         title: "Onset",
-        key: "onset",
-        render: (_, feature) => <TimeElement timeElement={feature?.onset} />,
+        dataIndex: "onset",
+        render: (onset) => <TimeElement timeElement={onset} />,
     },
     {
         title: "Resolution",
-        key: "resolution",
-        render: (_, feature) => <TimeElement timeElement={feature?.resolution} />,
+        dataIndex: "resolution",
+        render: (resolution) => <TimeElement timeElement={resolution} />,
     },
 ];
 
@@ -76,30 +76,30 @@ const Evidence = ({ evidence }) => {
         return EM_DASH;
     }
 
-    const reference = evidence?.reference;
+    const externalReference = evidence?.reference;
+    const hasReferenceUrl = isValidUrl(externalReference?.reference);
     return (
         <Descriptions bordered={false} column={1} size="small">
             <Descriptions.Item label="Evidence Code">
                 <OntologyTerm term={evidence.evidence_code} />
             </Descriptions.Item>
-            {reference &&
+            {externalReference &&
                 <Descriptions.Item label="Reference">
                     <div>
-                        {reference?.id &&
+                        {externalReference?.id &&
                             <>
-                                <strong>ID:</strong>{" "}{reference.id}
+                                <strong>ID:</strong>{" "}{externalReference.id}{" "}
+                                {hasReferenceUrl &&
+                                    <a href={externalReference.reference} target="_blank" rel="noopener noreferrer">
+                                        <LinkOutlined/>
+                                    </a>
+                                }
                                 <br />
                             </>
                         }
-                        {reference?.reference &&
+                        {externalReference?.description &&
                             <>
-                                <strong>Reference:</strong>{" "}{reference?.reference}
-                                <br />
-                            </>
-                        }
-                        {reference?.description &&
-                            <>
-                                <strong>description:</strong>{" "}{reference?.description}
+                                <strong>description:</strong>{" "}{externalReference?.description}
                                 <br />
                             </>
                         }
@@ -165,7 +165,7 @@ const PhenotypicFeatures = ({ phenotypicFeatures, handleSelect }) => (
     />
 );
 PhenotypicFeatures.propTypes = {
-    phenotypicFeatures: phenopacketPropTypesShape,
+    phenotypicFeatures: PropTypes.arrayOf(phenotypicFeaturePropTypesShape),
     handleSelect: PropTypes.func,
 };
 
