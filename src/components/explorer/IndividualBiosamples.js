@@ -13,7 +13,6 @@ import {
 } from "@/propTypes";
 import { useDeduplicatedIndividualBiosamples } from "./utils";
 
-import JsonView from "@/components/JsonView";
 import OntologyTerm from "./OntologyTerm";
 import TimeElement from "./TimeElement";
 
@@ -21,6 +20,7 @@ import "./explorer.css";
 import BiosampleIDCell from "./searchResultsTables/BiosampleIDCell";
 import { MeasurementsTable } from "./IndividualMeasurements";
 import { RoutedIndividualContent, RoutedIndividualContentTable } from "./RoutedIndividualContent";
+import ExtraProperties from "./ExtraProperties";
 
 // TODO: Only show biosamples from the relevant dataset, if specified;
 //  highlight those found in search results, if specified
@@ -112,12 +112,7 @@ const BiosampleDetail = ({ biosample, handleExperimentClick }) => {
                     )}
             </Descriptions.Item>
             <Descriptions.Item label="Extra Properties">
-                {biosample.hasOwnProperty("extra_properties") &&
-                    Object.keys(biosample.extra_properties).length ? (
-                        <JsonView src={biosample.extra_properties} />
-                    ) : (
-                        EM_DASH
-                    )}
+                <ExtraProperties extraProperties={biosample?.extra_properties}/>
             </Descriptions.Item>
             <Descriptions.Item label="Available Experiments">
                 <ExperimentsClickList

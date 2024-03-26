@@ -1,8 +1,8 @@
 import React, { useMemo } from "react";
 import PropTypes from "prop-types";
 import { LinkOutlined } from "@ant-design/icons";
+import { Descriptions } from "antd";
 
-import JsonView from "@/components/JsonView";
 import { EM_DASH } from "@/constants";
 import {
     evidencePropTypesShape,
@@ -12,9 +12,9 @@ import {
 import OntologyTerm, { conditionalOntologyRender } from "./OntologyTerm";
 import { booleanFieldSorter, renderBoolean } from "./utils";
 import TimeElement from "./TimeElement";
-import { Descriptions } from "../../../node_modules/antd/lib/index";
 import { RoutedIndividualContent, RoutedIndividualContentTable } from "./RoutedIndividualContent";
 import { isValidUrl } from "@/utils/url";
+import ExtraProperties from "./ExtraProperties";
 
 const PHENOTYPIC_FEATURES_COLUMNS = [
     {
@@ -136,12 +136,7 @@ const PhenotypicFeatureDetail = ({ pf }) => {
                 }
             </Descriptions.Item>
             <Descriptions.Item label="Extra Properties">
-                {pf.hasOwnProperty("extra_properties") &&
-                    Object.keys(pf.extra_properties).length ? (
-                    <JsonView src={pf.extra_properties} />
-                    ) : (
-                        EM_DASH
-                    )}
+                <ExtraProperties extraProperties={pf?.extra_properties}/>
             </Descriptions.Item>
         </Descriptions>
 
