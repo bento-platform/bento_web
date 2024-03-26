@@ -133,7 +133,7 @@ class DiscoveryQueryBuilder extends Component {
     }
 
     render() {
-        const { activeDataset, dataTypesByDataset} = this.props;
+        const { activeDataset, dataTypesByDataset, dataTypeForms } = this.props;
 
         const dataTypesForActiveDataset = Object.values(dataTypesByDataset.itemsByID[activeDataset] || {})
             .filter(dt => typeof dt === "object");
@@ -151,7 +151,7 @@ class DiscoveryQueryBuilder extends Component {
             })),
         };
 
-        const dataTypeTabItems = this.props.dataTypeForms.map(({dataType, formValues}) => {
+        const dataTypeTabItems = dataTypeForms.map(({dataType, formValues}) => {
             // Use data type label for tab name, unless it isn't specified - then fall back to ID.
             // This behaviour should be the same everywhere in bento_web or almost anywhere the
             // data type is shown to 'end users'.
@@ -199,7 +199,7 @@ class DiscoveryQueryBuilder extends Component {
                 </Button>
             </Typography.Title>
 
-            {this.props.dataTypeForms.length > 0
+            {dataTypeForms.length > 0
                 ? <Tabs type="editable-card" hideAdd onEdit={this.handleTabsEdit} items={dataTypeTabItems} />
                 : (
                     <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} description="No Data Types Added">
@@ -210,7 +210,7 @@ class DiscoveryQueryBuilder extends Component {
             <Button type="primary"
                     icon={<SearchOutlined />}
                     loading={this.props.searchLoading}
-                    disabled={this.props.dataTypeForms.length === 0 || this.props.isFetchingTextSearch}
+                    disabled={dataTypeForms.length === 0 || this.props.isFetchingTextSearch}
                     onClick={() => this.handleSubmit()}>Search</Button>
         </Card>;
     }
