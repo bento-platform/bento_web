@@ -9,9 +9,20 @@ export const RUN_REFRESH_TIMEOUT = 7500;
 
 export const renderDate = date => date ? new Date(Date.parse(date)).toLocaleString("en-CA") : "";
 
-export const sortDate = (a, b, dateProperty, bDateProperty = undefined) =>
-    (new Date(Date.parse(a[dateProperty])).getTime() || Infinity) -
-    (new Date(Date.parse(b[bDateProperty ?? dateProperty])).getTime() || Infinity);
+export const sortDate = (a, b, dateProperty, bDateProperty = undefined) => {
+    const aDate = new Date(Date.parse(a[dateProperty])).getTime();
+    const bDate = new Date(Date.parse(b[bDateProperty ?? dateProperty])).getTime();
+    
+    if (aDate && bDate) {
+        return aDate - bDate;
+    } else if (aDate && !bDate) {
+        return -1;  // keep empty run times at the top (B > A)
+    } else if (!aDate && bDate) {
+        return 1;  // keep empty run times at the top (A > B)
+    } else {
+        return 0;
+    }
+};
 
 // If end times are unset, sort by start times
 const sortEndDate = (a, b) => {
@@ -20,11 +31,11 @@ const sortEndDate = (a, b) => {
     if (!a.endTime && !b.endTime) {
         // If neither workflow has an end time, sort by start time instead
         prop = "startTime";
-    } else if (!a.startTime && !b.endTime) {
-        // If 'a' has no start time (i.e., it crashed right away), use a.startTime as a.endTime
+    } else if (!a.endTime && b.endTime) {
+        // If 'a' has no end time (i.e., it crashed right away), use a.startTime as a.endTime
         prop = "startTime";
         bProp = "endTime";
-    } else if (!a.endTime && b.startTime) {
+    } else if (a.endTime && !b.endTime) {
         // Switched version of above case
         prop = "endTime";
         bProp = "startTime";
