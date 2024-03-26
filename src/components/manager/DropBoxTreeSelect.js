@@ -1,10 +1,9 @@
-import React, {useMemo} from "react";
+import React, { useMemo } from "react";
 import PropTypes from "prop-types";
-import {TreeSelect} from "antd";
-import {useSelector} from "react-redux";
+import { TreeSelect } from "antd";
+import { useSelector } from "react-redux";
 
-import {dropBoxTreeStateToPropsMixin} from "../../propTypes";
-import {getTrue} from "../../utils/misc";
+import { getTrue } from "@/utils/misc";
 
 const sortByName = (a, b) => a.name.localeCompare(b.name);
 const generateFileTree = (directory, valid, folderMode, basePrefix) =>
@@ -12,7 +11,7 @@ const generateFileTree = (directory, valid, folderMode, basePrefix) =>
         .sort(sortByName)
         .filter(entry => !folderMode || entry.contents !== undefined)  // Don't show files in folder mode
         .map(entry => {
-            const {name, contents, relativePath} = entry;
+            const { name, contents, relativePath } = entry;
             const isValid = valid(entry);
             const isFolder = contents !== undefined;
 
@@ -38,8 +37,8 @@ const generateFileTree = (directory, valid, folderMode, basePrefix) =>
             );
         });
 
-const DropBoxTreeSelect = React.forwardRef(({folderMode, nodeEnabled, basePrefix, ...props}, ref) => {
-    const {tree} = useSelector(dropBoxTreeStateToPropsMixin);
+const DropBoxTreeSelect = React.forwardRef(({ folderMode, nodeEnabled, basePrefix, ...props }, ref) => {
+    const tree = useSelector((state) => state.dropBox.tree);
 
     const fileTree = useMemo(
         () => generateFileTree(tree, nodeEnabled ?? getTrue, folderMode, basePrefix),
