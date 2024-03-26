@@ -1,15 +1,20 @@
 import React, { useMemo } from "react";
-
-import { Table } from "antd";
+import PropTypes from "prop-types";
 import { LinkOutlined } from "@ant-design/icons";
 
+import JsonView from "@/components/JsonView";
 import { EM_DASH } from "@/constants";
-import { individualPropTypesShape, phenopacketPropTypesShape, phenotypicFeaturePropTypesShape } from "@/propTypes";
+import {
+    evidencePropTypesShape,
+    individualPropTypesShape,
+    phenopacketPropTypesShape,
+    phenotypicFeaturePropTypesShape,
+} from "@/propTypes";
 import OntologyTerm from "./OntologyTerm";
 import { booleanFieldSorter, renderBoolean } from "./utils";
 import TimeElement from "./TimeElement";
 import { Descriptions } from "../../../node_modules/antd/lib/index";
-import { RoutedIndividualContentTable } from "./RoutedIndividualContent";
+import { RoutedIndividualContent, RoutedIndividualContentTable } from "./RoutedIndividualContent";
 
 const PHENOTYPIC_FEATURES_COLUMNS = [
     {
@@ -30,8 +35,8 @@ const PHENOTYPIC_FEATURES_COLUMNS = [
                         (<span style={{ fontWeight: "bold" }}>Excluded:</span>{" "}
                         Found to be absent{" "}
                         <a href="https://phenopacket-schema.readthedocs.io/en/2.0.0/phenotype.html#excluded"
-                            target="_blank"
-                            rel="noopener noreferrer">
+                           target="_blank"
+                           rel="noopener noreferrer">
                             <LinkOutlined />
                         </a>)
                     </span>
@@ -51,75 +56,92 @@ const PHENOTYPIC_FEATURES_COLUMNS = [
     {
         title: "Severity",
         key: "severity",
-        render: (_, feature) => <OntologyTerm term={feature?.severity} />
-    },
-    {
-        title: "Modifiers",
-        key: "modifiers",
-        render: (_, feature) => {
-            if (Array.isArray(feature?.modifiers)) {
-                return feature.modifiers.map(mod => <OntologyTerm term={mod} br />)
-            }
-            return EM_DASH;
-        }
+        render: (_, feature) => <OntologyTerm term={feature?.severity} />,
     },
     {
         title: "Onset",
         key: "onset",
-        render: (_, feature) => <TimeElement timeElement={feature?.onset} />
+        render: (_, feature) => <TimeElement timeElement={feature?.onset} />,
     },
     {
         title: "Resolution",
         key: "resolution",
-        render: (_, feature) => <TimeElement timeElement={feature?.resolution} />
-    },
-    {
-        title: "Extra Properties",
-        dataIndex: "extra_properties",
-        render: (extraProperties, feature) => {
-            const nExtraProperties = Object.keys(extraProperties ?? {}).length;
-            return {
-                children: nExtraProperties ? (
-                    <div>
-                        <pre style={{ marginBottom: 0, fontSize: "12px" }}>
-                            {JSON.stringify(
-                                extraProperties,
-                                null,
-                                nExtraProperties === 1 ? null : 2,
-                            )}
-                        </pre>
-                    </div>
-                ) : EM_DASH,   // If no extra properties, just show a dash
-                props: {
-                    colSpan: feature.header ? 0 : 1,
-                },
-            };
-        },
+        render: (_, feature) => <TimeElement timeElement={feature?.resolution} />,
     },
 ];
 
-const PhenotypicFeatureDetail = ({ pf, handleFeatureClick }) => {
-    const description = pf?.description ?? "";
+
+const Evidence = ({ evidence }) => {
+    if (!evidence) {
+        return EM_DASH;
+    }
+
+    const reference = evidence?.reference;
+    return (
+        <Descriptions bordered={false} column={1} size="small">
+            <Descriptions.Item label="Evidence Code">
+                <OntologyTerm term={evidence.evidence_code} />
+            </Descriptions.Item>
+            {reference &&
+                <Descriptions.Item label="Reference">
+                    <div>
+                        {reference?.id &&
+                            <>
+                                <strong>ID:</strong>{" "}{reference.id}
+                                <br />
+                            </>
+                        }
+                        {reference?.reference &&
+                            <>
+                                <strong>Reference:</strong>{" "}{reference?.reference}
+                                <br />
+                            </>
+                        }
+                        {reference?.description &&
+                            <>
+                                <strong>description:</strong>{" "}{reference?.description}
+                                <br />
+                            </>
+                        }
+                    </div>
+                </Descriptions.Item>
+            }
+        </Descriptions>
+    );
+};
+Evidence.propTypes = {
+    evidence: evidencePropTypesShape,
+};
+
+const PhenotypicFeatureDetail = ({ pf }) => {
+    const description = pf?.description;
     const modifiers = pf?.modifiers ?? [];
     const evidence = pf?.evidence ?? [];
     return (
         <Descriptions bordered={true} column={1} size="small">
             <Descriptions.Item label="Description">
-                {description}
+                {description ? description : EM_DASH}
             </Descriptions.Item>
             <Descriptions.Item label="Modifiers">
-                {modifiers ? modifiers.map(modifier => <OntologyTerm term={modifier} br />) : EM_DASH}
+                {modifiers.length
+                    ? modifiers.map((modifier, idx) => <OntologyTerm term={modifier} key={idx} br />)
+                    : EM_DASH
+                }
             </Descriptions.Item>
             <Descriptions.Item label="Evidence">
-                {evidence ? evidence.map(evidence => <OntologyTerm term={evidence} br />) : EM_DASH}
+                {evidence.length
+                    // ? evidence.map(evidence => <OntologyTerm term={evidence} br />)
+                    ? evidence.map((evidence, idx) => <Evidence evidence={evidence} key={idx} />)
+                    : EM_DASH
+                }
             </Descriptions.Item>
             <Descriptions.Item label="Extra Properties">
                 {pf.hasOwnProperty("extra_properties") &&
                     Object.keys(pf.extra_properties).length ? (
                     <JsonView src={pf.extra_properties} />
-                ) : (
-                    EM_DASH
-                )}
+                    ) : (
+                        EM_DASH
+                    )}
             </Descriptions.Item>
         </Descriptions>
 
@@ -130,7 +152,7 @@ PhenotypicFeatureDetail.propTypes = {
     handleFeatureClick: PropTypes.func,
 };
 
-const PhenotypicFeatures = ({phenotypicFeatures, handleSelect}) => (
+const PhenotypicFeatures = ({ phenotypicFeatures, handleSelect }) => (
     <RoutedIndividualContentTable
         data={phenotypicFeatures}
         urlParam="selectedPhenotypicFeature"
@@ -138,12 +160,12 @@ const PhenotypicFeatures = ({phenotypicFeatures, handleSelect}) => (
         rowKey="key"
         handleRowSelect={handleSelect}
         expandedRowRender={(phenotypicFeature) => (
-            <PhenotypicFeatureDetail pf={phenotypicFeature}/>
-        )} 
+            <PhenotypicFeatureDetail pf={phenotypicFeature} />
+        )}
     />
 );
 PhenotypicFeatures.propTypes = {
-    phenotypicFeature: phenopacketPropTypesShape,
+    phenotypicFeatures: phenopacketPropTypesShape,
     handleSelect: PropTypes.func,
 };
 
@@ -164,14 +186,14 @@ const IndividualPhenotypicFeatures = ({ individual }) => {
     }, [individual]);
 
     return (
-        <Table
-            className="phenotypic-features-table"
-            bordered
-            size="middle"
-            pagination={false}
-            columns={PHENOTYPIC_FEATURES_COLUMNS}
-            rowKey="key"
-            dataSource={data}
+        <RoutedIndividualContent
+            urlParam="selectedPhenotypicFeature"
+            renderContent={({ onContentSelect }) => (
+                <PhenotypicFeatures
+                    phenotypicFeatures={data}
+                    handleSelect={onContentSelect}
+                />
+            )}
         />
     );
 };

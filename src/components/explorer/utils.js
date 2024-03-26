@@ -148,20 +148,20 @@ export const ontologyTermSorter = (k) => (a, b) => {
 };
 
 export const booleanFieldSorter = (k) => (a, b) => {
-    const a_val = a[k];
-    const b_val = b[k];
-    if (typeof a_val === 'boolean' && typeof b_val === 'boolean') {
-        return a_val - b_val
+    const aVal = a[k];
+    const bVal = b[k];
+    if (typeof aVal === "boolean" && typeof bVal === "boolean") {
+        return aVal - bVal;
     }
     return 0;
-}
+};
 
 export const renderBoolean = (k) => (_, record) => {
     const value = record[k];
-    if (typeof value === 'boolean') {
+    if (typeof value === "boolean") {
         return String(value);
     }
     return EM_DASH;
-}
+};
 
 export const explorerIndividualUrl = (individualID) => `/data/explorer/individuals/${individualID}`;
