@@ -59,21 +59,21 @@ export const fetchProjectsWithDatasets = () => async (dispatch, getState) => {
     await dispatch(fetchProjects());
 };
 
-const createProject = networkAction((project, history) => (dispatch, getState) => ({
+const createProject = networkAction((project, navigate) => (dispatch, getState) => ({
     types: CREATE_PROJECT,
     url: `${getState().services.metadataService.url}/api/projects`,
     req: jsonRequest(project, "POST"),
     err: "Error creating project",
     onSuccess: (data) => {
-        if (history) history.push(`/admin/data/manager/projects/${data.identifier}`);
+        if (navigate) navigate(`/data/manager/projects/${data.identifier}`);
         message.success(`Project '${data.title}' created!`);
     },
 }));
 
-export const createProjectIfPossible = (project, history) => (dispatch, getState) => {
+export const createProjectIfPossible = (project, navigate) => (dispatch, getState) => {
     // TODO: Need object response from POST (is this done??)
     if (getState().projects.isCreating) return;
-    return dispatch(createProject(project, history));
+    return dispatch(createProject(project, navigate));
 };
 
 export const fetchExtraPropertiesSchemaTypes = networkAction(() => (dispatch, getState) => ({

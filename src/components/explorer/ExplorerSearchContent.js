@@ -1,6 +1,6 @@
 import React, { useMemo } from "react";
 import { useSelector } from "react-redux";
-import { Redirect, Route, Switch } from "react-router-dom";
+import { Navigate, Route, Routes } from "react-router-dom";
 
 import { Layout, Menu, Skeleton } from "antd";
 
@@ -41,11 +41,10 @@ const ExplorerSearchContent = () => {
             </Layout.Sider>
             <Layout.Content style={LAYOUT_CONTENT_STYLE}>
                 {datasets.length > 0 ? (
-                    <Switch>
-                        <Route path="/data/explorer/search/:dataset"><ExplorerDatasetSearch /></Route>
-                        <Route path="/data/explorer/search"
-                               render={() => <Redirect to={`/data/explorer/search/${datasets[0].identifier}`}/>} />
-                    </Switch>
+                    <Routes>
+                        <Route path=":dataset" element={<ExplorerDatasetSearch />} />
+                        <Route path="/" element={<Navigate to={`${datasets[0].identifier}`} replace={true} />} />
+                    </Routes>
                 ) : (isFetchingDependentData ? <Skeleton /> : "No datasets available")}
             </Layout.Content>
         </Layout>

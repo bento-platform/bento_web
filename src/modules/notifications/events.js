@@ -11,7 +11,7 @@ const NOTIFICATION_WES_RUN_FAILED = "wes_run_failed";
 const NOTIFICATION_WES_RUN_COMPLETED = "wes_run_completed";
 
 export default {
-    [/^bento\.service\.notification$/.source]: (message, history) => async dispatch => {
+    [/^bento\.service\.notification$/.source]: (message, navigate) => async dispatch => {
         if (message.type !== EVENT_NOTIFICATION) return;
 
         const messageData = message.data || {};
@@ -32,7 +32,7 @@ export default {
 
         const wesClickAction = () => {
             dispatch(markNotificationAsRead(notificationData.id));
-            dispatch(navigateToWESRun(notificationData.action_target, history));
+            dispatch(navigateToWESRun(notificationData.action_target, navigate));
         };
 
         switch (message.data.notification_type) {

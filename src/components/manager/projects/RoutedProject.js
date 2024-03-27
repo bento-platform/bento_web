@@ -1,6 +1,6 @@
 import React, { useCallback, useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { useHistory, useParams } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 
 import { Modal } from "antd";
 
@@ -17,7 +17,7 @@ import { beginProjectEditing, endProjectEditing } from "@/modules/manager/action
 
 const RoutedProject = () => {
     const dispatch = useDispatch();
-    const history = useHistory();
+    const navigate = useNavigate();
 
     const { project: selectedProjectID } = useParams();
 
@@ -35,7 +35,7 @@ const RoutedProject = () => {
 
     useEffect(() => {
         if (!projectsByID[selectedProjectID] && !loadingProjects) {
-            history.push("/admin/data/manager/projects/");
+            navigate("/data/manager/projects/");
         }
     }, [projectsByID, loadingProjects, selectedProjectID]);
 

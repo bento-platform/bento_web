@@ -1,13 +1,13 @@
 import React, { Suspense, useCallback, useMemo } from "react";
 import { useSelector } from "react-redux";
-import { Redirect, Route, Switch, useHistory, useParams } from "react-router-dom";
+import { Navigate, Route, Routes, useNavigate, useParams } from "react-router-dom";
 
 import { Menu, Skeleton } from "antd";
 
 import SitePageHeader from "../SitePageHeader";
 import ServiceOverview from "./ServiceOverview";
 
-import { matchingMenuKeys, transformMenuItem } from "../../utils/menu";
+import { matchingMenuKeys, transformMenuItem } from "@/utils/menu";
 
 const styles = {
     // TODO: Deduplicate with data manager
@@ -28,7 +28,7 @@ const SuspenseFallback = React.memo(() => (
 
 const ServiceDetail = () => {
     // TODO: 404
-    const history = useHistory();
+    const navigate = useNavigate();
     const { kind } = useParams();
 
     const serviceInfoByKind = useSelector((state) => state.services.itemsByKind);
@@ -36,11 +36,11 @@ const ServiceDetail = () => {
     const serviceInfo = useMemo(() => serviceInfoByKind[kind], [kind, serviceInfoByKind]);
 
     const menuItems = useMemo(() => [
-        {url: `/admin/services/${kind}/overview`, style: {marginLeft: "4px"}, text: "Overview"},
+        { url: `/services/${kind}/overview`, style: { marginLeft: "4px" }, text: "Overview" },
     ], [kind]);
     const selectedKeys = matchingMenuKeys(menuItems);
 
-    const onBack = useCallback(() => history.push("/admin/services"), [history]);
+    const onBack = useCallback(() => navigate("/services"), [navigate]);
 
     return (
         <>
@@ -59,10 +59,10 @@ const ServiceDetail = () => {
                 onBack={onBack}
             />
             <Suspense fallback={<SuspenseFallback />}>
-                <Switch>
-                    <Route exact path="/admin/services/:kind/overview" component={ServiceOverview} />
-                    <Redirect from={`/admin/services/${kind}`} to={`/admin/services/${kind}/overview`} />
-                </Switch>
+                <Routes>
+                    <Route path="overview" element={<ServiceOverview />} />
+                    <Route path="/" element={<Navigate to="overview" replace={true} />} />
+                </Routes>
             </Suspense>
         </>
     );

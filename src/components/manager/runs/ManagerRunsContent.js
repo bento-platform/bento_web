@@ -1,5 +1,5 @@
 import React from "react";
-import { Route, Switch } from "react-router-dom";
+import { Route, Routes } from "react-router-dom";
 import { Layout } from "antd";
 
 import { LAYOUT_CONTENT_STYLE } from "@/styles/layoutContent";
@@ -11,10 +11,10 @@ import RunDetailContent from "./RunDetailContent";
 const ManagerRunsContent = () => (
     <Layout>
         <Layout.Content style={LAYOUT_CONTENT_STYLE}>
-            <Switch>
-                <Route exact path="/admin/data/manager/runs"><RunListContent /></Route>
-                <Route path="/admin/data/manager/runs/:id"><RunDetailContent /></Route>
-            </Switch>
+            <Routes>
+                <Route path=":id/*" element={<RunDetailContent />} />
+                <Route path="/" element={<RunListContent />} />
+            </Routes>
         </Layout.Content>
     </Layout>
 );

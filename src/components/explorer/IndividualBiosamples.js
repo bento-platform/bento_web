@@ -1,6 +1,6 @@
 import React, { Fragment, useCallback, useEffect, useMemo } from "react";
 import PropTypes from "prop-types";
-import { useHistory, useParams } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 
 import { Button, Descriptions } from "antd";
 
@@ -198,12 +198,12 @@ Biosamples.propTypes = {
     handleExperimentClick: PropTypes.func,
 };
 
-const IndividualBiosamples = ({ individual, experimentsUrl }) => {
-    const history = useHistory();
+const IndividualBiosamples = ({ individual }) => {
+    const navigate = useNavigate();
 
     const handleExperimentClick = useCallback((eid) => {
-        history.push(`${experimentsUrl}/${eid}`);
-    }, [experimentsUrl, history]);
+        navigate(`../experiments/${eid}`);
+    }, [navigate]);
 
     return (
         <RoutedIndividualContent
@@ -221,7 +221,6 @@ const IndividualBiosamples = ({ individual, experimentsUrl }) => {
 
 IndividualBiosamples.propTypes = {
     individual: individualPropTypesShape,
-    experimentsUrl: PropTypes.string,
 };
 
 export default IndividualBiosamples;

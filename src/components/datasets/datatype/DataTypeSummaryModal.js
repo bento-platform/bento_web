@@ -2,9 +2,9 @@ import React from "react";
 import { useSelector } from "react-redux";
 import PropTypes from "prop-types";
 
-import { Modal, Skeleton, Tag } from "antd";
+import { Modal, Skeleton } from "antd";
 
-import { summaryPropTypesShape } from "../../../propTypes";
+import { summaryPropTypesShape } from "@/propTypes";
 
 import GenericSummary from "./GenericSummary";
 import PhenopacketSummary from "./PhenopacketSummary";
@@ -34,8 +34,9 @@ const DataTypeSummaryModal = ({dataType, summary, onCancel, open}) => {
         open={open}
         onCancel={onCancel}
         onOk={onCancel}
-        title={<Tag>{dataType.id}</Tag>}
-        width={760}
+        title={dataType.label ?? dataType.id}
+        width={960}
+        footer={null}
     >
         {(!summaryData || isFetchingSummaries)
             ? <Skeleton/>

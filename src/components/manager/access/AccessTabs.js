@@ -1,6 +1,6 @@
-import React, { useCallback, useEffect, useMemo } from "react";
+import React, { useCallback, useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { useHistory, useRouteMatch } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 
 import { Tabs } from "antd";
 
@@ -29,10 +29,8 @@ const TAB_ITEMS = [
 const AccessTabs = () => {
     const dispatch = useDispatch();
 
-    const history = useHistory();
-    const { url } = useRouteMatch();
-    const splitUrl = useMemo(() => url.split("/"), [url]);
-    const selectedTab = splitUrl.at(-1);
+    const navigate = useNavigate();
+    const { tab } = useParams();
 
     const { permissions, hasAttemptedPermissions } = useResourcePermissionsWrapper(RESOURCE_EVERYTHING);
 
@@ -47,8 +45,8 @@ const AccessTabs = () => {
     }, [authorizationService, permissions]);
 
     const onTabClick = useCallback((key) => {
-        history.push(`${splitUrl.slice(0, -1).join("/")}/${key}`);
-    }, [history, splitUrl]);
+        navigate(`../${key}`);
+    }, [navigate]);
 
     if (hasAttemptedPermissions && !hasViewPermission) {
         return (
@@ -56,7 +54,7 @@ const AccessTabs = () => {
         );
     }
     return (
-        <Tabs type="card" activeKey={selectedTab} onTabClick={onTabClick} items={TAB_ITEMS} />
+        <Tabs type="card" activeKey={tab} onTabClick={onTabClick} items={TAB_ITEMS} />
     );
 };
 

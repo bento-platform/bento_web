@@ -1,6 +1,6 @@
 import React from "react";
 import { useDispatch } from "react-redux";
-import { useHistory } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 
 import { submitIngestionWorkflowRun } from "@/modules/wes/actions";
 
@@ -9,14 +9,14 @@ import RunSetupConfirmDisplay from "./RunSetupConfirmDisplay";
 
 const ManagerIngestionContent = () => {
     const dispatch = useDispatch();
-    const history = useHistory();
+    const navigate = useNavigate();
 
     return <RunSetupWizard
         workflowType="ingestion"
         workflowSelectionDescription="Choose an ingestion workflow."
         confirmDisplay={(props) => <RunSetupConfirmDisplay runButtonText="Run Ingestion" {...props} />}
         onSubmit={({ selectedWorkflow, inputs }) => {
-            dispatch(submitIngestionWorkflowRun(selectedWorkflow, inputs, "/admin/data/manager/runs", history));
+            dispatch(submitIngestionWorkflowRun(selectedWorkflow, inputs, "/data/manager/runs", navigate));
         }}
     />;
 };

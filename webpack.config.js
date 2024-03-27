@@ -37,7 +37,6 @@ module.exports = {
     resolve: {
         alias: {
             "@": path.resolve(__dirname, "src"),
-            "react/jsx-runtime": "react/jsx-runtime.js",
         },
         extensions: ["*", ".js", ".jsx"],
     },

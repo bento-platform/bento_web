@@ -44,7 +44,8 @@ const SiteHeader = () => {
     const { data: openIdConfig, isFetching: openIdConfigFetching } = useSelector((state) => state.openIdConfiguration);
     const authzEndpoint = openIdConfig?.["authorization_endpoint"];
 
-    const unreadNotifications = useSelector((state) => state.notifications.items.filter((n) => !n.read));
+    const notifications = useSelector((state) => state.notifications.items);
+    const unreadNotifications = useMemo(() => notifications.filter((n) => !n.read), [notifications]);
     const {
         idTokenContents,
         isHandingOffCodeForToken,
@@ -77,15 +78,15 @@ const SiteHeader = () => {
             },
             // TODO: Only show if admin / can data manage anything
             {
-                key: "admin-data-manager",
-                url: "/admin/data/manager",
+                key: "data-manager",
+                url: "/data/manager",
                 icon: <FolderOpenOutlined />,
                 text: "Data Manager",
                 disabled: !isAuthenticated,
             },
             {
-                key: "admin-services",
-                url: "/admin/services",
+                key: "services",
+                url: "/services",
                 icon: <DashboardOutlined />,
                 text: "Services",
                 disabled: !isAuthenticated,

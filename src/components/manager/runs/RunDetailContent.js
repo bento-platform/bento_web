@@ -1,7 +1,6 @@
 import React, { useCallback } from "react";
 import { useSelector } from "react-redux";
-import { Redirect, Route, Switch, useHistory, useParams } from "react-router-dom";
-import PropTypes from "prop-types";
+import { Navigate, Route, Routes, useNavigate, useParams } from "react-router-dom";
 
 import { Skeleton } from "antd";
 
@@ -15,9 +14,9 @@ const styles = {
     },
 };
 
-const RunDetailContentInner = ({ id }) => {
-    const history = useHistory();
-    const { tab } = useParams();
+const RunDetailContentInner = () => {
+    const navigate = useNavigate();
+    const { id, tab } = useParams();
 
     const runsByID = useSelector((state) => state.runs.itemsByID);
 
@@ -25,28 +24,19 @@ const RunDetailContentInner = ({ id }) => {
     const run = runsByID[id] || null;
     const loading = (run?.details ?? null) === null;
 
-    const onChangeTab = useCallback(
-        (key) => history.push(`/admin/data/manager/runs/${run?.run_id}/${key}`),
-        [history, run]);
-    const onBack = useCallback(() => history.push("/admin/data/manager/runs"), [history]);
+    const onChangeTab = useCallback((key) => navigate(`../${key}`), [navigate]);
+    const onBack = useCallback(() => navigate("/data/manager/runs"), [navigate]);
 
     return loading
         ? <div style={styles.skeletonContainer}><Skeleton /></div>
         : <Run run={run} tab={tab} onChangeTab={onChangeTab} onBack={onBack} />;
 };
-RunDetailContentInner.propTypes = {
-    id: PropTypes.string,
-};
 
-const RunDetailContent = () => {
-    const { id } = useParams();
-    return (
-        <Switch>
-            <Route path={`/admin/data/manager/runs/${id}/:tab`}><RunDetailContentInner id={id} /></Route>
-            <Route path={`/admin/data/manager/runs/${id}`}
-                   render={() => <Redirect to={`/admin/data/manager/runs/${id}/request`} />} />
-        </Switch>
-    );
-};
+const RunDetailContent = () => (
+    <Routes>
+        <Route path=":tab" element={<RunDetailContentInner />} />
+        <Route path="/" element={<Navigate to="request" replace={true} />} />
+    </Routes>
+);
 
 export default RunDetailContent;

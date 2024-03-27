@@ -8,7 +8,7 @@ const TITLE_STYLE = {
 };
 
 const ChartContainer = ({ title, children, empty }) => (
-    <div style={{ marginBottom: "20px", width: "420px" }}>
+    <div style={{ marginBottom: "20px", width: "100%" }}>
         <h2 style={TITLE_STYLE}>{title}</h2>
         {empty ? <NoDataComponent height={300} /> : children}
     </div>

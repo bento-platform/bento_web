@@ -5,11 +5,11 @@ import PropTypes from "prop-types";
 import { Button, Col, Dropdown, Row, Table, Typography } from "antd";
 import { DeleteOutlined, DownOutlined, ImportOutlined } from "@ant-design/icons";
 
-import { useWorkflows } from "../../hooks";
+import { useWorkflows } from "@/hooks";
+import { datasetPropTypesShape, projectPropTypesShape } from "@/propTypes";
+import { clearDatasetDataType } from "@/modules/metadata/actions";
+import { fetchDatasetDataTypesSummariesIfPossible } from "@/modules/datasets/actions";
 import { useStartIngestionFlow } from "../manager/workflowCommon";
-import { datasetPropTypesShape, projectPropTypesShape } from "../../propTypes";
-import { clearDatasetDataType } from "../../modules/metadata/actions";
-import { fetchDatasetDataTypesSummariesIfPossible } from "../../modules/datasets/actions";
 
 import genericConfirm from "../ConfirmationModal";
 import DataTypeSummaryModal from "./datatype/DataTypeSummaryModal";
@@ -18,11 +18,11 @@ const NA_TEXT = <span style={{ color: "#999", fontStyle: "italic" }}>N/A</span>;
 
 const DatasetDataTypes = React.memo(({ isPrivate, project, dataset }) => {
     const dispatch = useDispatch();
-    const datasetDataTypes = useSelector((state) => Object.values(
-        state.datasetDataTypes.itemsByID[dataset.identifier]?.itemsByID ?? {}));
+    const datasetDataTypes = useSelector((state) => state.datasetDataTypes.itemsByID[dataset.identifier]);
+    const datasetDataTypeValues = useMemo(() => Object.values(datasetDataTypes?.itemsByID ?? {}), [datasetDataTypes]);
     const datasetSummaries = useSelector((state) => state.datasetSummaries.itemsByID[dataset.identifier]);
-    const isFetchingDataset = useSelector(
-        (state) => state.datasetDataTypes.itemsByID[dataset.identifier]?.isFetching);
+
+    const isFetchingDataset = datasetDataTypes?.isFetching ?? false;
 
     const { workflowsByType } = useWorkflows();
     const ingestionWorkflows = workflowsByType.ingestion.items;
@@ -141,7 +141,7 @@ const DatasetDataTypes = React.memo(({ isPrivate, project, dataset }) => {
                 bordered
                 size="middle"
                 pagination={false}
-                dataSource={datasetDataTypes}
+                dataSource={datasetDataTypeValues}
                 rowKey="id"
                 columns={dataTypesColumns}
                 loading={isFetchingDataset}

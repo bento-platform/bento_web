@@ -1,20 +1,19 @@
-import React, {useCallback, useMemo} from "react";
-import {useDispatch, useSelector} from "react-redux";
-import {useHistory} from "react-router-dom";
+import React, { useCallback, useMemo } from "react";
+import { useDispatch, useSelector } from "react-redux";
+import { useNavigate } from "react-router-dom";
 import PropTypes from "prop-types";
 
-import {Button, List} from "antd";
+import { Button, List } from "antd";
 import { ReadOutlined } from "@ant-design/icons";
 
-import {markNotificationAsRead} from "../../modules/notifications/actions";
-
-import {NOTIFICATION_WES_RUN_COMPLETED, NOTIFICATION_WES_RUN_FAILED, navigateToWESRun} from "../../utils/notifications";
-import {notificationPropTypesShape} from "../../propTypes";
+import { markNotificationAsRead } from "@/modules/notifications/actions";
+import { notificationPropTypesShape } from "@/propTypes";
+import { NOTIFICATION_WES_RUN_COMPLETED, NOTIFICATION_WES_RUN_FAILED, navigateToWESRun } from "@/utils/notifications";
 
 
 const sortNotificationTimestamps = (a, b) => b.timestamp - a.timestamp;
 
-const notificationMetaStyle = {marginBottom: "8px"};
+const notificationMetaStyle = { marginBottom: "8px" };
 const notificationTimestampStyle = {
     color: "#999",
     float: "right",
@@ -23,9 +22,9 @@ const notificationTimestampStyle = {
 };
 
 
-const NotificationList = ({notifications, small}) => {
+const NotificationList = ({ notifications, small }) => {
     const dispatch = useDispatch();
-    const history = useHistory();
+    const navigate = useNavigate();
 
     /** @type boolean */
     const fetchingNotifications = useSelector(state => state.services.isFetchingAll || state.notifications.isFetching);
@@ -33,7 +32,7 @@ const NotificationList = ({notifications, small}) => {
     const markAsRead = useCallback(id => dispatch(markNotificationAsRead(id)), [dispatch]);
 
     const getNotificationActions = useCallback(
-        ({id, notification_type: notificationType, action_target: actionTarget}) => {
+        ({ id, notification_type: notificationType, action_target: actionTarget }) => {
             switch (notificationType) {
                 case NOTIFICATION_WES_RUN_COMPLETED:
                 case NOTIFICATION_WES_RUN_FAILED:
@@ -41,7 +40,7 @@ const NotificationList = ({notifications, small}) => {
                         <Button key="run-details" onClick={() => {
                             // If they act on this notification, they read it.
                             markAsRead(id);
-                            dispatch(navigateToWESRun(actionTarget, history));
+                            dispatch(navigateToWESRun(actionTarget, navigate));
                         }}>
                             Run Details
                         </Button>,
@@ -49,7 +48,7 @@ const NotificationList = ({notifications, small}) => {
                 default:
                     return [];
             }
-        }, [dispatch, history]);
+        }, [dispatch, navigate]);
 
     const listItemRender = useCallback(n => (
         <List.Item key={n.id} actions={[
@@ -58,7 +57,7 @@ const NotificationList = ({notifications, small}) => {
                 <Button key="mark-as-read"
                         type="link"
                         icon={<ReadOutlined />}
-                        style={{padding: 0}}
+                        style={{ padding: 0 }}
                         loading={n.isMarkingAsRead ?? false}
                         onClick={() => markAsRead(n.id)}>
                     Mark as Read

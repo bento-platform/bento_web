@@ -1,5 +1,5 @@
 import React, { useEffect } from "react";
-import { Redirect, Route, Switch } from "react-router-dom";
+import { Navigate, Route, Routes } from "react-router-dom";
 
 import ExplorerGenomeBrowserContent from "./explorer/ExplorerGenomeBrowserContent";
 import ExplorerIndividualContent from "./explorer/ExplorerIndividualContent";
@@ -14,12 +14,12 @@ const DataExplorerContent = () => {
     }, []);
 
     return (
-        <Switch>
-            <Route path="/data/explorer/search"><ExplorerSearchContent /></Route>
-            <Route path="/data/explorer/individuals/:individual"><ExplorerIndividualContent /></Route>
-            <Route path="/data/explorer/genome"><ExplorerGenomeBrowserContent /></Route>
-            <Route path="/data/explorer" render={() => <Redirect to="/data/explorer/search" />} />
-        </Switch>
+        <Routes>
+            <Route path="search/*" element={<ExplorerSearchContent />} />
+            <Route path="individuals/:individual/*" element={<ExplorerIndividualContent />} />
+            <Route path="genome/*" element={<ExplorerGenomeBrowserContent />} />
+            <Route path="*" element={<Navigate to="search" replace={true} />} />
+        </Routes>
     );
 };
 export default DataExplorerContent;

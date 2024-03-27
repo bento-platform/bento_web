@@ -35,7 +35,7 @@ const Subject = ({ subject, groupsByID }) => {
         return (
             <>
                 <strong>Group:</strong>{" "}
-                <Link to={`/admin/data/manager/access/groups#group-${group}`}>
+                <Link to={`/data/manager/access/groups#group-${group}`}>
                     {groupDef
                         ? (<>{groupDef.name} (ID: {group})</>)
                         : (<>ID: {group}</>)}

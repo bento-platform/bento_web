@@ -31,6 +31,8 @@ class DiscoveryQueryBuilder extends Component {
         this.handleTabsEdit = this.handleTabsEdit.bind(this);
         this.handleVariantHiddenFieldChange = this.handleVariantHiddenFieldChange.bind(this);
 
+        this.handleSetFormRef = this.handleSetFormRef.bind(this);
+
         this.forms = {};
     }
 
@@ -40,51 +42,20 @@ class DiscoveryQueryBuilder extends Component {
             requiredDataTypes,
             addDataTypeQueryForm,
             autoQuery,
-            neutralizeAutoQueryPageTransition,
         } = this.props;
 
         (requiredDataTypes ?? []).forEach(dt => addDataTypeQueryForm(dt));
 
         if (autoQuery?.isAutoQuery) {
-            const { autoQueryType, autoQueryField, autoQueryValue } = autoQuery;
+            const { autoQueryType } = autoQuery;
 
-            // Trigger a cascade of async functions
-            // that involve waiting for redux actions to reduce (complete)
-            // before triggering others
-            (async () => {
-                // Clean old queries (if any)
-                Object.values(dataTypesByID).forEach(value => this.handleTabsEdit(value.id, "remove"));
+            // Clean old queries (if any)
+            Object.values(dataTypesByID).forEach(value => this.handleTabsEdit(value.id, "remove"));
 
-                // Set type of query
-                await this.handleAddDataTypeQueryForm({ key: autoQueryType });
+            // Set type of query
+            this.handleAddDataTypeQueryForm({ key: autoQueryType });
 
-                // Set term
-                const dataType = dataTypesByID[autoQueryType];
-                const fields = [{
-                    name: ["conditions"],
-                    value: [{
-                        field: autoQueryField,
-                        // from utils/schema:
-                        fieldSchema: getFieldSchema(dataType.schema, autoQueryField),
-                        negated: false,
-                        operation: OP_EQUALS,
-                        searchValue: autoQueryValue,
-                    }],
-                }];
-
-                // Force-override fields in the form
-                this.forms[dataType.id]?.setFields(fields);
-                await this.handleFormChange(dataType, fields);  // Not triggered by setFields; do it manually
-
-                // Simulate form submission click
-                const s = this.handleSubmit();
-
-                // Clean up auto-query "paper trail" (that is, the state segment that
-                // was introduced in order to transfer intent from the OverviewContent page)
-                neutralizeAutoQueryPageTransition();
-
-                await s;
-            })();
+            // The rest of the auto-query is handled by handleSetFormRef() below, upon form load.
         }
     }
 
@@ -126,8 +97,51 @@ class DiscoveryQueryBuilder extends Component {
         this.props.removeDataTypeQueryForm(this.props.dataTypesByID[key]);
     }
 
+    handleSetFormRef(dataType, form) {
+        const { autoQuery, neutralizeAutoQueryPageTransition } = this.props;
+        this.forms[dataType.id] = form;
+
+        if (!autoQuery?.isAutoQuery) return;
+
+        // If we have an auto-query on this form, trigger it when we get the ref, so we can access the form object:
+
+        const { autoQueryType, autoQueryField, autoQueryValue } = autoQuery;
+        if (autoQueryType !== dataType.id) return;
+
+        console.debug(`executing auto-query on data type ${dataType.id}: ${autoQueryField} = ${autoQueryValue}`);
+
+        const fieldSchema = getFieldSchema(dataType.schema, autoQueryField);
+
+        // Set term
+        const fields = [{
+            name: ["conditions"],
+            value: [{
+                field: autoQueryField,
+                // from utils/schema:
+                fieldSchema,
+                negated: false,
+                operation: OP_EQUALS,
+                searchValue: autoQueryValue,
+            }],
+        }];
+
+        form?.setFields(fields);
+        this.handleFormChange(dataType, fields);  // Not triggered by setFields; do it manually
+
+        (async () => {
+            // Simulate form submission click
+            const s = this.handleSubmit();
+
+            // Clean up auto-query "paper trail" (that is, the state segment that
+            // was introduced in order to transfer intent from the OverviewContent page)
+            neutralizeAutoQueryPageTransition();
+
+            await s;
+        })();
+    }
+
     render() {
-        const { activeDataset, dataTypesByDataset} = this.props;
+        const { activeDataset, dataTypesByDataset, dataTypeForms } = this.props;
 
         const dataTypesForActiveDataset = Object.values(dataTypesByDataset.itemsByID[activeDataset] || {})
             .filter(dt => typeof dt === "object");
@@ -145,7 +159,7 @@ class DiscoveryQueryBuilder extends Component {
             })),
         };
 
-        const dataTypeTabItems = this.props.dataTypeForms.map(({dataType, formValues}) => {
+        const dataTypeTabItems = dataTypeForms.map(({dataType, formValues}) => {
             // Use data type label for tab name, unless it isn't specified - then fall back to ID.
             // This behaviour should be the same everywhere in bento_web or almost anywhere the
             // data type is shown to 'end users'.
@@ -159,7 +173,7 @@ class DiscoveryQueryBuilder extends Component {
                         dataType={dataType}
                         formValues={formValues}
                         loading={this.props.searchLoading}
-                        setFormRef={(form) => this.forms[id] = form}
+                        setFormRef={(form) => this.handleSetFormRef(dataType, form)}
                         onChange={fields => this.handleFormChange(dataType, fields)}
                         handleVariantHiddenFieldChange={this.handleVariantHiddenFieldChange}
                     />
@@ -193,7 +207,7 @@ class DiscoveryQueryBuilder extends Component {
                 </Button>
             </Typography.Title>
 
-            {this.props.dataTypeForms.length > 0
+            {dataTypeForms.length > 0
                 ? <Tabs type="editable-card" hideAdd onEdit={this.handleTabsEdit} items={dataTypeTabItems} />
                 : (
                     <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} description="No Data Types Added">
@@ -204,7 +218,7 @@ class DiscoveryQueryBuilder extends Component {
             <Button type="primary"
                     icon={<SearchOutlined />}
                     loading={this.props.searchLoading}
-                    disabled={this.props.dataTypeForms.length === 0 || this.props.isFetchingTextSearch}
+                    disabled={dataTypeForms.length === 0 || this.props.isFetchingTextSearch}
                     onClick={() => this.handleSubmit()}>Search</Button>
         </Card>;
     }
@@ -222,7 +236,7 @@ DiscoveryQueryBuilder.propTypes = {
 
     searchLoading: PropTypes.bool,
     formValues: PropTypes.object,
-    dataTypeForms: PropTypes.arrayOf(PropTypes.object),
+    dataTypeForms: PropTypes.arrayOf(PropTypes.object).isRequired,
     joinFormValues: PropTypes.object,
     isFetchingTextSearch: PropTypes.bool,
 

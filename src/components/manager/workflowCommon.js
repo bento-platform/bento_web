@@ -1,4 +1,4 @@
-import { useHistory } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { useCallback } from "react";
 
 export const FORM_LABEL_COL = {md: {span: 24}, lg: {span: 4}, xl: {span: 6}};
@@ -14,16 +14,18 @@ export const STEP_INPUT = 1;
 export const STEP_CONFIRM = 2;
 
 export const useStartIngestionFlow = () => {
-    const history = useHistory();
+    const navigate = useNavigate();
     return useCallback((selectedWorkflow, initialInputValues = undefined) => {
-        history.push("/admin/data/manager/ingestion", {
-            step: STEP_INPUT,
-            initialWorkflowFilterValues: {
-                text: "",
-                tags: [...selectedWorkflow.tags],
+        navigate("/data/manager/ingestion", {
+            state: {
+                step: STEP_INPUT,
+                initialWorkflowFilterValues: {
+                    text: "",
+                    tags: [...selectedWorkflow.tags],
+                },
+                selectedWorkflow,
+                initialInputValues,
             },
-            selectedWorkflow,
-            initialInputValues,
         });
-    }, [history]);
+    }, [navigate]);
 };
