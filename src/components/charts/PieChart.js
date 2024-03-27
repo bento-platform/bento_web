@@ -1,10 +1,12 @@
 import React, {useCallback, useMemo} from "react";
-import PropTypes from "prop-types";
-import { useNavigate } from "react-router-dom";
-import { PieChart as BentoPie } from "bento-charts";
-import ChartContainer from "./ChartContainer";
-import { setAutoQueryPageTransition } from "@/modules/explorer/actions";
 import { useDispatch } from "react-redux";
+import { useNavigate } from "react-router-dom";
+import PropTypes from "prop-types";
+
+import { PieChart as BentoPie } from "bento-charts";
+
+import { setAutoQueryPageTransition } from "@/modules/explorer/actions";
+import ChartContainer from "./ChartContainer";
 
 const PieChart = ({
     title,

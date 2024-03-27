@@ -198,12 +198,12 @@ Biosamples.propTypes = {
     handleExperimentClick: PropTypes.func,
 };
 
-const IndividualBiosamples = ({ individual, experimentsUrl }) => {
+const IndividualBiosamples = ({ individual }) => {
     const navigate = useNavigate();
 
     const handleExperimentClick = useCallback((eid) => {
         navigate(`../experiments/${eid}`);
-    }, [experimentsUrl, navigate]);
+    }, [navigate]);
 
     return (
         <RoutedIndividualContent
@@ -221,7 +221,6 @@ const IndividualBiosamples = ({ individual, experimentsUrl }) => {
 
 IndividualBiosamples.propTypes = {
     individual: individualPropTypesShape,
-    experimentsUrl: PropTypes.string,
 };
 
 export default IndividualBiosamples;
