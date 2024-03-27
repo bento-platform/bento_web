@@ -1,66 +1,70 @@
 import React, { useMemo } from "react";
 import { useSelector } from "react-redux";
 import { Row, Typography } from "antd";
-import { getPieChart } from "../../utils/overview";
+
+import { getPieChart } from "@/utils/overview";
+
 import StatisticCollection from "./StatisticCollection";
 import ChartCollection from "./ChartCollection";
 
 const ClinicalSummary = () => {
     const { data, isFetching } = useSelector((state) => state.overviewSummary);
+    const { phenopacket, experiment } = data ?? {};
 
-    const { data_type_specific: dataTypeSpecific } = data ?? {};
+    const { data_type_specific: phenoSpecific } = phenopacket ?? {};
+    const { data_type_specific: expSpecific } = experiment ?? {};
 
     const statistics = useMemo(() => [
         {
             title: "Participants",
-            value: dataTypeSpecific?.individuals?.count,
+            value: phenoSpecific?.individuals?.count,
         },
         {
             title: "Biosamples",
-            value: dataTypeSpecific?.biosamples?.count,
+            value: phenoSpecific?.biosamples?.count,
         },
         {
             title: "Diseases",
-            value: dataTypeSpecific?.diseases?.count,
+            value: phenoSpecific?.diseases?.count,
         },
         {
             title: "Phenotypic Features",
-            value: dataTypeSpecific?.phenotypic_features?.count,
+            value: phenoSpecific?.phenotypic_features?.count,
         },
         {
             title: "Experiments",
-            value: dataTypeSpecific?.experiments?.count,
+            value: expSpecific?.experiments?.count,
         },
-    ], [dataTypeSpecific]);
+    ], [phenoSpecific]);
 
     const charts = useMemo(() => [
         getPieChart({
             title: "Individuals",
-            data: dataTypeSpecific?.individuals?.sex,
+            data: phenoSpecific?.individuals?.sex,
             fieldLabel: "[dataset item].subject.sex",
             thresholdFraction: 0,
         }),
         getPieChart({
             title: "Diseases",
-            data: dataTypeSpecific?.diseases?.term,
+            data: phenoSpecific?.diseases?.term,
             fieldLabel: "[dataset item].diseases.[item].term.label",
         }),
         {
             title: "Ages",
-            data: binAges(dataTypeSpecific?.individuals?.age),
+            data: binAges(phenoSpecific?.individuals?.age),
             type: "HISTOGRAM",
         },
         getPieChart({
             title: "Biosamples",
-            data: dataTypeSpecific?.biosamples?.sampled_tissue,
+            data: phenoSpecific?.biosamples?.sampled_tissue,
             fieldLabel: "[dataset item].biosamples.[item].sampled_tissue.label",
         }),
         getPieChart({
             title: "Phenotypic Features",
-            data: dataTypeSpecific?.phenotypic_features?.type,
+            data: phenoSpecific?.phenotypic_features?.type,
             fieldLabel: "[dataset item].phenotypic_features.[item].type.label",
         }),
-    ], [dataTypeSpecific]);
+    ], [phenoSpecific]);
 
     return (
         <>

@@ -2,14 +2,14 @@ import React, { useMemo } from "react";
 import { useSelector } from "react-redux";
 import { Row, Typography } from "antd";
 
-import { getPieChart } from "../../utils/overview";
+import { getPieChart } from "@/utils/overview";
 
 import StatisticCollection from "./StatisticCollection";
 import ChartCollection from "./ChartCollection";
 
 const ExperimentsSummary = () => {
     const { data, isFetching } = useSelector((state) => state.overviewSummary);
-    const experimentsSummary = data?.data_type_specific?.experiments ?? {};
+    const experimentsSummary = data?.experiment?.data_type_specific?.experiments ?? {};
 
     // TODO: most of these have "other" categories, so counts here are ambiguous or simply incorrect
     const statistics = useMemo(() => [
