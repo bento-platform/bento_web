@@ -206,7 +206,7 @@ const DiscoverySearchForm = ({ onChange, dataType, setFormRef, handleVariantHidd
         const { assemblyId, chrom, start, end, genotypeType, ref, alt } = values;
 
         let updatedConditionsArray = getConditionsArray();
-        
+
         if (updatedConditionsArray === undefined) {
             return;
         }
