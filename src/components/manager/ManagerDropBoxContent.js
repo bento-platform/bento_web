@@ -87,7 +87,7 @@ const generateFileTree = (directory) =>
         .map(({ name: title, contents, relativePath: key }) => ({
             title,
             key,
-            ...(contents !== undefined ? { children: generateFileTree(contents) } : {}),
+            ...(contents !== undefined ? { children: generateFileTree(contents) } : { isLeaf: true }),
         }));
 
 const generateURIsByRelPath = (entry, acc) => {
