@@ -84,15 +84,11 @@ const sortByName = (a, b) => a.name.localeCompare(b.name);
 const generateFileTree = (directory) =>
     [...directory]
         .sort(sortByName)
-        .map(entry => {
-            const {name, contents, relativePath} = entry;
-            const isFolder = contents !== undefined;
-            return (
-                <Tree.TreeNode title={name} key={relativePath} isLeaf={!isFolder}>
-                    {isFolder ? generateFileTree(contents) : null}
-                </Tree.TreeNode>
-            );
-        });
+        .map(({ name: title, contents, relativePath: key }) => ({
+            title,
+            key,
+            ...(contents !== undefined ? { children: generateFileTree(contents) } : {}),
+        }));
 
 const generateURIsByRelPath = (entry, acc) => {
     if (Array.isArray(entry)) {
@@ -291,7 +287,7 @@ const ManagerDropBoxContent = () => {
     useFetchDropBoxContentsIfAllowed();
 
     const dropBoxService = useSelector(state => state.services.dropBoxService);
-    const {tree, isFetching: treeLoading, isDeleting} = useSelector(state => state.dropBox);
+    const { tree, isFetching: treeLoading, isDeleting } = useSelector(state => state.dropBox);
 
     const { workflowsByType } = useWorkflows();
     const ingestionWorkflows = workflowsByType.ingestion.items;
@@ -299,6 +295,14 @@ const ManagerDropBoxContent = () => {
 
     const filesByPath = useMemo(() => Object.fromEntries(
         recursivelyFlattenFileTree([], tree).map(f => [f.relativePath, f])), [tree]);
+
+    const treeData = useMemo(() => [
+        {
+            title: "Drop Box",
+            key: DROP_BOX_ROOT_KEY,
+            children: generateFileTree(tree, ""),
+        },
+    ], [tree]);
 
     // Start with drop box root selected at first
     //  - Will enable the upload button so that users can quickly upload from initial page load
@@ -587,11 +591,8 @@ const ManagerDropBoxContent = () => {
                                 expandAction="doubleClick"
                                 onSelect={setSelectedEntries}
                                 selectedKeys={selectedEntries}
-                            >
-                                <Tree.TreeNode title="Drop Box" key={DROP_BOX_ROOT_KEY}>
-                                    {generateFileTree(tree, "")}
-                                </Tree.TreeNode>
-                            </Tree.DirectoryTree>
+                                treeData={treeData}
+                            />
                         </div>
                     ) : <Empty image={Empty.PRESENTED_IMAGE_SIMPLE}
                                description="Encountered an error while trying to access the drop box service" />}
