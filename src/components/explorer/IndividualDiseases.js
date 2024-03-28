@@ -47,10 +47,10 @@ const DiseaseDetails = ({disease}) => (
         <Descriptions.Item label="Disease Stage(s)">
             <OntologyTermList items={disease?.disease_stage} />
         </Descriptions.Item>
-        <Descriptions.Item label="Clinical TNM finding(s)">
+        <Descriptions.Item label="Clinical TNM Finding(s)">
             <OntologyTermList items={disease?.clinical_tnm_finding} />
         </Descriptions.Item>
-        <Descriptions.Item label="Primary site">
+        <Descriptions.Item label="Primary Site">
             <OntologyTerm term={disease?.primary_site} />
         </Descriptions.Item>
         <Descriptions.Item label="Extra Properties">
