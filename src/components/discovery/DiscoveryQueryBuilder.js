@@ -168,7 +168,7 @@ class DiscoveryQueryBuilder extends Component {
             })),
         };
 
-        const dataTypeTabItems = dataTypeForms.map(({dataType, formValues}) => {
+        const dataTypeTabItems = dataTypeForms.map(({ dataType }) => {
             // Use data type label for tab name, unless it isn't specified - then fall back to ID.
             // This behaviour should be the same everywhere in bento_web or almost anywhere the
             // data type is shown to 'end users'.
@@ -180,7 +180,6 @@ class DiscoveryQueryBuilder extends Component {
                 children: (
                     <DiscoverySearchForm
                         dataType={dataType}
-                        formValues={formValues}
                         loading={this.props.searchLoading}
                         setFormRef={(form) => this.handleSetFormRef(dataType, form)}
                         onChange={(fields) => this.handleFormChange(dataType, fields)}

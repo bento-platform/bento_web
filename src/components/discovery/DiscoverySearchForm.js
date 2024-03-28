@@ -34,10 +34,7 @@ const VARIANT_OPTIONAL_FIELDS = [
 ];
 
 const updateVariantConditions = (conditions, fieldName, searchValue) =>
-    conditions.map((c) =>
-        c.value.field === fieldName
-            ? {...c, value: { ...c.value, searchValue }}
-            : c);
+    conditions.map((c) => c.field === fieldName ? { ...c, searchValue } : c);
 
 const conditionValidator = (rule, { field, fieldSchema, searchValue }) => {
     if (field === undefined) {
@@ -99,7 +96,7 @@ PhenopacketDropdownOption.propTypes = {
 };
 
 
-const DiscoverySearchForm = ({ onChange, dataType, formValues, setFormRef, handleVariantHiddenFieldChange }) => {
+const DiscoverySearchForm = ({ onChange, dataType, setFormRef, handleVariantHiddenFieldChange }) => {
     const [form] = Form.useForm();
 
     useEffect(() => {
@@ -208,8 +205,8 @@ const DiscoverySearchForm = ({ onChange, dataType, formValues, setFormRef, handl
     const addVariantSearchValues = useCallback((values) => {
         const { assemblyId, chrom, start, end, genotypeType, ref, alt } = values;
 
-        let updatedConditionsArray = formValues?.conditions;
-
+        let updatedConditionsArray = getConditionsArray();
+        
         if (updatedConditionsArray === undefined) {
             return;
         }
@@ -242,10 +239,11 @@ const DiscoverySearchForm = ({ onChange, dataType, formValues, setFormRef, handl
                 updatedConditionsArray, "[dataset item].alternative", alt);
         }
 
-        handleVariantHiddenFieldChange({
-            conditions: updatedConditionsArray,
-        });
-    }, [formValues, handleVariantHiddenFieldChange]);
+        handleVariantHiddenFieldChange([{
+            name: ["conditions"],
+            value: updatedConditionsArray,
+        }]);
+    }, [getConditionsArray, handleVariantHiddenFieldChange]);
 
     const getHelpText = useCallback(
         (key) => isVariantSearch ? "" : conditionsHelp[key] ?? undefined,
@@ -382,7 +380,6 @@ DiscoverySearchForm.propTypes = {
     form: PropTypes.object,
     onChange: PropTypes.func,
     dataType: PropTypes.object,  // TODO: Shape?
-    formValues: PropTypes.arrayOf(PropTypes.object),
     setFormRef: PropTypes.func,
     handleVariantHiddenFieldChange: PropTypes.func.isRequired,
 };
