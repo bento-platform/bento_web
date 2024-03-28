@@ -141,7 +141,7 @@ const DiscoverySearchCondition = ({ dataType, value, onChange, onFieldChange, is
                     onChange={handleSearchSelectValue}
                     value={searchValueTransformed}
                     showSearch={true}
-                    filterOption={(i, o) => o.props.children.toLocaleLowerCase().includes(i.toLocaleLowerCase())}
+                    filterOption={(i, o) => o.label.toLocaleLowerCase().includes(i.toLocaleLowerCase())}
                     options={(fieldSchema.type === "boolean" ? BOOLEAN_OPTIONS : fieldSchema.enum).map((v) => ({
                         value: v,
                         label: v,
