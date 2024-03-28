@@ -89,6 +89,7 @@ const LocusSearch = ({assemblyId, addVariantSearchValues, handleLocusChange, set
 
         // may not need error checking here, since this is user selection, not user input
         if (!locus) {
+            console.warn("handleSelect: locus was false-y; got option:", option);
             return;
         }
 
