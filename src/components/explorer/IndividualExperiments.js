@@ -208,7 +208,7 @@ const ExperimentDetail = ({ experiment }) => {
                     </div>
                 </Descriptions.Item>
                 <Descriptions.Item span={2} label="Extra Properties">
-                    <ExtraProperties extraProperties={extraProperties}/>
+                    <ExtraProperties extraProperties={extraProperties} />
                 </Descriptions.Item>
             </Descriptions>
             <Typography.Title level={4}>
