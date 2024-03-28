@@ -354,7 +354,9 @@ const ManagerDropBoxContent = () => {
 
             // Steal the first compatible entry, or all if it's an array
             const entriesToTake = entriesLeft.filter(e => isArray ? compatEntries.includes(e) : e === compatEntries[0]);
-            inputs[i.id] = BENTO_DROP_BOX_FS_BASE_PATH + (isArray ? entriesToTake : entriesToTake[0]);
+            inputs[i.id] = (isArray
+                ? entriesToTake.map((e) => BENTO_DROP_BOX_FS_BASE_PATH + e)
+                : BENTO_DROP_BOX_FS_BASE_PATH + entriesToTake[0]);
             entriesLeft = entriesLeft.filter(f => !entriesToTake.includes(f));
         }
 
