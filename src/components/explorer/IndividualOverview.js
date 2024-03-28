@@ -27,7 +27,7 @@ const IndividualOverview = ({individual}) => {
                 />
             </Descriptions.Item>
             <Descriptions.Item label="Extra Properties" span={6}>
-                <ExtraProperties extraProperties={individual?.extra_properties}/>
+                <ExtraProperties extraProperties={individual?.extra_properties} />
             </Descriptions.Item>
         </Descriptions>
     );

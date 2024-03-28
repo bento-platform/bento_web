@@ -92,7 +92,7 @@ export const OntologyTermList = (items) => {
     if (!Array.isArray(items)) {
         return EM_DASH;
     }
-    return items.map((ontology, idx) => <OntologyTerm term={ontology} key={idx} br/>);
+    return items.map((ontology, idx) => <OntologyTerm term={ontology} key={idx} br />);
 };
 
 OntologyTermList.propTypes = {

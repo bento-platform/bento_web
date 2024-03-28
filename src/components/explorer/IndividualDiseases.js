@@ -33,28 +33,28 @@ const DISEASES_COLUMNS = [
     {
         title: "Onset Age",
         dataIndex: "onset",
-        render: (onset) => (<TimeElement timeElement={onset}/>),
+        render: (onset) => (<TimeElement timeElement={onset} />),
     },
     {
         title: "Resolution Age",
         dataIndex: "resolution",
-        render: (resolution) => (<TimeElement timeElement={resolution}/>),
+        render: (resolution) => (<TimeElement timeElement={resolution} />),
     },
 ];
 
 const DiseaseDetails = ({disease}) => (
     <Descriptions bordered column={1} size="small">
         <Descriptions.Item label="Disease Stage(s)">
-            <OntologyTermList items={disease?.disease_stage}/>
+            <OntologyTermList items={disease?.disease_stage} />
         </Descriptions.Item>
         <Descriptions.Item label="Clinical TNM finding(s)">
-            <OntologyTermList items={disease?.clinical_tnm_finding}/>
+            <OntologyTermList items={disease?.clinical_tnm_finding} />
         </Descriptions.Item>
         <Descriptions.Item label="Primary site">
-            <OntologyTerm term={disease?.primary_site}/>
+            <OntologyTerm term={disease?.primary_site} />
         </Descriptions.Item>
         <Descriptions.Item label="Extra Properties">
-            <ExtraProperties extraProperties={disease?.extra_properties}/>
+            <ExtraProperties extraProperties={disease?.extra_properties} />
         </Descriptions.Item>
     </Descriptions>
 );

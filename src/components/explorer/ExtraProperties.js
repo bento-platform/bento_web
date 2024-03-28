@@ -5,15 +5,11 @@ import { EM_DASH } from "@/constants";
 import JsonView from "@/components/JsonView";
 
 const ExtraProperties = ({extraProperties}) => {
-    if (!extraProperties) {
+    if (!extraProperties || !Object.keys(extraProperties).length) {
         return EM_DASH;
     }
 
-    return Object.keys(extraProperties).length ? (
-        <JsonView src={extraProperties}/>
-    ) : (
-        EM_DASH
-    );
+    return <JsonView src={extraProperties} />;
 };
 ExtraProperties.propTypes = {
     extraProperties: PropTypes.object,

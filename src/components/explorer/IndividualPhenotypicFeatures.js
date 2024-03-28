@@ -9,11 +9,12 @@ import {
     individualPropTypesShape,
     phenotypicFeaturePropTypesShape,
 } from "@/propTypes";
+import { isValidUrl } from "@/utils/url";
+
 import OntologyTerm, { conditionalOntologyRender } from "./OntologyTerm";
 import { booleanFieldSorter, renderBoolean } from "./utils";
 import TimeElement from "./TimeElement";
 import { RoutedIndividualContent, RoutedIndividualContentTable } from "./RoutedIndividualContent";
-import { isValidUrl } from "@/utils/url";
 import ExtraProperties from "./ExtraProperties";
 
 const PHENOTYPIC_FEATURES_COLUMNS = [
@@ -76,7 +77,7 @@ const Evidence = ({ evidence }) => {
         return EM_DASH;
     }
 
-    const externalReference = evidence?.reference;
+    const externalReference = evidence.reference;
     const hasReferenceUrl = isValidUrl(externalReference?.reference);
     return (
         <Descriptions bordered={false} column={1} size="small">
@@ -85,25 +86,23 @@ const Evidence = ({ evidence }) => {
             </Descriptions.Item>
             {externalReference &&
                 <Descriptions.Item label="Reference">
-                    <div>
-                        {externalReference?.id &&
-                            <>
-                                <strong>ID:</strong>{" "}{externalReference.id}{" "}
-                                {hasReferenceUrl &&
-                                    <a href={externalReference.reference} target="_blank" rel="noopener noreferrer">
-                                        <LinkOutlined/>
-                                    </a>
-                                }
-                                <br />
-                            </>
-                        }
-                        {externalReference?.description &&
-                            <>
-                                <strong>description:</strong>{" "}{externalReference?.description}
-                                <br />
-                            </>
-                        }
-                    </div>
+                    {externalReference?.id &&
+                        <>
+                            <strong>ID:</strong>{" "}{externalReference.id}{" "}
+                            {hasReferenceUrl &&
+                                <a href={externalReference.reference} target="_blank" rel="noopener noreferrer">
+                                    <LinkOutlined />
+                                </a>
+                            }
+                            <br />
+                        </>
+                    }
+                    {externalReference?.description &&
+                        <>
+                            <strong>description:</strong>{" "}{externalReference?.description}
+                            <br />
+                        </>
+                    }
                 </Descriptions.Item>
             }
         </Descriptions>

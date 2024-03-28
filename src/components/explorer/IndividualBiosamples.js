@@ -101,18 +101,18 @@ const BiosampleDetail = ({ biosample, handleExperimentClick }) => {
                 <OntologyTerm term={biosample.pathological_stage} />
             </Descriptions.Item>
             <Descriptions.Item label="Time of Collection">
-                <TimeElement timeElement={biosample.time_of_collection}/>
+                <TimeElement timeElement={biosample.time_of_collection} />
             </Descriptions.Item>
             <Descriptions.Item label="Measurements">
                 {biosample.hasOwnProperty("measurements") &&
                     Object.keys(biosample.measurements).length ? (
-                        <MeasurementsTable measurements={biosample.measurements}/>
+                        <MeasurementsTable measurements={biosample.measurements} />
                     ) : (
                         EM_DASH
                     )}
             </Descriptions.Item>
             <Descriptions.Item label="Extra Properties">
-                <ExtraProperties extraProperties={biosample?.extra_properties}/>
+                <ExtraProperties extraProperties={biosample?.extra_properties} />
             </Descriptions.Item>
             <Descriptions.Item label="Available Experiments">
                 <ExperimentsClickList

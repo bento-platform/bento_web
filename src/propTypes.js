@@ -233,7 +233,7 @@ export const diseasePropTypesShape = PropTypes.shape({
 });
 
 export const evidencePropTypesShape = PropTypes.shape({
-    evidence_code: ontologyShape,
+    evidence_code: ontologyShape.isRequired,
     reference: PropTypes.shape({
         id: PropTypes.string,
         reference: PropTypes.string,
