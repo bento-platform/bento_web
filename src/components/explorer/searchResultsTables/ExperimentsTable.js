@@ -12,16 +12,12 @@ import ExplorerSearchResultsTable from "../ExplorerSearchResultsTable";
 const ExperimentRender = React.memo(({ experimentId, individual }) => {
     const location = useLocation();
     return (
-        <>
-            <Link
-                to={{
-                    pathname: `${explorerIndividualUrl(individual.id)}/experiments/${experimentId}`,
-                    state: { backUrl: location.pathname },
-                }}
-            >
-                {experimentId}
-            </Link>
-        </>
+        <Link
+            to={`${explorerIndividualUrl(individual.id)}/experiments/${experimentId}`}
+            state={{ backUrl: location.pathname }}
+        >
+            {experimentId}
+        </Link>
     );
 });
 

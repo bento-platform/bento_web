@@ -9,10 +9,8 @@ const IndividualIDCell = React.memo(({individual: {id, alternate_ids: alternateI
     return (
         <>
             <Link
-                to={{
-                    pathname: `${explorerIndividualUrl(id)}/overview`,
-                    state: { backUrl: location.pathname },
-                }}
+                to={`${explorerIndividualUrl(id)}/overview`}
+                state={{ backUrl: location.pathname }}
             >
                 {id}
             </Link>{" "}
