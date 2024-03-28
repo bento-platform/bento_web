@@ -3,10 +3,10 @@ import React from "react";
 import { Descriptions } from "antd";
 
 import { EM_DASH } from "@/constants";
-import JsonView from "@/components/JsonView";
 import { individualPropTypesShape } from "@/propTypes";
 import OntologyTerm from "./OntologyTerm";
 import TimeElement from "./TimeElement";
+import ExtraProperties from "./ExtraProperties";
 
 const IndividualOverview = ({individual}) => {
     if (!individual) return <div />;
@@ -27,10 +27,7 @@ const IndividualOverview = ({individual}) => {
                 />
             </Descriptions.Item>
             <Descriptions.Item label="Extra Properties" span={6}>
-                {(individual.hasOwnProperty("extra_properties") && Object.keys(individual.extra_properties).length)
-                    ? <JsonView src={individual.extra_properties} />
-                    : EM_DASH
-                }
+                <ExtraProperties extraProperties={individual?.extra_properties} />
             </Descriptions.Item>
         </Descriptions>
     );
