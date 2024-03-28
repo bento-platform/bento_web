@@ -16,9 +16,9 @@ import { VIEWABLE_FILE_EXTENSIONS } from "@/components/display/FileDisplay";
 
 import DownloadButton from "@/components/DownloadButton";
 import FileModal from "@/components/display/FileModal";
-import JsonView from "@/components/JsonView";
 import { RoutedIndividualContent, RoutedIndividualContentTable } from "@/components/explorer/RoutedIndividualContent";
 import OntologyTerm from "./OntologyTerm";
+import ExtraProperties from "./ExtraProperties";
 
 
 const VIEWABLE_FILE_FORMATS = ["PDF", "CSV", "TSV"];
@@ -208,7 +208,7 @@ const ExperimentDetail = ({ experiment }) => {
                     </div>
                 </Descriptions.Item>
                 <Descriptions.Item span={2} label="Extra Properties">
-                    <JsonView src={extraProperties} />
+                    <ExtraProperties extraProperties={extraProperties} />
                 </Descriptions.Item>
             </Descriptions>
             <Typography.Title level={4}>

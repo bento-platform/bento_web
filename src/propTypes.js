@@ -226,6 +226,15 @@ export const diseasePropTypesShape = PropTypes.shape({
     updated: PropTypes.string,  // ISO datetime string
 });
 
+export const evidencePropTypesShape = PropTypes.shape({
+    evidence_code: ontologyShape.isRequired,
+    reference: PropTypes.shape({
+        id: PropTypes.string,
+        reference: PropTypes.string,
+        description: PropTypes.string,
+    }),
+});
+
 // Prop types object shape for a single phenopacket phenotypic feature object.
 export const phenotypicFeaturePropTypesShape = PropTypes.shape({
     type: ontologyShape.isRequired,
