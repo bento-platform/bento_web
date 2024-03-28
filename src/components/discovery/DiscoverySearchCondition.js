@@ -6,7 +6,7 @@ import { CloseOutlined } from "@ant-design/icons";
 
 import SchemaTreeSelect from "../schema_trees/SchemaTreeSelect";
 import { constFn, id, nop } from "@/utils/misc";
-import { DEFAULT_SEARCH_PARAMETERS, OP_EQUALS, OPERATION_TEXT } from "@/utils/search";
+import { DEFAULT_SEARCH_PARAMETERS, OP_EQUALS, OPERATION_TEXT, UI_SUPPORTED_OPERATIONS } from "@/utils/search";
 
 
 const BOOLEAN_OPTIONS = ["true", "false"];
@@ -118,7 +118,9 @@ const DiscoverySearchCondition = ({ dataType, value, onChange, onFieldChange, is
     const operations = useMemo(() => fieldSchema.search?.operations ?? [], [fieldSchema]);
     const equalsOnly = useMemo(() => operations.includes(OP_EQUALS) && operations.length === 1, [operations]);
     const operationOptions = useMemo(
-        () => operations.map((o) => ({ value: o, label: OPERATION_TEXT[o] ?? o })),
+        () => operations
+            .filter((o) => UI_SUPPORTED_OPERATIONS.includes(o))
+            .map((o) => ({ value: o, label: OPERATION_TEXT[o] ?? o })),
         [operations]);
 
     const { canNegate, required, type: fieldSchemaSearchType } = fieldSchema.search;
