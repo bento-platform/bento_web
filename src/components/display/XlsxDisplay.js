@@ -5,7 +5,6 @@ import { Card, Table } from "antd";
 
 const TABLE_PAGINATION = { pageSize: 25 };
 const TABLE_SCROLL = { x: true };
-const rowKey = (_, i) => `row${i}`;
 
 const XlsxDisplay = ({ contents }) => {
     const [excelFile, setExcelFile] = useState(null);
@@ -46,7 +45,7 @@ const XlsxDisplay = ({ contents }) => {
             });
 
             setSheetColumns(columns);
-            setSheetJSON(json);
+            setSheetJSON(json.map((r, i) => ({ ...r, __key__: `row${i}` })));
         }
     }, [selectedSheet]);
 
@@ -64,7 +63,7 @@ const XlsxDisplay = ({ contents }) => {
                 scroll={TABLE_SCROLL}
                 columns={sheetColumns}
                 dataSource={sheetJSON}
-                rowKey={rowKey}
+                rowKey="__key__"
             />
         </Card>
     );

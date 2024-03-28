@@ -7,8 +7,6 @@ const TABLE_PAGINATION = { pageSize: 25 };
 const TABLE_SCROLL = { x: true };
 const DEFAULT_COLUMN = { key: "col" };
 
-const rowKey = (_, i) => `row${i}`;
-
 const CsvDisplay = ({ contents, loading }) => {
     const [parsedData, setParsedData] = useState([]);
     const [parseError, setParseError] = useState("");
@@ -26,7 +24,8 @@ const CsvDisplay = ({ contents, loading }) => {
                 if (res.errors?.length) {
                     setParseError(res.errors[0].message);
                 }
-                rows.push(Object.fromEntries(res.data.map((v, i) => [`col${i}`, v])));
+                rows.push(Object.fromEntries(
+                    [["__key__", `row${rows.length}`], ...res.data.map((v, i) => [`col${i}`, v])]));
             },
             complete() {
                 setIsParsing(false);
@@ -54,7 +53,7 @@ const CsvDisplay = ({ contents, loading }) => {
             loading={loading || isParsing}
             columns={columns}
             dataSource={parsedData}
-            rowKey={rowKey}
+            rowKey="__key__"
         />
     );
 };
