@@ -1,10 +1,10 @@
 import React, { useEffect, useState } from "react";
 import PropTypes from "prop-types";
 import Papa from "papaparse";
-import { Alert, Table } from "antd";
+import { Alert } from "antd";
 
-const TABLE_PAGINATION = { pageSize: 25 };
-const TABLE_SCROLL = { x: true };
+import SpreadsheetTable, { SPREADSHEET_ROW_KEY_PROP } from "./SpreadsheetTable";
+
 const DEFAULT_COLUMN = { key: "col" };
 
 const CsvDisplay = ({ contents, loading }) => {
@@ -18,6 +18,7 @@ const CsvDisplay = ({ contents, loading }) => {
 
         setIsParsing(true);
         const rows = [];
+        // noinspection JSUnusedGlobalSymbols
         Papa.parse(contents, {
             worker: true,
             step: (res) => {
@@ -25,14 +26,19 @@ const CsvDisplay = ({ contents, loading }) => {
                     setParseError(res.errors[0].message);
                 }
                 rows.push(Object.fromEntries(
-                    [["__key__", `row${rows.length}`], ...res.data.map((v, i) => [`col${i}`, v])]));
+                    [
+                        [SPREADSHEET_ROW_KEY_PROP, `row${rows.length}`],
+                        ...res.data.map((v, i) => [`col${i}`, v]),
+                    ]));
             },
             complete() {
                 setIsParsing(false);
                 if (!parseError) {
-                    setColumns(rows[0] ? Object.entries(rows[0]).map((_, i) => ({
-                        dataIndex: `col${i}`,
-                    })) : [DEFAULT_COLUMN]);
+                    setColumns(rows[0]
+                        ? Object.entries(rows[0])
+                            .filter(([k, _]) => k !== SPREADSHEET_ROW_KEY_PROP)
+                            .map((_, i) => ({ dataIndex: `col${i}` }))
+                        : [DEFAULT_COLUMN]);
                     setParsedData(rows);
                 }
             },
@@ -44,17 +50,7 @@ const CsvDisplay = ({ contents, loading }) => {
     }
 
     return (
-        <Table
-            size="small"
-            bordered={true}
-            showHeader={false}
-            pagination={TABLE_PAGINATION}
-            scroll={TABLE_SCROLL}
-            loading={loading || isParsing}
-            columns={columns}
-            dataSource={parsedData}
-            rowKey="__key__"
-        />
+        <SpreadsheetTable columns={columns} dataSource={parsedData} loading={loading || isParsing} />
     );
 };
 CsvDisplay.propTypes = {
