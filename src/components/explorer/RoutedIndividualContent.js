@@ -49,7 +49,7 @@ export const RoutedIndividualContent = ({ renderContent, urlParam }) => {
 
     return (
         <Routes>
-            <Route path={`:${urlParam}`} element={contentNode} />
+            <Route path={`:${urlParam}/*`} element={contentNode} />
             <Route path="/" element={contentNode} />
         </Routes>
     );
