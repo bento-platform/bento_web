@@ -171,9 +171,9 @@ const ExplorerIndividualContent = () => {
                         />
                         <Route path={`${measurementsPath}/*`}
                                element={<IndividualMeasurements individual={individual} />} />
-                        <Route path={phenotypicFeaturesPath}
+                        <Route path={`${phenotypicFeaturesPath}/*`}
                                element={<IndividualPhenotypicFeatures individual={individual} />} />
-                        <Route path={diseasesPath} element={<IndividualDiseases individual={individual} />} />
+                        <Route path={`${diseasesPath}/*`} element={<IndividualDiseases individual={individual} />} />
                         <Route path={`${interpretationsPath}/*`}
                                element={<IndividualInterpretations individual={individual} />} />
                         <Route path={`${medicalActionsPath}/*`}
