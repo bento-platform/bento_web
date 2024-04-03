@@ -9,12 +9,10 @@ import LocusSearch from "./LocusSearch";
 import { notAlleleCharactersRegex } from "@/utils/misc";
 
 
-const isValidLocus = (locus) => {
-    return locus.chrom !== null && locus.start !== null && locus.end !== null;
-};
-const validateAlleleText = (text) => {
-    return text.toUpperCase().replaceAll(notAlleleCharactersRegex, "");
-};
+const isValidLocus = (locus) =>
+    locus.chrom !== null && locus.start !== null && locus.end !== null;
+const normalizeAlleleText = (text) =>
+    text.toUpperCase().replaceAll(notAlleleCharactersRegex, "");
 const containsInvalid = (text) => {
     const matches = text.toUpperCase().match(notAlleleCharactersRegex);
     return matches && matches.length > 0;
@@ -104,7 +102,7 @@ const VariantSearchHeader = ({ dataType, addVariantSearchValues }) => {
 
     const handleRefChange = useCallback((e) => {
         const latestInputValue = e.target.value;
-        const validatedRef = validateAlleleText(latestInputValue);
+        const normalizedRef = normalizeAlleleText(latestInputValue);
         const didValueContainInvalidChars = containsInvalid(latestInputValue);
 
         if (didValueContainInvalidChars) {
@@ -113,13 +111,13 @@ const VariantSearchHeader = ({ dataType, addVariantSearchValues }) => {
                 setRefFormReceivedValidKeystroke(true);
             }, 1000);
         }
-        setActiveRefValue(validatedRef);
-        addVariantSearchValues({ ref: validatedRef });
+        setActiveRefValue(normalizedRef);
+        addVariantSearchValues({ ref: normalizedRef });
     }, []);
 
     const handleAltChange = useCallback((e) => {
         const latestInputValue = e.target.value;
-        const validatedAlt = validateAlleleText(latestInputValue);
+        const normalizedAlt = normalizeAlleleText(latestInputValue);
         const didValueContainInvalidChars = containsInvalid(latestInputValue);
 
         if (didValueContainInvalidChars) {
@@ -129,8 +127,8 @@ const VariantSearchHeader = ({ dataType, addVariantSearchValues }) => {
             }, 1000);
         }
 
-        setActiveAltValue(validatedAlt);
-        addVariantSearchValues({ alt: validatedAlt });
+        setActiveAltValue(normalizedAlt);
+        addVariantSearchValues({ alt: normalizedAlt });
     }, []);
 
     // set default selected assemblyId if only 1 is present
