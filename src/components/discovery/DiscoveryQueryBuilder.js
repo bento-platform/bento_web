@@ -204,7 +204,7 @@ class DiscoveryQueryBuilder extends Component {
                 onCancel={this.handleHelpAndSchemasToggle}
             />
 
-            <Typography.Title level={3} style={{marginBottom: "1.5rem"}}>
+            <Typography.Title level={3} style={{ margin: "0 0 1.5rem 0" }}>
                 Advanced Search
                 {addConditionsOnDataType()}
                 <Button

@@ -46,9 +46,11 @@ const ProjectJsonSchemaModal = ({ projectId, open, onOk, onCancel }) => {
             open={open}
             width={648}
             title="Create project level JSON schema"
-            bodyStyle={{
-                overflowY: "auto",
-                maxHeight: 800,
+            styles={{
+                body: {
+                    overflowY: "auto",
+                    maxHeight: 800,
+                },
             }}
             onCancel={cancelReset}
             footer={[

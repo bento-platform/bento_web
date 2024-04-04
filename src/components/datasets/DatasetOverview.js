@@ -1,12 +1,11 @@
-import React, {Fragment, useMemo} from "react";
+import React, { Fragment, useMemo } from "react";
+import { useSelector } from "react-redux";
 import PropTypes from "prop-types";
 
-import {Col, Divider, Row, Spin, Statistic, Typography} from "antd";
+import { Col, Divider, Row, Spin, Statistic, Typography } from "antd";
 
-import {datasetPropTypesShape, projectPropTypesShape} from "../../propTypes";
-
-import {EM_DASH} from "../../constants";
-import { useSelector } from "react-redux";
+import { EM_DASH } from "@/constants";
+import { datasetPropTypesShape, projectPropTypesShape } from "@/propTypes";
 
 const DatasetOverview = ({isPrivate, project, dataset}) => {
     const datasetsDataTypes = useSelector((state) => state.datasetDataTypes.itemsByID);
@@ -23,7 +22,7 @@ const DatasetOverview = ({isPrivate, project, dataset}) => {
     return <>
         {(dataset.description ?? "").length > 0
             ? (<>
-                <Typography.Title level={4}>Description</Typography.Title>
+                <Typography.Title level={4} style={{ marginTop: 0 }}>Description</Typography.Title>
                 {dataset.description.split("\n").map((p, i) =>
                     <Typography.Paragraph key={i}>{p}</Typography.Paragraph>)}
             </>) : null}

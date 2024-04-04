@@ -122,7 +122,9 @@ const ExplorerDatasetSearch = () => {
     if (!selectedDataset) return null;
     return (
         <>
-            <Typography.Title level={4}>Explore Dataset {selectedDataset.title}</Typography.Title>
+            <Typography.Title level={4} style={{ marginTop: 0 }}>
+                Explore Dataset {selectedDataset.title}
+            </Typography.Title>
             <SearchAllRecords datasetID={datasetID} />
             <DiscoveryQueryBuilder
                 activeDataset={datasetID}

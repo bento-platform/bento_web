@@ -1,7 +1,8 @@
 import React, { memo } from "react";
 import PropTypes from "prop-types";
 
-import { PageHeader, Row, Statistic, Tabs, Tag } from "antd";
+import { Row, Statistic, Tabs, Tag } from "antd";
+import { PageHeader } from "@ant-design/pro-components";
 
 import RunRequest from "./RunRequest";
 import RunLog from "./RunLog";

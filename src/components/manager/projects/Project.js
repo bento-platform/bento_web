@@ -6,9 +6,9 @@ import { CheckOutlined, CloseOutlined, DeleteOutlined, EditOutlined, PlusOutline
 
 import Dataset from "../../datasets/Dataset";
 import ProjectForm from "./ProjectForm";
-import { INITIAL_DATA_USE_VALUE } from "../../../duo";
-import { nop, simpleDeepCopy } from "../../../utils/misc";
-import { projectPropTypesShape } from "../../../propTypes";
+import { INITIAL_DATA_USE_VALUE } from "@/duo";
+import { nop, simpleDeepCopy } from "@/utils/misc";
+import { projectPropTypesShape } from "@/propTypes";
 import ProjectJsonSchema from "./ProjectJsonSchema";
 
 const SUB_TAB_KEYS = {
@@ -96,7 +96,8 @@ class Project extends Component {
                 ) : (
                     <>
                         <Button icon={<EditOutlined />} onClick={() => (this.props.onEdit || nop)()}>Edit</Button>
-                        <Button type="danger" icon={<DeleteOutlined />}
+                        <Button danger={true}
+                                icon={<DeleteOutlined />}
                                 style={{marginLeft: "10px"}}
                                 onClick={() => (this.props.onDelete || nop)()}>Delete</Button>
                     </>
@@ -114,7 +115,7 @@ class Project extends Component {
                 />
             ) : (
                 <>
-                    <Typography.Title level={2}>
+                    <Typography.Title level={2} style={{ marginTop: 0 }}>
                         {this.state.title}
                     </Typography.Title>
                     {this.state.description.split("\n").map((p, i) =>

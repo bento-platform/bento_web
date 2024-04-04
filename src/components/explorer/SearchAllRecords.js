@@ -18,18 +18,18 @@ class SearchAllRecords extends Component {
 
     render() {
         return (
-      <Card style={{ marginBottom: "1.5em" }}>
-        <Typography.Title level={3} style={{ marginBottom: "1.5rem" }}>
-          Text Search
-        </Typography.Title>
-        <Search
-          placeholder="Search"
-          onSearch={this.onSearch}
-          style={{ width: "40%" }}
-          loading={this.props.isFetchingTextSearch}
-          disabled={this.props.isFetchingAdvancedSearch}
-          enterButton />
-      </Card>
+            <Card style={{ marginBottom: "1.5em" }}>
+                <Typography.Title level={3} style={{ margin: "0 0 1.5rem 0" }}>
+                    Text Search
+                </Typography.Title>
+                <Search
+                    placeholder="Search"
+                    onSearch={this.onSearch}
+                    style={{ width: "40%" }}
+                    loading={this.props.isFetchingTextSearch}
+                    disabled={this.props.isFetchingAdvancedSearch}
+                    enterButton />
+            </Card>
         );
     }
 }

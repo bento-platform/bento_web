@@ -79,7 +79,7 @@ const ManagerReferenceGenomesContent = () => {
             key: "actions",
             render: (genome) => (
                 <Button
-                    type="danger"
+                    danger={true}
                     icon={<DeleteOutlined />}
                     loading={isDeletingIDs[genome.id]}
                     disabled={isFetchingGenomes || isDeletingIDs[genome.id]}

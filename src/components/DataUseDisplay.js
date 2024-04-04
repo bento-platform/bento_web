@@ -33,7 +33,7 @@ const DataUseDisplay = memo(({ dataUse }) => {
 
     return <>
         <div>
-            <Typography.Title level={4} style={{fontSize: "20px"}}>Consent Code</Typography.Title>
+            <Typography.Title level={4} style={{ marginTop: 0, fontSize: "20px" }}>Consent Code</Typography.Title>
             <Row gutter={10} type="flex">
                 <Col>
                     <div style={TAG_LABEL_STYLING}>Primary</div>
