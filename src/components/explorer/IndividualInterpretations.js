@@ -21,22 +21,22 @@ export const VariantInterpretation = ({ variationInterpretation }) => {
     const closeModal = () => setModalVisible(false);
     return (
         <Descriptions layout="horizontal" bordered={true} column={1} size="small">
-            <Descriptions.Item label={"ACMG Pathogenicity classification"}>
+            <Descriptions.Item label="ACMG Pathogenicity classification">
                 {variationInterpretation.acmg_pathogenicity_classification}
             </Descriptions.Item>
-            <Descriptions.Item label={"Therapeutic Actionability"}>
+            <Descriptions.Item label="Therapeutic Actionability">
                 {variationInterpretation.therapeutic_actionability}
             </Descriptions.Item>
-            <Descriptions.Item label={"Variant Descriptor"}>
+            <Descriptions.Item label="Variant Descriptor">
                 <Button onClick={() => setModalVisible(!modalVisible)}>
                     {variationInterpretation.variation_descriptor.id}
                 </Button>
                 <Modal
-                    title={"Variation Descriptor"}
+                    title="Variation Descriptor"
                     open={modalVisible}
                     onOk={closeModal}
                     onCancel={closeModal}
-                    width={"50%"}
+                    width="50%"
                     footer={null}
                 >
                     <VariantDescriptor
@@ -67,7 +67,7 @@ export const GenomicInterpretationDetails = ({ genomicInterpretation }) => {
                     : genomicInterpretation.subject_or_biosample_id
                 }
             </Descriptions.Item>
-            {variantInterpretation && <Descriptions.Item label={"Variant Interpretation"}>
+            {variantInterpretation && <Descriptions.Item label="Variant Interpretation">
                 <VariantInterpretation variationInterpretation={variantInterpretation} />
             </Descriptions.Item>}
             {geneDescriptor && <Descriptions.Item label="Gene Descriptor">
@@ -121,19 +121,17 @@ const GENOMIC_INTERPRETATION_COLUMNS = [
 
 const expandedGIRowRender = (gi) => (<GenomicInterpretationDetails genomicInterpretation={gi} />);
 
-const GenomicInterpretations = ({ genomicInterpretations, onGenomicInterpretationClick }) => {
-    return (
-        <RoutedIndividualContentTable
-            data={genomicInterpretations}
-            urlParam="selectedGenomicInterpretation"
-            columns={GENOMIC_INTERPRETATION_COLUMNS}
-            handleRowSelect={onGenomicInterpretationClick}
-            expandedRowRender={expandedGIRowRender}
-            // GenomicInterpretation.id are PK integers, expandedRowKeys expects strings
-            rowKey={(gi) => gi.id.toString()}
-        />
-    );
-};
+const GenomicInterpretations = ({ genomicInterpretations, onGenomicInterpretationClick }) => (
+    <RoutedIndividualContentTable
+        data={genomicInterpretations}
+        urlParam="selectedGenomicInterpretation"
+        columns={GENOMIC_INTERPRETATION_COLUMNS}
+        handleRowSelect={onGenomicInterpretationClick}
+        expandedRowRender={expandedGIRowRender}
+        // GenomicInterpretation.id are PK integers, expandedRowKeys expects strings
+        rowKey={(gi) => gi.id.toString()}
+    />
+);
 GenomicInterpretations.propTypes = {
     genomicInterpretations: PropTypes.arrayOf(PropTypes.object),
     onGenomicInterpretationClick: PropTypes.func,
