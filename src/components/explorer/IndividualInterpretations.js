@@ -138,19 +138,17 @@ GenomicInterpretations.propTypes = {
 };
 
 
-const IndividualGenomicInterpretations = ({ genomicInterpretations }) => {
-    return (
-        <RoutedIndividualContent
-            urlParam="selectedGenomicInterpretation"
-            renderContent={({ onContentSelect }) => (
-                <GenomicInterpretations
-                    genomicInterpretations={genomicInterpretations}
-                    onGenomicInterpretationClick={onContentSelect}
-                />
-            )}
-        />
-    );
-};
+const IndividualGenomicInterpretations = ({ genomicInterpretations }) => (
+    <RoutedIndividualContent
+        urlParam="selectedGenomicInterpretation"
+        renderContent={({ onContentSelect }) => (
+            <GenomicInterpretations
+                genomicInterpretations={genomicInterpretations}
+                onGenomicInterpretationClick={onContentSelect}
+            />
+        )}
+    />
+);
 IndividualGenomicInterpretations.propTypes = {
     genomicInterpretations: PropTypes.arrayOf(PropTypes.object),
 };
