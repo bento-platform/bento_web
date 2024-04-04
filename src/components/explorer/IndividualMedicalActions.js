@@ -89,12 +89,17 @@ export const Treatment = ({treatment}) => (
             {treatment?.dose_intervals ? (
                 <div>
                     <Table
-                        bordered={false}
+                        bordered={true}
                         pagination={false}
                         size="small"
                         columns={DOSE_INTERVAL_COLUMNS}
                         dataSource={treatment.dose_intervals}
                         rowKey={() => uniqueId()}
+                        style={{
+                            // compensate for bad inner nested table styling:
+                            marginLeft: "-44px",
+                            padding: "16px 0",
+                        }}
                     />
                 </div>
             ) : EM_DASH}
