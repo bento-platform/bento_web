@@ -287,14 +287,14 @@ const Experiments = ({ individual, handleExperimentClick }) => {
     const columns = useMemo(
         () => [
             {
-                title: "Biosample",
-                dataIndex: "biosample",
-                render: (biosample) => <BiosampleLink biosample={biosample} />,
-            },
-            {
                 title: "Experiment Type",
                 dataIndex: "experiment_type",
                 render: (type, { id }) => <span id={`experiment-${id}`}>{type}</span>,  // scroll anchor wrapper
+            },
+            {
+                title: "Biosample",
+                dataIndex: "biosample",
+                render: (biosample) => <BiosampleLink biosample={biosample} />,
             },
             {
                 title: "Molecule",
