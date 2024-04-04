@@ -5,8 +5,6 @@ import { Collapse, Select, Typography } from "antd";
 import JsonView from "@/components/JsonView";
 import MonospaceText from "@/components/MonospaceText";
 
-const { Panel } = Collapse;
-
 const DEFAULT_JSON_VIEW_OPTIONS = {
     collapsed: true,
 };
