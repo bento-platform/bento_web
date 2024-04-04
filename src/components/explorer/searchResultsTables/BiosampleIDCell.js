@@ -17,10 +17,8 @@ const BiosampleIDCell = React.memo(({ biosample, individualID }) => {
     const usedIndividualID = individualID ?? contextIndividualID;
     return (
         <Link
-            to={{
-                pathname: `${explorerIndividualUrl(usedIndividualID)}/biosamples/${biosample}`,
-                state: { backUrl: location.pathname },
-            }}
+            to={`${explorerIndividualUrl(usedIndividualID)}/biosamples/${biosample}`}
+            state={{ backUrl: location.pathname }}
         >
             {biosample}
         </Link>

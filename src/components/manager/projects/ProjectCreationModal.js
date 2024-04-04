@@ -1,19 +1,19 @@
 import React, { useCallback, useRef } from "react";
 import { useSelector, useDispatch } from "react-redux";
-import { useHistory } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 
 import { Button, Modal } from "antd";
+import { PlusOutlined } from "@ant-design/icons";
 
 import ProjectForm from "./ProjectForm";
 
-import { toggleProjectCreationModal } from "../../../modules/manager/actions";
-import { createProjectIfPossible } from "../../../modules/metadata/actions";
-import { PlusOutlined } from "@ant-design/icons";
+import { toggleProjectCreationModal } from "@/modules/manager/actions";
+import { createProjectIfPossible } from "@/modules/metadata/actions";
 
 const ProjectCreationModal = () => {
 
     const dispatch = useDispatch();
-    const history = useHistory();
+    const navigate = useNavigate();
 
     const form = useRef(null);
 
@@ -30,7 +30,7 @@ const ProjectCreationModal = () => {
         }
 
         form.current.validateFields().then(async (values) => {
-            await dispatch(createProjectIfPossible(values, history));
+            await dispatch(createProjectIfPossible(values, navigate));
             form.current.resetFields();
             dispatch(toggleProjectCreationModal());
         }).catch((err) => {

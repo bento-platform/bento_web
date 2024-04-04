@@ -1,17 +1,20 @@
 import React, { useEffect, useMemo, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { Redirect, Route, Switch, useHistory, useLocation, useParams, useRouteMatch } from "react-router-dom";
+import { Navigate, Route, Routes, useNavigate, useLocation, useParams } from "react-router-dom";
 
 import { Layout, Menu, Skeleton } from "antd";
 
-import { BENTO_URL } from "../../config";
-import { fetchIndividualIfNecessary } from "../../modules/metadata/actions";
-import { LAYOUT_CONTENT_STYLE } from "../../styles/layoutContent";
-import { matchingMenuKeys, transformMenuItem } from "../../utils/menu";
-import { urlPath } from "../../utils/url";
+import { fetchIndividualIfNecessary } from "@/modules/metadata/actions";
+import { LAYOUT_CONTENT_STYLE } from "@/styles/layoutContent";
+import { matchingMenuKeys, transformMenuItem } from "@/utils/menu";
 
 import { ExplorerIndividualContext } from "./contexts/individual";
-import { useIsDataEmpty, useDeduplicatedIndividualBiosamples, useIndividualResources } from "./utils";
+import {
+    useIsDataEmpty,
+    useDeduplicatedIndividualBiosamples,
+    useIndividualResources,
+    explorerIndividualUrl,
+} from "./utils";
 
 import SitePageHeader from "../SitePageHeader";
 import IndividualOverview from "./IndividualOverview";
@@ -45,11 +48,10 @@ const ExplorerIndividualContent = () => {
     const dispatch = useDispatch();
 
     const location = useLocation();
-    const history = useHistory();
+    const navigate = useNavigate();
     const { individual: individualID } = useParams();
-    const { url: individualUrl } = useRouteMatch();
 
-    const [backUrl, setBackUrl] = useState(undefined);
+    const [backUrl, setBackUrl] = useState(location.state?.backUrl);
 
     useEffect(() => {
         const b = location.state?.backUrl;
@@ -74,75 +76,77 @@ const ExplorerIndividualContent = () => {
     const resourcesTuple = useIndividualResources(individual);
     const individualContext = useMemo(() => ({ individualID, resourcesTuple }), [individualID, resourcesTuple]);
 
-    const overviewUrl = `${individualUrl}/overview`;
-    const phenotypicFeaturesUrl = `${individualUrl}/phenotypic-features`;
-    const biosamplesUrl = `${individualUrl}/biosamples`;
-    const experimentsUrl = `${individualUrl}/experiments`;
-    const diseasesUrl = `${individualUrl}/diseases`;
-    const ontologiesUrl = `${individualUrl}/ontologies`;
-    const tracksUrl = `${individualUrl}/tracks`;
-    const phenopacketsUrl = `${individualUrl}/phenopackets`;
-    const interpretationsUrl = `${individualUrl}/interpretations`;
-    const medicalActionsUrl = `${individualUrl}/medical-actions`;
-    const measurementsUrl = `${individualUrl}/measurements`;
+    const individualUrl = explorerIndividualUrl(individualID);
+
+    const overviewPath = "overview";
+    const phenotypicFeaturesPath = "phenotypic-features";
+    const biosamplesPath = "biosamples";
+    const experimentsPath = "experiments";
+    const diseasesPath = "diseases";
+    const ontologiesPath = "ontologies";
+    const tracksPath = "tracks";
+    const phenopacketsPath = "phenopackets";
+    const interpretationsPath = "interpretations";
+    const medicalActionsPath = "medical-actions";
+    const measurementsPath = "measurements";
 
     const individualPhenopackets = individual?.phenopackets ?? [];
     const individualMenu = [
         // Overview
-        {url: overviewUrl, style: {marginLeft: "4px"}, text: "Overview"},
+        { url: `${individualUrl}/${overviewPath}`, style: {marginLeft: "4px"}, text: "Overview" },
         // Biosamples related menu items
         {
-            url: biosamplesUrl,
+            url: `${individualUrl}/${biosamplesPath}`,
             text: "Biosamples",
             disabled: useIsDataEmpty(individualPhenopackets, "biosamples"),
         },
         {
-            url: measurementsUrl,
+            url: `${individualUrl}/${measurementsPath}`,
             text: "Measurements",
             disabled: useIsDataEmpty(individualPhenopackets, "measurements"),
         },
         {
-            url: phenotypicFeaturesUrl,
+            url: `${individualUrl}/${phenotypicFeaturesPath}`,
             text: "Phenotypic Features",
             disabled: useIsDataEmpty(individualPhenopackets, "phenotypic_features"),
         },
         {
-            url: diseasesUrl,
+            url: `${individualUrl}/${diseasesPath}`,
             text: "Diseases",
             disabled: useIsDataEmpty(individualPhenopackets, "diseases"),
         },
         {
-            url: interpretationsUrl,
+            url: `${individualUrl}/${interpretationsPath}`,
             text: "Interpretations",
             disabled: useIsDataEmpty(individualPhenopackets, "interpretations"),
         },
         {
-            url: medicalActionsUrl,
+            url: `${individualUrl}/${medicalActionsPath}`,
             text: "Medical Actions",
             disabled: useIsDataEmpty(individualPhenopackets, "medical_actions"),
         },
         // Experiments related menu items
         {
-            url: experimentsUrl,
+            url: `${individualUrl}/${experimentsPath}`,
             text: "Experiments",
             disabled: useIsDataEmpty(
                 useDeduplicatedIndividualBiosamples(individual),
                 "experiments",
             ),
         },
-        {url: tracksUrl, text: "Tracks"},
+        {url: `${individualUrl}/${tracksPath}`, text: "Tracks"},
         // Extra
-        {url: ontologiesUrl, text: "Ontologies"},
-        {url: phenopacketsUrl, text: "Phenopackets JSON"},
+        {url: `${individualUrl}/${ontologiesPath}`, text: "Ontologies"},
+        {url: `${individualUrl}/${phenopacketsPath}`, text: "Phenopackets JSON"},
     ];
-    const selectedKeys = matchingMenuKeys(individualMenu, urlPath(BENTO_URL));
+    const selectedKeys = matchingMenuKeys(individualMenu);
 
     return <>
         <SitePageHeader
             title={headerTitle(individual) || "Loading..."}
             withTabBar={true}
             onBack={backUrl ? (() => {
-                history.push(backUrl);
+                navigate(backUrl);
                 setBackUrl(undefined);  // Clear back button if we use it
             }) : undefined}
             footer={
@@ -157,46 +161,32 @@ const ExplorerIndividualContent = () => {
         <Layout>
             <Layout.Content style={LAYOUT_CONTENT_STYLE}>
                 <ExplorerIndividualContext.Provider value={individualContext}>
-                    {(individual && !individualIsFetching) ? <Switch>
+                    {(individual && !individualIsFetching) ? <Routes>
                         {/* OVERVIEW */}
-                        <Route path={overviewUrl.replace(":", "\\:")}>
-                            <IndividualOverview individual={individual} />
-                        </Route>
+                        <Route path={overviewPath} element={<IndividualOverview individual={individual} />} />
                         {/* BIOSAMPLES RELATED */}
-                        <Route path={biosamplesUrl.replace(":", "\\:")}>
-                            <IndividualBiosamples individual={individual} experimentsUrl={experimentsUrl}/>
-                        </Route>
-                        <Route path={measurementsUrl.replace(":", "\\:")}>
-                            <IndividualMeasurements individual={individual} />
-                        </Route>
-                        <Route path={phenotypicFeaturesUrl.replace(":", "\\:")}>
-                            <IndividualPhenotypicFeatures individual={individual} />
-                        </Route>
-                        <Route path={diseasesUrl.replace(":", "\\:")}>
-                            <IndividualDiseases individual={individual} />
-                        </Route>
-                        <Route path={interpretationsUrl.replace(":", "\\:")}>
-                            <IndividualInterpretations individual={individual} />
-                        </Route>
-                        <Route path={medicalActionsUrl.replace(":", "\\:")}>
-                            <IndividualMedicalActions individual={individual}/>
-                        </Route>
+                        <Route
+                            path={`${biosamplesPath}/*`}
+                            element={<IndividualBiosamples individual={individual} />}
+                        />
+                        <Route path={`${measurementsPath}/*`}
+                               element={<IndividualMeasurements individual={individual} />} />
+                        <Route path={`${phenotypicFeaturesPath}/*`}
+                               element={<IndividualPhenotypicFeatures individual={individual} />} />
+                        <Route path={`${diseasesPath}/*`} element={<IndividualDiseases individual={individual} />} />
+                        <Route path={`${interpretationsPath}/*`}
+                               element={<IndividualInterpretations individual={individual} />} />
+                        <Route path={`${medicalActionsPath}/*`}
+                               element={<IndividualMedicalActions individual={individual}/>} />
                         {/* EXPERIMENTS RELATED*/}
-                        <Route path={experimentsUrl.replace(":", "\\:")}>
-                            <IndividualExperiments individual={individual} />
-                        </Route>
-                        <Route path={tracksUrl.replace(":", "\\:")}>
-                            <IndividualTracks individual={individual} />
-                        </Route>
+                        <Route path={`${experimentsPath}/*`}
+                               element={<IndividualExperiments individual={individual} />} />
+                        <Route path={tracksPath} element={<IndividualTracks individual={individual} />} />
                         {/* EXTRA */}
-                        <Route path={ontologiesUrl.replace(":", "\\:")}>
-                            <IndividualOntologies individual={individual} />
-                        </Route>
-                        <Route path={phenopacketsUrl.replace(":", "\\:")}>
-                            <IndividualPhenopackets individual={individual} />
-                        </Route>
-                        <Redirect to={overviewUrl.replace(":", "\\:")} />
-                    </Switch> : <Skeleton loading={true} />}
+                        <Route path={ontologiesPath} element={<IndividualOntologies individual={individual} />} />
+                        <Route path={phenopacketsPath} element={<IndividualPhenopackets individual={individual} />} />
+                        <Route path="*" element={<Navigate to={overviewPath} replace={true} />} />
+                    </Routes> : <Skeleton loading={true} />}
                 </ExplorerIndividualContext.Provider>
             </Layout.Content>
         </Layout>

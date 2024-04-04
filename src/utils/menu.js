@@ -40,7 +40,7 @@ export const transformMenuItem = (i) => {
 };
 
 const currentUrlMatches = (i) => i.url && window.location.pathname.startsWith(i.url);
-export const matchingMenuKeys = menuItems => menuItems
+export const matchingMenuKeys = (menuItems) => menuItems
     .filter(i => currentUrlMatches(i) || (i.children ?? []).length > 0)
     .flatMap(i => [
         ...(currentUrlMatches(i) ? [i.key ?? i.url ?? ""] : []),

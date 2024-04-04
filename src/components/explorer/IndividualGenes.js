@@ -53,7 +53,7 @@ GeneDescriptor.propTypes = {
 const GeneIGVLink = React.memo(({symbol, tracksUrl}) => {
     const dispatch = useDispatch();
     return (
-        <Link onClick={() => dispatch(setIgvPosition(symbol))} to={{ pathname: tracksUrl }}>
+        <Link onClick={() => dispatch(setIgvPosition(symbol))} to={tracksUrl}>
             <Button>{symbol}</Button>
         </Link>
     );
@@ -67,7 +67,7 @@ const IndividualGenes = ({individual, tracksUrl}) => {
     const genes = useMemo(
         () => Object.values(
             Object.fromEntries(
-                (individual || {}).phenopackets
+                (individual?.phenopackets ?? [])
                     .flatMap(p => p.genes)
                     .map(g => [g.symbol, g]),
             ),

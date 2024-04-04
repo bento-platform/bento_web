@@ -1,4 +1,3 @@
-/* eslint-disable camelcase */
 import React, { useEffect, useState } from "react";
 import { useSelector } from "react-redux";
 import { useAuthorizationHeader } from "bento-auth-js";
@@ -140,13 +139,13 @@ const SearchSummaryModal = ({ searchResults, ...props }) => {
                     <Divider />
                     <>
                         <Typography.Title level={4}>Individuals</Typography.Title>
-                        <Row gutter={[0, 16]}>{renderCharts(individualsCharts)}</Row>
+                        <Row>{renderCharts(individualsCharts)}</Row>
                         <Divider />
                         <Typography.Title level={4}>Biosamples</Typography.Title>
-                        <Row gutter={[0, 16]}>{renderCharts(biosamplesCharts)}</Row>
+                        <Row>{renderCharts(biosamplesCharts)}</Row>
                         <Divider />
                         <Typography.Title level={4}>Experiments</Typography.Title>
-                        <Row gutter={[0, 16]}>{renderCharts(experimentsCharts)}</Row>
+                        <Row>{renderCharts(experimentsCharts)}</Row>
                     </>
                 </>
             ) : (

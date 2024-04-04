@@ -1,50 +1,40 @@
 import React from "react";
-import { useDispatch } from "react-redux";
 import PropTypes from "prop-types";
 
 import { Col, Row, Spin } from "antd";
 import PieChart from "../charts/PieChart";
 import Histogram from "../charts/Histogram";
 
-import { setAutoQueryPageTransition } from "../../modules/explorer/actions";
+const CHART_HEIGHT = 285;
 
-const CHART_HEIGHT = 300;
-
-const ChartCollection = ({ charts, dataType, isFetching }) => {
-    const dispatch = useDispatch();
-
-    const setAutoQueryPageTransitionFunc = (priorPageUrl, type, field, value) =>
-        dispatch(setAutoQueryPageTransition(priorPageUrl, type, field, value));
-
-    return (
-        <Row style={{ display: "flex", flexWrap: "wrap" }}>
-            {charts
-                .map((c, i) => (
-                    <Col key={i} style={{ textAlign: "center" }}>
-                        <Spin spinning={isFetching}>
-                            {c.type === "PIE" ? (
-                                <PieChart
-                                    title={c.title}
-                                    data={c.data}
-                                    chartHeight={CHART_HEIGHT}
-                                    chartThreshold={c.thresholdFraction}
-                                    labelKey={c.fieldLabel}
-                                    onAutoQueryTransition={setAutoQueryPageTransitionFunc}
-                                    dataType={dataType}
-                                />
-                            ) : (
-                                <Histogram
-                                    title={c.title}
-                                    data={c.data}
-                                    chartHeight={CHART_HEIGHT}
-                                />
-                            )}
-                        </Spin>
-                    </Col>
-                ))}
-        </Row>
-    );
-};
+const ChartCollection = ({ charts, dataType, isFetching }) => (
+    <Row style={{ display: "flex", flexWrap: "wrap", width: "100%" }} gutter={[8, 0]}>
+        {charts
+            .map((c, i) => (
+                <Col key={i} style={{ textAlign: "center", width: 445 }}>
+                    <Spin spinning={isFetching}>
+                        {c.type === "PIE" ? (
+                            <PieChart
+                                title={c.title}
+                                data={c.data}
+                                chartHeight={CHART_HEIGHT}
+                                chartThreshold={c.thresholdFraction}
+                                labelKey={c.fieldLabel}
+                                dataType={dataType}
+                                clickable={true}
+                            />
+                        ) : (
+                            <Histogram
+                                title={c.title}
+                                data={c.data}
+                                chartHeight={CHART_HEIGHT}
+                            />
+                        )}
+                    </Spin>
+                </Col>
+            ))}
+    </Row>
+);
 ChartCollection.propTypes = {
     charts: PropTypes.arrayOf(PropTypes.shape({
         title: PropTypes.string.isRequired,

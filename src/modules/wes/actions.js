@@ -135,7 +135,7 @@ export const submitWorkflowRun = networkAction(
         };
     });
 
-const _workflowSubmitAction = (type) => (workflow, inputs, redirect, hist) => (dispatch) =>
+const _workflowSubmitAction = (type) => (workflow, inputs, redirect, navigate) => (dispatch) =>
     dispatch(submitWorkflowRun(
         workflow.service_base_url,
         workflow,
@@ -143,7 +143,7 @@ const _workflowSubmitAction = (type) => (workflow, inputs, redirect, hist) => (d
         run => {  // onSuccess
             message.success(
                 `${type.charAt(0).toUpperCase()}${type.substring(1)} with run ID "${run.run_id}" submitted!`);
-            if (redirect) hist.push(redirect);
+            if (redirect) navigate(redirect);
         },
         `Error submitting ${type} workflow`,  // errorMessage
     ));

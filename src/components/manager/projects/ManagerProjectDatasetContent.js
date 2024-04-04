@@ -1,5 +1,5 @@
 import React, { useCallback, useMemo } from "react";
-import { Redirect, Route, Switch } from "react-router-dom";
+import { Navigate, Route, Routes } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 
 import { Button, Empty, Layout, Menu, Result, Typography } from "antd";
@@ -35,7 +35,7 @@ const ManagerProjectDatasetContent = () => {
     const { metadataService, isFetchingAll: isFetchingAllServices} = useSelector(state => state.services);
 
     const projectMenuItems = useMemo(() => items.map(project => ({
-        url: `/admin/data/manager/projects/${project.identifier}`,
+        url: `/data/manager/projects/${project.identifier}`,
         text: project.title,
     })), [items]);
 
@@ -101,11 +101,10 @@ const ManagerProjectDatasetContent = () => {
             <Layout.Content style={LAYOUT_CONTENT_STYLE}>
                 {/* TODO: Fix project datasets */}
                 {projectMenuItems.length > 0 ? (
-                    <Switch>
-                        <Route path="/admin/data/manager/projects/:project"><RoutedProject /></Route>
-                        <Route path="/admin/data/manager/projects"
-                               render={() => <Redirect to={`/admin/data/manager/projects/${items[0].identifier}`} />} />
-                    </Switch>
+                    <Routes>
+                        <Route path=":project" element={<RoutedProject />} />
+                        <Route path="/" element={<Navigate to={`${items[0].identifier}`} replace={true} />} />
+                    </Routes>
                 ) : (
                     isFetchingDependentData ? (
                         <ProjectSkeleton />

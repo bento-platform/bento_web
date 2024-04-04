@@ -1,7 +1,11 @@
 import React, {useCallback, useMemo} from "react";
+import { useDispatch } from "react-redux";
+import { useNavigate } from "react-router-dom";
 import PropTypes from "prop-types";
-import { useHistory } from "react-router-dom";
+
 import { PieChart as BentoPie } from "bento-charts";
+
+import { setAutoQueryPageTransition } from "@/modules/explorer/actions";
 import ChartContainer from "./ChartContainer";
 
 const PieChart = ({
@@ -9,21 +13,25 @@ const PieChart = ({
     data = [],
     chartThreshold,
     chartHeight = 300,
-    onAutoQueryTransition,
     dataType,
     labelKey,
+    clickable = false,
     sortData = true,
 }) => {
-    const history = useHistory();
+    const dispatch = useDispatch();
+    const navigate = useNavigate();
+
+    const onAutoQueryTransition = useCallback((priorPageUrl, type, field, value) =>
+        dispatch(setAutoQueryPageTransition(priorPageUrl, type, field, value)), [dispatch]);
 
     const handleChartClick = useCallback(
         (pointData) => {
-            if (onAutoQueryTransition && pointData.name !== "Other") {
+            if (dataType && labelKey && pointData.name !== "Other") {
                 onAutoQueryTransition(window.location.href, dataType, labelKey, pointData.name);
-                history.push("/data/explorer/search");
+                navigate("/data/explorer/search");
             }
         },
-        [onAutoQueryTransition, dataType, labelKey, history],
+        [onAutoQueryTransition, dataType, labelKey, navigate],
     );
 
     const pieChartData = useMemo(() => data.map(({ name, value }) => ({ x: name, y: value })), [data]);
@@ -32,7 +40,7 @@ const PieChart = ({
             <BentoPie
                 data={pieChartData}
                 height={chartHeight}
-                onClick={handleChartClick}
+                onClick={clickable ? handleChartClick : undefined}
                 sort={sortData}
                 chartThreshold={chartThreshold}
             />
@@ -50,9 +58,9 @@ PieChart.propTypes = {
     ).isRequired,
     chartThreshold: PropTypes.number,
     chartHeight: PropTypes.number,
-    onAutoQueryTransition: PropTypes.func,
     dataType: PropTypes.string,
     labelKey: PropTypes.string,
+    clickable: PropTypes.bool,
     sortData: PropTypes.bool,
 };
 

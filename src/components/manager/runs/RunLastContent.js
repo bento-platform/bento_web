@@ -178,7 +178,8 @@ const processIngestions = (data, currentDatasets) => {
 const LastIngestionTable = () => {
     const servicesFetching = useSelector(state => state.services.isFetchingAll);
     const {items: runs, isFetching: runsFetching} = useSelector((state) => state.runs);
-    const currentDatasets = useSelector((state) => state.projects.items.flatMap(p => p.datasets));
+    const currentProjects = useSelector((state) => state.projects.items);
+    const currentDatasets = useMemo(() => currentProjects.flatMap(p => p.datasets), [currentProjects]);
     const ingestions = useMemo(() => processIngestions(runs, currentDatasets), [runs, currentDatasets]);
 
     return <Table

@@ -6,7 +6,7 @@ import wesEvents from "./modules/wes/events";
 const handlerSets = [notificationEvents, wesEvents];
 
 // Global message handler
-export default async (message, history) => {
+export default async (message, navigate) => {
     console.debug("Handling event", message);
 
     const handlers = handlerSets
@@ -15,6 +15,6 @@ export default async (message, history) => {
         .map(([_, h]) => h);
 
     for (const handler of handlers) {
-        await store.dispatch(handler(message.message, history));
+        await store.dispatch(handler(message.message, navigate));
     }
 };

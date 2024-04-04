@@ -2,7 +2,7 @@ import React, {useEffect, useState} from "react";
 import { AutoComplete } from "antd";
 import { useDispatch, useSelector } from "react-redux";
 import PropTypes from "prop-types";
-import { performGohanGeneSearchIfPossible } from "../../modules/discovery/actions";
+import { performGohanGeneSearchIfPossible } from "@/modules/discovery/actions";
 
 // TODOs:
 // style options
@@ -85,10 +85,11 @@ const LocusSearch = ({assemblyId, addVariantSearchValues, handleLocusChange, set
 
     const handleSelect = (value, option) => {
         setInputValue(value);
-        const locus = option.props?.locus;
+        const locus = option.locus;
 
         // may not need error checking here, since this is user selection, not user input
         if (!locus) {
+            console.warn("handleSelect: locus was false-y; got option:", option);
             return;
         }
 
