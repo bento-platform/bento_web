@@ -1,6 +1,6 @@
 import React, {useCallback, useEffect, useMemo, useState} from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { useParams } from "react-router-dom";
+import { Link, useParams } from "react-router-dom";
 import PropTypes from "prop-types";
 
 import { Button, Descriptions, Popover, Table, Tooltip, Typography } from "antd";
@@ -15,10 +15,19 @@ import { useDeduplicatedIndividualBiosamples } from "./utils";
 import { VIEWABLE_FILE_EXTENSIONS } from "@/components/display/FileDisplay";
 
 import DownloadButton from "@/components/DownloadButton";
+import MonospaceText from "@/components/MonospaceText";
 import FileModal from "@/components/display/FileModal";
-import JsonView from "@/components/JsonView";
 import { RoutedIndividualContent, RoutedIndividualContentTable } from "@/components/explorer/RoutedIndividualContent";
 import OntologyTerm from "./OntologyTerm";
+import ExtraProperties from "./ExtraProperties";
+
+
+const BiosampleLink = ({ biosample }) => biosample ? (
+    <Link to={`../../biosamples/${biosample}`}>{biosample}</Link>
+) : EM_DASH;
+BiosampleLink.propTypes = {
+    biosample: PropTypes.string,
+};
 
 
 const VIEWABLE_FILE_FORMATS = ["PDF", "CSV", "TSV"];
@@ -143,6 +152,7 @@ const EXPERIMENT_RESULTS_COLUMNS = [
 const ExperimentDetail = ({ experiment }) => {
     const {
         id,
+        biosample,
         experiment_type: experimentType,
         experiment_ontology: experimentOntology,
         molecule,
@@ -167,8 +177,11 @@ const ExperimentDetail = ({ experiment }) => {
         <div className="experiment_and_results">
             <Typography.Title level={4}><ProfileOutlined /> Details</Typography.Title>
             <Descriptions layout="horizontal" bordered={true} column={2} size="small" style={{ maxWidth: 1200 }}>
-                <Descriptions.Item span={2} label="ID">
-                    <span style={{ fontFamily: "monospace" }}>{id}</span>
+                <Descriptions.Item span={1} label="ID">
+                    <MonospaceText>{id}</MonospaceText>
+                </Descriptions.Item>
+                <Descriptions.Item span={1} label="Biosample">
+                    <BiosampleLink biosample={biosample} />
                 </Descriptions.Item>
                 <Descriptions.Item span={1} label="Experiment Type">{experimentType}</Descriptions.Item>
                 <Descriptions.Item span={1} label="Experiment Ontology">
@@ -208,7 +221,7 @@ const ExperimentDetail = ({ experiment }) => {
                     </div>
                 </Descriptions.Item>
                 <Descriptions.Item span={2} label="Extra Properties">
-                    <JsonView src={extraProperties} />
+                    <ExtraProperties extraProperties={extraProperties} />
                 </Descriptions.Item>
             </Descriptions>
             <Typography.Title level={4}>
@@ -277,6 +290,11 @@ const Experiments = ({ individual, handleExperimentClick }) => {
                 title: "Experiment Type",
                 dataIndex: "experiment_type",
                 render: (type, { id }) => <span id={`experiment-${id}`}>{type}</span>,  // scroll anchor wrapper
+            },
+            {
+                title: "Biosample",
+                dataIndex: "biosample",
+                render: (biosample) => <BiosampleLink biosample={biosample} />,
             },
             {
                 title: "Molecule",

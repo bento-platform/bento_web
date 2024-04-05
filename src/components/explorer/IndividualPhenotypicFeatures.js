@@ -1,18 +1,28 @@
 import React, { useMemo } from "react";
-
-import { Table } from "antd";
+import PropTypes from "prop-types";
 import { LinkOutlined } from "@ant-design/icons";
+import { Descriptions } from "antd";
 
 import { EM_DASH } from "@/constants";
-import { individualPropTypesShape } from "@/propTypes";
-import OntologyTerm from "./OntologyTerm";
+import {
+    evidencePropTypesShape,
+    individualPropTypesShape,
+    phenotypicFeaturePropTypesShape,
+} from "@/propTypes";
+import { isValidUrl } from "@/utils/url";
+
+import OntologyTerm, { conditionalOntologyRender } from "./OntologyTerm";
+import { booleanFieldSorter, renderBoolean } from "./utils";
+import TimeElement from "./TimeElement";
+import { RoutedIndividualContent, RoutedIndividualContentTable } from "./RoutedIndividualContent";
+import ExtraProperties from "./ExtraProperties";
 
 const PHENOTYPIC_FEATURES_COLUMNS = [
     {
         title: "Feature",
         key: "feature",
-        render: ({ header, type, excluded }) => ({
-            children: header ? (
+        render: ({ header, type, excluded }) => (
+            header ? (
                 <h4 style={{ marginBottom: 0 }} className="phenotypic-features--phenopacket-header">
                     Phenopacket:{" "}
                     <span style={{ fontFamily: "monospace", fontStyle: "italic", fontWeight: "normal" }}>
@@ -32,36 +42,126 @@ const PHENOTYPIC_FEATURES_COLUMNS = [
                         </a>)
                     </span>
                 ) : null}
-            </>,
-            props: {
-                colSpan: header ? 2 : 1,
-            },
+            </>
+        ),
+        onCell: ({ header }) => ({
+            colSpan: header ? 2 : 1,
         }),
     },
     {
-        title: "Extra Properties",
-        dataIndex: "extra_properties",
-        render: (extraProperties, feature) => {
-            const nExtraProperties = Object.keys(extraProperties ?? {}).length;
-            return {
-                children: nExtraProperties ? (
-                    <div>
-                        <pre style={{marginBottom: 0, fontSize: "12px"}}>
-                            {JSON.stringify(
-                                extraProperties,
-                                null,
-                                nExtraProperties === 1 ? null : 2,
-                            )}
-                        </pre>
-                    </div>
-                ) : EM_DASH,   // If no extra properties, just show a dash
-                props: {
-                    colSpan: feature.header ? 0 : 1,
-                },
-            };
-        },
+        title: "Excluded",
+        key: "excluded",
+        render: renderBoolean("excluded"),
+        sorter: booleanFieldSorter("excluded"),
+    },
+    {
+        title: "Severity",
+        key: "severity",
+        render: conditionalOntologyRender("severity"),
+    },
+    {
+        title: "Onset",
+        dataIndex: "onset",
+        render: (onset) => <TimeElement timeElement={onset} />,
+    },
+    {
+        title: "Resolution",
+        dataIndex: "resolution",
+        render: (resolution) => <TimeElement timeElement={resolution} />,
     },
 ];
+
+
+const Evidence = ({ evidence }) => {
+    if (!evidence) {
+        return EM_DASH;
+    }
+
+    const externalReference = evidence.reference;
+    const hasReferenceUrl = isValidUrl(externalReference?.reference);
+    return (
+        <Descriptions bordered={false} column={1} size="small">
+            <Descriptions.Item label="Evidence Code">
+                <OntologyTerm term={evidence.evidence_code} />
+            </Descriptions.Item>
+            {externalReference &&
+                <Descriptions.Item label="Reference">
+                    {externalReference?.id &&
+                        <>
+                            <strong>ID:</strong>{" "}{externalReference.id}{" "}
+                            {hasReferenceUrl &&
+                                <a href={externalReference.reference} target="_blank" rel="noopener noreferrer">
+                                    <LinkOutlined />
+                                </a>
+                            }
+                            <br />
+                        </>
+                    }
+                    {externalReference?.description &&
+                        <>
+                            <strong>description:</strong>{" "}{externalReference?.description}
+                            <br />
+                        </>
+                    }
+                </Descriptions.Item>
+            }
+        </Descriptions>
+    );
+};
+Evidence.propTypes = {
+    evidence: evidencePropTypesShape,
+};
+
+const PhenotypicFeatureDetail = ({ pf }) => {
+    const description = pf?.description;
+    const modifiers = pf?.modifiers ?? [];
+    const evidence = pf?.evidence ?? [];
+    return (
+        <Descriptions bordered={true} column={1} size="small">
+            <Descriptions.Item label="Description">
+                {description ? description : EM_DASH}
+            </Descriptions.Item>
+            <Descriptions.Item label="Modifiers">
+                {modifiers.length
+                    ? modifiers.map((modifier, idx) => <OntologyTerm term={modifier} key={idx} br />)
+                    : EM_DASH
+                }
+            </Descriptions.Item>
+            <Descriptions.Item label="Evidence">
+                {evidence.length
+                    // ? evidence.map(evidence => <OntologyTerm term={evidence} br />)
+                    ? evidence.map((evidence, idx) => <Evidence evidence={evidence} key={idx} />)
+                    : EM_DASH
+                }
+            </Descriptions.Item>
+            <Descriptions.Item label="Extra Properties">
+                <ExtraProperties extraProperties={pf?.extra_properties}/>
+            </Descriptions.Item>
+        </Descriptions>
+
+    );
+};
+PhenotypicFeatureDetail.propTypes = {
+    pf: phenotypicFeaturePropTypesShape,
+    handleFeatureClick: PropTypes.func,
+};
+
+const PhenotypicFeatures = ({ phenotypicFeatures, handleSelect }) => (
+    <RoutedIndividualContentTable
+        data={phenotypicFeatures}
+        urlParam="selectedPhenotypicFeature"
+        columns={PHENOTYPIC_FEATURES_COLUMNS}
+        rowKey="key"
+        handleRowSelect={handleSelect}
+        expandedRowRender={(phenotypicFeature) => (
+            <PhenotypicFeatureDetail pf={phenotypicFeature} />
+        )}
+    />
+);
+PhenotypicFeatures.propTypes = {
+    phenotypicFeatures: PropTypes.arrayOf(phenotypicFeaturePropTypesShape),
+    handleSelect: PropTypes.func,
+};
 
 const IndividualPhenotypicFeatures = ({ individual }) => {
 
@@ -80,14 +180,14 @@ const IndividualPhenotypicFeatures = ({ individual }) => {
     }, [individual]);
 
     return (
-        <Table
-            className="phenotypic-features-table"
-            bordered
-            size="middle"
-            pagination={false}
-            columns={PHENOTYPIC_FEATURES_COLUMNS}
-            rowKey="key"
-            dataSource={data}
+        <RoutedIndividualContent
+            urlParam="selectedPhenotypicFeature"
+            renderContent={({ onContentSelect }) => (
+                <PhenotypicFeatures
+                    phenotypicFeatures={data}
+                    handleSelect={onContentSelect}
+                />
+            )}
         />
     );
 };

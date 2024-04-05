@@ -17,7 +17,6 @@ const ManagerDropBoxContent = lazy(() => import("./manager/ManagerDropBoxContent
 const ManagerIngestionContent = lazy(() => import("./manager/ManagerIngestionContent"));
 const ManagerAnalysisContent = lazy(() => import("./manager/ManagerAnalysisContent"));
 const ManagerExportContent = lazy(() => import("./manager/ManagerExportContent"));
-const ManagerWorkflowsContent = lazy(() => import("./manager/ManagerWorkflowsContent"));
 const ManagerRunsContent = lazy(() => import("./manager/runs/ManagerRunsContent"));
 const ManagerDRSContent = lazy(() => import("./manager/drs/ManagerDRSContent"));
 const ManagerReferenceGenomesContent = lazy(() => import("./manager/reference/ManagerReferenceGenomesContent"));
@@ -50,7 +49,6 @@ const DataManagerContent = () => {
         { url: "/data/manager/ingestion", text: "Ingestion" },
         { url: "/data/manager/analysis", text: "Analysis" },
         { url: "/data/manager/export", text: "Export" },
-        { url: "/data/manager/workflows", text: "Workflows" },
         { url: "/data/manager/runs", text: "Workflow Runs" },
         { url: "/data/manager/drs", text: "DRS Objects" },
         {
@@ -86,7 +84,6 @@ const DataManagerContent = () => {
                     <Route path="ingestion" element={<ManagerIngestionContent />} />
                     <Route path="analysis" element={<ManagerAnalysisContent />} />
                     <Route path="export" element={<ManagerExportContent />} />
-                    <Route path="workflows" element={<ManagerWorkflowsContent />} />
                     <Route path="drs" element={<ManagerDRSContent />} />
                     <Route path="genomes" element={<ManagerReferenceGenomesContent />} />
                     <Route path="runs/*" element={<ManagerRunsContent />} />

@@ -1,13 +1,14 @@
 import React from "react";
+import { Descriptions } from "antd";
+import PropTypes from "prop-types";
 
-import { Table } from "antd";
+import { diseasePropTypesShape, individualPropTypesShape } from "@/propTypes";
+import { booleanFieldSorter, ontologyTermSorter, renderBoolean, useIndividualPhenopacketDataIndex } from "./utils";
 
-import { EM_DASH } from "@/constants";
-import { individualPropTypesShape } from "@/propTypes";
-import { ontologyTermSorter } from "./utils";
-
-import OntologyTerm from "./OntologyTerm";
+import OntologyTerm, { OntologyTermList } from "./OntologyTerm";
 import TimeElement from "./TimeElement";
+import { RoutedIndividualContent, RoutedIndividualContentTable } from "./RoutedIndividualContent";
+import ExtraProperties from "./ExtraProperties";
 
 // TODO: Only show diseases from the relevant dataset, if specified;
 //  highlight those found in search results, if specified
@@ -24,32 +25,69 @@ const DISEASES_COLUMNS = [
         sorter: ontologyTermSorter("term"),
     },
     {
-        title: "Onset Age(s)",
-        key: "t_onset_ages",
-        render: (_, disease) => (<TimeElement timeElement={disease?.onset}/>),
+        title: "Excluded",
+        dataIndex: "excluded",
+        render: renderBoolean("excluded"),
+        sorter: booleanFieldSorter("excluded"),
     },
     {
-        title: "Extra Properties",
-        key: "extra_properties",
-        render: (_, disease) =>
-            (Object.keys(disease.extra_properties ?? {}).length)
-                ? <div>
-                    <pre>{JSON.stringify(disease.extra_properties, null, 2)}</pre>
-                </div>
-                : EM_DASH,
+        title: "Onset Age",
+        dataIndex: "onset",
+        render: (onset) => (<TimeElement timeElement={onset} />),
+    },
+    {
+        title: "Resolution Age",
+        dataIndex: "resolution",
+        render: (resolution) => (<TimeElement timeElement={resolution} />),
     },
 ];
 
+const DiseaseDetails = ({disease}) => (
+    <Descriptions bordered column={1} size="small">
+        <Descriptions.Item label="Disease Stage(s)">
+            <OntologyTermList items={disease?.disease_stage} />
+        </Descriptions.Item>
+        <Descriptions.Item label="Clinical TNM Finding(s)">
+            <OntologyTermList items={disease?.clinical_tnm_finding} />
+        </Descriptions.Item>
+        <Descriptions.Item label="Primary Site">
+            <OntologyTerm term={disease?.primary_site} />
+        </Descriptions.Item>
+        <Descriptions.Item label="Extra Properties">
+            <ExtraProperties extraProperties={disease?.extra_properties} />
+        </Descriptions.Item>
+    </Descriptions>
+);
+DiseaseDetails.propTypes = {
+    disease: diseasePropTypesShape,
+};
+
+const Diseases = ({ diseases, handleSelect }) => (
+    <RoutedIndividualContentTable
+        data={diseases}
+        urlParam="selectedDisease"
+        columns={DISEASES_COLUMNS}
+        rowKey="idx"
+        handleRowSelect={handleSelect}
+        expandedRowRender={(disease) => ( <DiseaseDetails disease={disease}/> )}
+    />
+);
+Diseases.propTypes = {
+    diseases: PropTypes.arrayOf(diseasePropTypesShape),
+    handleSelect: PropTypes.func,
+};
+
 const IndividualDiseases = ({ individual }) => {
-    const diseases = individual.phenopackets.flatMap(p => p.diseases);
+    const diseases = useIndividualPhenopacketDataIndex(individual, "diseases");
     return (
-        <Table
-            bordered
-            size="middle"
-            pagination={{pageSize: 25}}
-            columns={DISEASES_COLUMNS}
-            rowKey="id"
-            dataSource={diseases}
+        <RoutedIndividualContent
+            urlParam="selectedDisease"
+            renderContent={({ onContentSelect }) => (
+                <Diseases
+                    diseases={diseases}
+                    handleSelect={onContentSelect}
+                />
+            )}
         />
     );
 };

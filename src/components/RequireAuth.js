@@ -21,12 +21,19 @@ const SignInIcon = React.memo(() => (
 ));
 
 const RequireAuth = ({ children }) => {
-    const { isFetching: openIdConfigFetching } = useSelector((state) => state.openIdConfiguration);
+    const {
+        hasAttempted: openIdConfigHasAttempted,
+        isFetching: openIdConfigFetching,
+    } = useSelector((state) => state.openIdConfiguration);
     const { isAutoAuthenticating } = useAutoAuthenticate();
     const isAuthenticated = useIsAuthenticated();
     const performAuth = usePerformAuth();
 
-    if (openIdConfigFetching || isAutoAuthenticating) {
+    // Need `=== false`, since if this is loaded from localStorage from a prior version, it'll be undefined and prevent
+    // the page from showing.
+    const openIdConfigNotLoaded = openIdConfigHasAttempted === false || openIdConfigFetching;
+
+    if (openIdConfigNotLoaded || isAutoAuthenticating) {
         return <SitePageLoading />;
     }
 
@@ -39,7 +46,7 @@ const RequireAuth = ({ children }) => {
                 imageStyle={styles.emptyImage}
                 description="You must sign into this node to access this page."
             >
-                <Button type="primary" loading={openIdConfigFetching} onClick={performAuth}>
+                <Button type="primary" loading={openIdConfigNotLoaded} onClick={performAuth}>
                     Sign In
                 </Button>
             </Empty>

@@ -8,7 +8,17 @@ export const RoutedIndividualContentTable = ({data, urlParam, columns, rowKey, h
     const paramValue = useParams()[urlParam];
     const expandedRowKeys = useMemo(() => paramValue ? [paramValue] : [], [paramValue]);
     const onExpand = useCallback(
-        (e, record) => handleRowSelect(e ? record[rowKey] : undefined),
+        (e, record) => {
+            let selected = undefined;
+            if (e) {
+                if (typeof rowKey === "function") {
+                    selected = rowKey(record);
+                } else {
+                    selected = record[rowKey];
+                }
+            }
+            handleRowSelect(selected);
+        },
         [handleRowSelect, rowKey],
     );
     return (
@@ -49,7 +59,7 @@ export const RoutedIndividualContent = ({ renderContent, urlParam }) => {
 
     return (
         <Routes>
-            <Route path={`:${urlParam}`} element={contentNode} />
+            <Route path={`:${urlParam}/*`} element={contentNode} />
             <Route path="/" element={contentNode} />
         </Routes>
     );

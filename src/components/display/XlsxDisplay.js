@@ -1,11 +1,10 @@
 import React, { useEffect, useState } from "react";
 import PropTypes from "prop-types";
-import { read, utils } from "xlsx";
-import { Card, Table } from "antd";
 
-const TABLE_PAGINATION = { pageSize: 25 };
-const TABLE_SCROLL = { x: true };
-const rowKey = (_, i) => `row${i}`;
+import { read, utils } from "xlsx";
+import { Card } from "antd";
+
+import SpreadsheetTable, { SPREADSHEET_ROW_KEY_PROP } from "./SpreadsheetTable";
 
 const XlsxDisplay = ({ contents }) => {
     const [excelFile, setExcelFile] = useState(null);
@@ -46,7 +45,7 @@ const XlsxDisplay = ({ contents }) => {
             });
 
             setSheetColumns(columns);
-            setSheetJSON(json);
+            setSheetJSON(json.map((r, i) => ({ ...r, [SPREADSHEET_ROW_KEY_PROP]: `row${i}` })));
         }
     }, [selectedSheet]);
 
@@ -56,15 +55,10 @@ const XlsxDisplay = ({ contents }) => {
             activeTabKey={selectedSheet}
             onTabChange={(s) => setSelectedSheet(s)}
         >
-            <Table
-                size="small"
-                bordered={true}
-                showHeader={sheetColumns.reduce((acc, v) => acc || v.title !== "", false)}
-                pagination={TABLE_PAGINATION}
-                scroll={TABLE_SCROLL}
+            <SpreadsheetTable
                 columns={sheetColumns}
                 dataSource={sheetJSON}
-                rowKey={rowKey}
+                showHeader={sheetColumns.reduce((acc, v) => acc || v.title !== "", false)}
             />
         </Card>
     );

@@ -9,7 +9,12 @@ import { LAYOUT_CONTENT_STYLE } from "@/styles/layoutContent";
 import { matchingMenuKeys, transformMenuItem } from "@/utils/menu";
 
 import { ExplorerIndividualContext } from "./contexts/individual";
-import { useIsDataEmpty, useDeduplicatedIndividualBiosamples, useIndividualResources } from "./utils";
+import {
+    useIsDataEmpty,
+    useDeduplicatedIndividualBiosamples,
+    useIndividualResources,
+    explorerIndividualUrl,
+} from "./utils";
 
 import SitePageHeader from "../SitePageHeader";
 import IndividualOverview from "./IndividualOverview";
@@ -46,7 +51,7 @@ const ExplorerIndividualContent = () => {
     const navigate = useNavigate();
     const { individual: individualID } = useParams();
 
-    const [backUrl, setBackUrl] = useState(undefined);
+    const [backUrl, setBackUrl] = useState(location.state?.backUrl);
 
     useEffect(() => {
         const b = location.state?.backUrl;
@@ -71,7 +76,7 @@ const ExplorerIndividualContent = () => {
     const resourcesTuple = useIndividualResources(individual);
     const individualContext = useMemo(() => ({ individualID, resourcesTuple }), [individualID, resourcesTuple]);
 
-    const individualUrl = `/data/explorer/individuals/${individualID}`;
+    const individualUrl = explorerIndividualUrl(individualID);
 
     const overviewPath = "overview";
     const phenotypicFeaturesPath = "phenotypic-features";
@@ -166,9 +171,9 @@ const ExplorerIndividualContent = () => {
                         />
                         <Route path={`${measurementsPath}/*`}
                                element={<IndividualMeasurements individual={individual} />} />
-                        <Route path={phenotypicFeaturesPath}
+                        <Route path={`${phenotypicFeaturesPath}/*`}
                                element={<IndividualPhenotypicFeatures individual={individual} />} />
-                        <Route path={diseasesPath} element={<IndividualDiseases individual={individual} />} />
+                        <Route path={`${diseasesPath}/*`} element={<IndividualDiseases individual={individual} />} />
                         <Route path={`${interpretationsPath}/*`}
                                element={<IndividualInterpretations individual={individual} />} />
                         <Route path={`${medicalActionsPath}/*`}

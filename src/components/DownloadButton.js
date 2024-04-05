@@ -52,7 +52,7 @@ const DownloadButton = ({
         tokenInput.setAttribute("value", accessToken);
         form.appendChild(tokenInput);
 
-        Object.entries(extraFormData)
+        Object.entries(extraFormData ?? {})
             .filter(([k, _]) => FORM_ALLOWED_EXTRA_KEYS.has(k))  // Only allowed extra keys
             .forEach(([k, v]) => {
                 const extraInput = document.createElement("input");

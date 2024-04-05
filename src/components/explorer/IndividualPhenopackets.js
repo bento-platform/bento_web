@@ -12,16 +12,18 @@ import JsonView from "@/components/JsonView";
 const IndividualPhenopackets = ({ individual }) => {
     const dispatch = useDispatch();
 
-    const katsuUrl = useSelector((state) => state.services.metadataService?.url ?? "");
-    const downloadUrl = `${katsuUrl}/api/individuals/${individual.id}/phenopackets?attachment=1&format=json`;
+    const { id: individualId } = individual;
 
-    const { isFetching, data } = useSelector(
-        (state) => state.individuals.phenopacketsByIndividualID[individual.id] ?? {},
-    );
+    const katsuUrl = useSelector((state) => state.services.metadataService?.url ?? "");
+    const downloadUrl = `${katsuUrl}/api/individuals/${individualId}/phenopackets?attachment=1&format=json`;
+
+    const phenopacketsByIndividualID = useSelector((state) => state.individuals.phenopacketsByIndividualID);
+
+    const { isFetching, data } = phenopacketsByIndividualID[individualId] ?? {};
 
     useEffect(() => {
-        dispatch(fetchIndividualPhenopacketsIfNecessary(individual.id));
-    }, [individual]);
+        dispatch(fetchIndividualPhenopacketsIfNecessary(individualId));
+    }, [individualId]);
 
     return (
         <>
