@@ -1,9 +1,10 @@
 import React from "react";
-import {Layout} from "antd";
+import { Layout, Typography } from "antd";
 
 import pkg from "../../package.json";
 
 import BentoLogo from "../images/logo_colour.svg";
+import MonospaceText from "@/components/MonospaceText";
 
 const BENTO_LOGO_WIDTH = "148px";
 
@@ -15,23 +16,23 @@ const SiteFooter = React.memo(() => (
             flexDirection: "column",
             alignItems: "center",
         }}>
-            <div style={{marginBottom: 8}}>
+            <div style={{ marginBottom: 8 }}>
                 <div>
-                    <p style={{margin: 0}}>Powered by</p>
+                    <p style={{ margin: 0, color: "rgba(0, 0, 0, 0.65)" }}>Powered by</p>
                 </div>
-                <div style={{width: BENTO_LOGO_WIDTH}}>
+                <div style={{ width: BENTO_LOGO_WIDTH }}>
                     <img src={BentoLogo} alt="Bento logo" />
                 </div>
             </div>
 
-            <div style={{textAlign: "center"}}>
+            <Typography.Paragraph style={{ textAlign: "center", marginBottom: 0 }}>
                 Copyright &copy; 2019-2024 the{" "}
                 <a href="https://computationalgenomics.ca">Canadian Centre for Computational Genomics</a>.{" "}
                 <br />
-                <span style={{fontFamily: "monospace"}}>bento_web</span> (v{pkg.version}) is licensed under the{" "}
+                <MonospaceText>bento_web</MonospaceText> (v{pkg.version}) is licensed under the{" "}
                 <a href="https://github.com/bento-platform/bento_web/blob/master/LICENSE">LGPLv3</a>. The
                 source code is available <a href="https://github.com/bento-platform/bento_web">on GitHub</a>.
-            </div>
+            </Typography.Paragraph>
         </div>
     </Layout.Footer>
 ));

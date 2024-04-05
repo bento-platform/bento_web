@@ -1,9 +1,8 @@
 import { notification } from "antd";
-import "antd/es/notification/style/css";
 
 import { addNotification, markNotificationAsRead } from "./actions";
 import { fetchOverviewSummary } from "../metadata/actions";
-import { navigateToWESRun } from "../../utils/notifications";
+import { navigateToWESRun } from "@/utils/notifications";
 
 const EVENT_NOTIFICATION = "notification";
 

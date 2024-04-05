@@ -143,7 +143,7 @@ class Dataset extends Component {
                                           isPrivate={isPrivate} />,
             linked_field_sets: (
                 <>
-                    <Typography.Title level={4}>
+                    <Typography.Title level={4} style={{ marginTop: 0 }}>
                         Linked Field Sets
                         {isPrivate ? (
                             <div style={{float: "right", display: "flex", flexDirection: "column", gap: "10px"}}>
@@ -262,7 +262,7 @@ class Dataset extends Component {
                         <Button icon={<EditOutlined />}
                                 style={{marginRight: "8px"}}
                                 onClick={() => (this.props.onEdit || nop)()}>Edit</Button>
-                        <Button type="danger" icon={<DeleteOutlined />} onClick={handleDelete}>Delete</Button>
+                        <Button danger={true} icon={<DeleteOutlined />} onClick={handleDelete}>Delete</Button>
                         {/* TODO: Share button (vFuture) */}
                     </> : null
                 }

@@ -42,6 +42,9 @@
 .ant-table-expanded-row .ant-descriptions-bordered table {
   border-collapse: collapse;  /* Fixes borders not showing in descriptions nested inside tables */
 }
+.ant-table-expanded-row .ant-descriptions-view {
+  overflow: hidden;  /* Fixes bad clipping around border radii for descriptions nested inside tables */
+}
 .ant-table-expanded-row .ant-descriptions-item-content {
   background-color: white;  /* Fixes no background on item content for descriptions nested inside tables */
 }
@@ -49,6 +52,6 @@
 .experiment_and_results {
   margin: 8px 16px;
 }
-.experiment_and_results h4:not(:first-of-type) {
-  margin-top: 16px;
+.experiment_and_results h4:first-of-type {
+  margin-top: 0;
 }

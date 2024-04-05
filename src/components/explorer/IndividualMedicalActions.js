@@ -8,6 +8,7 @@ import { Descriptions, Table } from "antd";
 import { EM_DASH } from "@/constants";
 import { individualPropTypesShape, medicalActionPropTypesShape } from "@/propTypes";
 
+import { STYLE_FIX_NESTED_TABLE_MARGIN } from "./styles";
 import { ontologyTermSorter, useIndividualPhenopacketDataIndex } from "./utils";
 import OntologyTerm, { conditionalOntologyRender } from "./OntologyTerm";
 import { RoutedIndividualContent, RoutedIndividualContentTable } from "./RoutedIndividualContent";
@@ -95,11 +96,7 @@ export const Treatment = ({treatment}) => (
                         columns={DOSE_INTERVAL_COLUMNS}
                         dataSource={treatment.dose_intervals}
                         rowKey={() => uniqueId()}
-                        style={{
-                            // compensate for bad inner nested table styling:
-                            marginLeft: "-44px",
-                            padding: "16px 0",
-                        }}
+                        style={STYLE_FIX_NESTED_TABLE_MARGIN}
                     />
                 </div>
             ) : EM_DASH}

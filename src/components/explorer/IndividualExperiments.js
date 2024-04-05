@@ -215,8 +215,7 @@ const ExperimentDetail = ({ experiment }) => {
                             <strong>Platform:</strong>&nbsp;{instrument.platform}
                         </div>
                         <div>
-                            <strong>ID:</strong>&nbsp;
-                            <span style={{ fontFamily: "monospace" }}>{instrument.identifier}</span>
+                            <strong>ID:</strong>&nbsp;<MonospaceText>{instrument.identifier}</MonospaceText>
                         </div>
                     </div>
                 </Descriptions.Item>

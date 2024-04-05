@@ -17,9 +17,11 @@ const FileModal = ({ title, open, onCancel, hasTriggered, url, fileName, loading
             alignItems: "center",
             top: 50,  // down from default of 100; gives a bit more screen real estate
         }}
-        bodyStyle={{
-            minWidth: "692px",
-            maxWidth: "90vw",  // needed, otherwise this ends up being more than the parent width for some reason
+        styles={{
+            body: {
+                minWidth: "692px",
+                maxWidth: "90vw",  // needed, otherwise this ends up being more than the parent width for some reason
+            },
         }}
         footer={null}
         // destroyOnClose in order to stop audio/video from playing & avoid memory leaks at the cost of re-fetching:

@@ -1,10 +1,11 @@
 import React from "react";
 import {Table} from "antd";
 import {linkedFieldSetPropTypesShape} from "@/propTypes";
+import MonospaceText from "@/components/MonospaceText";
 
 const COLUMNS = [
-    {dataIndex: "dataType", title: "Data Type"},
-    {dataIndex: "field", title: "Field", render: f => <span style={{fontFamily: "monospace"}}>{f.join(".")}</span>},
+    { dataIndex: "dataType", title: "Data Type" },
+    { dataIndex: "field", title: "Field", render: (f) => <MonospaceText>{f.join(".")}</MonospaceText> },
 ];
 
 const LinkedFieldSetTable = ({ linkedFieldSet }) => {

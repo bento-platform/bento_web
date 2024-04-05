@@ -6,6 +6,7 @@ import { Descriptions, Table } from "antd";
 import { EM_DASH } from "@/constants";
 import { individualPropTypesShape, measurementPropTypesShape } from "@/propTypes";
 
+import { STYLE_FIX_NESTED_TABLE_MARGIN } from "./styles";
 import { ontologyTermSorter, useIndividualPhenopacketDataIndex } from "./utils";
 import { RoutedIndividualContent, RoutedIndividualContentTable } from "./RoutedIndividualContent";
 import OntologyTerm, { conditionalOntologyRender } from "./OntologyTerm";
@@ -80,6 +81,7 @@ const ComplexValue = ({complexValue}) => {
             columns={COMPLEX_VALUE_COLUMNS}
             dataSource={indexedData}
             rowKey="idx"
+            style={STYLE_FIX_NESTED_TABLE_MARGIN}
         />
     );
 };
