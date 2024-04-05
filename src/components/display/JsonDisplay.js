@@ -112,7 +112,7 @@ const JsonDisplay = ({ jsonSrc, showObjectWithReactJson }) => {
     }
 
     // Display primitive
-    return <span style={{fontFamily: "monospace"}}>{JSON.stringify(jsonSrc)}</span>;
+    return <MonospaceText>{JSON.stringify(jsonSrc)}</MonospaceText>;
 };
 
 JsonDisplay.propTypes = {

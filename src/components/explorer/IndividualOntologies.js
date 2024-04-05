@@ -4,6 +4,7 @@ import { Table } from "antd";
 
 import { individualPropTypesShape } from "@/propTypes";
 import { useIndividualResources } from "./utils";
+import MonospaceText from "@/components/MonospaceText";
 
 
 // TODO: Only show diseases from the relevant dataset, if specified;
@@ -43,7 +44,7 @@ const METADATA_COLUMNS = [
     {
         title: "IRI Prefix",
         dataIndex: "iri_prefix",
-        render: (iriPrefix) => <span style={{ fontFamily: "monospace" }}>{iriPrefix}</span>,
+        render: (iriPrefix) => <MonospaceText>{iriPrefix}</MonospaceText>,
         defaultSortOrder: "ascend",
     },
 ];

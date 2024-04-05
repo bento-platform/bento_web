@@ -1,7 +1,9 @@
 import React from "react";
 
-import {Button, Popover, Typography} from "antd";
+import { Button, Popover, Typography } from "antd";
 import { QuestionCircleOutlined } from "@ant-design/icons";
+
+import MonospaceText from "@/components/MonospaceText";
 
 
 export const ROOT_SCHEMA_ID = "[dataset item]";
@@ -87,9 +89,9 @@ export const generateSchemaTreeData = (
             {node.description ? (
                 <Popover overlayStyle={{zIndex: 1051, maxWidth: "400px"}}
                          content={node.description}
-                         title={<span style={{fontFamily: "monospace"}}>
+                         title={<MonospaceText>
                              {key.replace(`${ROOT_SCHEMA_ID}.`, "")}
-                         </span>}>
+                         </MonospaceText>}>
                     <Button icon={<QuestionCircleOutlined />} type="link" size="small" style={{marginLeft: "8px"}}/>
                 </Popover>
             ) : null}

@@ -8,6 +8,7 @@ import {Descriptions, Skeleton} from "antd";
 
 import {fetchRunLogStreamsIfPossibleAndNeeded} from "../../../modules/wes/actions";
 import {runPropTypesShape} from "../../../propTypes";
+import MonospaceText from "@/components/MonospaceText";
 
 
 const ansiUp = new AnsiUp();
@@ -52,10 +53,10 @@ const RunLog = ({run}) => {
         <Descriptions.Item label="Exit Code" span={1}>
             {runLog.exit_code === null ? "N/A" : runLog.exit_code}
         </Descriptions.Item>
-        <Descriptions.Item label={<span style={{fontFamily: "monospace"}}>stdout</span>} span={3}>
+        <Descriptions.Item label={<MonospaceText>stdout</MonospaceText>} span={3}>
             <LogOutput log={stdout} />
         </Descriptions.Item>
-        <Descriptions.Item label={<span style={{fontFamily: "monospace"}}>stderr</span>} span={3}>
+        <Descriptions.Item label={<MonospaceText>stderr</MonospaceText>} span={3}>
             <LogOutput log={stderr} />
         </Descriptions.Item>
     </Descriptions>;
