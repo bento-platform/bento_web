@@ -12,6 +12,7 @@ import RunOutputs from "./RunOutputs";
 import { renderDate, RUN_STATE_TAG_COLORS } from "./utils";
 import { runPropTypesShape } from "@/propTypes";
 import { nop } from "@/utils/misc";
+import MonospaceText from "@/components/MonospaceText";
 
 
 const TABS = {
@@ -51,19 +52,17 @@ const Run = memo(({ run: runOrUndefined, tab, onChangeTab, onBack }) => {
 
     return (
         <>
-            <PageHeader title={<>Run <span style={{fontFamily: "monospace"}}>{run.run_id}</span></>}
+            <PageHeader title={<>Run <MonospaceText>{run.run_id}</MonospaceText></>}
                         tags={<Tag color={RUN_STATE_TAG_COLORS[run.state]}>{run.state}</Tag>}
-                        style={{padding: 0}}
+                        style={{ padding: 0 }}
                         footer={<Tabs activeKey={currentTab} onChange={onChangeTab || nop} items={tabItems} />}
                         onBack={onBack || nop}>
                 <Row type="flex">
                     <Statistic title="Started" value={renderDate(runLog.start_time) || "N/A"} />
-                    <Statistic title="Ended" value={renderDate(endTime) || "N/A"} style={{marginLeft: "24px"}} />
+                    <Statistic title="Ended" value={renderDate(endTime) || "N/A"} style={{ marginLeft: "24px" }} />
                 </Row>
             </PageHeader>
-            <div style={{margin: "24px 0 16px 0"}}>
-                <Content run={run} />
-            </div>
+            <Content run={run} />
         </>
     );
 });

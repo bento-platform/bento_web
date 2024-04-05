@@ -4,7 +4,8 @@ import PropTypes from "prop-types";
 
 const TITLE_STYLE = {
     fontStyle: "italic",
-    marginBottom: "10px",
+    fontWeight: "500",
+    margin: "0 0 10px 0",
 };
 
 const ChartContainer = ({ title, children, empty }) => (
