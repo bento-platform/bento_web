@@ -83,7 +83,7 @@ function FileNamesCell({fileNames, dataType}) {
                 footer={null}
                 open={isModalVisible}
                 onCancel={closeModal}
-                bodyStyle={{maxHeight: "80vh", overflowY: "auto", whiteSpace: "text-overflow"}}
+                styles={{ body: { maxHeight: "80vh", overflowY: "auto", whiteSpace: "text-overflow" } }}
             >
                  <ul style={{ padding: "0 20px", listStyle: "none" }}>
                     {fileNames.map((fileName, index) => (

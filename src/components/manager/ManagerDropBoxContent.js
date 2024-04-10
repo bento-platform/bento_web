@@ -563,7 +563,7 @@ const ManagerDropBoxContent = () => {
                         />
                     </Button.Group>
 
-                    <Button type="danger"
+                    <Button danger={true}
                             icon={<DeleteOutlined />}
                             disabled={deleteDisabled}
                             loading={isDeleting}

@@ -47,7 +47,7 @@ const RunListContent = () => {
     return (
         <div style={{display: "flex", flexDirection: "column", gap: 24}}>
             <div>
-                <Typography.Title level={2}>Latest Ingested Files</Typography.Title>
+                <Typography.Title level={2} style={{ marginTop: 0 }}>Latest Ingested Files</Typography.Title>
                 <LastIngestionTable />
             </div>
             <div>

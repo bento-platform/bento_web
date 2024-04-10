@@ -7,6 +7,8 @@ import { Col, Layout, Row, Skeleton, Typography } from "antd";
 import JsonView from "@/components/JsonView";
 import { LAYOUT_CONTENT_STYLE } from "@/styles/layoutContent";
 
+const TITLE_STYLE = { marginTop: 0 };
+
 const ServiceOverview = () => {
     const { kind } = useParams();
 
@@ -24,11 +26,11 @@ const ServiceOverview = () => {
             <Layout.Content style={LAYOUT_CONTENT_STYLE}>
                 <Row>
                     <Col span={12}>
-                        <Typography.Title level={4}>Service Info</Typography.Title>
+                        <Typography.Title level={4} style={TITLE_STYLE}>Service Info</Typography.Title>
                         <JsonView src={serviceInfo ?? {}} collapsed={false} />
                     </Col>
                     <Col span={12}>
-                        <Typography.Title level={4}>Bento Service Configuration</Typography.Title>
+                        <Typography.Title level={4} style={TITLE_STYLE}>Bento Service Configuration</Typography.Title>
                         <JsonView src={bentoServiceInfo ?? {}} collapsed={false} />
                     </Col>
                 </Row>

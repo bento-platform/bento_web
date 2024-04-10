@@ -6,9 +6,10 @@ import { useAuthorizationHeader } from "bento-auth-js";
 
 import { Layout, Input, Table, Descriptions, message } from "antd";
 
-import { LAYOUT_CONTENT_STYLE } from "../../../styles/layoutContent";
+import { LAYOUT_CONTENT_STYLE } from "@/styles/layoutContent";
 
 import DownloadButton from "../../DownloadButton";
+import MonospaceText from "@/components/MonospaceText";
 
 const SEARCH_CONTAINER_STYLE = {
     maxWidth: 800,
@@ -127,7 +128,7 @@ const ManagerDRSContent = () => {
                         <div style={TABLE_NESTED_DESCRIPTIONS_STYLE} className="table-nested-ant-descriptions">
                             <Descriptions bordered={true}>
                                 <Descriptions.Item label="ID" span={2}>
-                                    <span style={{ fontFamily: "monospace" }}>{id}</span>
+                                    <MonospaceText>{id}</MonospaceText>
                                 </Descriptions.Item>
                                 <Descriptions.Item label="Size" span={1}>
                                     {filesize(size)}
@@ -139,7 +140,7 @@ const ManagerDRSContent = () => {
                                             style={{ display: "flex", gap: "0.8em", alignItems: "baseline" }}
                                         >
                                             <span style={{ fontWeight: "bold" }}>{type.toLocaleUpperCase()}:</span>
-                                            <span style={{ fontFamily: "monospace" }}>{checksum}</span>
+                                            <MonospaceText>{checksum}</MonospaceText>
                                         </div>
                                     ))}
                                 </Descriptions.Item>
@@ -147,7 +148,7 @@ const ManagerDRSContent = () => {
                                     {accessMethods.map(({ type, access_url: url }, i) => (
                                         <div key={i} style={{ display: "flex", gap: "0.8em", alignItems: "baseline" }}>
                                             <span style={{ fontWeight: "bold" }}>{type.toLocaleUpperCase()}:</span>
-                                            <span style={{ fontFamily: "monospace" }}>
+                                            <MonospaceText>
                                                 {["http", "https"].includes(type) ? (  // "http" for back-compat
                                                     <a href={url?.url} target="_blank" rel="noreferrer">
                                                         {url?.url}
@@ -155,7 +156,7 @@ const ManagerDRSContent = () => {
                                                 ) : (
                                                     url?.url
                                                 )}
-                                            </span>
+                                            </MonospaceText>
                                         </div>
                                     ))}
                                 </Descriptions.Item>

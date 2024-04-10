@@ -1,7 +1,7 @@
 import React, { useCallback, useEffect, useMemo, useState } from "react";
 import PropTypes from "prop-types";
 
-import { Button, Input, Select } from "antd";
+import { Button, Input, Select, Space } from "antd";
 import { CloseOutlined } from "@ant-design/icons";
 
 import SchemaTreeSelect from "../schema_trees/SchemaTreeSelect";
@@ -20,6 +20,7 @@ const OPERATION_WIDTH = 116;
 const CLOSE_WIDTH = 50;
 
 const styles = {
+    conditionContainer: { width: "100%" },
     schemaTreeSelect: {
         float: "left",
         width: `${DATA_TYPE_FIELD_WIDTH}px`,
@@ -165,7 +166,7 @@ const DiscoverySearchCondition = ({ dataType, value, onChange, onFieldChange, is
     if (!fieldSchema) return <div />;
 
     return (
-        <Input.Group compact={true}>
+        <Space.Compact style={styles.conditionContainer}>
             <SchemaTreeSelect
                 style={styles.schemaTreeSelect}
                 disabled={!canRemove}
@@ -198,7 +199,7 @@ const DiscoverySearchCondition = ({ dataType, value, onChange, onFieldChange, is
                     onClick={onRemoveClick ?? nop}
                 />
             )}
-        </Input.Group>
+        </Space.Compact>
     );
 };
 

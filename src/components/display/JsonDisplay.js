@@ -3,8 +3,7 @@ import PropTypes from "prop-types";
 import { Collapse, Select, Typography } from "antd";
 
 import JsonView from "@/components/JsonView";
-
-const { Panel } = Collapse;
+import MonospaceText from "@/components/MonospaceText";
 
 const DEFAULT_JSON_VIEW_OPTIONS = {
     collapsed: true,
@@ -86,13 +85,11 @@ const JsonObjectDisplay = ({ doc }) => {
     return (
         <>
             <Typography.Title level={4}>JSON object</Typography.Title>
-            <Collapse accordion>
-                {entries.map(([key, value]) =>
-                    <Panel header={<span style={{fontFamily: "monospace"}}>{key}</span>} key={key}>
-                        <JsonDisplay jsonSrc={value} showObjectWithReactJson={true} />
-                    </Panel>,
-                )}
-            </Collapse>
+            <Collapse accordion={true} items={entries.map(([key, value]) => ({
+                key,
+                label: <MonospaceText>{key}</MonospaceText>,
+                children: <JsonDisplay jsonSrc={value} showObjectWithReactJson={true} />,
+            }))} />
         </>
     );
 };
@@ -115,7 +112,7 @@ const JsonDisplay = ({ jsonSrc, showObjectWithReactJson }) => {
     }
 
     // Display primitive
-    return <span style={{fontFamily: "monospace"}}>{JSON.stringify(jsonSrc)}</span>;
+    return <MonospaceText>{JSON.stringify(jsonSrc)}</MonospaceText>;
 };
 
 JsonDisplay.propTypes = {

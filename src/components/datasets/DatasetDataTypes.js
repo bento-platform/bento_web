@@ -106,7 +106,7 @@ const DatasetDataTypes = React.memo(({ isPrivate, project, dataset }) => {
                             </Col>
                             <Col span={11}>
                                 <Button
-                                    type="danger"
+                                    danger={true}
                                     icon={<DeleteOutlined />}
                                     disabled={!dt.count}
                                     onClick={() => handleClearDataType(dt)}
@@ -133,7 +133,7 @@ const DatasetDataTypes = React.memo(({ isPrivate, project, dataset }) => {
                 onCancel={onDataTypeSummaryModalCancel}
             />
 
-            <Typography.Title level={4}>
+            <Typography.Title level={4} style={{ marginTop: 0 }}>
                 Data Types
             </Typography.Title>
 

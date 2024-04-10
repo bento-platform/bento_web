@@ -1,7 +1,7 @@
 import React from "react";
 import PropTypes from "prop-types";
 
-import {PageHeader} from "antd";
+import { PageHeader } from "@ant-design/pro-components";
 
 const styles = {
     pageHeader: {
@@ -23,7 +23,7 @@ const styles = {
     },
 };
 
-const SitePageHeader = React.memo(({title, subTitle, withTabBar, style, ...props}) => (
+const SitePageHeader = React.memo(({ title, subTitle, withTabBar, style, ...props }) => (
     <PageHeader
         {...props}
         title={<div style={styles.pageHeaderTitle}>{title || ""}</div>}

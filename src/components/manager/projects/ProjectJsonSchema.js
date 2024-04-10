@@ -67,7 +67,7 @@ const ProjectJsonSchema = ({ projectSchema }) => {
             key={projectSchema.id}
             title={projectSchema.schema_type}
             extra={
-                <Button type="danger" icon={<DeleteOutlined />} onClick={handleDelete}>Delete</Button>
+                <Button danger={true} icon={<DeleteOutlined />} onClick={handleDelete}>Delete</Button>
             }
         >
             <Descriptions layout="vertical" column={1} bordered>
