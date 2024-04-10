@@ -390,9 +390,11 @@ const IndividualTracks = ({ individual }) => {
             <Modal open={modalVisible} onCancel={closeModal} footer={null} zIndex={MODAL_Z_INDEX} width={720}>
                 <div style={{ marginBottom: 12 }}>
                     Assembly:{" "}
-                    <Select value={selectedAssemblyID} onChange={(v) => setSelectedAssemblyID(v)}>
-                        {trackAssemblyIDs.map((a) => <Select.Option key={a} value={a}>{a}</Select.Option>)}
-                    </Select>
+                    <Select
+                        value={selectedAssemblyID}
+                        onChange={(v) => setSelectedAssemblyID(v)}
+                        options={trackAssemblyIDs.map((a) => ({ value: a, label: a }))}
+                    />
                 </div>
                 <TrackControlTable toggleView={toggleView} allFoundFiles={allFoundFiles} />
             </Modal>

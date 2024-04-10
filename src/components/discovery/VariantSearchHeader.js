@@ -184,9 +184,8 @@ const VariantSearchHeader = ({ dataType, addVariantSearchValues }) => {
                 <Select
                     onChange={handleGenotypeChange}
                     allowClear
-                >
-                    {genotypeSchema.enum.map(v => <Select.Option key={v} value={v}>{v}</Select.Option>)}
-                </Select>
+                    options={genotypeSchema.enum.map((value) => ({ value, label: value }))}
+                />
             </Form.Item>
             <Form.Item
                 labelCol={LABEL_COL}
