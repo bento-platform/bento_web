@@ -62,9 +62,8 @@ const EnumSelect = forwardRef(({ mode, onChange, values: valuesConfig, value }, 
             value={value}
             onChange={onChange}
             notFoundContent={fetching ? <Spin size="small" /> : null}
-        >
-            {values.map(v => <Select.Option key={v}>{v}</Select.Option>)}
-        </Select>
+            options={values.map((value) => ({ value, label: value }))}
+        />
     );
 });
 EnumSelect.propTypes = {

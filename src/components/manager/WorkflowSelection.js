@@ -36,9 +36,8 @@ const WorkflowFilter = ({ loading, tags, value, onChange }) => {
                 placeholder="Select workflow tags..."
                 value={value.tags}
                 onChange={onChangeTags}
-            >
-                {(tags ?? []).map(t => <Select.Option key={t}>{t}</Select.Option>)}
-            </Select>
+                options={(tags ?? []).map((t) => ({ value: t, label: t }))}
+            />
         </Col>
     </Row>;
 };
