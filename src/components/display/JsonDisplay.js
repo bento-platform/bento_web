@@ -54,11 +54,12 @@ const JsonArrayDisplay = ({ doc, standalone }) => {
             {shouldGroup &&
                 <>
                     <Typography.Text>Grouped array items</Typography.Text>
-                    <Select style={{ width: 120, padding: 5 }} onChange={onJsonGroupSelect} value={selectedJsonGroup}>
-                        {Object.keys(jsonArrayGroups).map(key => (
-                            <Select.Option key={key} value={key}>{key}</Select.Option>
-                        ))}
-                    </Select>
+                    <Select
+                        style={{ width: 120, padding: 5 }}
+                        onChange={onJsonGroupSelect}
+                        value={selectedJsonGroup}
+                        options={Object.keys(jsonArrayGroups).map((value) => ({ value, label: value }))}
+                    />
                 </>
             }
             <JsonView

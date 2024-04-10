@@ -23,18 +23,16 @@ const generateFileTree = (directory, valid, folderMode, basePrefix) =>
 
             const k = (basePrefix ?? "") + relativePath;
 
-            return (
-                <TreeSelect.TreeNode
-                    title={name}
-                    key={k}
-                    value={k}
-                    disabled={!isValid}
-                    isLeaf={renderAsLeaf}
-                    selectable={folderMode ? isFolder : !isFolder}
-                >
-                    {isFolder ? generateFileTree(contents, valid, folderMode, basePrefix) : null}
-                </TreeSelect.TreeNode>
-            );
+            return {
+                value: k,
+                title: name,
+                disabled: !isValid,
+                isLeaf: renderAsLeaf,
+                selectable: folderMode ? isFolder : !isFolder,
+                ...(isFolder && {
+                    children: generateFileTree(contents, valid, folderMode, basePrefix),
+                }),
+            };
         });
 
 const DropBoxTreeSelect = React.forwardRef(({ folderMode, nodeEnabled, basePrefix, ...props }, ref) => {
@@ -45,11 +43,18 @@ const DropBoxTreeSelect = React.forwardRef(({ folderMode, nodeEnabled, basePrefi
         [tree, nodeEnabled, folderMode, basePrefix],
     );
 
-    return <TreeSelect ref={ref} showSearch={true} treeDefaultExpandAll={true} {...props}>
-        <TreeSelect.TreeNode title="Drop Box" value={basePrefix ?? "/"} selectable={folderMode}>
-            {fileTree}
-        </TreeSelect.TreeNode>
-    </TreeSelect>;
+    return <TreeSelect
+        ref={ref}
+        showSearch={true}
+        treeDefaultExpandAll={true}
+        treeData={[{
+            value: basePrefix ?? "/",
+            title: "Drop Box",
+            selectable: folderMode,
+            children: fileTree,
+        }]}
+        {...props}
+    />;
 });
 
 DropBoxTreeSelect.propTypes = {

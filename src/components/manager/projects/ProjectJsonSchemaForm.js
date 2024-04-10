@@ -93,13 +93,9 @@ const ProjectJsonSchemaForm = ({ form, schemaTypes, initialValues }) => {
                 initialValue={initialValues.schemaType}
                 rules={[{ required: true }]}
             >
-                <Select>
-                    {getSchemaTypeOptions(schemaTypes).map((option) => (
-                        <Select.Option key={option.key} value={option.value}>
-                            {option.text}
-                        </Select.Option>
-                    ))}
-                </Select>
+                <Select
+                    options={getSchemaTypeOptions(schemaTypes).map(({ value, text: label }) => ({ value, label }))}
+                />
             </Form.Item>
             <Form.Item label="JSON Schema" name="jsonSchema" rules={[{ required: true }]}>
                 <JsonSchemaInput />
