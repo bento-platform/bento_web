@@ -77,26 +77,29 @@ const SearchSummaryModal = ({ searchResults, ...props }) => {
             .catch((error) => console.error("error", error));
     }, [searchResults]);
 
+    const phenopacketData = data?.phenopacket?.data_type_specific;
+    const experimentData = data?.experiment?.data_type_specific;
+
     const individualsCharts = [
         {
             type: "PieChart",
             title: "Sex",
-            data: data?.individuals?.sex,
+            data: phenopacketData?.individuals?.sex,
         },
         {
             type: "PieChart",
             title: "Diseases",
-            data: data?.diseases?.term,
+            data: phenopacketData?.diseases?.term,
         },
         {
             type: "PieChart",
             title: "Phenotypic Features",
-            data: data?.phenotypic_features?.type,
+            data: phenopacketData?.phenotypic_features?.type,
         },
         {
             type: "BarChart",
             title: "Ages",
-            data: data?.individuals?.age,
+            data: phenopacketData?.individuals?.age,
         },
     ];
 
@@ -104,12 +107,12 @@ const SearchSummaryModal = ({ searchResults, ...props }) => {
         {
             type: "PieChart",
             title: "Biosamples by Tissue",
-            data: data?.biosamples?.sampled_tissue,
+            data: phenopacketData?.biosamples?.sampled_tissue,
         },
         {
             type: "PieChart",
             title: "Biosamples by Diagnosis",
-            data: data?.biosamples?.histological_diagnosis,
+            data: phenopacketData?.biosamples?.histological_diagnosis,
         },
     ];
 
@@ -117,7 +120,7 @@ const SearchSummaryModal = ({ searchResults, ...props }) => {
         {
             type: "PieChart",
             title: "Experiment Types",
-            data: data?.experiments?.experiment_type,
+            data: experimentData?.experiments?.experiment_type,
         },
     ];
 
@@ -127,13 +130,13 @@ const SearchSummaryModal = ({ searchResults, ...props }) => {
                 <>
                     <Row gutter={16} style={{ display: "flex", flexWrap: "wrap" }}>
                         <Col span={7}>
-                            <Statistic title="Individuals" value={data.individuals.count} />
+                            <Statistic title="Individuals" value={phenopacketData.individuals.count} />
                         </Col>
                         <Col span={7}>
-                            <Statistic title="Biosamples" value={data.biosamples.count} />
+                            <Statistic title="Biosamples" value={phenopacketData.biosamples.count} />
                         </Col>
                         <Col span={7}>
-                            <Statistic title="Experiments" value={data.experiments.count} />
+                            <Statistic title="Experiments" value={experimentData.experiments.count} />
                         </Col>
                     </Row>
                     <Divider />
