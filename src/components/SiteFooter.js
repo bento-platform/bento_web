@@ -21,7 +21,9 @@ const SiteFooter = React.memo(() => (
                     <p style={{ margin: 0, color: "rgba(0, 0, 0, 0.65)" }}>Powered by</p>
                 </div>
                 <div style={{ width: BENTO_LOGO_WIDTH }}>
-                    <img src={BentoLogo} alt="Bento logo" />
+                    <a href="https://bento-platform.github.io" target="_blank" rel="noreferrer">
+                        <img src={BentoLogo} alt="Bento logo" />
+                    </a>
                 </div>
             </div>
 
