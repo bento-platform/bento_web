@@ -1,12 +1,14 @@
 import React, { useCallback, useEffect, useMemo, useState } from "react";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
+import { useSearchParams } from "react-router-dom";
 import PropTypes from "prop-types";
 
 import { filesize } from "filesize";
 import { throttle } from "lodash";
 import { useAuthorizationHeader } from "bento-auth-js";
 
-import { Layout, Input, Table, Descriptions, message } from "antd";
+import { Layout, Input, Table, Descriptions, message, Space, Button, Modal } from "antd";
+import { DeleteOutlined } from "@ant-design/icons";
 
 import { EM_DASH } from "@/constants";
 import { LAYOUT_CONTENT_STYLE } from "@/styles/layoutContent";
@@ -14,15 +16,36 @@ import { LAYOUT_CONTENT_STYLE } from "@/styles/layoutContent";
 import BooleanYesNo from "@/components/common/BooleanYesNo";
 import DownloadButton from "@/components/common/DownloadButton";
 import MonospaceText from "@/components/common/MonospaceText";
+import { deleteDrsObject } from "@/modules/drs/actions";
 import DatasetTitleDisplay from "../DatasetTitleDisplay";
 import ProjectTitleDisplay from "../ProjectTitleDisplay";
-import { useSearchParams } from "react-router-dom";
 
 const TABLE_NESTED_DESCRIPTIONS_STYLE = {
     backgroundColor: "white",
     borderRadius: 3,
     maxWidth: 1400,
 };
+
+const PROP_TYPES_DRS_OBJECT = PropTypes.shape({
+    id: PropTypes.string,
+    name: PropTypes.string,
+    description: PropTypes.string,
+    size: PropTypes.number,
+    checksums: PropTypes.arrayOf(PropTypes.shape({
+        type: PropTypes.string.isRequired,
+        checksum: PropTypes.string.isRequired,
+    })),
+    access_methods: PropTypes.arrayOf(PropTypes.shape({
+        type: PropTypes.string.isRequired,
+        access_url: PropTypes.shape({ url: PropTypes.string }),
+    })),
+    bento: PropTypes.shape({
+        project_id: PropTypes.string,
+        dataset_id: PropTypes.string,
+        data_type: PropTypes.string,
+        public: PropTypes.bool,
+    }),
+});
 
 const DRSObjectDetail = ({ drsObject }) => {
     const { id, description, checksums, access_methods: accessMethods, size, bento } = drsObject;
@@ -84,26 +107,28 @@ const DRSObjectDetail = ({ drsObject }) => {
     );
 };
 DRSObjectDetail.propTypes = {
-    drsObject: PropTypes.shape({
-        id: PropTypes.string,
-        name: PropTypes.string,
-        description: PropTypes.string,
-        size: PropTypes.number,
-        checksums: PropTypes.arrayOf(PropTypes.shape({
-            type: PropTypes.string.isRequired,
-            checksum: PropTypes.string.isRequired,
-        })),
-        access_methods: PropTypes.arrayOf(PropTypes.shape({
-            type: PropTypes.string.isRequired,
-            access_url: PropTypes.shape({ url: PropTypes.string }),
-        })),
-        bento: PropTypes.shape({
-            project_id: PropTypes.string,
-            dataset_id: PropTypes.string,
-            data_type: PropTypes.string,
-            public: PropTypes.bool,
-        }),
-    }),
+    drsObject: PROP_TYPES_DRS_OBJECT,
+};
+
+const DRSObjectDeleteButton = ({ drsObject }) => {
+    const dispatch = useDispatch();
+    const drsURL = useSelector((state) => state.services.drsService?.url);
+
+    const onClick = useCallback(() => {
+        Modal.confirm({
+            title: <>Are you sure you wish to delete DRS object "{drsObject.name}"</>,
+            onOk() {
+                dispatch(deleteDrsObject(drsObject)).catch((err) => console.error(err));
+            },
+        });
+    }, [dispatch, drsURL, drsObject]);
+
+    return (
+        <Button size="small" danger={true} icon={<DeleteOutlined />} onClick={onClick}>Delete</Button>
+    );
+};
+DRSObjectDeleteButton.propTypes = {
+    drsObject: PROP_TYPES_DRS_OBJECT,
 };
 
 const SEARCH_CONTAINER_STYLE = {
@@ -130,9 +155,15 @@ const DRS_COLUMNS = [
         title: "Actions",
         dataIndex: "",
         key: "actions",
+        width: 208,
         render: (record) => {
             const url = record.access_methods[0]?.access_url?.url;
-            return <DownloadButton disabled={!url} uri={url} fileName={record.name} size="small" />;
+            return (
+                <Space>
+                    <DownloadButton disabled={!url} uri={url} fileName={record.name} size="small" />
+                    <DRSObjectDeleteButton id={record.id} />
+                </Space>
+            );
         },
     },
 ];

@@ -1,10 +1,12 @@
+import { message } from "antd";
+
 import {
     createNetworkActionTypes,
     networkAction,
-} from "../../utils/actions";
-import { guessFileType } from "../../utils/files";
-import {message} from "antd";
+} from "@/utils/actions";
+import { guessFileType } from "@/utils/files";
 
+export const DELETE_DRS_OBJECT = createNetworkActionTypes("DELETE_DRS_OBJECT");
 export const PERFORM_SEARCH_BY_FUZZY_NAME = createNetworkActionTypes("PERFORM_SEARCH_BY_FUZZY_NAME");
 
 export const RETRIEVE_URLS_FOR_IGV = {
@@ -121,6 +123,18 @@ export const getFileDownloadUrlsFromDrs = (fileObjects) => async (dispatch, getS
         dispatch(errorDownloadUrls());
     }
 };
+
+
+export const deleteDrsObject = networkAction((drsObject) => (dispatch, getState) => ({
+    types: DELETE_DRS_OBJECT,
+    params: { drsObject },
+    url: `${getState().services.drsService.url}/objects/${drsObject.id}`,
+    req: { method: "DELETE" },
+    err: "Error while deleting DRS object",
+    onSuccess: () => {
+        message.success(`DRS object "${drsObject.name}" deleted successfully!`);
+    },
+}));
 
 
 const performFuzzyNameSearch = networkAction((fuzzySearchUrl) => () => ({
