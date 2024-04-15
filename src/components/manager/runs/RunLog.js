@@ -8,7 +8,7 @@ import {Descriptions, Skeleton} from "antd";
 
 import {fetchRunLogStreamsIfPossibleAndNeeded} from "../../../modules/wes/actions";
 import {runPropTypesShape} from "../../../propTypes";
-import MonospaceText from "@/components/MonospaceText";
+import MonospaceText from "@/components/common/MonospaceText";
 
 
 const ansiUp = new AnsiUp();

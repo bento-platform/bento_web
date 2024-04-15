@@ -11,7 +11,7 @@ import "./explorer.css";
 import { ExplorerIndividualContext } from "./contexts/individual";
 import { explorerIndividualUrl } from "./utils";
 
-import JsonView from "@/components/JsonView";
+import JsonView from "@/components/common/JsonView";
 import OntologyTerm from "./OntologyTerm";
 import { GeneDescriptor } from "./IndividualGenes";
 

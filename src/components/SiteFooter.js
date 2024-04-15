@@ -4,7 +4,7 @@ import { Layout, Typography } from "antd";
 import pkg from "../../package.json";
 
 import BentoLogo from "../images/logo_colour.svg";
-import MonospaceText from "@/components/MonospaceText";
+import MonospaceText from "@/components/common/MonospaceText";
 
 const BENTO_LOGO_WIDTH = "148px";
 

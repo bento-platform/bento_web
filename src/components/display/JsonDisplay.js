@@ -2,8 +2,8 @@ import React, { useCallback, useEffect, useState } from "react";
 import PropTypes from "prop-types";
 import { Collapse, Select, Typography } from "antd";
 
-import JsonView from "@/components/JsonView";
-import MonospaceText from "@/components/MonospaceText";
+import JsonView from "@/components/common/JsonView";
+import MonospaceText from "@/components/common/MonospaceText";
 
 const DEFAULT_JSON_VIEW_OPTIONS = {
     collapsed: true,

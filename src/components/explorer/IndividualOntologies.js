@@ -4,7 +4,7 @@ import { Table } from "antd";
 
 import { individualPropTypesShape } from "@/propTypes";
 import { useIndividualResources } from "./utils";
-import MonospaceText from "@/components/MonospaceText";
+import MonospaceText from "@/components/common/MonospaceText";
 
 
 // TODO: Only show diseases from the relevant dataset, if specified;

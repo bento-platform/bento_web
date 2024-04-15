@@ -7,8 +7,8 @@ import { Space, Table } from "antd";
 import { EM_DASH } from "@/constants";
 import { runPropTypesShape } from "@/propTypes";
 
-import DownloadButton from "@/components/DownloadButton";
-import MonospaceText from "@/components/MonospaceText";
+import DownloadButton from "@/components/common/DownloadButton";
+import MonospaceText from "@/components/common/MonospaceText";
 
 
 const RunOutputValue = ({ runID, item: { name, type, value } }) => {

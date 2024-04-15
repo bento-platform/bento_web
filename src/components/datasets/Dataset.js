@@ -144,7 +144,7 @@ class Dataset extends Component {
             linked_field_sets: (
                 <>
                     <Typography.Title level={4} style={{ marginTop: 0 }}>
-                        Linked Field Sets
+                        <span id={`dataset-${identifier}`}>Linked Field Sets</span>
                         {isPrivate ? (
                             <div style={{float: "right", display: "flex", flexDirection: "column", gap: "10px"}}>
                                 <Button icon={<PlusOutlined />}

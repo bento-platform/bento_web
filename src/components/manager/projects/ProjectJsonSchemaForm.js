@@ -4,7 +4,7 @@ import { Button, Checkbox, Form, Select, Tooltip, message } from "antd";
 import { useDropzone } from "react-dropzone";
 import Ajv from "ajv";
 
-import JsonView from "@/components/JsonView";
+import JsonView from "@/components/common/JsonView";
 import { ExtraPropertiesCode } from "./ProjectJsonSchema";
 
 const ajv = new Ajv({

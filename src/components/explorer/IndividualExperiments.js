@@ -14,8 +14,8 @@ import { guessFileType } from "@/utils/files";
 import { useDeduplicatedIndividualBiosamples } from "./utils";
 import { VIEWABLE_FILE_EXTENSIONS } from "@/components/display/FileDisplay";
 
-import DownloadButton from "@/components/DownloadButton";
-import MonospaceText from "@/components/MonospaceText";
+import DownloadButton from "@/components/common/DownloadButton";
+import MonospaceText from "@/components/common/MonospaceText";
 import FileModal from "@/components/display/FileModal";
 import { RoutedIndividualContent, RoutedIndividualContentTable } from "@/components/explorer/RoutedIndividualContent";
 import OntologyTerm from "./OntologyTerm";
