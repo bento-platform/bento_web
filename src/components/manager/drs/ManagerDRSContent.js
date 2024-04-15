@@ -1,4 +1,4 @@
-import React, { useCallback, useMemo, useState } from "react";
+import React, { useCallback, useEffect, useMemo, useState } from "react";
 import { useSelector } from "react-redux";
 import PropTypes from "prop-types";
 
@@ -16,6 +16,7 @@ import DownloadButton from "@/components/common/DownloadButton";
 import MonospaceText from "@/components/common/MonospaceText";
 import DatasetTitleDisplay from "../DatasetTitleDisplay";
 import ProjectTitleDisplay from "../ProjectTitleDisplay";
+import { useSearchParams } from "react-router-dom";
 
 const TABLE_NESTED_DESCRIPTIONS_STYLE = {
     backgroundColor: "white",
@@ -150,48 +151,58 @@ const ManagerDRSContent = () => {
 
     const authHeader = useAuthorizationHeader();
 
+    const [searchParams, setSearchParams] = useSearchParams();
+    const { q: initialSearchQuery } = searchParams;
+    const [searchValue, setSearchValue] = useState(initialSearchQuery ?? "");
+
     const [searchResults, setSearchResults] = useState([]);
     const [doneSearch, setDoneSearch] = useState(false);
     const [loading, setLoading] = useState(false);
 
-    const onSearch = useCallback(
-        throttle(
-            (v) => {
-                if (!drsURL) return;
+    const onSearch = useCallback((e) => {
+        const q = (e.target?.value ?? e ?? "").trim();
+        setSearchValue(q);
+        setSearchParams({ q });
+    }, []);
 
-                // Extract value from either the native HTML event or the AntDesign event
-                const sv = (v.target?.value ?? v ?? "").trim();
-                if (!sv) {
-                    setDoneSearch(false); // Behave as if we have never searched before
-                    setSearchResults([]);
-                    return;
-                }
+    const performSearch = useMemo(() => throttle(
+        () => {
+            if (!drsURL) return;
 
-                setLoading(true);
+            if (!searchValue) {
+                setDoneSearch(false); // Behave as if we have never searched before
+                setSearchResults([]);
+                return;
+            }
 
-                fetch(buildDRSSearchURL(drsURL, sv), { method: "GET", headers: authHeader })
-                    .then((r) => Promise.all([Promise.resolve(r.ok), r.json()]))
-                    .then(([ok, data]) => {
-                        if (ok) {
-                            console.debug("received DRS objects:", data);
-                            setSearchResults(data);
-                        } else {
-                            message.error(`Encountered error while fetching DRS objects: ${data.message}`);
-                            console.error(data);
-                        }
-                        setLoading(false);
-                        setDoneSearch(true);
-                    })
-                    .catch((e) => {
-                        message.error(`Encountered error while fetching DRS objects: ${e}`);
-                        console.error(e);
-                    });
-            },
-            250,
-            { leading: true, trailing: true },
-        ),
-        [drsURL, authHeader],
-    );
+            setLoading(true);
+
+            fetch(buildDRSSearchURL(drsURL, searchValue), { method: "GET", headers: authHeader })
+                .then((r) => Promise.all([Promise.resolve(r.ok), r.json()]))
+                .then(([ok, data]) => {
+                    if (ok) {
+                        console.debug("received DRS objects:", data);
+                        setSearchResults(data);
+                    } else {
+                        message.error(`Encountered error while fetching DRS objects: ${data.message}`);
+                        console.error(data);
+                    }
+                    setLoading(false);
+                    setDoneSearch(true);
+                })
+                .catch((e) => {
+                    message.error(`Encountered error while fetching DRS objects: ${e}`);
+                    console.error(e);
+                });
+        },
+        250,
+        { leading: true, trailing: true },
+    ), [drsURL, searchValue]);
+
+    useEffect(() => {
+        console.log(searchValue);
+        performSearch();
+    }, [searchValue]);
 
     const tableLocale = useMemo(
         () => ({
@@ -210,6 +221,7 @@ const ManagerDRSContent = () => {
                         disabled={!drsURL}
                         onChange={onSearch}
                         onSearch={onSearch}
+                        value={searchValue}
                         size="large"
                     />
                 </div>
