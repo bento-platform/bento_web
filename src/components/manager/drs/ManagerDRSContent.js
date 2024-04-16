@@ -1,13 +1,12 @@
-import React, { useCallback, useEffect, useMemo, useState } from "react";
+import React, { memo, useCallback, useEffect, useMemo, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useSearchParams } from "react-router-dom";
 import PropTypes from "prop-types";
 
 import { filesize } from "filesize";
 import { throttle } from "lodash";
-import { useAuthorizationHeader } from "bento-auth-js";
 
-import { Layout, Input, Table, Descriptions, message, Space, Button, Modal } from "antd";
+import { Layout, Input, Table, Descriptions, Space, Button, Modal, Typography } from "antd";
 import { DeleteOutlined } from "@ant-design/icons";
 
 import { EM_DASH } from "@/constants";
@@ -16,7 +15,7 @@ import { LAYOUT_CONTENT_STYLE } from "@/styles/layoutContent";
 import BooleanYesNo from "@/components/common/BooleanYesNo";
 import DownloadButton from "@/components/common/DownloadButton";
 import MonospaceText from "@/components/common/MonospaceText";
-import { deleteDrsObject } from "@/modules/drs/actions";
+import { clearDRSObjectSearch, deleteDRSObject, performDRSObjectSearch } from "@/modules/drs/actions";
 import DatasetTitleDisplay from "../DatasetTitleDisplay";
 import ProjectTitleDisplay from "../ProjectTitleDisplay";
 
@@ -110,16 +109,26 @@ DRSObjectDetail.propTypes = {
     drsObject: PROP_TYPES_DRS_OBJECT,
 };
 
+const DRSObjectDeleteWarningParagraph = memo(({ plural }) => (
+    <Typography.Paragraph>
+        Be careful that there are no extant references to {plural ? "these objects" : "this object"} anywhere in the
+        instance. If there are, triggering this will result in broken links and possibly broken functionality!
+    </Typography.Paragraph>
+));
+DRSObjectDeleteWarningParagraph.propTypes = { plural: PropTypes.bool };
+
 const DRSObjectDeleteButton = ({ drsObject }) => {
     const dispatch = useDispatch();
     const drsURL = useSelector((state) => state.services.drsService?.url);
 
     const onClick = useCallback(() => {
         Modal.confirm({
-            title: <>Are you sure you wish to delete DRS object "{drsObject.name}"</>,
+            title: <>Are you sure you wish to delete DRS object &ldquo;{drsObject.name}&rdquo;?</>,
+            content: <DRSObjectDeleteWarningParagraph plural={false} />,
             onOk() {
-                dispatch(deleteDrsObject(drsObject)).catch((err) => console.error(err));
+                return dispatch(deleteDRSObject(drsObject)).catch((err) => console.error(err));
             },
+            maskClosable: true,
         });
     }, [dispatch, drsURL, drsObject]);
 
@@ -132,8 +141,8 @@ DRSObjectDeleteButton.propTypes = {
 };
 
 const SEARCH_CONTAINER_STYLE = {
+    flex: 1,
     maxWidth: 800,
-    marginBottom: "1rem",
 };
 
 const DRS_COLUMNS = [
@@ -161,7 +170,7 @@ const DRS_COLUMNS = [
             return (
                 <Space>
                     <DownloadButton disabled={!url} uri={url} fileName={record.name} size="small" />
-                    <DRSObjectDeleteButton id={record.id} />
+                    <DRSObjectDeleteButton drsObject={record} />
                 </Space>
             );
         },
@@ -173,22 +182,19 @@ const DRS_TABLE_EXPANDABLE = {
     expandedRowRender: (drsObject) => <DRSObjectDetail drsObject={drsObject} />,
 };
 
-// noinspection JSCheckFunctionSignatures
-const buildDRSSearchURL = (drsURL, q) =>
-    `${drsURL}/search?` + new URLSearchParams({ q, with_bento_properties: true });
-
 const ManagerDRSContent = () => {
+    const dispatch = useDispatch();
     const drsURL = useSelector((state) => state.services.drsService?.url);
+    const { objectSearchResults, objectSearchIsFetching, objectSearchAttempted } = useSelector((state) => state.drs);
 
-    const authHeader = useAuthorizationHeader();
+    const objectsByID = useMemo(
+        () => Object.fromEntries(objectSearchResults.map((o) => [o.id, o])),
+        [objectSearchResults]);
 
     const [searchParams, setSearchParams] = useSearchParams();
     const { q: initialSearchQuery } = searchParams;
     const [searchValue, setSearchValue] = useState(initialSearchQuery ?? "");
-
-    const [searchResults, setSearchResults] = useState([]);
-    const [doneSearch, setDoneSearch] = useState(false);
-    const [loading, setLoading] = useState(false);
+    const [selectedRowKeys, setSelectedRowKeys] = useState([]);
 
     const onSearch = useCallback((e) => {
         const q = (e.target?.value ?? e ?? "").trim();
@@ -201,70 +207,93 @@ const ManagerDRSContent = () => {
             if (!drsURL) return;
 
             if (!searchValue) {
-                setDoneSearch(false); // Behave as if we have never searched before
-                setSearchResults([]);
+                // Behave as if we have never searched before
+                dispatch(clearDRSObjectSearch());
                 return;
             }
 
-            setLoading(true);
-
-            fetch(buildDRSSearchURL(drsURL, searchValue), { method: "GET", headers: authHeader })
-                .then((r) => Promise.all([Promise.resolve(r.ok), r.json()]))
-                .then(([ok, data]) => {
-                    if (ok) {
-                        console.debug("received DRS objects:", data);
-                        setSearchResults(data);
-                    } else {
-                        message.error(`Encountered error while fetching DRS objects: ${data.message}`);
-                        console.error(data);
-                    }
-                    setLoading(false);
-                    setDoneSearch(true);
-                })
-                .catch((e) => {
-                    message.error(`Encountered error while fetching DRS objects: ${e}`);
-                    console.error(e);
-                });
+            dispatch(performDRSObjectSearch(searchValue)).catch((err) => console.error(err));
         },
         250,
         { leading: true, trailing: true },
-    ), [drsURL, searchValue]);
+    ), [dispatch, drsURL, searchValue]);
 
     useEffect(() => {
-        console.log(searchValue);
         performSearch();
     }, [searchValue]);
 
+    useEffect(() => {
+        setSelectedRowKeys(selectedRowKeys.filter((k) => k in objectsByID));
+    }, [objectsByID]);
+
+    const onDeleteSelected = useCallback(() => {
+        Modal.confirm({
+            title: <>
+                Are you sure you want to delete {selectedRowKeys.length} DRS
+                object{selectedRowKeys.length === 1 ? "" : "s"}?
+            </>,
+            content: <DRSObjectDeleteWarningParagraph plural={selectedRowKeys.length !== 1} />,
+            onOk() {
+                return (async () => {
+                    for (const k of selectedRowKeys) {
+                        if (!(k in objectsByID)) {
+                            console.warn("Missing DRS object record in search results for ID:", k);
+                            continue;
+                        }
+
+                        console.info("Deleting DRS object:", k);
+                        await dispatch(deleteDRSObject(objectsByID[k]));
+                    }
+                })();
+            },
+            maskClosable: true,
+        });
+    }, [dispatch, selectedRowKeys, objectsByID]);
+
     const tableLocale = useMemo(
         () => ({
-            emptyText: doneSearch ? "No matching objects" : "Search to see matching objects",
+            emptyText: objectSearchAttempted ? "No matching objects" : "Search to see matching objects",
         }),
-        [doneSearch],
+        [objectSearchAttempted],
     );
 
     return (
         <Layout>
             <Layout.Content style={LAYOUT_CONTENT_STYLE}>
-                <div style={SEARCH_CONTAINER_STYLE}>
-                    <Input.Search
-                        placeholder="Search DRS objects by name."
-                        loading={loading || !drsURL}
-                        disabled={!drsURL}
-                        onChange={onSearch}
-                        onSearch={onSearch}
-                        value={searchValue}
-                        size="large"
-                    />
+                <div style={{ marginBottom: "1rem", display: "flex", gap: 16 }}>
+                    <div style={SEARCH_CONTAINER_STYLE}>
+                        <Input.Search
+                            placeholder="Search DRS objects by name."
+                            loading={objectSearchIsFetching || !drsURL}
+                            disabled={!drsURL}
+                            onChange={onSearch}
+                            onSearch={onSearch}
+                            value={searchValue}
+                            // size="large"
+                        />
+                    </div>
+                    <Button
+                        icon={<DeleteOutlined />}
+                        danger={true}
+                        onClick={onDeleteSelected}
+                        disabled={selectedRowKeys.length === 0}
+                    >Delete Selected</Button>
                 </div>
                 <Table
                     rowKey="id"
                     columns={DRS_COLUMNS}
-                    dataSource={searchResults}
-                    loading={loading}
+                    dataSource={objectSearchResults}
+                    loading={objectSearchIsFetching}
                     bordered={true}
                     size="middle"
                     expandable={DRS_TABLE_EXPANDABLE}
                     locale={tableLocale}
+                    rowSelection={{
+                        type: "checkbox",
+                        getCheckboxProps: (record) => ({ name: record.id }),
+                        selectedRowKeys,
+                        onChange: (keys) => setSelectedRowKeys(keys),
+                    }}
                 />
             </Layout.Content>
         </Layout>

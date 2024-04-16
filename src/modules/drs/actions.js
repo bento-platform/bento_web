@@ -6,7 +6,10 @@ import {
 } from "@/utils/actions";
 import { guessFileType } from "@/utils/files";
 
+export const PERFORM_DRS_OBJECT_SEARCH = createNetworkActionTypes("PERFORM_DRS_OBJECT_SEARCH");
+export const CLEAR_DRS_OBJECT_SEARCH = "CLEAR_DRS_OBJECT_SEARCH";
 export const DELETE_DRS_OBJECT = createNetworkActionTypes("DELETE_DRS_OBJECT");
+
 export const PERFORM_SEARCH_BY_FUZZY_NAME = createNetworkActionTypes("PERFORM_SEARCH_BY_FUZZY_NAME");
 
 export const RETRIEVE_URLS_FOR_IGV = {
@@ -125,7 +128,17 @@ export const getFileDownloadUrlsFromDrs = (fileObjects) => async (dispatch, getS
 };
 
 
-export const deleteDrsObject = networkAction((drsObject) => (dispatch, getState) => ({
+export const performDRSObjectSearch = networkAction((q) => (dispatch, getState) => ({
+    types: PERFORM_DRS_OBJECT_SEARCH,
+    params: { q },
+    url: `${getState().services.drsService.url}/search?${new URLSearchParams({ q, with_bento_properties: "true" })}`,
+    err: "Error while searching for DRS objects",
+}));
+
+export const clearDRSObjectSearch = () => ({ type: CLEAR_DRS_OBJECT_SEARCH });
+
+
+export const deleteDRSObject = networkAction((drsObject) => (dispatch, getState) => ({
     types: DELETE_DRS_OBJECT,
     params: { drsObject },
     url: `${getState().services.drsService.url}/objects/${drsObject.id}`,
