@@ -16,7 +16,7 @@ const ProjectTitleDisplay = ({ projectID, link }) => {
     if (!title) return (
         <span>
             <MonospaceText>{projectID}</MonospaceText>{" "}
-            <span style={{ color: "#f5222d" }}>(MISSING)</span>
+            <span style={{ color: "#f5222d" }}>(NOT AVAILABLE)</span>
         </span>
     );
 

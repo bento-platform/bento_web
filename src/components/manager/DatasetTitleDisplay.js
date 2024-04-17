@@ -16,7 +16,7 @@ const DatasetTitleDisplay = memo(({ datasetID, link }) => {
     if (!dataset) return (
         <span>
             <MonospaceText>{datasetID}</MonospaceText>{" "}
-            <span style={{ color: "#f5222d" }}>(MISSING)</span>
+            <span style={{ color: "#f5222d" }}>(NOT AVAILABLE)</span>
         </span>
     );
 
