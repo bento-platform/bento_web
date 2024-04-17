@@ -23,7 +23,7 @@ const DatasetTitleDisplay = memo(({ datasetID, link }) => {
     const { title } = dataset;
 
     if (!link) return title;
-    return <Link to={`/data/manager/projects/${dataset.project}#dataset-${datasetID}`}>{title}</Link>;
+    return <Link to={`/data/manager/projects/${dataset.project}#dataset-${dataset.identifier}`}>{title}</Link>;
 });
 DatasetTitleDisplay.propTypes = {
     datasetID: PropTypes.string,
