@@ -61,7 +61,7 @@ export const projects = (
                 items: action.data.toSorted(projectSort),
                 itemsByID: Object.fromEntries(action.data.map(p => [p.identifier, p])),
                 datasetsByID: Object.fromEntries(
-                    action.data.flatMap(p => p.datasets.map((d) => [d.identifier, { ...d, project: p.identifier }]))
+                    action.data.flatMap(p => p.datasets.map((d) => [d.identifier, { ...d, project: p.identifier }])),
                 ),
             };
 
