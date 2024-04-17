@@ -1,6 +1,16 @@
 import React, { Suspense, lazy, useEffect, useMemo } from "react";
 import { Navigate, Route, Routes } from "react-router-dom";
-import { viewDropBox, viewPermissions, RESOURCE_EVERYTHING, queryData, viewRuns } from "bento-auth-js";
+import {
+    viewDropBox,
+    viewPermissions,
+    RESOURCE_EVERYTHING,
+    queryData,
+    viewRuns,
+    ingestData,
+    analyzeData,
+    exportData,
+    ingestReferenceMaterial,
+} from "bento-auth-js";
 
 import { Menu, Skeleton } from "antd";
 
@@ -39,6 +49,9 @@ const DataManagerContent = () => {
     useFetchDropBoxContentsIfAllowed();
 
     const canViewDropBox = permissions.includes(viewDropBox);
+    const canIngest = permissions.includes(ingestData) || permissions.includes(ingestReferenceMaterial);
+    const canAnalyzeData = permissions.includes(analyzeData);
+    const canExportData = permissions.includes(exportData);
     const canQueryData = permissions.includes(queryData);
     const canViewRuns = permissions.includes(viewRuns);
     const canViewPermissions = permissions.includes(viewPermissions);
@@ -46,9 +59,24 @@ const DataManagerContent = () => {
     const menuItems = useMemo(() => [
         { url: "/data/manager/projects", style: { marginLeft: "4px" }, text: "Projects and Datasets" },
         { url: "/data/manager/files", text: "Drop Box", disabled: !canViewDropBox },
-        { url: "/data/manager/ingestion", text: "Ingestion" },
-        { url: "/data/manager/analysis", text: "Analysis" },
-        { url: "/data/manager/export", text: "Export" },
+        {
+            url: "/data/manager/ingestion",
+            text: "Ingestion",
+            // TODO: more advanced permissions for this (workflow-level checks)
+            disabled: !canIngest,
+        },
+        {
+            url: "/data/manager/analysis",
+            text: "Analysis",
+            // TODO: more advanced permissions for this (workflow-level checks)
+            disabled: !canAnalyzeData,
+        },
+        {
+            url: "/data/manager/export",
+            text: "Export",
+            // TODO: more advanced permissions for this (workflow-level checks)
+            disabled: !canExportData,
+        },
         {
             url: "/data/manager/runs",
             text: "Workflow Runs",
@@ -67,7 +95,7 @@ const DataManagerContent = () => {
             // TODO: check if we have any viewPermissions in any grant, not just on RESOURCE_EVERYTHING
             disabled: !canViewPermissions,
         },
-        { url: "/data/manager/genomes", text: "Reference Genomes" },
+        { url: "/data/manager/genomes", text: "Reference Genomes" },  // always at least viewable
     ], [canViewDropBox, canViewPermissions]);
 
     const selectedKeys = useMemo(() => matchingMenuKeys(menuItems), [menuItems, window.location.pathname]);
