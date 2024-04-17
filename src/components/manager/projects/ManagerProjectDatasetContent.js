@@ -5,10 +5,13 @@ import { useDispatch, useSelector } from "react-redux";
 import { Button, Empty, Layout, Menu, Result, Typography } from "antd";
 import { PlusOutlined } from "@ant-design/icons";
 
+import { createProject, RESOURCE_EVERYTHING } from "bento-auth-js";
+
 import ProjectCreationModal from "./ProjectCreationModal";
 import ProjectSkeleton from "./ProjectSkeleton";
 import RoutedProject from "./RoutedProject";
 
+import { useHasResourcePermissionWrapper } from "@/hooks";
 import { toggleProjectCreationModal as toggleProjectCreationModalAction } from "@/modules/manager/actions";
 import { LAYOUT_CONTENT_STYLE } from "@/styles/layoutContent";
 import { matchingMenuKeys, transformMenuItem } from "@/utils/menu";
@@ -29,6 +32,11 @@ const SIDEBAR_BUTTON_STYLE = { width: "100%" };
 
 const ManagerProjectDatasetContent = () => {
     const dispatch = useDispatch();
+
+    const {
+        hasPermission: canCreateProject,
+        fetchingPermission: fetchingCanCreateProject,
+    } = useHasResourcePermissionWrapper(RESOURCE_EVERYTHING, createProject);
 
     const { items } = useSelector(state => state.projects);
     const { isFetchingDependentData } = useSelector(state => state.user);
@@ -76,7 +84,7 @@ const ManagerProjectDatasetContent = () => {
     }
 
     return <>
-        <ProjectCreationModal />
+        {canCreateProject && (<ProjectCreationModal />)}
         <Layout>
             <Layout.Sider style={SIDEBAR_STYLE} width={256} breakpoint="lg" collapsedWidth={0}>
                 <div style={SIDEBAR_INNER_STYLE}>
@@ -90,8 +98,8 @@ const ManagerProjectDatasetContent = () => {
                         <Button type="primary"
                                 style={SIDEBAR_BUTTON_STYLE}
                                 onClick={toggleProjectCreationModal}
-                                loading={isFetchingDependentData}
-                                disabled={isFetchingDependentData}
+                                loading={fetchingCanCreateProject || isFetchingDependentData}
+                                disabled={!canCreateProject || isFetchingDependentData}
                                 icon={<PlusOutlined />}>
                             Create Project
                         </Button>
