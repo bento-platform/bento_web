@@ -9,14 +9,18 @@ import { throttle } from "lodash";
 import { Layout, Input, Table, Descriptions, Space, Button, Modal, Typography } from "antd";
 import { DeleteOutlined } from "@ant-design/icons";
 
+import { RESOURCE_EVERYTHING, deleteData, downloadData, queryData } from "bento-auth-js";
+
 import { EM_DASH } from "@/constants";
 import { LAYOUT_CONTENT_STYLE } from "@/styles/layoutContent";
 
 import BooleanYesNo from "@/components/common/BooleanYesNo";
 import DownloadButton from "@/components/common/DownloadButton";
 import MonospaceText from "@/components/common/MonospaceText";
+import { useResourcePermissionsWrapper } from "@/hooks";
 import { clearDRSObjectSearch, deleteDRSObject, performDRSObjectSearch } from "@/modules/drs/actions";
 import DatasetTitleDisplay from "../DatasetTitleDisplay";
+import ForbiddenContent from "../ForbiddenContent";
 import ProjectTitleDisplay from "../ProjectTitleDisplay";
 
 const TABLE_NESTED_DESCRIPTIONS_STYLE = {
@@ -117,7 +121,7 @@ const DRSObjectDeleteWarningParagraph = memo(({ plural }) => (
 ));
 DRSObjectDeleteWarningParagraph.propTypes = { plural: PropTypes.bool };
 
-const DRSObjectDeleteButton = ({ drsObject }) => {
+const DRSObjectDeleteButton = ({ drsObject, disabled }) => {
     const dispatch = useDispatch();
     const drsURL = useSelector((state) => state.services.drsService?.url);
 
@@ -133,49 +137,19 @@ const DRSObjectDeleteButton = ({ drsObject }) => {
     }, [dispatch, drsURL, drsObject]);
 
     return (
-        <Button size="small" danger={true} icon={<DeleteOutlined />} onClick={onClick}>Delete</Button>
+        <Button size="small" danger={true} icon={<DeleteOutlined />} onClick={onClick} disabled={disabled}>
+            Delete</Button>
     );
 };
 DRSObjectDeleteButton.propTypes = {
     drsObject: PROP_TYPES_DRS_OBJECT,
+    disabled: PropTypes.bool,
 };
 
 const SEARCH_CONTAINER_STYLE = {
     flex: 1,
     maxWidth: 800,
 };
-
-const DRS_COLUMNS = [
-    {
-        title: "URI",
-        dataIndex: "self_uri",
-        render: (selfUri) => <MonospaceText>{selfUri}</MonospaceText>,
-    },
-    {
-        title: "Name",
-        dataIndex: "name",
-    },
-    {
-        title: "Size",
-        dataIndex: "size",
-        render: (size) => filesize(size),
-    },
-    {
-        title: "Actions",
-        dataIndex: "",
-        key: "actions",
-        width: 208,
-        render: (record) => {
-            const url = record.access_methods[0]?.access_url?.url;
-            return (
-                <Space>
-                    <DownloadButton disabled={!url} uri={url} fileName={record.name} size="small" />
-                    <DRSObjectDeleteButton drsObject={record} />
-                </Space>
-            );
-        },
-    },
-];
 
 // noinspection JSUnusedGlobalSymbols
 const DRS_TABLE_EXPANDABLE = {
@@ -184,6 +158,24 @@ const DRS_TABLE_EXPANDABLE = {
 
 const ManagerDRSContent = () => {
     const dispatch = useDispatch();
+
+    // TODO: per-object permissions
+    //  For now, use whole-node permissions for DRS object viewer
+
+    // TODO: delete permissions:
+    //  - disable bulk button if any cannot be deleted
+    //  - map to resources and get back delete permissions for returned objects
+
+    const {
+        permissions,
+        isFetchingPermissions,
+        hasAttemptedPermissions,
+    } = useResourcePermissionsWrapper(RESOURCE_EVERYTHING);
+
+    const hasQueryPermission = permissions.includes(queryData);
+    const hasDownloadPermission = permissions.includes(downloadData);
+    const hasDeletePermission = permissions.includes(deleteData);
+
     const drsURL = useSelector((state) => state.services.drsService?.url);
     const { objectSearchResults, objectSearchIsFetching, objectSearchAttempted } = useSelector((state) => state.drs);
 
@@ -214,7 +206,7 @@ const ManagerDRSContent = () => {
 
             dispatch(performDRSObjectSearch(searchValue)).catch((err) => console.error(err));
         },
-        250,
+        300,
         { leading: true, trailing: true },
     ), [dispatch, drsURL, searchValue]);
 
@@ -257,6 +249,49 @@ const ManagerDRSContent = () => {
         [objectSearchAttempted],
     );
 
+    const columns = useMemo(() => [
+        {
+            title: "URI",
+            dataIndex: "self_uri",
+            render: (selfUri) => <MonospaceText>{selfUri}</MonospaceText>,
+        },
+        {
+            title: "Name",
+            dataIndex: "name",
+        },
+        {
+            title: "Size",
+            dataIndex: "size",
+            render: (size) => filesize(size),
+        },
+        {
+            title: "Actions",
+            dataIndex: "",
+            key: "actions",
+            width: 208,
+            render: (record) => {
+                const url = record.access_methods[0]?.access_url?.url;
+                return (
+                    <Space>
+                        <DownloadButton
+                            disabled={!hasDownloadPermission || !url}
+                            uri={url}
+                            fileName={record.name}
+                            size="small"
+                        />
+                        <DRSObjectDeleteButton drsObject={record} disabled={!hasDeletePermission} />
+                    </Space>
+                );
+            },
+        },
+    ], [hasDownloadPermission, hasDeletePermission]);
+
+    if (hasAttemptedPermissions && !hasQueryPermission) {
+        return (
+            <ForbiddenContent message="You do not have permission to view DRS objects." />
+        );
+    }
+
     return (
         <Layout>
             <Layout.Content style={LAYOUT_CONTENT_STYLE}>
@@ -264,7 +299,7 @@ const ManagerDRSContent = () => {
                     <div style={SEARCH_CONTAINER_STYLE}>
                         <Input.Search
                             placeholder="Search DRS objects by name."
-                            loading={objectSearchIsFetching || !drsURL}
+                            loading={isFetchingPermissions || objectSearchIsFetching || !drsURL}
                             disabled={!drsURL}
                             onChange={onSearch}
                             onSearch={onSearch}
@@ -281,9 +316,9 @@ const ManagerDRSContent = () => {
                 </div>
                 <Table
                     rowKey="id"
-                    columns={DRS_COLUMNS}
+                    columns={columns}
                     dataSource={objectSearchResults}
-                    loading={objectSearchIsFetching}
+                    loading={isFetchingPermissions || objectSearchIsFetching}
                     bordered={true}
                     size="middle"
                     expandable={DRS_TABLE_EXPANDABLE}
