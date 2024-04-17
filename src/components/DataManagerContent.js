@@ -1,7 +1,6 @@
 import React, { Suspense, lazy, useEffect, useMemo } from "react";
 import { Navigate, Route, Routes } from "react-router-dom";
-import { useSelector } from "react-redux";
-import { viewDropBox, viewPermissions, RESOURCE_EVERYTHING, useResourcePermissions, queryData } from "bento-auth-js";
+import { viewDropBox, viewPermissions, RESOURCE_EVERYTHING, queryData, viewRuns } from "bento-auth-js";
 
 import { Menu, Skeleton } from "antd";
 
@@ -10,6 +9,7 @@ import { matchingMenuKeys, transformMenuItem } from "@/utils/menu";
 
 import SitePageHeader from "./SitePageHeader";
 import { useFetchDropBoxContentsIfAllowed } from "./manager/hooks";
+import { useResourcePermissionsWrapper } from "@/hooks";
 
 const ManagerProjectDatasetContent = lazy(() => import("./manager/projects/ManagerProjectDatasetContent"));
 const ManagerAccessContent = lazy(() => import("./manager/access/ManagerAccessContent"));
@@ -35,13 +35,12 @@ const DataManagerContent = () => {
         document.title = `${SITE_NAME}: Admin / Data Manager`;
     }, []);
 
-    const authorizationService = useSelector((state) => state.services.itemsByKind.authorization);
-
-    const { permissions } = useResourcePermissions(RESOURCE_EVERYTHING, authorizationService?.url);
+    const { permissions } = useResourcePermissionsWrapper(RESOURCE_EVERYTHING);
     useFetchDropBoxContentsIfAllowed();
 
     const canViewDropBox = permissions.includes(viewDropBox);
     const canQueryData = permissions.includes(queryData);
+    const canViewRuns = permissions.includes(viewRuns);
     const canViewPermissions = permissions.includes(viewPermissions);
 
     const menuItems = useMemo(() => [
@@ -50,7 +49,12 @@ const DataManagerContent = () => {
         { url: "/data/manager/ingestion", text: "Ingestion" },
         { url: "/data/manager/analysis", text: "Analysis" },
         { url: "/data/manager/export", text: "Export" },
-        { url: "/data/manager/runs", text: "Workflow Runs" },
+        {
+            url: "/data/manager/runs",
+            text: "Workflow Runs",
+            // TODO: check if we have any viewRuns in any grant, not just on RESOURCE_EVERYTHING
+            disabled: !canViewRuns,
+        },
         {
             url: "/data/manager/drs",
             text: "DRS Objects",
