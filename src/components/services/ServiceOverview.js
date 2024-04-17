@@ -4,7 +4,7 @@ import { useSelector } from "react-redux";
 
 import { Col, Layout, Row, Skeleton, Typography } from "antd";
 
-import JsonView from "@/components/JsonView";
+import JsonView from "@/components/common/JsonView";
 import { LAYOUT_CONTENT_STYLE } from "@/styles/layoutContent";
 
 const TITLE_STYLE = { marginTop: 0 };

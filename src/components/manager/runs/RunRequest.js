@@ -3,7 +3,7 @@ import PropTypes from "prop-types";
 
 import { Descriptions, List, Tag } from "antd";
 
-import JsonView from "@/components/JsonView";
+import JsonView from "@/components/common/JsonView";
 import WorkflowListItem from "../WorkflowListItem";
 
 const RunRequest = ({run}) => {

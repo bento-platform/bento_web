@@ -39,7 +39,7 @@ import {
 import { LAYOUT_CONTENT_STYLE } from "@/styles/layoutContent";
 
 import ActionContainer from "./ActionContainer";
-import DownloadButton from "../DownloadButton";
+import DownloadButton from "../common/DownloadButton";
 import DropBoxTreeSelect from "./DropBoxTreeSelect";
 import FileModal from "../display/FileModal";
 import ForbiddenContent from "./ForbiddenContent";

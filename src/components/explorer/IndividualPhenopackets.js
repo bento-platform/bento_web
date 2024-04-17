@@ -6,8 +6,8 @@ import { Divider, Skeleton } from "antd";
 import { fetchIndividualPhenopacketsIfNecessary } from "@/modules/metadata/actions";
 import { individualPropTypesShape } from "@/propTypes";
 
-import DownloadButton from "@/components/DownloadButton";
-import JsonView from "@/components/JsonView";
+import DownloadButton from "@/components/common/DownloadButton";
+import JsonView from "@/components/common/JsonView";
 
 const IndividualPhenopackets = ({ individual }) => {
     const dispatch = useDispatch();

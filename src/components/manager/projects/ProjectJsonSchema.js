@@ -5,7 +5,7 @@ import PropTypes from "prop-types";
 import { Button, Card, Descriptions, Modal, Typography } from "antd";
 import { DeleteOutlined } from "@ant-design/icons";
 
-import JsonView from "@/components/JsonView";
+import JsonView from "@/components/common/JsonView";
 import { deleteProjectJsonSchema } from "@/modules/metadata/actions";
 import { projectJsonSchemaTypesShape } from "@/propTypes";
 

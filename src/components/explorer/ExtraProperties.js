@@ -2,7 +2,7 @@ import React from "react";
 import PropTypes from "prop-types";
 
 import { EM_DASH } from "@/constants";
-import JsonView from "@/components/JsonView";
+import JsonView from "@/components/common/JsonView";
 
 const ExtraProperties = ({extraProperties}) => {
     if (!extraProperties || !Object.keys(extraProperties).length) {

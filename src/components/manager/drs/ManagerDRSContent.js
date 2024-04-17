@@ -1,174 +1,334 @@
-import React, { useCallback, useMemo, useState } from "react";
-import { useSelector } from "react-redux";
+import React, { memo, useCallback, useEffect, useMemo, useState } from "react";
+import { useDispatch, useSelector } from "react-redux";
+import { useSearchParams } from "react-router-dom";
+import PropTypes from "prop-types";
+
 import { filesize } from "filesize";
 import { throttle } from "lodash";
-import { useAuthorizationHeader } from "bento-auth-js";
 
-import { Layout, Input, Table, Descriptions, message } from "antd";
+import { Layout, Input, Table, Descriptions, Space, Button, Modal, Typography } from "antd";
+import { DeleteOutlined } from "@ant-design/icons";
 
+import { RESOURCE_EVERYTHING, deleteData, downloadData, queryData } from "bento-auth-js";
+
+import { EM_DASH } from "@/constants";
 import { LAYOUT_CONTENT_STYLE } from "@/styles/layoutContent";
 
-import DownloadButton from "../../DownloadButton";
-import MonospaceText from "@/components/MonospaceText";
-
-const SEARCH_CONTAINER_STYLE = {
-    maxWidth: 800,
-    marginBottom: "1rem",
-};
+import BooleanYesNo from "@/components/common/BooleanYesNo";
+import DownloadButton from "@/components/common/DownloadButton";
+import MonospaceText from "@/components/common/MonospaceText";
+import { useResourcePermissionsWrapper } from "@/hooks";
+import { clearDRSObjectSearch, deleteDRSObject, performDRSObjectSearch } from "@/modules/drs/actions";
+import DatasetTitleDisplay from "../DatasetTitleDisplay";
+import ForbiddenContent from "../ForbiddenContent";
+import ProjectTitleDisplay from "../ProjectTitleDisplay";
 
 const TABLE_NESTED_DESCRIPTIONS_STYLE = {
     backgroundColor: "white",
     borderRadius: 3,
+    maxWidth: 1400,
 };
 
-const DRS_COLUMNS = [
-    {
-        title: "URI",
-        dataIndex: "self_uri",
-        key: "self_uri",
-    },
-    {
-        title: "Name",
-        dataIndex: "name",
-        key: "name",
-    },
-    {
-        title: "Size",
-        dataIndex: "size",
-        key: "size",
-        render: (size) => filesize(size),
-    },
-    {
-        title: "Actions",
-        dataIndex: "",
-        key: "actions",
-        render: (record) => {
-            const url = record.access_methods[0]?.access_url?.url;
-            return <DownloadButton disabled={!url} uri={url} fileName={record.name} size="small" />;
-        },
-    },
-];
+const PROP_TYPES_DRS_OBJECT = PropTypes.shape({
+    id: PropTypes.string,
+    name: PropTypes.string,
+    description: PropTypes.string,
+    size: PropTypes.number,
+    checksums: PropTypes.arrayOf(PropTypes.shape({
+        type: PropTypes.string.isRequired,
+        checksum: PropTypes.string.isRequired,
+    })),
+    access_methods: PropTypes.arrayOf(PropTypes.shape({
+        type: PropTypes.string.isRequired,
+        access_url: PropTypes.shape({ url: PropTypes.string }),
+    })),
+    bento: PropTypes.shape({
+        project_id: PropTypes.string,
+        dataset_id: PropTypes.string,
+        data_type: PropTypes.string,
+        public: PropTypes.bool,
+    }),
+});
+
+const DRSObjectDetail = ({ drsObject }) => {
+    const { id, description, checksums, access_methods: accessMethods, size, bento } = drsObject;
+    return (
+        <div style={TABLE_NESTED_DESCRIPTIONS_STYLE} className="table-nested-ant-descriptions">
+            <Descriptions bordered={true}>
+                <Descriptions.Item label="ID" span={2}>
+                    <MonospaceText>{id}</MonospaceText>
+                </Descriptions.Item>
+                <Descriptions.Item label="Size" span={1}>
+                    {filesize(size)}
+                </Descriptions.Item>
+                {description && (
+                    <Descriptions.Item label="Description" span={3}>
+                        {description}
+                    </Descriptions.Item>
+                )}
+                <Descriptions.Item label="Checksums" span={3}>
+                    {checksums.map(({ type, checksum }) => (
+                        <div
+                            key={type}
+                            style={{ display: "flex", gap: "0.8em", alignItems: "baseline" }}
+                        >
+                            <span style={{ fontWeight: "bold" }}>{type.toLocaleUpperCase()}:</span>
+                            <MonospaceText>{checksum}</MonospaceText>
+                        </div>
+                    ))}
+                </Descriptions.Item>
+                <Descriptions.Item label="Access Methods" span={2}>
+                    {accessMethods.map(({ type, access_url: url }, i) => (
+                        <div key={i} style={{ display: "flex", gap: "0.8em", alignItems: "baseline" }}>
+                            <span style={{ fontWeight: "bold" }}>{type.toLocaleUpperCase()}:</span>
+                            <MonospaceText>
+                                {["http", "https"].includes(type) ? (  // "http" for back-compat
+                                    <a href={url?.url} target="_blank" rel="noreferrer">
+                                        {url?.url}
+                                    </a>
+                                ) : (
+                                    url?.url
+                                )}
+                            </MonospaceText>
+                        </div>
+                    ))}
+                </Descriptions.Item>
+                <Descriptions.Item label="Public" span={1}>
+                    <BooleanYesNo value={bento?.public} />
+                </Descriptions.Item>
+                <Descriptions.Item label="Project" span={1}>
+                    <ProjectTitleDisplay projectID={bento?.project_id} link={true} />
+                </Descriptions.Item>
+                <Descriptions.Item label="Dataset" span={1}>
+                    <DatasetTitleDisplay datasetID={bento?.dataset_id} link={true} />
+                </Descriptions.Item>
+                <Descriptions.Item label="Data Type" span={1}>
+                    {bento?.data_type ?? EM_DASH}
+                </Descriptions.Item>
+            </Descriptions>
+        </div>
+    );
+};
+DRSObjectDetail.propTypes = {
+    drsObject: PROP_TYPES_DRS_OBJECT,
+};
+
+const DRSObjectDeleteWarningParagraph = memo(({ plural }) => (
+    <Typography.Paragraph>
+        Be careful that there are no extant references to {plural ? "these objects" : "this object"} anywhere in the
+        instance. If there are, triggering this will result in broken links and possibly broken functionality!
+    </Typography.Paragraph>
+));
+DRSObjectDeleteWarningParagraph.propTypes = { plural: PropTypes.bool };
+
+const DRSObjectDeleteButton = ({ drsObject, disabled }) => {
+    const dispatch = useDispatch();
+    const drsURL = useSelector((state) => state.services.drsService?.url);
+
+    const onClick = useCallback(() => {
+        Modal.confirm({
+            title: <>Are you sure you wish to delete DRS object &ldquo;{drsObject.name}&rdquo;?</>,
+            content: <DRSObjectDeleteWarningParagraph plural={false} />,
+            onOk() {
+                return dispatch(deleteDRSObject(drsObject)).catch((err) => console.error(err));
+            },
+            maskClosable: true,
+        });
+    }, [dispatch, drsURL, drsObject]);
+
+    return (
+        <Button size="small" danger={true} icon={<DeleteOutlined />} onClick={onClick} disabled={disabled}>
+            Delete</Button>
+    );
+};
+DRSObjectDeleteButton.propTypes = {
+    drsObject: PROP_TYPES_DRS_OBJECT,
+    disabled: PropTypes.bool,
+};
+
+const SEARCH_CONTAINER_STYLE = {
+    flex: 1,
+    maxWidth: 800,
+};
+
+// noinspection JSUnusedGlobalSymbols
+const DRS_TABLE_EXPANDABLE = {
+    expandedRowRender: (drsObject) => <DRSObjectDetail drsObject={drsObject} />,
+};
 
 const ManagerDRSContent = () => {
-    const drsUrl = useSelector((state) => state.services.drsService?.url);
+    const dispatch = useDispatch();
 
-    const authHeader = useAuthorizationHeader();
+    // TODO: per-object permissions
+    //  For now, use whole-node permissions for DRS object viewer
 
-    const [searchResults, setSearchResults] = useState([]);
-    const [doneSearch, setDoneSearch] = useState(false);
-    const [loading, setLoading] = useState(false);
+    // TODO: delete permissions:
+    //  - disable bulk button if any cannot be deleted
+    //  - map to resources and get back delete permissions for returned objects
 
-    const onSearch = useCallback(
-        throttle(
-            (v) => {
-                if (!drsUrl) return;
+    const {
+        permissions,
+        isFetchingPermissions,
+        hasAttemptedPermissions,
+    } = useResourcePermissionsWrapper(RESOURCE_EVERYTHING);
 
-                // Extract value from either the native HTML event or the AntDesign event
-                const sv = (v.target?.value ?? v ?? "").trim();
-                if (!sv) {
-                    setDoneSearch(false); // Behave as if we have never searched before
-                    setSearchResults([]);
-                    return;
-                }
+    const hasQueryPermission = permissions.includes(queryData);
+    const hasDownloadPermission = permissions.includes(downloadData);
+    const hasDeletePermission = permissions.includes(deleteData);
 
-                setLoading(true);
+    const drsURL = useSelector((state) => state.services.drsService?.url);
+    const { objectSearchResults, objectSearchIsFetching, objectSearchAttempted } = useSelector((state) => state.drs);
 
-                fetch(`${drsUrl}/search?` + new URLSearchParams({ q: sv }), { method: "GET", headers: authHeader })
-                    .then((r) => Promise.all([Promise.resolve(r.ok), r.json()]))
-                    .then(([ok, data]) => {
-                        if (ok) {
-                            console.debug("received DRS objects:", data);
-                            setSearchResults(data);
-                        } else {
-                            message.error(`Encountered error while fetching DRS objects: ${data.message}`);
-                            console.error(data);
+    const objectsByID = useMemo(
+        () => Object.fromEntries(objectSearchResults.map((o) => [o.id, o])),
+        [objectSearchResults]);
+
+    const [searchParams, setSearchParams] = useSearchParams();
+    const { q: initialSearchQuery } = searchParams;
+    const [searchValue, setSearchValue] = useState(initialSearchQuery ?? "");
+    const [selectedRowKeys, setSelectedRowKeys] = useState([]);
+
+    const onSearch = useCallback((e) => {
+        const q = (e.target?.value ?? e ?? "").trim();
+        setSearchValue(q);
+        setSearchParams({ q });
+    }, []);
+
+    const performSearch = useMemo(() => throttle(
+        () => {
+            if (!drsURL) return;
+
+            if (!searchValue) {
+                // Behave as if we have never searched before
+                dispatch(clearDRSObjectSearch());
+                return;
+            }
+
+            dispatch(performDRSObjectSearch(searchValue)).catch((err) => console.error(err));
+        },
+        300,
+        { leading: true, trailing: true },
+    ), [dispatch, drsURL, searchValue]);
+
+    useEffect(() => {
+        performSearch();
+    }, [searchValue]);
+
+    useEffect(() => {
+        setSelectedRowKeys(selectedRowKeys.filter((k) => k in objectsByID));
+    }, [objectsByID]);
+
+    const onDeleteSelected = useCallback(() => {
+        Modal.confirm({
+            title: <>
+                Are you sure you want to delete {selectedRowKeys.length} DRS
+                object{selectedRowKeys.length === 1 ? "" : "s"}?
+            </>,
+            content: <DRSObjectDeleteWarningParagraph plural={selectedRowKeys.length !== 1} />,
+            onOk() {
+                return (async () => {
+                    for (const k of selectedRowKeys) {
+                        if (!(k in objectsByID)) {
+                            console.warn("Missing DRS object record in search results for ID:", k);
+                            continue;
                         }
-                        setLoading(false);
-                        setDoneSearch(true);
-                    })
-                    .catch((e) => {
-                        message.error(`Encountered error while fetching DRS objects: ${e}`);
-                        console.error(e);
-                    });
+
+                        console.info("Deleting DRS object:", k);
+                        await dispatch(deleteDRSObject(objectsByID[k]));
+                    }
+                })();
             },
-            250,
-            { leading: true, trailing: true },
-        ),
-        [drsUrl, authHeader],
-    );
+            maskClosable: true,
+        });
+    }, [dispatch, selectedRowKeys, objectsByID]);
 
     const tableLocale = useMemo(
         () => ({
-            emptyText: doneSearch ? "No matching objects" : "Search to see matching objects",
+            emptyText: objectSearchAttempted ? "No matching objects" : "Search to see matching objects",
         }),
-        [doneSearch],
+        [objectSearchAttempted],
     );
+
+    const columns = useMemo(() => [
+        {
+            title: "URI",
+            dataIndex: "self_uri",
+            render: (selfUri) => <MonospaceText>{selfUri}</MonospaceText>,
+        },
+        {
+            title: "Name",
+            dataIndex: "name",
+        },
+        {
+            title: "Size",
+            dataIndex: "size",
+            render: (size) => filesize(size),
+        },
+        {
+            title: "Actions",
+            dataIndex: "",
+            key: "actions",
+            width: 208,
+            render: (record) => {
+                const url = record.access_methods[0]?.access_url?.url;
+                return (
+                    <Space>
+                        <DownloadButton
+                            disabled={!hasDownloadPermission || !url}
+                            uri={url}
+                            fileName={record.name}
+                            size="small"
+                        />
+                        <DRSObjectDeleteButton drsObject={record} disabled={!hasDeletePermission} />
+                    </Space>
+                );
+            },
+        },
+    ], [hasDownloadPermission, hasDeletePermission]);
+
+    if (hasAttemptedPermissions && !hasQueryPermission) {
+        return (
+            <ForbiddenContent message="You do not have permission to view DRS objects." />
+        );
+    }
 
     return (
         <Layout>
             <Layout.Content style={LAYOUT_CONTENT_STYLE}>
-                <div style={SEARCH_CONTAINER_STYLE}>
-                    <Input.Search
-                        placeholder="Search DRS objects by name."
-                        loading={loading || !drsUrl}
-                        disabled={!drsUrl}
-                        onChange={onSearch}
-                        onSearch={onSearch}
-                        size="large"
-                    />
+                <div style={{ marginBottom: "1rem", display: "flex", gap: 16 }}>
+                    <div style={SEARCH_CONTAINER_STYLE}>
+                        <Input.Search
+                            placeholder="Search DRS objects by name."
+                            loading={isFetchingPermissions || objectSearchIsFetching || !drsURL}
+                            disabled={!drsURL}
+                            onChange={onSearch}
+                            onSearch={onSearch}
+                            value={searchValue}
+                            // size="large"
+                        />
+                    </div>
+                    <Button
+                        icon={<DeleteOutlined />}
+                        danger={true}
+                        onClick={onDeleteSelected}
+                        disabled={selectedRowKeys.length === 0}
+                    >Delete Selected</Button>
                 </div>
                 <Table
                     rowKey="id"
-                    columns={DRS_COLUMNS}
-                    dataSource={searchResults}
-                    loading={loading}
+                    columns={columns}
+                    dataSource={objectSearchResults}
+                    loading={isFetchingPermissions || objectSearchIsFetching}
                     bordered={true}
                     size="middle"
-                    expandedRowRender={({ id, description, checksums, access_methods: accessMethods, size }) => (
-                        <div style={TABLE_NESTED_DESCRIPTIONS_STYLE} className="table-nested-ant-descriptions">
-                            <Descriptions bordered={true}>
-                                <Descriptions.Item label="ID" span={2}>
-                                    <MonospaceText>{id}</MonospaceText>
-                                </Descriptions.Item>
-                                <Descriptions.Item label="Size" span={1}>
-                                    {filesize(size)}
-                                </Descriptions.Item>
-                                <Descriptions.Item label="Checksums" span={3}>
-                                    {checksums.map(({ type, checksum }) => (
-                                        <div
-                                            key={type}
-                                            style={{ display: "flex", gap: "0.8em", alignItems: "baseline" }}
-                                        >
-                                            <span style={{ fontWeight: "bold" }}>{type.toLocaleUpperCase()}:</span>
-                                            <MonospaceText>{checksum}</MonospaceText>
-                                        </div>
-                                    ))}
-                                </Descriptions.Item>
-                                <Descriptions.Item label="Access Methods" span={3}>
-                                    {accessMethods.map(({ type, access_url: url }, i) => (
-                                        <div key={i} style={{ display: "flex", gap: "0.8em", alignItems: "baseline" }}>
-                                            <span style={{ fontWeight: "bold" }}>{type.toLocaleUpperCase()}:</span>
-                                            <MonospaceText>
-                                                {["http", "https"].includes(type) ? (  // "http" for back-compat
-                                                    <a href={url?.url} target="_blank" rel="noreferrer">
-                                                        {url?.url}
-                                                    </a>
-                                                ) : (
-                                                    url?.url
-                                                )}
-                                            </MonospaceText>
-                                        </div>
-                                    ))}
-                                </Descriptions.Item>
-                                {description && (
-                                    <Descriptions.Item label="Description" span={3}>
-                                        {description}
-                                    </Descriptions.Item>
-                                )}
-                            </Descriptions>
-                        </div>
-                    )}
+                    expandable={DRS_TABLE_EXPANDABLE}
                     locale={tableLocale}
+                    rowSelection={{
+                        type: "checkbox",
+                        getCheckboxProps: (record) => ({ name: record.id }),
+                        selectedRowKeys,
+                        onChange: (keys) => setSelectedRowKeys(keys),
+                    }}
                 />
             </Layout.Content>
         </Layout>

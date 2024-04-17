@@ -245,7 +245,7 @@ class Dataset extends Component {
         return (
             <Card
                 key={identifier}
-                title={<span>{title} <span style={{
+                title={<span id={`dataset-${identifier}`}>{title} <span style={{
                     fontStyle: "italic",
                     fontWeight: "normal",
                     fontSize: "0.8em",

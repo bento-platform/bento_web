@@ -12,7 +12,7 @@ import RunOutputs from "./RunOutputs";
 import { renderDate, RUN_STATE_TAG_COLORS } from "./utils";
 import { runPropTypesShape } from "@/propTypes";
 import { nop } from "@/utils/misc";
-import MonospaceText from "@/components/MonospaceText";
+import MonospaceText from "@/components/common/MonospaceText";
 
 
 const TABS = {

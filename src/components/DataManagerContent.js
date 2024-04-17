@@ -1,7 +1,7 @@
 import React, { Suspense, lazy, useEffect, useMemo } from "react";
 import { Navigate, Route, Routes } from "react-router-dom";
 import { useSelector } from "react-redux";
-import { viewDropBox, viewPermissions, RESOURCE_EVERYTHING, useResourcePermissions } from "bento-auth-js";
+import { viewDropBox, viewPermissions, RESOURCE_EVERYTHING, useResourcePermissions, queryData } from "bento-auth-js";
 
 import { Menu, Skeleton } from "antd";
 
@@ -41,6 +41,7 @@ const DataManagerContent = () => {
     useFetchDropBoxContentsIfAllowed();
 
     const canViewDropBox = permissions.includes(viewDropBox);
+    const canQueryData = permissions.includes(queryData);
     const canViewPermissions = permissions.includes(viewPermissions);
 
     const menuItems = useMemo(() => [
@@ -50,7 +51,12 @@ const DataManagerContent = () => {
         { url: "/data/manager/analysis", text: "Analysis" },
         { url: "/data/manager/export", text: "Export" },
         { url: "/data/manager/runs", text: "Workflow Runs" },
-        { url: "/data/manager/drs", text: "DRS Objects" },
+        {
+            url: "/data/manager/drs",
+            text: "DRS Objects",
+            // TODO: allow always, when we have object-level permissions on the front end for DRS.
+            disabled: !canQueryData,
+        },
         {
             url: "/data/manager/access",
             text: "Access Management",

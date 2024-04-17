@@ -3,7 +3,7 @@ import React from "react";
 import { Button, Popover, Typography } from "antd";
 import { QuestionCircleOutlined } from "@ant-design/icons";
 
-import MonospaceText from "@/components/MonospaceText";
+import MonospaceText from "@/components/common/MonospaceText";
 
 
 export const ROOT_SCHEMA_ID = "[dataset item]";
