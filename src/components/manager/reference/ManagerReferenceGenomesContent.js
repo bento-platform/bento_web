@@ -4,16 +4,22 @@ import { useDispatch } from "react-redux";
 import { Button, Dropdown, Layout, Modal, Table } from "antd";
 import { DeleteOutlined, ImportOutlined } from "@ant-design/icons";
 
-import { useReferenceGenomes } from "../../../modules/reference/hooks";
-import { LAYOUT_CONTENT_STYLE } from "../../../styles/layoutContent";
-import { useWorkflows } from "../../../hooks";
+import { useResourcePermissionsWrapper, useWorkflows } from "@/hooks";
+import { deleteReferenceGenomeIfPossible } from "@/modules/reference/actions";
+import { useReferenceGenomes } from "@/modules/reference/hooks";
+import { LAYOUT_CONTENT_STYLE } from "@/styles/layoutContent";
 import { useStartIngestionFlow } from "../workflowCommon";
-import { deleteReferenceGenomeIfPossible } from "../../../modules/reference/actions";
+import { deleteReferenceMaterial, ingestReferenceMaterial, RESOURCE_EVERYTHING } from "bento-auth-js";
 
 const DEFAULT_REF_INGEST_WORKFLOW_ID = "fasta_ref";
 
 const ManagerReferenceGenomesContent = () => {
     const dispatch = useDispatch();
+
+    const { permissions, isFetchingPermissions } = useResourcePermissionsWrapper(RESOURCE_EVERYTHING);
+
+    const canIngestReference = permissions.includes(ingestReferenceMaterial);
+    const canDeleteReference = permissions.includes(deleteReferenceMaterial);
 
     const { items: genomes, isFetching: isFetchingGenomes, isDeletingIDs } = useReferenceGenomes();
 
@@ -74,49 +80,53 @@ const ManagerReferenceGenomesContent = () => {
                 </div>
             ),
         },
-        {
-            title: "Actions",
-            key: "actions",
-            render: (genome) => (
-                <Button
-                    danger={true}
-                    icon={<DeleteOutlined />}
-                    loading={isDeletingIDs[genome.id]}
-                    disabled={isFetchingGenomes || isDeletingIDs[genome.id]}
-                    onClick={() => {
-                        Modal.confirm({
-                            title: `Are you sure you want to delete genome "${genome.id}"?`,
-                            maskClosable: true,
-                            okText: "Delete",
-                            okType: "danger",
-                            // Return a promise that'll be fulfilled when the delete request goes through:
-                            onOk: () => dispatch(deleteReferenceGenomeIfPossible(genome.id)),
-                        });
-                    }}>Delete</Button>
-            ),
-        },
-    ], [dispatch, isFetchingGenomes, isDeletingIDs]);
+        ...(canDeleteReference ? [
+            {
+                title: "Actions",
+                key: "actions",
+                render: (genome) => (
+                    <Button
+                        danger={true}
+                        icon={<DeleteOutlined />}
+                        loading={isDeletingIDs[genome.id]}
+                        disabled={isFetchingGenomes || isDeletingIDs[genome.id]}
+                        onClick={() => {
+                            Modal.confirm({
+                                title: `Are you sure you want to delete genome "${genome.id}"?`,
+                                maskClosable: true,
+                                okText: "Delete",
+                                okType: "danger",
+                                // Return a promise that'll be fulfilled when the delete request goes through:
+                                onOk: () => dispatch(deleteReferenceGenomeIfPossible(genome.id)),
+                            });
+                        }}>Delete</Button>
+                ),
+            },
+        ] : []),
+    ], [dispatch, isFetchingGenomes, isDeletingIDs, canDeleteReference]);
 
     return (
         <Layout>
             <Layout.Content style={LAYOUT_CONTENT_STYLE}>
-                <Dropdown.Button
-                    menu={ingestMenu}
-                    onClick={onWorkflowButtonClick}
-                    disabled={!defaultIngestionWorkflow}
-                    style={{ marginBottom: "1rem" }}
-                >
-                    <ImportOutlined />{" "}
-                    {defaultIngestionWorkflow?.name
-                        ?? (workflowsLoading ? "Loading..." : "No ingestion workflows available")}
-                </Dropdown.Button>
+                {canIngestReference && (
+                    <Dropdown.Button
+                        menu={ingestMenu}
+                        onClick={onWorkflowButtonClick}
+                        disabled={!defaultIngestionWorkflow}
+                        style={{ marginBottom: "1rem" }}
+                    >
+                        <ImportOutlined />{" "}
+                        {defaultIngestionWorkflow?.name
+                            ?? (workflowsLoading ? "Loading..." : "No ingestion workflows available")}
+                    </Dropdown.Button>
+                )}
                 <Table
                     columns={columns}
                     dataSource={genomes}
                     size="middle"
                     bordered={true}
                     pagination={false}
-                    loading={isFetchingGenomes}
+                    loading={isFetchingPermissions || isFetchingGenomes}
                     rowKey="id"
                 />
             </Layout.Content>
