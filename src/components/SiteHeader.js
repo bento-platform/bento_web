@@ -1,7 +1,13 @@
 import React, { useMemo, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { Link } from "react-router-dom";
-import { performAuth, useIsAuthenticated, usePerformSignOut } from "bento-auth-js";
+import {
+    performAuth,
+    RESOURCE_EVERYTHING,
+    viewNotifications,
+    useIsAuthenticated,
+    usePerformSignOut,
+} from "bento-auth-js";
 
 import { Badge, Layout, Menu } from "antd";
 import {
@@ -17,7 +23,9 @@ import {
 } from "@ant-design/icons";
 
 import { AUTH_CALLBACK_URL, BENTO_CBIOPORTAL_ENABLED, CLIENT_ID, CUSTOM_HEADER } from "@/config";
+import { useResourcePermissionsWrapper } from "@/hooks";
 import { showNotificationDrawer } from "@/modules/notifications/actions";
+import { useNotifications } from "@/modules/notifications/hooks";
 import { matchingMenuKeys, transformMenuItem } from "@/utils/menu";
 
 import OverviewSettingsControl from "./overview/OverviewSettingsControl";
@@ -41,11 +49,14 @@ const CustomHeaderText = React.memo(() => (
 const SiteHeader = () => {
     const dispatch = useDispatch();
 
+    const { permissions, isFetchingPermissions } = useResourcePermissionsWrapper(RESOURCE_EVERYTHING);
+    const canViewNotifications = permissions.includes(viewNotifications);
+
     const { data: openIdConfig, isFetching: openIdConfigFetching } = useSelector((state) => state.openIdConfiguration);
     const authzEndpoint = openIdConfig?.["authorization_endpoint"];
 
-    const notifications = useSelector((state) => state.notifications.items);
-    const unreadNotifications = useMemo(() => notifications.filter((n) => !n.read), [notifications]);
+    const { unreadItems: unreadNotifications } = useNotifications();
+
     const {
         idTokenContents,
         isHandingOffCodeForToken,
@@ -110,7 +121,7 @@ const SiteHeader = () => {
                 key: "settings",
             },
             {
-                disabled: !isAuthenticated,
+                disabled: isFetchingPermissions || !canViewNotifications || !isAuthenticated,
                 icon: (
                     <Badge dot count={unreadNotifications.length}>
                         <BellOutlined style={{ marginRight: 0, color: "rgba(255, 255, 255, 0.65)" }} />

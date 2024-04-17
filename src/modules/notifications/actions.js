@@ -1,4 +1,4 @@
-import {basicAction, createNetworkActionTypes, networkAction} from "../../utils/actions";
+import { basicAction, createNetworkActionTypes, networkAction } from "@/utils/actions";
 
 export const SHOW_NOTIFICATION_DRAWER = "SHOW_NOTIFICATION_DRAWER";
 export const HIDE_NOTIFICATION_DRAWER = "HIDE_NOTIFICATION_DRAWER";
@@ -14,11 +14,18 @@ export const addNotification = data => ({
 });
 
 export const FETCH_NOTIFICATIONS = createNetworkActionTypes("FETCH_NOTIFICATIONS");
-export const fetchNotifications = networkAction(() => (dispatch, getState) => ({
+const fetchNotifications = networkAction(() => (dispatch, getState) => ({
     types: FETCH_NOTIFICATIONS,
     url: `${getState().services.notificationService.url}/notifications`,
     err: "Error fetching notifications",
 }));
+
+export const fetchNotificationsIfPossible = () => (dispatch, getState) => {
+    if (!getState().services.notificationService || getState().notifications.isFetching) {
+        return Promise.resolve();
+    }
+    return dispatch(fetchNotifications());
+};
 
 export const MARK_NOTIFICATION_AS_READ = createNetworkActionTypes("MARK_NOTIFICATION_AS_READ");
 export const markNotificationAsRead = networkAction(notificationID => (dispatch, getState) => ({

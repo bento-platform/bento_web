@@ -1,12 +1,11 @@
-import { beginFlow, createFlowActionTypes, endFlow } from "../../utils/actions";
-import { fetchDropBoxTreeOrFail } from "../manager/actions";
-import { fetchRuns } from "../wes/actions";
-import { fetchNotifications } from "../notifications/actions";
-import { fetchExtraPropertiesSchemaTypes, fetchOverviewSummary, fetchProjectsWithDatasets } from "../metadata/actions";
-import { performGetGohanVariantsOverviewIfPossible } from "../explorer/actions";
-import { fetchServicesWithMetadataAndDataTypesIfNeeded } from "../services/actions";
-import { nop } from "../../utils/misc";
+import { beginFlow, createFlowActionTypes, endFlow } from "@/utils/actions";
+import { nop } from "@/utils/misc";
 import { fetchDatasetsDataTypes } from "../datasets/actions";
+import { performGetGohanVariantsOverviewIfPossible } from "../explorer/actions";
+import { fetchDropBoxTreeOrFail } from "../manager/actions";
+import { fetchExtraPropertiesSchemaTypes, fetchOverviewSummary, fetchProjectsWithDatasets } from "../metadata/actions";
+import { fetchServicesWithMetadataAndDataTypesIfNeeded } from "../services/actions";
+import { fetchRuns } from "../wes/actions";
 
 export const FETCHING_USER_DEPENDENT_DATA = createFlowActionTypes("FETCHING_USER_DEPENDENT_DATA");
 
@@ -15,7 +14,6 @@ export const fetchServiceDependentData = () => (dispatch) =>
         [
             fetchDropBoxTreeOrFail,
             fetchRuns,
-            fetchNotifications,
             fetchOverviewSummary,
             performGetGohanVariantsOverviewIfPossible,
             fetchExtraPropertiesSchemaTypes,
