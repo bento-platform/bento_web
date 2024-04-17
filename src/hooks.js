@@ -63,7 +63,7 @@ export const useWorkflows = () => {
 export const useHasResourcePermissionWrapper = (resource, permission) => {
     const authzUrl = useSelector((state) => state.services.itemsByKind?.authorization?.url);
 
-    const {isFetching: fetchingPermission, hasPermission} = useHasResourcePermission(resource, authzUrl, permission);
+    const { isFetching: fetchingPermission, hasPermission } = useHasResourcePermission(resource, authzUrl, permission);
 
     return {
         fetchingPermission,

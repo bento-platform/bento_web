@@ -15,6 +15,9 @@ import { useResourcePermissionsWrapper } from "@/hooks";
 const ManagerRunsContent = () => {
     const { permissions, hasAttemptedPermissions } = useResourcePermissionsWrapper(RESOURCE_EVERYTHING);
 
+    // TODO: each workflow should have definitions for permissions scopes, so we can instead check if we can run at
+    //  least one workflow.
+
     if (hasAttemptedPermissions && !permissions.includes(viewRuns)) {
         return (
             <ForbiddenContent message="You do not have permission to view workflow runs." />
