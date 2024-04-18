@@ -12,6 +12,7 @@ import ProjectSkeleton from "./ProjectSkeleton";
 import RoutedProject from "./RoutedProject";
 
 import { useHasResourcePermissionWrapper } from "@/hooks";
+import { useProjects } from "@/modules/metadata/hooks";
 import { toggleProjectCreationModal as toggleProjectCreationModalAction } from "@/modules/manager/actions";
 import { LAYOUT_CONTENT_STYLE } from "@/styles/layoutContent";
 import { matchingMenuKeys, transformMenuItem } from "@/utils/menu";
@@ -38,7 +39,7 @@ const ManagerProjectDatasetContent = () => {
         fetchingPermission: fetchingCanCreateProject,
     } = useHasResourcePermissionWrapper(RESOURCE_EVERYTHING, createProject);
 
-    const { items } = useSelector(state => state.projects);
+    const { items } = useProjects();
     const { isFetchingDependentData } = useSelector(state => state.user);
     const { metadataService, isFetchingAll: isFetchingAllServices} = useSelector(state => state.services);
 
