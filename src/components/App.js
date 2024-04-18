@@ -232,7 +232,7 @@ const App = () => {
                             <Route path="/overview" element={<RequireAuth><OverviewContent /></RequireAuth>} />
                             <Route path="/data/explorer/*"
                                    element={<RequireAuth><DataExplorerContent /></RequireAuth>} />
-                            <Route path="/genomes" element={<ReferenceGenomesContent />} />
+                            <Route path="/genomes" element={<RequireAuth><ReferenceGenomesContent /></RequireAuth>} />
                             <Route path="/cbioportal" element={<RequireAuth><CBioPortalContent /></RequireAuth>} />
                             <Route path="/services/:kind/*"
                                    element={<RequireAuth><ServiceDetail /></RequireAuth>} />
