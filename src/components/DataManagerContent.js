@@ -29,7 +29,6 @@ const ManagerAnalysisContent = lazy(() => import("./manager/ManagerAnalysisConte
 const ManagerExportContent = lazy(() => import("./manager/ManagerExportContent"));
 const ManagerRunsContent = lazy(() => import("./manager/runs/ManagerRunsContent"));
 const ManagerDRSContent = lazy(() => import("./manager/drs/ManagerDRSContent"));
-const ManagerReferenceGenomesContent = lazy(() => import("./manager/reference/ManagerReferenceGenomesContent"));
 
 const styles = {
     menu: {
@@ -95,7 +94,6 @@ const DataManagerContent = () => {
             // TODO: check if we have any viewPermissions in any grant, not just on RESOURCE_EVERYTHING
             disabled: !canViewPermissions,
         },
-        { url: "/data/manager/genomes", text: "Reference Genomes" },  // always at least viewable
     ], [canViewDropBox, canViewPermissions]);
 
     const selectedKeys = useMemo(() => matchingMenuKeys(menuItems), [menuItems, window.location.pathname]);
@@ -123,7 +121,6 @@ const DataManagerContent = () => {
                     <Route path="analysis" element={<ManagerAnalysisContent />} />
                     <Route path="export" element={<ManagerExportContent />} />
                     <Route path="drs" element={<ManagerDRSContent />} />
-                    <Route path="genomes" element={<ManagerReferenceGenomesContent />} />
                     <Route path="runs/*" element={<ManagerRunsContent />} />
                     <Route path="*" element={<Navigate to="projects" replace={true} />} />
                 </Routes>

@@ -4,16 +4,18 @@ import { useDispatch } from "react-redux";
 import { Button, Dropdown, Layout, Modal, Table } from "antd";
 import { DeleteOutlined, ImportOutlined } from "@ant-design/icons";
 
+import { deleteReferenceMaterial, ingestReferenceMaterial, RESOURCE_EVERYTHING } from "bento-auth-js";
+
 import { useResourcePermissionsWrapper, useWorkflows } from "@/hooks";
 import { deleteReferenceGenomeIfPossible } from "@/modules/reference/actions";
 import { useReferenceGenomes } from "@/modules/reference/hooks";
 import { LAYOUT_CONTENT_STYLE } from "@/styles/layoutContent";
-import { useStartIngestionFlow } from "../workflowCommon";
-import { deleteReferenceMaterial, ingestReferenceMaterial, RESOURCE_EVERYTHING } from "bento-auth-js";
+import SitePageHeader from "./SitePageHeader";
+import { useStartIngestionFlow } from "./manager/workflowCommon";
 
 const DEFAULT_REF_INGEST_WORKFLOW_ID = "fasta_ref";
 
-const ManagerReferenceGenomesContent = () => {
+const ReferenceGenomesContent = () => {
     const dispatch = useDispatch();
 
     const { permissions, isFetchingPermissions } = useResourcePermissionsWrapper(RESOURCE_EVERYTHING);
@@ -105,7 +107,8 @@ const ManagerReferenceGenomesContent = () => {
         ] : []),
     ], [dispatch, isFetchingGenomes, isDeletingIDs, canDeleteReference]);
 
-    return (
+    return <>
+        <SitePageHeader title="Reference Genomes" />
         <Layout>
             <Layout.Content style={LAYOUT_CONTENT_STYLE}>
                 {canIngestReference && (
@@ -131,7 +134,7 @@ const ManagerReferenceGenomesContent = () => {
                 />
             </Layout.Content>
         </Layout>
-    );
+    </>;
 };
 
-export default ManagerReferenceGenomesContent;
+export default ReferenceGenomesContent;

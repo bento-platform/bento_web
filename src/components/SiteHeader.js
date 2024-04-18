@@ -15,6 +15,7 @@ import {
     BellOutlined,
     DashboardOutlined,
     DotChartOutlined,
+    FileTextOutlined,
     FolderOpenOutlined,
     LoginOutlined,
     LogoutOutlined,
@@ -86,6 +87,12 @@ const SiteHeader = () => {
                 text: "Explorer",
                 disabled: !isAuthenticated,
                 key: "explorer",
+            },
+            {
+                url: "/genomes",
+                icon: <FileTextOutlined />,
+                text: "Reference Genomes",
+                key: "genomes",
             },
             // TODO: Only show if admin / can data manage anything
             {
