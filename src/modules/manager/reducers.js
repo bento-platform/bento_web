@@ -33,37 +33,38 @@ export const manager = (
 
 export const dropBox = (
     state = {
-        isFetching: true,
+        isFetching: false,
         isPutting: false,
         isPuttingFlow: false,
         isDeleting: false,
+        hasAttempted: false,
         tree: [],
     },
     action,
 ) => {
     switch (action.type) {
         case FETCH_DROP_BOX_TREE.REQUEST:
-            return {...state, isFetching: true};
+            return { ...state, isFetching: true };
         case FETCH_DROP_BOX_TREE.RECEIVE:
-            return {...state, tree: action.data};
+            return { ...state, tree: action.data };
         case FETCH_DROP_BOX_TREE.FINISH:
-            return {...state, isFetching: false};
+            return { ...state, isFetching: false, hasAttempted: true };
 
         case PUT_DROP_BOX_OBJECT.REQUEST:
-            return {...state, isPutting: true};
+            return { ...state, isPutting: true };
         case PUT_DROP_BOX_OBJECT.FINISH:
-            return {...state, isPutting: false};
+            return { ...state, isPutting: false };
 
         case DROP_BOX_PUTTING_OBJECTS.BEGIN:
-            return {...state, isPuttingFlow: true};
+            return { ...state, isPuttingFlow: true };
         case DROP_BOX_PUTTING_OBJECTS.END:
         case DROP_BOX_PUTTING_OBJECTS.TERMINATE:
-            return {...state, isPuttingFlow: false};
+            return { ...state, isPuttingFlow: false };
 
         case DELETE_DROP_BOX_OBJECT.REQUEST:
-            return {...state, isDeleting: true};
+            return { ...state, isDeleting: true };
         case DELETE_DROP_BOX_OBJECT.FINISH:
-            return {...state, isDeleting: false};
+            return { ...state, isDeleting: false };
 
         default:
             return state;
