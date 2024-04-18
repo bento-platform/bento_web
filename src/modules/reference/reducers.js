@@ -1,5 +1,5 @@
 import { DELETE_REFERENCE_GENOME, FETCH_REFERENCE_GENOMES } from "./actions";
-import { arrayToObjectByProperty, objectWithoutProp } from "../../utils/misc";
+import { arrayToObjectByProperty, objectWithoutProp } from "@/utils/misc";
 
 export const referenceGenomes = (
     state = {

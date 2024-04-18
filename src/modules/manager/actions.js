@@ -5,7 +5,7 @@ import {
     createNetworkActionTypes,
     createFlowActionTypes,
     networkAction,
-} from "../../utils/actions";
+} from "@/utils/actions";
 
 
 export const TOGGLE_PROJECT_CREATION_MODAL = "TOGGLE_PROJECT_CREATION_MODAL";

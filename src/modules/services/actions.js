@@ -1,4 +1,4 @@
-import {BENTO_PUBLIC_URL} from "../../config";
+import {BENTO_PUBLIC_URL} from "@/config";
 
 import {
     createNetworkActionTypes,
@@ -8,7 +8,7 @@ import {
     beginFlow,
     endFlow,
     terminateFlow,
-} from "../../utils/actions";
+} from "@/utils/actions";
 
 /**
  * @typedef {Object} BentoService

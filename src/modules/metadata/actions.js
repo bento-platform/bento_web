@@ -1,9 +1,9 @@
 import { message } from "antd";
 
 import { endProjectEditing } from "../manager/actions";
-import { createNetworkActionTypes, networkAction } from "../../utils/actions";
-import { nop, objectWithoutProps } from "../../utils/misc";
-import { jsonRequest } from "../../utils/requests";
+import { createNetworkActionTypes, networkAction } from "@/utils/actions";
+import { nop, objectWithoutProps } from "@/utils/misc";
+import { jsonRequest } from "@/utils/requests";
 
 export const FETCH_PROJECTS = createNetworkActionTypes("FETCH_PROJECTS");
 
