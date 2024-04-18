@@ -16,6 +16,7 @@ import { useProjects } from "@/modules/metadata/hooks";
 import { toggleProjectCreationModal as toggleProjectCreationModalAction } from "@/modules/manager/actions";
 import { LAYOUT_CONTENT_STYLE } from "@/styles/layoutContent";
 import { matchingMenuKeys, transformMenuItem } from "@/utils/menu";
+import { useServices } from "@/modules/services/hooks";
 
 
 const PROJECT_HELP_TEXT_STYLE = {
@@ -41,7 +42,8 @@ const ManagerProjectDatasetContent = () => {
 
     const { items } = useProjects();
     const { isFetchingDependentData } = useSelector(state => state.user);
-    const { metadataService, isFetchingAll: isFetchingAllServices} = useSelector(state => state.services);
+
+    const { metadataService, isFetchingAll: isFetchingAllServices} = useServices();
 
     const projectMenuItems = useMemo(() => items.map(project => ({
         url: `/data/manager/projects/${project.identifier}`,

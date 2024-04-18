@@ -1,8 +1,8 @@
 import React, { useCallback, useMemo } from "react";
 import { useDispatch } from "react-redux";
 
-import { Button, Dropdown, Layout, Modal, Table } from "antd";
-import { DeleteOutlined, ImportOutlined } from "@ant-design/icons";
+import { Button, Descriptions, Dropdown, Layout, Modal, Popover, Space, Table } from "antd";
+import { BarsOutlined, DeleteOutlined, ImportOutlined } from "@ant-design/icons";
 
 import { deleteReferenceMaterial, ingestReferenceMaterial, RESOURCE_EVERYTHING } from "bento-auth-js";
 
@@ -12,18 +12,20 @@ import { useReferenceGenomes } from "@/modules/reference/hooks";
 import { LAYOUT_CONTENT_STYLE } from "@/styles/layoutContent";
 import SitePageHeader from "./SitePageHeader";
 import { useStartIngestionFlow } from "./manager/workflowCommon";
+import MonospaceText from "@/components/common/MonospaceText";
+import OntologyTerm from "@/components/explorer/OntologyTerm";
 
 const DEFAULT_REF_INGEST_WORKFLOW_ID = "fasta_ref";
 
 const ReferenceGenomesContent = () => {
     const dispatch = useDispatch();
 
-    const { permissions, isFetchingPermissions } = useResourcePermissionsWrapper(RESOURCE_EVERYTHING);
+    const { permissions } = useResourcePermissionsWrapper(RESOURCE_EVERYTHING);
 
     const canIngestReference = permissions.includes(ingestReferenceMaterial);
     const canDeleteReference = permissions.includes(deleteReferenceMaterial);
 
-    const { items: genomes, isFetching: isFetchingGenomes, isDeletingIDs } = useReferenceGenomes();
+    const { items: genomes, isFetching: isFetchingGenomes, hasAttempted, isDeletingIDs } = useReferenceGenomes();
 
     const { workflowsByType, workflowsLoading } = useWorkflows();
     const ingestionWorkflows = workflowsByType.ingestion.items;
@@ -61,14 +63,9 @@ const ReferenceGenomesContent = () => {
             dataIndex: "id",
         },
         {
-            title: "Checksums",
-            key: "checksums",
-            render: (genome) => (
-                <div>
-                    <strong>MD5:</strong>&nbsp;{genome.md5}<br />
-                    <strong>GA4GH:</strong>&nbsp;{genome.ga4gh}<br />
-                </div>
-            ),
+            title: "Taxon",
+            dataIndex: "taxon",
+            render: (taxon) => <OntologyTerm term={taxon} renderLabel={(label) => <em>{label}</em>} />,
         },
         {
             title: "URIs",
@@ -87,21 +84,36 @@ const ReferenceGenomesContent = () => {
                 title: "Actions",
                 key: "actions",
                 render: (genome) => (
-                    <Button
-                        danger={true}
-                        icon={<DeleteOutlined />}
-                        loading={isDeletingIDs[genome.id]}
-                        disabled={isFetchingGenomes || isDeletingIDs[genome.id]}
-                        onClick={() => {
-                            Modal.confirm({
-                                title: `Are you sure you want to delete genome "${genome.id}"?`,
-                                maskClosable: true,
-                                okText: "Delete",
-                                okType: "danger",
-                                // Return a promise that'll be fulfilled when the delete request goes through:
-                                onOk: () => dispatch(deleteReferenceGenomeIfPossible(genome.id)),
-                            });
-                        }}>Delete</Button>
+                    <Space>
+                        <Popover title={`Reference Genome: ${genome.id}`} content={
+                            <Descriptions layout="horizontal" bordered={true} column={1} size="small">
+                                <Descriptions.Item label="Checksums">
+                                    <strong>MD5:</strong>&nbsp;<MonospaceText>{genome.md5}</MonospaceText><br />
+                                    <strong>GA4GH:</strong>&nbsp;<MonospaceText>{genome.ga4gh}</MonospaceText>
+                                </Descriptions.Item>
+                            </Descriptions>
+                        }>
+                            <Button icon={<BarsOutlined />}>Details</Button>
+                        </Popover>
+                        {canDeleteReference && (
+                            <Button
+                                danger={true}
+                                icon={<DeleteOutlined />}
+                                loading={isDeletingIDs[genome.id]}
+                                disabled={isFetchingGenomes || isDeletingIDs[genome.id]}
+                                onClick={() => {
+                                    Modal.confirm({
+                                        title: `Are you sure you want to delete genome "${genome.id}"?`,
+                                        maskClosable: true,
+                                        okText: "Delete",
+                                        okType: "danger",
+                                        // Return a promise that'll be fulfilled when the delete request goes through:
+                                        onOk: () => dispatch(deleteReferenceGenomeIfPossible(genome.id)),
+                                    });
+                                }}
+                            >Delete</Button>
+                        )}
+                        </Space>
                 ),
             },
         ] : []),
@@ -129,7 +141,7 @@ const ReferenceGenomesContent = () => {
                     size="middle"
                     bordered={true}
                     pagination={false}
-                    loading={isFetchingPermissions || isFetchingGenomes}
+                    loading={!hasAttempted || isFetchingGenomes}
                     rowKey="id"
                 />
             </Layout.Content>

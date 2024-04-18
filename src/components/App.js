@@ -29,6 +29,7 @@ import RequireAuth from "./RequireAuth";
 import SiteHeader from "./SiteHeader";
 import SiteFooter from "./SiteFooter";
 import SitePageLoading from "./SitePageLoading";
+import { useService } from "@/modules/services/hooks";
 
 // Lazy-load route components
 const OverviewContent = lazy(() => import("./OverviewContent"));
@@ -65,7 +66,7 @@ const App = () => {
     const idTokenContents = useSelector((state) => state.auth.idTokenContents);
     const isAuthenticated = useIsAuthenticated();
 
-    const eventRelay = useSelector((state) => state.services.eventRelay);
+    const eventRelay = useService("event-relay");
     const eventRelayUrl = eventRelay?.url ?? null;
 
     const [lastIsAuthenticated, setLastIsAuthenticated] = useState(false);
@@ -232,7 +233,7 @@ const App = () => {
                             <Route path="/overview" element={<RequireAuth><OverviewContent /></RequireAuth>} />
                             <Route path="/data/explorer/*"
                                    element={<RequireAuth><DataExplorerContent /></RequireAuth>} />
-                            <Route path="/genomes" element={<RequireAuth><ReferenceGenomesContent /></RequireAuth>} />
+                            <Route path="/genomes" element={<ReferenceGenomesContent />} />
                             <Route path="/cbioportal" element={<RequireAuth><CBioPortalContent /></RequireAuth>} />
                             <Route path="/services/:kind/*"
                                    element={<RequireAuth><ServiceDetail /></RequireAuth>} />

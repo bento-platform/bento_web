@@ -1,11 +1,13 @@
 import React, { useEffect } from "react";
+
 import { Layout, Divider } from "antd";
 
+import { SITE_NAME } from "@/constants";
 import SitePageHeader from "./SitePageHeader";
 import ClinicalSummary from "./overview/ClinicalSummary";
 import VariantsSummary from "./overview/VariantsSummary";
-import { SITE_NAME } from "../constants";
 import ExperimentsSummary from "./overview/ExperimentsSummary";
+import { useOverviewSummary } from "@/modules/metadata/hooks";
 
 const styles = {
     pageHeaderContainer: {
@@ -23,15 +25,17 @@ const OverviewContent = () => {
         document.title = `${SITE_NAME} - Overview`;
     }, []);
 
+    const overviewSummary = useOverviewSummary();
+
     return <>
         <div style={styles.pageHeaderContainer}>
             <SitePageHeader title="Overview" style={styles.pageHeaderExtra} />
         </div>
         <Layout>
             <Layout.Content style={styles.overviewContent}>
-                <ClinicalSummary />
+                <ClinicalSummary overviewSummary={overviewSummary} />
                 <Divider />
-                <ExperimentsSummary />
+                <ExperimentsSummary overviewSummary={overviewSummary} />
                 <Divider />
                 <VariantsSummary />
             </Layout.Content>

@@ -4,7 +4,7 @@ import { Navigate, Route, Routes, useNavigate, useLocation, useParams } from "re
 
 import { Layout, Menu, Skeleton } from "antd";
 
-import { fetchIndividualIfNecessary } from "@/modules/metadata/actions";
+import { fetchIndividual } from "@/modules/metadata/actions";
 import { LAYOUT_CONTENT_STYLE } from "@/styles/layoutContent";
 import { matchingMenuKeys, transformMenuItem } from "@/utils/menu";
 
@@ -28,6 +28,7 @@ import IndividualPhenopackets from "./IndividualPhenopackets";
 import IndividualInterpretations from "./IndividualInterpretations";
 import IndividualMedicalActions from "./IndividualMedicalActions";
 import IndividualMeasurements from "./IndividualMeasurements";
+import { useService } from "@/modules/services/hooks";
 
 const MENU_STYLE = {
     marginLeft: "-24px",
@@ -60,14 +61,14 @@ const ExplorerIndividualContent = () => {
         }
     }, [location]);
 
-    const metadataService = useSelector((state) => state.services.metadataService);
+    const metadataService = useService("metadata");
     const individuals = useSelector((state) => state.individuals.itemsByID);
 
     useEffect(() => {
         if (metadataService && individualID) {
             // If we've loaded the metadata service, and we have an individual selected (or the individual ID changed),
             // we should load individual data.
-            dispatch(fetchIndividualIfNecessary(individualID));
+            dispatch(fetchIndividual(individualID)).catch(console.error);
         }
     }, [dispatch, metadataService, individualID]);
 

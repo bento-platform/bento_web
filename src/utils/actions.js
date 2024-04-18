@@ -63,18 +63,21 @@ const _networkAction =
                 fnResult = await fnResult(dispatch, getState);
             }
 
-            const { types, params, url, baseUrl, req, err, onSuccess, onError, paginated } = fnResult;
+            const { types, check, params, url, baseUrl, req, err, onSuccess, onError, paginated } = fnResult;
+
+            // if a check function is specified and evaluates to false on the state, don't fire the action.
+            if (check && !check(getState())) return;
 
             // Only include access token when we are making a request to this Bento node or the IdP!
             // Otherwise, we could leak it to external sites.
 
             const token =
-            url.startsWith("/") ||
-            (BENTO_URL && url.startsWith(BENTO_URL)) ||
-            (BENTO_PUBLIC_URL && url.startsWith(BENTO_PUBLIC_URL)) ||
-            (IDP_BASE_URL && url.startsWith(IDP_BASE_URL))
-                ? getState().auth.accessToken
-                : null;
+                url.startsWith("/") ||
+                (BENTO_URL && url.startsWith(BENTO_URL)) ||
+                (BENTO_PUBLIC_URL && url.startsWith(BENTO_PUBLIC_URL)) ||
+                (IDP_BASE_URL && url.startsWith(IDP_BASE_URL))
+                    ? getState().auth.accessToken
+                    : null;
 
             const finalReq = {
                 ...(req ?? {

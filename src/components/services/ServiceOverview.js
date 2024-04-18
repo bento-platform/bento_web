@@ -1,10 +1,10 @@
-import React, { useMemo } from "react";
+import React from "react";
 import { useParams } from "react-router-dom";
-import { useSelector } from "react-redux";
 
 import { Col, Layout, Row, Skeleton, Typography } from "antd";
 
 import JsonView from "@/components/common/JsonView";
+import { useBentoService, useService } from "@/modules/services/hooks";
 import { LAYOUT_CONTENT_STYLE } from "@/styles/layoutContent";
 
 const TITLE_STYLE = { marginTop: 0 };
@@ -12,11 +12,8 @@ const TITLE_STYLE = { marginTop: 0 };
 const ServiceOverview = () => {
     const { kind } = useParams();
 
-    const serviceInfoByKind = useSelector((state) => state.services.itemsByKind);
-    const bentoServicesByKind = useSelector((state) => state.bentoServices.itemsByKind);
-
-    const serviceInfo = useMemo(() => serviceInfoByKind[kind], [kind, serviceInfoByKind]);
-    const bentoServiceInfo = useMemo(() => bentoServicesByKind[kind], [kind, bentoServicesByKind]);
+    const serviceInfo = useService(kind);
+    const bentoServiceInfo = useBentoService(kind);
 
     const loading = !(serviceInfo && bentoServiceInfo);
 

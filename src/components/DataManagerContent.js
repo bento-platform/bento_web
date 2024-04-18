@@ -15,11 +15,10 @@ import {
 import { Menu, Skeleton } from "antd";
 
 import { SITE_NAME } from "@/constants";
+import { useResourcePermissionsWrapper } from "@/hooks";
 import { matchingMenuKeys, transformMenuItem } from "@/utils/menu";
 
 import SitePageHeader from "./SitePageHeader";
-import { useFetchDropBoxContentsIfAllowed } from "./manager/hooks";
-import { useResourcePermissionsWrapper } from "@/hooks";
 
 const ManagerProjectDatasetContent = lazy(() => import("./manager/projects/ManagerProjectDatasetContent"));
 const ManagerAccessContent = lazy(() => import("./manager/access/ManagerAccessContent"));
@@ -45,7 +44,6 @@ const DataManagerContent = () => {
     }, []);
 
     const { permissions } = useResourcePermissionsWrapper(RESOURCE_EVERYTHING);
-    useFetchDropBoxContentsIfAllowed();
 
     const canViewDropBox = permissions.includes(viewDropBox);
     const canIngest = permissions.includes(ingestData) || permissions.includes(ingestReferenceMaterial);

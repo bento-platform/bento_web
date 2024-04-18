@@ -1,16 +1,18 @@
 import { useHasResourcePermission, useResourcePermissions } from "bento-auth-js";
 import { useMemo } from "react";
 import { useSelector } from "react-redux";
+import { useService, useServices } from "@/modules/services/hooks";
 
 // WORKFLOW:
 
 export const useWorkflows = () => {
-    const isFetchingAllServices = useSelector((state) => state.services.isFetchingAll);
-    const isFetchingServiceWorkflows = useSelector((state) => state.serviceWorkflows.isFetching);
+    const isFetchingAllServices = useServices().isFetchingAll;
+    const {
+        isFetching: isFetchingServiceWorkflows,
+        items: serviceWorkflows,
+    } = useSelector((state) => state.serviceWorkflows);
 
     const workflowsLoading = isFetchingAllServices || isFetchingServiceWorkflows;
-
-    const serviceWorkflows = useSelector((state) => state.serviceWorkflows.items);
 
     return useMemo(() => {
         const workflowsByType = {
@@ -61,7 +63,7 @@ export const useWorkflows = () => {
  * @returns {ResourcePermissionEval}
  */
 export const useHasResourcePermissionWrapper = (resource, permission) => {
-    const authzUrl = useSelector((state) => state.services.itemsByKind?.authorization?.url);
+    const authzUrl = useService("authorization")?.url;
 
     const { isFetching: fetchingPermission, hasPermission } = useHasResourcePermission(resource, authzUrl, permission);
 
@@ -77,7 +79,7 @@ export const useHasResourcePermissionWrapper = (resource, permission) => {
  * @returns {ResourcePermissions}
  */
 export const useResourcePermissionsWrapper = (resource) => {
-    const authzUrl = useSelector((state) => state.services.itemsByKind?.authorization?.url);
+    const authzUrl = useService("authorization")?.url;
 
     const {
         permissions,

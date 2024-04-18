@@ -43,7 +43,7 @@ export const clearDatasetDataType = networkAction((datasetId, dataTypeID) => (di
     };
 });
 
-export const fetchProjects = networkAction(() => (dispatch, getState) => ({
+const fetchProjects = networkAction(() => (dispatch, getState) => ({
     types: FETCH_PROJECTS,
     url: `${getState().services.metadataService.url}/api/projects`,
     paginated: true,
@@ -74,18 +74,24 @@ const createProject = networkAction((project, navigate) => (dispatch, getState) 
 
 export const createProjectIfPossible = (project, navigate) => (dispatch, getState) => {
     // TODO: Need object response from POST (is this done??)
-    if (getState().projects.isCreating) return;
+    if (getState().projects.isCreating) return Promise.resolve();
     return dispatch(createProject(project, navigate));
 };
 
-export const fetchExtraPropertiesSchemaTypes = networkAction(() => (dispatch, getState) => ({
+const _fetchExtraPropertiesSchemaTypes = networkAction(() => (dispatch, getState) => ({
     types: FETCH_EXTRA_PROPERTIES_SCHEMA_TYPES,
     url: `${getState().services.metadataService.url}/api/extra_properties_schema_types`,
     error: "Error fetching extra properties schema types",
 }));
 
-const createProjectJsonSchema = networkAction((projectJsonSchema) => (dispatch, getState) => ({
+export const fetchExtraPropertiesSchemaTypes = () => (dispatch, getState) => {
+    if (!getState().services.itemsByKind.metadata) return Promise.resolve();
+    return dispatch(_fetchExtraPropertiesSchemaTypes());
+};
+
+export const createProjectJsonSchema = networkAction((projectJsonSchema) => (dispatch, getState) => ({
     types: CREATE_PROJECT_JSON_SCHEMA,
+    check: (state) => !state.projects.isCreatingJsonSchema,
     url: `${getState().services.metadataService.url}/api/project_json_schemas`,
     req: jsonRequest(projectJsonSchema, "POST"),
     err: "Error creating project JSON schema",
@@ -93,11 +99,6 @@ const createProjectJsonSchema = networkAction((projectJsonSchema) => (dispatch, 
         message.success(`Project JSON schema for ${projectJsonSchema.schema_type} created!`);
     },
 }));
-
-export const createProjectJsonSchemaIfPossible = (projectJsonSchema) => (dispatch, getState) => {
-    if (getState().projects.isCreatingJsonSchema) return Promise.resolve();
-    return dispatch(createProjectJsonSchema(projectJsonSchema));
-};
 
 export const deleteProjectJsonSchema = networkAction((projectJsonSchema) => (dispatch, getState) => ({
     types: DELETE_PROJECT_JSON_SCHEMA,
@@ -287,18 +288,17 @@ export const deleteDatasetLinkedFieldSetIfPossible =
         return dispatch(deleteDatasetLinkedFieldSet(dataset, linkedFieldSet, linkedFieldSetIndex));
     };
 
-const fetchIndividual = networkAction((individualID) => (dispatch, getState) => ({
+export const fetchIndividual = networkAction((individualID) => (dispatch, getState) => ({
     types: FETCH_INDIVIDUAL,
+    check: (state) => {
+        const individualRecord = state.individuals.itemsByID[individualID] || {};
+        // Don't fetch if already fetching or loaded:
+        return !individualRecord.isFetching && !individualRecord.data;
+    },
     params: { individualID },
     url: `${getState().services.metadataService.url}/api/individuals/${individualID}`,
     err: `Error fetching individual ${individualID}`,
 }));
-
-export const fetchIndividualIfNecessary = (individualID) => (dispatch, getState) => {
-    const individualRecord = getState().individuals.itemsByID[individualID] || {};
-    if (individualRecord.isFetching || individualRecord.data) return; // Don't fetch if already fetching or loaded.
-    return dispatch(fetchIndividual(individualID));
-};
 
 const fetchIndividualPhenopackets = networkAction((individualID) => (dispatch, getState) => ({
     types: FETCH_INDIVIDUAL_PHENOPACKETS,
@@ -309,12 +309,26 @@ const fetchIndividualPhenopackets = networkAction((individualID) => (dispatch, g
 
 export const fetchIndividualPhenopacketsIfNecessary = (individualID) => (dispatch, getState) => {
     const record = getState().individuals.phenopacketsByIndividualID[individualID] || {};
-    if (record.isFetching || record.data) return; // Don't fetch if already fetching or loaded.
+    if (!getState().services.metadataService.url) return Promise.resolve();
+    if (record.isFetching || record.data) return Promise.resolve(); // Don't fetch if already fetching or loaded.
     return dispatch(fetchIndividualPhenopackets(individualID));
 };
 
-export const fetchOverviewSummary = networkAction(() => (dispatch, getState) => ({
+const _fetchOverviewSummary = networkAction(() => (dispatch, getState) => ({
     types: FETCH_OVERVIEW_SUMMARY,
     url: `${getState().services.metadataService.url}/api/overview`,
     err: "Error fetching overview summary metadata",
 }));
+
+export const fetchOverviewSummary = () => (dispatch, getState) => {
+    if (!getState().services.itemsByKind.metadata) return Promise.resolve();
+    return dispatch(_fetchOverviewSummary());
+};
+
+export const fetchOverviewSummaryIfNeeded = () => (dispatch, getState) => {
+    const state = getState();
+    if (state.overviewSummary.isFetching || Object.keys(state.overviewSummary.data).length) {
+        return Promise.resolve();
+    }
+    return dispatch(fetchOverviewSummary());
+};

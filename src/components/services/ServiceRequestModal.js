@@ -1,14 +1,14 @@
 import React, {useCallback, useEffect, useMemo, useState} from "react";
-import {useSelector} from "react-redux";
 import PropTypes from "prop-types";
 import { useAuthorizationHeader } from "bento-auth-js";
 
 import { Button, Divider, Form, Input, Modal, Skeleton } from "antd";
 
 import JsonDisplay from "../display/JsonDisplay";
+import { useBentoServices } from "@/modules/services/hooks";
 
 const ServiceRequestModal = ({service, onCancel}) => {
-    const bentoServicesByKind = useSelector(state => state.bentoServices.itemsByKind);
+    const bentoServicesByKind = useBentoServices().itemsByKind;
     const serviceUrl = useMemo(() => bentoServicesByKind[service]?.url, [bentoServicesByKind, service]);
 
     const [requestPath, setRequestPath] = useState("service-info");

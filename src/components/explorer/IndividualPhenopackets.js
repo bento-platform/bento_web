@@ -8,13 +8,14 @@ import { individualPropTypesShape } from "@/propTypes";
 
 import DownloadButton from "@/components/common/DownloadButton";
 import JsonView from "@/components/common/JsonView";
+import { useService } from "@/modules/services/hooks";
 
 const IndividualPhenopackets = ({ individual }) => {
     const dispatch = useDispatch();
 
     const { id: individualId } = individual;
 
-    const katsuUrl = useSelector((state) => state.services.metadataService?.url ?? "");
+    const katsuUrl = useService("metadata")?.url ?? "";
     const downloadUrl = `${katsuUrl}/api/individuals/${individualId}/phenopackets?attachment=1&format=json`;
 
     const phenopacketsByIndividualID = useSelector((state) => state.individuals.phenopacketsByIndividualID);

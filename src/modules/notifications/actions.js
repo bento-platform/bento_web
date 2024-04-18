@@ -14,18 +14,12 @@ export const addNotification = data => ({
 });
 
 export const FETCH_NOTIFICATIONS = createNetworkActionTypes("FETCH_NOTIFICATIONS");
-const fetchNotifications = networkAction(() => (dispatch, getState) => ({
+export const fetchNotifications = networkAction(() => (dispatch, getState) => ({
     types: FETCH_NOTIFICATIONS,
+    check: (state) => state.services.notificationService && !state.notifications.isFetching,
     url: `${getState().services.notificationService.url}/notifications`,
     err: "Error fetching notifications",
 }));
-
-export const fetchNotificationsIfPossible = () => (dispatch, getState) => {
-    if (!getState().services.notificationService || getState().notifications.isFetching) {
-        return Promise.resolve();
-    }
-    return dispatch(fetchNotifications());
-};
 
 export const MARK_NOTIFICATION_AS_READ = createNetworkActionTypes("MARK_NOTIFICATION_AS_READ");
 export const markNotificationAsRead = networkAction(notificationID => (dispatch, getState) => ({

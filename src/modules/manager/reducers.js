@@ -5,6 +5,7 @@ import {
     PUT_DROP_BOX_OBJECT,
     DROP_BOX_PUTTING_OBJECTS,
     DELETE_DROP_BOX_OBJECT,
+    INVALIDATE_DROP_BOX_TREE,
 } from "./actions";
 
 
@@ -37,6 +38,7 @@ export const dropBox = (
         isPutting: false,
         isPuttingFlow: false,
         isDeleting: false,
+        isInvalidated: false,
         hasAttempted: false,
         tree: [],
     },
@@ -49,6 +51,9 @@ export const dropBox = (
             return { ...state, tree: action.data };
         case FETCH_DROP_BOX_TREE.FINISH:
             return { ...state, isFetching: false, hasAttempted: true };
+
+        case INVALIDATE_DROP_BOX_TREE:
+            return { ...state, isInvalidated: true };
 
         case PUT_DROP_BOX_OBJECT.REQUEST:
             return { ...state, isPutting: true };

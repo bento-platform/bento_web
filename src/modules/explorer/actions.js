@@ -1,7 +1,7 @@
-import { IGV_JS_GENOMES_JSON_URL } from "../../constants";
-import { createNetworkActionTypes, networkAction } from "../../utils/actions";
-import { jsonRequest } from "../../utils/requests";
-import { extractQueriesFromDataTypeForms } from "../../utils/search";
+import { IGV_JS_GENOMES_JSON_URL } from "@/constants";
+import { createNetworkActionTypes, networkAction } from "@/utils/actions";
+import { jsonRequest } from "@/utils/requests";
+import { extractQueriesFromDataTypeForms } from "@/utils/search";
 
 export const PERFORM_GET_GOHAN_VARIANTS_OVERVIEW = createNetworkActionTypes("GET_GOHAN_VARIANTS_OVERVIEW");
 export const PERFORM_SEARCH = createNetworkActionTypes("EXPLORER.PERFORM_SEARCH");
@@ -203,17 +203,17 @@ export const setIgvPosition = (igvPosition) => ({
     igvPosition,
 });
 
-const fetchIgvGenomes = networkAction(() => ({
+const _fetchIgvGenomes = networkAction(() => ({
     types: FETCH_IGV_GENOMES,
     url: IGV_JS_GENOMES_JSON_URL,
     err: "Error fetching igv.js genomes",
 }));
 
-export const fetchIgvGenomesIfNeeded = () => (dispatch, getState) => {
+export const fetchIgvGenomes = () => (dispatch, getState) => {
     if (getState().igvGenomes.hasAttempted || getState().igvGenomes.isFetching) {
         return Promise.resolve();
     }
-    return dispatch(fetchIgvGenomes());
+    return dispatch(_fetchIgvGenomes());
 };
 
 export const performGetGohanVariantsOverviewIfPossible = () => (dispatch, getState) => {
@@ -221,7 +221,7 @@ export const performGetGohanVariantsOverviewIfPossible = () => (dispatch, getSta
     if (!gohanUrl) return Promise.resolve();
     const overviewPath = "/variants/overview";
     const getUrl = `${gohanUrl}${overviewPath}`;
-    dispatch(performGetGohanVariantsOverview(getUrl));
+    return dispatch(performGetGohanVariantsOverview(getUrl));
 };
 const performGetGohanVariantsOverview = networkAction((getUrl) => () => ({
     types: PERFORM_GET_GOHAN_VARIANTS_OVERVIEW,
