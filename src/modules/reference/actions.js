@@ -11,10 +11,12 @@ const fetchReferenceGenomes = networkAction(() => (dispatch, getState) => ({
 
 export const fetchReferenceGenomesIfNeeded = () => (dispatch, getState) => {
     const state = getState();
-    if (!state.services.itemsByKind.reference
+    if (
+        !state.services.itemsByKind.reference
         || state.referenceGenomes.isFetching
-        || state.referenceGenomes.items.length) {
-        return;
+        || state.referenceGenomes.items.length
+    ) {
+        return Promise.resolve();
     }
     return dispatch(fetchReferenceGenomes());
 };
@@ -29,10 +31,12 @@ const deleteReferenceGenome = networkAction((genomeID) => (dispatch, getState) =
 
 export const deleteReferenceGenomeIfPossible = (genomeID) => (dispatch, getState) => {
     const state = getState();
-    if (!state.services.itemsByKind.reference
+    if (
+        !state.services.itemsByKind.reference
         || state.referenceGenomes.isFetching
-        || state.referenceGenomes.isDeletingIDs[genomeID]) {
-        return;
+        || state.referenceGenomes.isDeletingIDs[genomeID]
+    ) {
+        return Promise.resolve();
     }
     return dispatch(deleteReferenceGenome(genomeID));
 };
