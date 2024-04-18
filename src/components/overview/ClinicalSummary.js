@@ -82,9 +82,11 @@ const ClinicalSummary = ({ overviewSummary }) => {
     );
 };
 ClinicalSummary.propTypes = {
-    data: PropTypes.object,
-    isFetching: PropTypes.bool,
-    hasAttempted: PropTypes.bool,
+    overviewSummary: PropTypes.shape({
+        data: PropTypes.object,
+        isFetching: PropTypes.bool,
+        hasAttempted: PropTypes.bool,
+    }),
 };
 
 export default ClinicalSummary;
