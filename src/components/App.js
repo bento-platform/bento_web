@@ -34,6 +34,7 @@ import SitePageLoading from "./SitePageLoading";
 const OverviewContent = lazy(() => import("./OverviewContent"));
 const DataExplorerContent = lazy(() => import("./DataExplorerContent"));
 const DataManagerContent = lazy(() => import("./DataManagerContent"));
+const ReferenceGenomesContent = lazy(() => import("./ReferenceGenomesContent"));
 const CBioPortalContent = lazy(() => import("./CBioPortalContent"));
 const NotificationsContent = lazy(() => import("./notifications/NotificationsContent"));
 const ServiceContent = lazy(() => import("./ServiceContent"));
@@ -231,6 +232,7 @@ const App = () => {
                             <Route path="/overview" element={<RequireAuth><OverviewContent /></RequireAuth>} />
                             <Route path="/data/explorer/*"
                                    element={<RequireAuth><DataExplorerContent /></RequireAuth>} />
+                            <Route path="/genomes" element={<ReferenceGenomesContent />} />
                             <Route path="/cbioportal" element={<RequireAuth><CBioPortalContent /></RequireAuth>} />
                             <Route path="/services/:kind/*"
                                    element={<RequireAuth><ServiceDetail /></RequireAuth>} />
