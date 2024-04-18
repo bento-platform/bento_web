@@ -211,14 +211,14 @@ const fetchIgvGenomes = networkAction(() => ({
 
 export const fetchIgvGenomesIfNeeded = () => (dispatch, getState) => {
     if (getState().igvGenomes.hasAttempted || getState().igvGenomes.isFetching) {
-        return;
+        return Promise.resolve();
     }
     return dispatch(fetchIgvGenomes());
 };
 
 export const performGetGohanVariantsOverviewIfPossible = () => (dispatch, getState) => {
     const gohanUrl = getState()?.services?.itemsByKind?.gohan?.url;
-    if (!gohanUrl) return;
+    if (!gohanUrl) return Promise.resolve();
     const overviewPath = "/variants/overview";
     const getUrl = `${gohanUrl}${overviewPath}`;
     dispatch(performGetGohanVariantsOverview(getUrl));

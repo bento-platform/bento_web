@@ -51,12 +51,14 @@ export const fetchProjects = networkAction(() => (dispatch, getState) => ({
 }));
 
 // TODO: if needed fetching + invalidation
-export const fetchProjectsWithDatasets = () => async (dispatch, getState) => {
+export const fetchProjectsWithDatasets = () => (dispatch, getState) => {
     const state = getState();
-    if (state.projects.isFetching || state.projects.isCreating || state.projects.isDeleting || state.projects.isSaving)
-        return;
 
-    await dispatch(fetchProjects());
+    if (!state.services.itemsByKind.metadata) return Promise.resolve();
+    if (state.projects.isFetching || state.projects.isCreating || state.projects.isDeleting || state.projects.isSaving)
+        return Promise.resolve();
+
+    return dispatch(fetchProjects());
 };
 
 const createProject = networkAction((project, navigate) => (dispatch, getState) => ({
@@ -93,7 +95,7 @@ const createProjectJsonSchema = networkAction((projectJsonSchema) => (dispatch, 
 }));
 
 export const createProjectJsonSchemaIfPossible = (projectJsonSchema) => (dispatch, getState) => {
-    if (getState().projects.isCreatingJsonSchema) return;
+    if (getState().projects.isCreatingJsonSchema) return Promise.resolve();
     return dispatch(createProjectJsonSchema(projectJsonSchema));
 };
 
@@ -222,7 +224,7 @@ export const addDatasetLinkedFieldSetIfPossible =
             getState().projects.isSavingDataset ||
             getState().projects.isDeletingDataset
             )
-                return;
+                return Promise.resolve();
             return dispatch(addDatasetLinkedFieldSet(dataset, linkedFieldSet, onSuccess));
         };
 
@@ -249,10 +251,11 @@ export const saveDatasetLinkedFieldSetIfPossible =
         (dispatch, getState) => {
             if (
                 getState().projects.isAddingDataset ||
-            getState().projects.isSavingDataset ||
-            getState().projects.isDeletingDataset
-            )
-                return;
+                getState().projects.isSavingDataset ||
+                getState().projects.isDeletingDataset
+            ) {
+                return Promise.resolve();
+            }
             return dispatch(saveDatasetLinkedFieldSet(dataset, index, linkedFieldSet, onSuccess));
         };
 
@@ -278,8 +281,9 @@ export const deleteDatasetLinkedFieldSetIfPossible =
             getState().projects.isAddingDataset ||
             getState().projects.isSavingDataset ||
             getState().projects.isDeletingDataset
-        )
-            return;
+        ) {
+            return Promise.resolve();
+        }
         return dispatch(deleteDatasetLinkedFieldSet(dataset, linkedFieldSet, linkedFieldSetIndex));
     };
 
