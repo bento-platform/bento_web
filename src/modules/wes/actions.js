@@ -11,12 +11,16 @@ export const FETCH_RUN_LOG_STDERR = createNetworkActionTypes("FETCH_RUN_LOG_STDE
 export const SUBMIT_WORKFLOW_RUN = createNetworkActionTypes("SUBMIT_WORKFLOW_RUN");
 
 
-// TODO: If needed
-export const fetchRuns = networkAction(() => (dispatch, getState) => ({
+const _fetchRuns = networkAction(() => (dispatch, getState) => ({
     types: FETCH_RUNS,
     url: `${getState().services.wesService.url}/runs?with_details=true`,
     err: "Error fetching WES runs",
 }));
+
+export const fetchRuns = () => (dispatch, getState) => {
+    if (!getState().services.itemsByKind.wes || getState().runs.isFetching) return Promise.resolve();
+    return dispatch(_fetchRuns());
+};
 
 /**
  * Manually dispatch a run details receive event, equivalent to what is fired by the network action.
