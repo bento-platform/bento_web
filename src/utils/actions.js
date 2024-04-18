@@ -2,7 +2,7 @@ import fetch from "cross-fetch";
 
 import { message } from "antd";
 
-import { BENTO_PUBLIC_URL, BENTO_URL, IDP_BASE_URL } from "../config";
+import { BENTO_PUBLIC_URL, BENTO_URL, IDP_BASE_URL } from "@/config";
 
 export const basicAction = (t) => () => ({ type: t });
 
