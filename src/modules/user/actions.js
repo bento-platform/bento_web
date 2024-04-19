@@ -32,6 +32,7 @@ export const fetchUserDependentData = (servicesCb) => async (dispatch, getState)
         if (idTokenContents) {
             // If we're newly authenticated as an owner, we run all actions that may have changed with authentication
             // (via the callback).
+            // TODO: invalidate projects/datasets/other user-dependent data
             await dispatch(fetchServicesWithMetadataAndDataTypesIfNeeded(() => dispatch(fetchServiceDependentData())));
             await (servicesCb || nop)();
             await dispatch(fetchProjectsWithDatasets());
