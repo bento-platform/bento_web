@@ -1,15 +1,9 @@
 import React, { useMemo, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { Link } from "react-router-dom";
-import {
-    performAuth,
-    RESOURCE_EVERYTHING,
-    viewNotifications,
-    useIsAuthenticated,
-    usePerformSignOut,
-} from "bento-auth-js";
+import { viewNotifications, useIsAuthenticated, usePerformSignOut, usePerformAuth } from "bento-auth-js";
 
-import { Badge, Layout, Menu } from "antd";
+import { Badge, Layout, Menu, Spin } from "antd";
 import {
     BarChartOutlined,
     BellOutlined,
@@ -17,19 +11,21 @@ import {
     DotChartOutlined,
     FileTextOutlined,
     FolderOpenOutlined,
+    LoadingOutlined,
     LoginOutlined,
     LogoutOutlined,
     SettingOutlined,
     UserOutlined,
 } from "@ant-design/icons";
 
-import { AUTH_CALLBACK_URL, BENTO_CBIOPORTAL_ENABLED, CLIENT_ID, CUSTOM_HEADER } from "@/config";
-import { useResourcePermissionsWrapper } from "@/hooks";
+import { BENTO_CBIOPORTAL_ENABLED, CUSTOM_HEADER } from "@/config";
+import { useEverythingPermissions } from "@/hooks";
 import { showNotificationDrawer } from "@/modules/notifications/actions";
 import { useNotifications } from "@/modules/notifications/hooks";
 import { matchingMenuKeys, transformMenuItem } from "@/utils/menu";
 
 import OverviewSettingsControl from "./overview/OverviewSettingsControl";
+import { useCanQueryAtLeastOneProjectOrDataset, useManagerPermissions } from "@/modules/authz/hooks";
 
 const LinkedLogo = React.memo(() => (
     <Link to="/">
@@ -50,11 +46,15 @@ const CustomHeaderText = React.memo(() => (
 const SiteHeader = () => {
     const dispatch = useDispatch();
 
-    const { permissions, isFetchingPermissions } = useResourcePermissionsWrapper(RESOURCE_EVERYTHING);
+    const performAuth = usePerformAuth();
+
+    const { permissions, isFetchingPermissions } = useEverythingPermissions();
     const canViewNotifications = permissions.includes(viewNotifications);
 
-    const { data: openIdConfig, isFetching: openIdConfigFetching } = useSelector((state) => state.openIdConfiguration);
-    const authzEndpoint = openIdConfig?.["authorization_endpoint"];
+    const { hasPermission: canQueryData } = useCanQueryAtLeastOneProjectOrDataset();
+    const { permissions: managerPermissions, hasAttempted: hasAttemptedManagerPermissions } = useManagerPermissions();
+
+    const { isFetching: openIdConfigFetching } = useSelector((state) => state.openIdConfiguration);
 
     const { unreadItems: unreadNotifications } = useNotifications();
 
@@ -85,7 +85,7 @@ const SiteHeader = () => {
                 url: "/data/explorer",
                 icon: <BarChartOutlined />,
                 text: "Explorer",
-                disabled: !isAuthenticated,
+                disabled: !canQueryData,
                 key: "explorer",
             },
             {
@@ -94,21 +94,40 @@ const SiteHeader = () => {
                 text: "Reference Genomes",
                 key: "genomes",
             },
-            // TODO: Only show if admin / can data manage anything
-            {
-                key: "data-manager",
-                url: "/data/manager",
-                icon: <FolderOpenOutlined />,
-                text: "Data Manager",
-                disabled: !isAuthenticated,
-            },
-            {
-                key: "services",
-                url: "/services",
-                icon: <DashboardOutlined />,
-                text: "Services",
-                disabled: !isAuthenticated,
-            },
+            ...(managerPermissions.canManageAnything ? [
+                {
+                    key: "data-manager",
+                    url: "/data/manager",
+                    icon: <FolderOpenOutlined />,
+                    text: "Data Manager",
+                    disabled: !isAuthenticated || !managerPermissions.canManageAnything,
+                },
+                // For now, only show the services page to users who can manage something, since it's not useful for
+                // end users.
+                {
+                    key: "services",
+                    url: "/services",
+                    icon: <DashboardOutlined />,
+                    text: "Services",
+                    disabled: !isAuthenticated,
+                },
+            ] : (
+                hasAttemptedManagerPermissions ? [] : [{
+                    key: "loading-admin",
+                    text: (
+                        <Spin indicator={
+                            <LoadingOutlined style={{
+                                fontSize: 24,
+                                marginTop: -4,
+                                marginLeft: 16,
+                                marginRight: 16,
+                                color: "rgba(255, 255, 255, 0.65)",
+                            }} />
+                        } />
+                    ),
+                    disabled: true,
+                }]
+            )),
             // ---
             ...(BENTO_CBIOPORTAL_ENABLED
                 ? [
@@ -174,11 +193,20 @@ const SiteHeader = () => {
                                 {openIdConfigFetching || isHandingOffCodeForToken ? "Loading..." : "Sign In"}
                             </span>
                         ),
-                        onClick: () => performAuth(authzEndpoint, CLIENT_ID, AUTH_CALLBACK_URL),
+                        onClick: () => performAuth(),
                     },
                 ]),
         ],
-        [isAuthenticated, authHasAttempted, idTokenContents, performSignOut, unreadNotifications],
+        [
+            isAuthenticated,
+            authHasAttempted,
+            idTokenContents,
+            performSignOut,
+            performAuth,
+            canQueryData,
+            managerPermissions,
+            unreadNotifications,
+        ],
     );
 
     return (

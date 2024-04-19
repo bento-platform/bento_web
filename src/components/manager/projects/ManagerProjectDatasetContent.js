@@ -17,6 +17,8 @@ import { toggleProjectCreationModal as toggleProjectCreationModalAction } from "
 import { LAYOUT_CONTENT_STYLE } from "@/styles/layoutContent";
 import { matchingMenuKeys, transformMenuItem } from "@/utils/menu";
 import { useServices } from "@/modules/services/hooks";
+import { useCanManageAtLeastOneProjectOrDataset } from "@/modules/authz/hooks";
+import ForbiddenContent from "@/components/manager/ForbiddenContent";
 
 
 const PROJECT_HELP_TEXT_STYLE = {
@@ -36,6 +38,12 @@ const ManagerProjectDatasetContent = () => {
     const dispatch = useDispatch();
 
     const {
+        hasPermission: canManageProjectsDatasets,
+        isFetching: fetchingManagePermissions,
+        hasAttempted: attemptedManagePermissions,
+    } = useCanManageAtLeastOneProjectOrDataset();
+
+    const {
         hasPermission: canCreateProject,
         fetchingPermission: fetchingCanCreateProject,
     } = useHasResourcePermissionWrapper(RESOURCE_EVERYTHING, createProject);
@@ -43,7 +51,7 @@ const ManagerProjectDatasetContent = () => {
     const { items } = useProjects();
     const { isFetchingDependentData } = useSelector(state => state.user);
 
-    const { metadataService, isFetchingAll: isFetchingAllServices} = useServices();
+    const { metadataService, isFetchingAll: isFetchingAllServices } = useServices();
 
     const projectMenuItems = useMemo(() => items.map(project => ({
         url: `/data/manager/projects/${project.identifier}`,
@@ -52,6 +60,12 @@ const ManagerProjectDatasetContent = () => {
 
     const toggleProjectCreationModal = useCallback(
         () => dispatch(toggleProjectCreationModalAction()), [dispatch]);
+
+    if (attemptedManagePermissions && !fetchingManagePermissions && !canManageProjectsDatasets) {
+        return (
+            <ForbiddenContent message="You do not have permission to view the project/dataset manager." />
+        );
+    }
 
     if (!isFetchingDependentData && projectMenuItems.length === 0) {
         if (!isFetchingAllServices && metadataService === null) {
@@ -66,7 +80,7 @@ const ManagerProjectDatasetContent = () => {
             </Layout>;
         }
 
-        return  <>
+        return <>
             <ProjectCreationModal />
             <Layout>
                 <Layout.Content style={LAYOUT_CONTENT_STYLE}>

@@ -1,4 +1,4 @@
-import { useHasResourcePermission, useResourcePermissions } from "bento-auth-js";
+import { RESOURCE_EVERYTHING, useHasResourcePermission, useResourcePermissions } from "bento-auth-js";
 import { useMemo } from "react";
 import { useSelector } from "react-redux";
 import { useService, useServices } from "@/modules/services/hooks";
@@ -93,3 +93,9 @@ export const useResourcePermissionsWrapper = (resource) => {
         hasAttemptedPermissions,
     };
 };
+
+/**
+ * Returns the user's permissions for the node-wide permissions resource.
+ * @returns {ResourcePermissions}
+ */
+export const useEverythingPermissions = () => useResourcePermissionsWrapper(RESOURCE_EVERYTHING);

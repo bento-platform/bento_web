@@ -1,21 +1,10 @@
 import React, { Suspense, lazy, useEffect, useMemo } from "react";
 import { Navigate, Route, Routes } from "react-router-dom";
-import {
-    viewDropBox,
-    viewPermissions,
-    RESOURCE_EVERYTHING,
-    queryData,
-    viewRuns,
-    ingestData,
-    analyzeData,
-    exportData,
-    ingestReferenceMaterial,
-} from "bento-auth-js";
 
 import { Menu, Skeleton } from "antd";
 
 import { SITE_NAME } from "@/constants";
-import { useResourcePermissionsWrapper } from "@/hooks";
+import { useManagerPermissions } from "@/modules/authz/hooks";
 import { matchingMenuKeys, transformMenuItem } from "@/utils/menu";
 
 import SitePageHeader from "./SitePageHeader";
@@ -43,18 +32,26 @@ const DataManagerContent = () => {
         document.title = `${SITE_NAME}: Admin / Data Manager`;
     }, []);
 
-    const { permissions } = useResourcePermissionsWrapper(RESOURCE_EVERYTHING);
+    const managerPermissions = useManagerPermissions();
 
-    const canViewDropBox = permissions.includes(viewDropBox);
-    const canIngest = permissions.includes(ingestData) || permissions.includes(ingestReferenceMaterial);
-    const canAnalyzeData = permissions.includes(analyzeData);
-    const canExportData = permissions.includes(exportData);
-    const canQueryData = permissions.includes(queryData);
-    const canViewRuns = permissions.includes(viewRuns);
-    const canViewPermissions = permissions.includes(viewPermissions);
+    const {
+        canManageProjectsDatasets,
+        canViewDropBox,
+        canIngest,
+        canAnalyzeData,
+        canExportData,
+        canQueryData,
+        canViewRuns,
+        canViewPermissions,
+    } = managerPermissions.permissions;
 
     const menuItems = useMemo(() => [
-        { url: "/data/manager/projects", style: { marginLeft: "4px" }, text: "Projects and Datasets" },
+        {
+            url: "/data/manager/projects",
+            style: { marginLeft: "4px" },
+            text: "Projects and Datasets",
+            disabled: !canManageProjectsDatasets,
+        },
         { url: "/data/manager/files", text: "Drop Box", disabled: !canViewDropBox },
         {
             url: "/data/manager/ingestion",
