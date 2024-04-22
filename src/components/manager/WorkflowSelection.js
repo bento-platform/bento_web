@@ -4,7 +4,7 @@ import PropTypes from "prop-types";
 import { Col, Form, Input, List, Row, Select, Skeleton, Spin } from "antd";
 import WorkflowListItem from "./WorkflowListItem";
 
-import { useWorkflows } from "@/hooks";
+import { useWorkflows } from "@/modules/services/hooks";
 import { workflowTypePropType } from "@/propTypes";
 import { FORM_LABEL_COL, FORM_WRAPPER_COL } from "./workflowCommon";
 

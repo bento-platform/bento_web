@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { useEffect, useMemo } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { fetchBentoServices, fetchServices } from "@/modules/services/actions";
 
@@ -26,4 +26,35 @@ export const useServices = () => {
 export const useService = (kind) => {
     const services = useServices();
     return services.itemsByKind[kind];
+};
+
+export const useWorkflows = () => {
+    const isFetchingAllServices = useServices().isFetchingAll;
+    const {
+        isFetching: isFetchingServiceWorkflows,
+        items: serviceWorkflows,
+    } = useSelector((state) => state.serviceWorkflows);
+
+    const workflowsLoading = isFetchingAllServices || isFetchingServiceWorkflows;
+
+    return useMemo(() => {
+        const workflowsByType = {
+            ingestion: { items: [], itemsByID: {} },
+            analysis: { items: [], itemsByID: {} },
+            export: { items: [], itemsByID: {} },
+        };
+
+        Object.entries(serviceWorkflows).forEach(([workflowType, workflowTypeWorkflows]) => {
+            if (!(workflowType in workflowsByType)) return;
+
+            // noinspection JSCheckFunctionSignatures
+            Object.entries(workflowTypeWorkflows).forEach(([k, v]) => {
+                const wf = { ...v, id: k };
+                workflowsByType[workflowType].items.push(wf);
+                workflowsByType[workflowType].itemsByID[k] = wf;
+            });
+        });
+
+        return { workflowsByType, workflowsLoading };
+    }, [serviceWorkflows, workflowsLoading]);
 };
