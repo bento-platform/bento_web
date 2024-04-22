@@ -293,7 +293,7 @@ export const fetchIndividual = networkAction((individualID) => (dispatch, getSta
     check: (state) => {
         const individualRecord = state.individuals.itemsByID[individualID] || {};
         // Don't fetch if already fetching or loaded:
-        return !individualRecord.isFetching && !individualRecord.data;
+        return state.services.metadataService && !individualRecord.isFetching && !individualRecord.data;
     },
     params: { individualID },
     url: `${getState().services.metadataService.url}/api/individuals/${individualID}`,

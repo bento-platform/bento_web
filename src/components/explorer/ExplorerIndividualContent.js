@@ -1,10 +1,9 @@
 import React, { useEffect, useMemo, useState } from "react";
-import { useDispatch, useSelector } from "react-redux";
 import { Navigate, Route, Routes, useNavigate, useLocation, useParams } from "react-router-dom";
 
 import { Layout, Menu, Skeleton } from "antd";
 
-import { fetchIndividual } from "@/modules/metadata/actions";
+import { useIndividual } from "@/modules/manager/hooks";
 import { LAYOUT_CONTENT_STYLE } from "@/styles/layoutContent";
 import { matchingMenuKeys, transformMenuItem } from "@/utils/menu";
 
@@ -28,7 +27,6 @@ import IndividualPhenopackets from "./IndividualPhenopackets";
 import IndividualInterpretations from "./IndividualInterpretations";
 import IndividualMedicalActions from "./IndividualMedicalActions";
 import IndividualMeasurements from "./IndividualMeasurements";
-import { useService } from "@/modules/services/hooks";
 
 const MENU_STYLE = {
     marginLeft: "-24px",
@@ -46,8 +44,6 @@ const headerTitle = (individual) => {
 };
 
 const ExplorerIndividualContent = () => {
-    const dispatch = useDispatch();
-
     const location = useLocation();
     const navigate = useNavigate();
     const { individual: individualID } = useParams();
@@ -61,18 +57,7 @@ const ExplorerIndividualContent = () => {
         }
     }, [location]);
 
-    const metadataService = useService("metadata");
-    const individuals = useSelector((state) => state.individuals.itemsByID);
-
-    useEffect(() => {
-        if (metadataService && individualID) {
-            // If we've loaded the metadata service, and we have an individual selected (or the individual ID changed),
-            // we should load individual data.
-            dispatch(fetchIndividual(individualID)).catch(console.error);
-        }
-    }, [dispatch, metadataService, individualID]);
-
-    const { isFetching: individualIsFetching, data: individual } = individuals[individualID] ?? {};
+    const { isFetching: individualIsFetching, data: individual } = useIndividual(individualID) ?? {};
 
     const resourcesTuple = useIndividualResources(individual);
     const individualContext = useMemo(() => ({ individualID, resourcesTuple }), [individualID, resourcesTuple]);
