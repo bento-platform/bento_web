@@ -5,14 +5,15 @@ module.exports = {
     },
     "extends": [
         "eslint:recommended",
-        "plugin:react/recommended"
+        "plugin:react/recommended",
+        "plugin:@typescript-eslint/recommended",
     ],
     "globals": {
         "Atomics": "readonly",
         "SharedArrayBuffer": "readonly",
         "process": "readonly",
     },
-    "parser": "@babel/eslint-parser",
+    "parser": "@typescript-eslint/parser",
     "parserOptions": {
         "ecmaFeatures": {
             "jsx": true,
@@ -21,7 +22,8 @@ module.exports = {
         "sourceType": "module",
     },
     "plugins": [
-        "react"
+        "react",
+        "@typescript-eslint",
     ],
     "rules": {
         "indent": [
@@ -80,6 +82,9 @@ module.exports = {
             "exports": "always-multiline",
             "functions": "always-multiline",
         }],
+
+        // @@typescript-eslint tweaks
+        "@typescript-eslint/no-unused-vars": ["error", { argsIgnorePattern: "^_" }],
     },
     "settings": {
         "react": {

@@ -52,7 +52,7 @@ const useHasPermissionOnAtLeastOneProjectOrDataset = (permissionList) => {
 
     const hasPermission = useMemo(
         () => _hasOneOfListedPermissions(permissionList, globalPermissions) || (
-            Object.values(pdp).some((ps) => _hasOneOfListedPermissions(ps.permissions))
+            Object.values(pdp).some((ps) => _hasOneOfListedPermissions(permissionList, ps.permissions))
         ),
         [globalPermissions, pdp]);
 

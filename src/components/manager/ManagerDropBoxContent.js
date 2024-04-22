@@ -58,8 +58,8 @@ import {
 import { useDropBox } from "@/modules/manager/hooks";
 
 import { VIEWABLE_FILE_EXTENSIONS } from "../display/FileDisplay";
-import { useResourcePermissionsWrapper, useWorkflows } from "@/hooks";
-import { useService } from "@/modules/services/hooks";
+import { useResourcePermissionsWrapper } from "@/hooks";
+import { useService, useWorkflows } from "@/modules/services/hooks";
 
 const DROP_BOX_CONTENT_CONTAINER_STYLE = { display: "flex", flexDirection: "column", gap: 8 };
 const DROP_BOX_INFO_CONTAINER_STYLE = { display: "flex", gap: "2em", paddingTop: 8 };

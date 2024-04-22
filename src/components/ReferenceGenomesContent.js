@@ -6,9 +6,10 @@ import { BarsOutlined, DeleteOutlined, ImportOutlined } from "@ant-design/icons"
 
 import { deleteReferenceMaterial, ingestReferenceMaterial, RESOURCE_EVERYTHING } from "bento-auth-js";
 
-import { useResourcePermissionsWrapper, useWorkflows } from "@/hooks";
+import { useResourcePermissionsWrapper } from "@/hooks";
 import { deleteReferenceGenomeIfPossible } from "@/modules/reference/actions";
 import { useReferenceGenomes } from "@/modules/reference/hooks";
+import { useWorkflows } from "@/modules/services/hooks";
 import { LAYOUT_CONTENT_STYLE } from "@/styles/layoutContent";
 import SitePageHeader from "./SitePageHeader";
 import { useStartIngestionFlow } from "./manager/workflowCommon";

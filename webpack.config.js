@@ -20,9 +20,9 @@ module.exports = {
                 use: ["worker-loader"],
             },
             {
-                test: /\.(js|jsx)$/,
+                test: /\.(ts|tsx|js|jsx)$/,
                 exclude: /node_modules/,
-                use: ["babel-loader"],
+                use: ["ts-loader"],
             },
             {
                 test: /.css$/,
@@ -38,7 +38,7 @@ module.exports = {
         alias: {
             "@": path.resolve(__dirname, "src"),
         },
-        extensions: ["*", ".js", ".jsx"],
+        extensions: ["*", ".tsx", ".ts", ".js", ".jsx"],
     },
     output: {
         path: path.resolve(__dirname, "dist"),
