@@ -48,6 +48,13 @@ const CALLBACK_PATH = "/callback";
 
 const createSessionWorker = () => new SessionWorker();
 
+// Using the fetchUserDependentData thunk creator as a hook argument may lead to unwanted triggers on re-renders.
+// So we store the thunk inner function of the fetchUserDependentData thunk creator in a constant outside of the
+// component function.
+const onAuthSuccess = fetchUserDependentData(nop);
+
+const uiErrorCallback = (msg) => message.error(msg);
+
 const App = () => {
     const dispatch = useDispatch();
     const navigate = useNavigate();
@@ -75,10 +82,6 @@ const App = () => {
 
     const isInAuthPopup = checkIsInAuthPopup(BENTO_URL_NO_TRAILING_SLASH);
 
-    // Using the fetchUserDependentData thunk creator as a hook argument may lead to unwanted triggers on re-renders.
-    // So we store the thunk inner function of the fetchUserDependentData thunk creator in a const.
-    const onAuthSuccess = fetchUserDependentData(nop);
-
     const popupOpenerAuthCallback = usePopupOpenerAuthCallback();
 
     // Set up auth callback handling
@@ -86,7 +89,7 @@ const App = () => {
         CALLBACK_PATH,
         onAuthSuccess,
         isInAuthPopup ? popupOpenerAuthCallback : undefined,
-        (msg) => message.error(msg),
+        uiErrorCallback,
     );
 
     // Set up message handling from sign-in popup
@@ -182,11 +185,7 @@ const App = () => {
         })();
     }, [dispatch, createEventRelayConnectionIfNecessary, didPostLoadEffects]);
 
-    useSessionWorkerTokenRefresh(
-        sessionWorker,
-        createSessionWorker,
-        onAuthSuccess,
-    );
+    useSessionWorkerTokenRefresh(sessionWorker, createSessionWorker, onAuthSuccess);
 
     const clearPingInterval = useCallback(() => {
         if (pingInterval.current === null) return;
