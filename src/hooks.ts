@@ -66,7 +66,7 @@ export const useOpenIDConfigNotLoaded = (): boolean => {
     const {
         hasAttempted: openIdConfigHasAttempted,
         isFetching: openIdConfigFetching,
-        // @ts-ignore
+        // @ts-expect-error We haven't typed the state object yet
     } = useSelector((state) => state.openIdConfiguration);
 
     // Need `=== false`, since if this is loaded from localStorage from a prior version, it'll be undefined and prevent
