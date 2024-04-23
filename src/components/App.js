@@ -25,6 +25,7 @@ import { nop } from "@/utils/misc";
 import { fetchUserDependentData } from "@/modules/user/actions";
 
 import NotificationDrawer from "./notifications/NotificationDrawer";
+import AutoAuthenticate from "./AutoAuthenticate";
 import RequireAuth from "./RequireAuth";
 import SiteHeader from "./SiteHeader";
 import SiteFooter from "./SiteFooter";
@@ -232,7 +233,8 @@ const App = () => {
                             <Route path="/overview" element={<RequireAuth><OverviewContent /></RequireAuth>} />
                             <Route path="/data/explorer/*"
                                    element={<RequireAuth><DataExplorerContent /></RequireAuth>} />
-                            <Route path="/genomes" element={<ReferenceGenomesContent />} />
+                            <Route path="/genomes"
+                                   element={<AutoAuthenticate><ReferenceGenomesContent /></AutoAuthenticate>} />
                             <Route path="/cbioportal" element={<RequireAuth><CBioPortalContent /></RequireAuth>} />
                             <Route path="/services/:kind/*"
                                    element={<RequireAuth><ServiceDetail /></RequireAuth>} />
