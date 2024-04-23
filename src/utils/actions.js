@@ -65,6 +65,10 @@ const _networkAction =
 
             const { types, check, params, url, baseUrl, req, err, onSuccess, onError, paginated } = fnResult;
 
+            // if we're currently auto-authenticating, don't start any network requests; otherwise, they have a good
+            // chance of getting interrupted when the auth redirect happens.
+            if (getState().auth.isAutoAuthenticating) return;
+
             // if a check function is specified and evaluates to false on the state, don't fire the action.
             if (check && !check(getState())) return;
 
@@ -108,7 +112,7 @@ const _networkAction =
                 });
                 if (onSuccess) await onSuccess(data);
             } catch (e) {
-                handleNetworkErrorMessaging(e, err);
+                handleNetworkErrorMessaging(getState(), e, err);
                 dispatch({ type: types.ERROR, ...params, caughtError: e });
                 if (onError) await onError(e);
             }
@@ -122,7 +126,12 @@ export const networkAction =
             _networkAction(fn, ...args);
 
 
-const handleNetworkErrorMessaging = (e, reduxErrDetail) => {
+const handleNetworkErrorMessaging = (state, e, reduxErrDetail) => {
+    // if we're currently auto-authenticating, and it's a network error, suppress it.
+    if (e.toString().includes("NetworkError when attempting") && state.auth.isAutoAuthenticating) {
+        return;
+    }
+
     console.error(e, reduxErrDetail);
 
     // prefer any cause messages to the top-level "message" string

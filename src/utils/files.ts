@@ -1,5 +1,7 @@
+export type GenomicsFileType = "gvcf" | "vcf" | "maf" | "sam" | "bam" | "cram" | "bigwig";
+
 // file type guesses for igv files, for cases where this information is missing
-export const guessFileType = (filename) => {
+export const guessFileType = (filename: string): GenomicsFileType | undefined => {
     const filenameLower = filename.toLowerCase();
 
     // variant:
@@ -18,10 +20,9 @@ export const guessFileType = (filename) => {
     return undefined;
 };
 
-/** @type {Object.<string, RegExp>} */
-const FILE_TEST_REGEX_CACHE = {};
+const FILE_TEST_REGEX_CACHE: Record<string, RegExp> = {};
 
-const _getFileRegExp = (pattern) => {
+const _getFileRegExp = (pattern: string): RegExp => {
     if (pattern in FILE_TEST_REGEX_CACHE) {
         return FILE_TEST_REGEX_CACHE[pattern];
     }
@@ -31,7 +32,7 @@ const _getFileRegExp = (pattern) => {
     return r;
 };
 
-export const testFileAgainstPattern = (fileName, pattern) => {
+export const testFileAgainstPattern = (fileName: string, pattern: string): boolean => {
     if (!pattern) {
         // No pattern => everything matches
         return true;

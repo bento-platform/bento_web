@@ -1,3 +1,5 @@
+import { useSelector } from "react-redux";
+
 import { RESOURCE_EVERYTHING, useHasResourcePermission, useResourcePermissions } from "bento-auth-js";
 import type { Resource } from "bento-auth-js";
 
@@ -56,3 +58,18 @@ export const useResourcePermissionsWrapper = (resource: Resource): ResourcePermi
  * Returns the user's permissions for the node-wide permissions resource.
  */
 export const useEverythingPermissions = () => useResourcePermissionsWrapper(RESOURCE_EVERYTHING);
+
+/**
+ * Returns true if the OpenID config hasn't been loaded yet.
+ */
+export const useOpenIDConfigNotLoaded = (): boolean => {
+    const {
+        hasAttempted: openIdConfigHasAttempted,
+        isFetching: openIdConfigFetching,
+        // @ts-expect-error We haven't typed the state object yet
+    } = useSelector((state) => state.openIdConfiguration);
+
+    // Need `=== false`, since if this is loaded from localStorage from a prior version, it'll be undefined and prevent
+    // the page from showing.
+    return openIdConfigHasAttempted === false || openIdConfigFetching;
+};

@@ -25,6 +25,7 @@ import { nop } from "@/utils/misc";
 import { fetchUserDependentData } from "@/modules/user/actions";
 
 import NotificationDrawer from "./notifications/NotificationDrawer";
+import AutoAuthenticate from "./AutoAuthenticate";
 import RequireAuth from "./RequireAuth";
 import SiteHeader from "./SiteHeader";
 import SiteFooter from "./SiteFooter";
@@ -47,6 +48,13 @@ const SIGN_IN_WINDOW_FEATURES = "scrollbars=no, toolbar=no, menubar=no, width=80
 const CALLBACK_PATH = "/callback";
 
 const createSessionWorker = () => new SessionWorker();
+
+// Using the fetchUserDependentData thunk creator as a hook argument may lead to unwanted triggers on re-renders.
+// So we store the thunk inner function of the fetchUserDependentData thunk creator in a constant outside of the
+// component function.
+const onAuthSuccess = fetchUserDependentData(nop);
+
+const uiErrorCallback = (msg) => message.error(msg);
 
 const App = () => {
     const dispatch = useDispatch();
@@ -75,10 +83,6 @@ const App = () => {
 
     const isInAuthPopup = checkIsInAuthPopup(BENTO_URL_NO_TRAILING_SLASH);
 
-    // Using the fetchUserDependentData thunk creator as a hook argument may lead to unwanted triggers on re-renders.
-    // So we store the thunk inner function of the fetchUserDependentData thunk creator in a const.
-    const onAuthSuccess = fetchUserDependentData(nop);
-
     const popupOpenerAuthCallback = usePopupOpenerAuthCallback();
 
     // Set up auth callback handling
@@ -86,7 +90,7 @@ const App = () => {
         CALLBACK_PATH,
         onAuthSuccess,
         isInAuthPopup ? popupOpenerAuthCallback : undefined,
-        (msg) => message.error(msg),
+        uiErrorCallback,
     );
 
     // Set up message handling from sign-in popup
@@ -182,11 +186,7 @@ const App = () => {
         })();
     }, [dispatch, createEventRelayConnectionIfNecessary, didPostLoadEffects]);
 
-    useSessionWorkerTokenRefresh(
-        sessionWorker,
-        createSessionWorker,
-        onAuthSuccess,
-    );
+    useSessionWorkerTokenRefresh(sessionWorker, createSessionWorker, onAuthSuccess);
 
     const clearPingInterval = useCallback(() => {
         if (pingInterval.current === null) return;
@@ -233,7 +233,8 @@ const App = () => {
                             <Route path="/overview" element={<RequireAuth><OverviewContent /></RequireAuth>} />
                             <Route path="/data/explorer/*"
                                    element={<RequireAuth><DataExplorerContent /></RequireAuth>} />
-                            <Route path="/genomes" element={<ReferenceGenomesContent />} />
+                            <Route path="/genomes"
+                                   element={<AutoAuthenticate><ReferenceGenomesContent /></AutoAuthenticate>} />
                             <Route path="/cbioportal" element={<RequireAuth><CBioPortalContent /></RequireAuth>} />
                             <Route path="/services/:kind/*"
                                    element={<RequireAuth><ServiceDetail /></RequireAuth>} />
