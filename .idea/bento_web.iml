@@ -20,5 +20,6 @@
     <orderEntry type="library" name="@types/react-router" level="application" />
     <orderEntry type="library" name="@types/react-pdf" level="application" />
     <orderEntry type="library" name="@types/papaparse" level="application" />
+    <orderEntry type="library" name="@types/prop-types" level="application" />
   </component>
 </module>
