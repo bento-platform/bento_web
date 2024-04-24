@@ -1,19 +1,16 @@
 import React from "react";
-import PropTypes from "prop-types";
 import { Layout, Result } from "antd";
 import { LAYOUT_CONTENT_STYLE } from "@/styles/layoutContent";
 
-const ForbiddenContent = ({ message }) => (
+export type ForbiddenContentProps = { message: React.ReactNode };
+
+const ForbiddenContent = ({ message }: ForbiddenContentProps) => (
     <Layout>
         <Layout.Content style={LAYOUT_CONTENT_STYLE}>
             <Result status="error" title="Forbidden" subTitle={message} />
         </Layout.Content>
     </Layout>
 );
-
-ForbiddenContent.propTypes = {
-    message: PropTypes.string,
-};
 
 ForbiddenContent.defaultProps = {
     message: "You do not have permission to view this content.",

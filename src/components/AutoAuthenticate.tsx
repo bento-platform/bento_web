@@ -1,11 +1,10 @@
 import React from "react";
-import PropTypes from "prop-types";
 
 import { useAutoAuthenticate } from "bento-auth-js";
 import SitePageLoading from "./SitePageLoading";
 import { useOpenIDConfigNotLoaded } from "@/hooks";
 
-const AutoAuthenticate = ({ children }) => {
+const AutoAuthenticate = ({ children }: { children: React.ReactNode }) => {
     const { isAutoAuthenticating } = useAutoAuthenticate();
     const openIdConfigNotLoaded = useOpenIDConfigNotLoaded();
 
@@ -14,9 +13,6 @@ const AutoAuthenticate = ({ children }) => {
     }
 
     return children;
-};
-AutoAuthenticate.propTypes = {
-    children: PropTypes.node,
 };
 
 export default AutoAuthenticate;
