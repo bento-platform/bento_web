@@ -37,7 +37,7 @@ const DatasetFormModal = ({ project, mode, initialValue, onCancel, onOk, open })
             const onSuccess = () => handleSuccess(values);
 
             if (typeof values?.discovery === "string") {
-                values["discovery"] = JSON.parse(values["discovery"])
+                values["discovery"] = JSON.parse(values["discovery"]);
             }
 
             return (

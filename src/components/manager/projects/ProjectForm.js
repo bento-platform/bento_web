@@ -4,17 +4,26 @@ import PropTypes from "prop-types";
 import { Form, Input } from "antd";
 
 const ProjectForm = ({formRef, style, initialValues}) => (
-    <Form ref={formRef} initialValues={initialValues} style={style || {}} layout="vertical">
-        <Form.Item label="Title" name="title" rules={[{required: true}, {min: 3}]}>
+    <Form ref={formRef} style={style || {}} layout="vertical">
+        <Form.Item
+            label="Title"
+            name="title"
+            initialValue={initialValues?.title || ""}
+            rules={[{required: true}, {min: 3}]}
+        >
             <Input placeholder="My Health Data Project" size="large" />
         </Form.Item>
-        <Form.Item label="Description" name="description">
+        <Form.Item
+            label="Description"
+            name="description"
+            initialValue={initialValues?.title || "description"}
+        >
             <Input.TextArea placeholder="Description" rows={3} />
         </Form.Item>
-        <Form.Item 
+        <Form.Item
             label="Discovery Configuration"
             name="discovery"
-            initialValues={
+            initialValue={
                 initialValues?.discovery ? JSON.stringify(initialValues.discovery, null, 2) : ""
             }
         >
@@ -29,6 +38,7 @@ ProjectForm.propTypes = {
     initialValues: PropTypes.shape({
         title: PropTypes.string,
         description: PropTypes.string,
+        discovery: PropTypes.object,
     }),
 };
 

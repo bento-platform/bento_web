@@ -32,7 +32,7 @@ const ProjectCreationModal = () => {
 
         form.current.validateFields().then(async (values) => {
             if (typeof values?.discovery === "string") {
-                values["discovery"] = JSON.parse(values["discovery"])
+                values["discovery"] = JSON.parse(values["discovery"]);
             }
             await dispatch(createProjectIfPossible(values, navigate));
             form.current.resetFields();

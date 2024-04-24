@@ -87,6 +87,7 @@ DatasetForm.propTypes = {
         contact_info: PropTypes.string,
         data_use: DATA_USE_PROP_TYPE_SHAPE, // TODO: Shared shape for data use
         dats_file: PropTypes.object,
+        discovery: PropTypes.object,
     }),
     formRef: PropTypes.object,
 };

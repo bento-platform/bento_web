@@ -59,6 +59,7 @@ class Project extends Component {
             description: value.description || "",
             datasets: value.datasets || [],
             project_schemas: value.project_schemas || [],
+            discovery: value.discovery || {},
             selectedKey: SUB_TAB_KEYS.DATASETS,
         };
     }
@@ -110,6 +111,7 @@ class Project extends Component {
                         title: this.state.title,
                         description: this.state.description,
                         data_use: this.state.data_use,
+                        discovery: this.state.discovery,
                     }}
                     formRef={this.editingForm}
                 />

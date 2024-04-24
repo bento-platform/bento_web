@@ -80,6 +80,7 @@ export const projectPropTypesShape = PropTypes.shape({
     project_schemas: PropTypes.arrayOf(projectJsonSchemaTypesShape),
     created: PropTypes.string,
     updated: PropTypes.string,
+    discovery: PropTypes.object,
 });
 
 // Prop types object shape for a single notification object.
