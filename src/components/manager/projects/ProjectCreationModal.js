@@ -10,6 +10,7 @@ import ProjectForm from "./ProjectForm";
 import { toggleProjectCreationModal } from "@/modules/manager/actions";
 import { createProjectIfPossible } from "@/modules/metadata/actions";
 
+
 const ProjectCreationModal = () => {
 
     const dispatch = useDispatch();
@@ -30,6 +31,11 @@ const ProjectCreationModal = () => {
         }
 
         form.current.validateFields().then(async (values) => {
+            console.log(values);
+            if (typeof values?.discovery === "string") {
+                values["discovery"] = JSON.parse(values["discovery"])
+            }
+            console.log(values);
             await dispatch(createProjectIfPossible(values, navigate));
             form.current.resetFields();
             dispatch(toggleProjectCreationModal());

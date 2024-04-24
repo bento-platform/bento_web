@@ -11,6 +11,15 @@ const ProjectForm = ({formRef, style, initialValues}) => (
         <Form.Item label="Description" name="description">
             <Input.TextArea placeholder="Description" rows={3} />
         </Form.Item>
+        <Form.Item 
+            label="Discovery Configuration"
+            name="discovery"
+            initialValues={
+                initialValues?.discovery ? JSON.stringify(initialValues.discovery, null, 2) : ""
+            }
+        >
+            <Input.TextArea />
+        </Form.Item>
     </Form>
 );
 
