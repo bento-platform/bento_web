@@ -1,18 +1,14 @@
 import React, { useCallback, useMemo, useState } from "react";
+import type { CSSProperties, MouseEventHandler } from "react";
 import PropTypes from "prop-types";
 
 import { Typography } from "antd";
 
-const PERMISSIONS_LIST_STYLE = { margin: 0, padding: 0, listStyle: "none", lineHeight: "1.6em" };
+const PERMISSIONS_LIST_STYLE: CSSProperties = { margin: 0, padding: 0, listStyle: "none", lineHeight: "1.6em" };
 const MAX_COLLAPSED_PERMISSIONS = 4;
 
-/**
- * @param {string[]} permissions
- * @return {React.JSX.Element}
- * @constructor
- */
-const PermissionsList = ({ permissions }) => {
-    const [showAll, setShowAll] = useState(false);
+const PermissionsList = ({ permissions }: { permissions: string[] }) => {
+    const [showAll, setShowAll] = useState<boolean>(false);
 
     const sortedPermissions = useMemo(
         () => permissions.sort((a, b) => {
@@ -22,12 +18,12 @@ const PermissionsList = ({ permissions }) => {
         }),
         [permissions]);
 
-    const onShowAll = useCallback((e) => {
+    const onShowAll: MouseEventHandler<HTMLAnchorElement> = useCallback((e) => {
         setShowAll(true);
         e.preventDefault();
     }, []);
 
-    const onCollapse = useCallback((e) => {
+    const onCollapse: MouseEventHandler<HTMLAnchorElement> = useCallback((e) => {
         setShowAll(false);
         e.preventDefault();
     }, []);
