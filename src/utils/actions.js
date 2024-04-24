@@ -151,6 +151,6 @@ const formatErrorMessage = (errorMessageIntro, errorDetail) => {
         : errorDetail;
 };
 
-export const beginFlow = (types) => async (dispatch) => await dispatch({ type: types.BEGIN });
-export const endFlow = (types) => async (dispatch) => await dispatch({ type: types.END });
-export const terminateFlow = (types) => async (dispatch) => await dispatch({ type: types.TERMINATE });
+export const beginFlow = (types) => (dispatch) => dispatch({ type: types.BEGIN });
+export const endFlow = (types) => (dispatch) => dispatch({ type: types.END });
+export const terminateFlow = (types) => (dispatch) => dispatch({ type: types.TERMINATE });
