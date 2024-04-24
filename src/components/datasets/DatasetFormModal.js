@@ -36,6 +36,10 @@ const DatasetFormModal = ({ project, mode, initialValue, onCancel, onOk, open })
         form.validateFields().then((values) => {
             const onSuccess = () => handleSuccess(values);
 
+            if (typeof values?.discovery === "string") {
+                values["discovery"] = JSON.parse(values["discovery"])
+            }
+
             return (
                 mode === FORM_MODE_ADD
                     ? dispatch(addProjectDataset(project, values, onSuccess))

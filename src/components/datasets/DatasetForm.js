@@ -51,6 +51,15 @@ const DatasetForm = ({ initialValue, formRef }) => {
                 <Input.TextArea />
             </Item>
             <Item
+                label="Discovery config"
+                name="discovery"
+                initialValue={
+                    initialValue?.discovery ? JSON.stringify(initialValue.discovery, null, 2) : ""
+                }
+            >
+                <Input.TextArea />
+            </Item>
+            <Item
                 label="Consent Code and Data Use Requirements"
                 name="data_use"
                 initialValue={initialValue?.data_use ?? simpleDeepCopy(INITIAL_DATA_USE_VALUE)}
