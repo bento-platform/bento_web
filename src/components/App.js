@@ -233,6 +233,8 @@ const App = () => {
                             <Route path="/overview" element={<RequireAuth><OverviewContent /></RequireAuth>} />
                             <Route path="/data/explorer/*"
                                    element={<RequireAuth><DataExplorerContent /></RequireAuth>} />
+                            {/* Reference content is available to everyone to view, at least, so wrap it in an
+                                AutoAuthenticate (to re-authenticate if we were before) rather than requiring auth. */}
                             <Route path="/genomes"
                                    element={<AutoAuthenticate><ReferenceGenomesContent /></AutoAuthenticate>} />
                             <Route path="/cbioportal" element={<RequireAuth><CBioPortalContent /></RequireAuth>} />
