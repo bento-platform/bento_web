@@ -1,10 +1,12 @@
-import React from "react";
-import {Link} from "react-router-dom";
+import { Link } from "react-router-dom";
+import type { BentoMenuItem } from "@/types/menu";
+import { ItemType } from "antd/es/menu/hooks/useItems";
+
 
 // Custom menu renderer
-export const transformMenuItem = (i) => {
+export const transformMenuItem = (i: BentoMenuItem): ItemType => {
     const baseItem = {
-        key: i.key ?? i.url,
+        key: "key" in i ? i.key : i.url,
         style: i.style ?? {},
         disabled: i.disabled ?? false,
     };
@@ -25,7 +27,7 @@ export const transformMenuItem = (i) => {
     return {
         ...baseItem,
         ...(i.onClick ? {onClick: i.onClick} : {}),
-        label: i.url ? (
+        label: ("url" in i) ? (
             <Link to={i.url}>
                 {i.icon ?? null}
                 {i.text ? <span className="nav-text">{i.text}</span> : null}
@@ -39,10 +41,10 @@ export const transformMenuItem = (i) => {
     };
 };
 
-const currentUrlMatches = (i) => i.url && window.location.pathname.startsWith(i.url);
-export const matchingMenuKeys = (menuItems) => menuItems
+const currentUrlMatches = (i: BentoMenuItem) => "url" in i && window.location.pathname.startsWith(i.url);
+export const matchingMenuKeys = (menuItems: BentoMenuItem[]): string[] => menuItems
     .filter(i => currentUrlMatches(i) || (i.children ?? []).length > 0)
     .flatMap(i => [
-        ...(currentUrlMatches(i) ? [i.key ?? i.url ?? ""] : []),
+        ...(currentUrlMatches(i) ? ["key" in i ? i.key : i.url] : []),
         ...matchingMenuKeys(i.children ?? []),
     ]);
