@@ -41,11 +41,11 @@ components.
                 the GA4GH Data Use Ontology.
     * `events.js`: Event dispatching code for triggering event handlers defined
                    elsewhere.
-    * `index.js`: The entry point for the application. Sets up the store and
+    * `index.tsx`: The entry point for the application. Sets up the store and
                   router and renders the `App` component.
     * `propTypes.js`: Re-usable prop types defined using the `prop-types`
                       module to enforce component property types.
-    * `reducers.js`: Root reducer definition
+    * `reducers.ts`: Root reducer definition
     * `template.html`: HTML template for the application (given to `webpack`)
   * `public/LICENSE.txt`: Copy of the LGPL v3.0 license for serving from
                           deployed instances of the application.
