@@ -14,6 +14,7 @@ import {
     LoadingOutlined,
     LoginOutlined,
     LogoutOutlined,
+    PieChartOutlined,
     SettingOutlined,
     UserOutlined,
 } from "@ant-design/icons";
@@ -77,7 +78,7 @@ const SiteHeader = () => {
         () => [
             {
                 url: "/overview",
-                icon: <UserOutlined />,
+                icon: <PieChartOutlined />,
                 text: "Overview",
                 key: "overview",
             },
