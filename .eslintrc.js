@@ -51,6 +51,10 @@ module.exports = {
         ],
         "react/jsx-indent-props": ["error", "first"],
 
+        // Don't need React for JSX anymore with new JSX transform
+        "react/react-in-jsx-scope": "off",
+        "react/jsx-uses-react": "off",
+
         // Prevent some legacy HTML tags
         "react/forbid-elements": ["error", {"forbid": ["b", "font"]}],
 
