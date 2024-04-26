@@ -14,6 +14,7 @@ import {
     LoadingOutlined,
     LoginOutlined,
     LogoutOutlined,
+    PieChartOutlined,
     SettingOutlined,
     UserOutlined,
 } from "@ant-design/icons";
@@ -51,7 +52,10 @@ const SiteHeader = () => {
     const { permissions, isFetchingPermissions } = useEverythingPermissions();
     const canViewNotifications = permissions.includes(viewNotifications);
 
-    const { hasPermission: canQueryData } = useCanQueryAtLeastOneProjectOrDataset();
+    const {
+        hasPermission: canQueryData,
+        hasAttemptedPermissions: hasAttemptedQueryPermissions,
+    } = useCanQueryAtLeastOneProjectOrDataset();
     const { permissions: managerPermissions, hasAttempted: hasAttemptedManagerPermissions } = useManagerPermissions();
 
     const { isFetching: openIdConfigFetching } = useSelector((state) => state.openIdConfiguration);
@@ -77,17 +81,18 @@ const SiteHeader = () => {
         () => [
             {
                 url: "/overview",
-                icon: <UserOutlined />,
+                icon: <PieChartOutlined />,
                 text: "Overview",
                 key: "overview",
             },
-            {
-                url: "/data/explorer",
-                icon: <BarChartOutlined />,
-                text: "Explorer",
-                disabled: !canQueryData,
-                key: "explorer",
-            },
+            ...(canQueryData ? [
+                {
+                    url: "/data/explorer",
+                    icon: <BarChartOutlined />,
+                    text: "Explorer",
+                    key: "explorer",
+                },
+            ] : []),
             {
                 url: "/genomes",
                 icon: <FileTextOutlined />,
@@ -100,7 +105,6 @@ const SiteHeader = () => {
                     url: "/data/manager",
                     icon: <FolderOpenOutlined />,
                     text: "Data Manager",
-                    disabled: !isAuthenticated || !managerPermissions.canManageAnything,
                 },
                 // For now, only show the services page to users who can manage something, since it's not useful for
                 // end users.
@@ -109,25 +113,23 @@ const SiteHeader = () => {
                     url: "/services",
                     icon: <DashboardOutlined />,
                     text: "Services",
-                    disabled: !isAuthenticated,
                 },
-            ] : (
-                hasAttemptedManagerPermissions ? [] : [{
-                    key: "loading-admin",
-                    text: (
-                        <Spin indicator={
-                            <LoadingOutlined style={{
-                                fontSize: 24,
-                                marginTop: -4,
-                                marginLeft: 16,
-                                marginRight: 16,
-                                color: "rgba(255, 255, 255, 0.65)",
-                            }} />
-                        } />
-                    ),
-                    disabled: true,
-                }]
-            )),
+            ] : []),
+            ...((hasAttemptedQueryPermissions && hasAttemptedManagerPermissions) ? [] : [{
+                key: "loading-admin",
+                text: (
+                    <Spin indicator={
+                        <LoadingOutlined style={{
+                            fontSize: 24,
+                            marginTop: -4,
+                            marginLeft: 16,
+                            marginRight: 16,
+                            color: "rgba(255, 255, 255, 0.65)",
+                        }} />
+                    } />
+                ),
+                disabled: true,
+            }]),
             // ---
             ...(BENTO_CBIOPORTAL_ENABLED
                 ? [
