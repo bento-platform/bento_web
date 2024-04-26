@@ -2,23 +2,17 @@ import type { Resource } from "bento-auth-js";
 export type { Resource } from "bento-auth-js";
 
 export type SpecificSubject = {
-    everyone: undefined;
     iss: string;
-    client: undefined;
     sub: string;
-    group: undefined;
 } | {
-    everyone: undefined;
     iss: string;
     client: string;
-    sub: undefined;
-    group: undefined;
 };
 
 export type GrantSubject =
-    | { everyone: true; iss: undefined; client: undefined; sub: undefined; group: undefined; }
+    | { everyone: true }
     | SpecificSubject
-    | { everyone: undefined; iss: undefined; client: undefined; sub: undefined; group: number };
+    | { group: number };
 
 export interface Grant {
     subject: GrantSubject;
