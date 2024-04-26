@@ -100,7 +100,6 @@ const SiteHeader = () => {
                     url: "/data/manager",
                     icon: <FolderOpenOutlined />,
                     text: "Data Manager",
-                    disabled: !isAuthenticated || !managerPermissions.canManageAnything,
                 },
                 // For now, only show the services page to users who can manage something, since it's not useful for
                 // end users.
@@ -109,7 +108,6 @@ const SiteHeader = () => {
                     url: "/services",
                     icon: <DashboardOutlined />,
                     text: "Services",
-                    disabled: !isAuthenticated,
                 },
             ] : (
                 hasAttemptedManagerPermissions ? [] : [{
