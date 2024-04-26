@@ -54,7 +54,7 @@ const SiteHeader = () => {
 
     const {
         hasPermission: canQueryData,
-        hasAttemptedPermissions: hasAttemptedQueryPermissions,
+        hasAttempted: hasAttemptedQueryPermissions,
     } = useCanQueryAtLeastOneProjectOrDataset();
     const { permissions: managerPermissions, hasAttempted: hasAttemptedManagerPermissions } = useManagerPermissions();
 
