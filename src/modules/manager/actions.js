@@ -27,7 +27,7 @@ export const beginProjectEditing = basicAction(PROJECT_EDITING.BEGIN);
 export const endProjectEditing = basicAction(PROJECT_EDITING.END);
 
 
-export const fetchDropBoxTree = networkAction(() => (dispatch, getState) => ({
+export const fetchDropBoxTree = networkAction(() => (_dispatch, getState) => ({
     types: FETCH_DROP_BOX_TREE,
     check: (state) => state.services.dropBoxService
         && !state.dropBox.isFetching
@@ -48,7 +48,7 @@ export const fetchDropBoxTreeIfNeededOrFail = () => async (dispatch, getState) =
 const dropBoxObjectPath = (getState, path) =>
     `${getState().services.dropBoxService.url}/objects/${path.replace(/^\//, "")}`;
 
-export const putDropBoxObject = networkAction((path, file) => async (dispatch, getState) => ({
+export const putDropBoxObject = networkAction((path, file) => async (_dispatch, getState) => ({
     types: PUT_DROP_BOX_OBJECT,
     url: dropBoxObjectPath(getState, path),
     req: {
