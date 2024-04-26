@@ -31,7 +31,7 @@ export const fetchDropBoxTree = networkAction(() => (_dispatch, getState) => ({
     types: FETCH_DROP_BOX_TREE,
     check: (state) => state.services.dropBoxService
         && !state.dropBox.isFetching
-        && (!state.dropBox.tree.length || state.dropBox.isInvalidated),
+        && (!state.dropBox.tree.length || state.dropBox.isInvalid),
     url: `${getState().services.dropBoxService.url}/tree`,
     err: "Error fetching drop box file tree",
 }));
