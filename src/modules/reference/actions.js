@@ -3,7 +3,7 @@ import { createNetworkActionTypes, networkAction } from "@/utils/actions";
 export const FETCH_REFERENCE_GENOMES = createNetworkActionTypes("REFERENCE.FETCH_REFERENCE_GENOMES");
 export const DELETE_REFERENCE_GENOME = createNetworkActionTypes("REFERENCE.DELETE_REFERENCE_GENOME");
 
-const fetchReferenceGenomes = networkAction(() => (dispatch, getState) => ({
+const fetchReferenceGenomes = networkAction(() => (_dispatch, getState) => ({
     types: FETCH_REFERENCE_GENOMES,
     url: `${getState().services.itemsByKind.reference.url}/genomes`,
     err: "Error fetching reference genomes",
@@ -21,7 +21,7 @@ export const fetchReferenceGenomesIfNeeded = () => (dispatch, getState) => {
     return dispatch(fetchReferenceGenomes());
 };
 
-const deleteReferenceGenome = networkAction((genomeID) => (dispatch, getState) => ({
+const deleteReferenceGenome = networkAction((genomeID) => (_dispatch, getState) => ({
     types: DELETE_REFERENCE_GENOME,
     params: {genomeID},
     url: `${getState().services.itemsByKind.reference.url}/genomes/${genomeID}`,

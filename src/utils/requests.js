@@ -7,12 +7,6 @@ export const createFormData = obj => {
     return formData;
 };
 
-export const createURLSearchParams = obj => {
-    const usp = new URLSearchParams();
-    Object.entries(obj).forEach(([k, v]) => usp.set(k, typeof v === "object" ? JSON.stringify(v) : v));
-    return usp;
-};
-
 export const jsonRequest = (body, method = "GET", extraHeaders = undefined) => ({
     method,
     headers: {"Content-Type": "application/json", ...(extraHeaders ?? {})},
