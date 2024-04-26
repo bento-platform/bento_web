@@ -52,7 +52,10 @@ const SiteHeader = () => {
     const { permissions, isFetchingPermissions } = useEverythingPermissions();
     const canViewNotifications = permissions.includes(viewNotifications);
 
-    const { hasPermission: canQueryData } = useCanQueryAtLeastOneProjectOrDataset();
+    const {
+        hasPermission: canQueryData,
+        hasAttemptedPermissions: hasAttemptedQueryPermissions,
+    } = useCanQueryAtLeastOneProjectOrDataset();
     const { permissions: managerPermissions, hasAttempted: hasAttemptedManagerPermissions } = useManagerPermissions();
 
     const { isFetching: openIdConfigFetching } = useSelector((state) => state.openIdConfiguration);
@@ -82,13 +85,14 @@ const SiteHeader = () => {
                 text: "Overview",
                 key: "overview",
             },
-            {
-                url: "/data/explorer",
-                icon: <BarChartOutlined />,
-                text: "Explorer",
-                disabled: !canQueryData,
-                key: "explorer",
-            },
+            ...(canQueryData ? [
+                {
+                    url: "/data/explorer",
+                    icon: <BarChartOutlined />,
+                    text: "Explorer",
+                    key: "explorer",
+                },
+            ] : []),
             {
                 url: "/genomes",
                 icon: <FileTextOutlined />,
@@ -110,23 +114,22 @@ const SiteHeader = () => {
                     icon: <DashboardOutlined />,
                     text: "Services",
                 },
-            ] : (
-                hasAttemptedManagerPermissions ? [] : [{
-                    key: "loading-admin",
-                    text: (
-                        <Spin indicator={
-                            <LoadingOutlined style={{
-                                fontSize: 24,
-                                marginTop: -4,
-                                marginLeft: 16,
-                                marginRight: 16,
-                                color: "rgba(255, 255, 255, 0.65)",
-                            }} />
-                        } />
-                    ),
-                    disabled: true,
-                }]
-            )),
+            ] : []),
+            ...((hasAttemptedQueryPermissions && hasAttemptedManagerPermissions) ? [] : [{
+                key: "loading-admin",
+                text: (
+                    <Spin indicator={
+                        <LoadingOutlined style={{
+                            fontSize: 24,
+                            marginTop: -4,
+                            marginLeft: 16,
+                            marginRight: 16,
+                            color: "rgba(255, 255, 255, 0.65)",
+                        }} />
+                    } />
+                ),
+                disabled: true,
+            }]),
             // ---
             ...(BENTO_CBIOPORTAL_ENABLED
                 ? [
