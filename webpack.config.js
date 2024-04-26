@@ -11,7 +11,7 @@ const PDF_STANDARD_FONTS_DIR = path.join(
 
 module.exports = {
     devtool: "source-map",
-    entry: ["babel-polyfill", path.resolve(__dirname, "./src/index.js")],
+    entry: ["babel-polyfill", path.resolve(__dirname, "./src/index.tsx")],
     module: {
         rules: [
             {
