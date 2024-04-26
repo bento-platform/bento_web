@@ -105,7 +105,6 @@ export const useManagerPermissions = () => {
                 canIngest ||
                 canAnalyzeData ||
                 canExportData ||
-                canQueryData ||
                 canViewRuns ||
                 canViewPermissions
             ),
