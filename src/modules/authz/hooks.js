@@ -81,52 +81,49 @@ export const useManagerPermissions = () => {
         hasAttempted: hasAttemptedManageProjectsDatasetsPermissions,
     } = useCanManageAtLeastOneProjectOrDataset();
 
-    const canViewDropBox = permissions.includes(viewDropBox);
-    const canIngest = permissions.includes(ingestData) || permissions.includes(ingestReferenceMaterial);
-    const canAnalyzeData = permissions.includes(analyzeData);
-    const canExportData = permissions.includes(exportData);
-    const canQueryData = permissions.includes(queryData);
-    const canViewRuns = permissions.includes(viewRuns);
-    const canViewPermissions = permissions.includes(viewPermissions);
+    return useMemo(() => {
+        const canViewDropBox = permissions.includes(viewDropBox);
+        const canIngest = permissions.includes(ingestData) || permissions.includes(ingestReferenceMaterial);
+        const canAnalyzeData = permissions.includes(analyzeData);
+        const canExportData = permissions.includes(exportData);
+        const canQueryData = permissions.includes(queryData);
+        const canViewRuns = permissions.includes(viewRuns);
+        const canViewPermissions = permissions.includes(viewPermissions);
 
-    const canManageAnything = (
-        canManageProjectsDatasets ||
-        canViewDropBox ||
-        canIngest ||
-        canAnalyzeData ||
-        canExportData ||
-        canViewRuns ||
-        canViewPermissions
-    );
+        const canManageAnything = (
+            canManageProjectsDatasets ||
+            canViewDropBox ||
+            canIngest ||
+            canAnalyzeData ||
+            canExportData ||
+            canViewRuns ||
+            canViewPermissions
+        );
 
-    const isFetching = isFetchingPermissions || isFetchingManageProjectsDatasetsPermissions;
-    const hasAttempted = hasAttemptedPermissions && hasAttemptedManageProjectsDatasetsPermissions;
+        const isFetching = isFetchingPermissions || isFetchingManageProjectsDatasetsPermissions;
+        const hasAttempted = hasAttemptedPermissions && hasAttemptedManageProjectsDatasetsPermissions;
 
-    return useMemo(() => ({
-        permissions: {
-            canManageProjectsDatasets,
-            canViewDropBox,
-            canIngest,
-            canAnalyzeData,
-            canExportData,
-            canQueryData,
-            canViewRuns,
-            canViewPermissions,
-            canManageAnything,
-        },
-        isFetching,
-        hasAttempted,
-    }), [
+        return ({
+            permissions: {
+                canManageProjectsDatasets,
+                canViewDropBox,
+                canIngest,
+                canAnalyzeData,
+                canExportData,
+                canQueryData,
+                canViewRuns,
+                canViewPermissions,
+                canManageAnything,
+            },
+            isFetching,
+            hasAttempted,
+        });
+    }, [
+        permissions,
+        isFetchingPermissions,
+        hasAttemptedPermissions,
         canManageProjectsDatasets,
-        canViewDropBox,
-        canIngest,
-        canAnalyzeData,
-        canExportData,
-        canQueryData,
-        canViewRuns,
-        canViewPermissions,
-        canManageAnything,
-        isFetching,
-        hasAttempted,
+        isFetchingManageProjectsDatasetsPermissions,
+        hasAttemptedManageProjectsDatasetsPermissions,
     ]);
 };
