@@ -1,18 +1,13 @@
-import React, { useCallback, useEffect } from "react";
-import { useDispatch } from "react-redux";
+import React, { useCallback } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 
 import { Tabs } from "antd";
 
-import { viewPermissions, RESOURCE_EVERYTHING } from "bento-auth-js";
-
-import { useResourcePermissionsWrapper } from "@/hooks";
-import { fetchGrants, fetchGroups } from "@/modules/authz/actions";
+import { useAuthzManagementPermissions } from "@/modules/authz/hooks";
 
 import ForbiddenContent from "../ForbiddenContent";
-import GroupsTabContent from "./GroupsTabContent";
 import GrantsTabContent from "./GrantsTabContent";
-import { useService } from "@/modules/services/hooks";
+import GroupsTabContent from "./GroupsTabContent";
 
 const TAB_ITEMS = [
     {
@@ -28,28 +23,19 @@ const TAB_ITEMS = [
 ];
 
 const AccessTabs = () => {
-    const dispatch = useDispatch();
-
     const navigate = useNavigate();
     const { tab } = useParams();
 
-    const { permissions, hasAttemptedPermissions } = useResourcePermissionsWrapper(RESOURCE_EVERYTHING);
-
-    const hasViewPermission = permissions.includes(viewPermissions);
-
-    const authorizationService = useService("authorization");
-    useEffect(() => {
-        if (authorizationService && permissions.includes(viewPermissions)) {
-            dispatch(fetchGrants());
-            dispatch(fetchGroups());
-        }
-    }, [authorizationService, permissions]);
+    const {
+        hasAtLeastOneViewPermissionsGrant,
+        hasAttempted: hasAttemptedPermissions,
+    } = useAuthzManagementPermissions();
 
     const onTabClick = useCallback((key) => {
         navigate(`../${key}`);
     }, [navigate]);
 
-    if (hasAttemptedPermissions && !hasViewPermission) {
+    if (hasAttemptedPermissions && !hasAtLeastOneViewPermissionsGrant) {
         return (
             <ForbiddenContent message="You do not have permission to view grants and groups." />
         );

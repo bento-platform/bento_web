@@ -4,18 +4,18 @@ import { Link } from "react-router-dom";
 import { Popover, Typography } from "antd";
 import { useAuthState } from "bento-auth-js";
 
-import { GrantSubject, StoredGroup } from "@/types/authz";
+import { useGroupsByID } from "@/modules/authz/hooks";
+import { GrantSubject } from "@/modules/authz/types";
 import { stringifyJSONRenderIfMultiKey } from "./utils";
 
 export type SubjectProps = {
     subject: GrantSubject;
-    groupsByID: Record<number, StoredGroup>;
 };
 
-const Subject = ({ subject, groupsByID }: SubjectProps) => {
+const Subject = ({ subject }: SubjectProps) => {
     const { idTokenContents: currentIDToken } = useAuthState();
 
-    const { sub, client, iss, group, everyone } = subject;
+    const groupsByID = useGroupsByID();
 
     /*
     There are four possible configurations of a subject:
@@ -25,18 +25,23 @@ const Subject = ({ subject, groupsByID }: SubjectProps) => {
      - { everyone: true }
      */
 
-    if (sub || client) {
+    if ("iss" in subject) {
+        const { iss } = subject;
+        const isSub = "sub" in subject;
         return (
             <p style={{ margin: 0, lineHeight: "1.6em" }}>
-                <strong>{sub ? "Subject" : "Client"}:</strong>{" "}
-                <Typography.Text code={true}>{sub ?? client}</Typography.Text><br />
+                <strong>{isSub ? "Subject" : "Client"}:</strong>{" "}
+                <Typography.Text code={true}>{isSub ? subject.sub : subject.client}</Typography.Text><br />
                 <strong>Issuer:</strong>{" "}
                 <Typography.Text code={true}>{iss}</Typography.Text><br />
-                {(sub === currentIDToken?.sub && iss === currentIDToken?.iss) ? <><em>(this is you)</em></> : null}
+                {(isSub && subject.sub === currentIDToken?.sub && iss === currentIDToken?.iss)
+                    ? <em>(this is you)</em>
+                    : null}
             </p>
         );
-    } else if (group) {
-        const groupDef = groupsByID[group];
+    } else if ("group" in subject) {
+        const { group } = subject;
+        const groupDef = groupsByID[subject.group];
         return (
             <>
                 <strong>Group:</strong>{" "}
@@ -47,7 +52,7 @@ const Subject = ({ subject, groupsByID }: SubjectProps) => {
                 </Link>
             </>
         );
-    } else if (everyone) {
+    } else if ("everyone" in subject) {
         return (
             <Popover content="Everyone, even anonymous users."><strong>Everyone</strong></Popover>
         );
@@ -57,9 +62,6 @@ const Subject = ({ subject, groupsByID }: SubjectProps) => {
     return (
         <pre>{stringifyJSONRenderIfMultiKey(subject)}</pre>
     );
-};
-Subject.defaultProps = {
-    groupsByID: {},
 };
 
 export default Subject;
