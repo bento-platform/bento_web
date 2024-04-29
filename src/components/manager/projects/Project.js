@@ -49,10 +49,13 @@ const Project = ({
     } = useHasResourcePermissionWrapper(RESOURCE_EVERYTHING, deleteProject);
 
     // Project editing/dataset creation is a permission on the project, so we need these permissions for those purposes.
-    const { permissions, isFetchingPermissions } = useResourcePermissionsWrapper(resource);
+    const {
+        permissions: projectPermissions,
+        isFetchingPermissions: isFetchingProjectPermissions,
+    } = useResourcePermissionsWrapper(resource);
 
-    const canEditProject = permissions.includes(editProject);
-    const canCreateDataset = permissions.includes(createDataset);
+    const canEditProject = projectPermissions.includes(editProject);
+    const canCreateDataset = projectPermissions.includes(createDataset);
 
     const [projectState, setProjectState] = useState({
         identifier: value.identifier,
@@ -110,7 +113,7 @@ const Project = ({
                     <>
                         <Button
                             icon={<EditOutlined />}
-                            loading={isFetchingPermissions}
+                            loading={isFetchingProjectPermissions}
                             disabled={!canEditProject}
                             onClick={() => (onEdit || nop)()}
                         >Edit</Button>
@@ -158,7 +161,7 @@ const Project = ({
                         Datasets
                         <div style={{ float: "right" }}>
                             <Button icon={<PlusOutlined />}
-                                    loading={isFetchingPermissions}
+                                    loading={isFetchingProjectPermissions}
                                     disabled={!canCreateDataset}
                                     style={{ verticalAlign: "top" }}
                                     onClick={() => (onAddDataset || nop)()}
@@ -186,9 +189,9 @@ const Project = ({
                             <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} description="No Datasets">
                                 <Button
                                     icon={<PlusOutlined />}
-                                    loading={isFetchingPermissions}
+                                    loading={isFetchingProjectPermissions}
                                     disabled={!canEditProject}
-                                    onClick={() => (onAddDataset || nop)()}
+                                    onClick={onAddDataset || nop}
                                 >
                                     Add Dataset
                                 </Button>
@@ -200,10 +203,10 @@ const Project = ({
                         Extra Properties JSON schemas
                         <div style={{ float: "right" }}>
                             <Button icon={<PlusOutlined />}
-                                    loading={isFetchingPermissions}
+                                    loading={isFetchingProjectPermissions}
                                     disabled={!canEditProject}
                                     style={{ verticalAlign: "top" }}
-                                    onClick={onAddJsonSchema}>
+                                    onClick={onAddJsonSchema || nop}>
                                 Add JSON schema
                             </Button>
                         </div>
@@ -220,7 +223,7 @@ const Project = ({
                                 <Button
                                     icon={<PlusOutlined />}
                                     onClick={onAddJsonSchema}
-                                    loading={isFetchingPermissions}
+                                    loading={isFetchingProjectPermissions}
                                     disabled={!canEditProject}
                                 >
                                     Add JSON schema
