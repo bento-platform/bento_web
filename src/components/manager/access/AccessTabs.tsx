@@ -3,6 +3,7 @@ import { useDispatch } from "react-redux";
 import { useNavigate, useParams } from "react-router-dom";
 
 import { Tabs } from "antd";
+import type { TabsProps } from "antd";
 
 import { viewPermissions, RESOURCE_EVERYTHING } from "bento-auth-js";
 
@@ -14,7 +15,7 @@ import GroupsTabContent from "./GroupsTabContent";
 import GrantsTabContent from "./GrantsTabContent";
 import { useService } from "@/modules/services/hooks";
 
-const TAB_ITEMS = [
+const TAB_ITEMS: TabsProps["items"] = [
     {
         key: "grants",
         label: "Grants",
@@ -45,7 +46,7 @@ const AccessTabs = () => {
         }
     }, [authorizationService, permissions]);
 
-    const onTabClick = useCallback((key) => {
+    const onTabClick = useCallback((key: string) => {
         navigate(`../${key}`);
     }, [navigate]);
 
