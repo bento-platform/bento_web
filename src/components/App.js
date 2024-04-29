@@ -200,11 +200,11 @@ const App = () => {
     // to give as much space as possible to the cBioPortal application itself.
     const margin = window.location.pathname.endsWith("cbioportal") ? 0 : 26;
 
+    const threshold = useSelector((state) => state.explorer.otherThresholdPercentage) / 100;
+
     if (isInAuthPopup) {
         return <div>Authenticating...</div>;
     }
-
-    const threshold = useSelector((state) => state.explorer.otherThresholdPercentage) / 100;
 
     return (
         <ChartConfigProvider
