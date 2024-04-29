@@ -89,7 +89,20 @@ export const useManagerPermissions = () => {
     const canViewRuns = permissions.includes(viewRuns);
     const canViewPermissions = permissions.includes(viewPermissions);
 
-    return {
+    const canManageAnything = (
+        canManageProjectsDatasets ||
+        canViewDropBox ||
+        canIngest ||
+        canAnalyzeData ||
+        canExportData ||
+        canViewRuns ||
+        canViewPermissions
+    );
+
+    const isFetching = isFetchingPermissions || isFetchingManageProjectsDatasetsPermissions;
+    const hasAttempted = hasAttemptedPermissions && hasAttemptedManageProjectsDatasetsPermissions;
+
+    return useMemo(() => ({
         permissions: {
             canManageProjectsDatasets,
             canViewDropBox,
@@ -99,17 +112,21 @@ export const useManagerPermissions = () => {
             canQueryData,
             canViewRuns,
             canViewPermissions,
-            canManageAnything: (
-                canManageProjectsDatasets ||
-                canViewDropBox ||
-                canIngest ||
-                canAnalyzeData ||
-                canExportData ||
-                canViewRuns ||
-                canViewPermissions
-            ),
+            canManageAnything,
         },
-        isFetching: isFetchingPermissions || isFetchingManageProjectsDatasetsPermissions,
-        hasAttempted: hasAttemptedPermissions && hasAttemptedManageProjectsDatasetsPermissions,
-    };
+        isFetching,
+        hasAttempted,
+    }), [
+        canManageProjectsDatasets,
+        canViewDropBox,
+        canIngest,
+        canAnalyzeData,
+        canExportData,
+        canQueryData,
+        canViewRuns,
+        canViewPermissions,
+        canManageAnything,
+        isFetching,
+        hasAttempted,
+    ]);
 };
