@@ -1,17 +1,18 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 
-import { DatePicker, Form, Input, Radio, Select, Space } from "antd";
-import type { RadioChangeEvent } from "antd";
+import { Form, Input, Radio, Select, Space } from "antd";
+import type { RadioGroupProps, RadioChangeEvent } from "antd";
 
 import { RESOURCE_EVERYTHING } from "bento-auth-js";
 
+import { useGroups } from "@/modules/authz/hooks";
 import type { GrantSubject, StoredGroup } from "@/modules/authz/types";
+import { useProjects } from "@/modules/metadata/hooks";
 import type { Project } from "@/modules/metadata/types";
 
+import ExpiryInput from "./ExpiryInput";
 import Resource from "./Resource";
 import Subject from "./Subject";
-import { useProjects } from "@/modules/metadata/hooks";
-import { useGroups } from "@/modules/authz/hooks";
 
 
 const SUBJECT_EVERYONE: GrantSubject = { everyone: true };
@@ -22,13 +23,19 @@ type SubjectInputProps = {
 };
 
 const SubjectInput = ({ value, onChange }: SubjectInputProps) => {
-    const { data: groups } = useGroups();
+    const groups: StoredGroup[] = useGroups().data;
 
     const [subjectType, setSubjectType] = useState<"everyone" | "iss-sub" | "iss-client" | "group">("everyone");
     const [iss, setIss] = useState("");
     const [sub, setSub] = useState("");
     const [client, setClient] = useState("");
-    const [group, setGroup] = useState<number | undefined>(undefined);
+    const [group, setGroup] = useState<number | undefined>(groups[0]?.id);
+
+    useEffect(() => {
+        if (group === undefined && groups.length) {
+            setGroup(groups[0].id);
+        }
+    }, [group, groups]);
 
     useEffect(() => {
         if (!value) return;
@@ -49,7 +56,24 @@ const SubjectInput = ({ value, onChange }: SubjectInputProps) => {
     }, [value]);
 
     const onChangeSubjectType = useCallback((e: RadioChangeEvent) => {
-        setSubjectType(e.target.value);
+        const subjectType: "everyone" | "iss-sub" | "iss-client" | "group" = e.target.value;
+
+        if (onChange) {
+            // Controlled mode
+
+            if (subjectType === "everyone") {
+                onChange(SUBJECT_EVERYONE);
+            } else if (subjectType === "iss-sub") {
+                onChange({ iss, sub });
+            } else if (subjectType === "iss-client") {
+                onChange({ iss, client });
+            } else if (subjectType === "group" && group !== undefined) {
+                onChange({ group });
+            }
+        } else {
+            // Uncontrolled mode; set directly
+            setSubjectType(e.target.value);
+        }
     }, []);
 
     const subjectTypeOptions = useMemo(() => [
@@ -86,7 +110,7 @@ const SubjectInput = ({ value, onChange }: SubjectInputProps) => {
 };
 
 
-const RESOURCE_TYPE_OPTIONS = [
+const RESOURCE_TYPE_OPTIONS: RadioGroupProps["options"] = [
     { value: "everything", label: <Resource resource={RESOURCE_EVERYTHING} /> },
     { value: "project-plus", label: "Project + Optional Dataset + Optional Data Type" },
 ];
@@ -140,21 +164,16 @@ const ResourceInput = () => {
 const GrantForm = () => {
     return (
         <Form layout="vertical">
-            <Form.Item name="subject" label="Subject">
+            <Form.Item name="subject" label="Subject" initialValue={SUBJECT_EVERYONE}>
                 <SubjectInput />
             </Form.Item>
-            <Form.Item label="Resource">
+            <Form.Item name="resource" label="Resource" initialValue={RESOURCE_EVERYTHING}>
                 <ResourceInput />
             </Form.Item>
-            <Form.Item label="Expiry" initialValue="none">
-                <Radio.Group>
-                    <Space direction="vertical">
-                        <Radio value="none">None</Radio>
-                        <Radio value="expiry"><DatePicker showTime={true} /></Radio>
-                    </Space>
-                </Radio.Group>
+            <Form.Item name="expiry" label="Expiry" initialValue={null}>
+                <ExpiryInput />
             </Form.Item>
-            <Form.Item name="notes" label="Notes">
+            <Form.Item name="notes" label="Notes" initialValue="">
                 <Input.TextArea />
             </Form.Item>
             <Form.Item name="permissions" label="Permissions">

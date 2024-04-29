@@ -13,6 +13,7 @@
     "bento-auth-js": "^5.1.0",
     "bento-charts": "~2.6.8",
     "cross-fetch": "^4.0.0",
+    "dayjs": "^1.11.11",
     "file-saver": "^2.0.5",
     "filesize": "^10.0.12",
     "handlebars": "^4.7.8",

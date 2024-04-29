@@ -14,9 +14,10 @@ import { useGrants, useGroups } from "@/modules/authz/hooks";
 import { useAppDispatch, useAppSelector } from "@/store";
 import { StoredGrant, StoredGroup } from "@/modules/authz/types";
 
+import GrantsTable from "./GrantsTable";
+import GroupForm from "./GroupForm";
 import Subject from "./Subject";
 import { rowKey } from "./utils";
-import GrantsTable from "@/components/manager/access/GrantsTable";
 
 
 const GroupMembershipCell = ({ group }: { group: StoredGroup }) => {
@@ -88,9 +89,17 @@ const DependentGrantsCell = ({ groupGrants, group }: DependentGrantsCellProps) =
 };
 
 
+const GroupCreationModal = ({ open, onCancel }: { open: boolean; onCancel: () => void }) => {
+    return <Modal open={open} width={720} title="Create Group" onCancel={onCancel} okText="Create">
+        <GroupForm />
+    </Modal>;
+};
+
+
 const GroupsTabContent = () => {
     const dispatch = useAppDispatch();
 
+    const [createModalOpen, setCreateModalOpen] = useState<boolean>(false);
     const [modal, contextHolder] = Modal.useModal();
 
     const isFetchingAllServices = useAppSelector((state) => state.services.isFetchingAll);
@@ -189,11 +198,13 @@ const GroupsTabContent = () => {
             <ActionContainer style={{ marginBottom: 8 }}>
                 {hasEditPermission && (
                     <Button icon={<PlusOutlined />}
-                            loading={isFetchingPermissions || isFetchingGroups}>
+                            loading={isFetchingPermissions || isFetchingGroups}
+                            onClick={() => setCreateModalOpen(true)}>
                         Create Group
                     </Button>
                 )}
             </ActionContainer>
+            <GroupCreationModal open={createModalOpen} onCancel={() => setCreateModalOpen(false)} />
             {/* No pagination on this table, so we can link to all group ID anchors: */}
             <Table<StoredGroup>
                 size="middle"

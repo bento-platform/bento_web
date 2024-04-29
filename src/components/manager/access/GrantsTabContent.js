@@ -7,16 +7,18 @@ import { DeleteOutlined, EditOutlined, PlusOutlined } from "@ant-design/icons";
 
 import { editPermissions, makeResourceKey } from "bento-auth-js";
 
+import ActionContainer from "@/components/manager/ActionContainer";
 import { deleteGrant } from "@/modules/authz/actions";
 import { useAuthzManagementPermissions, useGrants, useGroupsByID } from "@/modules/authz/hooks";
 
-import ActionContainer from "../ActionContainer";
 import GrantForm from "./GrantForm";
 import GrantSummary from "./GrantSummary";
 import GrantsTable from "./GrantsTable";
 
 const GrantCreationModal = ({ open, onCancel }) => {
-    return <Modal open={open} width={720} title="Create Grant" onCancel={onCancel}><GrantForm /></Modal>;
+    return <Modal open={open} width={720} title="Create Grant" onCancel={onCancel} okText="Create">
+        <GrantForm />
+    </Modal>;
 };
 GrantCreationModal.propTypes = {
     open: PropTypes.bool,
