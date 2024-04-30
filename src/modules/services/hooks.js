@@ -1,9 +1,10 @@
 import { useEffect, useMemo } from "react";
-import { useDispatch, useSelector } from "react-redux";
-import { fetchBentoServices, fetchServices } from "@/modules/services/actions";
+import { useSelector } from "react-redux";
+import { fetchBentoServices, fetchDataTypes, fetchServices } from "@/modules/services/actions";
+import { useAppDispatch } from "@/store";
 
 export const useBentoServices = () => {
-    const dispatch = useDispatch();
+    const dispatch = useAppDispatch();
     useEffect(() => {
         dispatch(fetchBentoServices()).catch((err) => console.error(err));
     }, [dispatch]);
@@ -16,7 +17,7 @@ export const useBentoService = (kind) => {
 };
 
 export const useServices = () => {
-    const dispatch = useDispatch();
+    const dispatch = useAppDispatch();
     useEffect(() => {
         dispatch(fetchServices()).catch((err) => console.error(err));
     }, [dispatch]);
@@ -26,6 +27,14 @@ export const useServices = () => {
 export const useService = (kind) => {
     const services = useServices();
     return services.itemsByKind[kind];
+};
+
+export const useDataTypes = () => {
+    const dispatch = useAppDispatch();
+    useEffect(() => {
+        dispatch(fetchDataTypes()).catch((err) => console.error(err));
+    }, [dispatch]);
+    return useSelector((state) => state.serviceDataTypes);
 };
 
 export const useWorkflows = () => {

@@ -32,3 +32,16 @@ export type BentoService = {
     repository: string;
     url: string;
 };
+
+export interface BentoDataType {
+    id: string;
+    label: string;
+    queryable: boolean;
+    schema: object;
+    metadata_schema: object;
+    count?: number;
+}
+
+export interface BentoServiceDataType extends BentoDataType {
+    service_base_url: string;
+}
