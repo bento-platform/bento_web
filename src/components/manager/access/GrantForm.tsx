@@ -1,6 +1,6 @@
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { Fragment, useCallback, useEffect, useMemo, useState } from "react";
 
-import { Checkbox, Form, Input, Radio, Select, Space, Spin } from "antd";
+import { Checkbox, Form, Input, Popover, Radio, Select, Space, Spin } from "antd";
 import type { RadioGroupProps, RadioChangeEvent, SelectProps } from "antd";
 
 import { RESOURCE_EVERYTHING } from "bento-auth-js";
@@ -15,6 +15,7 @@ import Resource from "./Resource";
 import Subject from "./Subject";
 import { useDataTypes } from "@/modules/services/hooks";
 import { BentoServiceDataType } from "@/modules/services/types";
+import MonospaceText from "@/components/common/MonospaceText";
 
 
 const SUBJECT_EVERYONE: GrantSubject = { everyone: true };
@@ -164,7 +165,7 @@ const ResourceInput = ({ value, onChange }: ResourceInputProps) => {
             return RESOURCE_EVERYTHING;
         }
 
-        let res: GrantResource = { "project": selectedProject?.identifier };
+        const res: GrantResource = { "project": selectedProject?.identifier };
 
         if (selectedDataset) res["dataset"] = selectedDataset?.identifier;
         if (selectedDataType) res["data_type"] = selectedDataType;
@@ -249,6 +250,9 @@ const ResourceInput = ({ value, onChange }: ResourceInputProps) => {
 
 const PermissionsInput = () => {
     const { data: permissions, isFetching: isFetchingPermissions } = useAllPermissions();
+    const permissionsByID = useMemo(
+        () => Object.fromEntries(permissions.map((p: PermissionDefinition) => [p.id, p])),
+        [permissions]);
 
     const [checked, setChecked] = useState<string[]>([]);
 
@@ -273,6 +277,10 @@ const PermissionsInput = () => {
                 {Object.entries(permissionsByNoun).sort((a, b) => a[0].localeCompare(b[0])).map(([k, v]) => {
                     const pByID = Object.fromEntries(v.map((p) => [p.id, p]));
 
+                    const pGivenBy: Record<string, PermissionDefinition[]> = Object.fromEntries(
+                        v.map((p) => [p.id, permissions.filter((pp: PermissionDefinition) => pp.gives.includes(p.id))]),
+                    );
+
                     return (
                         <div key={k} style={{
                             display: "flex",
@@ -283,16 +291,40 @@ const PermissionsInput = () => {
                         }}>
                             <span style={{ fontSize: 12, fontFamily: "monospace", fontWeight: "bold" }}>{k}</span>
                             <Checkbox.Group
-                                options={v.map((p) => ({ label: p.verb, value: p.id }))}
+                                options={v.map((p) => {
+                                    const givenBy = pGivenBy[p.id] ?? [];
+                                    const givenByAnother = givenBy.some((g) => checked.includes(g.id));
+                                    return {
+                                        value: p.id,
+                                        label: givenByAnother ? (
+                                            <Popover content={<span>Given by: {givenBy.map((g, gi) => (
+                                                <Fragment key={g.id}>
+                                                    <MonospaceText>
+                                                        {g.id}
+                                                    </MonospaceText>
+                                                    {gi !== givenBy.length - 1 ? ", " : ""}
+                                                </Fragment>
+                                            ))}</span>}>
+                                                <MonospaceText style={{ textDecoration: "underline" }}>
+                                                    {p.verb}
+                                                </MonospaceText>
+                                            </Popover>
+                                        ) : <MonospaceText>{p.verb}</MonospaceText>,
+                                    };
+                                })}
                                 value={checked.filter((c) => c in pByID)}
                                 onChange={(selected) => {
                                     // Leave checkboxes that are not part of this check group
                                     const otherChecked = checked.filter((c) => !(c in pByID));
-                                    setChecked([...new Set([
+
+                                    const totalChecked = [
                                         ...otherChecked,
                                         ...selected,
+                                    ];
+                                    setChecked([...new Set([
+                                        ...totalChecked,
                                         // TODO: gives only if in right scope (can't give project-level bool on dataset)
-                                        ...selected.flatMap((s) => pByID[s].gives),
+                                        ...totalChecked.flatMap((s) => permissionsByID[s].gives),
                                     ])]);
                                 }}
                             />
