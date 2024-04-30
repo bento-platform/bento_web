@@ -28,8 +28,9 @@ export const FETCH_OVERVIEW_SUMMARY = createNetworkActionTypes("FETCH_OVERVIEW_S
 
 export const DELETE_DATASET_DATA_TYPE = createNetworkActionTypes("DELETE_DATASET_DATA_TYPE");
 
-export const clearDatasetDataType = networkAction((datasetId, dataTypeID) => (dispatch, getState) => {
+export const clearDatasetDataType = networkAction((datasetId, dataTypeID) => (_dispatch, getState) => {
     const { service_base_url: serviceBaseUrl } = getState().serviceDataTypes.itemsByID[dataTypeID];
+    // noinspection JSUnusedGlobalSymbols
     return {
         types: DELETE_DATASET_DATA_TYPE,
         url: `${serviceBaseUrl}datasets/${datasetId}/data-types/${dataTypeID}`,
@@ -43,7 +44,7 @@ export const clearDatasetDataType = networkAction((datasetId, dataTypeID) => (di
     };
 });
 
-const fetchProjects = networkAction(() => (dispatch, getState) => ({
+const fetchProjects = networkAction(() => (_dispatch, getState) => ({
     types: FETCH_PROJECTS,
     url: `${getState().services.metadataService.url}/api/projects`,
     paginated: true,
@@ -61,7 +62,7 @@ export const fetchProjectsWithDatasets = () => (dispatch, getState) => {
     return dispatch(fetchProjects());
 };
 
-const createProject = networkAction((project, navigate) => (dispatch, getState) => ({
+const createProject = networkAction((project, navigate) => (_dispatch, getState) => ({
     types: CREATE_PROJECT,
     url: `${getState().services.metadataService.url}/api/projects`,
     req: jsonRequest(project, "POST"),
@@ -78,7 +79,7 @@ export const createProjectIfPossible = (project, navigate) => (dispatch, getStat
     return dispatch(createProject(project, navigate));
 };
 
-const _fetchExtraPropertiesSchemaTypes = networkAction(() => (dispatch, getState) => ({
+const _fetchExtraPropertiesSchemaTypes = networkAction(() => (_dispatch, getState) => ({
     types: FETCH_EXTRA_PROPERTIES_SCHEMA_TYPES,
     url: `${getState().services.metadataService.url}/api/extra_properties_schema_types`,
     error: "Error fetching extra properties schema types",
@@ -89,7 +90,7 @@ export const fetchExtraPropertiesSchemaTypes = () => (dispatch, getState) => {
     return dispatch(_fetchExtraPropertiesSchemaTypes());
 };
 
-export const createProjectJsonSchema = networkAction((projectJsonSchema) => (dispatch, getState) => ({
+export const createProjectJsonSchema = networkAction((projectJsonSchema) => (_dispatch, getState) => ({
     types: CREATE_PROJECT_JSON_SCHEMA,
     check: (state) => !state.projects.isCreatingJsonSchema,
     url: `${getState().services.metadataService.url}/api/project_json_schemas`,
@@ -100,7 +101,7 @@ export const createProjectJsonSchema = networkAction((projectJsonSchema) => (dis
     },
 }));
 
-export const deleteProjectJsonSchema = networkAction((projectJsonSchema) => (dispatch, getState) => ({
+export const deleteProjectJsonSchema = networkAction((projectJsonSchema) => (_dispatch, getState) => ({
     types: DELETE_PROJECT_JSON_SCHEMA,
     params: { projectJsonSchema },
     url: `${getState().services.metadataService.url}/api/project_json_schemas/${projectJsonSchema.id}`,
@@ -111,7 +112,7 @@ export const deleteProjectJsonSchema = networkAction((projectJsonSchema) => (dis
     },
 }));
 
-export const deleteProject = networkAction((project) => (dispatch, getState) => ({
+export const deleteProject = networkAction((project) => (_dispatch, getState) => ({
     types: DELETE_PROJECT,
     params: { project },
     url: `${getState().services.metadataService.url}/api/projects/${project.identifier}`,
@@ -157,7 +158,7 @@ export const saveProjectIfPossible = (project) => (dispatch, getState) => {
     return dispatch(saveProject(project));
 };
 
-export const addProjectDataset = networkAction((project, dataset, onSuccess = nop) => (dispatch, getState) => ({
+export const addProjectDataset = networkAction((project, dataset, onSuccess = nop) => (_dispatch, getState) => ({
     types: ADD_PROJECT_DATASET,
     url: `${getState().services.metadataService.url}/api/datasets`,
     req: jsonRequest({ ...dataset, project: project.identifier }, "POST"),
@@ -169,7 +170,7 @@ export const addProjectDataset = networkAction((project, dataset, onSuccess = no
     },
 }));
 
-export const saveProjectDataset = networkAction((dataset, onSuccess = nop) => (dispatch, getState) => ({
+export const saveProjectDataset = networkAction((dataset, onSuccess = nop) => (_dispatch, getState) => ({
     types: SAVE_PROJECT_DATASET,
     url: `${getState().services.metadataService.url}/api/datasets/${dataset.identifier}`,
     // Filter out read-only props
@@ -182,7 +183,7 @@ export const saveProjectDataset = networkAction((dataset, onSuccess = nop) => (d
     },
 }));
 
-export const deleteProjectDataset = networkAction((project, dataset) => (dispatch, getState) => ({
+export const deleteProjectDataset = networkAction((project, dataset) => (_dispatch, getState) => ({
     types: DELETE_PROJECT_DATASET,
     params: { project, dataset },
     url: `${getState().services.metadataService.url}/api/datasets/${dataset.identifier}`,
@@ -206,7 +207,7 @@ export const deleteProjectDatasetIfPossible = (project, dataset) => async (dispa
     }
 };
 
-const addDatasetLinkedFieldSet = networkAction((dataset, linkedFieldSet, onSuccess) => (dispatch, getState) => ({
+const addDatasetLinkedFieldSet = networkAction((dataset, linkedFieldSet, onSuccess) => (_dispatch, getState) => ({
     types: ADD_DATASET_LINKED_FIELD_SET,
     url: `${getState().services.metadataService.url}/api/datasets/${dataset.identifier}`,
     req: jsonRequest({ linked_field_sets: [...dataset.linked_field_sets, linkedFieldSet] }, "PATCH"),
@@ -230,7 +231,7 @@ export const addDatasetLinkedFieldSetIfPossible =
         };
 
 const saveDatasetLinkedFieldSet = networkAction(
-    (dataset, index, linkedFieldSet, onSuccess) => (dispatch, getState) => ({
+    (dataset, index, linkedFieldSet, onSuccess) => (_dispatch, getState) => ({
         types: SAVE_DATASET_LINKED_FIELD_SET,
         url: `${getState().services.metadataService.url}/api/datasets/${dataset.identifier}`,
         req: jsonRequest(
@@ -261,7 +262,7 @@ export const saveDatasetLinkedFieldSetIfPossible =
         };
 
 const deleteDatasetLinkedFieldSet = networkAction(
-    (dataset, linkedFieldSet, linkedFieldSetIndex) => (dispatch, getState) => ({
+    (dataset, linkedFieldSet, linkedFieldSetIndex) => (_dispatch, getState) => ({
         types: DELETE_DATASET_LINKED_FIELD_SET,
         url: `${getState().services.metadataService.url}/api/datasets/${dataset.identifier}`,
         req: jsonRequest(
@@ -288,7 +289,7 @@ export const deleteDatasetLinkedFieldSetIfPossible =
         return dispatch(deleteDatasetLinkedFieldSet(dataset, linkedFieldSet, linkedFieldSetIndex));
     };
 
-export const fetchIndividual = networkAction((individualID) => (dispatch, getState) => ({
+export const fetchIndividual = networkAction((individualID) => (_dispatch, getState) => ({
     types: FETCH_INDIVIDUAL,
     check: (state) => {
         const individualRecord = state.individuals.itemsByID[individualID] || {};
@@ -300,7 +301,7 @@ export const fetchIndividual = networkAction((individualID) => (dispatch, getSta
     err: `Error fetching individual ${individualID}`,
 }));
 
-const fetchIndividualPhenopackets = networkAction((individualID) => (dispatch, getState) => ({
+const fetchIndividualPhenopackets = networkAction((individualID) => (_dispatch, getState) => ({
     types: FETCH_INDIVIDUAL_PHENOPACKETS,
     params: { individualID },
     url: `${getState().services.metadataService.url}/api/individuals/${individualID}/phenopackets`,
@@ -314,7 +315,7 @@ export const fetchIndividualPhenopacketsIfNecessary = (individualID) => (dispatc
     return dispatch(fetchIndividualPhenopackets(individualID));
 };
 
-const _fetchOverviewSummary = networkAction(() => (dispatch, getState) => ({
+const _fetchOverviewSummary = networkAction(() => (_dispatch, getState) => ({
     types: FETCH_OVERVIEW_SUMMARY,
     url: `${getState().services.metadataService.url}/api/overview`,
     err: "Error fetching overview summary metadata",
