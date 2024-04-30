@@ -22,10 +22,10 @@ import {
 } from "bento-auth-js";
 
 import { useEverythingPermissions } from "@/hooks";
-import { fetchGrants, fetchGroups } from "@/modules/authz/actions";
 import { useProjectsAndDatasetsAsAuthzResources } from "@/modules/metadata/hooks";
 import { useService } from "@/modules/services/hooks";
 import { useAppDispatch, useAppSelector } from "@/store";
+import { fetchAllPermissions, fetchGrants, fetchGroups } from "./actions";
 
 export const useProjectDatasetPermissions = () => {
     const authz = useService("authorization");
@@ -51,12 +51,23 @@ const _hasOneOfListedPermissions = (permissionList, permissions) => permissionLi
 
 // AUTHZ STATE HOOKS
 
+export const useAllPermissions = () => {
+    const dispatch = useAppDispatch();
+    const authz = useService("authorization");
+
+    useEffect(() => {
+        dispatch(fetchAllPermissions()).catch((err) => console.error(err));;
+    }, [dispatch, authz]);
+
+    return useAppSelector((state) => state.allPermissions);
+};
+
 export const useGrants = () => {
     const dispatch = useAppDispatch();
     const authz = useService("authorization");
 
     useEffect(() => {
-        dispatch(fetchGrants());
+        dispatch(fetchGrants()).catch((err) => console.error(err));
     }, [dispatch, authz]);
 
     return useAppSelector((state) => state.grants);
@@ -67,7 +78,7 @@ export const useGroups = () => {
     const authz = useService("authorization");
 
     useEffect(() => {
-        dispatch(fetchGroups());
+        dispatch(fetchGroups()).catch((err) => console.error(err));;
     }, [dispatch, authz]);
 
     return useAppSelector((state) => state.groups);

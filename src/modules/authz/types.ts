@@ -1,6 +1,16 @@
 import type { Resource } from "bento-auth-js";
 export type { Resource } from "bento-auth-js";
 
+
+export type PermissionDefinition = {
+    id: string;
+    verb: string;
+    noun: string;
+    min_level_required: "instance" | "project" | "dataset";
+    gives: string[];
+};
+
+
 export type SpecificSubject = {
     iss: string;
     sub: string;

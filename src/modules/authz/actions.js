@@ -4,6 +4,18 @@ import { basicAction, createNetworkActionTypes, networkAction } from "@/utils/ac
 const authzService = (state) => state.services.itemsByKind.authorization;
 const authzURL = (state) => authzService(state).url;
 
+
+// FETCH_ALL_PERMISSIONS: fetch list of available permissions (not on a specific resource/subject, but in general what
+//   permissions are defined.
+export const FETCH_ALL_PERMISSIONS = createNetworkActionTypes("FETCH_ALL_PERMISSIONS");
+export const fetchAllPermissions = networkAction(() => (_dispatch, getState) => ({
+    types: FETCH_ALL_PERMISSIONS,
+    check: (state) => !state.allPermissions.isFetching && !state.allPermissions.data.length,
+    url: `${authzURL(getState())}/all_permissions/`,
+    publicEndpoint: true,
+}));
+
+
 export const FETCH_GRANTS = createNetworkActionTypes("FETCH_GRANTS");
 export const fetchGrants = networkAction(() => (_dispatch, getState) => ({
     types: FETCH_GRANTS,

@@ -1,11 +1,31 @@
 import {
     DELETE_GRANT,
     DELETE_GROUP,
+    FETCH_ALL_PERMISSIONS,
     FETCH_GRANTS,
     FETCH_GROUPS,
     INVALIDATE_GRANTS,
     INVALIDATE_GROUPS,
 } from "./actions";
+
+export const allPermissions = (
+    state = {
+        data: [],
+        isFetching: false,
+    },
+    action,
+) => {
+    switch (action.type) {
+        case FETCH_ALL_PERMISSIONS.REQUEST:
+            return { ...state, isFetching: true };
+        case FETCH_ALL_PERMISSIONS.RECEIVE:
+            return { ...state, data: action.data };
+        case FETCH_ALL_PERMISSIONS.FINISH:
+            return { ...state, isFetching: false };
+        default:
+            return state;
+    }
+};
 
 export const grants = (
     state = {
