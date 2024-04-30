@@ -56,7 +56,7 @@ export const useAllPermissions = () => {
     const authz = useService("authorization");
 
     useEffect(() => {
-        dispatch(fetchAllPermissions()).catch((err) => console.error(err));;
+        dispatch(fetchAllPermissions()).catch((err) => console.error(err));
     }, [dispatch, authz]);
 
     return useAppSelector((state) => state.allPermissions);
@@ -78,7 +78,7 @@ export const useGroups = () => {
     const authz = useService("authorization");
 
     useEffect(() => {
-        dispatch(fetchGroups()).catch((err) => console.error(err));;
+        dispatch(fetchGroups()).catch((err) => console.error(err));
     }, [dispatch, authz]);
 
     return useAppSelector((state) => state.groups);

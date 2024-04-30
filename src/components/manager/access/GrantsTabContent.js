@@ -82,7 +82,7 @@ const GrantsTabContent = () => {
                 );
             },
         }] : [],
-        [dispatch, groupsByID, grantResourcePermissionsObjects, hasAtLeastOneEditPermissionsGrant, modal]);
+    [dispatch, groupsByID, grantResourcePermissionsObjects, hasAtLeastOneEditPermissionsGrant, modal]);
 
     return (
         <>

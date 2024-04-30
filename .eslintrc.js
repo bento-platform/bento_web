@@ -61,7 +61,6 @@ module.exports = {
         "no-prototype-builtins": "off",
         "react/display-name": "off",
 
-        "no-unused-vars": ["error", {"argsIgnorePattern": "^_"}],
         "linebreak-style": ["error", "unix"],
         "react/prop-types": ["error", {"ignore": ["form", "match", "history"]}],
         "quotes": ["error", "double"],
@@ -87,7 +86,7 @@ module.exports = {
             "functions": "always-multiline",
         }],
 
-        // @@typescript-eslint tweaks
+        // @typescript-eslint tweaks
         "@typescript-eslint/no-unused-vars": ["error", { argsIgnorePattern: "^_" }],
     },
     "settings": {

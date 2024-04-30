@@ -109,7 +109,7 @@ const GroupsTabContent = () => {
 
     const groupGrants = useMemo(
         () => {
-            let res: Record<number, StoredGrant[]> = {};
+            const res: Record<number, StoredGrant[]> = {};
 
             // TODO: future: replace with Object.groupBy
             grants.forEach((g: StoredGrant) => {
@@ -185,7 +185,7 @@ const GroupsTabContent = () => {
                             onOk: () => dispatch(deleteGroup(group)),
                             width: 600,
                             maskClosable: true,
-                        })
+                        });
                     }}
                 >Delete</Button>
             ),

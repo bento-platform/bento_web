@@ -33,7 +33,7 @@ const ExpiryInput = ({ value, onChange }: ExpiryInputProps) => {
         setDate(d);
         if (onChange) {
             // Controlled mode
-            onChange(d.toISOString())
+            onChange(d.toISOString());
         }
     }, [onChange]);
 
