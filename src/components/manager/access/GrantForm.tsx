@@ -8,7 +8,7 @@ import { RESOURCE_EVERYTHING } from "bento-auth-js";
 import { useGroups } from "@/modules/authz/hooks";
 import type { GrantSubject, StoredGroup } from "@/modules/authz/types";
 import { useProjects } from "@/modules/metadata/hooks";
-import type { Project } from "@/modules/metadata/types";
+import type { Dataset, Project } from "@/modules/metadata/types";
 
 import ExpiryInput from "./ExpiryInput";
 import Resource from "./Resource";
@@ -110,22 +110,54 @@ const SubjectInput = ({ value, onChange }: SubjectInputProps) => {
 };
 
 
-const RESOURCE_TYPE_OPTIONS: RadioGroupProps["options"] = [
-    { value: "everything", label: <Resource resource={RESOURCE_EVERYTHING} /> },
-    { value: "project-plus", label: "Project + Optional Dataset + Optional Data Type" },
-];
-
 const ResourceInput = () => {
-    const { items: projects } = useProjects();
+    const projects: Project[] = useProjects().items;
+    const projectsByID: Record<string, Project> = useProjects().itemsByID;
 
     const [resourceType, setResourceType] = useState<"everything" | "project-plus">("everything");
+
+    const resourceTypeOptions = useMemo<RadioGroupProps["options"]>(() => [
+        { value: "everything", label: <Resource resource={RESOURCE_EVERYTHING} /> },
+        { value: "project-plus", label: "Project + Optional Dataset + Optional Data Type", disabled: !projects.length },
+    ], [projects]);
 
     const onChangeResourceType = useCallback((e: RadioChangeEvent) => {
         setResourceType(e.target.value);
     }, []);
 
+    const [selectedProject, setSelectedProject] = useState<Project | null>(null);
+    const [selectedDataset, setSelectedDataset] = useState<Dataset | null>(null);
+
+    useEffect(() => {
+        if (!selectedProject && projects.length) {
+            setSelectedProject(projects[0]);
+        }
+    }, [selectedProject, projects]);
+
+    const projectOptions = useMemo(() => projects.map((p: Project) => ({
+        value: p.identifier,
+        label: p.title,
+    })), [projects]);
+
+    const onChangeProject = useCallback((v: string) => {
+        setSelectedProject(projectsByID[v]);
+    }, [projectsByID]);
+
+    const datasetOptions = useMemo(() => {
+        const options = [{ value: "", label: "All datasets" }];
+
+        if (!selectedProject) return options;
+
+        options.push(...(selectedProject.datasets ?? []).map((d) => ({
+            value: d.identifier,
+            label: d.title,
+        })));
+    }, [selectedProject]);
+
+    // TODO: data type options
+
     return <Space direction="vertical" style={{ width: "100%" }}>
-        <Radio.Group value={resourceType} onChange={onChangeResourceType} options={RESOURCE_TYPE_OPTIONS} />
+        <Radio.Group value={resourceType} onChange={onChangeResourceType} options={resourceTypeOptions} />
         {resourceType === "project-plus" && (
             <Space style={{ width: "100%" }} styles={{ item: { flex: 1 } }}>
                 <div>
@@ -133,10 +165,9 @@ const ResourceInput = () => {
                     <Select
                         showSearch={true}
                         placeholder="Select a project"
-                        options={projects.map((p: Project) => ({
-                            value: p.identifier,
-                            label: p.title,
-                        }))}
+                        value={selectedProject?.identifier ?? null}
+                        options={projectOptions}
+                        onChange={onChangeProject}
                     />
                 </div>
                 <div>
@@ -144,7 +175,7 @@ const ResourceInput = () => {
                     <Select
                         showSearch={true}
                         defaultValue=""
-                        options={[{ value: "", label: "All datasets" }]}
+                        options={datasetOptions}
                     />
                 </div>
                 <div>
