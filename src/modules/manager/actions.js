@@ -38,13 +38,6 @@ export const fetchDropBoxTree = networkAction(() => (_dispatch, getState) => ({
 
 export const invalidateDropBoxTree = basicAction(INVALIDATE_DROP_BOX_TREE);
 
-export const fetchDropBoxTreeIfNeededOrFail = () => async (dispatch, getState) => {
-    if (!getState().services.dropBoxService) return;
-    if (getState().dropBox.isFetching) return;
-    if (getState().dropBox.tree.length) return;
-    return await dispatch(fetchDropBoxTree());
-};
-
 const dropBoxObjectPath = (getState, path) =>
     `${getState().services.dropBoxService.url}/objects/${path.replace(/^\//, "")}`;
 
@@ -70,7 +63,8 @@ export const deleteDropBoxObject = networkAction(path => async (dispatch, getSta
     req: {method: "DELETE"},
     onSuccess: () => {
         message.success(`Successfully deleted file at drop box path: ${path}`);
-        return dispatch(fetchDropBoxTreeIfNeededOrFail());
+        dispatch(invalidateDropBoxTree());
+        return dispatch(fetchDropBoxTree());
     },
     err: `Error deleting file at drop box path: ${path}`,
 }));
