@@ -1,18 +1,20 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 
-import { Form, Input, Radio, Select, Space } from "antd";
-import type { RadioGroupProps, RadioChangeEvent } from "antd";
+import { Checkbox, Form, Input, Radio, Select, Space, Spin } from "antd";
+import type { RadioGroupProps, RadioChangeEvent, SelectProps } from "antd";
 
 import { RESOURCE_EVERYTHING } from "bento-auth-js";
 
-import { useGroups } from "@/modules/authz/hooks";
-import type { GrantSubject, StoredGroup } from "@/modules/authz/types";
+import { useAllPermissions, useGroups } from "@/modules/authz/hooks";
+import { GrantSubject, PermissionDefinition, Resource as GrantResource, StoredGroup } from "@/modules/authz/types";
 import { useProjects } from "@/modules/metadata/hooks";
 import type { Dataset, Project } from "@/modules/metadata/types";
 
 import ExpiryInput from "./ExpiryInput";
 import Resource from "./Resource";
 import Subject from "./Subject";
+import { useDataTypes } from "@/modules/services/hooks";
+import { BentoServiceDataType } from "@/modules/services/types";
 
 
 const SUBJECT_EVERYONE: GrantSubject = { everyone: true };
@@ -110,9 +112,18 @@ const SubjectInput = ({ value, onChange }: SubjectInputProps) => {
 };
 
 
-const ResourceInput = () => {
+type ResourceInputProps = {
+    value?: GrantResource,
+    onChange?: (value: GrantResource) => void;
+};
+
+const ResourceInput = ({ value, onChange }: ResourceInputProps) => {
+    // TODO: consolidate when useProjects() is typed
     const projects: Project[] = useProjects().items;
     const projectsByID: Record<string, Project> = useProjects().itemsByID;
+    const datasetsByID: Record<string, Dataset> = useProjects().datasetsByID;
+    const dataTypes: BentoServiceDataType[] = useDataTypes().items;
+    // const dataTypes =
 
     const [resourceType, setResourceType] = useState<"everything" | "project-plus">("everything");
 
@@ -127,6 +138,20 @@ const ResourceInput = () => {
 
     const [selectedProject, setSelectedProject] = useState<Project | null>(null);
     const [selectedDataset, setSelectedDataset] = useState<Dataset | null>(null);
+    const [selectedDataType, setSelectedDataType] = useState<string>("");
+
+    useEffect(() => {
+        if (!value) return;
+        if ("everything" in value) {
+            setResourceType("everything");
+        } else {
+            // TODO: how to handle missing projects?
+            setSelectedProject(projectsByID[value.project]);
+            // TODO: how to handle missing datasets?
+            if ("dataset" in value && value.dataset) setSelectedDataset(datasetsByID[value.dataset]);
+            if ("data_type" in value && value.data_type) setSelectedDataType(value.data_type);
+        }
+    }, [value]);
 
     useEffect(() => {
         if (!selectedProject && projects.length) {
@@ -134,27 +159,53 @@ const ResourceInput = () => {
         }
     }, [selectedProject, projects]);
 
-    const projectOptions = useMemo(() => projects.map((p: Project) => ({
+    const buildResource = useCallback((): GrantResource => {
+        if (resourceType === "everything" || selectedProject === null) {
+            return RESOURCE_EVERYTHING;
+        }
+
+        let res: GrantResource = { "project": selectedProject?.identifier };
+
+        if (selectedDataset) res["dataset"] = selectedDataset?.identifier;
+        if (selectedDataType) res["data_type"] = selectedDataType;
+
+        return res;
+    }, []);
+
+    const projectOptions = useMemo((): SelectProps["options"] => projects.map((p: Project) => ({
         value: p.identifier,
         label: p.title,
     })), [projects]);
 
     const onChangeProject = useCallback((v: string) => {
         setSelectedProject(projectsByID[v]);
-    }, [projectsByID]);
+        if (onChange) onChange(buildResource());
+    }, [projectsByID, onChange, buildResource]);
 
-    const datasetOptions = useMemo(() => {
-        const options = [{ value: "", label: "All datasets" }];
+    const datasetOptions = useMemo((): SelectProps["options"] => {
+        const options: SelectProps["options"] = [{ value: "", label: "All datasets" }];
 
-        if (!selectedProject) return options;
+        if (selectedProject) {
+            options.push(...(selectedProject.datasets ?? []).map((d) => ({
+                value: d.identifier,
+                label: d.title,
+            })));
+        }
 
-        options.push(...(selectedProject.datasets ?? []).map((d) => ({
-            value: d.identifier,
-            label: d.title,
-        })));
+        return options;
     }, [selectedProject]);
 
-    // TODO: data type options
+    const onChangeDataset = useCallback((v: string) => {
+        setSelectedDataset(datasetsByID[v]);
+        if (onChange) onChange(buildResource());
+    }, [datasetsByID, onChange, buildResource]);
+
+    const dataTypeOptions = useMemo((): SelectProps["options"] => [
+        { value: "", label: "All data types" },
+        ...dataTypes.map(({ id: value, label }) => ({ value, label })),
+    ], [dataTypes]);
+
+    const onChangeDataType = useCallback((v: string) => setSelectedDataType(v), []);
 
     return <Space direction="vertical" style={{ width: "100%" }}>
         <Radio.Group value={resourceType} onChange={onChangeResourceType} options={resourceTypeOptions} />
@@ -175,7 +226,9 @@ const ResourceInput = () => {
                     <Select
                         showSearch={true}
                         defaultValue=""
+                        value={selectedDataset?.identifier ?? ""}
                         options={datasetOptions}
+                        onChange={onChangeDataset}
                     />
                 </div>
                 <div>
@@ -183,12 +236,72 @@ const ResourceInput = () => {
                     <Select
                         showSearch={true}
                         defaultValue=""
-                        options={[{ value: "", label: "All data types" }]}
+                        value={selectedDataType}
+                        options={dataTypeOptions}
+                        onChange={onChangeDataType}
                     />
                 </div>
             </Space>
         )}
     </Space>;
+};
+
+
+const PermissionsInput = () => {
+    const { data: permissions, isFetching: isFetchingPermissions } = useAllPermissions();
+
+    const [checked, setChecked] = useState<string[]>([]);
+
+    const permissionsByNoun = useMemo(
+        () => {
+            // TODO: use Object.groupBy when available:
+            const res: Record<string, PermissionDefinition[]> = {};
+            permissions.forEach((p: PermissionDefinition) => {
+                if (!(p.noun in res)) {
+                    res[p.noun] = [p];
+                } else {
+                    res[p.noun].push(p);
+                }
+            });
+            return res;
+        },
+        [permissions]);
+
+    return (
+        <Spin spinning={isFetchingPermissions}>
+            <div style={{ display: "flex", flexDirection: "row", flexWrap: "wrap", gap: 12 }}>
+                {Object.entries(permissionsByNoun).sort((a, b) => a[0].localeCompare(b[0])).map(([k, v]) => {
+                    const pByID = Object.fromEntries(v.map((p) => [p.id, p]));
+
+                    return (
+                        <div key={k} style={{
+                            display: "flex",
+                            flexDirection: "column",
+                            padding: 8,
+                            border: "1px solid #f0f0f0",
+                            borderRadius: 4,
+                        }}>
+                            <span style={{ fontSize: 12, fontFamily: "monospace", fontWeight: "bold" }}>{k}</span>
+                            <Checkbox.Group
+                                options={v.map((p) => ({ label: p.verb, value: p.id }))}
+                                value={checked.filter((c) => c in pByID)}
+                                onChange={(selected) => {
+                                    // Leave checkboxes that are not part of this check group
+                                    const otherChecked = checked.filter((c) => !(c in pByID));
+                                    setChecked([...new Set([
+                                        ...otherChecked,
+                                        ...selected,
+                                        // TODO: gives only if in right scope (can't give project-level bool on dataset)
+                                        ...selected.flatMap((s) => pByID[s].gives),
+                                    ])]);
+                                }}
+                            />
+                        </div>
+                    );
+                })}
+            </div>
+        </Spin>
+    );
 };
 
 
@@ -201,14 +314,14 @@ const GrantForm = () => {
             <Form.Item name="resource" label="Resource" initialValue={RESOURCE_EVERYTHING}>
                 <ResourceInput />
             </Form.Item>
+            <Form.Item name="permissions" label="Permissions">
+                <PermissionsInput />
+            </Form.Item>
             <Form.Item name="expiry" label="Expiry" initialValue={null}>
                 <ExpiryInput />
             </Form.Item>
             <Form.Item name="notes" label="Notes" initialValue="">
                 <Input.TextArea />
-            </Form.Item>
-            <Form.Item name="permissions" label="Permissions">
-                <Select mode="multiple" options={[]} />
             </Form.Item>
         </Form>
     );
