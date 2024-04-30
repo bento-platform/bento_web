@@ -31,6 +31,7 @@ export const fetchBentoServices = networkAction(() => ({
     types: FETCH_BENTO_SERVICES,
     check: (state) => !state.bentoServices.isFetching && !Object.keys(state.bentoServices.itemsByKind).length,
     url: `${SERVICE_REGISTRY}/bento-services`,
+    publicEndpoint: true,
     err: "Error fetching Bento services list",
 }));
 
@@ -38,6 +39,7 @@ export const fetchServices = networkAction(() => ({
     types: FETCH_SERVICES,
     check: (state) => !state.services.isFetching && !state.services.items.length,
     url: `${SERVICE_REGISTRY}/services`,
+    publicEndpoint: true,
     err: "Error fetching services",
 }));
 
@@ -52,6 +54,7 @@ export const fetchWorkflows = networkAction(() => ({
     types: FETCH_WORKFLOWS,
     check: (state) => !state.serviceWorkflows.isFetching && !Object.keys(state.serviceWorkflows.items).length,
     url: `${SERVICE_REGISTRY}/workflows`,
+    publicEndpoint: true,
     err: "Error fetching workflows",
 }));
 

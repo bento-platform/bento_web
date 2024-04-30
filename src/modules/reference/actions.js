@@ -6,6 +6,7 @@ export const DELETE_REFERENCE_GENOME = createNetworkActionTypes("REFERENCE.DELET
 const fetchReferenceGenomes = networkAction(() => (_dispatch, getState) => ({
     types: FETCH_REFERENCE_GENOMES,
     url: `${getState().services.itemsByKind.reference.url}/genomes`,
+    publicEndpoint: true,
     err: "Error fetching reference genomes",
 }));
 

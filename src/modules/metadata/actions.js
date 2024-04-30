@@ -47,6 +47,7 @@ export const clearDatasetDataType = networkAction((datasetId, dataTypeID) => (_d
 const fetchProjects = networkAction(() => (_dispatch, getState) => ({
     types: FETCH_PROJECTS,
     url: `${getState().services.metadataService.url}/api/projects`,
+    publicEndpoint: true,
     paginated: true,
     err: "Error fetching projects",
 }));
