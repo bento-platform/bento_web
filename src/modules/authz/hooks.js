@@ -131,44 +131,31 @@ export const useAuthzManagementPermissions = () => {
     const authzService = useService("authorization");
     const grantResourcePermissions = useResourcesPermissions(grantResources, authzService?.url);
 
-    const combinedPermissions = useMemo(
-        () => Object.fromEntries([
+    return useMemo(() => {
+        const combinedPermissions = Object.fromEntries([
             ...Object.entries(projectDatasetPermissions),
             ...Object.entries(grantResourcePermissions),
-        ]),
-        [projectDatasetPermissions, grantResourcePermissions]);
+        ]);
 
-    const hasAtLeastOneViewPermissionsGrant = useMemo(
-        () => Object.values(combinedPermissions).some((pd) => pd.permissions.includes(viewPermissions)),
-        [combinedPermissions]);
+        const isFetchingPermissions = Object.values(combinedPermissions).some((pd) => pd.isFetching);
 
-    const hasAtLeastOneEditPermissionsGrant = useMemo(
-        () => Object.values(combinedPermissions).some((pd) => pd.permissions.includes(editPermissions)),
-        [combinedPermissions]);
+        const hasAtLeastOneViewPermissionsGrant =
+            Object.values(combinedPermissions).some((pd) => pd.permissions.includes(viewPermissions));
+        const hasAtLeastOneEditPermissionsGrant =
+            Object.values(combinedPermissions).some((pd) => pd.permissions.includes(editPermissions));
 
-    const isFetchingPermissions = useMemo(
-        () => Object.values(combinedPermissions).some((pd) => pd.isFetching),
-        [combinedPermissions]);
-
-    const hasAttemptedPermissions = useMemo(
-        () => Object.values(combinedPermissions).every((pd) => pd.hasAttempted),
-        [combinedPermissions]);
-
-    return useMemo(() => ({
-        isFetching: isFetchingGrants || isFetchingPermissions,
-        hasAttempted: hasAttemptedPermissions,
-        hasAtLeastOneViewPermissionsGrant,
-        hasAtLeastOneEditPermissionsGrant,
-        grantResourcePermissionsObjects: grantResourcePermissions,
-        permissionsObjects: combinedPermissions,
-    }), [
+        return {
+            isFetching: isFetchingGrants || isFetchingPermissions,
+            hasAttempted: Object.values(combinedPermissions).every((pd) => pd.hasAttempted),
+            hasAtLeastOneViewPermissionsGrant,
+            hasAtLeastOneEditPermissionsGrant,
+            grantResourcePermissionsObjects: grantResourcePermissions,
+            permissionsObjects: combinedPermissions,
+        };
+    }, [
         isFetchingGrants,
-        isFetchingPermissions,
-        hasAttemptedPermissions,
-        hasAtLeastOneViewPermissionsGrant,
-        hasAtLeastOneEditPermissionsGrant,
+        projectDatasetPermissions,
         grantResourcePermissions,
-        combinedPermissions,
     ]);
 };
 
