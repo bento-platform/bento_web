@@ -2,7 +2,7 @@ import React, { useMemo, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import PropTypes from "prop-types";
 
-import { Button, Modal, Typography } from "antd";
+import { Button, Form, Modal, Typography } from "antd";
 import { DeleteOutlined, EditOutlined, PlusOutlined } from "@ant-design/icons";
 
 import { editPermissions, makeResourceKey } from "bento-auth-js";
@@ -16,8 +16,10 @@ import GrantSummary from "./GrantSummary";
 import GrantsTable from "./GrantsTable";
 
 const GrantCreationModal = ({ open, onCancel }) => {
+    const [form] = Form.useForm();
+
     return <Modal open={open} width={720} title="Create Grant" onCancel={onCancel} okText="Create">
-        <GrantForm />
+        <GrantForm form={form} />
     </Modal>;
 };
 GrantCreationModal.propTypes = {
