@@ -10,12 +10,16 @@ import { stringifyJSONRenderIfMultiKey } from "./utils";
 
 export type SubjectProps = {
     subject: GrantSubject;
+    boldLabel?: boolean;
 };
 
-const Subject = ({ subject }: SubjectProps) => {
+const Subject = ({ subject, boldLabel }: SubjectProps) => {
     const { idTokenContents: currentIDToken } = useAuthState();
 
     const groupsByID = useGroupsByID();
+
+    const renderAsBold = boldLabel ?? true;  // default to true
+    const labelStyle = { fontWeight: renderAsBold ? "bold" : "normal" };
 
     /*
     There are four possible configurations of a subject:
@@ -30,9 +34,9 @@ const Subject = ({ subject }: SubjectProps) => {
         const isSub = "sub" in subject;
         return (
             <p style={{ margin: 0, lineHeight: "1.6em" }}>
-                <strong>{isSub ? "Subject" : "Client"}:</strong>{" "}
+                <span style={labelStyle}>{isSub ? "Subject" : "Client"}:</span>{" "}
                 <Typography.Text code={true}>{isSub ? subject.sub : subject.client}</Typography.Text><br />
-                <strong>Issuer:</strong>{" "}
+                <span style={labelStyle}>Issuer:</span>{" "}
                 <Typography.Text code={true}>{iss}</Typography.Text><br />
                 {(isSub && subject.sub === currentIDToken?.sub && iss === currentIDToken?.iss)
                     ? <em>(this is you)</em>
@@ -44,7 +48,7 @@ const Subject = ({ subject }: SubjectProps) => {
         const groupDef = groupsByID[subject.group];
         return (
             <>
-                <strong>Group:</strong>{" "}
+                <span style={labelStyle}>Group:</span>{" "}
                 <Link to={`/data/manager/access/groups#group-${group}`}>
                     {groupDef
                         ? (<>{groupDef.name} (ID: {group})</>)
@@ -54,7 +58,7 @@ const Subject = ({ subject }: SubjectProps) => {
         );
     } else if ("everyone" in subject) {
         return (
-            <Popover content="Everyone, even anonymous users."><strong>Everyone</strong></Popover>
+            <Popover content="Everyone, even anonymous users."><span style={labelStyle}>Everyone</span></Popover>
         );
     }
 

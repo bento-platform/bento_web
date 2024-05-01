@@ -80,7 +80,7 @@ const SubjectInput = ({ value, onChange }: SubjectInputProps) => {
     }, []);
 
     const subjectTypeOptions = useMemo(() => [
-        { value: "everyone", label: <Subject subject={SUBJECT_EVERYONE} /> },
+        { value: "everyone", label: <Subject subject={SUBJECT_EVERYONE} boldLabel={false} /> },
         { value: "iss-sub", label: "Issuer + Subject" },
         { value: "iss-client", label: "Issuer + Client" },
         { value: "group", label: "Group", disabled: groups.length === 0 },
