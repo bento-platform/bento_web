@@ -7,6 +7,7 @@ export type PermissionDefinition = {
     verb: string;
     noun: string;
     min_level_required: "instance" | "project" | "dataset";
+    supports_data_type_narrowing: boolean;
     gives: string[];
 };
 

@@ -325,13 +325,16 @@ const newPermissionsDifferent = (checked: string[], newChecked: string[]): boole
 };
 
 const permissionCompatibleWithResource = (p: PermissionDefinition, r: GrantResource) => {
-    if (p.min_level_required === "instance") {
-        return "everything" in r;
+    const validDataTypeNarrowing = p.supports_data_type_narrowing || !("data_type" in r);
+
+    if (p.min_level_required === "dataset") {
+        return validDataTypeNarrowing;
     } else if (p.min_level_required === "project") {
-        return !("dataset" in r || "data_type" in r);
-    } else if (p.min_level_required === "dataset") {
-        return !("data_type" in r);
+        return validDataTypeNarrowing && !("dataset" in r);
+    } else if (p.min_level_required === "instance") {
+        return validDataTypeNarrowing && "everything" in r;
     }
+
     throw new Error(`missing handling for permissions level: ${p.min_level_required}`);
 };
 
