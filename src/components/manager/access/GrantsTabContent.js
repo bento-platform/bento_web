@@ -1,24 +1,35 @@
-import React, { useMemo, useState } from "react";
-import { useDispatch, useSelector } from "react-redux";
+import React, { useCallback, useMemo, useState } from "react";
 import PropTypes from "prop-types";
 
 import { Button, Form, Modal, Typography } from "antd";
-import { DeleteOutlined, EditOutlined, PlusOutlined } from "@ant-design/icons";
+import { DeleteOutlined, PlusOutlined } from "@ant-design/icons";
 
 import { editPermissions, makeResourceKey } from "bento-auth-js";
 
 import ActionContainer from "@/components/manager/ActionContainer";
-import { deleteGrant } from "@/modules/authz/actions";
+import { createGrant, deleteGrant } from "@/modules/authz/actions";
 import { useAuthzManagementPermissions, useGrants, useGroupsByID } from "@/modules/authz/hooks";
+import { useServices } from "@/modules/services/hooks";
+import { useAppDispatch } from "@/store";
 
 import GrantForm from "./GrantForm";
 import GrantSummary from "./GrantSummary";
 import GrantsTable from "./GrantsTable";
 
 const GrantCreationModal = ({ open, onCancel }) => {
+    const dispatch = useAppDispatch();
     const [form] = Form.useForm();
 
-    return <Modal open={open} width={720} title="Create Grant" onCancel={onCancel} okText="Create">
+    const onOk = useCallback(() => {
+        form.validateFields().then((values) => {
+            console.debug("received grant values for creation:", values);
+            return dispatch(createGrant(values));
+        }).catch((err) => {
+            console.error(err);
+        });
+    }, [dispatch, form]);
+
+    return <Modal open={open} width={720} title="Create Grant" onOk={onOk} onCancel={onCancel} okText="Create">
         <GrantForm form={form} />
     </Modal>;
 };
@@ -28,9 +39,9 @@ GrantCreationModal.propTypes = {
 };
 
 const GrantsTabContent = () => {
-    const dispatch = useDispatch();
+    const dispatch = useAppDispatch();
 
-    const isFetchingAllServices = useSelector((state) => state.services.isFetchingAll);
+    const isFetchingAllServices = useServices().isFetchingAll;
 
     const { data: grants, isFetching: isFetchingGrants } = useGrants();
     const groupsByID = useGroupsByID();
@@ -55,8 +66,9 @@ const GrantsTabContent = () => {
                 const canEdit = pObj.permissions.includes(editPermissions);
                 return (
                     <>
-                        <Button size="small" icon={<EditOutlined />} loading={pLoading} disabled={!canEdit}>
-                            Edit</Button>{" "}
+                        {/*TODO: no edit grant right now; originally designed to be immutable but this should change*/}
+                        {/*<Button size="small" icon={<EditOutlined />} loading={pLoading} disabled={!canEdit}>*/}
+                        {/*    Edit</Button>{" "}*/}
                         <Button
                             size="small"
                             danger={true}

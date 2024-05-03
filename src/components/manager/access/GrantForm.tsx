@@ -1,5 +1,4 @@
 import { Fragment, ReactNode, useCallback, useEffect, useMemo, useState } from "react";
-import type { ChangeEventHandler } from "react";
 
 import { Checkbox, Form, Input, Popover, Radio, Select, Space, Spin } from "antd";
 import type { FormInstance, RadioGroupProps, RadioChangeEvent, SelectProps } from "antd";
@@ -15,14 +14,15 @@ import {
     Resource as GrantResource,
     StoredGroup,
 } from "@/modules/authz/types";
+import { useDataTypes } from "@/modules/services/hooks";
+import type { BentoServiceDataType } from "@/modules/services/types";
 import { useProjects } from "@/modules/metadata/hooks";
 import type { Dataset, Project } from "@/modules/metadata/types";
 
 import ExpiryInput from "./ExpiryInput";
 import Resource from "./Resource";
 import Subject from "./Subject";
-import { useDataTypes } from "@/modules/services/hooks";
-import type { BentoServiceDataType } from "@/modules/services/types";
+import type { InputChangeEventHandler } from "./types";
 
 
 const SUBJECT_EVERYONE: GrantSubject = { everyone: true };
@@ -52,7 +52,6 @@ const buildSubject = (
     }
 };
 
-type InputChangeEventHandler = ChangeEventHandler<HTMLInputElement>;
 const handleSubjectChange = (
     onChange: ((value: GrantSubject) => void) | undefined,
     subjectType: SubjectType,
@@ -138,7 +137,7 @@ const SubjectInput = ({ value, onChange }: SubjectInputProps) => {
         label: <><strong>Group {g.id}:</strong> {g.name}</>,
     })), [groups]);
 
-    return <Space direction="vertical" style={{ width: "100%" }}>
+    return <Space direction="vertical" style={{ width: "100%", minHeight: 32 }}>
         <Radio.Group value={subjectType} onChange={onChangeSubjectType} options={subjectTypeOptions} />
         {(subjectType === "iss-sub" || subjectType === "iss-client") && (
             <Space style={{ width: "100%" }} styles={{ item: { flex: 1 } }}>
@@ -268,7 +267,7 @@ const ResourceInput = ({ value, onChange }: ResourceInputProps) => {
         if (onChange) onChange(buildResource(resourceType, selectedProject, selectedDataset, v));
     }, [onChange, resourceType, selectedProject, selectedDataset]);
 
-    return <Space direction="vertical" style={{ width: "100%" }}>
+    return <Space direction="vertical" style={{ width: "100%", minHeight: 32 }}>
         <Radio.Group value={resourceType} onChange={onChangeResourceType} options={resourceTypeOptions} />
         {resourceType === "project-plus" && (
             <Space style={{ width: "100%" }} styles={{ item: { flex: 1 } }}>
