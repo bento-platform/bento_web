@@ -1,17 +1,30 @@
 import React, { useEffect } from "react";
 import { Navigate, Route, Routes } from "react-router-dom";
 
+import { SITE_NAME } from "@/constants";
+import { useCanQueryAtLeastOneProjectOrDataset } from "@/modules/authz/hooks";
+
 import ExplorerGenomeBrowserContent from "./explorer/ExplorerGenomeBrowserContent";
 import ExplorerIndividualContent from "./explorer/ExplorerIndividualContent";
 import ExplorerSearchContent from "./explorer/ExplorerSearchContent";
-
-import { SITE_NAME } from "@/constants";
+import ForbiddenContent from "./ForbiddenContent";
 
 
 const DataExplorerContent = () => {
     useEffect(() => {
         document.title = `${SITE_NAME} - Explore Your Data`;
     }, []);
+
+    const {
+        hasPermission: canQueryData,
+        hasAttempted: hasAttemptedQueryPermissions,
+    } = useCanQueryAtLeastOneProjectOrDataset();
+
+    if (hasAttemptedQueryPermissions && !canQueryData) {
+        return (
+            <ForbiddenContent message="You do not have permission to query any data." />
+        );
+    }
 
     return (
         <Routes>

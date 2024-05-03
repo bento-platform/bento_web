@@ -7,7 +7,7 @@ import { exportData, RESOURCE_EVERYTHING } from "bento-auth-js";
 import { useResourcePermissionsWrapper } from "@/hooks";
 import { submitExportWorkflowRun } from "@/modules/wes/actions";
 
-import ForbiddenContent from "./ForbiddenContent";
+import ForbiddenContent from "../ForbiddenContent";
 import RunSetupWizard from "./RunSetupWizard";
 import RunSetupConfirmDisplay from "./RunSetupConfirmDisplay";
 

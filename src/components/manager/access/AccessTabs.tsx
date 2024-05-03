@@ -6,7 +6,7 @@ import type { TabsProps } from "antd";
 
 import { useAuthzManagementPermissions } from "@/modules/authz/hooks";
 
-import ForbiddenContent from "../ForbiddenContent";
+import ForbiddenContent from "../../ForbiddenContent";
 import GrantsTabContent from "./GrantsTabContent";
 import GroupsTabContent from "./GroupsTabContent";
 

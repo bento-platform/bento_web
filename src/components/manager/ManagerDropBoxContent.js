@@ -42,7 +42,7 @@ import ActionContainer from "./ActionContainer";
 import DownloadButton from "../common/DownloadButton";
 import DropBoxTreeSelect from "./DropBoxTreeSelect";
 import FileModal from "../display/FileModal";
-import ForbiddenContent from "./ForbiddenContent";
+import ForbiddenContent from "../ForbiddenContent";
 
 import { BENTO_DROP_BOX_FS_BASE_PATH } from "@/config";
 import { useStartIngestionFlow } from "./workflowCommon";

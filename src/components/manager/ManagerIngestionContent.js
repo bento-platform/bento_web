@@ -7,7 +7,7 @@ import { ingestData, ingestReferenceMaterial, RESOURCE_EVERYTHING } from "bento-
 import { useResourcePermissionsWrapper } from "@/hooks";
 import { submitIngestionWorkflowRun } from "@/modules/wes/actions";
 
-import ForbiddenContent from "./ForbiddenContent";
+import ForbiddenContent from "../ForbiddenContent";
 import RunSetupWizard from "./RunSetupWizard";
 import RunSetupConfirmDisplay from "./RunSetupConfirmDisplay";
 

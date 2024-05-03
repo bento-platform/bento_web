@@ -8,7 +8,7 @@ import { LAYOUT_CONTENT_STYLE } from "@/styles/layoutContent";
 
 import RunListContent from "./RunListContent";
 import RunDetailContent from "./RunDetailContent";
-import ForbiddenContent from "@/components/manager/ForbiddenContent";
+import ForbiddenContent from "@/components/ForbiddenContent";
 import { useResourcePermissionsWrapper } from "@/hooks";
 
 

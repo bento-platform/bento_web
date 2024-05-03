@@ -17,10 +17,10 @@ import { LAYOUT_CONTENT_STYLE } from "@/styles/layoutContent";
 import BooleanYesNo from "@/components/common/BooleanYesNo";
 import DownloadButton from "@/components/common/DownloadButton";
 import MonospaceText from "@/components/common/MonospaceText";
+import ForbiddenContent from "@/components/ForbiddenContent";
 import { useResourcePermissionsWrapper } from "@/hooks";
 import { clearDRSObjectSearch, deleteDRSObject, performDRSObjectSearch } from "@/modules/drs/actions";
 import DatasetTitleDisplay from "../DatasetTitleDisplay";
-import ForbiddenContent from "../ForbiddenContent";
 import ProjectTitleDisplay from "../ProjectTitleDisplay";
 
 const TABLE_NESTED_DESCRIPTIONS_STYLE = {

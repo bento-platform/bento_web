@@ -18,7 +18,7 @@ import { LAYOUT_CONTENT_STYLE } from "@/styles/layoutContent";
 import { matchingMenuKeys, transformMenuItem } from "@/utils/menu";
 import { useServices } from "@/modules/services/hooks";
 import { useCanManageAtLeastOneProjectOrDataset } from "@/modules/authz/hooks";
-import ForbiddenContent from "@/components/manager/ForbiddenContent";
+import ForbiddenContent from "@/components/ForbiddenContent";
 
 
 const PROJECT_HELP_TEXT_STYLE = {
