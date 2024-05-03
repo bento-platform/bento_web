@@ -1,19 +1,20 @@
 import React from "react";
 import { Link } from "react-router-dom";
 
-import { Popover, Typography } from "antd";
+import { Button, Popover, Typography } from "antd";
 import { useAuthState } from "bento-auth-js";
 
 import { useGroupsByID } from "@/modules/authz/hooks";
 import type { GrantSubject, StoredGroup } from "@/modules/authz/types";
 import { stringifyJSONRenderIfMultiKey } from "./utils";
+import { CloseOutlined } from "@ant-design/icons";
 
-export type SubjectProps = {
+type InnerSubjectProps = {
     subject: GrantSubject;
     boldLabel?: boolean;
 };
 
-const Subject = ({ subject, boldLabel }: SubjectProps) => {
+const InnerSubject = ({ subject, boldLabel }: InnerSubjectProps) => {
     const { idTokenContents: currentIDToken } = useAuthState();
 
     const groupsByID: Record<number, StoredGroup> = useGroupsByID();
@@ -66,6 +67,26 @@ const Subject = ({ subject, boldLabel }: SubjectProps) => {
     return (
         <pre>{stringifyJSONRenderIfMultiKey(subject)}</pre>
     );
+};
+
+export type SubjectProps = InnerSubjectProps & {
+    onClose?: () => void;
+};
+
+const Subject = ({ subject, boldLabel, onClose }: SubjectProps) => {
+    return (
+        <div style={{ position: "relative" }}>
+            {onClose && (
+                <Button
+                    icon={<CloseOutlined />}
+                    type="text"
+                    onClick={onClose}
+                    style={{ position: "absolute", top: 0, right: 0 }}
+                />
+            )}
+            <InnerSubject subject={subject} boldLabel={boldLabel} />
+        </div>
+    )
 };
 
 export default Subject;

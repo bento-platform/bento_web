@@ -1,8 +1,11 @@
 import { useCallback, useEffect, useState } from "react";
-import { Form, type FormInstance, Input, Radio, type RadioChangeEvent } from "antd";
-import { Group, GroupMembership, SpecificSubject } from "@/modules/authz/types";
+import { Button, Card, Divider, Form, type FormInstance, Input, List, Radio, type RadioChangeEvent } from "antd";
+import { PlusOutlined } from "@ant-design/icons";
+
+import type { Group, GroupMembership, SpecificSubject } from "@/modules/authz/types";
 
 import ExpiryInput from "./ExpiryInput";
+import Subject from "./Subject";
 import type { InputChangeEventHandler } from "./types";
 
 type MembershipInputProps = {
@@ -18,7 +21,7 @@ const membershipTypeOptions = [
 const MembershipInput = ({ value, onChange, ...rest }: MembershipInputProps) => {
     const [membershipType, setMembershipType] = useState<"expr" | "list">("list");
 
-    const [subjectList, setSubjectList] = useState<SpecificSubject[]>();
+    const [members, setMembers] = useState<SpecificSubject[]>([]);
     const [expr, setExpr] = useState<string>("");
 
     useEffect(() => {
@@ -28,7 +31,7 @@ const MembershipInput = ({ value, onChange, ...rest }: MembershipInputProps) => 
                 setExpr(JSON.stringify(value.expr));
             } else {
                 setMembershipType("list");
-                setSubjectList(value.members);
+                setMembers(value.members);
             }
         }
     }, [value]);
@@ -45,17 +48,42 @@ const MembershipInput = ({ value, onChange, ...rest }: MembershipInputProps) => 
         // TODO: onChange
     }, []);
 
+    const [memberAddMode, setMemberAddMode] = useState<"sub" | "client">("sub");
+
     return (
-        <div {...rest}>
+        <Card size="small" {...rest}>
             <Radio.Group value={membershipType} onChange={onChangeMembershipType} options={membershipTypeOptions} />
             <div style={{ marginTop: 16 }}>
                 {membershipType === "list" ? (
-                    "TODO"
+                    <>
+                        <List
+                            dataSource={members}
+                            renderItem={(item) => <Subject subject={item} onClose={() => console.log("TODO")} />}
+                        />
+                        <Divider />
+                        <Radio.Group
+                            value={memberAddMode}
+                            onChange={(e) => setMemberAddMode(e.target.value)}
+                            options={[
+                                { value: "sub", label: "Issuer + Subject" },
+                                { value: "client", label: "Issuer + Client" },
+                            ]}
+                        />
+                        <div style={{ display: "flex", flexDirection: "row", gap: 16, marginTop: 16 }}>
+                            <div style={{ flex: 1 }}>
+                                <Input placeholder="Issuer" />
+                            </div>
+                            <div style={{ flex: 1 }}>
+                                <Input placeholder="Subject" />
+                            </div>
+                            <Button icon={<PlusOutlined />}>Add</Button>
+                        </div>
+                    </>
                 ) : (
                     <Input value={expr} onChange={onChangeExpr} placeholder="Expression" />
                 )}
             </div>
-        </div>
+        </Card>
     );
 };
 
@@ -65,7 +93,7 @@ const GroupForm = ({ form }: { form: FormInstance<Group> }) => {
             <Form.Item name="name" label="Name" initialValue="" rules={[{ required: true }]}>
                 <Input />
             </Form.Item>
-            <Form.Item name="membership" label="Membership">
+            <Form.Item name="membership" label="Membership" initialValue={{ members: [] }}>
                 <MembershipInput />
             </Form.Item>
             <Form.Item name="expiry" label="Expiry" initialValue={null}>
