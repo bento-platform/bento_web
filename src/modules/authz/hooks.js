@@ -85,8 +85,8 @@ export const useGroups = () => {
 };
 
 export const useGroupsByID = () => {
-    const { data: groups } = useGroups();
-    return useMemo(() => Object.fromEntries(groups.map(g => [g.id, g])), [groups]);
+    const { itemsByID } = useGroups();
+    return itemsByID;
 };
 
 

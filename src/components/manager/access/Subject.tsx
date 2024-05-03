@@ -5,7 +5,7 @@ import { Popover, Typography } from "antd";
 import { useAuthState } from "bento-auth-js";
 
 import { useGroupsByID } from "@/modules/authz/hooks";
-import { GrantSubject } from "@/modules/authz/types";
+import type { GrantSubject, StoredGroup } from "@/modules/authz/types";
 import { stringifyJSONRenderIfMultiKey } from "./utils";
 
 export type SubjectProps = {
@@ -16,7 +16,7 @@ export type SubjectProps = {
 const Subject = ({ subject, boldLabel }: SubjectProps) => {
     const { idTokenContents: currentIDToken } = useAuthState();
 
-    const groupsByID = useGroupsByID();
+    const groupsByID: Record<number, StoredGroup> = useGroupsByID();
 
     const renderAsBold = boldLabel ?? true;  // default to true
     const labelStyle = { fontWeight: renderAsBold ? "bold" : "normal" };

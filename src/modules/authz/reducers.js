@@ -9,6 +9,7 @@ import {
     INVALIDATE_GRANTS,
     INVALIDATE_GROUPS,
 } from "./actions";
+import { objectWithoutProp } from "@/utils/misc";
 
 export const allPermissions = (
     state = {
@@ -32,6 +33,7 @@ export const allPermissions = (
 export const grants = (
     state = {
         data: [],
+        itemsByID: {},
         isFetching: false,
         isCreating: false,
         isDeleting: false,
@@ -43,7 +45,12 @@ export const grants = (
         case FETCH_GRANTS.REQUEST:
             return { ...state, isFetching: true };
         case FETCH_GRANTS.RECEIVE:
-            return { ...state, data: action.data, isInvalid: false };
+            return {
+                ...state,
+                data: action.data,
+                itemsByID: Object.fromEntries(action.data.map((g) => [g.id, g])),
+                isInvalid: false,
+            };
         case FETCH_GRANTS.FINISH:
             return { ...state, isFetching: false };
 
@@ -53,14 +60,22 @@ export const grants = (
         case CREATE_GRANT.REQUEST:
             return { ...state, isCreating: true };
         case CREATE_GRANT.RECEIVE:
-            return { ...state, data: [...state.data, action.data] };
+            return {
+                ...state,
+                data: [...state.data, action.data],
+                itemsByID: { ...state.itemsByID, [action.data.id]: action.data },
+            };
         case CREATE_GRANT.FINISH:
             return { ...state, isCreating: false };
 
         case DELETE_GRANT.REQUEST:
             return { ...state, isDeleting: true };
         case DELETE_GRANT.RECEIVE:
-            return { ...state, data: state.data.filter((g) => g.id !== action.grantID) };
+            return {
+                ...state,
+                data: state.data.filter((g) => g.id !== action.grantID),
+                itemsByID: objectWithoutProp(state.itemsByID, action.grantID),
+            };
         case DELETE_GRANT.FINISH:
             return { ...state, isDeleting: false };
 
@@ -72,6 +87,7 @@ export const grants = (
 export const groups = (
     state = {
         data: [],
+        itemsByID: {},
         isFetching: false,
         isCreating: false,
         isDeleting: false,
@@ -83,7 +99,12 @@ export const groups = (
         case FETCH_GROUPS.REQUEST:
             return { ...state, isFetching: true };
         case FETCH_GROUPS.RECEIVE:
-            return { ...state, data: action.data, isInvalid: false };
+            return {
+                ...state,
+                data: action.data,
+                itemsByID: Object.fromEntries(action.data.map((g) => [g.id, g])),
+                isInvalid: false,
+            };
         case FETCH_GROUPS.FINISH:
             return { ...state, isFetching: false };
 
@@ -93,14 +114,22 @@ export const groups = (
         case CREATE_GROUP.REQUEST:
             return { ...state, isCreating: true };
         case CREATE_GROUP.RECEIVE:
-            return { ...state, data: [...state.data, action.data] };
+            return {
+                ...state,
+                data: [...state.data, action.data],
+                itemsByID: { ...state.itemsByID, [action.data.id]: action.data },
+            };
         case CREATE_GROUP.FINISH:
             return { ...state, isCreating: false };
 
         case DELETE_GROUP.REQUEST:
             return { ...state, isDeleting: true };
         case DELETE_GROUP.RECEIVE:
-            return { ...state, data: state.data.filter((g) => g.id !== action.groupID) };
+            return {
+                ...state,
+                data: state.data.filter((g) => g.id !== action.groupID),
+                itemsByID: objectWithoutProp(state.itemsByID, action.groupID),
+            };
         case DELETE_GROUP.FINISH:
             return { ...state, isDeleting: false };
 
