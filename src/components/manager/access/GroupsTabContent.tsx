@@ -1,8 +1,8 @@
-import React, { useCallback, useMemo, useState } from "react";
+import React, { useCallback, useEffect, useMemo, useState } from "react";
 
 import { Button, Form, List, Modal, Table } from "antd";
 import type { ColumnsType } from "antd/es/table";
-import { DeleteOutlined, PlusOutlined } from "@ant-design/icons";
+import { DeleteOutlined, EditOutlined, PlusOutlined } from "@ant-design/icons";
 
 import { editPermissions, RESOURCE_EVERYTHING } from "bento-auth-js";
 import { useResourcePermissionsWrapper } from "@/hooks";
@@ -11,7 +11,7 @@ import { useResourcePermissionsWrapper } from "@/hooks";
 import ActionContainer from "@/components/manager/ActionContainer";
 import { createGroup, deleteGroup } from "@/modules/authz/actions";
 import { useGrants, useGroups } from "@/modules/authz/hooks";
-import { StoredGrant, StoredGroup } from "@/modules/authz/types";
+import { Group, StoredGrant, StoredGroup } from "@/modules/authz/types";
 import { useAppDispatch } from "@/store";
 
 import GrantsTable from "./GrantsTable";
@@ -89,6 +89,7 @@ const DependentGrantsCell = ({ groupGrants, group }: DependentGrantsCellProps) =
     );
 };
 
+const GROUP_MODAL_WIDTH = 720;
 
 const GroupCreationModal = ({ open, onCancel }: { open: boolean; onCancel: () => void }) => {
     const dispatch = useAppDispatch();
@@ -103,9 +104,57 @@ const GroupCreationModal = ({ open, onCancel }: { open: boolean; onCancel: () =>
         });
     }, [dispatch, form]);
 
-    return <Modal open={open} width={720} title="Create Group" onOk={onOk} onCancel={onCancel} okText="Create">
-        <GroupForm form={form} />
-    </Modal>;
+    return (
+        <Modal
+            open={open}
+            width={GROUP_MODAL_WIDTH}
+            title="Create Group"
+            onOk={onOk}
+            onCancel={onCancel}
+            okText="Create"
+        >
+            <GroupForm form={form} />
+        </Modal>
+    );
+};
+
+const GroupEditModal = ({ group, open, onCancel }: {
+    group: StoredGroup | null,
+    open: boolean;
+    onCancel: () => void
+}) => {
+    const dispatch = useAppDispatch();
+    const [form] = Form.useForm<Group>();
+
+    useEffect(() => {
+        if (group) {
+            form.setFieldsValue(group);
+        }
+    }, [group]);
+
+    const name: string = Form.useWatch("name", form);
+
+    const onOk = useCallback(() => {
+        form.validateFields().then((values) => {
+            console.debug("received group values for saving:", values);
+            // TODO: save {...group, ...values}
+        }).catch((err) => {
+            console.error(err);
+        });
+    }, [dispatch, form]);
+
+    return (
+        <Modal
+            open={open}
+            width={GROUP_MODAL_WIDTH}
+            title={`Edit Group ${group?.id}: "${name}"`}
+            onOk={onOk}
+            onCancel={onCancel}
+            okText="Save"
+        >
+            <GroupForm form={form} />
+        </Modal>
+    );
 };
 
 
@@ -113,6 +162,10 @@ const GroupsTabContent = () => {
     const dispatch = useAppDispatch();
 
     const [createModalOpen, setCreateModalOpen] = useState<boolean>(false);
+    const [editModalOpen, setEditModalOpen] = useState<boolean>(false);
+
+    const [selectedGroup, setSelectedGroup] = useState<StoredGroup | null>(null);
+
     const [modal, contextHolder] = Modal.useModal();
 
     const isFetchingAllServices = useServices().isFetchingAll;
@@ -179,31 +232,37 @@ const GroupsTabContent = () => {
             key: "actions",
             // TODO: hook up delete
             render: (group) => (
-                <Button
-                    size="small"
-                    danger={true}
-                    icon={<DeleteOutlined />}
-                    onClick={() => {
-                        const nGrants = groupGrants[group.id]?.length ?? 0;
+                <>
+                    <Button size="small" icon={<EditOutlined />} disabled={editModalOpen} onClick={() => {
+                        setSelectedGroup(group);
+                        setEditModalOpen(true);
+                    }}>Edit</Button>{" "}
+                    <Button
+                        size="small"
+                        danger={true}
+                        icon={<DeleteOutlined />}
+                        onClick={() => {
+                            const nGrants = groupGrants[group.id]?.length ?? 0;
 
-                        modal.confirm({
-                            title: <>
-                                Are you sure you wish to delete group {group.id}, as well as {nGrants} dependent
-                                grant{nGrants === 1 ? "" : "s"}?
-                            </>,
-                            content: <>
+                            modal.confirm({
+                                title: <>
+                                    Are you sure you wish to delete group {group.id}, as well as {nGrants} dependent
+                                    grant{nGrants === 1 ? "" : "s"}?
+                                </>,
+                                content: <>
 
-                            </>,
-                            okButtonProps: { danger: true },
-                            onOk: () => dispatch(deleteGroup(group)),
-                            width: 600,
-                            maskClosable: true,
-                        });
-                    }}
-                >Delete</Button>
+                                </>,
+                                okButtonProps: { danger: true },
+                                onOk: () => dispatch(deleteGroup(group)),
+                                width: 600,
+                                maskClosable: true,
+                            });
+                        }}
+                    >Delete</Button>
+                </>
             ),
         }] as ColumnsType<StoredGroup> : []),
-    ], [dispatch, hasEditPermission, groupGrants]);
+    ], [dispatch, hasEditPermission, groupGrants, editModalOpen]);
 
     return (
         <>
@@ -218,6 +277,7 @@ const GroupsTabContent = () => {
                 )}
             </ActionContainer>
             <GroupCreationModal open={createModalOpen} onCancel={() => setCreateModalOpen(false)} />
+            <GroupEditModal group={selectedGroup} open={editModalOpen} onCancel={() => setEditModalOpen(false)} />
             {/* No pagination on this table, so we can link to all group ID anchors: */}
             <Table<StoredGroup>
                 size="middle"

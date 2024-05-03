@@ -1,6 +1,6 @@
-import { useCallback, useState } from "react";
-import { Form, type FormInstance, Input, Radio, type RadioChangeEvent, Space } from "antd";
-import { Grant, GroupMembership, SpecificSubject } from "@/modules/authz/types";
+import { useCallback, useEffect, useState } from "react";
+import { Form, type FormInstance, Input, Radio, type RadioChangeEvent } from "antd";
+import { Group, GroupMembership, SpecificSubject } from "@/modules/authz/types";
 
 import ExpiryInput from "./ExpiryInput";
 import type { InputChangeEventHandler } from "./types";
@@ -20,6 +20,18 @@ const MembershipInput = ({ value, onChange, ...rest }: MembershipInputProps) => 
 
     const [subjectList, setSubjectList] = useState<SpecificSubject[]>();
     const [expr, setExpr] = useState<string>("");
+
+    useEffect(() => {
+        if (value) {
+            if ("expr" in value) {
+                setMembershipType("expr");
+                setExpr(JSON.stringify(value.expr));
+            } else {
+                setMembershipType("list");
+                setSubjectList(value.members);
+            }
+        }
+    }, [value]);
 
     const onChangeMembershipType = useCallback((e: RadioChangeEvent) => {
         const newMembershipType = e.target.value;
@@ -47,7 +59,7 @@ const MembershipInput = ({ value, onChange, ...rest }: MembershipInputProps) => 
     );
 };
 
-const GroupForm = ({ form }: { form: FormInstance<Grant> }) => {
+const GroupForm = ({ form }: { form: FormInstance<Group> }) => {
     return (
         <Form form={form} layout="vertical">
             <Form.Item name="name" label="Name" initialValue="" rules={[{ required: true }]}>
