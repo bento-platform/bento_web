@@ -29,9 +29,11 @@ const GrantCreationModal = ({ open, onCancel }) => {
         });
     }, [dispatch, form]);
 
-    return <Modal open={open} width={720} title="Create Grant" onOk={onOk} onCancel={onCancel} okText="Create">
-        <GrantForm form={form} />
-    </Modal>;
+    return (
+        <Modal open={open} width={720} title="Create Grant" onOk={onOk} onCancel={onCancel} okText="Create">
+            <GrantForm form={form} />
+        </Modal>
+    );
 };
 GrantCreationModal.propTypes = {
     open: PropTypes.bool,
