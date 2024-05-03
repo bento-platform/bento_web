@@ -86,7 +86,7 @@ const Subject = ({ subject, boldLabel, onClose }: SubjectProps) => {
             )}
             <InnerSubject subject={subject} boldLabel={boldLabel} />
         </div>
-    )
+    );
 };
 
 export default Subject;
