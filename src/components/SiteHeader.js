@@ -1,7 +1,7 @@
 import React, { useMemo, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { Link } from "react-router-dom";
-import { viewNotifications, useIsAuthenticated, usePerformSignOut, usePerformAuth } from "bento-auth-js";
+import { viewNotifications, useIsAuthenticated, usePerformSignOut, usePerformAuth, useAuthState } from "bento-auth-js";
 
 import { Badge, Layout, Menu, Spin } from "antd";
 import {
@@ -66,7 +66,7 @@ const SiteHeader = () => {
         idTokenContents,
         isHandingOffCodeForToken,
         hasAttempted: authHasAttempted,
-    } = useSelector((state) => state.auth);
+    } = useAuthState();
     const isAuthenticated = useIsAuthenticated();
 
     const [modalVisible, setModalVisible] = useState(false);

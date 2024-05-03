@@ -9,11 +9,11 @@ import { viewPermissions, RESOURCE_EVERYTHING } from "bento-auth-js";
 
 import { useResourcePermissionsWrapper } from "@/hooks";
 import { fetchGrants, fetchGroups } from "@/modules/authz/actions";
-
-import ForbiddenContent from "../ForbiddenContent";
-import GroupsTabContent from "./GroupsTabContent";
-import GrantsTabContent from "./GrantsTabContent";
 import { useService } from "@/modules/services/hooks";
+
+import ForbiddenContent from "../../ForbiddenContent";
+import GrantsTabContent from "./GrantsTabContent";
+import GroupsTabContent from "./GroupsTabContent";
 
 const TAB_ITEMS: TabsProps["items"] = [
     {
