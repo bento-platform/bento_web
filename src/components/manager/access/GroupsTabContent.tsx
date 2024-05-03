@@ -1,6 +1,6 @@
-import React, { useMemo, useState } from "react";
+import React, { useCallback, useMemo, useState } from "react";
 
-import { Button, List, Modal, Table } from "antd";
+import { Button, Form, List, Modal, Table } from "antd";
 import type { ColumnsType } from "antd/es/table";
 import { DeleteOutlined, PlusOutlined } from "@ant-design/icons";
 
@@ -9,15 +9,16 @@ import { useResourcePermissionsWrapper } from "@/hooks";
 
 
 import ActionContainer from "@/components/manager/ActionContainer";
-import { deleteGroup } from "@/modules/authz/actions";
+import { createGroup, deleteGroup } from "@/modules/authz/actions";
 import { useGrants, useGroups } from "@/modules/authz/hooks";
-import { useAppDispatch, useAppSelector } from "@/store";
 import { StoredGrant, StoredGroup } from "@/modules/authz/types";
+import { useAppDispatch } from "@/store";
 
 import GrantsTable from "./GrantsTable";
 import GroupForm from "./GroupForm";
 import Subject from "./Subject";
 import { rowKey } from "./utils";
+import { useServices } from "@/modules/services/hooks";
 
 
 const GroupMembershipCell = ({ group }: { group: StoredGroup }) => {
@@ -90,8 +91,20 @@ const DependentGrantsCell = ({ groupGrants, group }: DependentGrantsCellProps) =
 
 
 const GroupCreationModal = ({ open, onCancel }: { open: boolean; onCancel: () => void }) => {
-    return <Modal open={open} width={720} title="Create Group" onCancel={onCancel} okText="Create">
-        <GroupForm />
+    const dispatch = useAppDispatch();
+    const [form] = Form.useForm();
+
+    const onOk = useCallback(() => {
+        form.validateFields().then((values) => {
+            console.debug("received group values for creation:", values);
+            return dispatch(createGroup(values));
+        }).catch((err) => {
+            console.error(err);
+        });
+    }, [dispatch, form]);
+
+    return <Modal open={open} width={720} title="Create Group" onOk={onOk} onCancel={onCancel} okText="Create">
+        <GroupForm form={form} />
     </Modal>;
 };
 
@@ -102,7 +115,7 @@ const GroupsTabContent = () => {
     const [createModalOpen, setCreateModalOpen] = useState<boolean>(false);
     const [modal, contextHolder] = Modal.useModal();
 
-    const isFetchingAllServices = useAppSelector((state) => state.services.isFetchingAll);
+    const isFetchingAllServices = useServices().isFetchingAll;
 
     const { data: grants, isFetching: isFetchingGrants } = useGrants();
     const { data: groups, isFetching: isFetchingGroups } = useGroups();
