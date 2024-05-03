@@ -1,4 +1,4 @@
-import { Fragment, useCallback, useEffect, useMemo, useState } from "react";
+import { Fragment, ReactNode, useCallback, useEffect, useMemo, useState } from "react";
 import type { ChangeEventHandler } from "react";
 
 import { Checkbox, Form, Input, Popover, Radio, Select, Space, Spin } from "antd";
@@ -34,7 +34,7 @@ type SubjectInputProps = {
 
 type SubjectType = "everyone" | "iss-sub" | "iss-client" | "group";
 
-const buildResource = (
+const buildSubject = (
     subjectType: SubjectType,
     iss: string,
     sub: string,
@@ -62,8 +62,8 @@ const handleSubjectChange = (
     group: number | undefined,
 ) => {
     if (onChange) {
-        const resource = buildResource(subjectType, iss, sub, client, group);
-        if (resource) onChange(resource);
+        const subject = buildSubject(subjectType, iss, sub, client, group);
+        if (subject) onChange(subject);
     }
 };
 
@@ -162,6 +162,24 @@ const SubjectInput = ({ value, onChange }: SubjectInputProps) => {
 };
 
 
+const buildResource = (
+    rt: "everything" | "project-plus",
+    p: Project | null,
+    d: Dataset | null,
+    dt: string,
+): GrantResource => {
+    if (rt === "everything" || p === null) {
+        return RESOURCE_EVERYTHING;
+    }
+
+    const res: GrantResource = { "project": p.identifier };
+
+    if (d) res["dataset"] = d?.identifier;
+    if (dt) res["data_type"] = dt;
+
+    return res;
+};
+
 type ResourceInputProps = {
     value?: GrantResource,
     onChange?: (value: GrantResource) => void;
@@ -198,24 +216,6 @@ const ResourceInput = ({ value, onChange }: ResourceInputProps) => {
         }
     }, [selectedProject, projects]);
 
-    const buildResource = useCallback((
-        rt: "everything" | "project-plus",
-        p: Project | null,
-        d: Dataset | null,
-        dt: string,
-    ): GrantResource => {
-        if (rt === "everything" || p === null) {
-            return RESOURCE_EVERYTHING;
-        }
-
-        const res: GrantResource = { "project": p.identifier };
-
-        if (d) res["dataset"] = d?.identifier;
-        if (dt) res["data_type"] = selectedDataType;
-
-        return res;
-    }, [selectedProject, selectedDataset, selectedDataType]);
-
     const resourceTypeOptions = useMemo<RadioGroupProps["options"]>(() => [
         { value: "everything", label: <Resource resource={RESOURCE_EVERYTHING} /> },
         { value: "project-plus", label: "Project + Optional Dataset + Optional Data Type", disabled: !projects.length },
@@ -225,7 +225,7 @@ const ResourceInput = ({ value, onChange }: ResourceInputProps) => {
         const newResourceType = e.target.value;
         setResourceType(newResourceType);
         if (onChange) onChange(buildResource(newResourceType, selectedProject, selectedDataset, selectedDataType));
-    }, [onChange, buildResource, selectedProject, selectedDataset, selectedDataType]);
+    }, [onChange, selectedProject, selectedDataset, selectedDataType]);
 
     const projectOptions = useMemo((): SelectProps["options"] => projects.map((p: Project) => ({
         value: p.identifier,
@@ -237,7 +237,7 @@ const ResourceInput = ({ value, onChange }: ResourceInputProps) => {
         setSelectedProject(p);
         setSelectedDataset(null);
         if (onChange) onChange(buildResource(resourceType, p, null, selectedDataType));
-    }, [projectsByID, onChange, buildResource, resourceType, selectedDataType]);
+    }, [projectsByID, onChange, resourceType, selectedDataType]);
 
     const datasetOptions = useMemo((): SelectProps["options"] => {
         const options: SelectProps["options"] = [{ value: "", label: "All datasets" }];
@@ -256,7 +256,7 @@ const ResourceInput = ({ value, onChange }: ResourceInputProps) => {
         const d = datasetsByID[v];
         setSelectedDataset(d);
         if (onChange) onChange(buildResource(resourceType, selectedProject, d, selectedDataType));
-    }, [datasetsByID, onChange, buildResource, resourceType, selectedProject, selectedDataType]);
+    }, [datasetsByID, onChange, resourceType, selectedProject, selectedDataType]);
 
     const dataTypeOptions = useMemo((): SelectProps["options"] => [
         { value: "", label: "All data types" },
@@ -266,7 +266,7 @@ const ResourceInput = ({ value, onChange }: ResourceInputProps) => {
     const onChangeDataType = useCallback((v: string) => {
         setSelectedDataType(v);
         if (onChange) onChange(buildResource(resourceType, selectedProject, selectedDataset, v));
-    }, [onChange, buildResource, resourceType, selectedProject, selectedDataset]);
+    }, [onChange, resourceType, selectedProject, selectedDataset]);
 
     return <Space direction="vertical" style={{ width: "100%" }}>
         <Radio.Group value={resourceType} onChange={onChangeResourceType} options={resourceTypeOptions} />
@@ -309,6 +309,7 @@ const ResourceInput = ({ value, onChange }: ResourceInputProps) => {
 
 
 type PermissionsInputProps = {
+    id?: string;
     value?: string[];
     onChange?: (value: string[]) => void;
     currentResource: GrantResource;
@@ -338,7 +339,7 @@ const permissionCompatibleWithResource = (p: PermissionDefinition, r: GrantResou
     throw new Error(`missing handling for permissions level: ${p.min_level_required}`);
 };
 
-const PermissionsInput = ({ value, onChange, currentResource }: PermissionsInputProps) => {
+const PermissionsInput = ({ id, value, onChange, currentResource, ...rest }: PermissionsInputProps) => {
     const permissions: PermissionDefinition[] = useAllPermissions().data;
     const isFetchingPermissions = useAllPermissions().isFetching;
     const permissionsByID = useMemo(
@@ -347,19 +348,17 @@ const PermissionsInput = ({ value, onChange, currentResource }: PermissionsInput
 
     const [checked, setChecked] = useState<string[]>([]);
 
+    const isInvalid = "aria-invalid" in rest && !!rest["aria-invalid"];
+
     useEffect(() => {
         if (value && newPermissionsDifferent(checked, value)) {
             setChecked(value);
-            console.log("setChecked", value);
         }
     }, [value]);
-
-    console.log("currentResource", currentResource);
 
     const handleChange = useCallback((c: string[]) => {
         if (newPermissionsDifferent(checked, c)) {
             setChecked(c);
-            console.log("handleChange", c);
             if (onChange) onChange(c);
         }
     }, [checked, onChange]);
@@ -369,7 +368,7 @@ const PermissionsInput = ({ value, onChange, currentResource }: PermissionsInput
     }, [currentResource, handleChange, checked]);
 
     const checkboxGroups = useMemo(
-        () => {
+        (): ReactNode => {
             // TODO: use Object.groupBy when available:
             const permissionsByNoun = permissions.reduce<Record<string, PermissionDefinition[]>>((acc, p) => {
                 if (!(p.noun in acc)) acc[p.noun] = [];
@@ -430,10 +429,11 @@ const PermissionsInput = ({ value, onChange, currentResource }: PermissionsInput
                             display: "flex",
                             flexDirection: "column",
                             padding: 8,
-                            border: "1px solid #f0f0f0",
+                            border: isInvalid ? "1px solid #ff4d4f" : "1px solid #f0f0f0",
                             borderRadius: 4,
                             backgroundColor: `rgba(248, 248, 248, ${allDisabled ? "1" : "0"})`,
                             cursor: allDisabled ? "not-allowed" : "auto",
+                            transition: "background-color ease-in-out 0.15s, border-color ease-in-out 0.15s",
                         }}>
                             <span style={{
                                 fontSize: 12,
@@ -451,11 +451,17 @@ const PermissionsInput = ({ value, onChange, currentResource }: PermissionsInput
                     );
                 });
         },
-        [permissions, handleChange, currentResource]);
+        [permissions, handleChange, currentResource, isInvalid]);
 
     return (
         <Spin spinning={isFetchingPermissions}>
-            <div style={{ display: "flex", flexDirection: "row", flexWrap: "wrap", gap: 12 }}>
+            <div id={id} style={{
+                display: "flex",
+                flexDirection: "row",
+                flexWrap: "wrap",
+                gap: 12,
+                borderRadius: 8,
+            }} {...rest}>
                 {checkboxGroups}
             </div>
         </Spin>
@@ -474,8 +480,10 @@ const GrantForm = ({ form }: { form: FormInstance<Grant> }) => {
             <Form.Item name="resource" label="Resource" initialValue={RESOURCE_EVERYTHING}>
                 <ResourceInput />
             </Form.Item>
-            <Form.Item name="permissions" label="Permissions">
-                <PermissionsInput currentResource={currentResource} />
+            <Form.Item name="permissions" label="Permissions" initialValue={[]} rules={[
+                { type: "array", min: 1, message: "At least one permission must be specified" },
+            ]}>
+                <PermissionsInput currentResource={currentResource ?? RESOURCE_EVERYTHING} />
             </Form.Item>
             <Form.Item name="expiry" label="Expiry" initialValue={null}>
                 <ExpiryInput />
