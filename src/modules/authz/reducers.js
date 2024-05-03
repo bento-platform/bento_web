@@ -1,4 +1,6 @@
 import {
+    CREATE_GRANT,
+    CREATE_GROUP,
     DELETE_GRANT,
     DELETE_GROUP,
     FETCH_ALL_PERMISSIONS,
@@ -31,6 +33,7 @@ export const grants = (
     state = {
         data: [],
         isFetching: false,
+        isCreating: false,
         isDeleting: false,
         isInvalid: false,
     },
@@ -46,6 +49,13 @@ export const grants = (
 
         case INVALIDATE_GRANTS:
             return { ...state, isInvalid: true };
+
+        case CREATE_GRANT.REQUEST:
+            return { ...state, isCreating: true };
+        case CREATE_GRANT.RECEIVE:
+            return { ...state, data: [...state.data, action.data] };
+        case CREATE_GRANT.FINISH:
+            return { ...state, isCreating: false };
 
         case DELETE_GRANT.REQUEST:
             return { ...state, isDeleting: true };
@@ -63,6 +73,7 @@ export const groups = (
     state = {
         data: [],
         isFetching: false,
+        isCreating: false,
         isDeleting: false,
         isInvalid: false,
     },
@@ -78,6 +89,13 @@ export const groups = (
 
         case INVALIDATE_GROUPS:
             return { ...state, isInvalid: true };
+
+        case CREATE_GROUP.REQUEST:
+            return { ...state, isCreating: true };
+        case CREATE_GROUP.RECEIVE:
+            return { ...state, data: [...state.data, action.data] };
+        case CREATE_GROUP.FINISH:
+            return { ...state, isCreating: false };
 
         case DELETE_GROUP.REQUEST:
             return { ...state, isDeleting: true };
