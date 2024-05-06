@@ -78,7 +78,9 @@ const MembershipInput = ({ value, onChange, ...rest }: MembershipInputProps) => 
     const onChangeMembershipType = useCallback((e: RadioChangeEvent) => {
         const newMembershipType = e.target.value;
         setMembershipType(newMembershipType);
-        if (onChange && exprIsValidJSON) onChange(buildMembership(newMembershipType, expr, members));
+        if (onChange && (newMembershipType === "list" || exprIsValidJSON)) {
+            onChange(buildMembership(newMembershipType, expr, members));
+        }
     }, [onChange, expr, exprIsValidJSON, members]);
 
     const onChangeExpr = useCallback<InputChangeEventHandler>((e) => {
@@ -95,7 +97,9 @@ const MembershipInput = ({ value, onChange, ...rest }: MembershipInputProps) => 
 
     const onChangeMembers = useCallback((v: SpecificSubject[]) => {
         setMembers(v);
-        if (onChange && exprIsValidJSON) onChange(buildMembership(membershipType, expr, v));
+        if (onChange && (membershipType === "list" || exprIsValidJSON)) {
+            onChange(buildMembership(membershipType, expr, v));
+        }
     }, [onChange, membershipType, exprIsValidJSON, expr]);
 
     return (
