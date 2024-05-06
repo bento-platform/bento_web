@@ -348,7 +348,7 @@ const ManagerDRSContent = () => {
                         danger={true}
                         onClick={onDeleteSelected}
                         disabled={selectedRowKeys.length === 0}
-                    >Delete Selected</Button>
+                    >Delete Selected{selectedRowKeys.length > 0 ? ` (${selectedRowKeys.length})` : ""}</Button>
                 </div>
                 <Table
                     rowKey="id"
