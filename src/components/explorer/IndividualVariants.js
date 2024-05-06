@@ -1,15 +1,9 @@
-import React, { useContext, useMemo } from "react";
-import { Link } from "react-router-dom";
-import { useDispatch } from "react-redux";
+import React from "react";
 import PropTypes from "prop-types";
 
-import { Button, Descriptions } from "antd";
-
-import { setIgvPosition } from "@/modules/explorer/actions";
+import { Descriptions } from "antd";
 
 import "./explorer.css";
-import { ExplorerIndividualContext } from "./contexts/individual";
-import { explorerIndividualUrl } from "./utils";
 
 import JsonView from "@/components/common/JsonView";
 import OntologyTerm from "./OntologyTerm";
@@ -26,28 +20,13 @@ const variantExpressionPropType = PropTypes.shape({
     version: PropTypes.string,
 });
 
-const VariantExpressionDetails = ({variantExpression, geneContext}) => {
-    const dispatch = useDispatch();
-    const { individualID } = useContext(ExplorerIndividualContext);
-    const tracksUrl = useMemo(() => {
-        if (individualID) {
-            return `${explorerIndividualUrl(individualID)}/tracks`;
-        }
-    }, [individualID]);
+const VariantExpressionDetails = ({variantExpression}) => {
     return (
         <div style={variantStyle}>
             <span style={{display: "inline"}}>
                 <strong>syntax:</strong>{" "}{variantExpression.syntax}<br/>
                 <strong>value:</strong>{" "}{variantExpression.value}<br/>
                 <strong>version:</strong>{" "}{variantExpression.version}<br />
-                {(geneContext && tracksUrl) && (
-                    <>
-                        <strong>gene context:</strong>{" "}
-                        <Link onClick={() => dispatch(setIgvPosition(geneContext.symbol))} to={tracksUrl}>
-                            <Button>{geneContext.value_id}</Button>
-                        </Link>
-                    </>
-                )}
             </span>
         </div>
     );
