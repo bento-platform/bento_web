@@ -290,17 +290,7 @@ const ManagerDRSContent = () => {
                 { text: "No", value: false },
             ],
             onFilter: (value, record) => record.valid_resource === value,
-            render: (record) => {
-                const projectID = record.bento?.project_id;
-                const datasetID = record.bento?.dataset_id;
-
-                const projectValid = !projectID || !!projectsByID[projectID];
-                const datasetValid = !datasetID || !!datasetsByID[datasetID];
-
-                return (
-                    <BooleanYesNo value={projectValid && datasetValid} />
-                );
-            },
+            render: (v) => <BooleanYesNo value={v} />,
         },
         {
             title: "Actions",
