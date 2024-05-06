@@ -51,13 +51,16 @@ module.exports = {
         ],
         "react/jsx-indent-props": ["error", "first"],
 
+        // Don't need React for JSX anymore with new JSX transform
+        "react/react-in-jsx-scope": "off",
+        "react/jsx-uses-react": "off",
+
         // Prevent some legacy HTML tags
         "react/forbid-elements": ["error", {"forbid": ["b", "font"]}],
 
         "no-prototype-builtins": "off",
         "react/display-name": "off",
 
-        "no-unused-vars": ["error", {"argsIgnorePattern": "^_"}],
         "linebreak-style": ["error", "unix"],
         "react/prop-types": ["error", {"ignore": ["form", "match", "history"]}],
         "quotes": ["error", "double"],
@@ -83,7 +86,7 @@ module.exports = {
             "functions": "always-multiline",
         }],
 
-        // @@typescript-eslint tweaks
+        // @typescript-eslint tweaks
         "@typescript-eslint/no-unused-vars": ["error", { argsIgnorePattern: "^_" }],
     },
     "settings": {
