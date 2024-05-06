@@ -159,6 +159,9 @@ const DRS_TABLE_EXPANDABLE = {
 const ManagerDRSContent = () => {
     const dispatch = useDispatch();
 
+    const projectsByID = useSelector((state) => state.projects.itemsByID);
+    const datasetsByID = useSelector((state) => state.projects.datasetsByID);
+
     // TODO: per-object permissions
     //  For now, use whole-node permissions for DRS object viewer
 
@@ -177,11 +180,25 @@ const ManagerDRSContent = () => {
     const hasDeletePermission = permissions.includes(deleteData);
 
     const drsURL = useSelector((state) => state.services.drsService?.url);
-    const { objectSearchResults, objectSearchIsFetching, objectSearchAttempted } = useSelector((state) => state.drs);
+    const {
+        objectSearchResults: rawObjectResults,
+        objectSearchIsFetching,
+        objectSearchAttempted,
+    } = useSelector((state) => state.drs);
+
+    const objectResults = useMemo(() => rawObjectResults.map((o) => {
+        const projectID = o.bento?.project_id;
+        const datasetID = o.bento?.dataset_id;
+
+        const projectValid = !projectID || !!projectsByID[projectID];
+        const datasetValid = !datasetID || !!datasetsByID[datasetID];
+
+        return { ...o, valid_resource: projectValid && datasetValid };
+    }), [rawObjectResults, projectsByID, datasetsByID]);
 
     const objectsByID = useMemo(
-        () => Object.fromEntries(objectSearchResults.map((o) => [o.id, o])),
-        [objectSearchResults]);
+        () => Object.fromEntries(objectResults.map((o) => [o.id, o])),
+        [objectResults]);
 
     const [searchParams, setSearchParams] = useSearchParams();
     const { q: initialSearchQuery } = searchParams;
@@ -249,6 +266,7 @@ const ManagerDRSContent = () => {
         [objectSearchAttempted],
     );
 
+    // noinspection JSUnusedGlobalSymbols
     const columns = useMemo(() => [
         {
             title: "URI",
@@ -263,6 +281,26 @@ const ManagerDRSContent = () => {
             title: "Size",
             dataIndex: "size",
             render: (size) => filesize(size),
+        },
+        {
+            title: "Valid Resource?",
+            dataIndex: "valid_resource",
+            filters: [
+                { text: "Yes", value: true },
+                { text: "No", value: false },
+            ],
+            onFilter: (value, record) => record.valid_resource === value,
+            render: (record) => {
+                const projectID = record.bento?.project_id;
+                const datasetID = record.bento?.dataset_id;
+
+                const projectValid = !projectID || !!projectsByID[projectID];
+                const datasetValid = !datasetID || !!datasetsByID[datasetID];
+
+                return (
+                    <BooleanYesNo value={projectValid && datasetValid} />
+                );
+            },
         },
         {
             title: "Actions",
@@ -284,7 +322,15 @@ const ManagerDRSContent = () => {
                 );
             },
         },
-    ], [hasDownloadPermission, hasDeletePermission]);
+    ], [hasDownloadPermission, hasDeletePermission, projectsByID, datasetsByID]);
+
+    // noinspection JSUnusedGlobalSymbols
+    const rowSelection = useMemo(() => ({
+        type: "checkbox",
+        getCheckboxProps: (record) => ({ name: record.id }),
+        selectedRowKeys,
+        onChange: (keys) => setSelectedRowKeys(keys),
+    }), [selectedRowKeys]);
 
     if (hasAttemptedPermissions && !hasQueryPermission) {
         return (
@@ -317,18 +363,13 @@ const ManagerDRSContent = () => {
                 <Table
                     rowKey="id"
                     columns={columns}
-                    dataSource={objectSearchResults}
+                    dataSource={objectResults}
                     loading={isFetchingPermissions || objectSearchIsFetching}
                     bordered={true}
                     size="middle"
                     expandable={DRS_TABLE_EXPANDABLE}
                     locale={tableLocale}
-                    rowSelection={{
-                        type: "checkbox",
-                        getCheckboxProps: (record) => ({ name: record.id }),
-                        selectedRowKeys,
-                        onChange: (keys) => setSelectedRowKeys(keys),
-                    }}
+                    rowSelection={rowSelection}
                 />
             </Layout.Content>
         </Layout>
