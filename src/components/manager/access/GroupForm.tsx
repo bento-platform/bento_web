@@ -1,14 +1,15 @@
-import { useCallback, useEffect, useState } from "react";
+import { type ChangeEvent, useCallback, useEffect, useState } from "react";
 import { Button, Card, Divider, Form, type FormInstance, Input, List, Radio, type RadioChangeEvent } from "antd";
 import type { Rule } from "antd/es/form/index";
 import { PlusOutlined } from "@ant-design/icons";
+
+import { useOpenIdConfig } from "bento-auth-js";
 
 import type { Group, GroupMembership, SpecificSubject } from "@/modules/authz/types";
 
 import ExpiryInput from "./ExpiryInput";
 import Subject from "./Subject";
 import type { InputChangeEventHandler } from "./types";
-import { useOpenIdConfig } from "bento-auth-js";
 
 type MembershipInputProps = {
     onChange?: (v: GroupMembership) => void;
@@ -37,11 +38,11 @@ const buildMembership = (
     }
 };
 
-const isValidJSON = (x: string): boolean => {
+const isValidJSONArray = (x: string): boolean => {
     if (x) {
         try {
-            JSON.parse(x);
-            return true;
+            const y = JSON.parse(x);
+            return Array.isArray(y);
         } catch (e) {
             return false;
         }
@@ -57,7 +58,7 @@ const MembershipInput = ({ value, onChange, ...rest }: MembershipInputProps) => 
 
     const [members, setMembers] = useState<SpecificSubject[]>([]);
     const [expr, setExpr] = useState<string>("");
-    const [exprIsValidJSON, setExprIsValidJSON] = useState<boolean>(isValidJSON(expr));
+    const [exprIsValidJSONArray, setExprIsValidJSONArray] = useState<boolean>(isValidJSONArray(expr));
 
     const [memberAddMode, setMemberAddMode] = useState<"sub" | "client">("sub");
     const [iss, setIss] = useState<string>(homeIssuer);
@@ -78,17 +79,17 @@ const MembershipInput = ({ value, onChange, ...rest }: MembershipInputProps) => 
     const onChangeMembershipType = useCallback((e: RadioChangeEvent) => {
         const newMembershipType = e.target.value;
         setMembershipType(newMembershipType);
-        if (onChange && (newMembershipType === "list" || exprIsValidJSON)) {
+        if (onChange && (newMembershipType === "list" || exprIsValidJSONArray)) {
             onChange(buildMembership(newMembershipType, expr, members));
         }
-    }, [onChange, expr, exprIsValidJSON, members]);
+    }, [onChange, expr, exprIsValidJSONArray, members]);
 
     const onChangeExpr = useCallback<InputChangeEventHandler>((e) => {
         const newExpr = e.target.value;
         setExpr(newExpr);
 
-        const isValid = isValidJSON(newExpr);
-        setExprIsValidJSON(isValid);
+        const isValid = isValidJSONArray(newExpr);
+        setExprIsValidJSONArray(isValid);
 
         if (onChange && isValid) {
             onChange(buildMembership(membershipType, newExpr, members));
@@ -97,10 +98,36 @@ const MembershipInput = ({ value, onChange, ...rest }: MembershipInputProps) => 
 
     const onChangeMembers = useCallback((v: SpecificSubject[]) => {
         setMembers(v);
-        if (onChange && (membershipType === "list" || exprIsValidJSON)) {
+        if (onChange && (membershipType === "list" || exprIsValidJSONArray)) {
             onChange(buildMembership(membershipType, expr, v));
         }
-    }, [onChange, membershipType, exprIsValidJSON, expr]);
+    }, [onChange, membershipType, exprIsValidJSONArray, expr]);
+
+    const memberListRenderItem = useCallback((item: SpecificSubject, idx: number) => (
+        <List.Item>
+            <Subject subject={item} style={{ width: "100%" }} onClose={() => {
+                const newMembers = [...members];
+                newMembers.splice(idx, 1);
+                onChangeMembers(newMembers);
+            }} />
+        </List.Item>
+    ), [members]);
+
+    const onChangeMemberAddMode = useCallback((e: RadioChangeEvent) => {
+        setMemberAddMode(e.target.value);
+        setSubOrClient("");
+    }, []);
+
+    const onChangeIssuer = useCallback((e: ChangeEvent<HTMLInputElement>) => setIss(e.target.value), []);
+    const onChangeSubOrClient = useCallback((e: ChangeEvent<HTMLInputElement>) => setSubOrClient(e.target.value), []);
+
+    const onAddMember = useCallback(() => {
+        onChangeMembers([
+            ...members,
+            memberAddMode === "sub" ? { iss, sub: subOrClient } : { iss, client: subOrClient },
+        ]);
+        setSubOrClient("");
+    }, [members, memberAddMode, iss, subOrClient]);
 
     return (
         <Card size="small" {...rest}>
@@ -108,51 +135,31 @@ const MembershipInput = ({ value, onChange, ...rest }: MembershipInputProps) => 
             <div style={{ marginTop: 16 }}>
                 {membershipType === "list" ? (
                     <>
-                        <List
-                            dataSource={members}
-                            renderItem={(item, idx) => (
-                                <List.Item>
-                                    <Subject subject={item} style={{ width: "100%" }} onClose={() => {
-                                        const newMembers = [...members];
-                                        newMembers.splice(idx, 1);
-                                        onChangeMembers(newMembers);
-                                    }} />
-                                </List.Item>
-                            )}
-                        />
+                        <List dataSource={members} renderItem={memberListRenderItem} />
                         <Divider style={{ marginTop: 12 }} />
                         <Radio.Group
                             value={memberAddMode}
-                            onChange={(e) => {
-                                setMemberAddMode(e.target.value);
-                                setSubOrClient("");
-                            }}
+                            onChange={onChangeMemberAddMode}
                             options={SPECIFIC_SUBJECT_TYPE_OPTIONS}
                         />
                         <div style={{ display: "flex", flexDirection: "row", gap: 16, marginTop: 16 }}>
                             <div style={{ flex: 1 }}>
-                                <Input placeholder="Issuer" value={iss} onChange={(e) => setIss(e.target.value)} />
+                                <Input placeholder="Issuer" value={iss} onChange={onChangeIssuer} />
                             </div>
                             <div style={{ flex: 1 }}>
                                 <Input
                                     placeholder={memberAddMode === "sub" ? "Subject" : "Client"}
                                     value={subOrClient}
-                                    onChange={(e) => setSubOrClient(e.target.value)}
+                                    onChange={onChangeSubOrClient}
                                 />
                             </div>
-                            <Button icon={<PlusOutlined />} onClick={() => {
-                                onChangeMembers([
-                                    ...members,
-                                    memberAddMode === "sub" ? { iss, sub: subOrClient } : { iss, client: subOrClient },
-                                ]);
-                                setSubOrClient("");
-                            }}>Add</Button>
+                            <Button icon={<PlusOutlined />} onClick={onAddMember}>Add</Button>
                         </div>
                     </>
                 ) : (
                     <Input
                         spellCheck={false}
-                        status={exprIsValidJSON ? undefined : "error"}
+                        status={exprIsValidJSONArray ? undefined : "error"}
                         value={expr}
                         onChange={onChangeExpr}
                         placeholder="Expression"
@@ -166,7 +173,10 @@ const MembershipInput = ({ value, onChange, ...rest }: MembershipInputProps) => 
 const MEMBERSHIP_VALIDATOR_RULES: Rule[] = [{
     validator: (_r, v: GroupMembership) => {
         if ("expr" in v) {
-            // TODO
+            if (!Array.isArray(v) || v.length < 3) {  // 3 is minimum length for a relevant expression here.
+                return Promise.reject(
+                    "Membership expression should be a valid Bento Query-formatted JSON array.");
+            }
         } else {
             if (v.members.length === 0) {
                 return Promise.reject("Membership list must have at least one entry.");
@@ -176,28 +186,26 @@ const MEMBERSHIP_VALIDATOR_RULES: Rule[] = [{
     },
 }];
 
-const GroupForm = ({ form }: { form: FormInstance<Group> }) => {
-    return (
-        <Form form={form} layout="vertical">
-            <Form.Item name="name" label="Name" initialValue="" rules={[{ required: true }]}>
-                <Input />
-            </Form.Item>
-            <Form.Item
-                name="membership"
-                label="Membership"
-                initialValue={{ members: [] }}
-                rules={MEMBERSHIP_VALIDATOR_RULES}
-            >
-                <MembershipInput />
-            </Form.Item>
-            <Form.Item name="expiry" label="Expiry" initialValue={null}>
-                <ExpiryInput />
-            </Form.Item>
-            <Form.Item name="notes" label="Notes" initialValue="">
-                <Input.TextArea />
-            </Form.Item>
-        </Form>
-    );
-};
+const GroupForm = ({ form }: { form: FormInstance<Group> }) => (
+    <Form form={form} layout="vertical">
+        <Form.Item name="name" label="Name" initialValue="" rules={[{ required: true }]}>
+            <Input />
+        </Form.Item>
+        <Form.Item
+            name="membership"
+            label="Membership"
+            initialValue={{ members: [] }}
+            rules={MEMBERSHIP_VALIDATOR_RULES}
+        >
+            <MembershipInput />
+        </Form.Item>
+        <Form.Item name="expiry" label="Expiry" initialValue={null}>
+            <ExpiryInput />
+        </Form.Item>
+        <Form.Item name="notes" label="Notes" initialValue="">
+            <Input.TextArea />
+        </Form.Item>
+    </Form>
+);
 
 export default GroupForm;
