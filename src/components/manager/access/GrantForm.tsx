@@ -139,6 +139,11 @@ const SubjectInput = ({ value, onChange }: SubjectInputProps) => {
         label: <><strong>Group {g.id}:</strong> {g.name}</>,
     })), [groups]);
 
+    const onChangeGroup = useCallback((v: number) => {
+        setGroup(v);
+        handleSubjectChange(onChange, subjectType, iss, sub, client, v);
+    }, onChangeDeps);
+
     return <Space direction="vertical" style={{ width: "100%", minHeight: 32 }}>
         <Radio.Group value={subjectType} onChange={onChangeSubjectType} options={subjectTypeOptions} />
         {(subjectType === "iss-sub" || subjectType === "iss-client") && (
@@ -157,6 +162,7 @@ const SubjectInput = ({ value, onChange }: SubjectInputProps) => {
                 placeholder="Select a group"
                 value={group}
                 options={groupOptions}
+                onChange={onChangeGroup}
             />
         )}
     </Space>;
