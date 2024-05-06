@@ -1,5 +1,4 @@
 import React, { useCallback, useEffect } from "react";
-import { useDispatch } from "react-redux";
 import { useNavigate, useParams } from "react-router-dom";
 
 import { Tabs } from "antd";
@@ -10,6 +9,7 @@ import { viewPermissions, RESOURCE_EVERYTHING } from "bento-auth-js";
 import { useResourcePermissionsWrapper } from "@/hooks";
 import { fetchGrants, fetchGroups } from "@/modules/authz/actions";
 import { useService } from "@/modules/services/hooks";
+import { useAppDispatch } from "@/store";
 
 import ForbiddenContent from "../../ForbiddenContent";
 import GrantsTabContent from "./GrantsTabContent";
@@ -29,7 +29,7 @@ const TAB_ITEMS: TabsProps["items"] = [
 ];
 
 const AccessTabs = () => {
-    const dispatch = useDispatch();
+    const dispatch = useAppDispatch();
 
     const navigate = useNavigate();
     const { tab } = useParams();
