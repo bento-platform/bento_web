@@ -3,7 +3,7 @@ import { Fragment, ReactNode, useCallback, useEffect, useMemo, useState } from "
 import { Checkbox, Form, Input, Popover, Radio, Select, Space, Spin } from "antd";
 import type { FormInstance, RadioGroupProps, RadioChangeEvent, SelectProps } from "antd";
 
-import { RESOURCE_EVERYTHING } from "bento-auth-js";
+import { RESOURCE_EVERYTHING, useOpenIdConfig } from "bento-auth-js";
 
 import MonospaceText from "@/components/common/MonospaceText";
 import { useAllPermissions, useGroups } from "@/modules/authz/hooks";
@@ -69,8 +69,10 @@ const handleSubjectChange = (
 const SubjectInput = ({ value, onChange }: SubjectInputProps) => {
     const groups: StoredGroup[] = useGroups().data;
 
+    const homeIssuer = useOpenIdConfig()?.issuer ?? "";
+
     const [subjectType, setSubjectType] = useState<"everyone" | "iss-sub" | "iss-client" | "group">("everyone");
-    const [iss, setIss] = useState("");
+    const [iss, setIss] = useState(homeIssuer);
     const [sub, setSub] = useState("");
     const [client, setClient] = useState("");
     const [group, setGroup] = useState<number | undefined>(groups[0]?.id);

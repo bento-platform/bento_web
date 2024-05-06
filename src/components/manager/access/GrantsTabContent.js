@@ -16,28 +16,29 @@ import GrantForm from "./GrantForm";
 import GrantSummary from "./GrantSummary";
 import GrantsTable from "./GrantsTable";
 
-const GrantCreationModal = ({ open, onCancel }) => {
+const GrantCreationModal = ({ open, closeModal }) => {
     const dispatch = useAppDispatch();
     const [form] = Form.useForm();
 
     const onOk = useCallback(() => {
-        form.validateFields().then((values) => {
+        form.validateFields().then(async (values) => {
             console.debug("received grant values for creation:", values);
-            return dispatch(createGrant(values));
+            await dispatch(createGrant(values));
+            closeModal();
         }).catch((err) => {
             console.error(err);
         });
     }, [dispatch, form]);
 
     return (
-        <Modal open={open} width={720} title="Create Grant" onOk={onOk} onCancel={onCancel} okText="Create">
+        <Modal open={open} width={720} title="Create Grant" onOk={onOk} onCancel={closeModal} okText="Create">
             <GrantForm form={form} />
         </Modal>
     );
 };
 GrantCreationModal.propTypes = {
     open: PropTypes.bool,
-    onCancel: PropTypes.func,
+    closeModal: PropTypes.func,
 };
 
 const GrantsTabContent = () => {
@@ -112,7 +113,7 @@ const GrantsTabContent = () => {
                     </Button>
                 </ActionContainer>
             )}
-            <GrantCreationModal open={createModalOpen} onCancel={() => setCreateModalOpen(false)} />
+            <GrantCreationModal open={createModalOpen} closeModal={() => setCreateModalOpen(false)} />
             <GrantsTable
                 grants={grants}
                 loading={isFetchingAllServices || isFetchingPermissions || isFetchingGrants}
