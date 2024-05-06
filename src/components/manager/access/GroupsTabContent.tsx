@@ -1,6 +1,6 @@
 import React, { useCallback, useEffect, useMemo, useState } from "react";
 
-import { Button, Form, List, Modal, Table } from "antd";
+import { Button, Form, List, Modal, Table, Typography } from "antd";
 import type { ColumnsType } from "antd/es/table";
 import { DeleteOutlined, EditOutlined, PlusOutlined } from "@ant-design/icons";
 
@@ -245,16 +245,21 @@ const GroupsTabContent = () => {
                         icon={<DeleteOutlined />}
                         onClick={() => {
                             const nGrants = groupGrants[group.id]?.length ?? 0;
+                            const grantNoun = `grant${nGrants === 1 ? "" : "s"}`;
 
                             modal.confirm({
                                 title: <>
-                                    Are you sure you wish to delete group {group.id}, as well as {nGrants} dependent
-                                    grant{nGrants === 1 ? "" : "s"}?
+                                    Are you sure you wish to delete group &ldquo;{group.name}&rdquo; (ID: {group.id}),
+                                    as well as {nGrants} dependent {grantNoun}?
                                 </>,
-                                content: <>
-
-                                </>,
-                                okButtonProps: { danger: true },
+                                content: (
+                                    <Typography.Paragraph>
+                                        Doing so will alter who can view or manipulate data inside this Bento
+                                        instance, and may even affect <strong>your own</strong> access!
+                                    </Typography.Paragraph>
+                                ),
+                                okButtonProps: { danger: true, icon: <DeleteOutlined /> },
+                                okText: `Delete group and ${nGrants} ${grantNoun}`,
                                 onOk: () => dispatch(deleteGroup(group)),
                                 width: 600,
                                 maskClosable: true,

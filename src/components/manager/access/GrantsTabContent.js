@@ -88,7 +88,8 @@ const GrantsTabContent = () => {
                                         </Typography.Paragraph>
                                         <GrantSummary grant={grant} onCancel={() => setCreateModalOpen(false)} />
                                     </>,
-                                    okButtonProps: { danger: true },
+                                    okButtonProps: { danger: true, icon: <DeleteOutlined /> },
+                                    okText: "Delete",
                                     onOk: () => dispatch(deleteGrant(grant)),
                                     width: 600,
                                     maskClosable: true,

@@ -136,7 +136,7 @@ const SubjectInput = ({ value, onChange }: SubjectInputProps) => {
 
     const groupOptions = useMemo(() => groups.map((g: StoredGroup) => ({
         value: g.id,
-        label: <><strong>Group {g.id}:</strong> {g.name}</>,
+        label: <><strong>{g.name}</strong> (ID: {g.id})</>,
     })), [groups]);
 
     const onChangeGroup = useCallback((v: number) => {
