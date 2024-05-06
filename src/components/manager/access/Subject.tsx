@@ -1,4 +1,4 @@
-import React from "react";
+import type { CSSProperties } from "react";
 import { Link } from "react-router-dom";
 
 import { Button, Popover, Typography } from "antd";
@@ -71,11 +71,12 @@ const InnerSubject = ({ subject, boldLabel }: InnerSubjectProps) => {
 
 export type SubjectProps = InnerSubjectProps & {
     onClose?: () => void;
+    style?: CSSProperties;
 };
 
-const Subject = ({ subject, boldLabel, onClose }: SubjectProps) => {
+const Subject = ({ subject, boldLabel, onClose, style, ...rest }: SubjectProps) => {
     return (
-        <div style={{ position: "relative" }}>
+        <div style={{ position: "relative", ...(style ?? {}) }} {...rest}>
             {onClose && (
                 <Button
                     icon={<CloseOutlined />}

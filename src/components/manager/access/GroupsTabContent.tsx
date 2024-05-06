@@ -89,16 +89,17 @@ const DependentGrantsCell = ({ groupGrants, group }: DependentGrantsCellProps) =
     );
 };
 
-const GROUP_MODAL_WIDTH = 720;
+const GROUP_MODAL_WIDTH = 800;
 
-const GroupCreationModal = ({ open, onCancel }: { open: boolean; onCancel: () => void }) => {
+const GroupCreationModal = ({ open, closeModal }: { open: boolean; closeModal: () => void }) => {
     const dispatch = useAppDispatch();
     const [form] = Form.useForm();
 
     const onOk = useCallback(() => {
-        form.validateFields().then((values) => {
+        form.validateFields().then(async (values) => {
             console.debug("received group values for creation:", values);
-            return dispatch(createGroup(values));
+            await dispatch(createGroup(values));
+            closeModal();
         }).catch((err) => {
             console.error(err);
         });
@@ -110,7 +111,7 @@ const GroupCreationModal = ({ open, onCancel }: { open: boolean; onCancel: () =>
             width={GROUP_MODAL_WIDTH}
             title="Create Group"
             onOk={onOk}
-            onCancel={onCancel}
+            onCancel={closeModal}
             okText="Create"
         >
             <GroupForm form={form} />
@@ -118,10 +119,10 @@ const GroupCreationModal = ({ open, onCancel }: { open: boolean; onCancel: () =>
     );
 };
 
-const GroupEditModal = ({ group, open, onCancel }: {
+const GroupEditModal = ({ group, open, closeModal }: {
     group: StoredGroup | null,
     open: boolean;
-    onCancel: () => void
+    closeModal: () => void
 }) => {
     const dispatch = useAppDispatch();
     const [form] = Form.useForm<Group>();
@@ -138,6 +139,7 @@ const GroupEditModal = ({ group, open, onCancel }: {
         form.validateFields().then((values) => {
             console.debug("received group values for saving:", values);
             // TODO: save {...group, ...values}
+            closeModal();
         }).catch((err) => {
             console.error(err);
         });
@@ -149,7 +151,7 @@ const GroupEditModal = ({ group, open, onCancel }: {
             width={GROUP_MODAL_WIDTH}
             title={`Edit Group ${group?.id}: "${name}"`}
             onOk={onOk}
-            onCancel={onCancel}
+            onCancel={closeModal}
             okText="Save"
         >
             <GroupForm form={form} />
@@ -276,8 +278,8 @@ const GroupsTabContent = () => {
                     </Button>
                 )}
             </ActionContainer>
-            <GroupCreationModal open={createModalOpen} onCancel={() => setCreateModalOpen(false)} />
-            <GroupEditModal group={selectedGroup} open={editModalOpen} onCancel={() => setEditModalOpen(false)} />
+            <GroupCreationModal open={createModalOpen} closeModal={() => setCreateModalOpen(false)} />
+            <GroupEditModal group={selectedGroup} open={editModalOpen} closeModal={() => setEditModalOpen(false)} />
             {/* No pagination on this table, so we can link to all group ID anchors: */}
             <Table<StoredGroup>
                 size="middle"
