@@ -66,22 +66,26 @@ export const useGrants = () => {
     const dispatch = useAppDispatch();
     const authz = useService("authorization");
 
+    const grantsState = useAppSelector((state) => state.grants);
+
     useEffect(() => {
         dispatch(fetchGrants()).catch((err) => console.error(err));
-    }, [dispatch, authz]);
+    }, [dispatch, authz, grantsState.isInvalid]);
 
-    return useAppSelector((state) => state.grants);
+    return grantsState;
 };
 
 export const useGroups = () => {
     const dispatch = useAppDispatch();
     const authz = useService("authorization");
 
+    const groupsState = useAppSelector((state) => state.groups);
+
     useEffect(() => {
         dispatch(fetchGroups()).catch((err) => console.error(err));
-    }, [dispatch, authz]);
+    }, [dispatch, authz, groupsState.isInvalid]);
 
-    return useAppSelector((state) => state.groups);
+    return groupsState;
 };
 
 export const useGroupsByID = () => {
