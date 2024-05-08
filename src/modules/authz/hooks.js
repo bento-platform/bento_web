@@ -97,6 +97,9 @@ export const useGroupsByID = () => {
 // PERMISSIONS LOGIC HOOKS
 
 const useHasPermissionOnAtLeastOneProjectOrDataset = (permissionList) => {
+    // Since this is "at least one", we can return hasAttempted/hasPermission 'early' even if still fetching things,
+    // especially if we have the permissions on { "everything": true }.
+
     const {
         permissions: globalPermissions,
         isFetchingPermissions: fetchingEverythingPermissions,
@@ -105,19 +108,34 @@ const useHasPermissionOnAtLeastOneProjectOrDataset = (permissionList) => {
 
     const pdp = useProjectDatasetPermissions();
 
+    const hasPermissionGlobal = useMemo(
+        () => _hasOneOfListedPermissions(permissionList, globalPermissions),
+        [globalPermissions]);
+
     const hasPermission = useMemo(
-        () => _hasOneOfListedPermissions(permissionList, globalPermissions) || (
+        () => hasPermissionGlobal || (
             Object.values(pdp).some((ps) => _hasOneOfListedPermissions(permissionList, ps.permissions))
         ),
-        [globalPermissions, pdp]);
+        [hasPermissionGlobal, pdp]);
 
     const isFetching = useMemo(
-        () => fetchingEverythingPermissions || Object.values(pdp).some((ps) => ps.isFetching),
-        [fetchingEverythingPermissions, pdp]);
+        () =>
+            // If we don't have global permissions, checking if we're fetching individual resources.
+            // If we do, it overrides everything, so only the everything-resource permissions fetch matters.
+            fetchingEverythingPermissions || (
+                !hasPermissionGlobal && Object.values(pdp).some((ps) => ps.isFetching)),
+        [hasPermissionGlobal, fetchingEverythingPermissions, pdp]);
 
+    // { "everything": true } permissions overrides everything, so we use some more-complex logic to discern
+    // hasAttempted - early return if we a) have attempted { "everything": true } permissions, and b) in fact have
+    // everything permissions.
     const hasAttempted = useMemo(
-        () => attemptedEverythingPermissions && Object.values(pdp).every((ps) => ps.hasAttempted),
-        [attemptedEverythingPermissions, pdp]);
+        () =>
+            // don't need to worry about project/dataset-specific permissions if we have permissions on everything:
+            (hasPermissionGlobal && attemptedEverythingPermissions) || (
+                attemptedEverythingPermissions && Object.values(pdp).every((ps) => ps.hasAttempted)
+            ),
+        [hasPermissionGlobal, attemptedEverythingPermissions, pdp]);
 
     return { hasPermission, isFetching, hasAttempted };
 };
