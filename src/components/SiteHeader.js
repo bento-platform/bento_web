@@ -50,7 +50,7 @@ const SiteHeader = () => {
     const performAuth = usePerformAuth();
 
     const { permissions, isFetchingPermissions } = useEverythingPermissions();
-    const canViewNotifications = permissions.includes(viewNotifications);
+    const canViewNotifications = useMemo(() => permissions.includes(viewNotifications), [permissions]);
 
     const {
         hasPermission: canQueryData,
