@@ -18,9 +18,9 @@ const validateJson = (rule, value) => {
     }
 };
 
-const DatasetForm = ({ initialValue, formRef }) => {
+const DatasetForm = ({ initialValue, formRef, form }) => {
     return (
-        <Form ref={formRef} layout="vertical">
+        <Form ref={formRef} form={form} layout="vertical">
             <Item
                 label="Title"
                 name="title"
@@ -89,6 +89,7 @@ DatasetForm.propTypes = {
         dats_file: PropTypes.object,
         discovery: PropTypes.object,
     }),
+    form: PropTypes.object,
     formRef: PropTypes.object,
 };
 

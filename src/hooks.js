@@ -3,6 +3,11 @@ import { useEffect, useMemo, useState } from "react";
 import { useSelector } from "react-redux";
 import { useAuthorizationHeader } from "../node_modules/bento-auth-js/dist/hooks";
 import { ARRAY_BUFFER_FILE_EXTENSIONS, BLOB_FILE_EXTENSIONS } from "./components/display/FileDisplay";
+import { object } from "prop-types";
+import { nop } from "./utils/misc";
+import Ajv from "ajv";
+
+const ajv = new Ajv();
 
 // WORKFLOW:
 
@@ -139,4 +144,9 @@ export const useDropBoxFileContent = (filePath) => {
     }, [file, fileExt, authHeader]);
 
     return fileContents;
+};
+
+export const useValidateJsonSchema = (data, schemaStateSelector) => {
+    const jsonSchema = useSelector(schemaStateSelector);
+    return useMemo(() => ajv.validate(jsonSchema, data), [data, jsonSchema]);
 }

@@ -7,6 +7,7 @@ import { performGetGohanVariantsOverviewIfPossible } from "../explorer/actions";
 import { fetchServicesWithMetadataAndDataTypesIfNeeded } from "../services/actions";
 import { nop } from "../../utils/misc";
 import { fetchDatasetsDataTypes } from "../datasets/actions";
+import { fetchDiscoverySchema } from "../discovery/actions";
 
 export const FETCHING_USER_DEPENDENT_DATA = createFlowActionTypes("FETCHING_USER_DEPENDENT_DATA");
 
@@ -19,6 +20,7 @@ export const fetchServiceDependentData = () => (dispatch) =>
             fetchOverviewSummary,
             performGetGohanVariantsOverviewIfPossible,
             fetchExtraPropertiesSchemaTypes,
+            fetchDiscoverySchema,
         ].map((a) => dispatch(a())),
     );
 
