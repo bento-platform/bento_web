@@ -371,3 +371,8 @@ export const measurementPropTypesShape = PropTypes.shape({
     timeObserved: PropTypes.object,
     procedure: PropTypes.object,
 });
+
+export const titleNodePropType = PropTypes.oneOfType([
+    PropTypes.string,
+    PropTypes.node,
+]);

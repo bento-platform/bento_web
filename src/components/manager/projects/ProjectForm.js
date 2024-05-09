@@ -3,6 +3,7 @@ import PropTypes from "prop-types";
 
 import { Form, Input } from "antd";
 import { DropBoxJsonSelect } from "../DropBoxTreeSelect";
+import { Typography } from "../../../../node_modules/antd/es/index";
 
 const ProjectForm = ({ form, style, initialValues }) => {
     useEffect(() => {
@@ -28,7 +29,9 @@ const ProjectForm = ({ form, style, initialValues }) => {
             form={form}
             name="discovery"
             labels={{
-                parent: "Public Discovery Configuration",
+                parent: <Typography.Title level={5} style={{ fontSize: "20px" }}>
+                    Public Discovery Configuration
+                </Typography.Title>,
                 select: "Config file",
                 defaultContent: "Discovery config",
                 updatedContent: "New discovery config"

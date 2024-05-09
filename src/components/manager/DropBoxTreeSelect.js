@@ -8,6 +8,7 @@ import { useDropBoxFileContent } from "@/hooks";
 import { BENTO_DROP_BOX_FS_BASE_PATH } from "@/config";
 import { dropBoxTreeNodeEnabledJson } from "@/utils/files";
 import JsonDisplay from "../display/JsonDisplay";
+import { titleNodePropType } from "@/propTypes";
 
 const sortByName = (a, b) => a.name.localeCompare(b.name);
 const generateFileTree = (directory, valid, folderMode, basePrefix) =>
@@ -71,7 +72,7 @@ DropBoxTreeSelect.defaultProps = {
     folderMode: false,
 };
 
-export const DropBoxJsonSelect = ({form, name, labels, initialValue}) => {
+export const DropBoxJsonSelect = ({ form, name, labels, initialValue }) => {
     const pathName = name + "Path";
     const filePath = Form.useWatch(pathName, form);
     const fileContent = useDropBoxFileContent(filePath);
@@ -80,39 +81,42 @@ export const DropBoxJsonSelect = ({form, name, labels, initialValue}) => {
     const contentLabel = (filePath && labels?.updatedContent) ? labels.updatedContent : labels.defaultContent;
 
     useEffect(() => {
-        if (currentFieldData) {
-            form.setFieldValue(name, currentFieldData)
-        }
+        form.setFieldValue(name, currentFieldData)
     }, [form, name, currentFieldData]);
 
-    return <Form.Item label={labels.parent}>
-        <Form.Item
-            label={labels.select}
-            name={pathName}
-        >
-            <DropBoxTreeSelect
-                key={pathName}
-                basePrefix={BENTO_DROP_BOX_FS_BASE_PATH}
-                multiple={false}
-                nodeEnabled={dropBoxTreeNodeEnabledJson}
-            />
+    return (
+        <Form.Item label={labels.parent}>
+            <Form.Item
+                label={labels.select}
+                name={pathName}
+            >
+                <DropBoxTreeSelect
+                    key={pathName}
+                    basePrefix={BENTO_DROP_BOX_FS_BASE_PATH}
+                    multiple={false}
+                    nodeEnabled={dropBoxTreeNodeEnabledJson}
+                    allowClear={true}
+                />
+            </Form.Item>
+            <Form.Item
+                label={contentLabel}
+                name={name}
+            >
+                <JsonDisplay showObjectWithReactJson jsonSrc={currentFieldData} />
+            </Form.Item>
         </Form.Item>
-        <Form.Item
-            label={contentLabel}
-            name={name}
-        >
-            <JsonDisplay showObjectWithReactJson jsonSrc={currentFieldData} />
-        </Form.Item>        
-    </Form.Item>;
+    );
 };
+
+
 DropBoxJsonSelect.propTypes = {
     form: PropTypes.object.isRequired,
     name: PropTypes.string.isRequired,
     labels: PropTypes.shape({
-        parent: PropTypes.string.isRequired,
-        select: PropTypes.string.isRequired,
-        defaultContent: PropTypes.string.isRequired,
-        updatedContent: PropTypes.string,
+        parent: titleNodePropType.isRequired,
+        select: titleNodePropType.isRequired,
+        defaultContent: titleNodePropType.isRequired,
+        updatedContent: titleNodePropType,
     }),
     initialValue: PropTypes.object,
 };
