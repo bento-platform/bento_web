@@ -1,6 +1,8 @@
 import { useHasResourcePermission, useResourcePermissions } from "bento-auth-js";
-import { useMemo } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useSelector } from "react-redux";
+import { useAuthorizationHeader } from "../node_modules/bento-auth-js/dist/hooks";
+import { ARRAY_BUFFER_FILE_EXTENSIONS, BLOB_FILE_EXTENSIONS } from "./components/display/FileDisplay";
 
 // WORKFLOW:
 
@@ -63,7 +65,7 @@ export const useWorkflows = () => {
 export const useHasResourcePermissionWrapper = (resource, permission) => {
     const authzUrl = useSelector((state) => state.services.itemsByKind?.authorization?.url);
 
-    const {isFetching: fetchingPermission, hasPermission} = useHasResourcePermission(resource, authzUrl, permission);
+    const { isFetching: fetchingPermission, hasPermission } = useHasResourcePermission(resource, authzUrl, permission);
 
     return {
         fetchingPermission,
@@ -91,3 +93,50 @@ export const useResourcePermissionsWrapper = (resource) => {
         hasAttemptedPermissions,
     };
 };
+
+export const useDropBoxFileContent = (filePath) => {
+    const file = useSelector((state) => state.dropBox.tree.find((f) => f.filePath === filePath));
+    const authHeader = useAuthorizationHeader();
+
+    const [fileContents, setFileContents] = useState(null);
+
+    const fileExt = filePath ? filePath.split(".").slice(-1)[0].toLowerCase() : null;
+
+    // fetch effect
+    useEffect(() => {
+        setFileContents(null);
+        (async () => {
+            if (!file) return;
+            if (!file?.uri) {
+                console.error(`Files: something went wrong while trying to load ${uri}`);
+                return;
+            }
+            if (fileExt === "pdf") {
+                console.error("Cannot retrieve PDF with useDropBoxFileContent")
+                return
+            }
+
+            try {
+                const r = await fetch(file.uri, { headers: authHeader })
+                if (r.ok) {
+                    let content;
+                    if (ARRAY_BUFFER_FILE_EXTENSIONS.includes(fileExt)) {
+                        content = await r.arrayBuffer();
+                    } else if (BLOB_FILE_EXTENSIONS.includes(fileExt)) {
+                        content = await r.blob();
+                    } else {
+                        const text = await r.text();
+                        content = (fileExt === "json" ? JSON.parse(text) : text);
+                    }
+                    setFileContents(content);
+                } else {
+                    console.error(`Could not load file: ${r.content}`);
+                }
+            } catch (e) {
+                console.error(e);
+            }
+        })();
+    }, [file, fileExt, authHeader]);
+
+    return fileContents;
+}

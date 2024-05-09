@@ -116,8 +116,8 @@ export const VIEWABLE_FILE_EXTENSIONS = [
 ];
 
 const DEFER_LOADING_FILE_EXTENSIONS = ["pdf"];  // Don't use a fetch() for these extensions
-const ARRAY_BUFFER_FILE_EXTENSIONS = ["docx", "xls", "xlsx"];
-const BLOB_FILE_EXTENSIONS = [...AUDIO_FILE_EXTENSIONS, ...IMAGE_FILE_EXTENSIONS, ...VIDEO_FILE_EXTENSIONS, "pdf"];
+export const ARRAY_BUFFER_FILE_EXTENSIONS = ["docx", "xls", "xlsx"];
+export const BLOB_FILE_EXTENSIONS = [...AUDIO_FILE_EXTENSIONS, ...IMAGE_FILE_EXTENSIONS, ...VIDEO_FILE_EXTENSIONS, "pdf"];
 
 const EMPTY_LOADING_DIV = <div style={{ width: "100%", height: 100 }} />;
 

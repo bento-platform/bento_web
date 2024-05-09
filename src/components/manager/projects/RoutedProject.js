@@ -39,6 +39,13 @@ const RoutedProject = () => {
         }
     }, [projectsByID, loadingProjects, selectedProjectID]);
 
+    useEffect(() => {
+        // end project editing on project changes
+        if (editingProject) {
+            dispatch(endProjectEditing())
+        }
+    }, [selectedProjectID])
+
     const showDatasetAdditionModal = useCallback(() => {
         setDatasetAdditionModal(true);
     }, []);
@@ -56,7 +63,6 @@ const RoutedProject = () => {
     }, []);
 
     const handleProjectSave = useCallback((newProject) => {
-        // TODO: Form validation for project
         dispatch(saveProjectIfPossible(newProject));
     }, [dispatch]);
 

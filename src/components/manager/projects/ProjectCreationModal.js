@@ -1,8 +1,8 @@
-import React, { useCallback, useRef } from "react";
+import React, { useCallback } from "react";
 import { useSelector, useDispatch } from "react-redux";
 import { useNavigate } from "react-router-dom";
 
-import { Button, Modal } from "antd";
+import { Button, Modal, Form } from "antd";
 import { PlusOutlined } from "@ant-design/icons";
 
 import ProjectForm from "./ProjectForm";
@@ -16,31 +16,26 @@ const ProjectCreationModal = () => {
     const dispatch = useDispatch();
     const navigate = useNavigate();
 
-    const form = useRef(null);
+    const [form] = Form.useForm();
 
     const showCreationModal = useSelector(state => state.manager.projectCreationModal);
     const isCreatingProject = useSelector(state => state.projects.isCreating);
 
     const handleCreateCancel = useCallback(() => {
+        form.resetFields();
         dispatch(toggleProjectCreationModal());
-    }, [dispatch]);
+    }, [form, dispatch]);
 
     const handleCreateSubmit = useCallback(() => {
-        if (!form.current) {
-            console.error("Missing form ref.");
-        }
-
-        form.current.validateFields().then(async (values) => {
-            if (typeof values?.discovery === "string") {
-                values["discovery"] = JSON.parse(values["discovery"]);
-            }
+        form.validateFields().then(async (values) => {
             await dispatch(createProjectIfPossible(values, navigate));
-            form.current.resetFields();
-            dispatch(toggleProjectCreationModal());
         }).catch((err) => {
             console.error(err);
+        }).finally(() => {
+            form.resetFields();
+            dispatch(toggleProjectCreationModal());
         });
-    }, [dispatch]);
+    }, [form, dispatch]);
 
     return (
         <Modal
@@ -55,7 +50,7 @@ const ProjectCreationModal = () => {
             ]}
             onCancel={handleCreateCancel}
         >
-            <ProjectForm formRef={form} />
+            <ProjectForm form={form} updateMode={false}/>
         </Modal>
     );
 
