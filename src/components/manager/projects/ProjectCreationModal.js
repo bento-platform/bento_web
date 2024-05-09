@@ -29,11 +29,10 @@ const ProjectCreationModal = () => {
     const handleCreateSubmit = useCallback(() => {
         form.validateFields().then(async (values) => {
             await dispatch(createProjectIfPossible(values, navigate));
-        }).catch((err) => {
-            console.error(err);
-        }).finally(() => {
             form.resetFields();
             dispatch(toggleProjectCreationModal());
+        }).catch((err) => {
+            console.error(err);
         });
     }, [form, dispatch]);
 

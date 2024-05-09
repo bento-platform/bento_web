@@ -49,13 +49,11 @@ const Project = ({
                 title: formValues.title,
                 description: formValues.description,
                 data_use: formValues.data_use,
-                // use new discovery content if provided
                 discovery: newDiscoveryContent || formValues.discovery,
             });
+            editingForm.resetFields();
         }).catch((err) => {
             console.error(err);
-        }).finally(() => {
-            editingForm.resetFields();
         });
     }, [editingForm, onSave, projectValues, newDiscoveryContent]);
 

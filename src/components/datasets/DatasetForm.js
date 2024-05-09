@@ -52,9 +52,7 @@ const DatasetForm = ({ initialValue, form, updateMode}) => {
                 name="dats_file"
                 initialValue={initialValue?.dats_file}
                 labels={{
-                    parent: <Typography.Title level={4} style={{ fontSize: "20px" }}>
-                        DATS
-                    </Typography.Title>,
+                    parent: "DATS",
                     select: "DATS file",
                     defaultContent: "DATS data",
                     updatedContent: updateMode ? "New DATS data" : "DATS data"
@@ -66,9 +64,7 @@ const DatasetForm = ({ initialValue, form, updateMode}) => {
                 name="discovery"
                 initialValue={initialValue?.discovery}
                 labels={{
-                    parent: <Typography.Title level={4} style={{ fontSize: "20px" }}>
-                        Public Discovery Configuration
-                    </Typography.Title>,
+                    parent: "Public Discovery Configuration",
                     select: "Config file",
                     defaultContent: "Discovery config",
                     updatedContent: updateMode ? "New discovery config" : "Discovery config"
