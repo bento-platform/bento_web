@@ -4,6 +4,7 @@ import PropTypes from "prop-types";
 import { Form, Input } from "antd";
 import { DropBoxJsonSelect } from "../DropBoxTreeSelect";
 import { Typography } from "../../../../node_modules/antd/es/index";
+import { useDiscoveryValidator } from "@/hooks";
 
 const ProjectForm = ({ form, style, initialValues }) => {
     useEffect(() => {
@@ -11,6 +12,7 @@ const ProjectForm = ({ form, style, initialValues }) => {
             form.setFieldsValue(initialValues);
         }
     }, [initialValues]);
+    const discoveryValidator = useDiscoveryValidator();
     return <Form form={form} style={style || {}} layout="vertical" initialValues={initialValues}>
         <Form.Item
             label="Title"
@@ -37,6 +39,7 @@ const ProjectForm = ({ form, style, initialValues }) => {
                 updatedContent: "New discovery config"
             }}
             initialValue={initialValues?.discovery}
+            rules={[{ validator: discoveryValidator }]}
         />
     </Form>
 };

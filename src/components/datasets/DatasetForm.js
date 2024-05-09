@@ -8,6 +8,12 @@ import DataUseInput from "../DataUseInput";
 
 import { DATA_USE_PROP_TYPE_SHAPE, INITIAL_DATA_USE_VALUE } from "@/duo";
 import { simpleDeepCopy } from "@/utils/misc";
+import { useDiscoveryValidator, useDropBoxFileContent } from "@/hooks";
+import { DropBoxJsonSelect } from "../manager/DropBoxTreeSelect";
+import { BENTO_DROP_BOX_FS_BASE_PATH } from "@/config";
+import { dropBoxTreeNodeEnabledJson } from "@/utils/files";
+import JsonDisplay from "../display/JsonDisplay";
+import { Typography } from "../../../node_modules/antd/es/index";
 
 const validateJson = (rule, value) => {
     try {
@@ -18,13 +24,14 @@ const validateJson = (rule, value) => {
     }
 };
 
-const DatasetForm = ({ initialValue, formRef, form }) => {
+const DatasetForm = ({ initialValue, form, updateMode}) => {
+    const discoveryValidator = useDiscoveryValidator();
     return (
-        <Form ref={formRef} form={form} layout="vertical">
+        <Form form={form} layout="vertical" initialValues={initialValue}>
             <Item
                 label="Title"
                 name="title"
-                initialValue={initialValue?.title || ""}
+                // initialValue={initialValue?.title || ""}
                 rules={[{ required: true }, { min: 3 }]}
             >
                 <Input placeholder="My Dataset" size="large" />
@@ -32,33 +39,42 @@ const DatasetForm = ({ initialValue, formRef, form }) => {
             <Item
                 label="Description"
                 name="description"
-                initialValue={initialValue?.description || ""}
+                // initialValue={initialValue?.description || ""}
                 rules={[{ required: true }]}
             >
                 <Input.TextArea placeholder="This is a dataset" />
             </Item>
-            <Item label="Contact Information" name="contact_info" initialValue={initialValue?.contact_info ?? ""}>
+            <Item label="Contact Information" name="contact_info">
                 <Input.TextArea placeholder={"Name\nInfo@c3g.ca"} />
             </Item>
-            <Item
-                label="DATS File"
+            <DropBoxJsonSelect
+                form={form}
                 name="dats_file"
-                initialValue={
-                    initialValue?.dats_file ? JSON.stringify(initialValue.dats_file, null, 2) : ""
-                }
+                initialValue={initialValue?.dats_file}
+                labels={{
+                    parent: <Typography.Title level={4} style={{ fontSize: "20px" }}>
+                        DATS
+                    </Typography.Title>,
+                    select: "DATS file",
+                    defaultContent: "DATS data",
+                    updatedContent: updateMode ? "New DATS data" : "DATS data"
+                }}
                 rules={[{ required: true }, { validator: validateJson }, { min: 2 }]}
-            >
-                <Input.TextArea />
-            </Item>
-            <Item
-                label="Discovery config"
+            />
+            <DropBoxJsonSelect
+                form={form}
                 name="discovery"
-                initialValue={
-                    initialValue?.discovery ? JSON.stringify(initialValue.discovery, null, 2) : ""
-                }
-            >
-                <Input.TextArea />
-            </Item>
+                initialValue={initialValue?.discovery}
+                labels={{
+                    parent: <Typography.Title level={4} style={{ fontSize: "20px" }}>
+                        Public Discovery Configuration
+                    </Typography.Title>,
+                    select: "Config file",
+                    defaultContent: "Discovery config",
+                    updatedContent: updateMode ? "New discovery config" : "Discovery config"
+                }}
+                rules={[{ validator: discoveryValidator}]}
+            />
             <Item
                 label="Consent Code and Data Use Requirements"
                 name="data_use"
@@ -90,7 +106,7 @@ DatasetForm.propTypes = {
         discovery: PropTypes.object,
     }),
     form: PropTypes.object,
-    formRef: PropTypes.object,
+    updateMode: PropTypes.bool,
 };
 
 export default DatasetForm;

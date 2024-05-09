@@ -1,5 +1,5 @@
 import { useHasResourcePermission, useResourcePermissions } from "bento-auth-js";
-import { useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { useSelector } from "react-redux";
 import { useAuthorizationHeader } from "../node_modules/bento-auth-js/dist/hooks";
 import { ARRAY_BUFFER_FILE_EXTENSIONS, BLOB_FILE_EXTENSIONS } from "./components/display/FileDisplay";
@@ -7,7 +7,6 @@ import { object } from "prop-types";
 import { nop } from "./utils/misc";
 import Ajv from "ajv";
 
-const ajv = new Ajv();
 
 // WORKFLOW:
 
@@ -146,7 +145,21 @@ export const useDropBoxFileContent = (filePath) => {
     return fileContents;
 };
 
-export const useValidateJsonSchema = (data, schemaStateSelector) => {
+export const useJsonSchemaValidator = (schemaStateSelector) => {
+    const ajv = new Ajv();
     const jsonSchema = useSelector(schemaStateSelector);
-    return useMemo(() => ajv.validate(jsonSchema, data), [data, jsonSchema]);
+    console.log(jsonSchema)
+    return useCallback((rule, value) => {
+        const valid = ajv.validate(jsonSchema, value);
+        if (valid) {
+            return Promise.resolve();
+        } else {
+            return Promise.reject(new Error(ajv.errorsText(ajv.errors)));
+        }
+
+    }, [ajv, jsonSchema]);
+};
+
+export const useDiscoveryValidator = () => {
+    return useJsonSchemaValidator((state) => state.discovery.discoverySchema)
 }

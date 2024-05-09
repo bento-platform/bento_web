@@ -72,7 +72,7 @@ DropBoxTreeSelect.defaultProps = {
     folderMode: false,
 };
 
-export const DropBoxJsonSelect = ({ form, name, labels, initialValue }) => {
+export const DropBoxJsonSelect = ({ form, name, labels, initialValue, rules }) => {
     const pathName = name + "Path";
     const filePath = Form.useWatch(pathName, form);
     const fileContent = useDropBoxFileContent(filePath);
@@ -101,6 +101,8 @@ export const DropBoxJsonSelect = ({ form, name, labels, initialValue }) => {
             <Form.Item
                 label={contentLabel}
                 name={name}
+                hidden={!currentFieldData}
+                rules={rules}
             >
                 <JsonDisplay showObjectWithReactJson jsonSrc={currentFieldData} />
             </Form.Item>
@@ -119,6 +121,7 @@ DropBoxJsonSelect.propTypes = {
         updatedContent: titleNodePropType,
     }),
     initialValue: PropTypes.object,
+    rules: PropTypes.array,
 };
 
 export default DropBoxTreeSelect;
