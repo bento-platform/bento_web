@@ -39,3 +39,6 @@ export const testFileAgainstPattern = (fileName, pattern) => {
     const r = _getFileRegExp(pattern);
     return r.test(fileName);
 };
+
+export const dropBoxTreeNodeEnabledJson = ({ name, contents }) =>
+    contents !== undefined || testFileAgainstPattern(name, "^.*\.json$");

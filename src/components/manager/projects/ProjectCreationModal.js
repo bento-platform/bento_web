@@ -50,7 +50,7 @@ const ProjectCreationModal = () => {
             ]}
             onCancel={handleCreateCancel}
         >
-            <ProjectForm form={form} updateMode={false}/>
+            <ProjectForm form={form}/>
         </Modal>
     );
 
