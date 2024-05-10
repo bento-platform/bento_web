@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useRef, useState } from "react";
+import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import PropTypes from "prop-types";
 
 import { Button, Col, Empty, Row, Space, Tabs, Typography } from "antd";
@@ -54,8 +54,8 @@ const Project = ({
         isFetchingPermissions: isFetchingProjectPermissions,
     } = useResourcePermissionsWrapper(resource);
 
-    const canEditProject = projectPermissions.includes(editProject);
-    const canCreateDataset = projectPermissions.includes(createDataset);
+    const canEditProject = useMemo(() => projectPermissions.includes(editProject), [projectPermissions]);
+    const canCreateDataset = useMemo(() => projectPermissions.includes(createDataset), [projectPermissions]);
 
     const [projectState, setProjectState] = useState({
         identifier: value.identifier,
