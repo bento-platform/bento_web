@@ -42,9 +42,9 @@ const RoutedProject = () => {
     useEffect(() => {
         // end project editing on project changes
         if (editingProject) {
-            dispatch(endProjectEditing())
+            dispatch(endProjectEditing());
         }
-    }, [selectedProjectID])
+    }, [selectedProjectID]);
 
     const showDatasetAdditionModal = useCallback(() => {
         setDatasetAdditionModal(true);

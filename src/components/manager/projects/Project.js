@@ -6,7 +6,6 @@ import { CheckOutlined, CloseOutlined, DeleteOutlined, EditOutlined, PlusOutline
 
 import Dataset from "../../datasets/Dataset";
 import ProjectForm from "./ProjectForm";
-import { INITIAL_DATA_USE_VALUE } from "@/duo";
 import { nop } from "@/utils/misc";
 import { projectPropTypesShape } from "@/propTypes";
 import ProjectJsonSchema from "./ProjectJsonSchema";
@@ -25,10 +24,10 @@ const SUB_TAB_ITEMS = [
 const Project = ({
     value,
     editing, saving,
-    onDelete, onEdit, onCancelEdit, onSave, onAddDataset, onEditDataset, onAddJsonSchema
+    onDelete, onEdit, onCancelEdit, onSave, onAddDataset, onEditDataset, onAddJsonSchema,
 }) => {
     const [editingForm] = Form.useForm();
-    const newDiscoveryFile = Form.useWatch('discoveryPath', editingForm);
+    const newDiscoveryFile = Form.useWatch("discoveryPath", editingForm);
     const newDiscoveryContent = useDropBoxFileContent(newDiscoveryFile || "");
 
     const projectValues = {
@@ -60,28 +59,28 @@ const Project = ({
     const handleCancelEdit = useCallback(() => {
         editingForm.resetFields();
         (onCancelEdit || nop)();
-    }, [editingForm, onCancelEdit])
+    }, [editingForm, onCancelEdit]);
 
     return <div>
         <div style={{ position: "absolute", top: "24px", right: "24px" }}>
             {editing ? (
                 <>
                     <Button type="primary"
-                        icon={<CheckOutlined />}
-                        loading={saving}
-                        onClick={() => handleSave()}>Save</Button>
+                            icon={<CheckOutlined />}
+                            loading={saving}
+                            onClick={() => handleSave()}>Save</Button>
                     <Button icon={<CloseOutlined />}
-                        style={{ marginLeft: "10px" }}
-                        disabled={saving}
-                        onClick={() => handleCancelEdit()}>Cancel</Button>
+                            style={{ marginLeft: "10px" }}
+                            disabled={saving}
+                            onClick={() => handleCancelEdit()}>Cancel</Button>
                 </>
             ) : (
                 <>
                     <Button icon={<EditOutlined />} onClick={() => (onEdit || nop)()}>Edit</Button>
                     <Button danger={true}
-                        icon={<DeleteOutlined />}
-                        style={{ marginLeft: "10px" }}
-                        onClick={() => (onDelete || nop)()}>Delete</Button>
+                            icon={<DeleteOutlined />}
+                            style={{ marginLeft: "10px" }}
+                            onClick={() => (onDelete || nop)()}>Delete</Button>
                 </>
             )}
         </div>
@@ -118,8 +117,8 @@ const Project = ({
                     Datasets
                     <div style={{ float: "right" }}>
                         <Button icon={<PlusOutlined />}
-                            style={{ verticalAlign: "top" }}
-                            onClick={() => (onAddDataset || nop)()}>
+                                style={{ verticalAlign: "top" }}
+                                onClick={() => (onAddDataset || nop)()}>
                             Add Dataset
                         </Button>
                     </div>
@@ -152,8 +151,8 @@ const Project = ({
                     Extra Properties JSON schemas
                     <div style={{ float: "right" }}>
                         <Button icon={<PlusOutlined />}
-                            style={{ verticalAlign: "top" }}
-                            onClick={onAddJsonSchema}>
+                                style={{ verticalAlign: "top" }}
+                                onClick={onAddJsonSchema}>
                             Add JSON schema
                         </Button>
                     </div>

@@ -8,12 +8,8 @@ import DataUseInput from "../DataUseInput";
 
 import { DATA_USE_PROP_TYPE_SHAPE, INITIAL_DATA_USE_VALUE } from "@/duo";
 import { simpleDeepCopy } from "@/utils/misc";
-import { useDiscoveryValidator, useDropBoxFileContent } from "@/hooks";
+import { useDiscoveryValidator } from "@/hooks";
 import { DropBoxJsonSelect } from "../manager/DropBoxTreeSelect";
-import { BENTO_DROP_BOX_FS_BASE_PATH } from "@/config";
-import { dropBoxTreeNodeEnabledJson } from "@/utils/files";
-import JsonDisplay from "../display/JsonDisplay";
-import { Typography } from "../../../node_modules/antd/es/index";
 
 const validateJson = (rule, value) => {
     try {
@@ -55,7 +51,7 @@ const DatasetForm = ({ initialValue, form, updateMode}) => {
                     parent: "DATS",
                     select: "DATS file",
                     defaultContent: "DATS data",
-                    updatedContent: updateMode ? "New DATS data" : "DATS data"
+                    updatedContent: updateMode ? "New DATS data" : "DATS data",
                 }}
                 rules={[{ required: true }, { validator: validateJson }, { min: 2 }]}
             />
@@ -67,7 +63,7 @@ const DatasetForm = ({ initialValue, form, updateMode}) => {
                     parent: "Public Discovery Configuration",
                     select: "Config file",
                     defaultContent: "Discovery config",
-                    updatedContent: updateMode ? "New discovery config" : "Discovery config"
+                    updatedContent: updateMode ? "New discovery config" : "Discovery config",
                 }}
                 rules={[{ validator: discoveryValidator}]}
             />

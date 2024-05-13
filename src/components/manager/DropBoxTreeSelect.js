@@ -81,7 +81,7 @@ export const DropBoxJsonSelect = ({ form, name, labels, initialValue, rules }) =
     const contentLabel = (filePath && labels?.updatedContent) ? labels.updatedContent : labels.defaultContent;
 
     useEffect(() => {
-        form.setFieldValue(name, currentFieldData)
+        form.setFieldValue(name, currentFieldData);
     }, [form, name, currentFieldData]);
 
     return (

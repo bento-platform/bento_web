@@ -36,12 +36,12 @@ const ProjectForm = ({ form, style, initialValues }) => {
                 </Typography.Title>,
                 select: "Config file",
                 defaultContent: "Discovery config",
-                updatedContent: "New discovery config"
+                updatedContent: "New discovery config",
             }}
             initialValue={initialValues?.discovery}
             rules={[{ validator: discoveryValidator }]}
         />
-    </Form>
+    </Form>;
 };
 
 ProjectForm.propTypes = {

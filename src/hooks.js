@@ -3,8 +3,6 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 import { useSelector } from "react-redux";
 import { useAuthorizationHeader } from "../node_modules/bento-auth-js/dist/hooks";
 import { ARRAY_BUFFER_FILE_EXTENSIONS, BLOB_FILE_EXTENSIONS } from "./components/display/FileDisplay";
-import { object } from "prop-types";
-import { nop } from "./utils/misc";
 import Ajv from "ajv";
 
 
@@ -112,16 +110,16 @@ export const useDropBoxFileContent = (filePath) => {
         (async () => {
             if (!file) return;
             if (!file?.uri) {
-                console.error(`Files: something went wrong while trying to load ${uri}`);
+                console.error(`Files: something went wrong while trying to load ${file?.name}`);
                 return;
             }
             if (fileExt === "pdf") {
-                console.error("Cannot retrieve PDF with useDropBoxFileContent")
-                return
+                console.error("Cannot retrieve PDF with useDropBoxFileContent");
+                return;
             }
 
             try {
-                const r = await fetch(file.uri, { headers: authHeader })
+                const r = await fetch(file.uri, { headers: authHeader });
                 if (r.ok) {
                     let content;
                     if (ARRAY_BUFFER_FILE_EXTENSIONS.includes(fileExt)) {
@@ -148,7 +146,7 @@ export const useDropBoxFileContent = (filePath) => {
 export const useJsonSchemaValidator = (schemaStateSelector) => {
     const ajv = new Ajv();
     const jsonSchema = useSelector(schemaStateSelector);
-    console.log(jsonSchema)
+    console.log(jsonSchema);
     return useCallback((rule, value) => {
         const valid = ajv.validate(jsonSchema, value);
         if (valid) {
@@ -161,5 +159,5 @@ export const useJsonSchemaValidator = (schemaStateSelector) => {
 };
 
 export const useDiscoveryValidator = () => {
-    return useJsonSchemaValidator((state) => state.discovery.discoverySchema)
-}
+    return useJsonSchemaValidator((state) => state.discovery.discoverySchema);
+};
