@@ -1,5 +1,4 @@
 import React, { memo } from "react";
-import { useSelector } from "react-redux";
 import PropTypes from "prop-types";
 
 import { Space, Table } from "antd";
@@ -9,10 +8,11 @@ import { runPropTypesShape } from "@/propTypes";
 
 import DownloadButton from "@/components/common/DownloadButton";
 import MonospaceText from "@/components/common/MonospaceText";
+import { useService } from "@/modules/services/hooks";
 
 
 const RunOutputValue = ({ runID, item: { name, type, value } }) => {
-    const wesUrl = useSelector((state) => state.services.wesService?.url);
+    const wesUrl = useService("wes")?.url;
 
     const typeNoOpt = type.replace(/\?$/, "");
 

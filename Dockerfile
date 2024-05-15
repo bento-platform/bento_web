@@ -16,6 +16,7 @@ RUN npm ci
 COPY .babelrc .
 COPY create_service_info.js .
 COPY webpack.config.js .
+COPY tsconfig.json .
 #  - Copy in source code
 COPY src src
 #  - Copy in default static files (which can be overwritten later via volume mount)

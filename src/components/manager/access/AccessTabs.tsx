@@ -1,19 +1,21 @@
 import React, { useCallback, useEffect } from "react";
-import { useDispatch, useSelector } from "react-redux";
 import { useNavigate, useParams } from "react-router-dom";
 
 import { Tabs } from "antd";
+import type { TabsProps } from "antd";
 
 import { viewPermissions, RESOURCE_EVERYTHING } from "bento-auth-js";
 
 import { useResourcePermissionsWrapper } from "@/hooks";
-import { fetchGrantsIfNeeded, fetchGroupsIfNeeded } from "@/modules/authz/actions";
+import { fetchGrants, fetchGroups } from "@/modules/authz/actions";
+import { useService } from "@/modules/services/hooks";
+import { useAppDispatch } from "@/store";
 
-import ForbiddenContent from "../ForbiddenContent";
-import GroupsTabContent from "./GroupsTabContent";
+import ForbiddenContent from "../../ForbiddenContent";
 import GrantsTabContent from "./GrantsTabContent";
+import GroupsTabContent from "./GroupsTabContent";
 
-const TAB_ITEMS = [
+const TAB_ITEMS: TabsProps["items"] = [
     {
         key: "grants",
         label: "Grants",
@@ -27,7 +29,7 @@ const TAB_ITEMS = [
 ];
 
 const AccessTabs = () => {
-    const dispatch = useDispatch();
+    const dispatch = useAppDispatch();
 
     const navigate = useNavigate();
     const { tab } = useParams();
@@ -36,15 +38,15 @@ const AccessTabs = () => {
 
     const hasViewPermission = permissions.includes(viewPermissions);
 
-    const authorizationService = useSelector(state => state.services.itemsByKind.authorization);
+    const authorizationService = useService("authorization");
     useEffect(() => {
         if (authorizationService && permissions.includes(viewPermissions)) {
-            dispatch(fetchGrantsIfNeeded());
-            dispatch(fetchGroupsIfNeeded());
+            dispatch(fetchGrants());
+            dispatch(fetchGroups());
         }
     }, [authorizationService, permissions]);
 
-    const onTabClick = useCallback((key) => {
+    const onTabClick = useCallback((key: string) => {
         navigate(`../${key}`);
     }, [navigate]);
 

@@ -2,7 +2,7 @@ import fetch from "cross-fetch";
 
 import { message } from "antd";
 
-import { BENTO_PUBLIC_URL, BENTO_URL, IDP_BASE_URL } from "../config";
+import { BENTO_PUBLIC_URL, BENTO_URL, IDP_BASE_URL } from "@/config";
 
 export const basicAction = (t) => () => ({ type: t });
 
@@ -63,18 +63,25 @@ const _networkAction =
                 fnResult = await fnResult(dispatch, getState);
             }
 
-            const { types, params, url, baseUrl, req, err, onSuccess, onError, paginated } = fnResult;
+            const { types, check, params, url, baseUrl, req, err, onSuccess, onError, paginated } = fnResult;
+
+            // if we're currently auto-authenticating, don't start any network requests; otherwise, they have a good
+            // chance of getting interrupted when the auth redirect happens.
+            if (getState().auth.isAutoAuthenticating) return;
+
+            // if a check function is specified and evaluates to false on the state, don't fire the action.
+            if (check && !check(getState())) return;
 
             // Only include access token when we are making a request to this Bento node or the IdP!
             // Otherwise, we could leak it to external sites.
 
             const token =
-            url.startsWith("/") ||
-            (BENTO_URL && url.startsWith(BENTO_URL)) ||
-            (BENTO_PUBLIC_URL && url.startsWith(BENTO_PUBLIC_URL)) ||
-            (IDP_BASE_URL && url.startsWith(IDP_BASE_URL))
-                ? getState().auth.accessToken
-                : null;
+                url.startsWith("/") ||
+                (BENTO_URL && url.startsWith(BENTO_URL)) ||
+                (BENTO_PUBLIC_URL && url.startsWith(BENTO_PUBLIC_URL)) ||
+                (IDP_BASE_URL && url.startsWith(IDP_BASE_URL))
+                    ? getState().auth.accessToken
+                    : null;
 
             const finalReq = {
                 ...(req ?? {
@@ -105,7 +112,7 @@ const _networkAction =
                 });
                 if (onSuccess) await onSuccess(data);
             } catch (e) {
-                handleNetworkErrorMessaging(e, err);
+                handleNetworkErrorMessaging(getState(), e, err);
                 dispatch({ type: types.ERROR, ...params, caughtError: e });
                 if (onError) await onError(e);
             }
@@ -119,7 +126,12 @@ export const networkAction =
             _networkAction(fn, ...args);
 
 
-const handleNetworkErrorMessaging = (e, reduxErrDetail) => {
+const handleNetworkErrorMessaging = (state, e, reduxErrDetail) => {
+    // if we're currently auto-authenticating, and it's a network error, suppress it.
+    if (e.toString().includes("NetworkError when attempting") && state.auth.isAutoAuthenticating) {
+        return;
+    }
+
     console.error(e, reduxErrDetail);
 
     // prefer any cause messages to the top-level "message" string

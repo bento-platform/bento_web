@@ -1,4 +1,4 @@
-import {BENTO_PUBLIC_URL} from "../../config";
+import {BENTO_PUBLIC_URL} from "@/config";
 
 import {
     createNetworkActionTypes,
@@ -8,7 +8,7 @@ import {
     beginFlow,
     endFlow,
     terminateFlow,
-} from "../../utils/actions";
+} from "@/utils/actions";
 
 /**
  * @typedef {Object} BentoService
@@ -24,28 +24,34 @@ export const FETCH_SERVICES = createNetworkActionTypes("FETCH_SERVICES");
 export const FETCH_DATA_TYPES = createNetworkActionTypes("FETCH_DATA_TYPES");
 export const FETCH_WORKFLOWS = createNetworkActionTypes("FETCH_WORKFLOWS");
 
+const SERVICE_REGISTRY = `${BENTO_PUBLIC_URL}/api/service-registry`;
+
 
 export const fetchBentoServices = networkAction(() => ({
     types: FETCH_BENTO_SERVICES,
-    url: `${BENTO_PUBLIC_URL}/api/service-registry/bento-services`,
+    check: (state) => !state.bentoServices.isFetching && !Object.keys(state.bentoServices.itemsByKind).length,
+    url: `${SERVICE_REGISTRY}/bento-services`,
     err: "Error fetching Bento services list",
 }));
 
 export const fetchServices = networkAction(() => ({
     types: FETCH_SERVICES,
-    url: `${BENTO_PUBLIC_URL}/api/service-registry/services`,
+    check: (state) => !state.services.isFetching && !state.services.items.length,
+    url: `${SERVICE_REGISTRY}/services`,
     err: "Error fetching services",
 }));
 
 export const fetchDataTypes = networkAction(() => ({
     types: FETCH_DATA_TYPES,
-    url: `${BENTO_PUBLIC_URL}/api/service-registry/data-types`,
+    check: (state) => !state.serviceDataTypes.isFetching && !state.serviceDataTypes.items.length,
+    url: `${SERVICE_REGISTRY}/data-types`,
     err: "Error fetching data types",
 }));
 
 export const fetchWorkflows = networkAction(() => ({
     types: FETCH_WORKFLOWS,
-    url: `${BENTO_PUBLIC_URL}/api/service-registry/workflows`,
+    check: (state) => !state.serviceWorkflows.isFetching && !Object.keys(state.serviceWorkflows.items).length,
+    url: `${SERVICE_REGISTRY}/workflows`,
     err: "Error fetching workflows",
 }));
 

@@ -1,15 +1,13 @@
 import React, { Suspense, lazy, useEffect, useMemo } from "react";
 import { Navigate, Route, Routes } from "react-router-dom";
-import { useSelector } from "react-redux";
-import { viewDropBox, viewPermissions, RESOURCE_EVERYTHING, useResourcePermissions, queryData } from "bento-auth-js";
 
 import { Menu, Skeleton } from "antd";
 
 import { SITE_NAME } from "@/constants";
+import { useManagerPermissions } from "@/modules/authz/hooks";
 import { matchingMenuKeys, transformMenuItem } from "@/utils/menu";
 
 import SitePageHeader from "./SitePageHeader";
-import { useFetchDropBoxContentsIfAllowed } from "./manager/hooks";
 
 const ManagerProjectDatasetContent = lazy(() => import("./manager/projects/ManagerProjectDatasetContent"));
 const ManagerAccessContent = lazy(() => import("./manager/access/ManagerAccessContent"));
@@ -19,7 +17,6 @@ const ManagerAnalysisContent = lazy(() => import("./manager/ManagerAnalysisConte
 const ManagerExportContent = lazy(() => import("./manager/ManagerExportContent"));
 const ManagerRunsContent = lazy(() => import("./manager/runs/ManagerRunsContent"));
 const ManagerDRSContent = lazy(() => import("./manager/drs/ManagerDRSContent"));
-const ManagerReferenceGenomesContent = lazy(() => import("./manager/reference/ManagerReferenceGenomesContent"));
 
 const styles = {
     menu: {
@@ -35,22 +32,51 @@ const DataManagerContent = () => {
         document.title = `${SITE_NAME}: Admin / Data Manager`;
     }, []);
 
-    const authorizationService = useSelector((state) => state.services.itemsByKind.authorization);
+    const managerPermissions = useManagerPermissions();
 
-    const { permissions } = useResourcePermissions(RESOURCE_EVERYTHING, authorizationService?.url);
-    useFetchDropBoxContentsIfAllowed();
-
-    const canViewDropBox = permissions.includes(viewDropBox);
-    const canQueryData = permissions.includes(queryData);
-    const canViewPermissions = permissions.includes(viewPermissions);
+    const {
+        canManageProjectsDatasets,
+        canViewDropBox,
+        canIngest,
+        canAnalyzeData,
+        canExportData,
+        canQueryData,
+        canViewRuns,
+        canViewPermissions,
+    } = managerPermissions.permissions;
 
     const menuItems = useMemo(() => [
-        { url: "/data/manager/projects", style: { marginLeft: "4px" }, text: "Projects and Datasets" },
+        {
+            url: "/data/manager/projects",
+            style: { marginLeft: "4px" },
+            text: "Projects and Datasets",
+            disabled: !canManageProjectsDatasets,
+        },
         { url: "/data/manager/files", text: "Drop Box", disabled: !canViewDropBox },
-        { url: "/data/manager/ingestion", text: "Ingestion" },
-        { url: "/data/manager/analysis", text: "Analysis" },
-        { url: "/data/manager/export", text: "Export" },
-        { url: "/data/manager/runs", text: "Workflow Runs" },
+        {
+            url: "/data/manager/ingestion",
+            text: "Ingestion",
+            // TODO: more advanced permissions for this (workflow-level checks)
+            disabled: !canIngest,
+        },
+        {
+            url: "/data/manager/analysis",
+            text: "Analysis",
+            // TODO: more advanced permissions for this (workflow-level checks)
+            disabled: !canAnalyzeData,
+        },
+        {
+            url: "/data/manager/export",
+            text: "Export",
+            // TODO: more advanced permissions for this (workflow-level checks)
+            disabled: !canExportData,
+        },
+        {
+            url: "/data/manager/runs",
+            text: "Workflow Runs",
+            // TODO: check if we have any viewRuns in any grant, not just on RESOURCE_EVERYTHING
+            disabled: !canViewRuns,
+        },
         {
             url: "/data/manager/drs",
             text: "DRS Objects",
@@ -63,7 +89,6 @@ const DataManagerContent = () => {
             // TODO: check if we have any viewPermissions in any grant, not just on RESOURCE_EVERYTHING
             disabled: !canViewPermissions,
         },
-        { url: "/data/manager/genomes", text: "Reference Genomes" },
     ], [canViewDropBox, canViewPermissions]);
 
     const selectedKeys = useMemo(() => matchingMenuKeys(menuItems), [menuItems, window.location.pathname]);
@@ -91,7 +116,6 @@ const DataManagerContent = () => {
                     <Route path="analysis" element={<ManagerAnalysisContent />} />
                     <Route path="export" element={<ManagerExportContent />} />
                     <Route path="drs" element={<ManagerDRSContent />} />
-                    <Route path="genomes" element={<ManagerReferenceGenomesContent />} />
                     <Route path="runs/*" element={<ManagerRunsContent />} />
                     <Route path="*" element={<Navigate to="projects" replace={true} />} />
                 </Routes>

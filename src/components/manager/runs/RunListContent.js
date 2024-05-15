@@ -5,14 +5,15 @@ import { Table, Typography } from "antd";
 
 import LastIngestionTable from "./RunLastContent";
 
-import { fetchAllRunDetailsIfNeeded } from "../../../modules/wes/actions";
+import { fetchAllRunDetailsIfNeeded } from "@/modules/wes/actions";
+import { useRuns } from "@/modules/wes/hooks";
 import { RUN_REFRESH_TIMEOUT, RUN_TABLE_COLUMNS } from "./utils";
 
 const RunListContent = () => {
     const dispatch = useDispatch();
     const runRefreshTimeout = useRef(null);
 
-    const runs = useSelector((state) => state.runs.items);
+    const { items: runs } = useRuns();
     const mappedRuns = useMemo(() => runs.map((r) => ({
         ...r,
         startTime: r.details?.run_log?.start_time,
@@ -23,7 +24,7 @@ const RunListContent = () => {
     const runsFetching = useSelector((state) => state.runs.isFetching);
 
     useEffect(() => {
-        dispatch(fetchAllRunDetailsIfNeeded());
+        dispatch(fetchAllRunDetailsIfNeeded()).catch((err) => console.error(err));
 
         const _clearInterval = () => {
             if (runRefreshTimeout.current) {

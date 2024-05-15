@@ -42,7 +42,7 @@ import ActionContainer from "./ActionContainer";
 import DownloadButton from "../common/DownloadButton";
 import DropBoxTreeSelect from "./DropBoxTreeSelect";
 import FileModal from "../display/FileModal";
-import ForbiddenContent from "./ForbiddenContent";
+import ForbiddenContent from "../ForbiddenContent";
 
 import { BENTO_DROP_BOX_FS_BASE_PATH } from "@/config";
 import { useStartIngestionFlow } from "./workflowCommon";
@@ -51,14 +51,15 @@ import { getFalse } from "@/utils/misc";
 import {
     beginDropBoxPuttingObjects,
     endDropBoxPuttingObjects,
-    fetchDropBoxTreeOrFail,
     putDropBoxObject,
     deleteDropBoxObject,
+    invalidateDropBoxTree,
 } from "@/modules/manager/actions";
-import { useFetchDropBoxContentsIfAllowed } from "./hooks";
+import { useDropBox } from "@/modules/manager/hooks";
 
 import { VIEWABLE_FILE_EXTENSIONS } from "../display/FileDisplay";
-import { useResourcePermissionsWrapper, useWorkflows } from "@/hooks";
+import { useResourcePermissionsWrapper } from "@/hooks";
+import { useService, useWorkflows } from "@/modules/services/hooks";
 
 const DROP_BOX_CONTENT_CONTAINER_STYLE = { display: "flex", flexDirection: "column", gap: 8 };
 const DROP_BOX_INFO_CONTAINER_STYLE = { display: "flex", gap: "2em", paddingTop: 8 };
@@ -200,8 +201,8 @@ const FileUploadModal = ({initialUploadFolder, initialUploadFiles, onCancel, ope
                     }
                 }
 
-                // Reload the file tree with the newly-uploaded file(s)
-                await dispatch(fetchDropBoxTreeOrFail());
+                // Trigger a reload of the file tree with the newly-uploaded file(s)
+                dispatch(invalidateDropBoxTree());
 
                 // Finish the object-putting flow
                 dispatch(endDropBoxPuttingObjects());
@@ -237,7 +238,7 @@ FileUploadModal.propTypes = {
 
 
 const FileContentsModal = ({selectedFilePath, open, onCancel}) => {
-    const {tree, isFetching: treeLoading} = useSelector(state => state.dropBox);
+    const { tree, isFetching: treeLoading } = useDropBox();
 
     const urisByFilePath = useMemo(() => generateURIsByRelPath(tree, {}), [tree]);
     const uri = useMemo(() => urisByFilePath[selectedFilePath], [urisByFilePath, selectedFilePath]);
@@ -284,10 +285,8 @@ const ManagerDropBoxContent = () => {
         hasAttemptedPermissions,
     } = useResourcePermissionsWrapper(RESOURCE_EVERYTHING);
 
-    useFetchDropBoxContentsIfAllowed();
-
-    const dropBoxService = useSelector(state => state.services.dropBoxService);
-    const { tree, isFetching: treeLoading, isDeleting } = useSelector(state => state.dropBox);
+    const dropBoxService = useService("drop-box");
+    const { tree, isFetching: treeLoading, isDeleting } = useDropBox();
 
     const { workflowsByType } = useWorkflows();
     const ingestionWorkflows = workflowsByType.ingestion.items;

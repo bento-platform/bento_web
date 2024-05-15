@@ -2,7 +2,7 @@ import React, {useEffect} from "react";
 import {useDispatch, useSelector} from "react-redux";
 import PropTypes from "prop-types";
 
-import {AnsiUp} from "ansi_up/ansi_up";
+import {AnsiUp} from "ansi_up";
 
 import {Descriptions, Skeleton} from "antd";
 

@@ -5,13 +5,20 @@ import { useDispatch, useSelector } from "react-redux";
 import { Button, Empty, Layout, Menu, Result, Typography } from "antd";
 import { PlusOutlined } from "@ant-design/icons";
 
+import { createProject, RESOURCE_EVERYTHING } from "bento-auth-js";
+
 import ProjectCreationModal from "./ProjectCreationModal";
 import ProjectSkeleton from "./ProjectSkeleton";
 import RoutedProject from "./RoutedProject";
 
+import { useHasResourcePermissionWrapper } from "@/hooks";
+import { useProjects } from "@/modules/metadata/hooks";
 import { toggleProjectCreationModal as toggleProjectCreationModalAction } from "@/modules/manager/actions";
 import { LAYOUT_CONTENT_STYLE } from "@/styles/layoutContent";
 import { matchingMenuKeys, transformMenuItem } from "@/utils/menu";
+import { useServices } from "@/modules/services/hooks";
+import { useCanManageAtLeastOneProjectOrDataset } from "@/modules/authz/hooks";
+import ForbiddenContent from "@/components/ForbiddenContent";
 
 
 const PROJECT_HELP_TEXT_STYLE = {
@@ -30,9 +37,21 @@ const SIDEBAR_BUTTON_STYLE = { width: "100%" };
 const ManagerProjectDatasetContent = () => {
     const dispatch = useDispatch();
 
-    const { items } = useSelector(state => state.projects);
+    const {
+        hasPermission: canManageProjectsDatasets,
+        isFetching: fetchingManagePermissions,
+        hasAttempted: attemptedManagePermissions,
+    } = useCanManageAtLeastOneProjectOrDataset();
+
+    const {
+        hasPermission: canCreateProject,
+        fetchingPermission: fetchingCanCreateProject,
+    } = useHasResourcePermissionWrapper(RESOURCE_EVERYTHING, createProject);
+
+    const { items } = useProjects();
     const { isFetchingDependentData } = useSelector(state => state.user);
-    const { metadataService, isFetchingAll: isFetchingAllServices} = useSelector(state => state.services);
+
+    const { metadataService, isFetchingAll: isFetchingAllServices } = useServices();
 
     const projectMenuItems = useMemo(() => items.map(project => ({
         url: `/data/manager/projects/${project.identifier}`,
@@ -41,6 +60,12 @@ const ManagerProjectDatasetContent = () => {
 
     const toggleProjectCreationModal = useCallback(
         () => dispatch(toggleProjectCreationModalAction()), [dispatch]);
+
+    if (attemptedManagePermissions && !fetchingManagePermissions && !canManageProjectsDatasets) {
+        return (
+            <ForbiddenContent message="You do not have permission to view the project/dataset manager." />
+        );
+    }
 
     if (!isFetchingDependentData && projectMenuItems.length === 0) {
         if (!isFetchingAllServices && metadataService === null) {
@@ -55,7 +80,7 @@ const ManagerProjectDatasetContent = () => {
             </Layout>;
         }
 
-        return  <>
+        return <>
             <ProjectCreationModal />
             <Layout>
                 <Layout.Content style={LAYOUT_CONTENT_STYLE}>
@@ -76,7 +101,7 @@ const ManagerProjectDatasetContent = () => {
     }
 
     return <>
-        <ProjectCreationModal />
+        {canCreateProject && (<ProjectCreationModal />)}
         <Layout>
             <Layout.Sider style={SIDEBAR_STYLE} width={256} breakpoint="lg" collapsedWidth={0}>
                 <div style={SIDEBAR_INNER_STYLE}>
@@ -90,8 +115,8 @@ const ManagerProjectDatasetContent = () => {
                         <Button type="primary"
                                 style={SIDEBAR_BUTTON_STYLE}
                                 onClick={toggleProjectCreationModal}
-                                loading={isFetchingDependentData}
-                                disabled={isFetchingDependentData}
+                                loading={fetchingCanCreateProject || isFetchingDependentData}
+                                disabled={!canCreateProject || isFetchingDependentData}
                                 icon={<PlusOutlined />}>
                             Create Project
                         </Button>

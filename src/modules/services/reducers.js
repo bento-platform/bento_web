@@ -6,7 +6,7 @@ import {
     FETCH_DATA_TYPES,
     FETCH_WORKFLOWS,
 } from "./actions";
-import {normalizeServiceInfo} from "../../utils/serviceInfo";
+import {normalizeServiceInfo} from "@/utils/serviceInfo";
 
 
 export const bentoServices = (
