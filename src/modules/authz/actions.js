@@ -18,8 +18,8 @@ export const fetchAllPermissions = networkAction(() => (_dispatch, getState) => 
 
 
 const authzMutateCheck = (reducer) => (state) => {
-    const { isFetching, isCreating, isDeleting, isInvalid } = state[reducer];
-    return authzService(state) && !isFetching && !isCreating && !isDeleting && !isInvalid;
+    const { isFetching, isCreating, isSaving, isDeleting, isInvalid } = state[reducer];
+    return authzService(state) && !isFetching && !isCreating && !isSaving && !isDeleting && !isInvalid;
 };
 
 
@@ -80,10 +80,22 @@ export const CREATE_GROUP = createNetworkActionTypes("CREATE_GROUP");
 export const createGroup = networkAction((group) => (_dispatch, getState) => ({
     types: CREATE_GROUP,
     check: groupMutateCheck,
-    req: jsonRequest(group, "POST"),
+    req: jsonRequest(group, "PUT"),
     url: `${authzURL(getState())}/groups/`,
     onSuccess: () => {
         message.success(`Group "${group.name}" created successfully!`);
+    },
+}));
+
+export const SAVE_GROUP = createNetworkActionTypes("SAVE_GROUP");
+export const saveGroup = networkAction((group) => (_dispatch, getState) =>  console.log(group) || ({
+    types: SAVE_GROUP,
+    check: groupMutateCheck,
+    params: { group },
+    req: jsonRequest(group, "PUT"),
+    url: `${authzURL(getState())}/groups/${group.id}`,
+    onSuccess: () => {
+        message.success(`Group "${group.name}" saved successfully!`);
     },
 }));
 

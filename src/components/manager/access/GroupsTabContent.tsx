@@ -9,7 +9,7 @@ import { useResourcePermissionsWrapper } from "@/hooks";
 
 
 import ActionContainer from "@/components/manager/ActionContainer";
-import { createGroup, deleteGroup } from "@/modules/authz/actions";
+import { createGroup, deleteGroup, invalidateGroups, saveGroup } from "@/modules/authz/actions";
 import { useGrants, useGroups } from "@/modules/authz/hooks";
 import { Group, StoredGrant, StoredGroup } from "@/modules/authz/types";
 import { useAppDispatch } from "@/store";
@@ -136,14 +136,19 @@ const GroupEditModal = ({ group, open, closeModal }: {
     const name: string = Form.useWatch("name", form);
 
     const onOk = useCallback(() => {
-        form.validateFields().then((values) => {
+        form.validateFields().then(async (values) => {
             console.debug("received group values for saving:", values);
-            // TODO: save {...group, ...values}
+            await dispatch(saveGroup({ ...group, ...values }));
             closeModal();
         }).catch((err) => {
             console.error(err);
+        }).finally(() => {
+            // the PUT request to authorization returns no content, so:
+            //  - on success, refresh all groups to get new data.
+            //  - on error, refresh all groups to revert optimistically-updated values.
+            dispatch(invalidateGroups());
         });
-    }, [dispatch, form]);
+    }, [dispatch, form, group]);
 
     return (
         <Modal

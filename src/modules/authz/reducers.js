@@ -8,6 +8,7 @@ import {
     FETCH_GROUPS,
     INVALIDATE_GRANTS,
     INVALIDATE_GROUPS,
+    SAVE_GROUP,
 } from "./actions";
 import { objectWithoutProp } from "@/utils/misc";
 
@@ -90,6 +91,7 @@ export const groups = (
         itemsByID: {},
         isFetching: false,
         isCreating: false,
+        isSaving: false,
         isDeleting: false,
         isInvalid: false,
     },
@@ -121,6 +123,17 @@ export const groups = (
             };
         case CREATE_GROUP.FINISH:
             return { ...state, isCreating: false };
+
+        case SAVE_GROUP.REQUEST:
+            return {
+                ...state,
+                isSaving: true,
+                // Optimistically update the group while we wait for the PUT/subsequent (presumed) invalidate
+                data: state.data.map((g) => g.id === action.group.id ? action.group : g),
+                itemsByID: { ...state.itemsByID, [action.group.id]: action.group },
+            };
+        case SAVE_GROUP.FINISH:
+            return { ...state, isSaving: false };
 
         case DELETE_GROUP.REQUEST:
             return { ...state, isDeleting: true };
