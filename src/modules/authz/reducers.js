@@ -10,7 +10,7 @@ import {
     INVALIDATE_GROUPS,
     SAVE_GROUP,
 } from "./actions";
-import { objectWithoutProp } from "@/utils/misc";
+import { arrayToObjectByProperty, objectWithoutProp } from "@/utils/misc";
 
 export const allPermissions = (
     state = {
@@ -49,7 +49,7 @@ export const grants = (
             return {
                 ...state,
                 data: action.data,
-                itemsByID: Object.fromEntries(action.data.map((g) => [g.id, g])),
+                itemsByID: arrayToObjectByProperty(action.data, "id"),
                 isInvalid: false,
             };
         case FETCH_GRANTS.FINISH:
@@ -104,7 +104,7 @@ export const groups = (
             return {
                 ...state,
                 data: action.data,
-                itemsByID: Object.fromEntries(action.data.map((g) => [g.id, g])),
+                itemsByID: arrayToObjectByProperty(action.data, "id"),
                 isInvalid: false,
             };
         case FETCH_GROUPS.FINISH:
