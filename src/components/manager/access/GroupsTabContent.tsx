@@ -50,7 +50,9 @@ const GroupMembershipCell = ({ group }: { group: StoredGroup }) => {
                 footer={null}
                 width={768}
             >
-                <List dataSource={membersList} renderItem={(item) => <Subject subject={item} />} />
+                <List dataSource={membersList} renderItem={(item) => (
+                    <List.Item><Subject subject={item} /></List.Item>
+                )} />
             </Modal>
             <Button type="link" size="small" onClick={() => setModalOpen(true)}>
                 {membersList.length} {membersList.length === 1 ? "entry" : "entries"}
