@@ -62,7 +62,9 @@ const MembershipInput = ({ value, onChange, ...rest }: MembershipInputProps) => 
 
     const [memberAddMode, setMemberAddMode] = useState<"sub" | "client">("sub");
     const [iss, setIss] = useState<string>(homeIssuer);
+    const [issErrorReady, setIssErrorReady] = useState<boolean>(false);
     const [subOrClient, setSubOrClient] = useState<string>("");
+    const [subOrClientErrorReady, setSubOrClientErrorReady] = useState<boolean>(false);
 
     useEffect(() => {
         if (value) {
@@ -118,15 +120,34 @@ const MembershipInput = ({ value, onChange, ...rest }: MembershipInputProps) => 
         setSubOrClient("");
     }, []);
 
-    const onChangeIssuer = useCallback((e: ChangeEvent<HTMLInputElement>) => setIss(e.target.value), []);
-    const onChangeSubOrClient = useCallback((e: ChangeEvent<HTMLInputElement>) => setSubOrClient(e.target.value), []);
+    const onChangeIssuer = useCallback((e: ChangeEvent<HTMLInputElement>) => {
+        setIss(e.target.value);
+        setIssErrorReady(true);
+    }, []);
+    const onChangeSubOrClient = useCallback((e: ChangeEvent<HTMLInputElement>) => {
+        setSubOrClient(e.target.value);
+        setSubOrClientErrorReady(true);
+    }, []);
 
     const onAddMember = useCallback(() => {
+        const issProcessed = iss.trim();
+        const subOrClientProcessed = subOrClient.trim();
+
+        if (!issProcessed) setIssErrorReady(true);
+        if (!subOrClientProcessed) setSubOrClientErrorReady(true);
+        if (!issProcessed || !subOrClientProcessed) return;
+
         onChangeMembers([
             ...members,
-            memberAddMode === "sub" ? { iss, sub: subOrClient } : { iss, client: subOrClient },
+            {
+                iss: issProcessed,
+                ...(memberAddMode === "sub" ? { sub: subOrClientProcessed } : { client: subOrClientProcessed }),
+            },
         ]);
+
         setSubOrClient("");
+        setIssErrorReady(false);
+        setSubOrClientErrorReady(false);
     }, [members, memberAddMode, iss, subOrClient]);
 
     return (
@@ -144,13 +165,19 @@ const MembershipInput = ({ value, onChange, ...rest }: MembershipInputProps) => 
                         />
                         <div style={{ display: "flex", flexDirection: "row", gap: 16, marginTop: 16 }}>
                             <div style={{ flex: 1 }}>
-                                <Input placeholder="Issuer" value={iss} onChange={onChangeIssuer} />
+                                <Input
+                                    placeholder="Issuer"
+                                    value={iss}
+                                    onChange={onChangeIssuer}
+                                    status={issErrorReady && iss.trim() === "" ? "error" : undefined}
+                                />
                             </div>
                             <div style={{ flex: 1 }}>
                                 <Input
                                     placeholder={memberAddMode === "sub" ? "Subject" : "Client"}
                                     value={subOrClient}
                                     onChange={onChangeSubOrClient}
+                                    status={subOrClientErrorReady && subOrClient.trim() === "" ? "error" : undefined}
                                 />
                             </div>
                             <Button icon={<PlusOutlined />} onClick={onAddMember}>Add</Button>
