@@ -17,6 +17,8 @@ export type Genome = {
     ga4gh: string;
     fasta: string;
     fai: string;
+    gff3_gz: string;
+    gff3_gz_tbi: string;
     taxon: OntologyTerm;
     contigs: Contig[];
     uri: string;
