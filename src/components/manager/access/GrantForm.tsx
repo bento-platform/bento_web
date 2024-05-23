@@ -111,8 +111,8 @@ const SubjectInput = ({ value, onChange }: SubjectInputProps) => {
 
     const subjectTypeOptions = useMemo(() => [
         { value: "everyone", label: <Subject subject={SUBJECT_EVERYONE} boldLabel={false} /> },
-        { value: "iss-sub", label: "Issuer + Subject" },
-        { value: "iss-client", label: "Issuer + Client" },
+        { value: "iss-sub", label: "Issuer URI + Subject ID" },
+        { value: "iss-client", label: "Issuer URI + Client ID" },
         { value: "group", label: "Group", disabled: groups.length === 0 },
     ], [groups]);
 
@@ -148,7 +148,7 @@ const SubjectInput = ({ value, onChange }: SubjectInputProps) => {
         <Radio.Group value={subjectType} onChange={onChangeSubjectType} options={subjectTypeOptions} />
         {(subjectType === "iss-sub" || subjectType === "iss-client") && (
             <Space style={{ width: "100%" }} styles={{ item: { flex: 1 } }}>
-                <Input placeholder="Issuer" value={iss} onChange={onChangeIssuer} />
+                <Input placeholder="Issuer URI" value={iss} onChange={onChangeIssuer} />
                 {subjectType === "iss-sub" ? (
                     <Input placeholder="Subject ID" value={sub} onChange={onChangeSubject} />
                 ) : (
