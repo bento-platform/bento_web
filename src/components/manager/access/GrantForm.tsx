@@ -395,9 +395,10 @@ const PermissionsInput = ({ id, value, onChange, currentResource, ...rest }: Per
                     const groupOptions = v.map((p) => {
                         const givenBy = pGivenBy[p.id] ?? [];
                         const givenByAnother = givenBy.some((g) => checked.includes(g.id));
+                        const disabled = !permissionCompatibleWithResource(p, currentResource);
                         return {
                             value: p.id,
-                            label: givenByAnother ? (
+                            label: (!disabled && givenByAnother) ? (
                                 <Popover content={<span>Given by: {givenBy.map((g, gi) => (
                                     <Fragment key={g.id}>
                                         <MonospaceText>
@@ -411,7 +412,7 @@ const PermissionsInput = ({ id, value, onChange, currentResource, ...rest }: Per
                                     </MonospaceText>
                                 </Popover>
                             ) : <MonospaceText>{p.verb}</MonospaceText>,
-                            disabled: !permissionCompatibleWithResource(p, currentResource),
+                            disabled,
                         };
                     });
 
@@ -428,7 +429,7 @@ const PermissionsInput = ({ id, value, onChange, currentResource, ...rest }: Per
                             ...totalChecked,
                             // TODO: gives only if in right scope (can't give project-level bool on dataset)
                             ...totalChecked.flatMap((s) => permissionsByID[s].gives),
-                        ])]);
+                        ])].filter((c) => permissionCompatibleWithResource(permissionsByID[c], currentResource)));
                     };
 
                     return (
@@ -458,7 +459,7 @@ const PermissionsInput = ({ id, value, onChange, currentResource, ...rest }: Per
                     );
                 });
         },
-        [permissions, handleChange, currentResource, isInvalid]);
+        [permissions, permissionsByID, handleChange, currentResource, isInvalid]);
 
     return (
         <Spin spinning={isFetchingPermissions}>
