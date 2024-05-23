@@ -192,9 +192,11 @@ const MembershipInput = ({ value, onChange, ...rest }: MembershipInputProps) => 
                                 issuer/subject check could be implemented as follows:
                             </p>
                             <pre style={{ whiteSpace: "pre-wrap" }}>
-                                ["#and", <br />
-                                &nbsp;&nbsp;&nbsp;&nbsp;["#eq", ["#resolve", "iss"], "iss-value"], <br />
-                                &nbsp;&nbsp;&nbsp;&nbsp;["#eq", ["#resolve", "sub"], "sub-value"]] <br />
+                                [&quot;#and&quot;, <br />
+                                &nbsp;&nbsp;&nbsp;&nbsp;[&quot;#eq&quot;,
+                                    [&quot;#resolve&quot;, &quot;iss&quot;], &quot;iss-value&quot;], <br />
+                                &nbsp;&nbsp;&nbsp;&nbsp;[&quot;#eq&quot;,
+                                    [&quot;#resolve&quot;, &quot;sub&quot;], &quot;sub-value&quot;]] <br />
                             </pre>
                             <p style={{ marginBottom: 0 }}>
                                 Fields which can be resolved are as follows:&nbsp;
