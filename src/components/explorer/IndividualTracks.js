@@ -14,6 +14,7 @@ import { getIgvUrlsFromDrs } from "@/modules/drs/actions";
 import { setIgvPosition } from "@/modules/explorer/actions";
 import { useIgvGenomes } from "@/modules/explorer/hooks";
 import { useReferenceGenomes } from "@/modules/reference/hooks";
+import { useService } from "@/modules/services/hooks";
 import { guessFileType } from "@/utils/files";
 import { simpleDeepCopy } from "@/utils/misc";
 import { useDeduplicatedIndividualBiosamples } from "./utils";
@@ -138,10 +139,10 @@ const buildIgvTrack = (igvUrls, track) => {
 };
 
 const IGV_JS_ANNOTATION_ALIASES = {
-    "hg19": "GRCh37",
-    "hg38": "GRCh38",
-    "mm9": "NCBI37",
-    "mm10": "GRCm38",
+    "GRCh37": "hg19",
+    "GRCh38": "hg38",
+    "NCBI37": "mm9",
+    "GRCm38": "mm10",
 };
 
 const IndividualTracks = ({ individual }) => {
@@ -161,8 +162,13 @@ const IndividualTracks = ({ individual }) => {
 
     const dispatch = useDispatch();
 
+    const referenceService = useService("reference");
     const igvGenomes = useIgvGenomes();  // Built-in igv.js genomes (with annotations)
     const referenceGenomes = useReferenceGenomes();  // Reference service genomes
+
+    const igvGenomesByID = useMemo(
+        () => Object.fromEntries((igvGenomes.data ?? []).map((g) => [g.id, g])),
+        [igvGenomes]);
 
     const availableBrowserGenomes = useMemo(() => {
         if (!igvGenomes.hasAttempted || !referenceGenomes.hasAttempted) {
@@ -174,22 +180,31 @@ const IndividualTracks = ({ individual }) => {
         // For now, we prefer igv.js built-in genomes with the same ID over local copies for the browser, since it comes
         // with gene annotation tracks. TODO: in the future, this should switch to preferring local copies.
         referenceGenomes.items.forEach((g) => {
-            availableGenomes[g.id] = { id: g.id, fastaURL: g.fasta, indexURL: g.fai };
-        });
-        (igvGenomes.data ?? []).forEach((g) => {
-            availableGenomes[g.id] = g;
-            // Manual aliasing for well-known genome aliases, so that we get extra annotations from the
-            // igv.js genomes.json:
-            if (g.id in IGV_JS_ANNOTATION_ALIASES) {
-                const additionalID = IGV_JS_ANNOTATION_ALIASES[g.id];
-                availableGenomes[additionalID] = {...g, id: additionalID};
-            }
+            availableGenomes[g.id] = {
+                id: g.id,
+                fastaURL: g.fasta,
+                indexURL: g.fai,
+                cytobandURL: (igvGenomesByID[g.id] ?? igvGenomesByID[IGV_JS_ANNOTATION_ALIASES[g.id]])?.cytobandURL,
+                tracks: g.gff3_gz ? [
+                    {
+                        name: "Features",
+                        type: "annotation",
+                        format: "gff3",
+                        filterTypes: ["chromosome", "region", "gene", "3_utr", "5_utr", "CDS"],
+                        url: g.gff3_gz,
+                        indexURL: g.gff3_gz_tbi,
+                        order: 1000000,
+                        visibilityWindow: 5000000,
+                        height: 200,
+                    },
+                ] : [],
+            };
         });
 
         console.debug("total available genomes:", availableGenomes);
 
         return availableGenomes;
-    }, [igvGenomes, referenceGenomes]);
+    }, [igvGenomesByID, referenceGenomes]);
 
     const biosamplesData = useDeduplicatedIndividualBiosamples(individual);
     const viewableResults = useMemo(
@@ -336,10 +351,18 @@ const IndividualTracks = ({ individual }) => {
             .filter((t) => t.viewInIgv && t.genome_assembly_id === selectedAssemblyID && igvUrls[t.filename].url)
             .map((t) => buildIgvTrack(igvUrls, t));
 
+        const selectedBentoReference = referenceGenomes.itemsByID[selectedAssemblyID];
+
         const igvOptions = {
-            genome: availableBrowserGenomes[selectedAssemblyID],
+            reference: availableBrowserGenomes[selectedAssemblyID],
             locus: igvPosition,
             tracks: initialIgvTracks,
+            ...((referenceService && selectedBentoReference?.gff3_gz) ? {
+                search: {
+                    url: `${referenceService.url}/genomes/$GENOME$/igv-js-features?q=$FEATURE$`,
+                    coords: 1,
+                },
+            } : {}),
         };
 
         console.debug("creating igv.js browser with options:", igvOptions, "; tracks:", initialIgvTracks);
