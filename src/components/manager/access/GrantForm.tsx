@@ -363,16 +363,25 @@ const PermissionsInput = ({ id, value, onChange, currentResource, ...rest }: Per
         }
     }, [value]);
 
-    const handleChange = useCallback((c: string[]) => {
-        if (newPermissionsDifferent(checked, c)) {
-            setChecked(c);
-            if (onChange) onChange(c);
+    const handleChange = useCallback((newChecked: string[]) => {
+        const filteredNewChecked = newChecked.filter(
+            (cc) => permissionCompatibleWithResource(permissionsByID[cc], currentResource));
+        if (newPermissionsDifferent(checked, filteredNewChecked)) {
+            setChecked(filteredNewChecked);
+            if (onChange) onChange(filteredNewChecked);
         }
-    }, [checked, onChange]);
+    }, [checked, onChange, permissionsByID, currentResource]);
 
     useEffect(() => {
-        handleChange(checked.filter((c) => permissionCompatibleWithResource(permissionsByID[c], currentResource)));
-    }, [currentResource, handleChange, checked]);
+        const filteredChecked = [
+            ...checked,
+            ...checked.flatMap((s) => permissionsByID[s].gives),
+        ].filter(
+            (c) => permissionCompatibleWithResource(permissionsByID[c], currentResource));
+        if (newPermissionsDifferent(checked, filteredChecked)) {
+            handleChange(filteredChecked);
+        }
+    }, [currentResource]);  // explicitly don't have checked as a dependency; otherwise, we get an infinite loop
 
     const checkboxGroups = useMemo(
         (): ReactNode => {
@@ -427,7 +436,6 @@ const PermissionsInput = ({ id, value, onChange, currentResource, ...rest }: Per
                         const totalChecked = [...otherChecked, ...selected];
                         handleChange([...new Set([
                             ...totalChecked,
-                            // TODO: gives only if in right scope (can't give project-level bool on dataset)
                             ...totalChecked.flatMap((s) => permissionsByID[s].gives),
                         ])].filter((c) => permissionCompatibleWithResource(permissionsByID[c], currentResource)));
                     };
