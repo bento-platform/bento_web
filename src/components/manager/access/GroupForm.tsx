@@ -18,7 +18,7 @@ type MembershipInputProps = {
 
 const MEMBERSHIP_TYPE_OPTIONS = [
     { value: "list", label: "Subject / Client List" },
-    { value: "expr", label: "Expression (Bento Query Format)" },
+    { value: "expr", label: "Expression (Bento Query JSON Format)" },
 ];
 
 const SPECIFIC_SUBJECT_TYPE_OPTIONS = [
@@ -200,7 +200,9 @@ const MembershipInput = ({ value, onChange, ...rest }: MembershipInputProps) => 
 const MEMBERSHIP_VALIDATOR_RULES: Rule[] = [{
     validator: (_r, v: GroupMembership) => {
         if ("expr" in v) {
-            if (!Array.isArray(v) || v.length < 3) {  // 3 is minimum length for a relevant expression here.
+            const expr = v.expr;
+            if (!(Array.isArray(expr) && expr.length >= 3)) {  // 3 is minimum length for a relevant expression here.
+                console.error("Invalid membership expression value:", v);
                 return Promise.reject(
                     "Membership expression should be a valid Bento Query-formatted JSON array.");
             }
