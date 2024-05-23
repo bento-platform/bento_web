@@ -80,7 +80,7 @@ export const CREATE_GROUP = createNetworkActionTypes("CREATE_GROUP");
 export const createGroup = networkAction((group) => (_dispatch, getState) => ({
     types: CREATE_GROUP,
     check: groupMutateCheck,
-    req: jsonRequest(group, "PUT"),
+    req: jsonRequest(group, "POST"),
     url: `${authzURL(getState())}/groups/`,
     onSuccess: () => {
         message.success(`Group "${group.name}" created successfully!`);
