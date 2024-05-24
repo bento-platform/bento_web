@@ -30,7 +30,7 @@ const GroupMembershipCell = ({ group }: { group: StoredGroup }) => {
         return (
             <>
                 <strong>Expression:</strong>
-                <pre style={{ margin: 0 }}>{membership.expr}</pre>
+                <pre style={{ margin: 0 }}>{JSON.stringify(membership.expr)}</pre>
             </>
         );
     }

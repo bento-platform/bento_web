@@ -111,8 +111,8 @@ const SubjectInput = ({ value, onChange }: SubjectInputProps) => {
 
     const subjectTypeOptions = useMemo(() => [
         { value: "everyone", label: <Subject subject={SUBJECT_EVERYONE} boldLabel={false} /> },
-        { value: "iss-sub", label: "Issuer + Subject" },
-        { value: "iss-client", label: "Issuer + Client" },
+        { value: "iss-sub", label: "Issuer URI + Subject ID" },
+        { value: "iss-client", label: "Issuer URI + Client ID" },
         { value: "group", label: "Group", disabled: groups.length === 0 },
     ], [groups]);
 
@@ -148,7 +148,7 @@ const SubjectInput = ({ value, onChange }: SubjectInputProps) => {
         <Radio.Group value={subjectType} onChange={onChangeSubjectType} options={subjectTypeOptions} />
         {(subjectType === "iss-sub" || subjectType === "iss-client") && (
             <Space style={{ width: "100%" }} styles={{ item: { flex: 1 } }}>
-                <Input placeholder="Issuer" value={iss} onChange={onChangeIssuer} />
+                <Input placeholder="Issuer URI" value={iss} onChange={onChangeIssuer} />
                 {subjectType === "iss-sub" ? (
                     <Input placeholder="Subject ID" value={sub} onChange={onChangeSubject} />
                 ) : (
@@ -363,16 +363,25 @@ const PermissionsInput = ({ id, value, onChange, currentResource, ...rest }: Per
         }
     }, [value]);
 
-    const handleChange = useCallback((c: string[]) => {
-        if (newPermissionsDifferent(checked, c)) {
-            setChecked(c);
-            if (onChange) onChange(c);
+    const handleChange = useCallback((newChecked: string[]) => {
+        const filteredNewChecked = newChecked.filter(
+            (cc) => permissionCompatibleWithResource(permissionsByID[cc], currentResource));
+        if (newPermissionsDifferent(checked, filteredNewChecked)) {
+            setChecked(filteredNewChecked);
+            if (onChange) onChange(filteredNewChecked);
         }
-    }, [checked, onChange]);
+    }, [checked, onChange, permissionsByID, currentResource]);
 
     useEffect(() => {
-        handleChange(checked.filter((c) => permissionCompatibleWithResource(permissionsByID[c], currentResource)));
-    }, [currentResource, handleChange, checked]);
+        const filteredChecked = [
+            ...checked,
+            ...checked.flatMap((s) => permissionsByID[s].gives),
+        ].filter(
+            (c) => permissionCompatibleWithResource(permissionsByID[c], currentResource));
+        if (newPermissionsDifferent(checked, filteredChecked)) {
+            handleChange(filteredChecked);
+        }
+    }, [currentResource]);  // explicitly don't have checked as a dependency; otherwise, we get an infinite loop
 
     const checkboxGroups = useMemo(
         (): ReactNode => {
@@ -395,9 +404,10 @@ const PermissionsInput = ({ id, value, onChange, currentResource, ...rest }: Per
                     const groupOptions = v.map((p) => {
                         const givenBy = pGivenBy[p.id] ?? [];
                         const givenByAnother = givenBy.some((g) => checked.includes(g.id));
+                        const disabled = !permissionCompatibleWithResource(p, currentResource);
                         return {
                             value: p.id,
-                            label: givenByAnother ? (
+                            label: (!disabled && givenByAnother) ? (
                                 <Popover content={<span>Given by: {givenBy.map((g, gi) => (
                                     <Fragment key={g.id}>
                                         <MonospaceText>
@@ -411,7 +421,7 @@ const PermissionsInput = ({ id, value, onChange, currentResource, ...rest }: Per
                                     </MonospaceText>
                                 </Popover>
                             ) : <MonospaceText>{p.verb}</MonospaceText>,
-                            disabled: !permissionCompatibleWithResource(p, currentResource),
+                            disabled,
                         };
                     });
 
@@ -426,9 +436,8 @@ const PermissionsInput = ({ id, value, onChange, currentResource, ...rest }: Per
                         const totalChecked = [...otherChecked, ...selected];
                         handleChange([...new Set([
                             ...totalChecked,
-                            // TODO: gives only if in right scope (can't give project-level bool on dataset)
                             ...totalChecked.flatMap((s) => permissionsByID[s].gives),
-                        ])]);
+                        ])].filter((c) => permissionCompatibleWithResource(permissionsByID[c], currentResource)));
                     };
 
                     return (
@@ -458,7 +467,7 @@ const PermissionsInput = ({ id, value, onChange, currentResource, ...rest }: Per
                     );
                 });
         },
-        [permissions, handleChange, currentResource, isInvalid]);
+        [permissions, permissionsByID, handleChange, currentResource, isInvalid]);
 
     return (
         <Spin spinning={isFetchingPermissions}>

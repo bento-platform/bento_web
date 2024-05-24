@@ -5,6 +5,7 @@ import { PlusOutlined } from "@ant-design/icons";
 
 import { useOpenIdConfig } from "bento-auth-js";
 
+import MonospaceText from "@/components/common/MonospaceText";
 import type { Group, GroupMembership, SpecificSubject } from "@/modules/authz/types";
 
 import ExpiryInput from "./ExpiryInput";
@@ -18,7 +19,7 @@ type MembershipInputProps = {
 
 const MEMBERSHIP_TYPE_OPTIONS = [
     { value: "list", label: "Subject / Client List" },
-    { value: "expr", label: "Expression (Bento Query Format)" },
+    { value: "expr", label: "Expression (Bento Query JSON Format)" },
 ];
 
 const SPECIFIC_SUBJECT_TYPE_OPTIONS = [
@@ -166,7 +167,7 @@ const MembershipInput = ({ value, onChange, ...rest }: MembershipInputProps) => 
                         <div style={{ display: "flex", flexDirection: "row", gap: 16, marginTop: 16 }}>
                             <div style={{ flex: 1 }}>
                                 <Input
-                                    placeholder="Issuer"
+                                    placeholder="Issuer URI"
                                     value={iss}
                                     onChange={onChangeIssuer}
                                     status={issErrorReady && iss.trim() === "" ? "error" : undefined}
@@ -174,7 +175,7 @@ const MembershipInput = ({ value, onChange, ...rest }: MembershipInputProps) => 
                             </div>
                             <div style={{ flex: 1 }}>
                                 <Input
-                                    placeholder={memberAddMode === "sub" ? "Subject" : "Client"}
+                                    placeholder={memberAddMode === "sub" ? "Subject ID" : "Client ID"}
                                     value={subOrClient}
                                     onChange={onChangeSubOrClient}
                                     status={subOrClientErrorReady && subOrClient.trim() === "" ? "error" : undefined}
@@ -184,13 +185,33 @@ const MembershipInput = ({ value, onChange, ...rest }: MembershipInputProps) => 
                         </div>
                     </>
                 ) : (
-                    <Input
-                        spellCheck={false}
-                        status={exprIsValidJSONArray ? undefined : "error"}
-                        value={expr}
-                        onChange={onChangeExpr}
-                        placeholder="Expression"
-                    />
+                    <Form.Item extra={
+                        <>
+                            <p>
+                                An expression to be evaluated on a subset of fields from a decoded JWT. For example, an
+                                issuer/subject check could be implemented as follows:
+                            </p>
+                            <pre style={{ whiteSpace: "pre-wrap" }}>
+                                [&quot;#and&quot;, <br />
+                                &nbsp;&nbsp;&nbsp;&nbsp;[&quot;#eq&quot;,
+                                    [&quot;#resolve&quot;, &quot;iss&quot;], &quot;iss-value&quot;], <br />
+                                &nbsp;&nbsp;&nbsp;&nbsp;[&quot;#eq&quot;,
+                                    [&quot;#resolve&quot;, &quot;sub&quot;], &quot;sub-value&quot;]] <br />
+                            </pre>
+                            <p style={{ marginBottom: 0 }}>
+                                Fields which can be resolved are as follows:&nbsp;
+                                <MonospaceText>iss, sub, azp, exp, iat, typ, scope</MonospaceText>
+                            </p>
+                        </>
+                    } style={{ marginBottom: 0 }}>
+                        <Input
+                            spellCheck={false}
+                            status={exprIsValidJSONArray ? undefined : "error"}
+                            value={expr}
+                            onChange={onChangeExpr}
+                            placeholder="Expression"
+                        />
+                    </Form.Item>
                 )}
             </div>
         </Card>
@@ -200,7 +221,9 @@ const MembershipInput = ({ value, onChange, ...rest }: MembershipInputProps) => 
 const MEMBERSHIP_VALIDATOR_RULES: Rule[] = [{
     validator: (_r, v: GroupMembership) => {
         if ("expr" in v) {
-            if (!Array.isArray(v) || v.length < 3) {  // 3 is minimum length for a relevant expression here.
+            const expr = v.expr;
+            if (!(Array.isArray(expr) && expr.length >= 3)) {  // 3 is minimum length for a relevant expression here.
+                console.error("Invalid membership expression value:", v);
                 return Promise.reject(
                     "Membership expression should be a valid Bento Query-formatted JSON array.");
             }

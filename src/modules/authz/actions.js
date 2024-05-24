@@ -3,7 +3,7 @@ import { basicAction, createNetworkActionTypes, networkAction } from "@/utils/ac
 import { jsonRequest } from "@/utils/requests";
 
 const authzService = (state) => state.services.itemsByKind.authorization;
-const authzURL = (state) => authzService(state).url;
+const authzURL = (state) => authzService(state)?.url;
 
 
 // FETCH_ALL_PERMISSIONS: fetch list of available permissions (not on a specific resource/subject, but in general what
@@ -11,7 +11,7 @@ const authzURL = (state) => authzService(state).url;
 export const FETCH_ALL_PERMISSIONS = createNetworkActionTypes("FETCH_ALL_PERMISSIONS");
 export const fetchAllPermissions = networkAction(() => (_dispatch, getState) => ({
     types: FETCH_ALL_PERMISSIONS,
-    check: (state) => !state.allPermissions.isFetching && !state.allPermissions.data.length,
+    check: (state) => !!authzService(state) && !state.allPermissions.isFetching && !state.allPermissions.data.length,
     url: `${authzURL(getState())}/all_permissions/`,
     publicEndpoint: true,
 }));
@@ -30,7 +30,7 @@ export const fetchGrants = networkAction(() => (_dispatch, getState) => ({
     types: FETCH_GRANTS,
     check: (state) => {
         const { data, isFetching, isCreating, isDeleting, isInvalid } = state.grants;
-        return authzService(state) && !isFetching && !isCreating && !isDeleting && (!data.length || isInvalid);
+        return !!authzService(state) && !isFetching && !isCreating && !isDeleting && (!data.length || isInvalid);
     },
     url: `${authzURL(getState())}/grants/`,
 }));
@@ -67,7 +67,7 @@ const groupMutateCheck = authzMutateCheck("groups");
 export const FETCH_GROUPS = createNetworkActionTypes("FETCH_GROUPS");
 export const fetchGroups = networkAction(() => (_dispatch, getState) => ({
     types: FETCH_GROUPS,
-    check: (state) => authzService(state)
+    check: (state) => !!authzService(state)
         && !state.groups.isFetching
         && (!state.groups.data.length || state.groups.isInvalid),
     url: `${authzURL(getState())}/groups/`,
@@ -80,7 +80,7 @@ export const CREATE_GROUP = createNetworkActionTypes("CREATE_GROUP");
 export const createGroup = networkAction((group) => (_dispatch, getState) => ({
     types: CREATE_GROUP,
     check: groupMutateCheck,
-    req: jsonRequest(group, "PUT"),
+    req: jsonRequest(group, "POST"),
     url: `${authzURL(getState())}/groups/`,
     onSuccess: () => {
         message.success(`Group "${group.name}" created successfully!`);
