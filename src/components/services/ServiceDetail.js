@@ -6,6 +6,7 @@ import { Menu, Skeleton } from "antd";
 
 import SitePageHeader from "../SitePageHeader";
 import ServiceOverview from "./ServiceOverview";
+import ServiceLogs from "./ServiceLogs"
 
 import { matchingMenuKeys, transformMenuItem } from "@/utils/menu";
 
@@ -37,6 +38,7 @@ const ServiceDetail = () => {
 
     const menuItems = useMemo(() => [
         { url: `/services/${kind}/overview`, style: { marginLeft: "4px" }, text: "Overview" },
+        { url: `/services/${kind}/logs`, style: { marginLeft: "4px" }, text: "Logs" }
     ], [kind]);
     const selectedKeys = matchingMenuKeys(menuItems);
 
@@ -61,6 +63,7 @@ const ServiceDetail = () => {
             <Suspense fallback={<SuspenseFallback />}>
                 <Routes>
                     <Route path="overview" element={<ServiceOverview />} />
+                    <Route path="logs" element={<ServiceLogs />} />
                     <Route path="/" element={<Navigate to="overview" replace={true} />} />
                 </Routes>
             </Suspense>
