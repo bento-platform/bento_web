@@ -1,8 +1,9 @@
-import React, {useEffect, useState} from "react";
-import { AutoComplete } from "antd";
+import React, { useEffect, useState } from "react";
+import { AutoComplete, Tag } from "antd";
 import { useDispatch, useSelector } from "react-redux";
 import PropTypes from "prop-types";
-import { performGohanGeneSearchIfPossible } from "@/modules/discovery/actions";
+import { performReferenceGeneSearchIfPossible } from "@/modules/discovery/actions";
+import { useReferenceGenomes } from "@/modules/reference/hooks";
 
 // TODOs:
 // style options
@@ -12,28 +13,30 @@ const parsePosition = (value) => {
     const result = parse.exec(value);
 
     if (!result) {
-        return {chrom: null, start: null, end: null};
+        return { chrom: null, start: null, end: null };
     }
 
     const chrom = result[1].toUpperCase(); //for eg 'x', has no effect on numbers
     const start = Number(result[2]);
     const end = Number(result[3]);
-    return {chrom, start, end};
+    return { chrom, start, end };
 };
 
 
-const LocusSearch = ({assemblyId, addVariantSearchValues, handleLocusChange, setLocusValidity}) => {
+const LocusSearch = ({ assemblyId, addVariantSearchValues, handleLocusChange, setLocusValidity }) => {
+    const dispatch = useDispatch();
+
+    const referenceGenomes = useReferenceGenomes();
     const [autoCompleteOptions, setAutoCompleteOptions] = useState([]);
     const geneSearchResults = useSelector((state) => state.discovery.geneNameSearchResponse);
     const [inputValue, setInputValue] = useState("");
-    const dispatch = useDispatch();
 
-    const showAutoCompleteOptions = assemblyId === "GRCh37" || assemblyId === "GRCh38";
+    const showAutoCompleteOptions = !!referenceGenomes.itemsByID[assemblyId]?.gff3_gz;
 
     const handlePositionNotation = (value) => {
-        const {chrom, start, end} = parsePosition(value);
+        const { chrom, start, end } = parsePosition(value);
         setLocusValidity(chrom && start && end);
-        addVariantSearchValues({chrom, start, end});
+        addVariantSearchValues({ chrom, start, end });
     };
 
     const handleChange = (value) => {
@@ -54,7 +57,7 @@ const LocusSearch = ({assemblyId, addVariantSearchValues, handleLocusChange, set
             return;
         }
 
-        dispatch(performGohanGeneSearchIfPossible(value, assemblyId));
+        dispatch(performReferenceGeneSearchIfPossible(value, assemblyId));
     };
 
     const handleOnBlur = () => {
@@ -71,8 +74,8 @@ const LocusSearch = ({assemblyId, addVariantSearchValues, handleLocusChange, set
         const isPositionNotation = inputValue.includes(":") && !isAutoCompleteOption;
 
         if (!(isAutoCompleteOption || isPositionNotation)) {
-            handleLocusChange({chrom: null, start: null, end: null});
-            addVariantSearchValues({chrom: null, start: null, end: null});
+            handleLocusChange({ chrom: null, start: null, end: null });
+            addVariantSearchValues({ chrom: null, start: null, end: null });
             return;
         }
 
@@ -100,10 +103,21 @@ const LocusSearch = ({assemblyId, addVariantSearchValues, handleLocusChange, set
     useEffect(() => {
         setAutoCompleteOptions(
             (geneSearchResults ?? [])
-                .sort((a, b) => (a.name > b.name) ? 1 : -1)
+                .sort((a, b) => (a.feature_name > b.feature_name) ? 1 : -1)
                 .map((g) => ({
-                    value: `${g.name} (${g.chrom}:${g.start}-${g.end})`,
-                    locus: { "chrom": g.chrom, "start": g.start, "end": g.end },
+                    value: `${g.feature_name} (${g.contig_name}:${g.entries[0].start_pos}-${g.entries[0].end_pos})`,
+                    label: (
+                        <>
+                            {g.feature_name}&nbsp;
+                            ({g.contig_name}:{g.entries[0].start_pos}-{g.entries[0].end_pos})&nbsp;
+                            <Tag>{g.feature_type}</Tag>
+                        </>
+                    ),
+                    locus: {
+                        "chrom": g.contig_name.replace("chr", ""),  // Gohan doesn't accept chr# notation
+                        "start": g.entries[0].start_pos,
+                        "end": g.entries[0].end_pos,
+                    },
                 })),
         );
     }, [geneSearchResults]);

@@ -7,6 +7,7 @@ import { Form, Input, Select } from "antd";
 import LocusSearch from "./LocusSearch";
 
 import { notAlleleCharactersRegex } from "@/utils/misc";
+import { useGohanVariantsOverview } from "@/modules/explorer/hooks";
 
 
 const isValidLocus = (locus) =>
@@ -40,7 +41,7 @@ const VariantSearchHeader = ({ dataType, addVariantSearchValues }) => {
     // begin with required fields considered valid, so user isn't assaulted with error messages
     const [fieldsValidity, setFieldsValidity] = useState(INITIAL_FIELDS_VALIDITY);
 
-    const variantsOverviewResults = useSelector((state) => state.explorer.variantsOverviewResponse);
+    const variantsOverviewResults = useGohanVariantsOverview();
     const hasAssemblyIds =
         variantsOverviewResults?.assemblyIDs !== undefined &&
         !variantsOverviewResults?.assemblyIDs.hasOwnProperty("error");

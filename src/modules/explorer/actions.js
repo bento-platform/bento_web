@@ -216,15 +216,9 @@ export const fetchIgvGenomes = () => (dispatch, getState) => {
     return dispatch(_fetchIgvGenomes());
 };
 
-export const performGetGohanVariantsOverviewIfPossible = () => (dispatch, getState) => {
-    const gohanUrl = getState()?.services?.itemsByKind?.gohan?.url;
-    if (!gohanUrl) return Promise.resolve();
-    const overviewPath = "/variants/overview";
-    const getUrl = `${gohanUrl}${overviewPath}`;
-    return dispatch(performGetGohanVariantsOverview(getUrl));
-};
-const performGetGohanVariantsOverview = networkAction((getUrl) => () => ({
+export const performGetGohanVariantsOverviewIfPossible = networkAction(() => (_dispatch, getState) => ({
     types: PERFORM_GET_GOHAN_VARIANTS_OVERVIEW,
-    url: getUrl,
+    url: `${getState().services.itemsByKind.gohan?.url}/variants/overview`,
+    check: (state) => !!state.services.itemsByKind.gohan,
     err: "error getting Gohan variants overview",
 }));

@@ -1,5 +1,5 @@
 import {
-    PERFORM_GOHAN_GENE_SEARCH,
+    PERFORM_REFERENCE_GENE_SEARCH,
 } from "./actions";
 
 export const discovery = (
@@ -9,7 +9,7 @@ export const discovery = (
     action,
 ) => {
     switch (action.type) {
-        case PERFORM_GOHAN_GENE_SEARCH.RECEIVE:
+        case PERFORM_REFERENCE_GENE_SEARCH.RECEIVE:
             return {
                 ...state,
                 geneNameSearchResponse: action.data.results,
