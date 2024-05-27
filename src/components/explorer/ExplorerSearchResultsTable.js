@@ -175,6 +175,7 @@ const ExplorerSearchResultsTable = ({
                     pagination={{
                         pageSize: PAGE_SIZE,
                         defaultCurrent: currentPage,
+                        showSizeChanger: false,
                         showQuickJumper: true,
                     }}
                     rowKey={(record) => {
