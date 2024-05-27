@@ -3,7 +3,7 @@ import { Link, useLocation } from "react-router-dom";
 import { useSelector } from "react-redux";
 import PropTypes from "prop-types";
 
-import { useSortedColumns } from "../hooks/explorerHooks";
+import { useSortedColumns, useDynamicFilterOptions } from "../hooks/explorerHooks";
 import { explorerIndividualUrl } from "../utils";
 
 import BiosampleIDCell from "./BiosampleIDCell";
@@ -73,14 +73,27 @@ const ExperimentsTable = ({ data, datasetID }) => {
         (state) => state.explorer.tableSortOrderByDatasetID[datasetID]?.["experiments"],
     );
 
+    const experimentTypeFilters = useDynamicFilterOptions(data, "experimentType");
+
+    const filterColumns = SEARCH_RESULT_COLUMNS_EXP.map((col) => {
+        if (col.dataIndex === "experimentType") {
+            return {
+                ...col,
+                filters: experimentTypeFilters,
+                onFilter: (value, record) => record.experimentType === value,
+            };
+        }
+        return col;
+    });
+
     const { sortedData, columnsWithSortOrder } = useSortedColumns(
         data,
         tableSortOrder,
-        SEARCH_RESULT_COLUMNS_EXP,
+        filterColumns,
     );
     return (
         <ExplorerSearchResultsTable
-            dataStructure={SEARCH_RESULT_COLUMNS_EXP}
+            dataStructure={filterColumns}
             data={sortedData}
             sortColumnKey={tableSortOrder?.sortColumnKey}
             sortOrder={tableSortOrder?.sortOrder}
