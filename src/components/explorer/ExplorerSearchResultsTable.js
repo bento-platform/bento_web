@@ -29,10 +29,24 @@ const ExplorerSearchResultsTable = ({
 }) => {
     const { dataset } = useParams();
     const [currentPage, setCurrentPage] = useState(initialCurrentPage || 1);
-    const [numResults] = useState(data.length);
+    const [activeFilter, setActiveFilter] = useState([]);
 
     const [summaryModalVisible, setSummaryModalVisible] = useState(false);
     const [tracksModalVisible, setTracksModalVisible] = useState(false);
+
+    const filteredData = useMemo(() => {
+        return data.filter((item) => {
+            return Object.keys(activeFilter).every((filterKey) => {
+                const filterValues = activeFilter[filterKey] || [];
+                if (filterValues.length === 0) {
+                    return true;
+                }
+                return filterValues.includes(item[filterKey]);
+            });
+        });
+    }, [data, activeFilter]);
+
+    const numResults = useMemo(() => filteredData.length, [filteredData]);
 
     const showingResults = useMemo(() => {
         const start = numResults > 0 ? currentPage * PAGE_SIZE - PAGE_SIZE + 1 : 0;
@@ -63,8 +77,10 @@ const ExplorerSearchResultsTable = ({
     }, [dispatch, dataset, activeTab]);
 
     const onPageChange = useCallback((pageObj, filters, sorter) => {
-        setCurrentPage(pageObj.current);
-        dispatch(setTableSortOrder(dataset, sorter.field, sorter.order, activeTab, pageObj.current));
+        const newPage = filters !== activeFilter ? 1 : pageObj.current;
+        setCurrentPage(newPage);
+        setActiveFilter(filters);
+        dispatch(setTableSortOrder(dataset, sorter.field, sorter.order, activeTab, newPage));
     }, [dispatch, dataset, activeTab]);
 
     const tableStyle = useMemo(() => ({
@@ -83,8 +99,8 @@ const ExplorerSearchResultsTable = ({
                 key: "all-data",
                 text: "Select All Data",
                 onSelect: () => {
-                    const allRowKeys = data.map((item) => item.key);
-                    handleSetSelectedRows(allRowKeys);
+                    const filteredKeys = filteredData.map((item) => item.key);
+                    handleSetSelectedRows(filteredKeys);
                 },
             },
             {
