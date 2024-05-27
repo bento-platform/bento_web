@@ -28,6 +28,7 @@ const ProjectCreationModal = () => {
 
     const handleCreateSubmit = useCallback(() => {
         form.validateFields().then(async (values) => {
+            console.log("VALUESSS", values);
             await dispatch(createProjectIfPossible(values, navigate));
             form.resetFields();
             dispatch(toggleProjectCreationModal());

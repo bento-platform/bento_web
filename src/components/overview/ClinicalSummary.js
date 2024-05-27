@@ -1,5 +1,6 @@
 import React, { useMemo } from "react";
-import { useSelector } from "react-redux";
+import PropTypes from "prop-types";
+
 import { Row, Typography } from "antd";
 
 import { getPieChart } from "@/utils/overview";
@@ -7,8 +8,8 @@ import { getPieChart } from "@/utils/overview";
 import StatisticCollection from "./StatisticCollection";
 import ChartCollection from "./ChartCollection";
 
-const ClinicalSummary = () => {
-    const { data, isFetching } = useSelector((state) => state.overviewSummary);
+const ClinicalSummary = ({ overviewSummary }) => {
+    const { data, isFetching, hasAttempted } = overviewSummary;
     const { phenopacket, experiment } = data ?? {};
 
     const { data_type_specific: phenoSpecific } = phenopacket ?? {};
@@ -72,13 +73,20 @@ const ClinicalSummary = () => {
                 Clinical/Phenotypic Data
             </Typography.Title>
             <Row style={{ marginBottom: 24 }} gutter={[0, 16]}>
-                <StatisticCollection statistics={statistics} isFetching={isFetching} />
+                <StatisticCollection statistics={statistics} isFetching={isFetching || !hasAttempted} />
             </Row>
             <Row>
-                <ChartCollection charts={charts} dataType="phenopacket" isFetching={isFetching} />
+                <ChartCollection charts={charts} dataType="phenopacket" isFetching={isFetching || !hasAttempted} />
             </Row>
         </>
     );
+};
+ClinicalSummary.propTypes = {
+    overviewSummary: PropTypes.shape({
+        data: PropTypes.object,
+        isFetching: PropTypes.bool,
+        hasAttempted: PropTypes.bool,
+    }),
 };
 
 export default ClinicalSummary;

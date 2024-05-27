@@ -1,5 +1,5 @@
 import React, { useCallback } from "react";
-import { useDispatch, useSelector } from "react-redux";
+import { useDispatch } from "react-redux";
 import PropTypes from "prop-types";
 
 import { Button, Modal, Form } from "antd";
@@ -9,6 +9,7 @@ import DatasetForm from "./DatasetForm";
 
 import { FORM_MODE_ADD } from "@/constants";
 import { addProjectDataset, saveProjectDataset, fetchProjectsWithDatasets } from "@/modules/metadata/actions";
+import { useProjects } from "@/modules/metadata/hooks";
 import { datasetPropTypesShape, projectPropTypesShape, propTypesFormMode } from "@/propTypes";
 import { nop } from "@/utils/misc";
 
@@ -16,9 +17,11 @@ import { nop } from "@/utils/misc";
 const DatasetFormModal = ({ project, mode, initialValue, onCancel, onOk, open }) => {
     const dispatch = useDispatch();
 
-    const projectsFetching = useSelector((state) => state.projects.isFetching);
-    const projectDatasetsAdding = useSelector((state) => state.projects.isAddingDataset);
-    const projectDatasetsSaving = useSelector((state) => state.projects.isSavingDataset);
+    const {
+        isFetching: projectsFetching,
+        isAddingDataset: projectDatasetsAdding,
+        isSavingDataset: projectDatasetsSaving,
+    } = useProjects();
 
     // const formRef = useRef(null);
     const [form] = Form.useForm();

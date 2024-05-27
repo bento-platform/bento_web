@@ -1,7 +1,6 @@
 import React, { useMemo, useEffect } from "react";
 import PropTypes from "prop-types";
 import { TreeSelect, Form } from "antd";
-import { useSelector } from "react-redux";
 
 import { getTrue } from "@/utils/misc";
 import { useDropBoxFileContent } from "@/hooks";
@@ -9,6 +8,7 @@ import { BENTO_DROP_BOX_FS_BASE_PATH } from "@/config";
 import { dropBoxTreeNodeEnabledJson } from "@/utils/files";
 import JsonDisplay from "../display/JsonDisplay";
 import { titleNodePropType } from "@/propTypes";
+import { useDropBox } from "@/modules/manager/hooks";
 
 const sortByName = (a, b) => a.name.localeCompare(b.name);
 const generateFileTree = (directory, valid, folderMode, basePrefix) =>
@@ -41,7 +41,7 @@ const generateFileTree = (directory, valid, folderMode, basePrefix) =>
         });
 
 const DropBoxTreeSelect = React.forwardRef(({ folderMode, nodeEnabled, basePrefix, ...props }, ref) => {
-    const tree = useSelector((state) => state.dropBox.tree);
+    const { tree } = useDropBox();
 
     const fileTree = useMemo(
         () => generateFileTree(tree, nodeEnabled ?? getTrue, folderMode, basePrefix),

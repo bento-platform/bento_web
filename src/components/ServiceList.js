@@ -1,5 +1,4 @@
 import React, { useMemo, useState } from "react";
-import { useSelector } from "react-redux";
 import { useIsAuthenticated } from "bento-auth-js";
 
 import { Link } from "react-router-dom";
@@ -8,6 +7,7 @@ import { Table, Typography, Tag, Button } from "antd";
 import { BranchesOutlined, GithubOutlined } from "@ant-design/icons";
 
 import ServiceRequestModal from "./services/ServiceRequestModal";
+import { useBentoServices, useServices } from "@/modules/services/hooks";
 
 const SERVICE_KIND_STYLING = { fontFamily: "monospace" };
 
@@ -113,11 +113,8 @@ const serviceColumns = (isAuthenticated, setRequestModalService) => [
 const ServiceList = () => {
     const [requestModalService, setRequestModalService] = useState(null);
 
-    const servicesFetching = useSelector((state) => state.services.isFetching);
-    const bentoServicesFetching = useSelector((state) => state.bentoServices.isFetching);
-
-    const servicesByKind = useSelector((state) => state.services.itemsByKind);
-    const bentoServicesByKind = useSelector((state) => state.bentoServices.itemsByKind);
+    const { isFetching: servicesFetching, itemsByKind: servicesByKind } = useServices();
+    const { isFetching: bentoServicesFetching, itemsByKind: bentoServicesByKind } = useBentoServices();
 
     const dataSource = useMemo(() => Object.entries(bentoServicesByKind).map(([kind, service]) => {
         const serviceInfo = servicesByKind[kind] ?? null;

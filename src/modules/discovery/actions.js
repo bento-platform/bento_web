@@ -18,8 +18,15 @@ const performGohanGeneSearch = networkAction((searchUrl) => () => ({
     err: "error performing Gohan gene search",
 }));
 
-export const fetchDiscoverySchema = networkAction(() => (dispatch, getState) => ({
+const _fetchDiscoverySchema = networkAction(() => (dispatch, getState) => ({
     types: FETCH_DISCOVERY_SCHEMA,
-    url: `${getState().services.metadataService.url}/api/discovery_schema`,
+    url: `${getState().services.itemsByKind.metadata.url}/api/discovery_schema`,
     err: "Error fetching discovery JSON schema",
 }));
+
+export const fetchDiscoverySchema = () => (dispatch, getState) => {
+    // TODO: use a redux action listener to avoid checking for URLs?
+    const metadataUrl = getState()?.services?.itemsByKind?.metadata?.url;
+    if (!metadataUrl) return Promise.resolve();
+    return dispatch(_fetchDiscoverySchema());
+}

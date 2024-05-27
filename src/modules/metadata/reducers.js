@@ -385,20 +385,22 @@ export const individuals = (
 export const overviewSummary = (
     state = {
         data: {},
-        isFetching: true,
+        isFetching: false,
+        hasAttempted: false,
     },
     action,
 ) => {
     switch (action.type) {
         case FETCH_OVERVIEW_SUMMARY.REQUEST:
-            return {...state, data: {}, isFetching: true };
+            return { ...state, data: {}, isFetching: true };
         case FETCH_OVERVIEW_SUMMARY.RECEIVE:
-            return {...state, data: action.data};
+            return { ...state, data: action.data };
         case FETCH_OVERVIEW_SUMMARY.FINISH:
             return {
                 ...state,
                 data: state.data,
                 isFetching: false,
+                hasAttempted: true,
             };
 
         default:

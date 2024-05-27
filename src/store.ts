@@ -1,6 +1,10 @@
-import { configureStore } from "@reduxjs/toolkit";
+import { useDispatch, useSelector } from "react-redux";
+import type { TypedUseSelectorHook } from "react-redux";
+import { configureStore, createListenerMiddleware } from "@reduxjs/toolkit";
+import type { ToolkitStore } from "@reduxjs/toolkit/dist/configureStore";
 
 import { LS_OPENID_CONFIG_KEY } from "bento-auth-js";
+import type { OIDCSliceState } from "bento-auth-js";
 
 import { readFromLocalStorage, writeToLocalStorage } from "./utils/localStorageUtils";
 import rootReducer from "./reducers";
@@ -14,7 +18,7 @@ const IMMUTABILITY_OPTIONS = {
     serializableCheck: false,
 };
 
-const persistedState = {};
+const persistedState: { openIdConfiguration?: OIDCSliceState } = {};
 const persistedOpenIDConfig = readFromLocalStorage(LS_OPENID_CONFIG_KEY);
 if (persistedOpenIDConfig) {
     console.debug("attempting to load OpenID configuration from localStorage");
@@ -27,6 +31,11 @@ export const store = configureStore({
     preloadedState: persistedState,
 });
 
+export type RootState = ReturnType<typeof store.getState>;
+export type AppDispatch = typeof store.dispatch;
+export const useAppDispatch: () => AppDispatch = useDispatch;
+export const useAppSelector: TypedUseSelectorHook<RootState> = useSelector;
+
 /**
  * Custom observeStore utility for enhanced 'store.subscribe' behaviour.
  *
@@ -36,13 +45,9 @@ export const store = configureStore({
  * The onChange callback is only invoked if a change is detected on the selected state.
  *
  * See Redux store.subscribe doc: https://redux.js.org/api/store#subscribelistener
- *
- * @param {*} store The Redux store
- * @param {(state) => any} select A state selection function
- * @param {(currentState) => void} onChange Callback used when selected state changes
  */
-const observeStore = (store, select, onChange) => {
-    let currentState;
+const observeStore = <T>(store: ToolkitStore, select: (state: RootState) => T, onChange: (state: T) => void) => {
+    let currentState: T;
 
     const handleChange = () => {
         const nextState = select(store.getState());

@@ -11,9 +11,9 @@ export const FETCH_RUN_LOG_STDERR = createNetworkActionTypes("FETCH_RUN_LOG_STDE
 export const SUBMIT_WORKFLOW_RUN = createNetworkActionTypes("SUBMIT_WORKFLOW_RUN");
 
 
-// TODO: If needed
 export const fetchRuns = networkAction(() => (dispatch, getState) => ({
     types: FETCH_RUNS,
+    check: (state) => state.services.itemsByKind.wes && !state.runs.isFetching,
     url: `${getState().services.wesService.url}/runs?with_details=true`,
     err: "Error fetching WES runs",
 }));
@@ -90,12 +90,12 @@ export const fetchRunLogStreamsIfPossibleAndNeeded = runID => (dispatch, getStat
     const run = getState().runs.itemsByID[runID];
     if (!run || run.isFetching || !run.details) return;
     const runStreams = getState().runs.streamsByID[runID] || {};
-    if ((runStreams.stdout || {}).isFetching || (runStreams.stderr || {}).isFetching) return;
+    if (runStreams.stdout?.isFetching || runStreams.stderr?.isFetching) return Promise.resolve();
     if (RUN_DONE_STATES.includes(run.state)
         && runStreams.hasOwnProperty("stdout")
         && runStreams.stdout.data !== null
         && runStreams.hasOwnProperty("stderr")
-        && runStreams.stderr.data !== null) return;  // No new output expected
+        && runStreams.stderr.data !== null) return Promise.resolve();  // No new output expected
     return Promise.all([
         dispatch(fetchRunLogStdOut(run.details)),
         dispatch(fetchRunLogStdErr(run.details)),

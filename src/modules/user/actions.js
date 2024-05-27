@@ -1,23 +1,16 @@
-import { beginFlow, createFlowActionTypes, endFlow } from "../../utils/actions";
-import { fetchDropBoxTreeOrFail } from "../manager/actions";
-import { fetchRuns } from "../wes/actions";
-import { fetchNotifications } from "../notifications/actions";
-import { fetchExtraPropertiesSchemaTypes, fetchOverviewSummary, fetchProjectsWithDatasets } from "../metadata/actions";
-import { performGetGohanVariantsOverviewIfPossible } from "../explorer/actions";
-import { fetchServicesWithMetadataAndDataTypesIfNeeded } from "../services/actions";
-import { nop } from "../../utils/misc";
+import { beginFlow, createFlowActionTypes, endFlow } from "@/utils/actions";
+import { nop } from "@/utils/misc";
 import { fetchDatasetsDataTypes } from "../datasets/actions";
 import { fetchDiscoverySchema } from "../discovery/actions";
+import { performGetGohanVariantsOverviewIfPossible } from "../explorer/actions";
+import { fetchExtraPropertiesSchemaTypes, fetchProjectsWithDatasets } from "../metadata/actions";
+import { fetchServicesWithMetadataAndDataTypesIfNeeded } from "../services/actions";
 
 export const FETCHING_USER_DEPENDENT_DATA = createFlowActionTypes("FETCHING_USER_DEPENDENT_DATA");
 
 export const fetchServiceDependentData = () => (dispatch) =>
     Promise.all(
         [
-            fetchDropBoxTreeOrFail,
-            fetchRuns,
-            fetchNotifications,
-            fetchOverviewSummary,
             performGetGohanVariantsOverviewIfPossible,
             fetchExtraPropertiesSchemaTypes,
             fetchDiscoverySchema,
@@ -39,7 +32,9 @@ export const fetchUserDependentData = (servicesCb) => async (dispatch, getState)
     dispatch(beginFlow(FETCHING_USER_DEPENDENT_DATA));
     try {
         if (idTokenContents) {
-            // If we're newly authenticated as an owner, we run all actions that need authentication (via the callback).
+            // If we're newly authenticated as an owner, we run all actions that may have changed with authentication
+            // (via the callback).
+            // TODO: invalidate projects/datasets/other user-dependent data
             await dispatch(fetchServicesWithMetadataAndDataTypesIfNeeded(() => dispatch(fetchServiceDependentData())));
             await (servicesCb || nop)();
             await dispatch(fetchProjectsWithDatasets());

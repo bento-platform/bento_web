@@ -5,10 +5,10 @@ import PropTypes from "prop-types";
 import { Button, Col, Dropdown, Row, Table, Typography } from "antd";
 import { DeleteOutlined, DownOutlined, ImportOutlined } from "@ant-design/icons";
 
-import { useWorkflows } from "@/hooks";
 import { datasetPropTypesShape, projectPropTypesShape } from "@/propTypes";
-import { clearDatasetDataType } from "@/modules/metadata/actions";
 import { fetchDatasetDataTypesSummariesIfPossible } from "@/modules/datasets/actions";
+import { clearDatasetDataType } from "@/modules/metadata/actions";
+import { useWorkflows } from "@/modules/services/hooks";
 import { useStartIngestionFlow } from "../manager/workflowCommon";
 
 import genericConfirm from "../ConfirmationModal";
