@@ -1,9 +1,7 @@
-import React, { useEffect, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import { AutoComplete, Tag } from "antd";
-import { useDispatch, useSelector } from "react-redux";
 import PropTypes from "prop-types";
-import { performReferenceGeneSearchIfPossible } from "@/modules/discovery/actions";
-import { useReferenceGenomes } from "@/modules/reference/hooks";
+import { useGeneNameSearch, useReferenceGenomes } from "@/modules/reference/hooks";
 
 // TODOs:
 // style options
@@ -24,41 +22,35 @@ const parsePosition = (value) => {
 
 
 const LocusSearch = ({ assemblyId, addVariantSearchValues, handleLocusChange, setLocusValidity }) => {
-    const dispatch = useDispatch();
-
     const referenceGenomes = useReferenceGenomes();
     const [autoCompleteOptions, setAutoCompleteOptions] = useState([]);
-    const geneSearchResults = useSelector((state) => state.discovery.geneNameSearchResponse);
     const [inputValue, setInputValue] = useState("");
 
-    const showAutoCompleteOptions = !!referenceGenomes.itemsByID[assemblyId]?.gff3_gz;
+    const showAutoCompleteOptions = !!referenceGenomes.itemsByID[assemblyId]?.gff3_gz
+        && inputValue.length && (inputValue.includes(" ") || !inputValue.includes(":"));
 
-    const handlePositionNotation = (value) => {
+    const handlePositionNotation = useCallback((value) => {
         const { chrom, start, end } = parsePosition(value);
         setLocusValidity(chrom && start && end);
         addVariantSearchValues({ chrom, start, end });
-    };
+    }, []);
 
-    const handleChange = (value) => {
-
-        setInputValue(value);
-
-        if (!value.includes(" ") && value.includes(":")) {
-            handlePositionNotation(value);
+    useEffect(() => {
+        if (!inputValue.includes(" ") && inputValue.includes(":")) {
+            handlePositionNotation(inputValue);
 
             // let user finish typing position before showing error
             setLocusValidity(true);
 
             setAutoCompleteOptions([]);
-            return;
         }
+    }, [inputValue, handlePositionNotation]);
 
-        if (!value.length || !showAutoCompleteOptions) {
-            return;
-        }
+    const handleChange = useCallback((value) => {
+        setInputValue(value);
+    }, []);
 
-        dispatch(performReferenceGeneSearchIfPossible(value, assemblyId));
-    };
+    const { data: geneSearchResults } = useGeneNameSearch(assemblyId, showAutoCompleteOptions ? inputValue : null);
 
     const handleOnBlur = () => {
         // antd has no "select on tab" option

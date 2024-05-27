@@ -4,7 +4,6 @@ import { AuthReducer as auth, OIDCReducer as openIdConfiguration } from "bento-a
 
 import { allPermissions, grants, groups } from "./modules/authz/reducers";
 import { drs } from "./modules/drs/reducers";
-import { discovery } from "./modules/discovery/reducers";
 import { explorer, igvGenomes } from "./modules/explorer/reducers";
 import {
     projects,
@@ -40,9 +39,6 @@ const rootReducer = combineReducers({
 
     // DRS module
     drs,
-
-    // Discovery module
-    discovery,
 
     // Explorer module
     explorer,
