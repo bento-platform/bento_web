@@ -1,8 +1,8 @@
-import React, { useCallback, useRef } from "react";
+import React, { useCallback } from "react";
 import { useDispatch } from "react-redux";
 import PropTypes from "prop-types";
 
-import { Button, Modal } from "antd";
+import { Button, Modal, Form } from "antd";
 import { PlusOutlined, SaveOutlined } from "@ant-design/icons";
 
 import DatasetForm from "./DatasetForm";
@@ -23,21 +23,23 @@ const DatasetFormModal = ({ project, mode, initialValue, onCancel, onOk, open })
         isSavingDataset: projectDatasetsSaving,
     } = useProjects();
 
-    const formRef = useRef(null);
+    // const formRef = useRef(null);
+    const [form] = Form.useForm();
 
     const handleSuccess = useCallback(async (values) => {
         await dispatch(fetchProjectsWithDatasets());  // TODO: If needed / only this project...
         await (onOk || nop)({ ...(initialValue || {}), values });
-        if (formRef.current && mode === FORM_MODE_ADD) formRef.current.resetFields();
-    }, [dispatch]);
+        if (mode === FORM_MODE_ADD) form.resetFields();
+    }, [dispatch, form]);
 
     const handleCancel = useCallback(() => (onCancel || nop)(), [onCancel]);
     const handleSubmit = useCallback(() => {
-        const form = formRef.current;
-        if (!form) return;
-
         form.validateFields().then((values) => {
             const onSuccess = () => handleSuccess(values);
+
+            if (typeof values?.discovery === "string") {
+                values["discovery"] = JSON.parse(values["discovery"]);
+            }
 
             return (
                 mode === FORM_MODE_ADD
@@ -76,7 +78,7 @@ const DatasetFormModal = ({ project, mode, initialValue, onCancel, onOk, open })
             ]}
             onCancel={handleCancel}
         >
-            <DatasetForm formRef={formRef} initialValue={mode === FORM_MODE_ADD ? undefined : initialValue} />
+            <DatasetForm form={form} initialValue={mode === FORM_MODE_ADD ? undefined : initialValue} />
         </Modal>
     );
 };

@@ -1,8 +1,8 @@
-import React, { useCallback, useRef } from "react";
+import React, { useCallback } from "react";
 import { useSelector, useDispatch } from "react-redux";
 import { useNavigate } from "react-router-dom";
 
-import { Button, Modal } from "antd";
+import { Button, Modal, Form } from "antd";
 import { PlusOutlined } from "@ant-design/icons";
 
 import ProjectForm from "./ProjectForm";
@@ -10,33 +10,32 @@ import ProjectForm from "./ProjectForm";
 import { toggleProjectCreationModal } from "@/modules/manager/actions";
 import { createProjectIfPossible } from "@/modules/metadata/actions";
 
+
 const ProjectCreationModal = () => {
 
     const dispatch = useDispatch();
     const navigate = useNavigate();
 
-    const form = useRef(null);
+    const [form] = Form.useForm();
 
     const showCreationModal = useSelector(state => state.manager.projectCreationModal);
     const isCreatingProject = useSelector(state => state.projects.isCreating);
 
     const handleCreateCancel = useCallback(() => {
+        form.resetFields();
         dispatch(toggleProjectCreationModal());
-    }, [dispatch]);
+    }, [form, dispatch]);
 
     const handleCreateSubmit = useCallback(() => {
-        if (!form.current) {
-            console.error("Missing form ref.");
-        }
-
-        form.current.validateFields().then(async (values) => {
+        form.validateFields().then(async (values) => {
+            console.log("VALUESSS", values);
             await dispatch(createProjectIfPossible(values, navigate));
-            form.current.resetFields();
+            form.resetFields();
             dispatch(toggleProjectCreationModal());
         }).catch((err) => {
             console.error(err);
         });
-    }, [dispatch]);
+    }, [form, dispatch]);
 
     return (
         <Modal
@@ -51,7 +50,7 @@ const ProjectCreationModal = () => {
             ]}
             onCancel={handleCreateCancel}
         >
-            <ProjectForm formRef={form} />
+            <ProjectForm form={form}/>
         </Modal>
     );
 

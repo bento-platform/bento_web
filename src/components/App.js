@@ -30,7 +30,7 @@ import RequireAuth from "./RequireAuth";
 import SiteHeader from "./SiteHeader";
 import SiteFooter from "./SiteFooter";
 import SitePageLoading from "./SitePageLoading";
-import { useService } from "@/modules/services/hooks";
+import { useGohanDependentData, useMetadataDependentData, useService } from "@/modules/services/hooks";
 
 // Lazy-load route components
 const OverviewContent = lazy(() => import("./OverviewContent"));
@@ -59,6 +59,9 @@ const uiErrorCallback = (msg) => message.error(msg);
 const App = () => {
     const dispatch = useDispatch();
     const navigate = useNavigate();
+
+    useMetadataDependentData();
+    useGohanDependentData();
 
     const eventRelayConnection = useRef(null);
     const signInWindow = useRef(null);

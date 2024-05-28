@@ -1,8 +1,13 @@
-import React, { useMemo } from "react";
+import React, { useMemo, useEffect } from "react";
 import PropTypes from "prop-types";
-import { TreeSelect } from "antd";
+import { TreeSelect, Form } from "antd";
 
 import { getTrue } from "@/utils/misc";
+import { useDropBoxFileContent } from "@/hooks";
+import { BENTO_DROP_BOX_FS_BASE_PATH } from "@/config";
+import { dropBoxTreeNodeEnabledJson } from "@/utils/files";
+import JsonDisplay from "../display/JsonDisplay";
+import { titleNodePropType } from "@/propTypes";
 import { useDropBox } from "@/modules/manager/hooks";
 
 const sortByName = (a, b) => a.name.localeCompare(b.name);
@@ -65,6 +70,58 @@ DropBoxTreeSelect.propTypes = {
 
 DropBoxTreeSelect.defaultProps = {
     folderMode: false,
+};
+
+export const DropBoxJsonSelect = ({ form, name, labels, initialValue, rules }) => {
+    const pathName = name + "Path";
+    const filePath = Form.useWatch(pathName, form);
+    const fileContent = useDropBoxFileContent(filePath);
+    const currentFieldData = fileContent || initialValue;
+
+    const contentLabel = (filePath && labels?.updatedContent) ? labels.updatedContent : labels.defaultContent;
+
+    useEffect(() => {
+        form.setFieldValue(name, currentFieldData);
+    }, [form, name, currentFieldData]);
+
+    return (
+        <Form.Item label={labels.parent}>
+            <Form.Item
+                label={labels.select}
+                name={pathName}
+            >
+                <DropBoxTreeSelect
+                    key={pathName}
+                    basePrefix={BENTO_DROP_BOX_FS_BASE_PATH}
+                    multiple={false}
+                    nodeEnabled={dropBoxTreeNodeEnabledJson}
+                    allowClear={true}
+                />
+            </Form.Item>
+            <Form.Item
+                label={contentLabel}
+                name={name}
+                hidden={!currentFieldData}
+                rules={rules}
+            >
+                <JsonDisplay showObjectWithReactJson jsonSrc={currentFieldData} />
+            </Form.Item>
+        </Form.Item>
+    );
+};
+
+
+DropBoxJsonSelect.propTypes = {
+    form: PropTypes.object.isRequired,
+    name: PropTypes.string.isRequired,
+    labels: PropTypes.shape({
+        parent: titleNodePropType.isRequired,
+        select: titleNodePropType.isRequired,
+        defaultContent: titleNodePropType.isRequired,
+        updatedContent: titleNodePropType,
+    }),
+    initialValue: PropTypes.object,
+    rules: PropTypes.array,
 };
 
 export default DropBoxTreeSelect;

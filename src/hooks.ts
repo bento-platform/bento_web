@@ -1,9 +1,19 @@
 import { useSelector } from "react-redux";
 
-import { RESOURCE_EVERYTHING, useHasResourcePermission, useResourcePermissions } from "bento-auth-js";
+import {
+    RESOURCE_EVERYTHING,
+    useAuthorizationHeader,
+    useHasResourcePermission,
+    useResourcePermissions,
+} from "bento-auth-js";
 import type { Resource } from "bento-auth-js";
 
 import { useService } from "@/modules/services/hooks";
+import { RootState } from "./store";
+import { useCallback, useEffect, useState } from "react";
+import Ajv from "ajv";
+import { ARRAY_BUFFER_FILE_EXTENSIONS, BLOB_FILE_EXTENSIONS } from "./components/display/FileDisplay";
+
 
 // AUTHORIZATION:
 // Wrapper hooks for bento-auth-js permissions hooks, which expect a 'authzUrl' argument.
@@ -66,10 +76,79 @@ export const useOpenIDConfigNotLoaded = (): boolean => {
     const {
         hasAttempted: openIdConfigHasAttempted,
         isFetching: openIdConfigFetching,
-        // @ts-expect-error We haven't typed the state object yet
-    } = useSelector((state) => state.openIdConfiguration);
+    } = useSelector((state: RootState) => state.openIdConfiguration);
 
     // Need `=== false`, since if this is loaded from localStorage from a prior version, it'll be undefined and prevent
     // the page from showing.
     return openIdConfigHasAttempted === false || openIdConfigFetching;
+};
+
+export const useDropBoxFileContent = (filePath?: string) => {
+    const file = useSelector((state: RootState) =>
+        state.dropBox.tree.find((f: { filePath: string | undefined; }) => f?.filePath === filePath));
+    const authHeader = useAuthorizationHeader();
+
+    const [fileContents, setFileContents] = useState(null);
+
+    const fileExt = filePath?.split(".").slice(-1)[0].toLowerCase();
+
+    // fetch effect
+    useEffect(() => {
+        setFileContents(null);
+        (async () => {
+            if (!file || !fileExt) return;
+            if (!file?.uri) {
+                console.error(`Files: something went wrong while trying to load ${file?.name}`);
+                return;
+            }
+            if (fileExt === "pdf") {
+                console.error("Cannot retrieve PDF with useDropBoxFileContent");
+                return;
+            }
+
+            try {
+                const r = await fetch(file.uri, { headers: authHeader });
+                if (r.ok) {
+                    let content;
+                    if (ARRAY_BUFFER_FILE_EXTENSIONS.includes(fileExt)) {
+                        content = await r.arrayBuffer();
+                    } else if (BLOB_FILE_EXTENSIONS.includes(fileExt)) {
+                        content = await r.blob();
+                    } else {
+                        const text = await r.text();
+                        content = (fileExt === "json" ? JSON.parse(text) : text);
+                    }
+                    setFileContents(content);
+                } else {
+                    console.error(`Could not load file: ${r.body}`);
+                }
+            } catch (e) {
+                console.error(e);
+            }
+        })();
+    }, [file, fileExt, authHeader]);
+
+    return fileContents;
+};
+
+export const useJsonSchemaValidator = (schemaStateSelector: (state: RootState) => unknown) => {
+    const ajv = new Ajv();
+    const jsonSchema = useSelector(schemaStateSelector);
+    console.log(jsonSchema);
+    return useCallback((value: unknown) => {
+        if (!jsonSchema) {
+            return Promise.reject(new Error("No JSON schema provided, cannot validate."));
+        }
+        const valid = ajv.validate(jsonSchema, value);
+        if (valid) {
+            return Promise.resolve();
+        } else {
+            return Promise.reject(new Error(ajv.errorsText(ajv.errors)));
+        }
+
+    }, [ajv, jsonSchema]);
+};
+
+export const useDiscoveryValidator = () => {
+    return useJsonSchemaValidator((state: RootState) => state.discovery.discoverySchema);
 };
