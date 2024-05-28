@@ -1,6 +1,11 @@
 import { useSelector } from "react-redux";
 
-import { RESOURCE_EVERYTHING, useAuthorizationHeader, useHasResourcePermission, useResourcePermissions } from "bento-auth-js";
+import {
+    RESOURCE_EVERYTHING,
+    useAuthorizationHeader,
+    useHasResourcePermission,
+    useResourcePermissions,
+} from "bento-auth-js";
 import type { Resource } from "bento-auth-js";
 
 import { useService } from "@/modules/services/hooks";
@@ -78,9 +83,9 @@ export const useOpenIDConfigNotLoaded = (): boolean => {
     return openIdConfigHasAttempted === false || openIdConfigFetching;
 };
 
-
 export const useDropBoxFileContent = (filePath?: string) => {
-    const file = useSelector((state: RootState) => state.dropBox.tree.find((f: any) => f?.filePath === filePath));
+    const file = useSelector((state: RootState) =>
+        state.dropBox.tree.find((f: { filePath: string | undefined; }) => f?.filePath === filePath));
     const authHeader = useAuthorizationHeader();
 
     const [fileContents, setFileContents] = useState(null);
@@ -126,11 +131,14 @@ export const useDropBoxFileContent = (filePath?: string) => {
     return fileContents;
 };
 
-export const useJsonSchemaValidator = (schemaStateSelector: (state: RootState) => any) => {
+export const useJsonSchemaValidator = (schemaStateSelector: (state: RootState) => unknown) => {
     const ajv = new Ajv();
     const jsonSchema = useSelector(schemaStateSelector);
     console.log(jsonSchema);
     return useCallback((value: unknown) => {
+        if (!jsonSchema) {
+            return Promise.reject(new Error("No JSON schema provided, cannot validate."));
+        }
         const valid = ajv.validate(jsonSchema, value);
         if (valid) {
             return Promise.resolve();

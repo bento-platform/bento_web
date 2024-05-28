@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import React, { useCallback, useEffect, useMemo, useState } from "react";
 import PropTypes from "prop-types";
 
 import { Button, Col, Empty, Row, Space, Tabs, Typography, Form } from "antd";
@@ -18,7 +18,6 @@ import {
     RESOURCE_EVERYTHING,
 } from "bento-auth-js";
 import { INITIAL_DATA_USE_VALUE } from "@/duo";
-import { discovery } from "@/modules/discovery/reducers";
 
 const SUB_TAB_KEYS = {
     DATASETS: "project-datasets",

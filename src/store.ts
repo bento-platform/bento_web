@@ -1,6 +1,6 @@
 import { useDispatch, useSelector } from "react-redux";
 import type { TypedUseSelectorHook } from "react-redux";
-import { configureStore, createListenerMiddleware } from "@reduxjs/toolkit";
+import { configureStore } from "@reduxjs/toolkit";
 import type { ToolkitStore } from "@reduxjs/toolkit/dist/configureStore";
 
 import { LS_OPENID_CONFIG_KEY } from "bento-auth-js";

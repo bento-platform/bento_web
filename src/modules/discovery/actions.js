@@ -20,13 +20,12 @@ const performGohanGeneSearch = networkAction((searchUrl) => () => ({
 
 const _fetchDiscoverySchema = networkAction(() => (dispatch, getState) => ({
     types: FETCH_DISCOVERY_SCHEMA,
-    url: `${getState().services.itemsByKind.metadata.url}/api/discovery_schema`,
+    url: `${getState().bentoServices.itemsByKind.metadata.url}/api/discovery_schema`,
     err: "Error fetching discovery JSON schema",
 }));
 
-export const fetchDiscoverySchema = () => (dispatch, getState) => {
-    // TODO: use a redux action listener to avoid checking for URLs?
-    const metadataUrl = getState()?.services?.itemsByKind?.metadata?.url;
+export const fetchDiscoverySchema = (dispatch, getState) => {
+    const metadataUrl = getState()?.bentoServices?.itemsByKind?.metadata?.url;
     if (!metadataUrl) return Promise.resolve();
     return dispatch(_fetchDiscoverySchema());
-}
+};
