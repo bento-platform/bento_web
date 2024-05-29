@@ -218,9 +218,9 @@ const ResourceInput = ({ value, onChange }: ResourceInputProps) => {
             setResourceSupertype(RESOURCE_SUPERTYPE_EVERYTHING);
         } else {
             setResourceSupertype(RESOURCE_SUPERTYPE_PROJECT_PLUS);
-            // TODO: how to handle missing projects?
+            // TODO: how to handle missing projects? i.e., what if the project is deleted?
             setSelectedProject(projectsByID[value.project]);
-            // TODO: how to handle missing datasets?
+            // TODO: how to handle missing datasets? i.e., what if the dataset is deleted?
             if ("dataset" in value && value.dataset) setSelectedDataset(datasetsByID[value.dataset]);
             if ("data_type" in value && value.data_type) setSelectedDataType(value.data_type);
         }
