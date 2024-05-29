@@ -97,8 +97,10 @@ const GROUP_MODAL_WIDTH = 800;
 const GroupCreationModal = ({ open, closeModal }: { open: boolean; closeModal: () => void }) => {
     const dispatch = useAppDispatch();
     const [form] = Form.useForm();
+    const [loading, setLoading] = useState<boolean>(false);
 
-    const onOk = useCallback(() => (
+    const onOk = useCallback(() => {
+        setLoading(true);
         form.validateFields().then(async (values) => {
             console.debug("received group values for creation:", values);
             await dispatch(createGroup(values));
@@ -106,16 +108,19 @@ const GroupCreationModal = ({ open, closeModal }: { open: boolean; closeModal: (
             form.resetFields();
         }).catch((err) => {
             console.error(err);
-        })
-    ), [dispatch, form]);
+        }).finally(() => {
+            setLoading(false);
+        });
+    }, [dispatch, form]);
 
     return (
         <Modal
             open={open}
             width={GROUP_MODAL_WIDTH}
             title="Create Group"
-            onOk={onOk}
             onCancel={closeModal}
+            onOk={onOk}
+            okButtonProps={{ loading }}
             okText="Create"
         >
             <GroupForm form={form} />
@@ -130,6 +135,7 @@ const GroupEditModal = ({ group, open, closeModal }: {
 }) => {
     const dispatch = useAppDispatch();
     const [form] = Form.useForm<Group>();
+    const [loading, setLoading] = useState<boolean>(false);
 
     useEffect(() => {
         if (group) {
@@ -139,7 +145,8 @@ const GroupEditModal = ({ group, open, closeModal }: {
 
     const name: string = Form.useWatch("name", form);
 
-    const onOk = useCallback(() => (
+    const onOk = useCallback(() => {
+        setLoading(true);
         form.validateFields().then(async (values) => {
             console.debug("received group values for saving:", values);
             await dispatch(saveGroup({ ...group, ...values }));
@@ -151,16 +158,18 @@ const GroupEditModal = ({ group, open, closeModal }: {
             //  - on success, refresh all groups to get new data.
             //  - on error, refresh all groups to revert optimistically-updated values.
             dispatch(invalidateGroups());
-        })
-    ), [dispatch, form, group]);
+            setLoading(false);
+        });
+    }, [dispatch, form, group]);
 
     return (
         <Modal
             open={open}
             width={GROUP_MODAL_WIDTH}
             title={`Edit Group ${group?.id}: "${name}"`}
-            onOk={onOk}
             onCancel={closeModal}
+            onOk={onOk}
+            okButtonProps={{ loading }}
             okText="Save"
         >
             <GroupForm form={form} />
