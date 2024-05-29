@@ -219,8 +219,10 @@ const ResourceInput = ({ value, onChange }: ResourceInputProps) => {
         } else {
             setResourceSupertype(RESOURCE_SUPERTYPE_PROJECT_PLUS);
             // TODO: how to handle missing projects? i.e., what if the project is deleted?
+            //  - right now, it doesn't matter since we cannot edit grants, but in the future we'll need to check.
             setSelectedProject(projectsByID[value.project]);
             // TODO: how to handle missing datasets? i.e., what if the dataset is deleted?
+            //  - right now, it doesn't matter since we cannot edit grants, but in the future we'll need to check.
             if ("dataset" in value && value.dataset) setSelectedDataset(datasetsByID[value.dataset]);
             if ("data_type" in value && value.data_type) setSelectedDataType(value.data_type);
         }
