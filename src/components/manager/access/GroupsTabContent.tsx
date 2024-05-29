@@ -98,15 +98,16 @@ const GroupCreationModal = ({ open, closeModal }: { open: boolean; closeModal: (
     const dispatch = useAppDispatch();
     const [form] = Form.useForm();
 
-    const onOk = useCallback(() => {
+    const onOk = useCallback(() => (
         form.validateFields().then(async (values) => {
             console.debug("received group values for creation:", values);
             await dispatch(createGroup(values));
             closeModal();
+            form.resetFields();
         }).catch((err) => {
             console.error(err);
-        });
-    }, [dispatch, form]);
+        })
+    ), [dispatch, form]);
 
     return (
         <Modal
@@ -138,7 +139,7 @@ const GroupEditModal = ({ group, open, closeModal }: {
 
     const name: string = Form.useWatch("name", form);
 
-    const onOk = useCallback(() => {
+    const onOk = useCallback(() => (
         form.validateFields().then(async (values) => {
             console.debug("received group values for saving:", values);
             await dispatch(saveGroup({ ...group, ...values }));
@@ -150,8 +151,8 @@ const GroupEditModal = ({ group, open, closeModal }: {
             //  - on success, refresh all groups to get new data.
             //  - on error, refresh all groups to revert optimistically-updated values.
             dispatch(invalidateGroups());
-        });
-    }, [dispatch, form, group]);
+        })
+    ), [dispatch, form, group]);
 
     return (
         <Modal

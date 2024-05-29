@@ -20,7 +20,7 @@ const GrantCreationModal = ({ open, closeModal }) => {
     const dispatch = useAppDispatch();
     const [form] = Form.useForm();
 
-    const onOk = useCallback(() => {
+    const onOk = useCallback(() => (
         form.validateFields().then(async (values) => {
             console.debug("received grant values for creation:", values);
             await dispatch(createGrant(values));
@@ -28,8 +28,8 @@ const GrantCreationModal = ({ open, closeModal }) => {
             form.resetFields();
         }).catch((err) => {
             console.error(err);
-        });
-    }, [dispatch, form]);
+        })
+    ), [dispatch, form]);
 
     return (
         <Modal open={open} width={720} title="Create Grant" onOk={onOk} onCancel={closeModal} okText="Create">
