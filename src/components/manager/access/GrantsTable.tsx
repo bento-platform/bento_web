@@ -5,6 +5,7 @@ import type { ColumnsType } from "antd/es/table";
 
 import type { StoredGrant } from "@/modules/authz/types";
 
+import ExpiryTimestamp from "./ExpiryTimestamp";
 import PermissionsList from "./PermissionsList";
 import Resource from "./Resource";
 import Subject from "./Subject";
@@ -33,7 +34,7 @@ const GrantsTable = ({ grants, loading, extraColumns }: GrantsTableProps) => {
         {
             title: "Expiry",
             dataIndex: "expiry",
-            render: (expiry) => <span>{expiry ?? "—"}</span>,
+            render: (expiry) => <ExpiryTimestamp expiry={expiry} />,
         },
         {
             title: "Notes",

@@ -12,13 +12,14 @@ import ActionContainer from "@/components/manager/ActionContainer";
 import { createGroup, deleteGroup, invalidateGroups, saveGroup } from "@/modules/authz/actions";
 import { useGrants, useGroups } from "@/modules/authz/hooks";
 import { Group, StoredGrant, StoredGroup } from "@/modules/authz/types";
+import { useServices } from "@/modules/services/hooks";
 import { useAppDispatch } from "@/store";
 
+import ExpiryTimestamp from "./ExpiryTimestamp";
 import GrantsTable from "./GrantsTable";
 import GroupForm from "./GroupForm";
 import Subject from "./Subject";
 import { rowKey } from "./utils";
-import { useServices } from "@/modules/services/hooks";
 
 
 const GroupMembershipCell = ({ group }: { group: StoredGroup }) => {
@@ -230,7 +231,7 @@ const GroupsTabContent = () => {
         {
             title: "Expiry",
             dataIndex: "expiry",
-            render: (expiry) => <span>{expiry ?? "—"}</span>,
+            render: (expiry) => <ExpiryTimestamp expiry={expiry} />,
         },
         {
             title: "Notes",
