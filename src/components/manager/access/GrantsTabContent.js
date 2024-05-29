@@ -25,6 +25,7 @@ const GrantCreationModal = ({ open, closeModal }) => {
             console.debug("received grant values for creation:", values);
             await dispatch(createGrant(values));
             closeModal();
+            form.resetFields();
         }).catch((err) => {
             console.error(err);
         });
