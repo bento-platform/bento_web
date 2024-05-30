@@ -1,6 +1,6 @@
 import { Fragment, ReactNode, useCallback, useEffect, useMemo, useState } from "react";
 
-import { Checkbox, Form, Input, Popover, Radio, Select, Space, Spin } from "antd";
+import { Alert, Checkbox, Form, Input, Popover, Radio, Select, Space, Spin } from "antd";
 import type { FormInstance, RadioGroupProps, RadioChangeEvent, SelectProps } from "antd";
 
 import { RESOURCE_EVERYTHING, useOpenIdConfig } from "bento-auth-js";
@@ -153,20 +153,33 @@ const SubjectInput = ({ value, onChange }: SubjectInputProps) => {
         {(subjectType === SUBJECT_TYPE_ISS_SUB || subjectType === SUBJECT_TYPE_ISS_CLIENT) && (
             <Space style={{ width: "100%" }} styles={{ item: { flex: 1 } }}>
                 <Input placeholder="Issuer URI" value={iss} onChange={onChangeIssuer} />
-                {subjectType === "iss-sub" ? (
+                {subjectType === SUBJECT_TYPE_ISS_SUB ? (
                     <Input placeholder="Subject ID" value={sub} onChange={onChangeSubject} />
                 ) : (
                     <Input placeholder="Client ID" value={client} onChange={onChangeClient} />
                 )}
             </Space>
         )}
-        {subjectType === "group" && (
+        {subjectType === SUBJECT_TYPE_GROUP && (
             <Select
                 showSearch={true}
                 placeholder="Select a group"
                 value={group}
                 options={groupOptions}
                 onChange={onChangeGroup}
+            />
+        )}
+        {subjectType === SUBJECT_TYPE_EVERYONE && (
+            <Alert
+                message={(
+                    <>
+                        <strong>Warning:</strong>{" "}
+                        The &ldquo;everyone&rdquo; subject applies to ALL USERS, even anonymous ones, e.g., bots and
+                        random visitors to the portal!
+                    </>
+                )}
+                type="warning"
+                showIcon={true}
             />
         )}
     </Space>;
