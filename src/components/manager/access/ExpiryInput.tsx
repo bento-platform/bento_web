@@ -1,8 +1,6 @@
 import { useCallback, useEffect, useState } from "react";
-import { DatePicker, Radio, Space } from "antd";
-import type { RadioChangeEvent } from "antd";
-import dayjs from "dayjs";
-import type { Dayjs } from "dayjs";
+import { DatePicker, Radio, type RadioChangeEvent, Space } from "antd";
+import dayjs, { type Dayjs } from "dayjs";
 
 export type ExpiryInputProps = {
     value?: string | null;
@@ -50,8 +48,12 @@ const ExpiryInput = ({ value, onChange }: ExpiryInputProps) => {
             <Space direction="vertical">
                 <Radio value={EXPIRY_TYPE_NONE}>None</Radio>
                 <Radio value={EXPIRY_TYPE_TIMESTAMP}>
-                    <DatePicker showTime={true} disabled={expiryType === "none"} value={date}
-                                onChange={onPickerChange} />
+                    <DatePicker
+                        showTime={true}
+                        disabled={expiryType === EXPIRY_TYPE_NONE}
+                        value={date}
+                        onChange={onPickerChange}
+                    />
                 </Radio>
             </Space>
         </Radio.Group>

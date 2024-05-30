@@ -12,11 +12,6 @@ import ExpiryInput from "./ExpiryInput";
 import Subject from "./Subject";
 import type { InputChangeEventHandler } from "./types";
 
-type MembershipInputProps = {
-    onChange?: (v: GroupMembership) => void;
-    value?: GroupMembership;
-};
-
 const MEMBERSHIP_TYPE_OPTIONS = [
     { value: "list", label: "Subject / Client List" },
     { value: "expr", label: "Expression (Bento Query JSON Format)" },
@@ -50,6 +45,11 @@ const isValidJSONArray = (x: string): boolean => {
     } else {
         return false;
     }
+};
+
+type MembershipInputProps = {
+    onChange?: (v: GroupMembership) => void;
+    value?: GroupMembership;
 };
 
 const MembershipInput = ({ value, onChange, ...rest }: MembershipInputProps) => {
@@ -236,7 +236,11 @@ const MEMBERSHIP_VALIDATOR_RULES: Rule[] = [{
     },
 }];
 
-const GroupForm = ({ form }: { form: FormInstance<Group> }) => (
+type GroupFormProps = {
+    form: FormInstance<Group>
+};
+
+const GroupForm = ({ form }: GroupFormProps) => (
     <Form form={form} layout="vertical">
         <Form.Item name="name" label="Name" initialValue="" rules={[{ required: true }]}>
             <Input />
