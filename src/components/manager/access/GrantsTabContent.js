@@ -69,7 +69,7 @@ const GrantsTabContent = () => {
     } = useAuthzManagementPermissions();
 
     const [createModalOpen, setCreateModalOpen] = useState(false);
-    const [modal, contextHolder] = Modal.useModal();
+    const [deleteModal, deleteModalContextHolder] = Modal.useModal();
 
     const extraColumns = useMemo(() =>
         hasAtLeastOneEditPermissionsGrant ? [{
@@ -92,7 +92,7 @@ const GrantsTabContent = () => {
                             loading={pLoading}
                             disabled={!canEdit}
                             onClick={() => {
-                                modal.confirm({
+                                deleteModal.confirm({
                                     title: <>Are you sure you wish to delete grant {grant.id}?</>,
                                     content: <>
                                         <Typography.Paragraph>
@@ -113,11 +113,11 @@ const GrantsTabContent = () => {
                 );
             },
         }] : [],
-    [dispatch, groupsByID, grantResourcePermissionsObjects, hasAtLeastOneEditPermissionsGrant, modal]);
+    [dispatch, groupsByID, grantResourcePermissionsObjects, hasAtLeastOneEditPermissionsGrant, deleteModal]);
 
     return (
         <>
-            {contextHolder}
+            {deleteModalContextHolder}
             {hasAtLeastOneEditPermissionsGrant && (
                 <ActionContainer style={{ marginBottom: 8 }}>
                     <Button icon={<PlusOutlined />} loading={isFetchingPermissions || isFetchingGrants} onClick={() => {
