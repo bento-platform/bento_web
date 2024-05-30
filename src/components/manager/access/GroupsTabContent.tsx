@@ -106,13 +106,21 @@ const GroupCreationModal = ({ open, closeModal }: { open: boolean; closeModal: (
     const [form] = Form.useForm();
     const [loading, setLoading] = useState<boolean>(false);
 
+    useEffect(() => {
+        if (open) {
+            // Instead of resetting fields on close/finish, reset on next open to avoid
+            // a re-render/sudden-form-change hiccup.
+            form.resetFields();
+        }
+    }, [open]);
+
     const onOk = useCallback(() => {
         setLoading(true);
         form.validateFields().then(async (values) => {
             console.debug("received group values for creation:", values);
             await dispatch(createGroup(values));
             closeModal();
-            form.resetFields();
+            // Form will be reset upon next open.
         }).catch((err) => {
             console.error(err);
         }).finally(() => {

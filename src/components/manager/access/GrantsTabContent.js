@@ -1,4 +1,4 @@
-import React, { useCallback, useMemo, useState } from "react";
+import React, { useCallback, useEffect, useMemo, useState } from "react";
 import PropTypes from "prop-types";
 
 import { Button, Form, Modal, Typography } from "antd";
@@ -21,13 +21,21 @@ const GrantCreationModal = ({ open, closeModal }) => {
     const [form] = Form.useForm();
     const [loading, setLoading] = useState(false);
 
+    useEffect(() => {
+        if (open) {
+            // Instead of resetting fields on close/finish, reset on next open to avoid
+            // a re-render/sudden-form-change hiccup.
+            form.resetFields();
+        }
+    }, [open]);
+
     const onOk = useCallback(() => {
         setLoading(true);
         form.validateFields().then(async (values) => {
             console.debug("received grant values for creation:", values);
             await dispatch(createGrant(values));
             closeModal();
-            form.resetFields();
+            // Form will be reset upon next open.
         }).catch((err) => {
             console.error(err);
         }).finally(() => {
