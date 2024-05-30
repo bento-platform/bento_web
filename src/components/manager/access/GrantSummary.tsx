@@ -1,3 +1,4 @@
+import { memo } from "react";
 import { Descriptions } from "antd";
 
 import type { StoredGrant } from "@/modules/authz/types";
@@ -10,7 +11,7 @@ export type GrantSummaryProps = {
     grant: StoredGrant;
 };
 
-const GrantSummary = ({ grant: { id, subject, resource, notes, permissions } }: GrantSummaryProps) => (
+const GrantSummary = memo(({ grant: { id, subject, resource, notes, permissions } }: GrantSummaryProps) => (
     <Descriptions layout="vertical" size="middle" column={1} bordered={true} title={`Grant ${id}`} items={[
         {
             label: "Subject",
@@ -29,6 +30,6 @@ const GrantSummary = ({ grant: { id, subject, resource, notes, permissions } }: 
             children: <PermissionsList permissions={permissions} />,
         },
     ]} />
-);
+));
 
 export default GrantSummary;
