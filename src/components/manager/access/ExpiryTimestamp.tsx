@@ -1,4 +1,4 @@
-import React, { useMemo } from "react";
+import { type CSSProperties, useMemo } from "react";
 
 import { Popover } from "antd";
 
@@ -12,7 +12,7 @@ const ExpiryTimestamp = ({ expiry }: { expiry?: string }) => {
     const expired = expiryTs && (expiryTs <= currentTs);
 
     const spanStyle = useMemo(
-        (): React.CSSProperties => expired ? { color: COLOR_ANTD_RED_6 } : {},
+        (): CSSProperties => expired ? { color: COLOR_ANTD_RED_6 } : {},
         [expiry, expired]);
 
     if (!expiry) return EM_DASH;

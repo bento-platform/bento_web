@@ -1,13 +1,15 @@
-import React, { useCallback, useMemo, useState } from "react";
-import type { CSSProperties, MouseEventHandler } from "react";
-import PropTypes from "prop-types";
+import { type CSSProperties, type MouseEventHandler, useCallback, useMemo, useState } from "react";
 
 import { Typography } from "antd";
 
 const PERMISSIONS_LIST_STYLE: CSSProperties = { margin: 0, padding: 0, listStyle: "none", lineHeight: "1.6em" };
 const MAX_COLLAPSED_PERMISSIONS = 4;
 
-const PermissionsList = ({ permissions }: { permissions: string[] }) => {
+type PermissionsListProps = {
+    permissions: string[],
+};
+
+const PermissionsList = ({ permissions }: PermissionsListProps) => {
     const [showAll, setShowAll] = useState<boolean>(false);
 
     const sortedPermissions = useMemo(
@@ -48,9 +50,6 @@ const PermissionsList = ({ permissions }: { permissions: string[] }) => {
             ) : null}
         </ul>
     );
-};
-PermissionsList.propTypes = {
-    permissions: PropTypes.arrayOf(PropTypes.string).isRequired,
 };
 
 export default PermissionsList;

@@ -1,12 +1,11 @@
 import React, { useCallback } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 
-import { Tabs } from "antd";
-import type { TabsProps } from "antd";
+import { Tabs, type TabsProps } from "antd";
 
 import { useAuthzManagementPermissions } from "@/modules/authz/hooks";
 
-import ForbiddenContent from "../../ForbiddenContent";
+import ForbiddenContent from "@/components/ForbiddenContent";
 import GrantsTabContent from "./GrantsTabContent";
 import GroupsTabContent from "./GroupsTabContent";
 

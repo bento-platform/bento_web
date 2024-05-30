@@ -2,12 +2,12 @@ import type { CSSProperties } from "react";
 import { Link } from "react-router-dom";
 
 import { Button, Popover, Typography } from "antd";
+import { CloseOutlined } from "@ant-design/icons";
 import { useAuthState } from "bento-auth-js";
 
 import { useGroupsByID } from "@/modules/authz/hooks";
 import type { GrantSubject, StoredGroup } from "@/modules/authz/types";
 import { stringifyJSONRenderIfMultiKey } from "./utils";
-import { CloseOutlined } from "@ant-design/icons";
 
 type InnerSubjectProps = {
     subject: GrantSubject;

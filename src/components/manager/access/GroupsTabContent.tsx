@@ -1,7 +1,6 @@
-import React, { type CSSProperties, useCallback, useEffect, useMemo, useState } from "react";
+import { type CSSProperties, useCallback, useEffect, useMemo, useState } from "react";
 
-import { Button, Form, List, Modal, Table, Typography } from "antd";
-import type { ColumnsType } from "antd/es/table";
+import { Button, Form, List, Modal, Table, type TableColumnsType, Typography } from "antd";
 import { DeleteOutlined, EditOutlined, PlusOutlined } from "@ant-design/icons";
 
 import { editPermissions, RESOURCE_EVERYTHING } from "bento-auth-js";
@@ -231,7 +230,7 @@ const GroupsTabContent = () => {
     // Right now, we don't have a way to scope groups to projects - so require { resource: everything } to create.
     const hasEditPermission = permissions.includes(editPermissions);
 
-    const columns = useMemo((): ColumnsType<StoredGroup> => [
+    const columns = useMemo((): TableColumnsType<StoredGroup> => [
         {
             title: "ID",
             dataIndex: "id",
@@ -300,7 +299,7 @@ const GroupsTabContent = () => {
                     >Delete</Button>
                 </>
             ),
-        }] as ColumnsType<StoredGroup> : []),
+        }] as TableColumnsType<StoredGroup> : []),
     ], [dispatch, hasEditPermission, groupGrants, editModalOpen]);
 
     return (
