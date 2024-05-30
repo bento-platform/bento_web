@@ -24,5 +24,8 @@ export const useGohanVariantsOverview = () => {
         }
     }, [dispatch, gohan]);
 
-    return useSelector((state) => state.explorer.variantsOverviewResponse);
+    const data = useSelector((state) => state.explorer.variantsOverviewResponse);
+    const isFetching = useSelector((state) => state.explorer.fetchingVariantsOverview);
+
+    return { data, isFetching };
 };

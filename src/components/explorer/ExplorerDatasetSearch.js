@@ -19,6 +19,7 @@ import {
     resetTableSortOrder,
     setActiveTab,
 } from "@/modules/explorer/actions";
+import { useProjects } from "@/modules/metadata/hooks";
 
 import IndividualsTable from "./searchResultsTables/IndividualsTable";
 import BiosamplesTable from "./searchResultsTables/BiosamplesTable";
@@ -40,7 +41,7 @@ const ExplorerDatasetSearch = () => {
     const { dataset: datasetID } = useParams();
     const dispatch = useDispatch();
 
-    const datasetsByID = useSelector((state) => state.projects.datasetsByID);
+    const datasetsByID = useProjects().datasetsByID;
 
     const activeKey = useSelector((state) => state.explorer.activeTabByDatasetID[datasetID]) || TAB_KEYS.INDIVIDUAL;
     const dataTypeForms = useSelector((state) => state.explorer.dataTypeFormsByDatasetID[datasetID]) ?? EMPTY_ARRAY;

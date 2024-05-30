@@ -1,7 +1,6 @@
 import { beginFlow, createFlowActionTypes, endFlow } from "@/utils/actions";
 import { nop } from "@/utils/misc";
 import { fetchDatasetsDataTypes } from "../datasets/actions";
-import { performGetGohanVariantsOverviewIfPossible } from "../explorer/actions";
 import { fetchExtraPropertiesSchemaTypes, fetchProjectsWithDatasets } from "../metadata/actions";
 import { fetchServicesWithMetadataAndDataTypesIfNeeded } from "../services/actions";
 
@@ -10,7 +9,6 @@ export const FETCHING_USER_DEPENDENT_DATA = createFlowActionTypes("FETCHING_USER
 export const fetchServiceDependentData = () => (dispatch) =>
     Promise.all(
         [
-            performGetGohanVariantsOverviewIfPossible,
             fetchExtraPropertiesSchemaTypes,
         ].map((a) => dispatch(a())),
     );

@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from "react";
+import React, { useState, useEffect, useCallback, useMemo } from "react";
 import { useSelector } from "react-redux";
 import PropTypes from "prop-types";
 
@@ -36,26 +36,40 @@ const VariantSearchHeader = ({ dataType, addVariantSearchValues }) => {
     const [activeAltValue, setActiveAltValue] = useState(null);
     const [assemblyId, setAssemblyId] = useState(null);
     const [locus, setLocus] = useState({ chrom: null, start: null, end: null });
-    const isSubmitting = useSelector(state => state.explorer.isSubmittingSearch);
+    const isSubmitting = useSelector((state) => state.explorer.isSubmittingSearch);
 
     // begin with required fields considered valid, so user isn't assaulted with error messages
     const [fieldsValidity, setFieldsValidity] = useState(INITIAL_FIELDS_VALIDITY);
 
-    const variantsOverviewResults = useGohanVariantsOverview();
-    const hasAssemblyIds =
-        variantsOverviewResults?.assemblyIDs !== undefined &&
-        !variantsOverviewResults?.assemblyIDs.hasOwnProperty("error");
-    const overviewAssemblyIds = hasAssemblyIds ? Object.keys(variantsOverviewResults?.assemblyIDs) : [];
+    const { data: variantsOverviewResults, isFetching: isFetchingVariantsOverview } = useGohanVariantsOverview();
 
-    const assemblySchema = dataType.schema?.properties?.assembly_id;
+    const overviewAssemblyIds = useMemo(
+        () => {
+            const hasAssemblyIds =
+                variantsOverviewResults?.assemblyIDs !== undefined &&
+                !variantsOverviewResults?.assemblyIDs.hasOwnProperty("error");
+            return hasAssemblyIds ? Object.keys(variantsOverviewResults?.assemblyIDs) : []
+        },
+        [variantsOverviewResults]);
+    const overviewAssemblyIdOptions = useMemo(
+        () => overviewAssemblyIds.map((value) => ({ value, label: value })),
+        [overviewAssemblyIds]);
+
+
     const genotypeSchema = dataType.schema?.properties?.calls?.items?.properties?.genotype_type;
+    const genotypeOptions = useMemo(
+        () => genotypeSchema.enum.map((value) => ({ value, label: value })),
+        [genotypeSchema]);
 
-    const helpText = {
-        "assemblyId": assemblySchema?.description,
-        "genotype": genotypeSchema?.description,
-        "locus": "Enter gene name (eg \"BRCA1\") or position (\"chr17:41195311-41278381\")",
-        "ref/alt": "Combination of nucleotides A, C, T, and G, including N as a wildcard - i.e. AATG, CG, TNN",
-    };
+    const helpText = useMemo(() => {
+        const assemblySchema = dataType.schema?.properties?.assembly_id;
+        return {
+            "assemblyId": assemblySchema?.description,
+            "genotype": genotypeSchema?.description,
+            "locus": "Enter gene name (eg \"BRCA1\") or position (\"chr17:41195311-41278381\")",
+            "ref/alt": "Combination of nucleotides A, C, T, and G, including N as a wildcard - i.e. AATG, CG, TNN",
+        };
+    }, [dataType]);
 
     // custom validation since this form isn't submitted, it's just used to fill fields in hidden form
     // each field is validated individually elsewhere
@@ -160,7 +174,8 @@ const VariantSearchHeader = ({ dataType, addVariantSearchValues }) => {
                 <Select
                     onChange={handleAssemblyIdChange}
                     defaultValue={overviewAssemblyIds && shouldTriggerAssemblyIdChange && overviewAssemblyIds[0]}
-                    options={overviewAssemblyIds.map((value) => ({ value, label: value }))}
+                    options={overviewAssemblyIdOptions}
+                    loading={isFetchingVariantsOverview}
                 />
             </Form.Item>
             <Form.Item
@@ -171,10 +186,12 @@ const VariantSearchHeader = ({ dataType, addVariantSearchValues }) => {
                 validateStatus={fieldsValidity.locus ? "success" : "error"}
                 required
             >
-                <LocusSearch assemblyId={assemblyId}
-                             addVariantSearchValues={addVariantSearchValues}
-                             handleLocusChange={handleLocusChange}
-                             setLocusValidity={setLocusValidity} />
+                <LocusSearch
+                    assemblyId={assemblyId}
+                    addVariantSearchValues={addVariantSearchValues}
+                    handleLocusChange={handleLocusChange}
+                    setLocusValidity={setLocusValidity}
+                />
             </Form.Item>
             <Form.Item
                 labelCol={LABEL_COL}
@@ -182,11 +199,7 @@ const VariantSearchHeader = ({ dataType, addVariantSearchValues }) => {
                 label="Genotype"
                 help={helpText["genotype"]}
             >
-                <Select
-                    onChange={handleGenotypeChange}
-                    allowClear
-                    options={genotypeSchema.enum.map((value) => ({ value, label: value }))}
-                />
+                <Select onChange={handleGenotypeChange} allowClear={true} options={genotypeOptions} />
             </Form.Item>
             <Form.Item
                 labelCol={LABEL_COL}
