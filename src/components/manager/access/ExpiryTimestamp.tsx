@@ -1,15 +1,28 @@
-import React from "react";
+import React, { useMemo } from "react";
 
 import { Popover } from "antd";
 
 import MonospaceText from "@/components/common/MonospaceText";
-import { EM_DASH } from "@/constants";
+import { COLOR_ANTD_RED_6, EM_DASH } from "@/constants";
 
 const ExpiryTimestamp = ({ expiry }: { expiry?: string }) => {
+    const expiryTs = useMemo(() => expiry ? Date.parse(expiry) : null, [expiry]);
+    const currentTs = Date.now();
+
+    const expired = expiryTs && (expiryTs <= currentTs);
+
+    const spanStyle = useMemo(
+        (): React.CSSProperties => expired ? { color: COLOR_ANTD_RED_6 } : {},
+        [expiry, expired]);
+
     if (!expiry) return EM_DASH;
+
     return (
         <Popover content={<span>UTC timestamp: <MonospaceText>{expiry}</MonospaceText></span>}>
-            {new Date(Date.parse(expiry)).toLocaleString()}
+            <span style={spanStyle}>
+                {new Date(Date.parse(expiry)).toLocaleString()}{" "}
+                {expired ? <em>(EXPIRED)</em> : ""}
+            </span>
         </Popover>
     );
 };
