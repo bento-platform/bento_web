@@ -114,10 +114,10 @@ const SubjectInput = ({ value, onChange }: SubjectInputProps) => {
     }, onChangeDeps);
 
     const subjectTypeOptions = useMemo(() => [
-        { value: SUBJECT_TYPE_EVERYONE, label: <Subject subject={SUBJECT_EVERYONE} boldLabel={false} /> },
         { value: SUBJECT_TYPE_ISS_SUB, label: "Issuer URI + Subject ID" },
         { value: SUBJECT_TYPE_ISS_CLIENT, label: "Issuer URI + Client ID" },
         { value: SUBJECT_TYPE_GROUP, label: "Group", disabled: groups.length === 0 },
+        { value: SUBJECT_TYPE_EVERYONE, label: <Subject subject={SUBJECT_EVERYONE} boldLabel={false} /> },
     ], [groups]);
 
     const onChangeIssuer = useCallback<InputChangeEventHandler>((e) => {
@@ -174,7 +174,7 @@ const SubjectInput = ({ value, onChange }: SubjectInputProps) => {
                 message={(
                     <>
                         <strong>Warning:</strong>{" "}
-                        The &ldquo;everyone&rdquo; subject applies to ALL USERS, even anonymous ones, e.g., bots and
+                        The &ldquo;Everyone&rdquo; subject applies to ALL USERS, even anonymous ones, e.g., bots and
                         random visitors to the portal!
                     </>
                 )}
@@ -515,11 +515,14 @@ const PermissionsInput = ({ id, value, onChange, currentResource, ...rest }: Per
 
 
 const GrantForm = ({ form }: { form: FormInstance<Grant> }) => {
+    const homeIssuer = useOpenIdConfig()?.issuer ?? "";
+    const defaultSubject = useMemo<GrantSubject>(() => ({ iss: homeIssuer, sub: "" }), [homeIssuer]);
+
     const currentResource = Form.useWatch("resource", form);
 
     return (
         <Form form={form} layout="vertical">
-            <Form.Item name="subject" label="Subject" initialValue={SUBJECT_EVERYONE}>
+            <Form.Item name="subject" label="Subject" initialValue={defaultSubject}>
                 <SubjectInput />
             </Form.Item>
             <Form.Item name="resource" label="Resource" initialValue={RESOURCE_EVERYTHING}>
