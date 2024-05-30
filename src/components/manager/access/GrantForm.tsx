@@ -96,12 +96,15 @@ const SubjectInput = ({ value, onChange }: SubjectInputProps) => {
             if ("sub" in value) {
                 setSub(value.sub);
                 setClient("");
+                setSubjectType(SUBJECT_TYPE_ISS_SUB);
             } else {
                 setSub("");
                 setClient(value.client);
+                setSubjectType(SUBJECT_TYPE_ISS_CLIENT);
             }
         } else {  // group
             setGroup(value.group);
+            setSubjectType(SUBJECT_TYPE_GROUP);
         }
     }, [value]);
 
