@@ -153,7 +153,10 @@ export const useAuthzManagementPermissions = () => {
     // Get existing project/dataset resource permissions
     const projectDatasetPermissions = useProjectDatasetPermissions();
 
-    // Build set of deduplicated grant resources
+    // Build set of resources to check our "at least one (view|edit|...)" permissions constants with. We manually
+    // include the "everything" resource to allow early-determining some permissions before grants list has been loaded
+    // from the authorization service, since if a user has everything-permissions they override more narrow resource
+    // permissions anyway.
     const grantResources = useMemo(
         () => [...new Set([
             RESOURCE_EVERYTHING_KEY,

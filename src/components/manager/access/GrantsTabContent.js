@@ -1,4 +1,4 @@
-import React, { useCallback, useMemo, useState } from "react";
+import React, { useCallback, useEffect, useMemo, useState } from "react";
 import PropTypes from "prop-types";
 
 import { Button, Form, Modal, Typography } from "antd";
@@ -19,19 +19,40 @@ import GrantsTable from "./GrantsTable";
 const GrantCreationModal = ({ open, closeModal }) => {
     const dispatch = useAppDispatch();
     const [form] = Form.useForm();
+    const [loading, setLoading] = useState(false);
+
+    useEffect(() => {
+        if (open) {
+            // Instead of resetting fields on close/finish, reset on next open to avoid
+            // a re-render/sudden-form-change hiccup.
+            form.resetFields();
+        }
+    }, [open]);
 
     const onOk = useCallback(() => {
+        setLoading(true);
         form.validateFields().then(async (values) => {
             console.debug("received grant values for creation:", values);
             await dispatch(createGrant(values));
             closeModal();
+            // Form will be reset upon next open.
         }).catch((err) => {
             console.error(err);
+        }).finally(() => {
+            setLoading(false);
         });
     }, [dispatch, form]);
 
     return (
-        <Modal open={open} width={720} title="Create Grant" onOk={onOk} onCancel={closeModal} okText="Create">
+        <Modal
+            open={open}
+            width={720}
+            title="Create Grant"
+            onCancel={closeModal}
+            onOk={onOk}
+            okText="Create"
+            okButtonProps={{ loading }}
+        >
             <GrantForm form={form} />
         </Modal>
     );
@@ -56,7 +77,9 @@ const GrantsTabContent = () => {
     } = useAuthzManagementPermissions();
 
     const [createModalOpen, setCreateModalOpen] = useState(false);
-    const [modal, contextHolder] = Modal.useModal();
+    const openCreateModal = useCallback(() => setCreateModalOpen(true), []);
+    const closeCreateModal = useCallback(() => setCreateModalOpen(false), []);
+    const [deleteModal, deleteModalContextHolder] = Modal.useModal();
 
     const extraColumns = useMemo(() =>
         hasAtLeastOneEditPermissionsGrant ? [{
@@ -79,7 +102,7 @@ const GrantsTabContent = () => {
                             loading={pLoading}
                             disabled={!canEdit}
                             onClick={() => {
-                                modal.confirm({
+                                deleteModal.confirm({
                                     title: <>Are you sure you wish to delete grant {grant.id}?</>,
                                     content: <>
                                         <Typography.Paragraph>
@@ -100,21 +123,23 @@ const GrantsTabContent = () => {
                 );
             },
         }] : [],
-    [dispatch, groupsByID, grantResourcePermissionsObjects, hasAtLeastOneEditPermissionsGrant, modal]);
+    [dispatch, groupsByID, grantResourcePermissionsObjects, hasAtLeastOneEditPermissionsGrant, deleteModal]);
 
     return (
         <>
-            {contextHolder}
+            {deleteModalContextHolder}
             {hasAtLeastOneEditPermissionsGrant && (
                 <ActionContainer style={{ marginBottom: 8 }}>
-                    <Button icon={<PlusOutlined />} loading={isFetchingPermissions || isFetchingGrants} onClick={() => {
-                        setCreateModalOpen(true);
-                    }}>
+                    <Button
+                        icon={<PlusOutlined />}
+                        loading={isFetchingPermissions || isFetchingGrants}
+                        onClick={openCreateModal}
+                    >
                         Create Grant
                     </Button>
                 </ActionContainer>
             )}
-            <GrantCreationModal open={createModalOpen} closeModal={() => setCreateModalOpen(false)} />
+            <GrantCreationModal open={createModalOpen} closeModal={closeCreateModal} />
             <GrantsTable
                 grants={grants}
                 loading={isFetchingAllServices || isFetchingPermissions || isFetchingGrants}

@@ -1,7 +1,6 @@
-import React, { useCallback, useEffect, useMemo, useState } from "react";
+import { type CSSProperties, useCallback, useEffect, useMemo, useState } from "react";
 
-import { Button, Form, List, Modal, Table, Typography } from "antd";
-import type { ColumnsType } from "antd/es/table";
+import { Button, Form, List, Modal, Table, type TableColumnsType, Typography } from "antd";
 import { DeleteOutlined, EditOutlined, PlusOutlined } from "@ant-design/icons";
 
 import { editPermissions, RESOURCE_EVERYTHING } from "bento-auth-js";
@@ -11,18 +10,25 @@ import { useResourcePermissionsWrapper } from "@/hooks";
 import ActionContainer from "@/components/manager/ActionContainer";
 import { createGroup, deleteGroup, invalidateGroups, saveGroup } from "@/modules/authz/actions";
 import { useGrants, useGroups } from "@/modules/authz/hooks";
-import { Group, StoredGrant, StoredGroup } from "@/modules/authz/types";
+import type { Group, SpecificSubject, StoredGrant, StoredGroup } from "@/modules/authz/types";
+import { useServices } from "@/modules/services/hooks";
 import { useAppDispatch } from "@/store";
 
+import ExpiryTimestamp from "./ExpiryTimestamp";
 import GrantsTable from "./GrantsTable";
 import GroupForm from "./GroupForm";
 import Subject from "./Subject";
 import { rowKey } from "./utils";
-import { useServices } from "@/modules/services/hooks";
 
+
+const groupMemberListRender = (item: SpecificSubject) => (
+    <List.Item><Subject subject={item} /></List.Item>
+);
 
 const GroupMembershipCell = ({ group }: { group: StoredGroup }) => {
     const [modalOpen, setModalOpen] = useState(false);
+    const openMembersModal = useCallback(() => setModalOpen(true), []);
+    const closeMembersModal = useCallback(() => setModalOpen(false), []);
 
     const { id, name, membership } = group;
 
@@ -45,16 +51,14 @@ const GroupMembershipCell = ({ group }: { group: StoredGroup }) => {
         <>
             <Modal
                 open={modalOpen}
-                onCancel={() => setModalOpen(false)}
+                onCancel={closeMembersModal}
                 title={`Group: ${name} (ID: ${id}) - Membership`}
                 footer={null}
                 width={768}
             >
-                <List dataSource={membersList} renderItem={(item) => (
-                    <List.Item><Subject subject={item} /></List.Item>
-                )} />
+                <List dataSource={membersList} renderItem={groupMemberListRender} />
             </Modal>
-            <Button type="link" size="small" onClick={() => setModalOpen(true)}>
+            <Button type="link" size="small" onClick={openMembersModal}>
                 {membersList.length} {membersList.length === 1 ? "entry" : "entries"}
             </Button>
         </>
@@ -66,8 +70,12 @@ type DependentGrantsCellProps = {
     group: StoredGroup;
 };
 
+const GRANTS_MODAL_STYLE: CSSProperties = { maxWidth: 1400 };
+
 const DependentGrantsCell = ({ groupGrants, group }: DependentGrantsCellProps) => {
     const [modalOpen, setModalOpen] = useState(false);
+    const openGrantsModal = useCallback(() => setModalOpen(true), []);
+    const closeGrantsModal = useCallback(() => setModalOpen(false), []);
 
     const { id, name } = group;
     const dependentGrants = groupGrants[id] ?? [];
@@ -76,15 +84,15 @@ const DependentGrantsCell = ({ groupGrants, group }: DependentGrantsCellProps) =
         <>
             <Modal
                 open={modalOpen}
-                onCancel={() => setModalOpen(false)}
+                onCancel={closeGrantsModal}
                 title={`Group: ${name} (ID: ${id}) - Dependent Grants`}
                 footer={null}
                 width="90%"
-                style={{ maxWidth: 1400 }}
+                style={GRANTS_MODAL_STYLE}
             >
                 <GrantsTable grants={dependentGrants} />
             </Modal>
-            <Button type="link" size="small" onClick={() => setModalOpen(true)}>
+            <Button type="link" size="small" onClick={openGrantsModal}>
                 {dependentGrants.length} {dependentGrants.length === 1 ? "grant" : "grants"}
             </Button>
         </>
@@ -96,14 +104,27 @@ const GROUP_MODAL_WIDTH = 800;
 const GroupCreationModal = ({ open, closeModal }: { open: boolean; closeModal: () => void }) => {
     const dispatch = useAppDispatch();
     const [form] = Form.useForm();
+    const [loading, setLoading] = useState<boolean>(false);
+
+    useEffect(() => {
+        if (open) {
+            // Instead of resetting fields on close/finish, reset on next open to avoid
+            // a re-render/sudden-form-change hiccup.
+            form.resetFields();
+        }
+    }, [open]);
 
     const onOk = useCallback(() => {
+        setLoading(true);
         form.validateFields().then(async (values) => {
             console.debug("received group values for creation:", values);
             await dispatch(createGroup(values));
             closeModal();
+            // Form will be reset upon next open.
         }).catch((err) => {
             console.error(err);
+        }).finally(() => {
+            setLoading(false);
         });
     }, [dispatch, form]);
 
@@ -112,8 +133,9 @@ const GroupCreationModal = ({ open, closeModal }: { open: boolean; closeModal: (
             open={open}
             width={GROUP_MODAL_WIDTH}
             title="Create Group"
-            onOk={onOk}
             onCancel={closeModal}
+            onOk={onOk}
+            okButtonProps={{ loading }}
             okText="Create"
         >
             <GroupForm form={form} />
@@ -121,13 +143,16 @@ const GroupCreationModal = ({ open, closeModal }: { open: boolean; closeModal: (
     );
 };
 
-const GroupEditModal = ({ group, open, closeModal }: {
+type GroupEditModalProps = {
     group: StoredGroup | null,
     open: boolean;
     closeModal: () => void
-}) => {
+};
+
+const GroupEditModal = ({ group, open, closeModal }: GroupEditModalProps) => {
     const dispatch = useAppDispatch();
     const [form] = Form.useForm<Group>();
+    const [loading, setLoading] = useState<boolean>(false);
 
     useEffect(() => {
         if (group) {
@@ -138,6 +163,7 @@ const GroupEditModal = ({ group, open, closeModal }: {
     const name: string = Form.useWatch("name", form);
 
     const onOk = useCallback(() => {
+        setLoading(true);
         form.validateFields().then(async (values) => {
             console.debug("received group values for saving:", values);
             await dispatch(saveGroup({ ...group, ...values }));
@@ -149,6 +175,7 @@ const GroupEditModal = ({ group, open, closeModal }: {
             //  - on success, refresh all groups to get new data.
             //  - on error, refresh all groups to revert optimistically-updated values.
             dispatch(invalidateGroups());
+            setLoading(false);
         });
     }, [dispatch, form, group]);
 
@@ -157,8 +184,9 @@ const GroupEditModal = ({ group, open, closeModal }: {
             open={open}
             width={GROUP_MODAL_WIDTH}
             title={`Edit Group ${group?.id}: "${name}"`}
-            onOk={onOk}
             onCancel={closeModal}
+            onOk={onOk}
+            okButtonProps={{ loading }}
             okText="Save"
         >
             <GroupForm form={form} />
@@ -171,7 +199,11 @@ const GroupsTabContent = () => {
     const dispatch = useAppDispatch();
 
     const [createModalOpen, setCreateModalOpen] = useState<boolean>(false);
+    const openCreateModal = useCallback(() => setCreateModalOpen(true), []);
+    const closeCreateModal = useCallback(() => setCreateModalOpen(false), []);
+
     const [editModalOpen, setEditModalOpen] = useState<boolean>(false);
+    const closeEditModal = useCallback(() => setEditModalOpen(false), []);
 
     const [selectedGroup, setSelectedGroup] = useState<StoredGroup | null>(null);
 
@@ -206,7 +238,7 @@ const GroupsTabContent = () => {
     // Right now, we don't have a way to scope groups to projects - so require { resource: everything } to create.
     const hasEditPermission = permissions.includes(editPermissions);
 
-    const columns = useMemo((): ColumnsType<StoredGroup> => [
+    const columns = useMemo((): TableColumnsType<StoredGroup> => [
         {
             title: "ID",
             dataIndex: "id",
@@ -230,7 +262,7 @@ const GroupsTabContent = () => {
         {
             title: "Expiry",
             dataIndex: "expiry",
-            render: (expiry) => <span>{expiry ?? "—"}</span>,
+            render: (expiry) => <ExpiryTimestamp expiry={expiry} />,
         },
         {
             title: "Notes",
@@ -275,7 +307,7 @@ const GroupsTabContent = () => {
                     >Delete</Button>
                 </>
             ),
-        }] as ColumnsType<StoredGroup> : []),
+        }] as TableColumnsType<StoredGroup> : []),
     ], [dispatch, hasEditPermission, groupGrants, editModalOpen]);
 
     return (
@@ -285,13 +317,13 @@ const GroupsTabContent = () => {
                 {hasEditPermission && (
                     <Button icon={<PlusOutlined />}
                             loading={isFetchingPermissions || isFetchingGroups}
-                            onClick={() => setCreateModalOpen(true)}>
+                            onClick={openCreateModal}>
                         Create Group
                     </Button>
                 )}
             </ActionContainer>
-            <GroupCreationModal open={createModalOpen} closeModal={() => setCreateModalOpen(false)} />
-            <GroupEditModal group={selectedGroup} open={editModalOpen} closeModal={() => setEditModalOpen(false)} />
+            <GroupCreationModal open={createModalOpen} closeModal={closeCreateModal} />
+            <GroupEditModal group={selectedGroup} open={editModalOpen} closeModal={closeEditModal} />
             {/* No pagination on this table, so we can link to all group ID anchors: */}
             <Table<StoredGroup>
                 size="middle"

@@ -1,6 +1,6 @@
 import { Fragment, ReactNode, useCallback, useEffect, useMemo, useState } from "react";
 
-import { Checkbox, Form, Input, Popover, Radio, Select, Space, Spin } from "antd";
+import { Alert, Checkbox, Form, Input, Popover, Radio, Select, Space, Spin } from "antd";
 import type { FormInstance, RadioGroupProps, RadioChangeEvent, SelectProps } from "antd";
 
 import { RESOURCE_EVERYTHING, useOpenIdConfig } from "bento-auth-js";
@@ -33,6 +33,10 @@ type SubjectInputProps = {
 };
 
 type SubjectType = "everyone" | "iss-sub" | "iss-client" | "group";
+const SUBJECT_TYPE_EVERYONE = "everyone";
+const SUBJECT_TYPE_ISS_SUB = "iss-sub";
+const SUBJECT_TYPE_ISS_CLIENT = "iss-client";
+const SUBJECT_TYPE_GROUP = "group";
 
 const buildSubject = (
     subjectType: SubjectType,
@@ -41,13 +45,13 @@ const buildSubject = (
     client: string,
     group: number | undefined,
 ): GrantSubject | undefined => {
-    if (subjectType === "everyone") {
+    if (subjectType === SUBJECT_TYPE_EVERYONE) {
         return SUBJECT_EVERYONE;
-    } else if (subjectType === "iss-sub") {
+    } else if (subjectType === SUBJECT_TYPE_ISS_SUB) {
         return { iss, sub };
-    } else if (subjectType === "iss-client") {
+    } else if (subjectType === SUBJECT_TYPE_ISS_CLIENT) {
         return { iss, client };
-    } else if (subjectType === "group" && group !== undefined) {
+    } else if (subjectType === SUBJECT_TYPE_GROUP && group !== undefined) {
         return { group };
     }
 };
@@ -71,7 +75,7 @@ const SubjectInput = ({ value, onChange }: SubjectInputProps) => {
 
     const homeIssuer = useOpenIdConfig()?.issuer ?? "";
 
-    const [subjectType, setSubjectType] = useState<"everyone" | "iss-sub" | "iss-client" | "group">("everyone");
+    const [subjectType, setSubjectType] = useState<SubjectType>(SUBJECT_TYPE_EVERYONE);
     const [iss, setIss] = useState(homeIssuer);
     const [sub, setSub] = useState("");
     const [client, setClient] = useState("");
@@ -86,18 +90,21 @@ const SubjectInput = ({ value, onChange }: SubjectInputProps) => {
     useEffect(() => {
         if (!value) return;
         if ("everyone" in value) {
-            setSubjectType("everyone");
+            setSubjectType(SUBJECT_TYPE_EVERYONE);
         } else if ("iss" in value) {
             setIss(value.iss);
             if ("sub" in value) {
                 setSub(value.sub);
                 setClient("");
+                setSubjectType(SUBJECT_TYPE_ISS_SUB);
             } else {
                 setSub("");
                 setClient(value.client);
+                setSubjectType(SUBJECT_TYPE_ISS_CLIENT);
             }
         } else {  // group
             setGroup(value.group);
+            setSubjectType(SUBJECT_TYPE_GROUP);
         }
     }, [value]);
 
@@ -110,10 +117,10 @@ const SubjectInput = ({ value, onChange }: SubjectInputProps) => {
     }, onChangeDeps);
 
     const subjectTypeOptions = useMemo(() => [
-        { value: "everyone", label: <Subject subject={SUBJECT_EVERYONE} boldLabel={false} /> },
-        { value: "iss-sub", label: "Issuer URI + Subject ID" },
-        { value: "iss-client", label: "Issuer URI + Client ID" },
-        { value: "group", label: "Group", disabled: groups.length === 0 },
+        { value: SUBJECT_TYPE_ISS_SUB, label: "Issuer URI + Subject ID" },
+        { value: SUBJECT_TYPE_ISS_CLIENT, label: "Issuer URI + Client ID" },
+        { value: SUBJECT_TYPE_GROUP, label: "Group", disabled: groups.length === 0 },
+        { value: SUBJECT_TYPE_EVERYONE, label: <Subject subject={SUBJECT_EVERYONE} boldLabel={false} /> },
     ], [groups]);
 
     const onChangeIssuer = useCallback<InputChangeEventHandler>((e) => {
@@ -146,17 +153,17 @@ const SubjectInput = ({ value, onChange }: SubjectInputProps) => {
 
     return <Space direction="vertical" style={{ width: "100%", minHeight: 32 }}>
         <Radio.Group value={subjectType} onChange={onChangeSubjectType} options={subjectTypeOptions} />
-        {(subjectType === "iss-sub" || subjectType === "iss-client") && (
+        {(subjectType === SUBJECT_TYPE_ISS_SUB || subjectType === SUBJECT_TYPE_ISS_CLIENT) && (
             <Space style={{ width: "100%" }} styles={{ item: { flex: 1 } }}>
                 <Input placeholder="Issuer URI" value={iss} onChange={onChangeIssuer} />
-                {subjectType === "iss-sub" ? (
+                {subjectType === SUBJECT_TYPE_ISS_SUB ? (
                     <Input placeholder="Subject ID" value={sub} onChange={onChangeSubject} />
                 ) : (
                     <Input placeholder="Client ID" value={client} onChange={onChangeClient} />
                 )}
             </Space>
         )}
-        {subjectType === "group" && (
+        {subjectType === SUBJECT_TYPE_GROUP && (
             <Select
                 showSearch={true}
                 placeholder="Select a group"
@@ -165,17 +172,34 @@ const SubjectInput = ({ value, onChange }: SubjectInputProps) => {
                 onChange={onChangeGroup}
             />
         )}
+        {subjectType === SUBJECT_TYPE_EVERYONE && (
+            <Alert
+                message={(
+                    <>
+                        <strong>Warning:</strong>{" "}
+                        The &ldquo;Everyone&rdquo; subject applies to ALL USERS, even anonymous ones, e.g., bots and
+                        random visitors to the portal!
+                    </>
+                )}
+                type="warning"
+                showIcon={true}
+            />
+        )}
     </Space>;
 };
 
 
+type ResourceSupertype = "everything" | "project-plus";
+const RESOURCE_SUPERTYPE_EVERYTHING = "everything";
+const RESOURCE_SUPERTYPE_PROJECT_PLUS = "project-plus";
+
 const buildResource = (
-    rt: "everything" | "project-plus",
+    rt: ResourceSupertype,
     p: Project | null,
     d: Dataset | null,
     dt: string,
 ): GrantResource => {
-    if (rt === "everything" || p === null) {
+    if (rt === RESOURCE_SUPERTYPE_EVERYTHING || p === null) {
         return RESOURCE_EVERYTHING;
     }
 
@@ -199,7 +223,7 @@ const ResourceInput = ({ value, onChange }: ResourceInputProps) => {
     const datasetsByID: Record<string, Dataset> = useProjects().datasetsByID;
     const dataTypes: BentoServiceDataType[] = useDataTypes().items;
 
-    const [resourceType, setResourceType] = useState<"everything" | "project-plus">("everything");
+    const [resourceSupertype, setResourceSupertype] = useState<ResourceSupertype>("everything");
     const [selectedProject, setSelectedProject] = useState<Project | null>(null);
     const [selectedDataset, setSelectedDataset] = useState<Dataset | null>(null);
     const [selectedDataType, setSelectedDataType] = useState<string>("");
@@ -207,11 +231,14 @@ const ResourceInput = ({ value, onChange }: ResourceInputProps) => {
     useEffect(() => {
         if (!value) return;
         if ("everything" in value) {
-            setResourceType("everything");
+            setResourceSupertype(RESOURCE_SUPERTYPE_EVERYTHING);
         } else {
-            // TODO: how to handle missing projects?
+            setResourceSupertype(RESOURCE_SUPERTYPE_PROJECT_PLUS);
+            // TODO: how to handle missing projects? i.e., what if the project is deleted?
+            //  - right now, it doesn't matter since we cannot edit grants, but in the future we'll need to check.
             setSelectedProject(projectsByID[value.project]);
-            // TODO: how to handle missing datasets?
+            // TODO: how to handle missing datasets? i.e., what if the dataset is deleted?
+            //  - right now, it doesn't matter since we cannot edit grants, but in the future we'll need to check.
             if ("dataset" in value && value.dataset) setSelectedDataset(datasetsByID[value.dataset]);
             if ("data_type" in value && value.data_type) setSelectedDataType(value.data_type);
         }
@@ -223,15 +250,19 @@ const ResourceInput = ({ value, onChange }: ResourceInputProps) => {
         }
     }, [selectedProject, projects]);
 
-    const resourceTypeOptions = useMemo<RadioGroupProps["options"]>(() => [
-        { value: "everything", label: <Resource resource={RESOURCE_EVERYTHING} /> },
-        { value: "project-plus", label: "Project + Optional Dataset + Optional Data Type", disabled: !projects.length },
+    const resourceSupertypeOptions = useMemo<RadioGroupProps["options"]>(() => [
+        { value: RESOURCE_SUPERTYPE_EVERYTHING, label: <Resource resource={RESOURCE_EVERYTHING} /> },
+        {
+            value: RESOURCE_SUPERTYPE_PROJECT_PLUS,
+            label: "Project + Optional Dataset + Optional Data Type",
+            disabled: !projects.length,
+        },
     ], [projects]);
 
-    const onChangeResourceType = useCallback((e: RadioChangeEvent) => {
-        const newResourceType = e.target.value;
-        setResourceType(newResourceType);
-        if (onChange) onChange(buildResource(newResourceType, selectedProject, selectedDataset, selectedDataType));
+    const onChangeResourceSupertype = useCallback((e: RadioChangeEvent) => {
+        const newResourceSupertype = e.target.value;
+        setResourceSupertype(newResourceSupertype);
+        if (onChange) onChange(buildResource(newResourceSupertype, selectedProject, selectedDataset, selectedDataType));
     }, [onChange, selectedProject, selectedDataset, selectedDataType]);
 
     const projectOptions = useMemo((): SelectProps["options"] => projects.map((p: Project) => ({
@@ -243,8 +274,8 @@ const ResourceInput = ({ value, onChange }: ResourceInputProps) => {
         const p = projectsByID[v];
         setSelectedProject(p);
         setSelectedDataset(null);
-        if (onChange) onChange(buildResource(resourceType, p, null, selectedDataType));
-    }, [projectsByID, onChange, resourceType, selectedDataType]);
+        if (onChange) onChange(buildResource(resourceSupertype, p, null, selectedDataType));
+    }, [projectsByID, onChange, resourceSupertype, selectedDataType]);
 
     const datasetOptions = useMemo((): SelectProps["options"] => {
         const options: SelectProps["options"] = [{ value: "", label: "All datasets" }];
@@ -262,8 +293,8 @@ const ResourceInput = ({ value, onChange }: ResourceInputProps) => {
     const onChangeDataset = useCallback((v: string) => {
         const d = datasetsByID[v];
         setSelectedDataset(d);
-        if (onChange) onChange(buildResource(resourceType, selectedProject, d, selectedDataType));
-    }, [datasetsByID, onChange, resourceType, selectedProject, selectedDataType]);
+        if (onChange) onChange(buildResource(resourceSupertype, selectedProject, d, selectedDataType));
+    }, [datasetsByID, onChange, resourceSupertype, selectedProject, selectedDataType]);
 
     const dataTypeOptions = useMemo((): SelectProps["options"] => [
         { value: "", label: "All data types" },
@@ -272,12 +303,13 @@ const ResourceInput = ({ value, onChange }: ResourceInputProps) => {
 
     const onChangeDataType = useCallback((v: string) => {
         setSelectedDataType(v);
-        if (onChange) onChange(buildResource(resourceType, selectedProject, selectedDataset, v));
-    }, [onChange, resourceType, selectedProject, selectedDataset]);
+        if (onChange) onChange(buildResource(resourceSupertype, selectedProject, selectedDataset, v));
+    }, [onChange, resourceSupertype, selectedProject, selectedDataset]);
 
     return <Space direction="vertical" style={{ width: "100%", minHeight: 32 }}>
-        <Radio.Group value={resourceType} onChange={onChangeResourceType} options={resourceTypeOptions} />
-        {resourceType === "project-plus" && (
+        <Radio.Group value={resourceSupertype} onChange={onChangeResourceSupertype}
+                     options={resourceSupertypeOptions} />
+        {resourceSupertype === RESOURCE_SUPERTYPE_PROJECT_PLUS && (
             <Space style={{ width: "100%" }} styles={{ item: { flex: 1 } }}>
                 <div>
                     Project:{" "}
@@ -486,11 +518,14 @@ const PermissionsInput = ({ id, value, onChange, currentResource, ...rest }: Per
 
 
 const GrantForm = ({ form }: { form: FormInstance<Grant> }) => {
+    const homeIssuer = useOpenIdConfig()?.issuer ?? "";
+    const defaultSubject = useMemo<GrantSubject>(() => ({ iss: homeIssuer, sub: "" }), [homeIssuer]);
+
     const currentResource = Form.useWatch("resource", form);
 
     return (
         <Form form={form} layout="vertical">
-            <Form.Item name="subject" label="Subject" initialValue={SUBJECT_EVERYONE}>
+            <Form.Item name="subject" label="Subject" initialValue={defaultSubject}>
                 <SubjectInput />
             </Form.Item>
             <Form.Item name="resource" label="Resource" initialValue={RESOURCE_EVERYTHING}>

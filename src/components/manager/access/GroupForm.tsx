@@ -1,6 +1,18 @@
 import { type ChangeEvent, useCallback, useEffect, useState } from "react";
-import { Button, Card, Divider, Form, type FormInstance, Input, List, Radio, type RadioChangeEvent } from "antd";
-import type { Rule } from "antd/es/form/index";
+
+import {
+    Button,
+    Card,
+    Divider,
+    Form,
+    type FormRule,
+    type FormInstance,
+    Input,
+    List,
+    Radio,
+    type RadioChangeEvent,
+    type RadioGroupProps,
+} from "antd";
 import { PlusOutlined } from "@ant-design/icons";
 
 import { useOpenIdConfig } from "bento-auth-js";
@@ -12,17 +24,12 @@ import ExpiryInput from "./ExpiryInput";
 import Subject from "./Subject";
 import type { InputChangeEventHandler } from "./types";
 
-type MembershipInputProps = {
-    onChange?: (v: GroupMembership) => void;
-    value?: GroupMembership;
-};
-
-const MEMBERSHIP_TYPE_OPTIONS = [
+const MEMBERSHIP_TYPE_OPTIONS: RadioGroupProps["options"] = [
     { value: "list", label: "Subject / Client List" },
     { value: "expr", label: "Expression (Bento Query JSON Format)" },
 ];
 
-const SPECIFIC_SUBJECT_TYPE_OPTIONS = [
+const SPECIFIC_SUBJECT_TYPE_OPTIONS: RadioGroupProps["options"] = [
     { value: "sub", label: "Issuer + Subject" },
     { value: "client", label: "Issuer + Client" },
 ];
@@ -50,6 +57,11 @@ const isValidJSONArray = (x: string): boolean => {
     } else {
         return false;
     }
+};
+
+type MembershipInputProps = {
+    onChange?: (v: GroupMembership) => void;
+    value?: GroupMembership;
 };
 
 const MembershipInput = ({ value, onChange, ...rest }: MembershipInputProps) => {
@@ -218,7 +230,7 @@ const MembershipInput = ({ value, onChange, ...rest }: MembershipInputProps) => 
     );
 };
 
-const MEMBERSHIP_VALIDATOR_RULES: Rule[] = [{
+const MEMBERSHIP_VALIDATOR_RULES: FormRule[] = [{
     validator: (_r, v: GroupMembership) => {
         if ("expr" in v) {
             const expr = v.expr;
@@ -236,7 +248,11 @@ const MEMBERSHIP_VALIDATOR_RULES: Rule[] = [{
     },
 }];
 
-const GroupForm = ({ form }: { form: FormInstance<Group> }) => (
+type GroupFormProps = {
+    form: FormInstance<Group>
+};
+
+const GroupForm = ({ form }: GroupFormProps) => (
     <Form form={form} layout="vertical">
         <Form.Item name="name" label="Name" initialValue="" rules={[{ required: true }]}>
             <Input />

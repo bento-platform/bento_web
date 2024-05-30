@@ -1,20 +1,24 @@
 import React, { useMemo } from "react";
 
-import { Table } from "antd";
-import type { ColumnsType } from "antd/es/table";
+import { Table, type TableColumnsType } from "antd";
 
 import type { StoredGrant } from "@/modules/authz/types";
 
+import ExpiryTimestamp from "./ExpiryTimestamp";
 import PermissionsList from "./PermissionsList";
 import Resource from "./Resource";
 import Subject from "./Subject";
 import { rowKey } from "./utils";
 
 
-export type GrantsTableProps = { grants: StoredGrant[], loading?: boolean, extraColumns?: ColumnsType<StoredGrant> };
+export type GrantsTableProps = {
+    grants: StoredGrant[],
+    loading?: boolean,
+    extraColumns?: TableColumnsType<StoredGrant>,
+};
 
 const GrantsTable = ({ grants, loading, extraColumns }: GrantsTableProps) => {
-    const grantsColumns = useMemo((): ColumnsType<StoredGrant> => [
+    const grantsColumns = useMemo((): TableColumnsType<StoredGrant> => [
         {
             title: "ID",
             dataIndex: "id",
@@ -33,7 +37,7 @@ const GrantsTable = ({ grants, loading, extraColumns }: GrantsTableProps) => {
         {
             title: "Expiry",
             dataIndex: "expiry",
-            render: (expiry) => <span>{expiry ?? "—"}</span>,
+            render: (expiry) => <ExpiryTimestamp expiry={expiry} />,
         },
         {
             title: "Notes",

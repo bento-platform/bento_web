@@ -1,6 +1,8 @@
 import type { Resource } from "bento-auth-js";
 export type { Resource } from "bento-auth-js";
 
+// TODO: move some/all of these types to bento-auth-js
+
 
 export type PermissionDefinition = {
     id: string;
