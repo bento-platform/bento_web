@@ -3,6 +3,7 @@ import {createNetworkActionTypes, networkAction} from "../../utils/actions";
 
 export const PERFORM_GOHAN_GENE_SEARCH = createNetworkActionTypes("GOHAN_GENE_SEARCH");
 export const FETCH_DISCOVERY_SCHEMA = createNetworkActionTypes("FETCH_DISCOVERY_SCHEMA");
+export const FETCH_DATS_SCHEMA = createNetworkActionTypes("FETCH_DATS_SCHEMA");
 
 export const performGohanGeneSearchIfPossible = (searchTerm, assemblyId) => (dispatch, getState) => {
     const gohanUrl = getState()?.services?.itemsByKind?.gohan?.url;
@@ -29,3 +30,15 @@ export const fetchDiscoverySchema = (dispatch, getState) => {
     if (!metadataUrl) return Promise.resolve();
     return dispatch(_fetchDiscoverySchema());
 };
+
+const _fetchDatsSchema = networkAction(() => (dispatch, getState) => ({
+    types: FETCH_DATS_SCHEMA,
+    url: `${getState().bentoServices.itemsByKind.metadata.url}/api/dats_schema`,
+    err: "Error fetching dats JSON schema",
+}));
+
+export const fetchDatsSchema = (dispatch, getState) => {
+    const metadataUrl = getState()?.bentoServices?.itemsByKind?.metadata?.url;
+    if (!metadataUrl) return Promise.resolve();
+    return dispatch(_fetchDatsSchema());
+}

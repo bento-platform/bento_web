@@ -9,9 +9,9 @@ import {
 import type { Resource } from "bento-auth-js";
 
 import { useService } from "@/modules/services/hooks";
-import { RootState } from "./store";
+import { RootState, useAppSelector } from "./store";
 import { useCallback, useEffect, useState } from "react";
-import Ajv from "ajv";
+import Ajv, { SchemaObject } from "ajv";
 import { ARRAY_BUFFER_FILE_EXTENSIONS, BLOB_FILE_EXTENSIONS } from "./components/display/FileDisplay";
 
 
@@ -131,24 +131,36 @@ export const useDropBoxFileContent = (filePath?: string) => {
     return fileContents;
 };
 
-export const useJsonSchemaValidator = (schemaStateSelector: (state: RootState) => unknown) => {
+
+export const useJsonSchemaValidator = (schema: SchemaObject, acceptFalsyValue: boolean) => {
     const ajv = new Ajv();
-    const jsonSchema = useSelector(schemaStateSelector);
-    console.log(jsonSchema);
-    return useCallback((value: unknown) => {
-        if (!jsonSchema) {
+    return useCallback((rule: unknown, value: unknown) => {
+        if (!schema) {
             return Promise.reject(new Error("No JSON schema provided, cannot validate."));
         }
-        const valid = ajv.validate(jsonSchema, value);
+
+        if (!value && acceptFalsyValue) {
+            return Promise.resolve();
+        }
+        const valid = ajv.validate(schema, value);
+
         if (valid) {
             return Promise.resolve();
         } else {
             return Promise.reject(new Error(ajv.errorsText(ajv.errors)));
         }
 
-    }, [ajv, jsonSchema]);
+    }, [ajv, schema]);
 };
 
 export const useDiscoveryValidator = () => {
-    return useJsonSchemaValidator((state: RootState) => state.discovery.discoverySchema);
+    const discoverySchema = useAppSelector(state => state.discovery.discoverySchema);
+    return useJsonSchemaValidator(discoverySchema, true);
 };
+
+export const useDatsValidator = () => {
+    // const datsSchema = useAppSelector(state => state.discovery.datsSchema);
+    // TODO: async schema loading ?
+    const datsSchema = {};
+    return useJsonSchemaValidator(datsSchema, false);
+}

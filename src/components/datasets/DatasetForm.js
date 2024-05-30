@@ -8,20 +8,13 @@ import DataUseInput from "../DataUseInput";
 
 import { DATA_USE_PROP_TYPE_SHAPE, INITIAL_DATA_USE_VALUE } from "@/duo";
 import { simpleDeepCopy } from "@/utils/misc";
-import { useDiscoveryValidator } from "@/hooks";
+import { useDatsValidator, useDiscoveryValidator } from "@/hooks";
 import { DropBoxJsonSelect } from "../manager/DropBoxTreeSelect";
 
-const validateJson = (rule, value) => {
-    try {
-        JSON.parse(value);
-        return Promise.resolve();
-    } catch (e) {
-        return Promise.reject("Please enter valid JSON");
-    }
-};
 
 const DatasetForm = ({ initialValue, form, updateMode}) => {
     const discoveryValidator = useDiscoveryValidator();
+    const datsValidator = useDatsValidator();
     return (
         <Form form={form} layout="vertical" initialValues={initialValue}>
             <Item
@@ -53,7 +46,7 @@ const DatasetForm = ({ initialValue, form, updateMode}) => {
                     defaultContent: "DATS data",
                     updatedContent: updateMode ? "New DATS data" : "DATS data",
                 }}
-                rules={[{ required: true }, { validator: validateJson }, { min: 2 }]}
+                rules={[{ required: true }, { validator: datsValidator }]}
             />
             <DropBoxJsonSelect
                 form={form}
