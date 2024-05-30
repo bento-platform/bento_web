@@ -77,6 +77,8 @@ const GrantsTabContent = () => {
     } = useAuthzManagementPermissions();
 
     const [createModalOpen, setCreateModalOpen] = useState(false);
+    const openCreateModal = useCallback(() => setCreateModalOpen(true), []);
+    const closeCreateModal = useCallback(() => setCreateModalOpen(false), []);
     const [deleteModal, deleteModalContextHolder] = Modal.useModal();
 
     const extraColumns = useMemo(() =>
@@ -128,14 +130,16 @@ const GrantsTabContent = () => {
             {deleteModalContextHolder}
             {hasAtLeastOneEditPermissionsGrant && (
                 <ActionContainer style={{ marginBottom: 8 }}>
-                    <Button icon={<PlusOutlined />} loading={isFetchingPermissions || isFetchingGrants} onClick={() => {
-                        setCreateModalOpen(true);
-                    }}>
+                    <Button
+                        icon={<PlusOutlined />}
+                        loading={isFetchingPermissions || isFetchingGrants}
+                        onClick={openCreateModal}
+                    >
                         Create Grant
                     </Button>
                 </ActionContainer>
             )}
-            <GrantCreationModal open={createModalOpen} closeModal={() => setCreateModalOpen(false)} />
+            <GrantCreationModal open={createModalOpen} closeModal={closeCreateModal} />
             <GrantsTable
                 grants={grants}
                 loading={isFetchingAllServices || isFetchingPermissions || isFetchingGrants}
