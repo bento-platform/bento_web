@@ -1,7 +1,8 @@
 import React from "react";
 import { Link } from "react-router-dom";
 
-import { COLOR_ANTD_RED_6, EM_DASH } from "@/constants";
+import { EM_DASH } from "@/constants";
+import ErrorText from "@/components/common/ErrorText";
 import MonospaceText from "@/components/common/MonospaceText";
 import { useProjects } from "@/modules/metadata/hooks";
 
@@ -20,7 +21,7 @@ const ProjectTitleDisplay = ({ projectID, link }: ProjectTitleDisplayProps) => {
     if (!title) return (
         <span>
             <MonospaceText>{projectID}</MonospaceText>{" "}
-            <span style={{ color: COLOR_ANTD_RED_6 }}>(NOT AVAILABLE)</span>
+            <ErrorText>(NOT AVAILABLE)</ErrorText>
         </span>
     );
 

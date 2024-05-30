@@ -2,7 +2,8 @@ import React from "react";
 import { useSelector } from "react-redux";
 import { Link } from "react-router-dom";
 
-import { COLOR_ANTD_RED_6, EM_DASH } from "@/constants";
+import { EM_DASH } from "@/constants";
+import ErrorText from "@/components/common/ErrorText";
 import MonospaceText from "@/components/common/MonospaceText";
 
 export type DatasetTitleDisplayProps = {
@@ -21,7 +22,7 @@ const DatasetTitleDisplay = ({ datasetID, link }: DatasetTitleDisplayProps) => {
     if (!dataset) return (
         <span>
             <MonospaceText>{datasetID}</MonospaceText>{" "}
-            <span style={{ color: COLOR_ANTD_RED_6 }}>(NOT AVAILABLE)</span>
+            <ErrorText>(NOT AVAILABLE)</ErrorText>
         </span>
     );
 
