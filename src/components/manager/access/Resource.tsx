@@ -1,6 +1,7 @@
 import React from "react";
 import { Popover } from "antd";
 import type { Resource } from "@/modules/authz/types";
+import MonospaceText from "@/components/common/MonospaceText";
 import ProjectTitleDisplay from "@/components/manager/ProjectTitleDisplay";
 import DatasetTitleDisplay from "@/components/manager/DatasetTitleDisplay";
 
@@ -22,7 +23,7 @@ const Resource = ({ resource }: ResourceProps) => {
             </>}
             {resource.data_type && <>
                 <br />
-                <strong>Data Type:</strong> TODO
+                <strong>Data Type:</strong> <MonospaceText>{resource.data_type}</MonospaceText>
             </>}
         </p>
     );
