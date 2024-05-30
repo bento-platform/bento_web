@@ -89,6 +89,7 @@ export const groups = (
     state = {
         data: [],
         itemsByID: {},
+        oldItemsByID: {},  // for storing old items and allowing optimistic updates, reverting if necessary.
         isFetching: false,
         isCreating: false,
         isSaving: false,
@@ -124,14 +125,28 @@ export const groups = (
         case CREATE_GROUP.FINISH:
             return { ...state, isCreating: false };
 
-        case SAVE_GROUP.REQUEST:
+        case SAVE_GROUP.REQUEST: {
+            const groupID = action.group.id;
             return {
                 ...state,
                 isSaving: true,
                 // Optimistically update the group while we wait for the PUT/subsequent (presumed) invalidate
-                data: state.data.map((g) => g.id === action.group.id ? action.group : g),
-                itemsByID: { ...state.itemsByID, [action.group.id]: action.group },
+                data: state.data.map((g) => g.id === groupID ? action.group : g),
+                oldItemsByID: { [groupID]: state.itemsByID[groupID] },
+                itemsByID: { ...state.itemsByID, [groupID]: action.group },
             };
+        }
+        case SAVE_GROUP.ERROR: {
+            const groupID = action.group.id;
+            const oldItem = state.itemsByID[groupID];
+            return {
+                ...state,
+                // Revert optimistic update
+                data: state.data.map((g) => g.id === groupID ? oldItem : g),
+                oldItemsByID: objectWithoutProp(state.oldItemsByID, groupID),
+                itemsByID: { ...state.itemsByID, [groupID]: oldItem },
+            };
+        }
         case SAVE_GROUP.FINISH:
             return { ...state, isSaving: false };
 
