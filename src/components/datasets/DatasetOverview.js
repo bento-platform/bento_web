@@ -7,17 +7,17 @@ import { Col, Divider, Row, Spin, Statistic, Typography } from "antd";
 import { EM_DASH } from "@/constants";
 import { datasetPropTypesShape, projectPropTypesShape } from "@/propTypes";
 
-const DatasetOverview = ({isPrivate, project, dataset}) => {
+const DatasetOverview = ({ isPrivate, project, dataset }) => {
     const datasetsDataTypes = useSelector((state) => state.datasetDataTypes.itemsByID);
-    const dataTypesSummary = Object.values(datasetsDataTypes[dataset.identifier]?.itemsByID || {});
-    const isFetchingDataset = datasetsDataTypes[dataset.identifier]?.isFetching;
+    const datasetDataTypes = datasetsDataTypes[dataset.identifier];
+    const isFetchingDataset = datasetDataTypes?.isFetching;
 
     // Count data types which actually have data in them for showing in the overview
     const dataTypeCount = useMemo(
-        () => dataTypesSummary
+        () => Object.values(datasetDataTypes?.itemsByID || {})
             .filter((value) => (value.count || 0) > 0)
             .length,
-        [dataTypesSummary]);
+        [datasetDataTypes, dataset]);
 
     return <>
         {(dataset.description ?? "").length > 0
@@ -36,7 +36,7 @@ const DatasetOverview = ({isPrivate, project, dataset}) => {
             </>) : null}
         {((dataset.description ?? "").length > 0 || (dataset.contact_info ?? "").length > 0)
             ? <Divider /> : null}
-        <Row gutter={16} style={{maxWidth: isPrivate ? "720px" : "1080px"}}>
+        <Row gutter={16} style={{ maxWidth: isPrivate ? "720px" : "1080px" }}>
             {isPrivate ? null : (
                 <Col span={8}><Statistic title="Project" value={project.title ?? EM_DASH} /></Col>
             )}

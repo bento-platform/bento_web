@@ -29,8 +29,8 @@ components.
     * `utils/`: Utility code shared across components, state code, and other 
                 modules in the application.
       * `actions.js`: Utilities related to Redux actions
-      * `menu.js`: Utilities related to Ant Design menus
-      * `misc.js`: Miscellaneous helper functions
+      * `menu.tsx`: Utilities related to Ant Design menus
+      * `misc.ts`: Miscellaneous helper functions
       * `notifications.js`: Utilities related to Bento notifications
       * `requests.js`: Utilities related to HTTP requests
       * `schema.js`: Utilities related to JSON schemas

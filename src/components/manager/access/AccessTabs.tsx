@@ -1,17 +1,11 @@
-import React, { useCallback, useEffect } from "react";
+import React, { useCallback } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 
-import { Tabs } from "antd";
-import type { TabsProps } from "antd";
+import { Tabs, type TabsProps } from "antd";
 
-import { viewPermissions, RESOURCE_EVERYTHING } from "bento-auth-js";
+import { useAuthzManagementPermissions } from "@/modules/authz/hooks";
 
-import { useResourcePermissionsWrapper } from "@/hooks";
-import { fetchGrants, fetchGroups } from "@/modules/authz/actions";
-import { useService } from "@/modules/services/hooks";
-import { useAppDispatch } from "@/store";
-
-import ForbiddenContent from "../../ForbiddenContent";
+import ForbiddenContent from "@/components/ForbiddenContent";
 import GrantsTabContent from "./GrantsTabContent";
 import GroupsTabContent from "./GroupsTabContent";
 
@@ -29,28 +23,19 @@ const TAB_ITEMS: TabsProps["items"] = [
 ];
 
 const AccessTabs = () => {
-    const dispatch = useAppDispatch();
-
     const navigate = useNavigate();
     const { tab } = useParams();
 
-    const { permissions, hasAttemptedPermissions } = useResourcePermissionsWrapper(RESOURCE_EVERYTHING);
-
-    const hasViewPermission = permissions.includes(viewPermissions);
-
-    const authorizationService = useService("authorization");
-    useEffect(() => {
-        if (authorizationService && permissions.includes(viewPermissions)) {
-            dispatch(fetchGrants());
-            dispatch(fetchGroups());
-        }
-    }, [authorizationService, permissions]);
+    const {
+        hasAtLeastOneViewPermissionsGrant,
+        hasAttempted: hasAttemptedPermissions,
+    } = useAuthzManagementPermissions();
 
     const onTabClick = useCallback((key: string) => {
         navigate(`../${key}`);
     }, [navigate]);
 
-    if (hasAttemptedPermissions && !hasViewPermission) {
+    if (hasAttemptedPermissions && !hasAtLeastOneViewPermissionsGrant) {
         return (
             <ForbiddenContent message="You do not have permission to view grants and groups." />
         );

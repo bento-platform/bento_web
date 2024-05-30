@@ -129,8 +129,9 @@ const DRSObjectDeleteButton = ({ drsObject, disabled }) => {
         Modal.confirm({
             title: <>Are you sure you wish to delete DRS object &ldquo;{drsObject.name}&rdquo;?</>,
             content: <DRSObjectDeleteWarningParagraph plural={false} />,
+            okButtonProps: { danger: true },
             onOk() {
-                return dispatch(deleteDRSObject(drsObject)).catch((err) => console.error(err));
+                return dispatch(deleteDRSObject(drsObject));
             },
             maskClosable: true,
         });

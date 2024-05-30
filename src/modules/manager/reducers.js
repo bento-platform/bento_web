@@ -38,7 +38,7 @@ export const dropBox = (
         isPutting: false,
         isPuttingFlow: false,
         isDeleting: false,
-        isInvalidated: false,
+        isInvalid: false,
         hasAttempted: false,
         tree: [],
     },
@@ -50,10 +50,10 @@ export const dropBox = (
         case FETCH_DROP_BOX_TREE.RECEIVE:
             return { ...state, tree: action.data };
         case FETCH_DROP_BOX_TREE.FINISH:
-            return { ...state, isFetching: false, hasAttempted: true, isInvalidated: false };
+            return { ...state, isFetching: false, hasAttempted: true, isInvalid: false };
 
         case INVALIDATE_DROP_BOX_TREE:
-            return { ...state, isInvalidated: true };
+            return { ...state, isInvalid: true };
 
         case PUT_DROP_BOX_OBJECT.REQUEST:
             return { ...state, isPutting: true };

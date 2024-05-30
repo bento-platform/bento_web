@@ -1,13 +1,19 @@
-import React, { memo } from "react";
+import React from "react";
 import { useSelector } from "react-redux";
 import { Link } from "react-router-dom";
-import PropTypes from "prop-types";
 
 import { EM_DASH } from "@/constants";
+import ErrorText from "@/components/common/ErrorText";
 import MonospaceText from "@/components/common/MonospaceText";
 
-const DatasetTitleDisplay = memo(({ datasetID, link }) => {
-    const datasetsByID = useSelector(state => state.projects.datasetsByID);
+export type DatasetTitleDisplayProps = {
+    datasetID: string;
+    link: boolean;
+};
+
+const DatasetTitleDisplay = ({ datasetID, link }: DatasetTitleDisplayProps) => {
+    // @ts-expect-error We have not typed the state yet
+    const datasetsByID = useSelector((state) => state.projects.datasetsByID);
 
     if (!datasetID) return EM_DASH;
 
@@ -16,7 +22,7 @@ const DatasetTitleDisplay = memo(({ datasetID, link }) => {
     if (!dataset) return (
         <span>
             <MonospaceText>{datasetID}</MonospaceText>{" "}
-            <span style={{ color: "#f5222d" }}>(NOT AVAILABLE)</span>
+            <ErrorText>(NOT AVAILABLE)</ErrorText>
         </span>
     );
 
@@ -24,10 +30,9 @@ const DatasetTitleDisplay = memo(({ datasetID, link }) => {
 
     if (!link) return title;
     return <Link to={`/data/manager/projects/${project}#dataset-${datasetID}`}>{title}</Link>;
-});
-DatasetTitleDisplay.propTypes = {
-    datasetID: PropTypes.string,
-    link: PropTypes.bool,
+};
+DatasetTitleDisplay.defaultProps = {
+    link: false,
 };
 
 export default DatasetTitleDisplay;

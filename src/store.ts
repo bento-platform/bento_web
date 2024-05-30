@@ -19,7 +19,7 @@ const IMMUTABILITY_OPTIONS = {
 };
 
 const persistedState: { openIdConfiguration?: OIDCSliceState } = {};
-const persistedOpenIDConfig = readFromLocalStorage(LS_OPENID_CONFIG_KEY);
+const persistedOpenIDConfig = readFromLocalStorage<OIDCSliceState>(LS_OPENID_CONFIG_KEY);
 if (persistedOpenIDConfig) {
     console.debug("attempting to load OpenID configuration from localStorage");
     persistedState.openIdConfiguration = persistedOpenIDConfig;

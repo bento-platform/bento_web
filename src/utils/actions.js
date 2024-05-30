@@ -63,7 +63,19 @@ const _networkAction =
                 fnResult = await fnResult(dispatch, getState);
             }
 
-            const { types, check, params, url, baseUrl, req, err, onSuccess, onError, paginated } = fnResult;
+            const {
+                types,  // Network action types
+                check,  // Optional check function for whether to dispatch the action
+                params,  // Action parameters
+                url,  // Network request URL
+                baseUrl,  // Optional base URL for next page (paginated requests only)
+                req,  // Request initialization object (method, headers, etc.)
+                publicEndpoint,  // Whether the endpoint is public (i.e., don't include credentials, skip OPTIONS check)
+                err,  // Optional custom error message to display if the request fails
+                onSuccess,  // Optional success callback (can be sync or async)
+                onError,  // Optional error callback (can be sync or async)
+                paginated,  // Whether the response data is in a Django-style paginated format.
+            } = fnResult;
 
             // if we're currently auto-authenticating, don't start any network requests; otherwise, they have a good
             // chance of getting interrupted when the auth redirect happens.
@@ -75,13 +87,14 @@ const _networkAction =
             // Only include access token when we are making a request to this Bento node or the IdP!
             // Otherwise, we could leak it to external sites.
 
-            const token =
+            const token = publicEndpoint ? null : (
                 url.startsWith("/") ||
                 (BENTO_URL && url.startsWith(BENTO_URL)) ||
                 (BENTO_PUBLIC_URL && url.startsWith(BENTO_PUBLIC_URL)) ||
                 (IDP_BASE_URL && url.startsWith(IDP_BASE_URL))
                     ? getState().auth.accessToken
-                    : null;
+                    : null
+            );
 
             const finalReq = {
                 ...(req ?? {
@@ -151,6 +164,6 @@ const formatErrorMessage = (errorMessageIntro, errorDetail) => {
         : errorDetail;
 };
 
-export const beginFlow = (types) => async (dispatch) => await dispatch({ type: types.BEGIN });
-export const endFlow = (types) => async (dispatch) => await dispatch({ type: types.END });
-export const terminateFlow = (types) => async (dispatch) => await dispatch({ type: types.TERMINATE });
+export const beginFlow = (types) => (dispatch) => dispatch({ type: types.BEGIN });
+export const endFlow = (types) => (dispatch) => dispatch({ type: types.END });
+export const terminateFlow = (types) => (dispatch) => dispatch({ type: types.TERMINATE });

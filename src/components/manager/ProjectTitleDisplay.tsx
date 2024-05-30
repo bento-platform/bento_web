@@ -1,13 +1,18 @@
 import React from "react";
-import { useSelector } from "react-redux";
 import { Link } from "react-router-dom";
-import PropTypes from "prop-types";
 
 import { EM_DASH } from "@/constants";
+import ErrorText from "@/components/common/ErrorText";
 import MonospaceText from "@/components/common/MonospaceText";
+import { useProjects } from "@/modules/metadata/hooks";
 
-const ProjectTitleDisplay = ({ projectID, link }) => {
-    const projectsByID = useSelector(state => state.projects.itemsByID);
+export type ProjectTitleDisplayProps = {
+    projectID: string;
+    link: boolean;
+};
+
+const ProjectTitleDisplay = ({ projectID, link }: ProjectTitleDisplayProps) => {
+    const { itemsByID: projectsByID } = useProjects();
 
     if (!projectID) return EM_DASH;
 
@@ -16,17 +21,12 @@ const ProjectTitleDisplay = ({ projectID, link }) => {
     if (!title) return (
         <span>
             <MonospaceText>{projectID}</MonospaceText>{" "}
-            <span style={{ color: "#f5222d" }}>(NOT AVAILABLE)</span>
+            <ErrorText>(NOT AVAILABLE)</ErrorText>
         </span>
     );
 
     if (!link) return title;
     return <Link to={`/data/manager/projects/${projectID}`}>{title}</Link>;
-};
-
-ProjectTitleDisplay.propTypes = {
-    projectID: PropTypes.string,
-    link: PropTypes.bool,
 };
 
 ProjectTitleDisplay.defaultProps = {

@@ -1,17 +1,18 @@
 import React from "react";
-import {useSelector} from "react-redux";
 
-import {Descriptions, Layout, Skeleton} from "antd";
+import { Descriptions, Layout, Skeleton } from "antd";
+
+import { useAuthState } from "bento-auth-js";
 
 import SitePageHeader from "./SitePageHeader";
-import {LAYOUT_CONTENT_STYLE} from "../styles/layoutContent";
+import { LAYOUT_CONTENT_STYLE } from "@/styles/layoutContent";
 
-const DESCRIPTIONS_STYLE = {maxWidth: 600};
+const DESCRIPTIONS_STYLE = { maxWidth: 600 };
 
 const UserProfileContent = () => {
-    const {idTokenContents, isHandingOffCodeForToken, isRefreshingTokens} = useSelector(state => state.auth);
+    const { idTokenContents, isHandingOffCodeForToken, isRefreshingTokens } = useAuthState();
 
-    const {preferred_username: username, email, iss, sub} = idTokenContents ?? {};
+    const { preferred_username: username, email, iss, sub } = idTokenContents ?? {};
 
     return <>
         <SitePageHeader title={`User Profile: ${username ?? email ?? sub}`} />
