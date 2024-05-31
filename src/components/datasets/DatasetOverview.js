@@ -1,14 +1,14 @@
 import React, { Fragment, useMemo } from "react";
-import { useSelector } from "react-redux";
 import PropTypes from "prop-types";
 
 import { Col, Divider, Row, Spin, Statistic, Typography } from "antd";
 
 import { EM_DASH } from "@/constants";
+import { useDatasetDataTypes } from "@/modules/datasets/hooks";
 import { datasetPropTypesShape, projectPropTypesShape } from "@/propTypes";
 
 const DatasetOverview = ({ isPrivate, project, dataset }) => {
-    const datasetsDataTypes = useSelector((state) => state.datasetDataTypes.itemsByID);
+    const datasetsDataTypes = useDatasetDataTypes();
     const datasetDataTypes = datasetsDataTypes[dataset.identifier];
     const isFetchingDataset = datasetDataTypes?.isFetching;
 
