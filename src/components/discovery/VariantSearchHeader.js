@@ -30,19 +30,7 @@ const WRAPPER_COL = { lg: { span: 24 }, xl: { span: 20 }, xxl: { span: 18 } };
 
 
 const VariantSearchHeader = ({ dataType, addVariantSearchValues }) => {
-    const [refFormReceivedValidKeystroke, setRefFormReceivedValidKeystroke] = useState(true);
-    const [altFormReceivedValidKeystroke, setAltFormReceivedValidKeystroke] = useState(true);
-    const [activeRefValue, setActiveRefValue] = useState(null);
-    const [activeAltValue, setActiveAltValue] = useState(null);
-    const [assemblyId, setAssemblyId] = useState(null);
-    const [locus, setLocus] = useState({ chrom: null, start: null, end: null });
-    const isSubmitting = useSelector((state) => state.explorer.isSubmittingSearch);
-
-    // begin with required fields considered valid, so user isn't assaulted with error messages
-    const [fieldsValidity, setFieldsValidity] = useState(INITIAL_FIELDS_VALIDITY);
-
     const { data: variantsOverviewResults, isFetching: isFetchingVariantsOverview } = useGohanVariantsOverview();
-
     const overviewAssemblyIds = useMemo(
         () => {
             const hasAssemblyIds =
@@ -55,6 +43,16 @@ const VariantSearchHeader = ({ dataType, addVariantSearchValues }) => {
         () => overviewAssemblyIds.map((value) => ({ value, label: value })),
         [overviewAssemblyIds]);
 
+    const [refFormReceivedValidKeystroke, setRefFormReceivedValidKeystroke] = useState(true);
+    const [altFormReceivedValidKeystroke, setAltFormReceivedValidKeystroke] = useState(true);
+    const [activeRefValue, setActiveRefValue] = useState(null);
+    const [activeAltValue, setActiveAltValue] = useState(null);
+    const [assemblyId, setAssemblyId] = useState(overviewAssemblyIds.length === 1 ? overviewAssemblyIds[0] : null);
+    const [locus, setLocus] = useState({ chrom: null, start: null, end: null });
+    const isSubmitting = useSelector((state) => state.explorer.isSubmittingSearch);
+
+    // begin with required fields considered valid, so user isn't assaulted with error messages
+    const [fieldsValidity, setFieldsValidity] = useState(INITIAL_FIELDS_VALIDITY);
 
     const genotypeSchema = dataType.schema?.properties?.calls?.items?.properties?.genotype_type;
     const genotypeSchemaDescription = genotypeSchema?.description;
@@ -147,19 +145,12 @@ const VariantSearchHeader = ({ dataType, addVariantSearchValues }) => {
         addVariantSearchValues({ alt: normalizedAlt });
     }, [addVariantSearchValues]);
 
-    // set default selected assemblyId if only 1 is present
-    const shouldTriggerAssemblyIdChange = overviewAssemblyIds.length === 1;
     useEffect(() => {
-        if (shouldTriggerAssemblyIdChange) {
-            // wait some time before
-            // triggering handleAssemblyIdChange to
-            // allow for the form and formValues
-            // in the parent element to populate
-            setTimeout(function() {
-                handleAssemblyIdChange(overviewAssemblyIds[0]);
-            }, 500);
+        // set default selected assemblyId if only 1 is present
+        if (overviewAssemblyIds.length === 1) {
+            handleAssemblyIdChange(overviewAssemblyIds[0]);
         }
-    }, [shouldTriggerAssemblyIdChange]);
+    }, [handleAssemblyIdChange, overviewAssemblyIds]);
 
 
     return (
@@ -174,9 +165,9 @@ const VariantSearchHeader = ({ dataType, addVariantSearchValues }) => {
             >
                 <Select
                     onChange={handleAssemblyIdChange}
-                    defaultValue={overviewAssemblyIds && shouldTriggerAssemblyIdChange && overviewAssemblyIds[0]}
                     options={overviewAssemblyIdOptions}
                     loading={isFetchingVariantsOverview}
+                    value={assemblyId}
                 />
             </Form.Item>
             <Form.Item

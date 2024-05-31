@@ -11,10 +11,7 @@ import SearchAllRecords from "./SearchAllRecords";
 
 import { fetchDatasetResourcesIfNecessary } from "@/modules/datasets/actions";
 import {
-    addDataTypeQueryForm,
     performSearchIfPossible,
-    removeDataTypeQueryForm,
-    updateDataTypeQueryForm,
     setSelectedRows,
     resetTableSortOrder,
     setActiveTab,
@@ -132,9 +129,6 @@ const ExplorerDatasetSearch = () => {
                 dataTypeForms={dataTypeForms}
                 onSubmit={performSearch}
                 searchLoading={fetchingSearch}
-                addDataTypeQueryForm={(form) => dispatch(addDataTypeQueryForm(datasetID, form))}
-                updateDataTypeQueryForm={(index, form) => dispatch(updateDataTypeQueryForm(datasetID, index, form))}
-                removeDataTypeQueryForm={(index) => dispatch(removeDataTypeQueryForm(datasetID, index))}
             />
             {hasResults &&
                 !isFetchingSearchResults &&
