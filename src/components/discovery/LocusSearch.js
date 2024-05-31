@@ -3,9 +3,6 @@ import { AutoComplete, Tag } from "antd";
 import PropTypes from "prop-types";
 import { useGeneNameSearch, useReferenceGenomes } from "@/modules/reference/hooks";
 
-// TODOs:
-// style options
-
 const parsePosition = (value) => {
     const parse = /(?:CHR|chr)([0-9]{1,2}|X|x|Y|y|M|m):(\d+)-(\d+)/;
     const result = parse.exec(value);
@@ -52,7 +49,7 @@ const LocusSearch = ({ assemblyId, addVariantSearchValues, handleLocusChange, se
 
     const { data: geneSearchResults } = useGeneNameSearch(assemblyId, showAutoCompleteOptions ? inputValue : null);
 
-    const handleOnBlur = () => {
+    const handleOnBlur = useCallback(() => {
         // antd has no "select on tab" option
         // so when tabbing away, handle the current contents of the input
         // input can be one of three cases:
@@ -76,9 +73,9 @@ const LocusSearch = ({ assemblyId, addVariantSearchValues, handleLocusChange, se
             handleLocusChange(position);
             addVariantSearchValues(position);
         }
-    };
+    }, [inputValue, handleLocusChange, addVariantSearchValues]);
 
-    const handleSelect = (value, option) => {
+    const handleSelect = useCallback((value, option) => {
         setInputValue(value);
         const locus = option.locus;
 
@@ -90,7 +87,7 @@ const LocusSearch = ({ assemblyId, addVariantSearchValues, handleLocusChange, se
 
         addVariantSearchValues(locus);
         handleLocusChange(locus);
-    };
+    }, [addVariantSearchValues, handleLocusChange]);
 
     useEffect(() => {
         setAutoCompleteOptions(
