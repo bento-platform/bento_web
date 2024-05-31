@@ -56,7 +56,7 @@ const DiscoveryQueryBuilder = ({
 
     useEffect(() => {
         (requiredDataTypes ?? []).forEach((dt) => dispatch(addDataTypeQueryForm(activeDataset, dt)));
-    }, [dispatch, requiredDataTypes]);
+    }, [dispatch, requiredDataTypes, activeDataset]);
 
     useEffect(() => {
         if (autoQuery?.isAutoQuery) {
@@ -148,7 +148,7 @@ const DiscoveryQueryBuilder = ({
 
             form?.setFields(stateForm.formValues);
         }
-    }, [dispatch, autoQuery, handleFormChange, handleSubmit, dataTypeFormsByDatasetID]);
+    }, [dispatch, autoQuery, handleFormChange, handleSubmit, dataTypeFormsByDatasetID, activeDataset]);
 
     // --- render ---
 
