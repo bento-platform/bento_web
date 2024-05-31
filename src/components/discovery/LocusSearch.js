@@ -30,7 +30,7 @@ const LocusSearch = ({ assemblyId, addVariantSearchValues, handleLocusChange, se
         const { chrom, start, end } = parsePosition(value);
         setLocusValidity(chrom && start && end);
         addVariantSearchValues({ chrom, start, end });
-    }, []);
+    }, [setLocusValidity, addVariantSearchValues]);
 
     useEffect(() => {
         if (!inputValue.includes(" ") && inputValue.includes(":")) {
@@ -41,7 +41,7 @@ const LocusSearch = ({ assemblyId, addVariantSearchValues, handleLocusChange, se
 
             setAutoCompleteOptions([]);
         }
-    }, [inputValue, handlePositionNotation]);
+    }, [inputValue, handlePositionNotation, setLocusValidity]);
 
     const handleChange = useCallback((value) => {
         setInputValue(value);

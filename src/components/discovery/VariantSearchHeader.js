@@ -92,7 +92,7 @@ const VariantSearchHeader = ({ dataType, addVariantSearchValues }) => {
         if (isSubmitting) {
             validateVariantSearchForm();
         }
-    }, [isSubmitting]);
+    }, [isSubmitting, validateVariantSearchForm]);
 
     const setLocusValidity = useCallback((isValid) => {
         setFieldsValidity({ ...fieldsValidity, "locus": isValid });
