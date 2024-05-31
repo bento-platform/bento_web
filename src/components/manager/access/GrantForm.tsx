@@ -497,7 +497,7 @@ const PermissionsInput = ({ id, value, onChange, currentResource, ...rest }: Per
                     );
                 });
         },
-        [permissions, permissionsByID, handleChange, currentResource, isInvalid]);
+        [permissions, permissionsByID, handleChange, currentResource, isInvalid, checked]);
 
     return (
         <Spin spinning={isFetchingPermissions}>

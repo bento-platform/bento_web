@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from "react";
+import { memo, useCallback, useMemo, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { Link } from "react-router-dom";
 import { viewNotifications, useIsAuthenticated, usePerformSignOut, usePerformAuth, useAuthState } from "bento-auth-js";
@@ -28,7 +28,7 @@ import { matchingMenuKeys, transformMenuItem } from "@/utils/menu";
 import OverviewSettingsControl from "./overview/OverviewSettingsControl";
 import { useCanQueryAtLeastOneProjectOrDataset, useManagerPermissions } from "@/modules/authz/hooks";
 
-const LinkedLogo = React.memo(() => (
+const LinkedLogo = memo(() => (
     <Link to="/">
         <div style={{ margin: "0 20px 0 0", float: "left" }}>
             <img
@@ -40,7 +40,7 @@ const LinkedLogo = React.memo(() => (
     </Link>
 ));
 
-const CustomHeaderText = React.memo(() => (
+const CustomHeaderText = memo(() => (
     <h1 style={{ color: "rgba(255, 255, 255, 0.95)", float: "left", margin: "0 24px 0 0" }}>{CUSTOM_HEADER}</h1>
 ));
 
@@ -62,18 +62,14 @@ const SiteHeader = () => {
 
     const { unreadItems: unreadNotifications } = useNotifications();
 
-    const {
-        idTokenContents,
-        isHandingOffCodeForToken,
-        hasAttempted: authHasAttempted,
-    } = useAuthState();
+    const { idTokenContents, isHandingOffCodeForToken } = useAuthState();
     const isAuthenticated = useIsAuthenticated();
 
     const [modalVisible, setModalVisible] = useState(false);
 
-    const toggleModalVisibility = () => {
+    const toggleModalVisibility = useCallback(() => {
         setModalVisible(!modalVisible);
-    };
+    }, [modalVisible]);
 
     const performSignOut = usePerformSignOut();
 
@@ -200,7 +196,7 @@ const SiteHeader = () => {
                 ]),
         ],
         [
-            authHasAttempted,
+            dispatch,
             canQueryData,
             canViewNotifications,
             hasAttemptedManagerPermissions,
@@ -213,6 +209,7 @@ const SiteHeader = () => {
             openIdConfigFetching,
             performAuth,
             performSignOut,
+            toggleModalVisibility,
             unreadNotifications,
         ],
     );

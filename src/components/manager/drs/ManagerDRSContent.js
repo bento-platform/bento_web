@@ -313,7 +313,7 @@ const ManagerDRSContent = () => {
                 );
             },
         },
-    ], [hasDownloadPermission, hasDeletePermission, projectsByID, datasetsByID]);
+    ], [hasDownloadPermission, hasDeletePermission]);
 
     // noinspection JSUnusedGlobalSymbols
     const rowSelection = useMemo(() => ({

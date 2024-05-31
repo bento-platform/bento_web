@@ -33,7 +33,7 @@ const ExpiryInput = ({ value, onChange }: ExpiryInputProps) => {
             // Controlled mode
             onChange(newRadioValue === EXPIRY_TYPE_NONE ? null : date?.toISOString() ?? null);
         }
-    }, [onChange]);
+    }, [date, onChange]);
 
     const onPickerChange = useCallback((d: Dayjs) => {
         setDate(d);
