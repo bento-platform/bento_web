@@ -108,13 +108,11 @@ const SubjectInput = ({ value, onChange }: SubjectInputProps) => {
         }
     }, [value]);
 
-    const onChangeDeps = [onChange, subjectType, iss, sub, client, group];
-
     const onChangeSubjectType = useCallback((e: RadioChangeEvent) => {
         const newSubjectType = e.target.value;
         setSubjectType(newSubjectType);
         handleSubjectChange(onChange, newSubjectType, iss, sub, client, group);
-    }, onChangeDeps);
+    }, [onChange, iss, sub, client, group]);
 
     const subjectTypeOptions = useMemo(() => [
         { value: SUBJECT_TYPE_ISS_SUB, label: "Issuer URI + Subject ID" },
@@ -127,19 +125,19 @@ const SubjectInput = ({ value, onChange }: SubjectInputProps) => {
         const newIss = e.target.value;
         setIss(newIss);
         handleSubjectChange(onChange, subjectType, newIss, sub, client, group);
-    }, onChangeDeps);
+    }, [onChange, subjectType, sub, client, group]);
 
     const onChangeSubject = useCallback<InputChangeEventHandler>((e) => {
         const newSub = e.target.value;
         setSub(newSub);
         handleSubjectChange(onChange, subjectType, iss, newSub, client, group);
-    }, onChangeDeps);
+    }, [onChange, subjectType, iss, client, group]);
 
     const onChangeClient = useCallback<InputChangeEventHandler>((e) => {
         const newClient = e.target.value;
         setClient(newClient);
         handleSubjectChange(onChange, subjectType, iss, sub, newClient, group);
-    }, onChangeDeps);
+    }, [onChange, subjectType, iss, sub, group]);
 
     const groupOptions = useMemo(() => groups.map((g: StoredGroup) => ({
         value: g.id,
@@ -149,7 +147,7 @@ const SubjectInput = ({ value, onChange }: SubjectInputProps) => {
     const onChangeGroup = useCallback((v: number) => {
         setGroup(v);
         handleSubjectChange(onChange, subjectType, iss, sub, client, v);
-    }, onChangeDeps);
+    }, [onChange, subjectType, iss, sub, client]);
 
     return <Space direction="vertical" style={{ width: "100%", minHeight: 32 }}>
         <Radio.Group value={subjectType} onChange={onChangeSubjectType} options={subjectTypeOptions} />

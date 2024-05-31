@@ -22,6 +22,8 @@ import { useResourcePermissionsWrapper } from "@/hooks";
 import { clearDRSObjectSearch, deleteDRSObject, performDRSObjectSearch } from "@/modules/drs/actions";
 import DatasetTitleDisplay from "../DatasetTitleDisplay";
 import ProjectTitleDisplay from "../ProjectTitleDisplay";
+import { useProjects } from "@/modules/metadata/hooks";
+import { useService } from "@/modules/services/hooks";
 
 const TABLE_NESTED_DESCRIPTIONS_STYLE = {
     backgroundColor: "white",
@@ -123,7 +125,6 @@ DRSObjectDeleteWarningParagraph.propTypes = { plural: PropTypes.bool };
 
 const DRSObjectDeleteButton = ({ drsObject, disabled }) => {
     const dispatch = useDispatch();
-    const drsURL = useSelector((state) => state.services.drsService?.url);
 
     const onClick = useCallback(() => {
         Modal.confirm({
@@ -135,7 +136,7 @@ const DRSObjectDeleteButton = ({ drsObject, disabled }) => {
             },
             maskClosable: true,
         });
-    }, [dispatch, drsURL, drsObject]);
+    }, [dispatch, drsObject]);
 
     return (
         <Button size="small" danger={true} icon={<DeleteOutlined />} onClick={onClick} disabled={disabled}>
@@ -160,8 +161,7 @@ const DRS_TABLE_EXPANDABLE = {
 const ManagerDRSContent = () => {
     const dispatch = useDispatch();
 
-    const projectsByID = useSelector((state) => state.projects.itemsByID);
-    const datasetsByID = useSelector((state) => state.projects.datasetsByID);
+    const { itemsByID: projectsByID, datasetsByID } = useProjects();
 
     // TODO: per-object permissions
     //  For now, use whole-node permissions for DRS object viewer
@@ -180,7 +180,7 @@ const ManagerDRSContent = () => {
     const hasDownloadPermission = permissions.includes(downloadData);
     const hasDeletePermission = permissions.includes(deleteData);
 
-    const drsURL = useSelector((state) => state.services.drsService?.url);
+    const drsURL = useService("drs")?.url;
     const {
         objectSearchResults: rawObjectResults,
         objectSearchIsFetching,
@@ -210,7 +210,7 @@ const ManagerDRSContent = () => {
         const q = (e.target?.value ?? e ?? "").trim();
         setSearchValue(q);
         setSearchParams({ q });
-    }, []);
+    }, [setSearchParams]);
 
     const performSearch = useMemo(() => throttle(
         () => {
@@ -230,11 +230,11 @@ const ManagerDRSContent = () => {
 
     useEffect(() => {
         performSearch();
-    }, [searchValue]);
+    }, [searchValue, performSearch]);
 
     useEffect(() => {
         setSelectedRowKeys(selectedRowKeys.filter((k) => k in objectsByID));
-    }, [objectsByID]);
+    }, [selectedRowKeys, objectsByID]);
 
     const onDeleteSelected = useCallback(() => {
         Modal.confirm({

@@ -126,7 +126,7 @@ const MembershipInput = ({ value, onChange, ...rest }: MembershipInputProps) => 
                 onChangeMembers(newMembers);
             }} />
         </List.Item>
-    ), [members]);
+    ), [members, onChangeMembers]);
 
     const onChangeMemberAddMode = useCallback((e: RadioChangeEvent) => {
         setMemberAddMode(e.target.value);
@@ -161,7 +161,7 @@ const MembershipInput = ({ value, onChange, ...rest }: MembershipInputProps) => 
         setSubOrClient("");
         setIssErrorReady(false);
         setSubOrClientErrorReady(false);
-    }, [members, memberAddMode, iss, subOrClient]);
+    }, [members, memberAddMode, iss, subOrClient, onChangeMembers]);
 
     return (
         <Card size="small" {...rest}>

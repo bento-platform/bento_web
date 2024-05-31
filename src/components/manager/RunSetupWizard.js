@@ -66,7 +66,7 @@ const RunSetupWizard = ({
         setStep(STEP_INPUT);
     }, [selectedWorkflow]);
 
-    const handleInputSubmit = useCallback(inputs => {
+    const handleInputSubmit = useCallback((inputs) => {
         setInputs(inputs);
         setStep(STEP_CONFIRM);
     }, []);
@@ -77,7 +77,7 @@ const RunSetupWizard = ({
             return;
         }
         onSubmit({ selectedWorkflow, inputs });
-    }, [selectedWorkflow, inputs]);
+    }, [selectedWorkflow, inputs, onSubmit]);
 
     const stepItems = useMemo(() => [
         {
@@ -121,8 +121,11 @@ const RunSetupWizard = ({
     }, [
         step,
         inputs,
+        workflowType,
+        confirmDisplay,
         selectedWorkflow,
         initialInputValues,
+        initialWorkflowFilterValues,
         inputFormFields,
         handleInputSubmit,
         handleWorkflowClick,
