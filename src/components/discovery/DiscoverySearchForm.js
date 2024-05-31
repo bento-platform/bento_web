@@ -171,7 +171,7 @@ const DiscoverySearchForm = ({ onChange, dataType, setFormRef, handleVariantHidd
             conditions: [...existingConditions, fieldInitialValue],
         });
 
-    }, [conditionsHelp, getConditionsArray]);
+    }, [form, conditionsHelp, getConditionsArray, getDataTypeFieldSchema, getInitialOperator]);
 
     const removeCondition = useCallback((k) => {
         form.setFieldsValue({
