@@ -1,4 +1,4 @@
-import {beginFlow, createFlowActionTypes, createNetworkActionTypes, endFlow, networkAction} from "../../utils/actions";
+import {beginFlow, createFlowActionTypes, createNetworkActionTypes, endFlow, networkAction} from "@/utils/actions";
 import {getDataServices} from "../services/utils";
 
 export const FETCHING_DATASETS_DATA_TYPES = createFlowActionTypes("FETCHING_DATASETS_DATA_TYPES");
@@ -46,7 +46,7 @@ export const fetchDatasetSummariesIfPossible = (datasetID) => async (dispatch, g
     dispatch(endFlow(FETCHING_ALL_DATASET_SUMMARIES));
 };
 
-const fetchDatasetResources = networkAction((datasetID) => (dispatch, getState) => ({
+const fetchDatasetResources = networkAction((datasetID) => (_dispatch, getState) => ({
     types: FETCH_DATASET_RESOURCES,
     params: {datasetID},
     url: `${getState().services.metadataService.url}/api/datasets/${datasetID}/resources`,

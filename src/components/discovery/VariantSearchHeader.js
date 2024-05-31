@@ -48,7 +48,7 @@ const VariantSearchHeader = ({ dataType, addVariantSearchValues }) => {
             const hasAssemblyIds =
                 variantsOverviewResults?.assemblyIDs !== undefined &&
                 !variantsOverviewResults?.assemblyIDs.hasOwnProperty("error");
-            return hasAssemblyIds ? Object.keys(variantsOverviewResults?.assemblyIDs) : []
+            return hasAssemblyIds ? Object.keys(variantsOverviewResults?.assemblyIDs) : [];
         },
         [variantsOverviewResults]);
     const overviewAssemblyIdOptions = useMemo(
@@ -57,19 +57,20 @@ const VariantSearchHeader = ({ dataType, addVariantSearchValues }) => {
 
 
     const genotypeSchema = dataType.schema?.properties?.calls?.items?.properties?.genotype_type;
+    const genotypeSchemaDescription = genotypeSchema?.description;
     const genotypeOptions = useMemo(
-        () => genotypeSchema.enum.map((value) => ({ value, label: value })),
+        () => (genotypeSchema?.enum ?? []).map((value) => ({ value, label: value })),
         [genotypeSchema]);
 
     const helpText = useMemo(() => {
         const assemblySchema = dataType.schema?.properties?.assembly_id;
         return {
             "assemblyId": assemblySchema?.description,
-            "genotype": genotypeSchema?.description,
+            "genotype": genotypeSchemaDescription,
             "locus": "Enter gene name (eg \"BRCA1\") or position (\"chr17:41195311-41278381\")",
             "ref/alt": "Combination of nucleotides A, C, T, and G, including N as a wildcard - i.e. AATG, CG, TNN",
         };
-    }, [dataType]);
+    }, [dataType, genotypeSchemaDescription]);
 
     // custom validation since this form isn't submitted, it's just used to fill fields in hidden form
     // each field is validated individually elsewhere
@@ -109,11 +110,11 @@ const VariantSearchHeader = ({ dataType, addVariantSearchValues }) => {
     const handleAssemblyIdChange = useCallback((value) => {
         addVariantSearchValues({ assemblyId: value });
         setAssemblyId(value);
-    }, []);
+    }, [addVariantSearchValues]);
 
     const handleGenotypeChange = useCallback((value) => {
         addVariantSearchValues({ genotypeType: value });
-    }, []);
+    }, [addVariantSearchValues]);
 
     const handleRefChange = useCallback((e) => {
         const latestInputValue = e.target.value;
@@ -128,7 +129,7 @@ const VariantSearchHeader = ({ dataType, addVariantSearchValues }) => {
         }
         setActiveRefValue(normalizedRef);
         addVariantSearchValues({ ref: normalizedRef });
-    }, []);
+    }, [addVariantSearchValues]);
 
     const handleAltChange = useCallback((e) => {
         const latestInputValue = e.target.value;
@@ -144,7 +145,7 @@ const VariantSearchHeader = ({ dataType, addVariantSearchValues }) => {
 
         setActiveAltValue(normalizedAlt);
         addVariantSearchValues({ alt: normalizedAlt });
-    }, []);
+    }, [addVariantSearchValues]);
 
     // set default selected assemblyId if only 1 is present
     const shouldTriggerAssemblyIdChange = overviewAssemblyIds.length === 1;
@@ -169,7 +170,7 @@ const VariantSearchHeader = ({ dataType, addVariantSearchValues }) => {
                 label="Assembly ID"
                 help={helpText["assemblyId"]}
                 validateStatus={fieldsValidity.assemblyId ? "success" : "error"}
-                required
+                required={true}
             >
                 <Select
                     onChange={handleAssemblyIdChange}

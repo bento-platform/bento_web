@@ -118,7 +118,7 @@ const ExplorerDatasetSearch = () => {
                 />
             ),
         }] : []),
-    ] : [], [searchResults, datasetID]);
+    ] : [], [hasBiosamples, hasExperiments, searchResults, datasetID]);
 
     if (!selectedDataset) return null;
     return (
