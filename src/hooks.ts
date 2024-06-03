@@ -159,8 +159,10 @@ export const useDiscoveryValidator = () => {
 };
 
 export const useDatsValidator = () => {
-    // const datsSchema = useAppSelector(state => state.discovery.datsSchema);
-    // TODO: async schema loading ?
-    const datsSchema = {};
+    // Simply verify that the file is a valid JSON object.
+    // The backend will perform the more expensive validation
+    const datsSchema = {
+        "type": "object",
+    };
     return useJsonSchemaValidator(datsSchema, false);
 }

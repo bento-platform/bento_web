@@ -21,7 +21,7 @@ const performGohanGeneSearch = networkAction((searchUrl) => () => ({
 
 const _fetchDiscoverySchema = networkAction(() => (dispatch, getState) => ({
     types: FETCH_DISCOVERY_SCHEMA,
-    url: `${getState().bentoServices.itemsByKind.metadata.url}/api/discovery_schema`,
+    url: `${getState().bentoServices.itemsByKind.metadata.url}/api/schemas/discovery`,
     err: "Error fetching discovery JSON schema",
 }));
 
@@ -30,15 +30,3 @@ export const fetchDiscoverySchema = (dispatch, getState) => {
     if (!metadataUrl) return Promise.resolve();
     return dispatch(_fetchDiscoverySchema());
 };
-
-const _fetchDatsSchema = networkAction(() => (dispatch, getState) => ({
-    types: FETCH_DATS_SCHEMA,
-    url: `${getState().bentoServices.itemsByKind.metadata.url}/api/dats_schema`,
-    err: "Error fetching dats JSON schema",
-}));
-
-export const fetchDatsSchema = (dispatch, getState) => {
-    const metadataUrl = getState()?.bentoServices?.itemsByKind?.metadata?.url;
-    if (!metadataUrl) return Promise.resolve();
-    return dispatch(_fetchDatsSchema());
-}

@@ -2,7 +2,7 @@ import { useEffect, useMemo } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { fetchBentoServices, fetchServices } from "@/modules/services/actions";
 import { fetchExtraPropertiesSchemaTypes } from "../metadata/actions";
-import { fetchDatsSchema, fetchDiscoverySchema } from "../discovery/actions";
+import { fetchDiscoverySchema } from "../discovery/actions";
 import { performGetGohanVariantsOverviewIfPossible } from "../explorer/actions";
 
 export const useBentoServices = () => {
@@ -70,7 +70,6 @@ export const useMetadataDependentData = () => {
         if (!metadata?.url) return;
         dispatch(fetchExtraPropertiesSchemaTypes);
         dispatch(fetchDiscoverySchema);
-        dispatch(fetchDatsSchema);
     }, [metadata, dispatch]);
 };
 
