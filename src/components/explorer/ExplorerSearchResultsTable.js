@@ -29,22 +29,22 @@ const ExplorerSearchResultsTable = ({
 }) => {
     const { dataset } = useParams();
     const [currentPage, setCurrentPage] = useState(initialCurrentPage || 1);
-    const [activeFilter, setActiveFilter] = useState([]);
+    const [activeFilters, setActiveFilters] = useState([]);
 
     const [summaryModalVisible, setSummaryModalVisible] = useState(false);
     const [tracksModalVisible, setTracksModalVisible] = useState(false);
 
     const filteredData = useMemo(() => {
         return data.filter((item) => {
-            return Object.keys(activeFilter).every((filterKey) => {
-                const filterValues = activeFilter[filterKey] || [];
+            return Object.keys(activeFilters).every((filterKey) => {
+                const filterValues = activeFilters[filterKey] || [];
                 if (filterValues.length === 0) {
                     return true;
                 }
                 return filterValues.includes(item[filterKey]);
             });
         });
-    }, [data, activeFilter]);
+    }, [data, activeFilters]);
 
     const numResults = useMemo(() => filteredData.length, [filteredData]);
 
@@ -76,10 +76,10 @@ const ExplorerSearchResultsTable = ({
         }
     }, [dispatch, dataset, activeTab]);
 
-    const onPageChange = useCallback((pageObj, filters, sorter) => {
-        const newPage = filters !== activeFilter ? 1 : pageObj.current;
+    const onTableChange = useCallback((pageObj, filters, sorter) => {
+        const newPage = filters !== activeFilters ? 1 : pageObj.current;
         setCurrentPage(newPage);
-        setActiveFilter(filters);
+        setActiveFilters(filters);
         dispatch(setTableSortOrder(dataset, sorter.field, sorter.order, activeTab, newPage));
     }, [dispatch, dataset, activeTab]);
 
