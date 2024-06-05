@@ -28,7 +28,15 @@ ExperimentRender.propTypes = {
     }).isRequired,
 };
 
-const SEARCH_RESULT_COLUMNS_EXP = [
+const ExperimentsTable = ({ data, datasetID }) => {
+    const tableSortOrder = useSelector(
+        (state) => state.explorer.tableSortOrderByDatasetID[datasetID]?.["experiments"],
+    );
+
+    const experimentTypeFilters = useDynamicTableFilterOptions(data, "experimentType");
+
+    const columns = useMemo(() => {
+        const baseColumns = [
     {
         title: "Experiment",
         dataIndex: "experimentId",
@@ -65,35 +73,22 @@ const SEARCH_RESULT_COLUMNS_EXP = [
         render: (expType) => <>{expType}</>,
         sorter: (a, b) => a.experimentType.localeCompare(b.experimentType),
         sortDirections: ["descend", "ascend", "descend"],
-    },
-];
-
-const ExperimentsTable = ({ data, datasetID }) => {
-    const tableSortOrder = useSelector(
-        (state) => state.explorer.tableSortOrderByDatasetID[datasetID]?.["experiments"],
-    );
-
-    const experimentTypeFilters = useDynamicFilterOptions(data, "experimentType");
-
-    const filterColumns = SEARCH_RESULT_COLUMNS_EXP.map((col) => {
-        if (col.dataIndex === "experimentType") {
-            return {
-                ...col,
                 filters: experimentTypeFilters,
                 onFilter: (value, record) => record.experimentType === value,
-            };
-        }
-        return col;
-    });
+            },
+        ];
+        return baseColumns;
+    }, [experimentTypeFilters]);
 
     const { sortedData, columnsWithSortOrder } = useSortedColumns(
         data,
         tableSortOrder,
-        filterColumns,
+        columns,
     );
+
     return (
         <ExplorerSearchResultsTable
-            dataStructure={filterColumns}
+            dataStructure={columns}
             data={sortedData}
             sortColumnKey={tableSortOrder?.sortColumnKey}
             sortOrder={tableSortOrder?.sortOrder}
