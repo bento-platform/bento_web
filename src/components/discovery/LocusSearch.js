@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useState } from "react";
+import React, { useCallback, useEffect, useMemo, useState } from "react";
 import { AutoComplete, Tag } from "antd";
 import PropTypes from "prop-types";
 import { useGeneNameSearch, useReferenceGenomes } from "@/modules/reference/hooks";
@@ -17,14 +17,18 @@ const parsePosition = (value) => {
     return { chrom, start, end };
 };
 
+const looksLikePositionNotation = (value) => !value.includes(" ") && value.includes(":");
+
 
 const LocusSearch = ({ assemblyId, addVariantSearchValues, handleLocusChange, setLocusValidity }) => {
     const referenceGenomes = useReferenceGenomes();
     const [autoCompleteOptions, setAutoCompleteOptions] = useState([]);
     const [inputValue, setInputValue] = useState("");
 
-    const showAutoCompleteOptions = !!referenceGenomes.itemsByID[assemblyId]?.gff3_gz
-        && inputValue.length && (inputValue.includes(" ") || !inputValue.includes(":"));
+    const showAutoCompleteOptions = useMemo(
+        () => !!referenceGenomes.itemsByID[assemblyId]?.gff3_gz && inputValue.length &&
+            !looksLikePositionNotation(inputValue),
+        [referenceGenomes, assemblyId, inputValue]);
 
     const handlePositionNotation = useCallback((value) => {
         const { chrom, start, end } = parsePosition(value);
@@ -33,7 +37,7 @@ const LocusSearch = ({ assemblyId, addVariantSearchValues, handleLocusChange, se
     }, [setLocusValidity, addVariantSearchValues]);
 
     useEffect(() => {
-        if (!inputValue.includes(" ") && inputValue.includes(":")) {
+        if (looksLikePositionNotation(inputValue)) {
             handlePositionNotation(inputValue);
 
             // let user finish typing position before showing error
