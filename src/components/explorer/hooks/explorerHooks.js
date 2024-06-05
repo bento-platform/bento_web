@@ -30,7 +30,7 @@ export const useSortedColumns = (data, tableSortOrder, columnsDefinition) => {
     return { sortedData, columnsWithSortOrder };
 };
 
-export const useDynamicFilterOptions = (data, key) => {
+export const useDynamicTableFilterOptions = (data, key) => {
     return useMemo(() => {
         const uniqueValues = new Set(data.map((item) => item[key]));
         return Array.from(uniqueValues).map((value) => ({
