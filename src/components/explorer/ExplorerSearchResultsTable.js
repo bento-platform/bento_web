@@ -171,7 +171,7 @@ const ExplorerSearchResultsTable = ({
                     columns={columns}
                     dataSource={data || []}
                     sortedInfo={sortedInfo}
-                    onChange={onPageChange}
+                    onChange={onTableChange}
                     pagination={{
                         pageSize: PAGE_SIZE,
                         defaultCurrent: currentPage,
