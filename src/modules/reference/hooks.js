@@ -1,6 +1,8 @@
 import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 
+import { useAuthorizationHeader } from "bento-auth-js";
+
 import { useService } from "@/modules/services/hooks";
 import { fetchReferenceGenomesIfNeeded } from "./actions";
 
@@ -22,6 +24,8 @@ export const useReferenceGenomes = () => {
 export const useGeneNameSearch = (referenceGenomeID, nameQuery) => {
     const referenceService = useService("reference");
 
+    const authHeader = useAuthorizationHeader();
+
     const [hasAttempted, setHasAttempted] = useState(false);
     const [isFetching, setIsFetching] = useState(false);
     const [data, setData] = useState([]);
@@ -39,7 +43,7 @@ export const useGeneNameSearch = (referenceGenomeID, nameQuery) => {
             setIsFetching(true);
 
             try {
-                const res = await fetch(searchUrl, { headers: { Accept: "application/json" } });
+                const res = await fetch(searchUrl, { headers: { Accept: "application/json", ...authHeader } });
                 const resData = await res.json();
                 if (res.ok) {
                     console.debug("Genome feature search - got results:", resData.results);
@@ -55,7 +59,7 @@ export const useGeneNameSearch = (referenceGenomeID, nameQuery) => {
                 setHasAttempted(true);
             }
         })();
-    }, [referenceService, referenceGenomeID, nameQuery]);
+    }, [referenceService, referenceGenomeID, nameQuery, authHeader]);
 
     return { hasAttempted, isFetching, data, error };
 };
