@@ -1,4 +1,4 @@
-import React, { Component } from "react";
+import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import PropTypes from "prop-types";
 
 import { Button, Col, Empty, Row, Space, Tabs, Typography } from "antd";
@@ -10,6 +10,14 @@ import { INITIAL_DATA_USE_VALUE } from "@/duo";
 import { nop, simpleDeepCopy } from "@/utils/misc";
 import { projectPropTypesShape } from "@/propTypes";
 import ProjectJsonSchema from "./ProjectJsonSchema";
+import { useHasResourcePermissionWrapper, useResourcePermissionsWrapper } from "@/hooks";
+import {
+    createDataset,
+    deleteProject,
+    editProject,
+    makeProjectResource,
+    RESOURCE_EVERYTHING,
+} from "bento-auth-js";
 
 const SUB_TAB_KEYS = {
     DATASETS: "project-datasets",
@@ -20,146 +28,171 @@ const SUB_TAB_ITEMS = [
     { key: SUB_TAB_KEYS.EXTRA_PROPERTIES, label: "Extra Properties" },
 ];
 
-class Project extends Component {
-    static getDerivedStateFromProps(nextProps) {
-        // TODO: Want to warn the user if the description has changed and they're editing...
-        if ("value" in nextProps) {
-            return {
-                ...(nextProps.value || {}),
-                data_use: simpleDeepCopy((nextProps.value || {}).data_use || INITIAL_DATA_USE_VALUE),
-            };
+const Project = ({
+    value,
+    saving,
+    editing,
+    onAddDataset,
+    onEditDataset,
+    onAddJsonSchema,
+    onEdit,
+    onCancelEdit,
+    onSave,
+    onDelete,
+}) => {
+    const resource = makeProjectResource(value.identifier);
+
+    // Project deletion is a permission on the node, so we need these permissions for that purpose.
+    const {
+        hasPermission: canDeleteProject,
+        fetchingPermission:  isFetchingGlobalPermissions,
+    } = useHasResourcePermissionWrapper(RESOURCE_EVERYTHING, deleteProject);
+
+    // Project editing/dataset creation is a permission on the project, so we need these permissions for those purposes.
+    const {
+        permissions: projectPermissions,
+        isFetchingPermissions: isFetchingProjectPermissions,
+    } = useResourcePermissionsWrapper(resource);
+
+    const canEditProject = useMemo(() => projectPermissions.includes(editProject), [projectPermissions]);
+    const canCreateDataset = useMemo(() => projectPermissions.includes(createDataset), [projectPermissions]);
+
+    const [projectState, setProjectState] = useState({
+        identifier: value.identifier,
+        title: value.title,
+        description: value.description,
+        datasets: value.datasets || [],
+        project_schemas: value.project_schemas || [],
+    });
+
+    const editingForm = useRef();
+
+    const [selectedKey, setSelectedKey] = useState(SUB_TAB_KEYS.DATASETS);
+
+    useEffect(() => {
+        if (value) {
+            setProjectState({
+                ...projectState,
+                ...value,
+                data_use: simpleDeepCopy(value.data_use || INITIAL_DATA_USE_VALUE),
+            });
         }
-        return null;
-    }
+    }, [value]);
 
-    handleCancelEdit() {
-        this._onCancelEdit();
-    }
-
-    handleContentTabClick(tab) {
-        this.setState({ selectedKey: tab });
-    }
-
-    constructor(props) {
-        super(props);
-
-        this._onCancelEdit = props.onCancelEdit || nop;
-        this._onSave = props.onSave || nop;
-
-        this.editingForm = React.createRef();
-
-        this.handleCancelEdit = this.handleCancelEdit.bind(this);
-        this.handleSave = this.handleSave.bind(this);
-        this.handleContentTabClick = this.handleContentTabClick.bind(this);
-
-        const value = props.value || {};
-        this.state = {
-            identifier: value.identifier || null,
-            title: value.title || "",
-            description: value.description || "",
-            datasets: value.datasets || [],
-            project_schemas: value.project_schemas || [],
-            selectedKey: SUB_TAB_KEYS.DATASETS,
-        };
-    }
-
-    handleSave() {
-        const form = this.editingForm.current;
+    const handleSave = useCallback(() => {
+        const form = editingForm.current;
         if (!form) return;
         form.validateFields().then((values) => {
             // Don't save datasets since it's a related set.
-            this._onSave({
-                identifier: this.state.identifier,
-                title: values.title || this.state.title,
-                description: values.description || this.state.description,
-                data_use: values.data_use || this.state.data_use,
+            onSave({
+                identifier: projectState.identifier,
+                title: values.title || projectState.title,
+                description: values.description || projectState.description,
+                data_use: values.data_use || projectState.data_use,
             });
         }).catch((err) => {
             console.error(err);
         });
-    }
+    }, [onSave, projectState]);
 
-    render() {
-        return <div>
-            <div style={{position: "absolute", top: "24px", right: "24px"}}>
-                {this.props.editing ? (
+    return (
+        <div>
+            <div style={{ position: "absolute", top: "24px", right: "24px" }}>
+                {editing ? (
                     <>
                         <Button type="primary"
                                 icon={<CheckOutlined />}
-                                loading={this.props.saving}
-                                onClick={() => this.handleSave()}>Save</Button>
+                                loading={saving}
+                                onClick={() => handleSave()}>Save</Button>
                         <Button icon={<CloseOutlined />}
-                                style={{marginLeft: "10px"}}
-                                disabled={this.props.saving}
-                                onClick={() => this.handleCancelEdit()}>Cancel</Button>
+                                style={{ marginLeft: "10px" }}
+                                disabled={saving}
+                                onClick={() => onCancelEdit()}>Cancel</Button>
                     </>
                 ) : (
                     <>
-                        <Button icon={<EditOutlined />} onClick={() => (this.props.onEdit || nop)()}>Edit</Button>
-                        <Button danger={true}
-                                icon={<DeleteOutlined />}
-                                style={{marginLeft: "10px"}}
-                                onClick={() => (this.props.onDelete || nop)()}>Delete</Button>
+                        <Button
+                            icon={<EditOutlined />}
+                            loading={isFetchingProjectPermissions}
+                            disabled={!canEditProject}
+                            onClick={() => (onEdit || nop)()}
+                        >Edit</Button>
+                        <Button
+                            danger={true}
+                            icon={<DeleteOutlined />}
+                            loading={isFetchingGlobalPermissions}
+                            disabled={!canDeleteProject}
+                            style={{ marginLeft: "10px" }}
+                            onClick={() => (onDelete || nop)()}
+                        >Delete</Button>
                     </>
                 )}
             </div>
-            {this.props.editing ? (
+            {editing ? (
                 <ProjectForm
-                    style={{maxWidth: "600px"}}
+                    style={{ maxWidth: "600px" }}
                     initialValues={{
-                        title: this.state.title,
-                        description: this.state.description,
-                        data_use: this.state.data_use,
+                        title: projectState.title,
+                        description: projectState.description,
+                        data_use: projectState.data_use,
                     }}
-                    formRef={this.editingForm}
+                    formRef={editingForm}
                 />
             ) : (
                 <>
                     <Typography.Title level={2} style={{ marginTop: 0 }}>
-                        {this.state.title}
+                        {projectState.title}
                     </Typography.Title>
-                    {this.state.description.split("\n").map((p, i) =>
-                        <Typography.Paragraph key={i} style={{maxWidth: "600px"}}>{p}</Typography.Paragraph>)}
+                    {projectState.description.split("\n").map((p, i) =>
+                        <Typography.Paragraph key={i} style={{ maxWidth: "600px" }}>{p}</Typography.Paragraph>)}
                 </>
             )}
 
             <Tabs
-                onChange={this.handleContentTabClick}
-                activeKey={this.state.selectedKey}
+                onChange={(tab) => setSelectedKey(tab)}
+                activeKey={selectedKey}
                 items={SUB_TAB_ITEMS}
                 size="large"
             />
 
-            {this.state.selectedKey === SUB_TAB_KEYS.DATASETS
+            {selectedKey === SUB_TAB_KEYS.DATASETS
                 ? <>
                     <Typography.Title level={3} style={{ marginTop: "0.6em" }}>
                         Datasets
                         <div style={{ float: "right" }}>
                             <Button icon={<PlusOutlined />}
+                                    loading={isFetchingProjectPermissions}
+                                    disabled={!canCreateDataset}
                                     style={{ verticalAlign: "top" }}
-                                    onClick={() => (this.props.onAddDataset || nop)()}>
+                                    onClick={() => (onAddDataset || nop)()}
+                            >
                                 Add Dataset
                             </Button>
                         </div>
                     </Typography.Title>
-                    {(this.state.datasets || []).length > 0
+                    {(projectState.datasets || []).length > 0
                         ? (
                             <Space direction="vertical" size={16} style={{ width: "100%" }}>
-                                {this.state.datasets.sort((d1, d2) => d1.title.localeCompare(d2.title)).map(d => (
+                                {projectState.datasets.sort((d1, d2) => d1.title.localeCompare(d2.title)).map((d) => (
                                     <Col span={24} key={d.identifier}>
                                         <Dataset
                                             key={d.identifier}
                                             mode="private"
-                                            project={this.props.value}
+                                            project={value}
                                             value={d}
-                                            onEdit={() => (this.props.onEditDataset || nop)(d)}
+                                            onEdit={() => (onEditDataset || nop)(d)}
                                         />
                                     </Col>
                                 ))}
                             </Space>
                         ) : (
                             <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} description="No Datasets">
-                                <Button icon={<PlusOutlined />} onClick={() => (this.props.onAddDataset || nop)()}>
+                                <Button
+                                    icon={<PlusOutlined />}
+                                    loading={isFetchingProjectPermissions}
+                                    disabled={!canEditProject}
+                                    onClick={onAddDataset || nop}
+                                >
                                     Add Dataset
                                 </Button>
                             </Empty>
@@ -170,14 +203,16 @@ class Project extends Component {
                         Extra Properties JSON schemas
                         <div style={{ float: "right" }}>
                             <Button icon={<PlusOutlined />}
+                                    loading={isFetchingProjectPermissions}
+                                    disabled={!canEditProject}
                                     style={{ verticalAlign: "top" }}
-                                    onClick={this.props.onAddJsonSchema}>
+                                    onClick={onAddJsonSchema || nop}>
                                 Add JSON schema
                             </Button>
                         </div>
                     </Typography.Title>
-                    {this.state.project_schemas.length > 0
-                        ? this.state.project_schemas.map(pjs =>
+                    {projectState.project_schemas.length > 0
+                        ? projectState.project_schemas.map(pjs =>
                             <Row gutter={[0, 16]} key={pjs["id"]}>
                                 <Col span={24}>
                                     <ProjectJsonSchema projectSchema={pjs} />
@@ -185,7 +220,12 @@ class Project extends Component {
                             </Row>,
                         ) : (
                             <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} description="No project JSON schemas">
-                                <Button icon={<PlusOutlined />} onClick={this.props.onAddJsonSchema}>
+                                <Button
+                                    icon={<PlusOutlined />}
+                                    onClick={onAddJsonSchema}
+                                    loading={isFetchingProjectPermissions}
+                                    disabled={!canEditProject}
+                                >
                                     Add JSON schema
                                 </Button>
                             </Empty>
@@ -195,13 +235,12 @@ class Project extends Component {
 
                 </>
             }
-
-        </div>;
-    }
-}
+        </div>
+    );
+};
 
 Project.propTypes = {
-    value: projectPropTypesShape,
+    value: projectPropTypesShape.isRequired,
 
     editing: PropTypes.bool,
     saving: PropTypes.bool,

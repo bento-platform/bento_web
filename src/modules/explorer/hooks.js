@@ -1,11 +1,11 @@
 import { useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { fetchIgvGenomesIfNeeded } from "./actions";
+import { fetchIgvGenomes } from "./actions";
 
 export const useIgvGenomes = () => {
     const dispatch = useDispatch();
     useEffect(() => {
-        dispatch(fetchIgvGenomesIfNeeded());
+        dispatch(fetchIgvGenomes());
     }, [dispatch]);
     return useSelector((state) => state.igvGenomes);
 };

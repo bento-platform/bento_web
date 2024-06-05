@@ -5,7 +5,7 @@ import {
     createNetworkActionTypes,
     createFlowActionTypes,
     networkAction,
-} from "../../utils/actions";
+} from "@/utils/actions";
 
 
 export const TOGGLE_PROJECT_CREATION_MODAL = "TOGGLE_PROJECT_CREATION_MODAL";
@@ -13,6 +13,8 @@ export const TOGGLE_PROJECT_CREATION_MODAL = "TOGGLE_PROJECT_CREATION_MODAL";
 export const PROJECT_EDITING = createFlowActionTypes("PROJECT_EDITING");
 
 export const FETCH_DROP_BOX_TREE = createNetworkActionTypes("FETCH_DROP_BOX_TREE");
+export const INVALIDATE_DROP_BOX_TREE = "INVALIDATE_DROP_BOX_TREE";
+
 export const PUT_DROP_BOX_OBJECT = createNetworkActionTypes("PUT_DROP_BOX_OBJECT");
 export const DELETE_DROP_BOX_OBJECT = createNetworkActionTypes("DELETE_DROP_BOX_OBJECT");
 
@@ -25,27 +27,21 @@ export const beginProjectEditing = basicAction(PROJECT_EDITING.BEGIN);
 export const endProjectEditing = basicAction(PROJECT_EDITING.END);
 
 
-const fetchDropBoxTree = networkAction(() => (dispatch, getState) => ({
+export const fetchDropBoxTree = networkAction(() => (_dispatch, getState) => ({
     types: FETCH_DROP_BOX_TREE,
+    check: (state) => state.services.dropBoxService
+        && !state.dropBox.isFetching
+        && (!state.dropBox.tree.length || state.dropBox.isInvalid),
     url: `${getState().services.dropBoxService.url}/tree`,
     err: "Error fetching drop box file tree",
 }));
 
-// TODO: If needed
-export const fetchDropBoxTreeOrFail = () => async dispatch => {
-    try {
-        return await dispatch(fetchDropBoxTree());
-    } catch (e) {
-        // Reset loading
-        console.error(e);
-        return await dispatch({type: FETCH_DROP_BOX_TREE.FINISH});
-    }
-};
+export const invalidateDropBoxTree = basicAction(INVALIDATE_DROP_BOX_TREE);
 
 const dropBoxObjectPath = (getState, path) =>
     `${getState().services.dropBoxService.url}/objects/${path.replace(/^\//, "")}`;
 
-export const putDropBoxObject = networkAction((path, file) => async (dispatch, getState) => ({
+export const putDropBoxObject = networkAction((path, file) => async (_dispatch, getState) => ({
     types: PUT_DROP_BOX_OBJECT,
     url: dropBoxObjectPath(getState, path),
     req: {
@@ -67,7 +63,8 @@ export const deleteDropBoxObject = networkAction(path => async (dispatch, getSta
     req: {method: "DELETE"},
     onSuccess: () => {
         message.success(`Successfully deleted file at drop box path: ${path}`);
-        return dispatch(fetchDropBoxTreeOrFail());
+        dispatch(invalidateDropBoxTree());
+        return dispatch(fetchDropBoxTree());
     },
     err: `Error deleting file at drop box path: ${path}`,
 }));

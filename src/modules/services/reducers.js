@@ -6,7 +6,6 @@ import {
     FETCH_DATA_TYPES,
     FETCH_WORKFLOWS,
 } from "./actions";
-import {normalizeServiceInfo} from "../../utils/serviceInfo";
 
 
 export const bentoServices = (
@@ -83,8 +82,8 @@ export const services = (
             return {...state, isFetching: true};
 
         case FETCH_SERVICES.RECEIVE: {
-            // Filter out services without a valid serviceInfo.type & normalize service infos across spec versions:
-            const items = action.data.filter(s => s?.type).map(normalizeServiceInfo);
+            // Filter out services without a valid serviceInfo.type:
+            const items = action.data.filter(s => s?.type);
             const itemsByID = Object.fromEntries(items.map(s => [s.id, s]));
             const itemsByKind = Object.fromEntries(items.map(s => [s.bento?.serviceKind ?? s.type.artifact, s]));
             const itemsByArtifact = Object.fromEntries(items.map(s => [s.type.artifact, s]));

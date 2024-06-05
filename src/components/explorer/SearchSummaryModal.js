@@ -1,5 +1,4 @@
 import React, { useEffect, useState } from "react";
-import { useSelector } from "react-redux";
 import { useAuthorizationHeader } from "bento-auth-js";
 
 import { Col, Divider, Modal, Row, Skeleton, Statistic, Typography } from "antd";
@@ -7,6 +6,7 @@ import PieChart from "../charts/PieChart";
 import Histogram from "../charts/Histogram";
 
 import { explorerSearchResultsPropTypesShape } from "@/propTypes";
+import { useService } from "@/modules/services/hooks";
 
 const CHART_HEIGHT = 300;
 const MODAL_WIDTH = 1000;
@@ -52,7 +52,7 @@ const renderCharts = (chartsData) => {
 const SearchSummaryModal = ({ searchResults, ...props }) => {
     const [data, setData] = useState(null);
 
-    const katsuUrl = useSelector((state) => state.services.itemsByArtifact.metadata.url);
+    const katsuUrl = useService("metadata")?.url;
     const authorizationHeader = useAuthorizationHeader();
 
     useEffect(() => {

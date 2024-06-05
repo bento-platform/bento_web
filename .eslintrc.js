@@ -5,14 +5,15 @@ module.exports = {
     },
     "extends": [
         "eslint:recommended",
-        "plugin:react/recommended"
+        "plugin:react/recommended",
+        "plugin:@typescript-eslint/recommended",
     ],
     "globals": {
         "Atomics": "readonly",
         "SharedArrayBuffer": "readonly",
         "process": "readonly",
     },
-    "parser": "@babel/eslint-parser",
+    "parser": "@typescript-eslint/parser",
     "parserOptions": {
         "ecmaFeatures": {
             "jsx": true,
@@ -21,7 +22,8 @@ module.exports = {
         "sourceType": "module",
     },
     "plugins": [
-        "react"
+        "react",
+        "@typescript-eslint",
     ],
     "rules": {
         "indent": [
@@ -49,13 +51,16 @@ module.exports = {
         ],
         "react/jsx-indent-props": ["error", "first"],
 
+        // Don't need React for JSX anymore with new JSX transform
+        "react/react-in-jsx-scope": "off",
+        "react/jsx-uses-react": "off",
+
         // Prevent some legacy HTML tags
         "react/forbid-elements": ["error", {"forbid": ["b", "font"]}],
 
         "no-prototype-builtins": "off",
         "react/display-name": "off",
 
-        "no-unused-vars": ["error", {"argsIgnorePattern": "^_"}],
         "linebreak-style": ["error", "unix"],
         "react/prop-types": ["error", {"ignore": ["form", "match", "history"]}],
         "quotes": ["error", "double"],
@@ -80,6 +85,9 @@ module.exports = {
             "exports": "always-multiline",
             "functions": "always-multiline",
         }],
+
+        // @typescript-eslint tweaks
+        "@typescript-eslint/no-unused-vars": ["error", { argsIgnorePattern: "^_" }],
     },
     "settings": {
         "react": {

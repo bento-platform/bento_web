@@ -25,15 +25,18 @@ import { nop } from "@/utils/misc";
 import { fetchUserDependentData } from "@/modules/user/actions";
 
 import NotificationDrawer from "./notifications/NotificationDrawer";
+import AutoAuthenticate from "./AutoAuthenticate";
 import RequireAuth from "./RequireAuth";
 import SiteHeader from "./SiteHeader";
 import SiteFooter from "./SiteFooter";
 import SitePageLoading from "./SitePageLoading";
+import { useService } from "@/modules/services/hooks";
 
 // Lazy-load route components
 const OverviewContent = lazy(() => import("./OverviewContent"));
 const DataExplorerContent = lazy(() => import("./DataExplorerContent"));
 const DataManagerContent = lazy(() => import("./DataManagerContent"));
+const ReferenceGenomesContent = lazy(() => import("./ReferenceGenomesContent"));
 const CBioPortalContent = lazy(() => import("./CBioPortalContent"));
 const NotificationsContent = lazy(() => import("./notifications/NotificationsContent"));
 const ServiceContent = lazy(() => import("./ServiceContent"));
@@ -45,6 +48,13 @@ const SIGN_IN_WINDOW_FEATURES = "scrollbars=no, toolbar=no, menubar=no, width=80
 const CALLBACK_PATH = "/callback";
 
 const createSessionWorker = () => new SessionWorker();
+
+// Using the fetchUserDependentData thunk creator as a hook argument may lead to unwanted triggers on re-renders.
+// So we store the thunk inner function of the fetchUserDependentData thunk creator in a constant outside of the
+// component function.
+const onAuthSuccess = fetchUserDependentData(nop);
+
+const uiErrorCallback = (msg) => message.error(msg);
 
 const App = () => {
     const dispatch = useDispatch();
@@ -64,7 +74,7 @@ const App = () => {
     const idTokenContents = useSelector((state) => state.auth.idTokenContents);
     const isAuthenticated = useIsAuthenticated();
 
-    const eventRelay = useSelector((state) => state.services.eventRelay);
+    const eventRelay = useService("event-relay");
     const eventRelayUrl = eventRelay?.url ?? null;
 
     const [lastIsAuthenticated, setLastIsAuthenticated] = useState(false);
@@ -73,10 +83,6 @@ const App = () => {
 
     const isInAuthPopup = checkIsInAuthPopup(BENTO_URL_NO_TRAILING_SLASH);
 
-    // Using the fetchUserDependentData thunk creator as a hook argument may lead to unwanted triggers on re-renders.
-    // So we store the thunk inner function of the fetchUserDependentData thunk creator in a const.
-    const onAuthSuccess = fetchUserDependentData(nop);
-
     const popupOpenerAuthCallback = usePopupOpenerAuthCallback();
 
     // Set up auth callback handling
@@ -84,7 +90,7 @@ const App = () => {
         CALLBACK_PATH,
         onAuthSuccess,
         isInAuthPopup ? popupOpenerAuthCallback : undefined,
-        (msg) => message.error(msg),
+        uiErrorCallback,
     );
 
     // Set up message handling from sign-in popup
@@ -180,11 +186,7 @@ const App = () => {
         })();
     }, [dispatch, createEventRelayConnectionIfNecessary, didPostLoadEffects]);
 
-    useSessionWorkerTokenRefresh(
-        sessionWorker,
-        createSessionWorker,
-        onAuthSuccess,
-    );
+    useSessionWorkerTokenRefresh(sessionWorker, createSessionWorker, onAuthSuccess);
 
     const clearPingInterval = useCallback(() => {
         if (pingInterval.current === null) return;
@@ -198,11 +200,11 @@ const App = () => {
     // to give as much space as possible to the cBioPortal application itself.
     const margin = window.location.pathname.endsWith("cbioportal") ? 0 : 26;
 
+    const threshold = useSelector((state) => state.explorer.otherThresholdPercentage) / 100;
+
     if (isInAuthPopup) {
         return <div>Authenticating...</div>;
     }
-
-    const threshold = useSelector((state) => state.explorer.otherThresholdPercentage) / 100;
 
     return (
         <ChartConfigProvider
@@ -231,6 +233,10 @@ const App = () => {
                             <Route path="/overview" element={<RequireAuth><OverviewContent /></RequireAuth>} />
                             <Route path="/data/explorer/*"
                                    element={<RequireAuth><DataExplorerContent /></RequireAuth>} />
+                            {/* Reference content is available to everyone to view, at least, so wrap it in an
+                                AutoAuthenticate (to re-authenticate if we were before) rather than requiring auth. */}
+                            <Route path="/genomes"
+                                   element={<AutoAuthenticate><ReferenceGenomesContent /></AutoAuthenticate>} />
                             <Route path="/cbioportal" element={<RequireAuth><CBioPortalContent /></RequireAuth>} />
                             <Route path="/services/:kind/*"
                                    element={<RequireAuth><ServiceDetail /></RequireAuth>} />

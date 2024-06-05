@@ -1,5 +1,5 @@
-import React, { useCallback, useMemo } from "react";
-import { useDispatch, useSelector } from "react-redux";
+import React, { useCallback } from "react";
+import { useDispatch } from "react-redux";
 import { useNavigate } from "react-router-dom";
 
 import { Button, Divider, Drawer } from "antd";
@@ -7,6 +7,7 @@ import { Button, Divider, Drawer } from "antd";
 import NotificationList from "./NotificationList";
 
 import { hideNotificationDrawer, markAllNotificationsAsRead } from "@/modules/notifications/actions";
+import { useNotifications } from "@/modules/notifications/hooks";
 
 
 const NotificationDrawer = React.memo(() => {
@@ -24,14 +25,10 @@ const NotificationDrawer = React.memo(() => {
         dispatch(hideNotificationDrawer());
     }, [dispatch]);
 
-    const notifications = useSelector((state) => state.notifications.items);
-    const unreadNotifications = useMemo(() => notifications.filter(n => !n.read), [notifications]);
-    const isMarkingAllAsRead = useSelector((state) => state.notifications.isMarkingAllAsRead);
-
-    const notificationDrawerVisible = useSelector((state) => state.notifications.drawerVisible);
+    const { unreadItems: unreadNotifications, isMarkingAllAsRead, drawerVisible } = useNotifications();
 
     return <Drawer styles={{ body: { padding: 0 }}} title="Unread Notifications"
-                   open={notificationDrawerVisible}
+                   open={drawerVisible}
                    width={500}
                    onClose={hideNotificationDrawer_}>
         <div style={{ padding: "16px 24px", display: "flex", gap: "16px" }}>

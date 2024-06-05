@@ -5,7 +5,7 @@ import PropTypes from "prop-types";
 import { Button, Form, Modal } from "antd";
 import { PlusOutlined } from "@ant-design/icons";
 
-import { createProjectJsonSchemaIfPossible } from "@/modules/metadata/actions";
+import { createProjectJsonSchema } from "@/modules/metadata/actions";
 import ProjectJsonSchemaForm from "./ProjectJsonSchemaForm";
 
 const ProjectJsonSchemaModal = ({ projectId, open, onOk, onCancel }) => {
@@ -34,10 +34,11 @@ const ProjectJsonSchemaModal = ({ projectId, open, onOk, onCancel }) => {
                 "required": values.required,
                 "jsonSchema": values.jsonSchema,
             };
-            dispatch(createProjectJsonSchemaIfPossible(payload));
 
-            form.resetFields();
-            onOk();
+            return dispatch(createProjectJsonSchema(payload)).then(() => {
+                form.resetFields();
+                onOk();
+            });
         }).catch((err) => console.error(err));
     }, [projectId, onOk]);
 

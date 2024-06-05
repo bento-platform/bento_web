@@ -29,23 +29,23 @@ components.
     * `utils/`: Utility code shared across components, state code, and other 
                 modules in the application.
       * `actions.js`: Utilities related to Redux actions
-      * `menu.js`: Utilities related to Ant Design menus
-      * `misc.js`: Miscellaneous helper functions
+      * `menu.tsx`: Utilities related to Ant Design menus
+      * `misc.ts`: Miscellaneous helper functions
       * `notifications.js`: Utilities related to Bento notifications
       * `requests.js`: Utilities related to HTTP requests
       * `schema.js`: Utilities related to JSON schemas
       * `search.js`: Utilities related to Bento search
-      * `url.js`: Utilities related to handling front-end URLs
+      * `url.ts`: Utilities related to handling front-end URLs
     * `constants.js`: Re-usable application constants
     * `duo.js`: Constants and objects related to the Bento representation of
                 the GA4GH Data Use Ontology.
     * `events.js`: Event dispatching code for triggering event handlers defined
                    elsewhere.
-    * `index.js`: The entry point for the application. Sets up the store and
+    * `index.tsx`: The entry point for the application. Sets up the store and
                   router and renders the `App` component.
     * `propTypes.js`: Re-usable prop types defined using the `prop-types`
                       module to enforce component property types.
-    * `reducers.js`: Root reducer definition
+    * `reducers.ts`: Root reducer definition
     * `template.html`: HTML template for the application (given to `webpack`)
   * `public/LICENSE.txt`: Copy of the LGPL v3.0 license for serving from
                           deployed instances of the application.

@@ -3,12 +3,13 @@ import {useSelector} from "react-redux";
 import PropTypes from "prop-types";
 
 import {Spin, TreeSelect} from "antd";
+import { useProjects } from "@/modules/metadata/hooks";
 
 export const ID_FORMAT_PROJECT_DATASET = "project:dataset";
 export const ID_FORMAT_DATASET = "dataset";
 
 const DatasetTreeSelect = forwardRef(({value, onChange, style, idFormat}, ref) => {
-    const {items: projectItems, isFetching: projectsFetching} = useSelector((state) => state.projects);
+    const { items: projectItems, isFetching: projectsFetching } = useProjects();
     const servicesFetching = useSelector((state) => state.services.isFetchingAll);
 
     const [selected, setSelected] = useState(value ?? undefined);
