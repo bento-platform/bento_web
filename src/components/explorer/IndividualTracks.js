@@ -163,15 +163,12 @@ const IndividualTracks = ({ individual }) => {
     const dispatch = useDispatch();
 
     const referenceService = useService("reference");
-    const igvGenomes = useIgvGenomes();  // Built-in igv.js genomes (with annotations)
+    // Built-in igv.js genomes (with annotations):
+    const { hasAttempted: igvGenomesAttempted, itemsByID: igvGenomesByID } = useIgvGenomes();
     const referenceGenomes = useReferenceGenomes();  // Reference service genomes
 
-    const igvGenomesByID = useMemo(
-        () => Object.fromEntries((igvGenomes.data ?? []).map((g) => [g.id, g])),
-        [igvGenomes]);
-
     const availableBrowserGenomes = useMemo(() => {
-        if (!igvGenomes.hasAttempted || !referenceGenomes.hasAttempted) {
+        if (!igvGenomesAttempted || !referenceGenomes.hasAttempted) {
             return {};
         }
 
@@ -204,7 +201,7 @@ const IndividualTracks = ({ individual }) => {
         console.debug("total available genomes:", availableGenomes);
 
         return availableGenomes;
-    }, [igvGenomesByID, referenceGenomes]);
+    }, [igvGenomesAttempted, igvGenomesByID, referenceGenomes]);
 
     const biosamplesData = useDeduplicatedIndividualBiosamples(individual);
     const viewableResults = useMemo(
