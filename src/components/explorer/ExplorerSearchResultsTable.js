@@ -109,7 +109,7 @@ const ExplorerSearchResultsTable = ({
                 onSelect: () => handleSetSelectedRows([]),
             },
         ],
-    }), [selectedRows, data, handleSetSelectedRows]);
+    }), [selectedRows, filteredData, handleSetSelectedRows]);
 
     const sortedInfo = useMemo(
         () => ({
