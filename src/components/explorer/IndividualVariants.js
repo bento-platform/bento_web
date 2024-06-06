@@ -33,7 +33,6 @@ const VariantExpressionDetails = ({variantExpression}) => {
 };
 VariantExpressionDetails.propTypes = {
     variantExpression: variantExpressionPropType,
-    geneContext: PropTypes.object,
 };
 
 
@@ -58,11 +57,10 @@ const VariantDescriptor = ({variationDescriptor}) => {
                     <GeneDescriptor geneDescriptor={variationDescriptor.gene_context}/>
                 </Descriptions.Item>
             }
-            {(variationDescriptor.expressions && variationDescriptor.gene_context) &&
+            {variationDescriptor.expressions &&
                 <Descriptions.Item label={"Expressions"}>
                     {variationDescriptor.expressions.map(expr => (
                         <VariantExpressionDetails variantExpression={expr}
-                                                  geneContext={variationDescriptor.gene_context}
                                                   key={expr.value}/>
                     ))}
                 </Descriptions.Item>
