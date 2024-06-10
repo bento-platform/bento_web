@@ -1,105 +1,106 @@
-import React, {Component} from "react";
-import {connect} from "react-redux";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useSelector } from "react-redux";
 import PropTypes from "prop-types";
 
 import { Button, Card, Dropdown, Empty, Tabs, Typography } from "antd";
 import { DownOutlined, PlusOutlined, QuestionCircleOutlined, SearchOutlined } from "@ant-design/icons";
 
+import { useDatasetDataTypes } from "@/modules/datasets/hooks";
+import {
+    setIsSubmittingSearch,
+    neutralizeAutoQueryPageTransition, addDataTypeQueryForm, updateDataTypeQueryForm, removeDataTypeQueryForm,
+} from "@/modules/explorer/actions";
+import { useDataTypes, useServices } from "@/modules/services/hooks";
+import { useAppDispatch } from "@/store";
+import { nop } from "@/utils/misc";
+import { OP_EQUALS } from "@/utils/search";
+import { getFieldSchema } from "@/utils/schema";
+
 import DataTypeExplorationModal from "./DataTypeExplorationModal";
 import DiscoverySearchForm from "./DiscoverySearchForm";
-import {nop} from "@/utils/misc";
 
-import {OP_EQUALS} from "@/utils/search";
-import {getFieldSchema} from "@/utils/schema";
 
-import { neutralizeAutoQueryPageTransition, setIsSubmittingSearch } from "@/modules/explorer/actions";
+const DiscoveryQueryBuilder = ({
+    activeDataset,
+    dataTypeForms,
+    requiredDataTypes,
+    onSubmit,
+    searchLoading,
+}) => {
+    const dispatch = useAppDispatch();
 
-class DiscoveryQueryBuilder extends Component {
-    constructor(props) {
-        super(props);
+    const { isFetching: isFetchingServiceDataTypes, itemsByID: dataTypesByID } = useDataTypes();
+    const dataTypesByDataset = useDatasetDataTypes();
 
-        this.state = {
-            schemasModalShown: false,
-        };
+    const autoQuery = useSelector((state) => state.explorer.autoQuery);
 
-        this.handleSubmit = this.handleSubmit.bind(this);
+    const dataTypeFormsByDatasetID = useSelector((state) => state.explorer.dataTypeFormsByDatasetID);
+    const isFetchingTextSearch = useSelector((state) => state.explorer.fetchingTextSearch);
 
-        this.handleFormChange = this.handleFormChange.bind(this);
-        this.handleHelpAndSchemasToggle = this.handleHelpAndSchemasToggle.bind(this);
+    const { isFetching: isFetchingServices } = useServices();
 
-        this.handleAddDataTypeQueryForm = this.handleAddDataTypeQueryForm.bind(this);
-        this.handleTabsEdit = this.handleTabsEdit.bind(this);
-        this.handleVariantHiddenFieldChange = this.handleVariantHiddenFieldChange.bind(this);
+    const dataTypesLoading = isFetchingServices || isFetchingServiceDataTypes || dataTypesByDataset.isFetchingAll;
 
-        this.handleSetFormRef = this.handleSetFormRef.bind(this);
+    const [schemasModalShown, setSchemasModalShown] = useState(false);
+    const forms = useRef({});
 
-        this.forms = {};
-    }
+    const handleAddDataTypeQueryForm = useCallback((e) => {
+        const keySplit = e.key.split(":");
+        dispatch(addDataTypeQueryForm(activeDataset, dataTypesByID[keySplit[keySplit.length - 1]]));
+    }, [dispatch, activeDataset, dataTypesByID]);
 
-    componentDidMount() {
-        const {
-            dataTypesByID,
-            requiredDataTypes,
-            addDataTypeQueryForm,
-            autoQuery,
-        } = this.props;
+    const handleTabsEdit = useCallback((key, action) => {
+        if (action !== "remove") return;
+        dispatch(removeDataTypeQueryForm(activeDataset, dataTypesByID[key]));
+    }, [dispatch, activeDataset, dataTypesByID]);
 
-        (requiredDataTypes ?? []).forEach(dt => addDataTypeQueryForm(dt));
+    useEffect(() => {
+        (requiredDataTypes ?? []).forEach((dt) => dispatch(addDataTypeQueryForm(activeDataset, dt)));
+    }, [dispatch, requiredDataTypes, activeDataset]);
 
+    useEffect(() => {
         if (autoQuery?.isAutoQuery) {
             const { autoQueryType } = autoQuery;
 
             // Clean old queries (if any)
-            Object.values(dataTypesByID).forEach(value => this.handleTabsEdit(value.id, "remove"));
+            Object.values(dataTypesByID).forEach(value => handleTabsEdit(value.id, "remove"));
 
             // Set type of query
-            this.handleAddDataTypeQueryForm({ key: autoQueryType });
+            handleAddDataTypeQueryForm({ key: autoQueryType });
 
             // The rest of the auto-query is handled by handleSetFormRef() below, upon form load.
         }
-    }
+    }, [autoQuery, dataTypesByID, handleTabsEdit, handleAddDataTypeQueryForm]);
 
-    handleSubmit = async () => {
-        this.props.setIsSubmittingSearch(true);
+    const handleSubmit = useCallback(async () => {
+        dispatch(setIsSubmittingSearch(true));
 
         try {
-            await Promise.all(Object.values(this.forms).map((f) => f.validateFields()));
+            await Promise.all(Object.values(forms.current).map((f) => f.validateFields()));
             // TODO: If error, switch to errored tab
-            (this.props.onSubmit ?? nop)();
+            (onSubmit ?? nop)();
         } catch (err) {
             console.error(err);
         } finally {
             // done whether error caught or not
-            this.props.setIsSubmittingSearch(false);
+            dispatch(setIsSubmittingSearch(false));
         }
+    }, [dispatch, onSubmit]);
 
-    };
+    const handleFormChange = useCallback((dataType, fields) => {
+        dispatch(updateDataTypeQueryForm(activeDataset, dataType, fields));
+    }, [dispatch, activeDataset]);
 
-    handleFormChange(dataType, fields) {
-        this.props.updateDataTypeQueryForm(dataType, fields);
-    }
+    const handleVariantHiddenFieldChange = useCallback((fields) => {
+        dispatch(updateDataTypeQueryForm(activeDataset, dataTypesByID["variant"], fields));
+    }, [dispatch, activeDataset, dataTypesByID]);
 
-    handleVariantHiddenFieldChange(fields) {
-        this.props.updateDataTypeQueryForm(this.props.dataTypesByID["variant"], fields);
-    }
+    const handleHelpAndSchemasToggle = useCallback(() => {
+        setSchemasModalShown(!schemasModalShown);
+    }, [schemasModalShown]);
 
-    handleHelpAndSchemasToggle() {
-        this.setState({schemasModalShown: !this.state.schemasModalShown});
-    }
-
-    handleAddDataTypeQueryForm(e) {
-        const keySplit = e.key.split(":");
-        this.props.addDataTypeQueryForm(this.props.dataTypesByID[keySplit[keySplit.length - 1]]);
-    }
-
-    handleTabsEdit(key, action) {
-        if (action !== "remove") return;
-        this.props.removeDataTypeQueryForm(this.props.dataTypesByID[key]);
-    }
-
-    handleSetFormRef(dataType, form) {
-        const { autoQuery, neutralizeAutoQueryPageTransition, dataTypeFormsByDatasetID, activeDataset } = this.props;
-        this.forms[dataType.id] = form;
+    const handleSetFormRef = useCallback((dataType, form) => {
+        forms.current[dataType.id] = form;
 
         if (autoQuery?.isAutoQuery) {
             // If we have an auto-query on this form, trigger it when we get the ref, so we can access the form object:
@@ -125,15 +126,15 @@ class DiscoveryQueryBuilder extends Component {
             }];
 
             form?.setFields(fields);
-            this.handleFormChange(dataType, fields);  // Not triggered by setFields; do it manually
+            handleFormChange(dataType, fields);  // Not triggered by setFields; do it manually
 
             (async () => {
                 // Simulate form submission click
-                const s = this.handleSubmit();
+                const s = handleSubmit();
 
                 // Clean up auto-query "paper trail" (that is, the state segment that
                 // was introduced in order to transfer intent from the OverviewContent page)
-                neutralizeAutoQueryPageTransition();
+                dispatch(neutralizeAutoQueryPageTransition());
 
                 await s;
             })();
@@ -147,137 +148,108 @@ class DiscoveryQueryBuilder extends Component {
 
             form?.setFields(stateForm.formValues);
         }
-    }
+    }, [dispatch, autoQuery, handleFormChange, handleSubmit, dataTypeFormsByDatasetID, activeDataset]);
 
-    render() {
-        const { activeDataset, dataTypesByDataset, dataTypeForms } = this.props;
+    // --- render ---
 
-        const dataTypesForActiveDataset = Object.values(dataTypesByDataset.itemsByID[activeDataset] || {})
-            .filter(dt => typeof dt === "object");
-
-        const filteredDataTypes = dataTypesForActiveDataset
+    const enabledDataTypesForDataset = useMemo(() => (
+        Object.values(dataTypesByDataset.itemsByID[activeDataset] || {})
+            .filter((dt) => typeof dt === "object")  // just datasets which we know data types for
             .flatMap(Object.values)
-            .filter(dt => (dt.queryable ?? true) && dt.count > 0);
+            .filter((dt) => (dt.queryable ?? true) && dt.count > 0)  // just queryable data types w/ a positive count
+    ), [dataTypesByDataset, activeDataset]);
 
-        // Filter out services without data types and then flat-map the service's data types to make the dropdown.
-        const dataTypeMenu = {
-            onClick: this.handleAddDataTypeQueryForm,
-            items: filteredDataTypes.map((dt) => ({
-                key: `${activeDataset}:${dt.id}`,
-                label: <>{dt.label ?? dt.id}</>,
-            })),
-        };
+    // Filter out services without data types and then flat-map the service's data types to make the dropdown.
+    const dataTypeMenu = useMemo(() => ({
+        onClick: handleAddDataTypeQueryForm,
+        items: enabledDataTypesForDataset.map((dt) => ({
+            key: `${activeDataset}:${dt.id}`,
+            label: <>{dt.label ?? dt.id}</>,
+        })),
+    }), [handleAddDataTypeQueryForm, enabledDataTypesForDataset, activeDataset]);
 
-        const dataTypeTabItems = dataTypeForms.map(({ dataType }) => {
-            // Use data type label for tab name, unless it isn't specified - then fall back to ID.
-            // This behaviour should be the same everywhere in bento_web or almost anywhere the
-            // data type is shown to 'end users'.
-            const { id, label } = dataType;
-            return ({
-                key: id,
-                label: label ?? id,
-                closable: !(this.props.requiredDataTypes ?? []).includes(id),
-                children: (
-                    <DiscoverySearchForm
-                        dataType={dataType}
-                        loading={this.props.searchLoading}
-                        setFormRef={(form) => this.handleSetFormRef(dataType, form)}
-                        onChange={(fields) => this.handleFormChange(dataType, fields)}
-                        handleVariantHiddenFieldChange={this.handleVariantHiddenFieldChange}
-                    />
-                ),
-            });
+    const dataTypeTabItems = useMemo(() => dataTypeForms.map(({ dataType }) => {
+        // Use data type label for tab name, unless it isn't specified - then fall back to ID.
+        // This behaviour should be the same everywhere in bento_web or almost anywhere the
+        // data type is shown to 'end users'.
+        const { id, label } = dataType;
+        return ({
+            key: id,
+            label: label ?? id,
+            closable: !(requiredDataTypes ?? []).includes(id),
+            children: (
+                <DiscoverySearchForm
+                    dataType={dataType}
+                    loading={searchLoading}
+                    setFormRef={(form) => handleSetFormRef(dataType, form)}
+                    onChange={(fields) => handleFormChange(dataType, fields)}
+                    handleVariantHiddenFieldChange={handleVariantHiddenFieldChange}
+                />
+            ),
         });
+    }), [
+        requiredDataTypes,
+        dataTypeForms,
+        searchLoading,
+        handleSetFormRef,
+        handleFormChange,
+        handleVariantHiddenFieldChange,
+    ]);
 
-        const addConditionsOnDataType = (buttonProps = {style: {float: "right"}}) => (
-            <Dropdown
-                menu={dataTypeMenu}
-                disabled={this.props.dataTypesLoading || this.props.searchLoading || filteredDataTypes?.length === 0 }>
-                <Button {...buttonProps}><PlusOutlined /> Data Type <DownOutlined /></Button>
-            </Dropdown>
-        );
+    const addConditionsOnDataType = (buttonProps = { style: { float: "right" } }) => (
+        <Dropdown
+            menu={dataTypeMenu}
+            disabled={dataTypesLoading || searchLoading || enabledDataTypesForDataset?.length === 0}>
+            <Button {...buttonProps}><PlusOutlined /> Data Type <DownOutlined /></Button>
+        </Dropdown>
+    );
 
-        return <Card style={{marginBottom: "1.5em"}}>
+    return (
+        <Card style={{ marginBottom: "1.5em" }}>
             <DataTypeExplorationModal
-                dataTypes={filteredDataTypes}
-                open={this.state.schemasModalShown}
-                onCancel={this.handleHelpAndSchemasToggle}
+                dataTypes={enabledDataTypesForDataset}
+                open={schemasModalShown}
+                onCancel={handleHelpAndSchemasToggle}
             />
 
             <Typography.Title level={3} style={{ margin: "0 0 1.5rem 0" }}>
                 Advanced Search
                 {addConditionsOnDataType()}
                 <Button
-                    style={{float: "right", marginRight: "1em"}}
-                    disabled={filteredDataTypes?.length === 0}
-                    onClick={this.handleHelpAndSchemasToggle}>
-                    <QuestionCircleOutlined /> Help
+                    icon={<QuestionCircleOutlined />}
+                    style={{ float: "right", marginRight: "1em" }}
+                    disabled={enabledDataTypesForDataset?.length === 0}
+                    onClick={handleHelpAndSchemasToggle}
+                >
+                    Help
                 </Button>
             </Typography.Title>
 
             {dataTypeForms.length > 0
-                ? <Tabs type="editable-card" hideAdd onEdit={this.handleTabsEdit} items={dataTypeTabItems} />
+                ? <Tabs type="editable-card" hideAdd onEdit={handleTabsEdit} items={dataTypeTabItems} />
                 : (
                     <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} description="No Data Types Added">
-                        {addConditionsOnDataType({type: "primary"})}
+                        {addConditionsOnDataType({ type: "primary" })}
                     </Empty>
                 )}
 
-            <Button type="primary"
-                    icon={<SearchOutlined />}
-                    loading={this.props.searchLoading}
-                    disabled={dataTypeForms.length === 0 || this.props.isFetchingTextSearch}
-                    onClick={() => this.handleSubmit()}>Search</Button>
-        </Card>;
-    }
-}
+            <Button
+                type="primary"
+                icon={<SearchOutlined />}
+                loading={searchLoading}
+                disabled={dataTypeForms.length === 0 || isFetchingTextSearch}
+                onClick={handleSubmit}
+            >Search</Button>
+        </Card>
+    );
+};
 
 DiscoveryQueryBuilder.propTypes = {
     activeDataset: PropTypes.string,
     requiredDataTypes: PropTypes.arrayOf(PropTypes.string),
-
-    servicesInfo: PropTypes.arrayOf(PropTypes.object),
-    dataTypes: PropTypes.object,
-    dataTypesByID: PropTypes.object,
-    dataTypesLoading: PropTypes.bool,
-    dataTypesByDataset: PropTypes.object,
-
-    searchLoading: PropTypes.bool,
-    formValues: PropTypes.object,
     dataTypeForms: PropTypes.arrayOf(PropTypes.object).isRequired,
-    joinFormValues: PropTypes.object,
-    isFetchingTextSearch: PropTypes.bool,
-
-    addDataTypeQueryForm: PropTypes.func,
-    updateDataTypeQueryForm: PropTypes.func,
-    removeDataTypeQueryForm: PropTypes.func,
-
-    autoQuery: PropTypes.any, // todo: elaborate
-    dataTypeFormsByDatasetID: PropTypes.object,
-    neutralizeAutoQueryPageTransition: PropTypes.func,
-
     onSubmit: PropTypes.func,
-    setIsSubmittingSearch: PropTypes.func,
+    searchLoading: PropTypes.bool,
 };
 
-const mapStateToProps = state => ({
-    servicesInfo: state.services.items,
-    dataTypesByID: state.serviceDataTypes.itemsByID,
-    dataTypesByDataset: state.datasetDataTypes,
-
-    autoQuery: state.explorer.autoQuery,
-    dataTypeFormsByDatasetID: state.explorer.dataTypeFormsByDatasetID,
-    isFetchingTextSearch: state.explorer.fetchingTextSearch || false,
-
-    dataTypesLoading: state.services.isFetching
-        || state.serviceDataTypes.isFetching
-        || state.datasetDataTypes.isFetchingAll,
-});
-
-const mapDispatchToProps = (dispatch) => ({
-    neutralizeAutoQueryPageTransition: () => dispatch(neutralizeAutoQueryPageTransition()),
-    setIsSubmittingSearch: (isSubmittingSearch) => dispatch(setIsSubmittingSearch(isSubmittingSearch)),
-});
-
-
-export default connect(mapStateToProps, mapDispatchToProps)(DiscoveryQueryBuilder);
+export default DiscoveryQueryBuilder;

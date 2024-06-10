@@ -77,6 +77,20 @@ const ReferenceGenomesContent = () => {
                         {genome.fasta}</a><br />
                     <strong>FAI:</strong>&nbsp;<a target="_blank" rel="noopener noreferrer" href={genome.fai}>
                         {genome.fai}</a>
+                    {genome.gff3_gz && (
+                        <>
+                            <br />
+                            <strong>GFF3.gz:</strong>&nbsp;
+                            <a target="_blank" rel="noopener noreferrer" href={genome.gff3_gz}>{genome.gff3_gz}</a>
+                        </>
+                    )}
+                    {genome.gff3_gz_tbi && (
+                        <>
+                            <br />
+                            <strong>GFF3.gz TBI:</strong>&nbsp;
+                            <a target="_blank" rel="noopener noreferrer" href={genome.gff3_gz}>{genome.gff3_gz}</a>
+                        </>
+                    )}
                 </div>
             ),
         },

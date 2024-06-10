@@ -1,63 +1,59 @@
-import React, {useEffect, useState} from "react";
-import { AutoComplete } from "antd";
-import { useDispatch, useSelector } from "react-redux";
+import React, { useCallback, useEffect, useMemo, useState } from "react";
+import { AutoComplete, Tag } from "antd";
 import PropTypes from "prop-types";
-import { performGohanGeneSearchIfPossible } from "@/modules/discovery/actions";
-
-// TODOs:
-// style options
+import { useGeneNameSearch, useReferenceGenomes } from "@/modules/reference/hooks";
 
 const parsePosition = (value) => {
     const parse = /(?:CHR|chr)([0-9]{1,2}|X|x|Y|y|M|m):(\d+)-(\d+)/;
     const result = parse.exec(value);
 
     if (!result) {
-        return {chrom: null, start: null, end: null};
+        return { chrom: null, start: null, end: null };
     }
 
     const chrom = result[1].toUpperCase(); //for eg 'x', has no effect on numbers
     const start = Number(result[2]);
     const end = Number(result[3]);
-    return {chrom, start, end};
+    return { chrom, start, end };
 };
 
+const looksLikePositionNotation = (value) => !value.includes(" ") && value.includes(":");
 
-const LocusSearch = ({assemblyId, addVariantSearchValues, handleLocusChange, setLocusValidity}) => {
+
+const LocusSearch = ({ assemblyId, addVariantSearchValues, handleLocusChange, setLocusValidity }) => {
+    const referenceGenomes = useReferenceGenomes();
     const [autoCompleteOptions, setAutoCompleteOptions] = useState([]);
-    const geneSearchResults = useSelector((state) => state.discovery.geneNameSearchResponse);
     const [inputValue, setInputValue] = useState("");
-    const dispatch = useDispatch();
 
-    const showAutoCompleteOptions = assemblyId === "GRCh37" || assemblyId === "GRCh38";
+    const showAutoCompleteOptions = useMemo(
+        () => !!referenceGenomes.itemsByID[assemblyId]?.gff3_gz && inputValue.length &&
+            !looksLikePositionNotation(inputValue),
+        [referenceGenomes, assemblyId, inputValue]);
 
-    const handlePositionNotation = (value) => {
-        const {chrom, start, end} = parsePosition(value);
+    const handlePositionNotation = useCallback((value) => {
+        const { chrom, start, end } = parsePosition(value);
         setLocusValidity(chrom && start && end);
-        addVariantSearchValues({chrom, start, end});
-    };
+        addVariantSearchValues({ chrom, start, end });
+    }, [setLocusValidity, addVariantSearchValues]);
 
-    const handleChange = (value) => {
-
-        setInputValue(value);
-
-        if (!value.includes(" ") && value.includes(":")) {
-            handlePositionNotation(value);
+    useEffect(() => {
+        if (looksLikePositionNotation(inputValue)) {
+            handlePositionNotation(inputValue);
 
             // let user finish typing position before showing error
             setLocusValidity(true);
 
             setAutoCompleteOptions([]);
-            return;
         }
+    }, [inputValue, handlePositionNotation, setLocusValidity]);
 
-        if (!value.length || !showAutoCompleteOptions) {
-            return;
-        }
+    const handleChange = useCallback((value) => {
+        setInputValue(value);
+    }, []);
 
-        dispatch(performGohanGeneSearchIfPossible(value, assemblyId));
-    };
+    const { data: geneSearchResults } = useGeneNameSearch(assemblyId, showAutoCompleteOptions ? inputValue : null);
 
-    const handleOnBlur = () => {
+    const handleOnBlur = useCallback(() => {
         // antd has no "select on tab" option
         // so when tabbing away, handle the current contents of the input
         // input can be one of three cases:
@@ -71,8 +67,8 @@ const LocusSearch = ({assemblyId, addVariantSearchValues, handleLocusChange, set
         const isPositionNotation = inputValue.includes(":") && !isAutoCompleteOption;
 
         if (!(isAutoCompleteOption || isPositionNotation)) {
-            handleLocusChange({chrom: null, start: null, end: null});
-            addVariantSearchValues({chrom: null, start: null, end: null});
+            handleLocusChange({ chrom: null, start: null, end: null });
+            addVariantSearchValues({ chrom: null, start: null, end: null });
             return;
         }
 
@@ -81,9 +77,9 @@ const LocusSearch = ({assemblyId, addVariantSearchValues, handleLocusChange, set
             handleLocusChange(position);
             addVariantSearchValues(position);
         }
-    };
+    }, [inputValue, handleLocusChange, addVariantSearchValues]);
 
-    const handleSelect = (value, option) => {
+    const handleSelect = useCallback((value, option) => {
         setInputValue(value);
         const locus = option.locus;
 
@@ -95,15 +91,26 @@ const LocusSearch = ({assemblyId, addVariantSearchValues, handleLocusChange, set
 
         addVariantSearchValues(locus);
         handleLocusChange(locus);
-    };
+    }, [addVariantSearchValues, handleLocusChange]);
 
     useEffect(() => {
         setAutoCompleteOptions(
             (geneSearchResults ?? [])
-                .sort((a, b) => (a.name > b.name) ? 1 : -1)
+                .sort((a, b) => (a.feature_name > b.feature_name) ? 1 : -1)
                 .map((g) => ({
-                    value: `${g.name} (${g.chrom}:${g.start}-${g.end})`,
-                    locus: { "chrom": g.chrom, "start": g.start, "end": g.end },
+                    value: `${g.feature_name} (${g.contig_name}:${g.entries[0].start_pos}-${g.entries[0].end_pos})`,
+                    label: (
+                        <>
+                            {g.feature_name}&nbsp;
+                            ({g.contig_name}:{g.entries[0].start_pos}-{g.entries[0].end_pos})&nbsp;
+                            <Tag>{g.feature_type}</Tag>
+                        </>
+                    ),
+                    locus: {
+                        "chrom": g.contig_name.replace("chr", ""),  // Gohan doesn't accept chr# notation
+                        "start": g.entries[0].start_pos,
+                        "end": g.entries[0].end_pos,
+                    },
                 })),
         );
     }, [geneSearchResults]);

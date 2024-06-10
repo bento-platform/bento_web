@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from "react";
+import React, { useState, useEffect, useCallback, useMemo } from "react";
 import { useSelector } from "react-redux";
 import PropTypes from "prop-types";
 
@@ -7,6 +7,7 @@ import { Form, Input, Select } from "antd";
 import LocusSearch from "./LocusSearch";
 
 import { notAlleleCharactersRegex } from "@/utils/misc";
+import { useGohanVariantsOverview } from "@/modules/explorer/hooks";
 
 
 const isValidLocus = (locus) =>
@@ -29,32 +30,45 @@ const WRAPPER_COL = { lg: { span: 24 }, xl: { span: 20 }, xxl: { span: 18 } };
 
 
 const VariantSearchHeader = ({ dataType, addVariantSearchValues }) => {
+    const { data: variantsOverviewResults, isFetching: isFetchingVariantsOverview } = useGohanVariantsOverview();
+    const overviewAssemblyIds = useMemo(
+        () => {
+            const hasAssemblyIds =
+                variantsOverviewResults?.assemblyIDs !== undefined &&
+                !variantsOverviewResults?.assemblyIDs.hasOwnProperty("error");
+            return hasAssemblyIds ? Object.keys(variantsOverviewResults?.assemblyIDs) : [];
+        },
+        [variantsOverviewResults]);
+    const overviewAssemblyIdOptions = useMemo(
+        () => overviewAssemblyIds.map((value) => ({ value, label: value })),
+        [overviewAssemblyIds]);
+
     const [refFormReceivedValidKeystroke, setRefFormReceivedValidKeystroke] = useState(true);
     const [altFormReceivedValidKeystroke, setAltFormReceivedValidKeystroke] = useState(true);
     const [activeRefValue, setActiveRefValue] = useState(null);
     const [activeAltValue, setActiveAltValue] = useState(null);
-    const [assemblyId, setAssemblyId] = useState(null);
+    const [assemblyId, setAssemblyId] = useState(overviewAssemblyIds.length === 1 ? overviewAssemblyIds[0] : null);
     const [locus, setLocus] = useState({ chrom: null, start: null, end: null });
-    const isSubmitting = useSelector(state => state.explorer.isSubmittingSearch);
+    const isSubmitting = useSelector((state) => state.explorer.isSubmittingSearch);
 
     // begin with required fields considered valid, so user isn't assaulted with error messages
     const [fieldsValidity, setFieldsValidity] = useState(INITIAL_FIELDS_VALIDITY);
 
-    const variantsOverviewResults = useSelector((state) => state.explorer.variantsOverviewResponse);
-    const hasAssemblyIds =
-        variantsOverviewResults?.assemblyIDs !== undefined &&
-        !variantsOverviewResults?.assemblyIDs.hasOwnProperty("error");
-    const overviewAssemblyIds = hasAssemblyIds ? Object.keys(variantsOverviewResults?.assemblyIDs) : [];
-
-    const assemblySchema = dataType.schema?.properties?.assembly_id;
     const genotypeSchema = dataType.schema?.properties?.calls?.items?.properties?.genotype_type;
+    const genotypeSchemaDescription = genotypeSchema?.description;
+    const genotypeOptions = useMemo(
+        () => (genotypeSchema?.enum ?? []).map((value) => ({ value, label: value })),
+        [genotypeSchema]);
 
-    const helpText = {
-        "assemblyId": assemblySchema?.description,
-        "genotype": genotypeSchema?.description,
-        "locus": "Enter gene name (eg \"BRCA1\") or position (\"chr17:41195311-41278381\")",
-        "ref/alt": "Combination of nucleotides A, C, T, and G, including N as a wildcard - i.e. AATG, CG, TNN",
-    };
+    const helpText = useMemo(() => {
+        const assemblySchema = dataType.schema?.properties?.assembly_id;
+        return {
+            "assemblyId": assemblySchema?.description,
+            "genotype": genotypeSchemaDescription,
+            "locus": "Enter gene name (eg \"BRCA1\") or position (\"chr17:41195311-41278381\")",
+            "ref/alt": "Combination of nucleotides A, C, T, and G, including N as a wildcard - i.e. AATG, CG, TNN",
+        };
+    }, [dataType, genotypeSchemaDescription]);
 
     // custom validation since this form isn't submitted, it's just used to fill fields in hidden form
     // each field is validated individually elsewhere
@@ -78,7 +92,7 @@ const VariantSearchHeader = ({ dataType, addVariantSearchValues }) => {
         if (isSubmitting) {
             validateVariantSearchForm();
         }
-    }, [isSubmitting]);
+    }, [isSubmitting, validateVariantSearchForm]);
 
     const setLocusValidity = useCallback((isValid) => {
         setFieldsValidity({ ...fieldsValidity, "locus": isValid });
@@ -94,11 +108,11 @@ const VariantSearchHeader = ({ dataType, addVariantSearchValues }) => {
     const handleAssemblyIdChange = useCallback((value) => {
         addVariantSearchValues({ assemblyId: value });
         setAssemblyId(value);
-    }, []);
+    }, [addVariantSearchValues]);
 
     const handleGenotypeChange = useCallback((value) => {
         addVariantSearchValues({ genotypeType: value });
-    }, []);
+    }, [addVariantSearchValues]);
 
     const handleRefChange = useCallback((e) => {
         const latestInputValue = e.target.value;
@@ -113,7 +127,7 @@ const VariantSearchHeader = ({ dataType, addVariantSearchValues }) => {
         }
         setActiveRefValue(normalizedRef);
         addVariantSearchValues({ ref: normalizedRef });
-    }, []);
+    }, [addVariantSearchValues]);
 
     const handleAltChange = useCallback((e) => {
         const latestInputValue = e.target.value;
@@ -129,21 +143,14 @@ const VariantSearchHeader = ({ dataType, addVariantSearchValues }) => {
 
         setActiveAltValue(normalizedAlt);
         addVariantSearchValues({ alt: normalizedAlt });
-    }, []);
+    }, [addVariantSearchValues]);
 
-    // set default selected assemblyId if only 1 is present
-    const shouldTriggerAssemblyIdChange = overviewAssemblyIds.length === 1;
     useEffect(() => {
-        if (shouldTriggerAssemblyIdChange) {
-            // wait some time before
-            // triggering handleAssemblyIdChange to
-            // allow for the form and formValues
-            // in the parent element to populate
-            setTimeout(function() {
-                handleAssemblyIdChange(overviewAssemblyIds[0]);
-            }, 500);
+        // set default selected assemblyId if only 1 is present
+        if (overviewAssemblyIds.length === 1) {
+            handleAssemblyIdChange(overviewAssemblyIds[0]);
         }
-    }, [shouldTriggerAssemblyIdChange]);
+    }, [handleAssemblyIdChange, overviewAssemblyIds]);
 
 
     return (
@@ -154,12 +161,13 @@ const VariantSearchHeader = ({ dataType, addVariantSearchValues }) => {
                 label="Assembly ID"
                 help={helpText["assemblyId"]}
                 validateStatus={fieldsValidity.assemblyId ? "success" : "error"}
-                required
+                required={true}
             >
                 <Select
                     onChange={handleAssemblyIdChange}
-                    defaultValue={overviewAssemblyIds && shouldTriggerAssemblyIdChange && overviewAssemblyIds[0]}
-                    options={overviewAssemblyIds.map((value) => ({ value, label: value }))}
+                    options={overviewAssemblyIdOptions}
+                    loading={isFetchingVariantsOverview}
+                    value={assemblyId}
                 />
             </Form.Item>
             <Form.Item
@@ -170,10 +178,12 @@ const VariantSearchHeader = ({ dataType, addVariantSearchValues }) => {
                 validateStatus={fieldsValidity.locus ? "success" : "error"}
                 required
             >
-                <LocusSearch assemblyId={assemblyId}
-                             addVariantSearchValues={addVariantSearchValues}
-                             handleLocusChange={handleLocusChange}
-                             setLocusValidity={setLocusValidity} />
+                <LocusSearch
+                    assemblyId={assemblyId}
+                    addVariantSearchValues={addVariantSearchValues}
+                    handleLocusChange={handleLocusChange}
+                    setLocusValidity={setLocusValidity}
+                />
             </Form.Item>
             <Form.Item
                 labelCol={LABEL_COL}
@@ -181,11 +191,7 @@ const VariantSearchHeader = ({ dataType, addVariantSearchValues }) => {
                 label="Genotype"
                 help={helpText["genotype"]}
             >
-                <Select
-                    onChange={handleGenotypeChange}
-                    allowClear
-                    options={genotypeSchema.enum.map((value) => ({ value, label: value }))}
-                />
+                <Select onChange={handleGenotypeChange} allowClear={true} options={genotypeOptions} />
             </Form.Item>
             <Form.Item
                 labelCol={LABEL_COL}

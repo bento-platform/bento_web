@@ -5,11 +5,11 @@ import {
     addDataTypeFormIfPossible,
     removeDataTypeFormIfPossible,
     updateDataTypeFormIfPossible,
-} from "../../utils/search";
+} from "@/utils/search";
 
-import { readFromLocalStorage } from "../../utils/localStorageUtils";
+import { readFromLocalStorage } from "@/utils/localStorageUtils";
 
-import { DEFAULT_OTHER_THRESHOLD_PERCENTAGE } from "../../constants";
+import { DEFAULT_OTHER_THRESHOLD_PERCENTAGE } from "@/constants";
 
 import {
     PERFORM_GET_GOHAN_VARIANTS_OVERVIEW,
@@ -313,14 +313,18 @@ export const explorer = (
     }
 };
 
-export const igvGenomes = (state = { data: null, isFetching: false, hasAttempted: false }, action) => {
+export const igvGenomes = (state = { items: [], itemsByID: {}, isFetching: false, hasAttempted: false }, action) => {
     switch (action.type) {
         case FETCH_IGV_GENOMES.REQUEST:
-            return {...state, isFetching: true};
+            return { ...state, isFetching: true };
         case FETCH_IGV_GENOMES.RECEIVE:
-            return {...state, data: action.data};
+            return {
+                ...state,
+                items: action.data ?? [],
+                itemsByID: Object.fromEntries((action.data ?? []).map((g) => [g.id, g])),
+            };
         case FETCH_IGV_GENOMES.FINISH:
-            return {...state, isFetching: false, hasAttempted: true};
+            return { ...state, isFetching: false, hasAttempted: true };
         default:
             return state;
     }

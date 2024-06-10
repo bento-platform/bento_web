@@ -4,7 +4,7 @@ import PropTypes from "prop-types";
 import { Button, Dropdown, Form, Tooltip } from "antd";
 import { PlusOutlined } from "@ant-design/icons";
 
-import {getFields, getFieldSchema} from "@/utils/schema";
+import { getFields, getFieldSchema } from "@/utils/schema";
 import {
     DEFAULT_SEARCH_PARAMETERS,
     OP_CASE_INSENSITIVE_CONTAINING,
@@ -14,7 +14,7 @@ import {
     searchUiMappings,
 } from "@/utils/search";
 
-import DiscoverySearchCondition, {getSchemaTypeTransformer} from "./DiscoverySearchCondition";
+import DiscoverySearchCondition, { getSchemaTypeTransformer } from "./DiscoverySearchCondition";
 import VariantSearchHeader from "./VariantSearchHeader";
 
 const TOOLTIP_DELAY_SECONDS = 0.8;
@@ -158,7 +158,7 @@ const DiscoverySearchForm = ({ onChange, dataType, setFormRef, handleVariantHidd
             field,
             fieldSchema,
             negated: false,
-            operation:  getInitialOperator(field, fieldSchema),
+            operation: getInitialOperator(field, fieldSchema),
             searchValue: "",
         };
 
@@ -171,7 +171,14 @@ const DiscoverySearchForm = ({ onChange, dataType, setFormRef, handleVariantHidd
             conditions: [...existingConditions, fieldInitialValue],
         });
 
-    }, [conditionsHelp, getConditionsArray]);
+    }, [
+        form,
+        conditionsHelp,
+        getConditionsArray,
+        getDataTypeFieldSchema,
+        getInitialOperator,
+        updateHelpFromFieldChange,
+    ]);
 
     const removeCondition = useCallback((k) => {
         form.setFieldsValue({
