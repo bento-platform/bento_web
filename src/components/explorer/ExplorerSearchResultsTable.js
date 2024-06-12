@@ -34,19 +34,13 @@ const ExplorerSearchResultsTable = ({
     const [summaryModalVisible, setSummaryModalVisible] = useState(false);
     const [tracksModalVisible, setTracksModalVisible] = useState(false);
 
-    const filteredData = useMemo(() => {
-        return data.filter((item) => {
-            return Object.keys(activeFilters).every((filterKey) => {
-                const filterValues = activeFilters[filterKey] || [];
-                if (filterValues.length === 0) {
-                    return true;
-                }
-                return filterValues.includes(item[filterKey]);
-            });
-        });
-    }, [data, activeFilters]);
-
-    const numResults = useMemo(() => filteredData.length, [filteredData]);
+    const filteredData = useMemo(() =>
+        data.filter(item =>
+            Object.entries(activeFilters).every(([filterKey, filterValues]) =>
+                filterValues === null || filterValues.length === 0 || filterValues.includes(item[filterKey]),
+            ),
+        ),
+    [data, activeFilters]);
 
     const showingResults = useMemo(() => {
         const start = numResults > 0 ? currentPage * PAGE_SIZE - PAGE_SIZE + 1 : 0;
