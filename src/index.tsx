@@ -12,7 +12,7 @@ import "@/styles/react18_json_viewer.css";
 import { AUTH_CALLBACK_URL, BENTO_URL_NO_TRAILING_SLASH, CLIENT_ID, OPENID_CONFIG_URL } from "./config";
 import App from "./components/App";
 import { store } from "./store";
-
+                                        
 document.addEventListener("DOMContentLoaded", () => {
     const container = document.getElementById("root")!;
     const root = createRoot(container);
