@@ -7,7 +7,6 @@ import { useDropBoxFileContent } from "@/hooks";
 import { BENTO_DROP_BOX_FS_BASE_PATH } from "@/config";
 import { dropBoxTreeNodeEnabledJson } from "@/utils/files";
 import JsonDisplay from "../display/JsonDisplay";
-import { titleNodePropType } from "@/propTypes";
 import { useDropBox } from "@/modules/manager/hooks";
 
 const sortByName = (a, b) => a.name.localeCompare(b.name);
@@ -17,6 +16,7 @@ const generateFileTree = (directory, valid, folderMode, basePrefix) =>
         .filter(entry => !folderMode || entry.contents !== undefined)  // Don't show files in folder mode
         .map(entry => {
             const { name, contents, relativePath } = entry;
+            console.log(entry);
             const isValid = valid(entry);
             const isFolder = contents !== undefined;
 
@@ -115,10 +115,10 @@ DropBoxJsonSelect.propTypes = {
     form: PropTypes.object.isRequired,
     name: PropTypes.string.isRequired,
     labels: PropTypes.shape({
-        parent: titleNodePropType.isRequired,
-        select: titleNodePropType.isRequired,
-        defaultContent: titleNodePropType.isRequired,
-        updatedContent: titleNodePropType,
+        parent: PropTypes.node.isRequired,
+        select: PropTypes.node.isRequired,
+        defaultContent: PropTypes.node.isRequired,
+        updatedContent: PropTypes.node,
     }),
     initialValue: PropTypes.object,
     rules: PropTypes.array,

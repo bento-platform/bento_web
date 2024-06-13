@@ -45,7 +45,7 @@ const Project = ({
     // Project deletion is a permission on the node, so we need these permissions for that purpose.
     const {
         hasPermission: canDeleteProject,
-        fetchingPermission:  isFetchingGlobalPermissions,
+        fetchingPermission: isFetchingGlobalPermissions,
     } = useHasResourcePermissionWrapper(RESOURCE_EVERYTHING, deleteProject);
 
     // Project editing/dataset creation is a permission on the project, so we need these permissions for those purposes.
@@ -88,7 +88,6 @@ const Project = ({
     const handleSave = useCallback(() => {
         editingForm.validateFields().then((values) => {
             // Don't save datasets since it's a related set.
-            console.log(values);
             onSave({
                 identifier: projectState.identifier,
                 title: values.title || projectState.title,
@@ -243,7 +242,7 @@ const Project = ({
                             </Empty>
                         )
 
-                }
+                    }
 
                 </>
             }

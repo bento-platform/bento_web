@@ -84,7 +84,7 @@ const _fetchExtraPropertiesSchemaTypes = networkAction(() => (dispatch, getState
     error: "Error fetching extra properties schema types",
 }));
 
-export const fetchExtraPropertiesSchemaTypes = (dispatch, getState) => {
+export const fetchExtraPropertiesSchemaTypes = () => (dispatch, getState) => {
     if (!getState().services.itemsByKind.metadata) return Promise.resolve();
     return dispatch(_fetchExtraPropertiesSchemaTypes());
 };

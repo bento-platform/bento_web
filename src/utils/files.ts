@@ -1,3 +1,5 @@
+import { DropBoxEntry } from "@/types";
+
 export type GenomicsFileType = "gvcf" | "vcf" | "maf" | "sam" | "bam" | "cram" | "bigwig";
 
 // file type guesses for igv files, for cases where this information is missing
@@ -41,6 +43,6 @@ export const testFileAgainstPattern = (fileName: string, pattern: string): boole
     return r.test(fileName);
 };
 
-export const dropBoxTreeNodeEnabledJson = ({ name, contents }) =>
-
-    contents !== undefined || testFileAgainstPattern(name, "^.*.json$");
+export const dropBoxTreeNodeEnabledJson = (entry: DropBoxEntry) => {
+    return entry?.contents !== undefined || testFileAgainstPattern(entry.name, "^.*.json$");
+};

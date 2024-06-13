@@ -25,7 +25,7 @@ const _fetchDiscoverySchema = networkAction(() => (dispatch, getState) => ({
     err: "Error fetching discovery JSON schema",
 }));
 
-export const fetchDiscoverySchema = (dispatch, getState) => {
+export const fetchDiscoverySchema = () => (dispatch, getState) => {
     const metadataUrl = getState()?.bentoServices?.itemsByKind?.metadata?.url;
     if (!metadataUrl) return Promise.resolve();
     return dispatch(_fetchDiscoverySchema());

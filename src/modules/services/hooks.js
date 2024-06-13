@@ -1,9 +1,9 @@
 import { useEffect, useMemo } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { fetchBentoServices, fetchServices } from "@/modules/services/actions";
-import { fetchExtraPropertiesSchemaTypes } from "../metadata/actions";
-import { fetchDiscoverySchema } from "../discovery/actions";
-import { performGetGohanVariantsOverviewIfPossible } from "../explorer/actions";
+import { fetchBentoServices, fetchServices } from "./actions";
+import { fetchExtraPropertiesSchemaTypes } from "@/modules/metadata/actions";
+import { fetchDiscoverySchema } from "@/modules/discovery/actions";
+import { performGetGohanVariantsOverviewIfPossible } from "@/modules/explorer/actions";
 
 export const useBentoServices = () => {
     const dispatch = useDispatch();
@@ -68,8 +68,8 @@ export const useMetadataDependentData = () => {
     const metadata = useBentoService("metadata");
     useEffect(() => {
         if (!metadata?.url) return;
-        dispatch(fetchExtraPropertiesSchemaTypes);
-        dispatch(fetchDiscoverySchema);
+        dispatch(fetchExtraPropertiesSchemaTypes());
+        dispatch(fetchDiscoverySchema());
     }, [metadata, dispatch]);
 };
 
@@ -78,6 +78,6 @@ export const useGohanDependentData = () => {
     const gohan = useBentoService("gohan");
     useEffect(() => {
         if (!gohan?.url) return;
-        dispatch(performGetGohanVariantsOverviewIfPossible);
+        dispatch(performGetGohanVariantsOverviewIfPossible());
     }, [gohan, dispatch]);
 };

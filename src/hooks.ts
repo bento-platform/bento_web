@@ -1,18 +1,18 @@
 import { useSelector } from "react-redux";
+import { useCallback, useEffect, useState } from "react";
+import Ajv, { SchemaObject } from "ajv";
 
 import {
     RESOURCE_EVERYTHING,
     useAuthorizationHeader,
     useHasResourcePermission,
     useResourcePermissions,
+    type Resource,
 } from "bento-auth-js";
-import type { Resource } from "bento-auth-js";
 
+import { type RootState, useAppSelector } from "@/store";
 import { useService } from "@/modules/services/hooks";
-import { RootState, useAppSelector } from "./store";
-import { useCallback, useEffect, useState } from "react";
-import Ajv, { SchemaObject } from "ajv";
-import { ARRAY_BUFFER_FILE_EXTENSIONS, BLOB_FILE_EXTENSIONS } from "./components/display/FileDisplay";
+import { ARRAY_BUFFER_FILE_EXTENSIONS, BLOB_FILE_EXTENSIONS } from "@/components/display/FileDisplay";
 
 
 // AUTHORIZATION:
