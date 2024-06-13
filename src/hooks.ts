@@ -165,4 +165,4 @@ export const useDatsValidator = () => {
         "type": "object",
     };
     return useJsonSchemaValidator(datsSchema, false);
-}
+};
