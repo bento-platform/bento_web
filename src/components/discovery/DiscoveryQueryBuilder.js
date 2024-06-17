@@ -8,7 +8,10 @@ import { DownOutlined, PlusOutlined, QuestionCircleOutlined, SearchOutlined } fr
 import { useDatasetDataTypes } from "@/modules/datasets/hooks";
 import {
     setIsSubmittingSearch,
-    neutralizeAutoQueryPageTransition, addDataTypeQueryForm, updateDataTypeQueryForm, removeDataTypeQueryForm,
+    neutralizeAutoQueryPageTransition,
+    addDataTypeQueryForm,
+    updateDataTypeQueryForm,
+    removeDataTypeQueryForm,
 } from "@/modules/explorer/actions";
 import { useDataTypes, useServices } from "@/modules/services/hooks";
 import { useAppDispatch } from "@/store";
@@ -19,14 +22,7 @@ import { getFieldSchema } from "@/utils/schema";
 import DataTypeExplorationModal from "./DataTypeExplorationModal";
 import DiscoverySearchForm from "./DiscoverySearchForm";
 
-
-const DiscoveryQueryBuilder = ({
-    activeDataset,
-    dataTypeForms,
-    requiredDataTypes,
-    onSubmit,
-    searchLoading,
-}) => {
+const DiscoveryQueryBuilder = ({ activeDataset, dataTypeForms, requiredDataTypes, onSubmit, searchLoading }) => {
     const dispatch = useAppDispatch();
 
     const { isFetching: isFetchingServiceDataTypes, itemsByID: dataTypesByID } = useDataTypes();
@@ -44,15 +40,21 @@ const DiscoveryQueryBuilder = ({
     const [schemasModalShown, setSchemasModalShown] = useState(false);
     const forms = useRef({});
 
-    const handleAddDataTypeQueryForm = useCallback((e) => {
-        const keySplit = e.key.split(":");
-        dispatch(addDataTypeQueryForm(activeDataset, dataTypesByID[keySplit[keySplit.length - 1]]));
-    }, [dispatch, activeDataset, dataTypesByID]);
+    const handleAddDataTypeQueryForm = useCallback(
+        (e) => {
+            const keySplit = e.key.split(":");
+            dispatch(addDataTypeQueryForm(activeDataset, dataTypesByID[keySplit[keySplit.length - 1]]));
+        },
+        [dispatch, activeDataset, dataTypesByID],
+    );
 
-    const handleTabsEdit = useCallback((key, action) => {
-        if (action !== "remove") return;
-        dispatch(removeDataTypeQueryForm(activeDataset, dataTypesByID[key]));
-    }, [dispatch, activeDataset, dataTypesByID]);
+    const handleTabsEdit = useCallback(
+        (key, action) => {
+            if (action !== "remove") return;
+            dispatch(removeDataTypeQueryForm(activeDataset, dataTypesByID[key]));
+        },
+        [dispatch, activeDataset, dataTypesByID],
+    );
 
     useEffect(() => {
         (requiredDataTypes ?? []).forEach((dt) => dispatch(addDataTypeQueryForm(activeDataset, dt)));
@@ -63,7 +65,7 @@ const DiscoveryQueryBuilder = ({
             const { autoQueryType } = autoQuery;
 
             // Clean old queries (if any)
-            Object.values(dataTypesByID).forEach(value => handleTabsEdit(value.id, "remove"));
+            Object.values(dataTypesByID).forEach((value) => handleTabsEdit(value.id, "remove"));
 
             // Set type of query
             handleAddDataTypeQueryForm({ key: autoQueryType });
@@ -87,120 +89,154 @@ const DiscoveryQueryBuilder = ({
         }
     }, [dispatch, onSubmit]);
 
-    const handleFormChange = useCallback((dataType, fields) => {
-        dispatch(updateDataTypeQueryForm(activeDataset, dataType, fields));
-    }, [dispatch, activeDataset]);
+    const handleFormChange = useCallback(
+        (dataType, fields) => {
+            dispatch(updateDataTypeQueryForm(activeDataset, dataType, fields));
+        },
+        [dispatch, activeDataset],
+    );
 
-    const handleVariantHiddenFieldChange = useCallback((fields) => {
-        dispatch(updateDataTypeQueryForm(activeDataset, dataTypesByID["variant"], fields));
-    }, [dispatch, activeDataset, dataTypesByID]);
+    const handleVariantHiddenFieldChange = useCallback(
+        (fields) => {
+            dispatch(updateDataTypeQueryForm(activeDataset, dataTypesByID["variant"], fields));
+        },
+        [dispatch, activeDataset, dataTypesByID],
+    );
 
     const handleHelpAndSchemasToggle = useCallback(() => {
         setSchemasModalShown(!schemasModalShown);
     }, [schemasModalShown]);
 
-    const handleSetFormRef = useCallback((dataType, form) => {
-        forms.current[dataType.id] = form;
+    const handleSetFormRef = useCallback(
+        (dataType, form) => {
+            forms.current[dataType.id] = form;
 
-        if (autoQuery?.isAutoQuery) {
-            // If we have an auto-query on this form, trigger it when we get the ref, so we can access the form object:
+            if (autoQuery?.isAutoQuery) {
+                // If we have an auto-query on this form, trigger it when we get the ref,
+                // so we can access the form object:
 
-            const { autoQueryType, autoQueryField, autoQueryValue } = autoQuery;
-            if (autoQueryType !== dataType.id) return;
+                const { autoQueryType, autoQueryField, autoQueryValue } = autoQuery;
+                if (autoQueryType !== dataType.id) return;
 
-            console.debug(`executing auto-query on data type ${dataType.id}: ${autoQueryField} = ${autoQueryValue}`);
+                console.debug(
+                    `executing auto-query on data type ${dataType.id}: ${autoQueryField} = ${autoQueryValue}`,
+                );
 
-            const fieldSchema = getFieldSchema(dataType.schema, autoQueryField);
+                const fieldSchema = getFieldSchema(dataType.schema, autoQueryField);
 
-            // Set term
-            const fields = [{
-                name: ["conditions"],
-                value: [{
-                    field: autoQueryField,
-                    // from utils/schema:
-                    fieldSchema,
-                    negated: false,
-                    operation: OP_EQUALS,
-                    searchValue: autoQueryValue,
-                }],
-            }];
+                // Set term
+                const fields = [
+                    {
+                        name: ["conditions"],
+                        value: [
+                            {
+                                field: autoQueryField,
+                                // from utils/schema:
+                                fieldSchema,
+                                negated: false,
+                                operation: OP_EQUALS,
+                                searchValue: autoQueryValue,
+                            },
+                        ],
+                    },
+                ];
 
-            form?.setFields(fields);
-            handleFormChange(dataType, fields);  // Not triggered by setFields; do it manually
+                form?.setFields(fields);
+                handleFormChange(dataType, fields); // Not triggered by setFields; do it manually
 
-            (async () => {
-                // Simulate form submission click
-                const s = handleSubmit();
+                (async () => {
+                    // Simulate form submission click
+                    const s = handleSubmit();
 
-                // Clean up auto-query "paper trail" (that is, the state segment that
-                // was introduced in order to transfer intent from the OverviewContent page)
-                dispatch(neutralizeAutoQueryPageTransition());
+                    // Clean up auto-query "paper trail" (that is, the state segment that
+                    // was introduced in order to transfer intent from the OverviewContent page)
+                    dispatch(neutralizeAutoQueryPageTransition());
 
-                await s;
-            })();
-        } else {
-            // Put form fields back if they were filled out before, and we're not executing a new auto-query:
+                    await s;
+                })();
+            } else {
+                // Put form fields back if they were filled out before, and we're not executing a new auto-query:
 
-            const stateForm = (dataTypeFormsByDatasetID[activeDataset] ?? [])
-                .find((f) => f.dataType.id === dataType.id);
+                const stateForm = (dataTypeFormsByDatasetID[activeDataset] ?? []).find(
+                    (f) => f.dataType.id === dataType.id,
+                );
 
-            if (!stateForm) return;
+                if (!stateForm) return;
 
-            form?.setFields(stateForm.formValues);
-        }
-    }, [dispatch, autoQuery, handleFormChange, handleSubmit, dataTypeFormsByDatasetID, activeDataset]);
+                form?.setFields(stateForm.formValues);
+            }
+        },
+        [dispatch, autoQuery, handleFormChange, handleSubmit, dataTypeFormsByDatasetID, activeDataset],
+    );
 
     // --- render ---
 
-    const enabledDataTypesForDataset = useMemo(() => (
-        Object.values(dataTypesByDataset.itemsByID[activeDataset] || {})
-            .filter((dt) => typeof dt === "object")  // just datasets which we know data types for
-            .flatMap(Object.values)
-            .filter((dt) => (dt.queryable ?? true) && dt.count > 0)  // just queryable data types w/ a positive count
-    ), [dataTypesByDataset, activeDataset]);
+    const enabledDataTypesForDataset = useMemo(
+        () =>
+            Object.values(dataTypesByDataset.itemsByID[activeDataset] || {})
+                .filter((dt) => typeof dt === "object") // just datasets which we know data types for
+                .flatMap(Object.values)
+                .filter((dt) => (dt.queryable ?? true) && dt.count > 0) // just queryable data types w/ a positive count
+                .sort((a, b) => {
+                    const labelA = (a.label ?? a.id).toString().toLowerCase();
+                    const labelB = (b.label ?? b.id).toString().toLowerCase();
+                    return labelA.localeCompare(labelB);
+                }),
+        [dataTypesByDataset, activeDataset],
+    );
 
     // Filter out services without data types and then flat-map the service's data types to make the dropdown.
-    const dataTypeMenu = useMemo(() => ({
-        onClick: handleAddDataTypeQueryForm,
-        items: enabledDataTypesForDataset.map((dt) => ({
-            key: `${activeDataset}:${dt.id}`,
-            label: <>{dt.label ?? dt.id}</>,
-        })),
-    }), [handleAddDataTypeQueryForm, enabledDataTypesForDataset, activeDataset]);
+    const dataTypeMenu = useMemo(
+        () => ({
+            onClick: handleAddDataTypeQueryForm,
+            items: enabledDataTypesForDataset.map((dt) => ({
+                key: `${activeDataset}:${dt.id}`,
+                label: <>{dt.label ?? dt.id}</>,
+            })),
+        }),
+        [handleAddDataTypeQueryForm, enabledDataTypesForDataset, activeDataset],
+    );
 
-    const dataTypeTabItems = useMemo(() => dataTypeForms.map(({ dataType }) => {
-        // Use data type label for tab name, unless it isn't specified - then fall back to ID.
-        // This behaviour should be the same everywhere in bento_web or almost anywhere the
-        // data type is shown to 'end users'.
-        const { id, label } = dataType;
-        return ({
-            key: id,
-            label: label ?? id,
-            closable: !(requiredDataTypes ?? []).includes(id),
-            children: (
-                <DiscoverySearchForm
-                    dataType={dataType}
-                    loading={searchLoading}
-                    setFormRef={(form) => handleSetFormRef(dataType, form)}
-                    onChange={(fields) => handleFormChange(dataType, fields)}
-                    handleVariantHiddenFieldChange={handleVariantHiddenFieldChange}
-                />
-            ),
-        });
-    }), [
-        requiredDataTypes,
-        dataTypeForms,
-        searchLoading,
-        handleSetFormRef,
-        handleFormChange,
-        handleVariantHiddenFieldChange,
-    ]);
+    const dataTypeTabItems = useMemo(
+        () =>
+            dataTypeForms.map(({ dataType }) => {
+                // Use data type label for tab name, unless it isn't specified - then fall back to ID.
+                // This behaviour should be the same everywhere in bento_web or almost anywhere the
+                // data type is shown to 'end users'.
+                const { id, label } = dataType;
+                return {
+                    key: id,
+                    label: label ?? id,
+                    closable: !(requiredDataTypes ?? []).includes(id),
+                    children: (
+                        <DiscoverySearchForm
+                            dataType={dataType}
+                            loading={searchLoading}
+                            setFormRef={(form) => handleSetFormRef(dataType, form)}
+                            onChange={(fields) => handleFormChange(dataType, fields)}
+                            handleVariantHiddenFieldChange={handleVariantHiddenFieldChange}
+                        />
+                    ),
+                };
+            }),
+        [
+            requiredDataTypes,
+            dataTypeForms,
+            searchLoading,
+            handleSetFormRef,
+            handleFormChange,
+            handleVariantHiddenFieldChange,
+        ],
+    );
 
     const addConditionsOnDataType = (buttonProps = { style: { float: "right" } }) => (
         <Dropdown
             menu={dataTypeMenu}
-            disabled={dataTypesLoading || searchLoading || enabledDataTypesForDataset?.length === 0}>
-            <Button {...buttonProps}><PlusOutlined /> Data Type <DownOutlined /></Button>
+            disabled={dataTypesLoading || searchLoading || enabledDataTypesForDataset?.length === 0}
+        >
+            <Button {...buttonProps}>
+                <PlusOutlined /> Data Type <DownOutlined />
+            </Button>
         </Dropdown>
     );
 
@@ -225,13 +261,13 @@ const DiscoveryQueryBuilder = ({
                 </Button>
             </Typography.Title>
 
-            {dataTypeForms.length > 0
-                ? <Tabs type="editable-card" hideAdd onEdit={handleTabsEdit} items={dataTypeTabItems} />
-                : (
-                    <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} description="No Data Types Added">
-                        {addConditionsOnDataType({ type: "primary" })}
-                    </Empty>
-                )}
+            {dataTypeForms.length > 0 ? (
+                <Tabs type="editable-card" hideAdd onEdit={handleTabsEdit} items={dataTypeTabItems} />
+            ) : (
+                <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} description="No Data Types Added">
+                    {addConditionsOnDataType({ type: "primary" })}
+                </Empty>
+            )}
 
             <Button
                 type="primary"
@@ -239,7 +275,9 @@ const DiscoveryQueryBuilder = ({
                 loading={searchLoading}
                 disabled={dataTypeForms.length === 0 || isFetchingTextSearch}
                 onClick={handleSubmit}
-            >Search</Button>
+            >
+                Search
+            </Button>
         </Card>
     );
 };
