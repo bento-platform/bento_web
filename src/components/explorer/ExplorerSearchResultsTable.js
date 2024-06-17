@@ -46,7 +46,7 @@ const ExplorerSearchResultsTable = ({
         const start = filteredData.length > 0 ? currentPage * PAGE_SIZE - PAGE_SIZE + 1 : 0;
         const end = Math.min(currentPage * PAGE_SIZE, filteredData.length);
         return `Showing results ${start}-${end} of ${filteredData.length}`;
-    }, [currentPage, PAGE_SIZE, filteredData]);
+    }, [currentPage, filteredData]);
 
     const searchResults = useSelector((state) => state.explorer.searchResultsByDatasetID[dataset] || null);
     const selectedRows = useSelector((state) => state.explorer.selectedRowsByDatasetID[dataset]);
