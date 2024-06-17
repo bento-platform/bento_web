@@ -45,7 +45,7 @@ const DiscoveryQueryBuilder = ({ activeDataset, dataTypeForms, requiredDataTypes
             const keySplit = e.key.split(":");
             dispatch(addDataTypeQueryForm(activeDataset, dataTypesByID[keySplit[keySplit.length - 1]]));
         },
-        [dispatch, activeDataset, dataTypesByID]
+        [dispatch, activeDataset, dataTypesByID],
     );
 
     const handleTabsEdit = useCallback(
@@ -53,7 +53,7 @@ const DiscoveryQueryBuilder = ({ activeDataset, dataTypeForms, requiredDataTypes
             if (action !== "remove") return;
             dispatch(removeDataTypeQueryForm(activeDataset, dataTypesByID[key]));
         },
-        [dispatch, activeDataset, dataTypesByID]
+        [dispatch, activeDataset, dataTypesByID],
     );
 
     useEffect(() => {
@@ -93,14 +93,14 @@ const DiscoveryQueryBuilder = ({ activeDataset, dataTypeForms, requiredDataTypes
         (dataType, fields) => {
             dispatch(updateDataTypeQueryForm(activeDataset, dataType, fields));
         },
-        [dispatch, activeDataset]
+        [dispatch, activeDataset],
     );
 
     const handleVariantHiddenFieldChange = useCallback(
         (fields) => {
             dispatch(updateDataTypeQueryForm(activeDataset, dataTypesByID["variant"], fields));
         },
-        [dispatch, activeDataset, dataTypesByID]
+        [dispatch, activeDataset, dataTypesByID],
     );
 
     const handleHelpAndSchemasToggle = useCallback(() => {
@@ -112,13 +112,14 @@ const DiscoveryQueryBuilder = ({ activeDataset, dataTypeForms, requiredDataTypes
             forms.current[dataType.id] = form;
 
             if (autoQuery?.isAutoQuery) {
-                // If we have an auto-query on this form, trigger it when we get the ref, so we can access the form object:
+                // If we have an auto-query on this form, trigger it when we get the ref,
+                // so we can access the form object:
 
                 const { autoQueryType, autoQueryField, autoQueryValue } = autoQuery;
                 if (autoQueryType !== dataType.id) return;
 
                 console.debug(
-                    `executing auto-query on data type ${dataType.id}: ${autoQueryField} = ${autoQueryValue}`
+                    `executing auto-query on data type ${dataType.id}: ${autoQueryField} = ${autoQueryValue}`,
                 );
 
                 const fieldSchema = getFieldSchema(dataType.schema, autoQueryField);
@@ -157,7 +158,7 @@ const DiscoveryQueryBuilder = ({ activeDataset, dataTypeForms, requiredDataTypes
                 // Put form fields back if they were filled out before, and we're not executing a new auto-query:
 
                 const stateForm = (dataTypeFormsByDatasetID[activeDataset] ?? []).find(
-                    (f) => f.dataType.id === dataType.id
+                    (f) => f.dataType.id === dataType.id,
                 );
 
                 if (!stateForm) return;
@@ -165,7 +166,7 @@ const DiscoveryQueryBuilder = ({ activeDataset, dataTypeForms, requiredDataTypes
                 form?.setFields(stateForm.formValues);
             }
         },
-        [dispatch, autoQuery, handleFormChange, handleSubmit, dataTypeFormsByDatasetID, activeDataset]
+        [dispatch, autoQuery, handleFormChange, handleSubmit, dataTypeFormsByDatasetID, activeDataset],
     );
 
     // --- render ---
@@ -181,7 +182,7 @@ const DiscoveryQueryBuilder = ({ activeDataset, dataTypeForms, requiredDataTypes
                     const labelB = (b.label ?? b.id).toString().toLowerCase();
                     return labelA.localeCompare(labelB);
                 }),
-        [dataTypesByDataset, activeDataset]
+        [dataTypesByDataset, activeDataset],
     );
 
     // Filter out services without data types and then flat-map the service's data types to make the dropdown.
@@ -193,7 +194,7 @@ const DiscoveryQueryBuilder = ({ activeDataset, dataTypeForms, requiredDataTypes
                 label: <>{dt.label ?? dt.id}</>,
             })),
         }),
-        [handleAddDataTypeQueryForm, enabledDataTypesForDataset, activeDataset]
+        [handleAddDataTypeQueryForm, enabledDataTypesForDataset, activeDataset],
     );
 
     const dataTypeTabItems = useMemo(
@@ -225,7 +226,7 @@ const DiscoveryQueryBuilder = ({ activeDataset, dataTypeForms, requiredDataTypes
             handleSetFormRef,
             handleFormChange,
             handleVariantHiddenFieldChange,
-        ]
+        ],
     );
 
     const addConditionsOnDataType = (buttonProps = { style: { float: "right" } }) => (
