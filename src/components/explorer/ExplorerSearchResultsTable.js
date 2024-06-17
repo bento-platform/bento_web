@@ -29,16 +29,24 @@ const ExplorerSearchResultsTable = ({
 }) => {
     const { dataset } = useParams();
     const [currentPage, setCurrentPage] = useState(initialCurrentPage || 1);
-    const [numResults] = useState(data.length);
+    const [activeFilters, setActiveFilters] = useState([]);
 
     const [summaryModalVisible, setSummaryModalVisible] = useState(false);
     const [tracksModalVisible, setTracksModalVisible] = useState(false);
 
+    const filteredData = useMemo(() =>
+        data.filter(item =>
+            Object.entries(activeFilters).every(([filterKey, filterValues]) =>
+                filterValues === null || filterValues.length === 0 || filterValues.includes(item[filterKey]),
+            ),
+        ),
+    [data, activeFilters]);
+
     const showingResults = useMemo(() => {
-        const start = numResults > 0 ? currentPage * PAGE_SIZE - PAGE_SIZE + 1 : 0;
-        const end = Math.min(currentPage * PAGE_SIZE, numResults);
-        return `Showing results ${start}-${end} of ${numResults}`;
-    }, [currentPage, PAGE_SIZE, numResults]);
+        const start = filteredData.length > 0 ? currentPage * PAGE_SIZE - PAGE_SIZE + 1 : 0;
+        const end = Math.min(currentPage * PAGE_SIZE, filteredData.length);
+        return `Showing results ${start}-${end} of ${filteredData.length}`;
+    }, [currentPage, filteredData]);
 
     const searchResults = useSelector((state) => state.explorer.searchResultsByDatasetID[dataset] || null);
     const selectedRows = useSelector((state) => state.explorer.selectedRowsByDatasetID[dataset]);
@@ -62,9 +70,11 @@ const ExplorerSearchResultsTable = ({
         }
     }, [dispatch, dataset, activeTab]);
 
-    const onPageChange = useCallback((pageObj, filters, sorter) => {
-        setCurrentPage(pageObj.current);
-        dispatch(setTableSortOrder(dataset, sorter.field, sorter.order, activeTab, pageObj.current));
+    const onTableChange = useCallback((pageObj, filters, sorter) => {
+        const newPage = filters !== activeFilters ? 1 : pageObj.current;
+        setCurrentPage(newPage);
+        setActiveFilters(filters);
+        dispatch(setTableSortOrder(dataset, sorter.field, sorter.order, activeTab, newPage));
     }, [dispatch, dataset, activeTab]);
 
     const tableStyle = useMemo(() => ({
@@ -83,8 +93,8 @@ const ExplorerSearchResultsTable = ({
                 key: "all-data",
                 text: "Select All Data",
                 onSelect: () => {
-                    const allRowKeys = data.map((item) => item.key);
-                    handleSetSelectedRows(allRowKeys);
+                    const filteredKeys = filteredData.map((item) => item.key);
+                    handleSetSelectedRows(filteredKeys);
                 },
             },
             {
@@ -93,7 +103,7 @@ const ExplorerSearchResultsTable = ({
                 onSelect: () => handleSetSelectedRows([]),
             },
         ],
-    }), [selectedRows, data, handleSetSelectedRows]);
+    }), [selectedRows, filteredData, handleSetSelectedRows]);
 
     const sortedInfo = useMemo(
         () => ({
@@ -127,7 +137,7 @@ const ExplorerSearchResultsTable = ({
                         icon={<ExportOutlined />}
                         style={{ marginRight: "8px" }}
                         loading={isFetchingDownload}
-                        onClick={() => handlePerformDownloadCSVIfPossible(selectedRows ?? [], data)}
+                        onClick={() => handlePerformDownloadCSVIfPossible(selectedRows ?? [], filteredData)}
                     >
                         Export as CSV
                     </Button>
@@ -155,10 +165,11 @@ const ExplorerSearchResultsTable = ({
                     columns={columns}
                     dataSource={data || []}
                     sortedInfo={sortedInfo}
-                    onChange={onPageChange}
+                    onChange={onTableChange}
                     pagination={{
                         pageSize: PAGE_SIZE,
                         defaultCurrent: currentPage,
+                        showSizeChanger: false,
                         showQuickJumper: true,
                     }}
                     rowKey={(record) => {
