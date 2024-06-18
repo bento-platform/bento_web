@@ -73,7 +73,7 @@ const DownloadButton = ({
             // Call the props-passed onClick event handler after hijacking the event and doing our own thing
             if (propsOnClick) propsOnClick(e);
         }
-    }, [uri, accessToken, propsOnClick]);
+    }, [uri, accessToken, extraFormData, fileName, propsOnClick]);
 
     return (
         <Button key="download"

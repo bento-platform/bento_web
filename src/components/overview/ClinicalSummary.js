@@ -36,7 +36,7 @@ const ClinicalSummary = ({ overviewSummary }) => {
             title: "Experiments",
             value: expSpecific?.experiments?.count,
         },
-    ], [phenoSpecific]);
+    ], [phenoSpecific, expSpecific]);
 
     const charts = useMemo(() => [
         getPieChart({

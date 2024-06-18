@@ -110,13 +110,13 @@ const useHasPermissionOnAtLeastOneProjectOrDataset = (permissionList) => {
 
     const hasPermissionGlobal = useMemo(
         () => _hasOneOfListedPermissions(permissionList, globalPermissions),
-        [globalPermissions]);
+        [permissionList, globalPermissions]);
 
     const hasPermission = useMemo(
         () => hasPermissionGlobal || (
             Object.values(pdp).some((ps) => _hasOneOfListedPermissions(permissionList, ps.permissions))
         ),
-        [hasPermissionGlobal, pdp]);
+        [permissionList, hasPermissionGlobal, pdp]);
 
     const isFetching = useMemo(
         () =>

@@ -48,7 +48,7 @@ const NotificationList = ({ notifications, small }) => {
                 default:
                     return [];
             }
-        }, [dispatch, navigate]);
+        }, [dispatch, navigate, markAsRead]);
 
     const listItemRender = useCallback(n => (
         <List.Item key={n.id} actions={[

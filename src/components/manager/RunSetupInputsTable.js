@@ -45,7 +45,7 @@ const RunSetupInputsTable = ({ selectedWorkflow, inputs }) => {
         () => selectedWorkflow.inputs
             .filter(i => !(i.hidden ?? false) && !i.injected)
             .map(i => ({ id: i.id, value: inputs[i.id], inputConfig: i })),
-        [inputs]);
+        [selectedWorkflow, inputs]);
 
     return (
         <Table

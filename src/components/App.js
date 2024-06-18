@@ -11,6 +11,7 @@ import {
     useSignInPopupTokenHandoff,
     useSessionWorkerTokenRefresh,
     useAccessToken,
+    useAuthState,
     useIsAuthenticated,
 } from "bento-auth-js";
 
@@ -71,7 +72,7 @@ const App = () => {
     const sessionWorker = useRef(null);
 
     const accessToken = useAccessToken();
-    const idTokenContents = useSelector((state) => state.auth.idTokenContents);
+    const { idTokenContents } = useAuthState();
     const isAuthenticated = useIsAuthenticated();
 
     const eventRelay = useService("event-relay");
@@ -128,7 +129,7 @@ const App = () => {
             });
             return socket;
         })();
-    }, [navigate, isAuthenticated, eventRelay, eventRelayConnection]);
+    }, [navigate, isAuthenticated, eventRelayUrl, eventRelayConnection, accessToken]);
 
     const handleUserChange = useCallback(() => {
         if (lastIsAuthenticated && !isAuthenticated) {
@@ -152,6 +153,7 @@ const App = () => {
             createEventRelayConnectionIfNecessary();
         }
     }, [
+        dispatch,
         lastIsAuthenticated,
         isAuthenticated,
         signedOutModal,
@@ -163,7 +165,7 @@ const App = () => {
         if (eventRelayUrl) {
             createEventRelayConnectionIfNecessary();
         }
-    }, [eventRelay, createEventRelayConnectionIfNecessary]);
+    }, [eventRelayUrl, createEventRelayConnectionIfNecessary]);
 
     useEffect(() => {
         handleUserChange();
