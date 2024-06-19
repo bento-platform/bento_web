@@ -14,22 +14,24 @@ import App from "./components/App";
 import { store } from "./store";
 
 document.addEventListener("DOMContentLoaded", () => {
-    const container = document.getElementById("root")!;
-    const root = createRoot(container);
-    root.render(
-        <Provider store={store}>
-            <BrowserRouter>
-                <BentoAuthContextProvider value={{
-                    applicationUrl: BENTO_URL_NO_TRAILING_SLASH,
-                    openIdConfigUrl: OPENID_CONFIG_URL,
-                    clientId: CLIENT_ID,
-                    scope: "openid email",
-                    postSignOutUrl: `${BENTO_URL_NO_TRAILING_SLASH}/`,
-                    authCallbackUrl: AUTH_CALLBACK_URL,
-                }}>
-                    <App />
-                </BentoAuthContextProvider>
-            </BrowserRouter>
-        </Provider>,
-    );
+  const container = document.getElementById("root")!;
+  const root = createRoot(container);
+  root.render(
+    <Provider store={store}>
+      <BrowserRouter>
+        <BentoAuthContextProvider
+          value={{
+            applicationUrl: BENTO_URL_NO_TRAILING_SLASH,
+            openIdConfigUrl: OPENID_CONFIG_URL,
+            clientId: CLIENT_ID,
+            scope: "openid email",
+            postSignOutUrl: `${BENTO_URL_NO_TRAILING_SLASH}/`,
+            authCallbackUrl: AUTH_CALLBACK_URL,
+          }}
+        >
+          <App />
+        </BentoAuthContextProvider>
+      </BrowserRouter>
+    </Provider>,
+  );
 });
