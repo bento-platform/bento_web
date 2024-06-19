@@ -7,7 +7,8 @@ module.exports = {
         "eslint:recommended",
         "plugin:react/recommended",
         "plugin:@typescript-eslint/recommended",
-        "plugin:prettier/recommended", // Add this line
+        "plugin:prettier/recommended",
+        "prettier",
     ],
     globals: {
         Atomics: "readonly",
@@ -22,35 +23,9 @@ module.exports = {
         },
         sourceType: "module",
     },
-    plugins: [
-        "react",
-        "@typescript-eslint",
-        "prettier", // Add this line
-    ],
+    plugins: ["react", "@typescript-eslint", "prettier"],
     rules: {
-        indent: [
-            "error",
-            4,
-            {
-                SwitchCase: 1,
-                ignoredNodes: [
-                    "JSXElement",
-                    "JSXElement > *",
-                    "JSXAttribute",
-                    "JSXIdentifier",
-                    "JSXNamespacedName",
-                    "JSXMemberExpression",
-                    "JSXSpreadAttribute",
-                    "JSXExpressionContainer",
-                    "JSXOpeningElement",
-                    "JSXClosingElement",
-                    "JSXText",
-                    "JSXEmptyExpression",
-                    "JSXSpreadChild",
-                ],
-                ignoreComments: true,
-            },
-        ],
+        "prettier/prettier": "error",
         "react/jsx-indent-props": ["error", "first"],
         "react/react-in-jsx-scope": "off",
         "react/jsx-uses-react": "off",
@@ -65,7 +40,7 @@ module.exports = {
         "no-var": ["error"],
         "prefer-const": ["error"],
         eqeqeq: ["error"],
-        "max-len": ["error", { code: 120 }],
+        "max-len": ["error", { code: 124, tabWidth: 2, ignoreComments: true }],
         "no-trailing-spaces": ["error"],
         "space-before-blocks": ["error", "always"],
         "eol-last": ["error", "always"],
@@ -85,7 +60,6 @@ module.exports = {
             },
         ],
         "@typescript-eslint/no-unused-vars": ["error", { argsIgnorePattern: "^_" }],
-        "prettier/prettier": "error", // Add this line
     },
     settings: {
         react: {
