@@ -3,9 +3,9 @@ import React from "react";
 // TODO: rewrite this component using views of vcf files, focused on variants of interest
 
 class GenomeBrowser extends React.Component {
-    render() {
-        return null;
-    }
+  render() {
+    return null;
+  }
 }
 
 export default GenomeBrowser;

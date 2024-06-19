@@ -7,25 +7,25 @@ import { useAppDispatch } from "@/store";
 import { fetchIgvGenomes, performGetGohanVariantsOverviewIfPossible } from "./actions";
 
 export const useIgvGenomes = () => {
-    const dispatch = useAppDispatch();
-    useEffect(() => {
-        dispatch(fetchIgvGenomes());
-    }, [dispatch]);
-    return useSelector((state) => state.igvGenomes);
+  const dispatch = useAppDispatch();
+  useEffect(() => {
+    dispatch(fetchIgvGenomes());
+  }, [dispatch]);
+  return useSelector((state) => state.igvGenomes);
 };
 
 export const useGohanVariantsOverview = () => {
-    const dispatch = useAppDispatch();
-    const gohan = useService("gohan");
+  const dispatch = useAppDispatch();
+  const gohan = useService("gohan");
 
-    useEffect(() => {
-        if (gohan) {
-            dispatch(performGetGohanVariantsOverviewIfPossible()).catch(console.error);
-        }
-    }, [dispatch, gohan]);
+  useEffect(() => {
+    if (gohan) {
+      dispatch(performGetGohanVariantsOverviewIfPossible()).catch(console.error);
+    }
+  }, [dispatch, gohan]);
 
-    const data = useSelector((state) => state.explorer.variantsOverviewResponse);
-    const isFetching = useSelector((state) => state.explorer.fetchingVariantsOverview);
+  const data = useSelector((state) => state.explorer.variantsOverviewResponse);
+  const isFetching = useSelector((state) => state.explorer.fetchingVariantsOverview);
 
-    return { data, isFetching };
+  return { data, isFetching };
 };

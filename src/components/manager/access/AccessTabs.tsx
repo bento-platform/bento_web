@@ -10,39 +10,35 @@ import GrantsTabContent from "./GrantsTabContent";
 import GroupsTabContent from "./GroupsTabContent";
 
 const TAB_ITEMS: TabsProps["items"] = [
-    {
-        key: "grants",
-        label: "Grants",
-        children: <GrantsTabContent />,
-    },
-    {
-        key: "groups",
-        label: "Groups",
-        children: <GroupsTabContent />,
-    },
+  {
+    key: "grants",
+    label: "Grants",
+    children: <GrantsTabContent />,
+  },
+  {
+    key: "groups",
+    label: "Groups",
+    children: <GroupsTabContent />,
+  },
 ];
 
 const AccessTabs = () => {
-    const navigate = useNavigate();
-    const { tab } = useParams();
+  const navigate = useNavigate();
+  const { tab } = useParams();
 
-    const {
-        hasAtLeastOneViewPermissionsGrant,
-        hasAttempted: hasAttemptedPermissions,
-    } = useAuthzManagementPermissions();
+  const { hasAtLeastOneViewPermissionsGrant, hasAttempted: hasAttemptedPermissions } = useAuthzManagementPermissions();
 
-    const onTabClick = useCallback((key: string) => {
-        navigate(`../${key}`);
-    }, [navigate]);
+  const onTabClick = useCallback(
+    (key: string) => {
+      navigate(`../${key}`);
+    },
+    [navigate],
+  );
 
-    if (hasAttemptedPermissions && !hasAtLeastOneViewPermissionsGrant) {
-        return (
-            <ForbiddenContent message="You do not have permission to view grants and groups." />
-        );
-    }
-    return (
-        <Tabs type="card" activeKey={tab} onTabClick={onTabClick} items={TAB_ITEMS} />
-    );
+  if (hasAttemptedPermissions && !hasAtLeastOneViewPermissionsGrant) {
+    return <ForbiddenContent message="You do not have permission to view grants and groups." />;
+  }
+  return <Tabs type="card" activeKey={tab} onTabClick={onTabClick} items={TAB_ITEMS} />;
 };
 
 export default AccessTabs;
