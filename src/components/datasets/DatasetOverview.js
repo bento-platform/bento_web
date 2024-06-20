@@ -9,7 +9,7 @@ import { datasetPropTypesShape, projectPropTypesShape } from "@/propTypes";
 
 const DatasetOverview = ({ isPrivate, project, dataset }) => {
   const datasetsDataTypes = useDatasetDataTypes();
-  const datasetDataTypes = datasetsDataTypes[dataset.identifier];
+  const datasetDataTypes = datasetsDataTypes.itemsByID[dataset.identifier];
   const isFetchingDataset = datasetDataTypes?.isFetching;
 
   // Count data types which actually have data in them for showing in the overview
