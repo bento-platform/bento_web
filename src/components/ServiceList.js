@@ -107,20 +107,6 @@ const serviceColumns = (isAuthenticated, setRequestModalService) => [
             return <Button size="small" onClick={onClick}>Make Request</Button>;
         },
     },
-    {
-        title: "Logs",
-        dataIndex: "service_kind",
-        render: (serviceKind) =>
-            serviceKind ? (
-                isAuthenticated ? (
-                    <Link style={SERVICE_KIND_STYLING} to={`/services/${serviceKind}/logs`}>
-                        Show Logs
-                    </Link>
-                ) : (
-                    <span style={SERVICE_KIND_STYLING}>Show Logs</span>
-                )
-            ) : null,
-    },
 ];
 /* eslint-enable react/prop-types */
 
