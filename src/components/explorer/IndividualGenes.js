@@ -32,34 +32,34 @@ StringList.propTypes = {
 };
 
 export const GeneDescriptor = ({ geneDescriptor }) => {
-    const dispatch = useDispatch();
-    const { individualID } = useContext(ExplorerIndividualContext);
-    const tracksUrl = useMemo(() => {
-        if (individualID) {
-            return `${explorerIndividualUrl(individualID)}/tracks`;
-        }
-    }, [individualID]);
+  const dispatch = useDispatch();
+  const { individualID } = useContext(ExplorerIndividualContext);
+  const tracksUrl = useMemo(() => {
+    if (individualID) {
+      return `${explorerIndividualUrl(individualID)}/tracks`;
+    }
+  }, [individualID]);
 
-    return (
-        <Descriptions bordered={true} column={1} size="small">
-            <Descriptions.Item label="Accession Number">{geneDescriptor.value_id}</Descriptions.Item>
-            <Descriptions.Item label="Symbol">
-                <Link onClick={() => dispatch(setIgvPosition(geneDescriptor.symbol))} to={tracksUrl}>
-                    <Button>{geneDescriptor.symbol}</Button>
-                </Link>
-            </Descriptions.Item>
-            <Descriptions.Item label="Description">{geneDescriptor.description}</Descriptions.Item>
-            <Descriptions.Item label="Alternate IDs">
-                <StringList values={geneDescriptor?.alternate_ids ?? []}/>
-            </Descriptions.Item>
-            <Descriptions.Item label="Cross References">
-                <StringList values={geneDescriptor?.xrefs ?? []}/>
-            </Descriptions.Item>
-            <Descriptions.Item label="Alternate Symbols">
-                <StringList values={geneDescriptor?.alternate_symbols ?? []}/>
-            </Descriptions.Item>
-        </Descriptions>
-    );
+  return (
+    <Descriptions bordered={true} column={1} size="small">
+      <Descriptions.Item label="Accession Number">{geneDescriptor.value_id}</Descriptions.Item>
+      <Descriptions.Item label="Symbol">
+        <Link onClick={() => dispatch(setIgvPosition(geneDescriptor.symbol))} to={tracksUrl}>
+          <Button>{geneDescriptor.symbol}</Button>
+        </Link>
+      </Descriptions.Item>
+      <Descriptions.Item label="Description">{geneDescriptor.description}</Descriptions.Item>
+      <Descriptions.Item label="Alternate IDs">
+        <StringList values={geneDescriptor?.alternate_ids ?? []} />
+      </Descriptions.Item>
+      <Descriptions.Item label="Cross References">
+        <StringList values={geneDescriptor?.xrefs ?? []} />
+      </Descriptions.Item>
+      <Descriptions.Item label="Alternate Symbols">
+        <StringList values={geneDescriptor?.alternate_symbols ?? []} />
+      </Descriptions.Item>
+    </Descriptions>
+  );
 };
 GeneDescriptor.propTypes = {
   geneDescriptor: PropTypes.object,
