@@ -12,12 +12,12 @@ import { GeneDescriptor } from "./IndividualGenes";
 // TODO: Only show variants from the relevant dataset, if specified;
 //  highlight those found in search results, if specified
 
-const variantStyle = {margin: "5px"};
+const variantStyle = { margin: "5px" };
 
 const variantExpressionPropType = PropTypes.shape({
-    syntax: PropTypes.string,
-    value: PropTypes.string,
-    version: PropTypes.string,
+  syntax: PropTypes.string,
+  value: PropTypes.string,
+  version: PropTypes.string,
 });
 
 const VariantExpressionDetails = ({variantExpression}) => {
@@ -33,6 +33,7 @@ const VariantExpressionDetails = ({variantExpression}) => {
 };
 VariantExpressionDetails.propTypes = {
     variantExpression: variantExpressionPropType,
+    geneContext: PropTypes.object,
 };
 
 
@@ -57,10 +58,11 @@ const VariantDescriptor = ({variationDescriptor}) => {
                     <GeneDescriptor geneDescriptor={variationDescriptor.gene_context}/>
                 </Descriptions.Item>
             }
-            {variationDescriptor.expressions &&
+            {(variationDescriptor.expressions && variationDescriptor.gene_context) &&
                 <Descriptions.Item label={"Expressions"}>
                     {variationDescriptor.expressions.map(expr => (
                         <VariantExpressionDetails variantExpression={expr}
+                                                  geneContext={variationDescriptor.gene_context}
                                                   key={expr.value}/>
                     ))}
                 </Descriptions.Item>
@@ -103,7 +105,7 @@ const VariantDescriptor = ({variationDescriptor}) => {
     );
 };
 VariantDescriptor.propTypes = {
-    variationDescriptor: PropTypes.object,
+  variationDescriptor: PropTypes.object,
 };
 
 export default VariantDescriptor;

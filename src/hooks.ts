@@ -11,47 +11,47 @@ import { useService } from "@/modules/services/hooks";
 // These wrapper hooks grab the 'authzUrl' from the store's services.
 
 export type ResourcePermissionEval = {
-    fetchingPermission: boolean,  // Indicates the permission is being fetched from the authz service.
-    hasPermission: boolean,  // Indicates the user has the requested resource permission.
+  fetchingPermission: boolean; // Indicates the permission is being fetched from the authz service.
+  hasPermission: boolean; // Indicates the user has the requested resource permission.
 };
 
 /**
  * Evaluate if the user has a permission on a given resource
  */
 export const useHasResourcePermissionWrapper = (resource: Resource, permission: string): ResourcePermissionEval => {
-    const authzUrl = useService("authorization")?.url;
+  const authzUrl = useService("authorization")?.url;
 
-    const { isFetching: fetchingPermission, hasPermission } = useHasResourcePermission(resource, authzUrl, permission);
+  const { isFetching: fetchingPermission, hasPermission } = useHasResourcePermission(resource, authzUrl, permission);
 
-    return {
-        fetchingPermission,
-        hasPermission,
-    };
+  return {
+    fetchingPermission,
+    hasPermission,
+  };
 };
 
 export type ResourcePermissions = {
-    permissions: string[],  // The list of permissions the user has on the resource
-    isFetchingPermissions: boolean,  // Indicates if the permissions are being fetched.
-    hasAttemptedPermissions: boolean,  // Indicates if a permissions fetch was attempted.
+  permissions: string[]; // The list of permissions the user has on the resource
+  isFetchingPermissions: boolean; // Indicates if the permissions are being fetched.
+  hasAttemptedPermissions: boolean; // Indicates if a permissions fetch was attempted.
 };
 
 /**
  * Returns the user's permissions for a given resource
  */
 export const useResourcePermissionsWrapper = (resource: Resource): ResourcePermissions => {
-    const authzUrl = useService("authorization")?.url;
+  const authzUrl = useService("authorization")?.url;
 
-    const {
-        permissions,
-        isFetching: isFetchingPermissions,
-        hasAttempted: hasAttemptedPermissions,
-    } = useResourcePermissions(resource, authzUrl);
+  const {
+    permissions,
+    isFetching: isFetchingPermissions,
+    hasAttempted: hasAttemptedPermissions,
+  } = useResourcePermissions(resource, authzUrl);
 
-    return {
-        permissions,
-        isFetchingPermissions,
-        hasAttemptedPermissions,
-    };
+  return {
+    permissions,
+    isFetchingPermissions,
+    hasAttemptedPermissions,
+  };
 };
 
 /**
@@ -63,13 +63,13 @@ export const useEverythingPermissions = () => useResourcePermissionsWrapper(RESO
  * Returns true if the OpenID config hasn't been loaded yet.
  */
 export const useOpenIDConfigNotLoaded = (): boolean => {
-    const {
-        hasAttempted: openIdConfigHasAttempted,
-        isFetching: openIdConfigFetching,
-        // @ts-expect-error We haven't typed the state object yet
-    } = useSelector((state) => state.openIdConfiguration);
+  const {
+    hasAttempted: openIdConfigHasAttempted,
+    isFetching: openIdConfigFetching,
+    // @ts-expect-error We haven't typed the state object yet
+  } = useSelector((state) => state.openIdConfiguration);
 
-    // Need `=== false`, since if this is loaded from localStorage from a prior version, it'll be undefined and prevent
-    // the page from showing.
-    return openIdConfigHasAttempted === false || openIdConfigFetching;
+  // Need `=== false`, since if this is loaded from localStorage from a prior version, it'll be undefined and prevent
+  // the page from showing.
+  return openIdConfigHasAttempted === false || openIdConfigFetching;
 };

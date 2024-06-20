@@ -11,36 +11,38 @@ import JsonView from "@/components/common/JsonView";
 import { useService } from "@/modules/services/hooks";
 
 const IndividualPhenopackets = ({ individual }) => {
-    const dispatch = useDispatch();
+  const dispatch = useDispatch();
 
-    const { id: individualId } = individual;
+  const { id: individualId } = individual;
 
-    const katsuUrl = useService("metadata")?.url ?? "";
-    const downloadUrl = `${katsuUrl}/api/individuals/${individualId}/phenopackets?attachment=1&format=json`;
+  const katsuUrl = useService("metadata")?.url ?? "";
+  const downloadUrl = `${katsuUrl}/api/individuals/${individualId}/phenopackets?attachment=1&format=json`;
 
-    const phenopacketsByIndividualID = useSelector((state) => state.individuals.phenopacketsByIndividualID);
+  const phenopacketsByIndividualID = useSelector((state) => state.individuals.phenopacketsByIndividualID);
 
-    const { isFetching, data } = phenopacketsByIndividualID[individualId] ?? {};
+  const { isFetching, data } = phenopacketsByIndividualID[individualId] ?? {};
 
-    useEffect(() => {
-        dispatch(fetchIndividualPhenopacketsIfNecessary(individualId));
-    }, [individualId]);
+  useEffect(() => {
+    dispatch(fetchIndividualPhenopacketsIfNecessary(individualId));
+  }, [individualId]);
 
-    return (
-        <>
-            <DownloadButton uri={downloadUrl} disabled={!katsuUrl}>Download JSON</DownloadButton>
-            <Divider />
-            {(data === undefined || isFetching) ? (
-                <Skeleton title={false} loading={true} />
-            ) : (
-                <JsonView src={data ?? []} collapsed={false} />
-            )}
-        </>
-    );
+  return (
+    <>
+      <DownloadButton uri={downloadUrl} disabled={!katsuUrl}>
+        Download JSON
+      </DownloadButton>
+      <Divider />
+      {data === undefined || isFetching ? (
+        <Skeleton title={false} loading={true} />
+      ) : (
+        <JsonView src={data ?? []} collapsed={false} />
+      )}
+    </>
+  );
 };
 
 IndividualPhenopackets.propTypes = {
-    individual: individualPropTypesShape.isRequired,
+  individual: individualPropTypesShape.isRequired,
 };
 
 export default IndividualPhenopackets;

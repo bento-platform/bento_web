@@ -12,22 +12,22 @@ import { explorerIndividualUrl } from "../utils";
  * @param {string} individualID (optional) individual ID to link to
  */
 const BiosampleIDCell = React.memo(({ biosample, individualID }) => {
-    const location = useLocation();
-    const { individualID: contextIndividualID } = useContext(ExplorerIndividualContext);
-    const usedIndividualID = individualID ?? contextIndividualID;
-    return (
-        <Link
-            to={`${explorerIndividualUrl(usedIndividualID)}/biosamples/${biosample}`}
-            state={{ backUrl: location.pathname }}
-        >
-            {biosample}
-        </Link>
-    );
+  const location = useLocation();
+  const { individualID: contextIndividualID } = useContext(ExplorerIndividualContext);
+  const usedIndividualID = individualID ?? contextIndividualID;
+  return (
+    <Link
+      to={`${explorerIndividualUrl(usedIndividualID)}/biosamples/${biosample}`}
+      state={{ backUrl: location.pathname }}
+    >
+      {biosample}
+    </Link>
+  );
 });
 
 BiosampleIDCell.propTypes = {
-    biosample: PropTypes.string.isRequired,
-    individualID: PropTypes.string,
+  biosample: PropTypes.string.isRequired,
+  individualID: PropTypes.string,
 };
 
 export default BiosampleIDCell;

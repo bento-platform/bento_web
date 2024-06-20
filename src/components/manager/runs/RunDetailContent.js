@@ -7,36 +7,40 @@ import { Skeleton } from "antd";
 import Run from "./Run";
 
 const styles = {
-    skeletonContainer: {
-        marginTop: "12px",
-        marginLeft: "24px",
-        marginRight: "24px",
-    },
+  skeletonContainer: {
+    marginTop: "12px",
+    marginLeft: "24px",
+    marginRight: "24px",
+  },
 };
 
 const RunDetailContentInner = () => {
-    const navigate = useNavigate();
-    const { id, tab } = useParams();
+  const navigate = useNavigate();
+  const { id, tab } = useParams();
 
-    const runsByID = useSelector((state) => state.runs.itemsByID);
+  const runsByID = useSelector((state) => state.runs.itemsByID);
 
-    // TODO: 404
-    const run = runsByID[id] || null;
-    const loading = (run?.details ?? null) === null;
+  // TODO: 404
+  const run = runsByID[id] || null;
+  const loading = (run?.details ?? null) === null;
 
-    const onChangeTab = useCallback((key) => navigate(`../${key}`), [navigate]);
-    const onBack = useCallback(() => navigate("/data/manager/runs"), [navigate]);
+  const onChangeTab = useCallback((key) => navigate(`../${key}`), [navigate]);
+  const onBack = useCallback(() => navigate("/data/manager/runs"), [navigate]);
 
-    return loading
-        ? <div style={styles.skeletonContainer}><Skeleton /></div>
-        : <Run run={run} tab={tab} onChangeTab={onChangeTab} onBack={onBack} />;
+  return loading ? (
+    <div style={styles.skeletonContainer}>
+      <Skeleton />
+    </div>
+  ) : (
+    <Run run={run} tab={tab} onChangeTab={onChangeTab} onBack={onBack} />
+  );
 };
 
 const RunDetailContent = () => (
-    <Routes>
-        <Route path=":tab" element={<RunDetailContentInner />} />
-        <Route path="/" element={<Navigate to="request" replace={true} />} />
-    </Routes>
+  <Routes>
+    <Route path=":tab" element={<RunDetailContentInner />} />
+    <Route path="/" element={<Navigate to="request" replace={true} />} />
+  </Routes>
 );
 
 export default RunDetailContent;

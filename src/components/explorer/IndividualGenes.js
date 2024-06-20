@@ -15,20 +15,20 @@ import { explorerIndividualUrl } from "./utils";
 //  highlight those found in search results, if specified
 
 const StringList = ({ values }) => {
-    return (
-        <List
-            bordered
-            dataSource={values}
-            renderItem={item => (
-                <List.Item>
-                    <Typography.Text code>{item}</Typography.Text>
-                </List.Item>
-            )}
-        />
-    );
+  return (
+    <List
+      bordered
+      dataSource={values}
+      renderItem={(item) => (
+        <List.Item>
+          <Typography.Text code>{item}</Typography.Text>
+        </List.Item>
+      )}
+    />
+  );
 };
 StringList.propTypes = {
-    values: PropTypes.arrayOf(PropTypes.string),
+  values: PropTypes.arrayOf(PropTypes.string),
 };
 
 export const GeneDescriptor = ({ geneDescriptor }) => {
@@ -62,59 +62,49 @@ export const GeneDescriptor = ({ geneDescriptor }) => {
     );
 };
 GeneDescriptor.propTypes = {
-    geneDescriptor: PropTypes.object,
+  geneDescriptor: PropTypes.object,
 };
 
-const GeneIGVLink = React.memo(({symbol, tracksUrl}) => {
-    const dispatch = useDispatch();
-    return (
-        <Link onClick={() => dispatch(setIgvPosition(symbol))} to={tracksUrl}>
-            <Button>{symbol}</Button>
-        </Link>
-    );
+const GeneIGVLink = React.memo(({ symbol, tracksUrl }) => {
+  const dispatch = useDispatch();
+  return (
+    <Link onClick={() => dispatch(setIgvPosition(symbol))} to={tracksUrl}>
+      <Button>{symbol}</Button>
+    </Link>
+  );
 });
 GeneIGVLink.propTypes = {
-    symbol: PropTypes.string,
-    tracksUrl: PropTypes.string,
+  symbol: PropTypes.string,
+  tracksUrl: PropTypes.string,
 };
 
-const IndividualGenes = ({individual, tracksUrl}) => {
-    const genes = useMemo(
-        () => Object.values(
-            Object.fromEntries(
-                (individual?.phenopackets ?? [])
-                    .flatMap(p => p.genes)
-                    .map(g => [g.symbol, g]),
-            ),
-        ),
-        [individual],
-    );
+const IndividualGenes = ({ individual, tracksUrl }) => {
+  const genes = useMemo(
+    () =>
+      Object.values(
+        Object.fromEntries((individual?.phenopackets ?? []).flatMap((p) => p.genes).map((g) => [g.symbol, g])),
+      ),
+    [individual],
+  );
 
-    const columns = useMemo(
-        () => [
-            {
-                title: "Symbol",
-                dataIndex: "symbol",
-                render: (symbol) => <GeneIGVLink symbol={symbol} tracksUrl={tracksUrl} />,
-            },
-        ],
-        [tracksUrl],
-    );
+  const columns = useMemo(
+    () => [
+      {
+        title: "Symbol",
+        dataIndex: "symbol",
+        render: (symbol) => <GeneIGVLink symbol={symbol} tracksUrl={tracksUrl} />,
+      },
+    ],
+    [tracksUrl],
+  );
 
-    return (
-        <Table
-            bordered
-            size="middle"
-            pagination={{pageSize: 25}}
-            columns={columns}
-            rowKey="symbol"
-            dataSource={genes}
-        />
-    );
+  return (
+    <Table bordered size="middle" pagination={{ pageSize: 25 }} columns={columns} rowKey="symbol" dataSource={genes} />
+  );
 };
 IndividualGenes.propTypes = {
-    individual: individualPropTypesShape,
-    tracksUrl: PropTypes.string,
+  individual: individualPropTypesShape,
+  tracksUrl: PropTypes.string,
 };
 
 export default IndividualGenes;

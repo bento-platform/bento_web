@@ -1,20 +1,20 @@
 import type { CSSProperties, ReactNode } from "react";
 
 interface BentoBaseMenuItem {
-    text?: string;
-    disabled?: boolean;
-    icon?: ReactNode;
-    style?: CSSProperties;
-    children?: BentoMenuItem[];
-    onClick?: () => void;
+  text?: string;
+  disabled?: boolean;
+  icon?: ReactNode;
+  style?: CSSProperties;
+  children?: BentoMenuItem[];
+  onClick?: () => void;
 }
 
 interface BentoKeyMenuItem extends BentoBaseMenuItem {
-    key: string;
+  key: string;
 }
 
 interface BentoURLMenuItem extends BentoBaseMenuItem {
-    url: string;
+  url: string;
 }
 
 export type BentoMenuItem = BentoKeyMenuItem | BentoURLMenuItem;

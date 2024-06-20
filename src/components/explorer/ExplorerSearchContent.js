@@ -10,45 +10,55 @@ import { LAYOUT_CONTENT_STYLE } from "@/styles/layoutContent";
 import { matchingMenuKeys, transformMenuItem } from "@/utils/menu";
 
 const ExplorerSearchContent = () => {
-    const projects = useSelector((state) => state.projects.items);
-    const isFetchingDependentData = useSelector((state) => state.user.isFetchingDependentData);
+  const projects = useSelector((state) => state.projects.items);
+  const isFetchingDependentData = useSelector((state) => state.user.isFetchingDependentData);
 
-    const menuItems = useMemo(() => projects.map(project => ({
+  const menuItems = useMemo(
+    () =>
+      projects.map((project) => ({
         // url: `/data/explorer/projects/${project.identifier}`,
         key: project.identifier,
         text: project.title,
         children: project.datasets.map((dataset) => ({
-            url: `/data/explorer/search/${dataset.identifier}`,
-            text: dataset.title,
+          url: `/data/explorer/search/${dataset.identifier}`,
+          text: dataset.title,
         })),
-    })), [projects]);
+      })),
+    [projects],
+  );
 
-    const datasets = useMemo(() => projects.flatMap(p => p.datasets), [projects]);
+  const datasets = useMemo(() => projects.flatMap((p) => p.datasets), [projects]);
 
-    return <>
-        <SitePageHeader title="Data Explorer" />
-        <Layout>
-            <Layout.Sider style={{background: "white"}} width={256} breakpoint="lg" collapsedWidth={0}>
-                <div style={{display: "flex", height: "100%", flexDirection: "column"}}>
-                    <Menu
-                        mode="inline"
-                        style={{flex: 1, paddingTop: "8px"}}
-                        defaultOpenKeys={menuItems.map(p => p.key)}
-                        selectedKeys={matchingMenuKeys(menuItems)}
-                        items={menuItems.map(transformMenuItem)}
-                    />
-                </div>
-            </Layout.Sider>
-            <Layout.Content style={LAYOUT_CONTENT_STYLE}>
-                {datasets.length > 0 ? (
-                    <Routes>
-                        <Route path=":dataset" element={<ExplorerDatasetSearch />} />
-                        <Route path="/" element={<Navigate to={`${datasets[0].identifier}`} replace={true} />} />
-                    </Routes>
-                ) : (isFetchingDependentData ? <Skeleton /> : "No datasets available")}
-            </Layout.Content>
-        </Layout>
-    </>;
+  return (
+    <>
+      <SitePageHeader title="Data Explorer" />
+      <Layout>
+        <Layout.Sider style={{ background: "white" }} width={256} breakpoint="lg" collapsedWidth={0}>
+          <div style={{ display: "flex", height: "100%", flexDirection: "column" }}>
+            <Menu
+              mode="inline"
+              style={{ flex: 1, paddingTop: "8px" }}
+              defaultOpenKeys={menuItems.map((p) => p.key)}
+              selectedKeys={matchingMenuKeys(menuItems)}
+              items={menuItems.map(transformMenuItem)}
+            />
+          </div>
+        </Layout.Sider>
+        <Layout.Content style={LAYOUT_CONTENT_STYLE}>
+          {datasets.length > 0 ? (
+            <Routes>
+              <Route path=":dataset" element={<ExplorerDatasetSearch />} />
+              <Route path="/" element={<Navigate to={`${datasets[0].identifier}`} replace={true} />} />
+            </Routes>
+          ) : isFetchingDependentData ? (
+            <Skeleton />
+          ) : (
+            "No datasets available"
+          )}
+        </Layout.Content>
+      </Layout>
+    </>
+  );
 };
 
 export default ExplorerSearchContent;
