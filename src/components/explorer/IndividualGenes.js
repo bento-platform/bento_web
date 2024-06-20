@@ -1,12 +1,15 @@
-import React, { useMemo } from "react";
+import React, { useContext, useMemo } from "react";
 import { Link } from "react-router-dom";
 import { useDispatch } from "react-redux";
 import PropTypes from "prop-types";
 
 import { Button, Descriptions, List, Table, Typography } from "antd";
 
+import { ExplorerIndividualContext } from "./contexts/individual";
 import { setIgvPosition } from "@/modules/explorer/actions";
 import { individualPropTypesShape } from "@/propTypes";
+
+import { explorerIndividualUrl } from "./utils";
 
 // TODO: Only show genes from the relevant dataset, if specified;
 //  highlight those found in search results, if specified
@@ -29,10 +32,22 @@ StringList.propTypes = {
 };
 
 export const GeneDescriptor = ({ geneDescriptor }) => {
+  const dispatch = useDispatch();
+  const { individualID } = useContext(ExplorerIndividualContext);
+  const tracksUrl = useMemo(() => {
+    if (individualID) {
+      return `${explorerIndividualUrl(individualID)}/tracks`;
+    }
+  }, [individualID]);
+
   return (
     <Descriptions bordered={true} column={1} size="small">
-      <Descriptions.Item label="Value ID">{geneDescriptor.value_id}</Descriptions.Item>
-      <Descriptions.Item label="Symbol">{geneDescriptor.symbol}</Descriptions.Item>
+      <Descriptions.Item label="Accession Number">{geneDescriptor.value_id}</Descriptions.Item>
+      <Descriptions.Item label="Symbol">
+        <Link onClick={() => dispatch(setIgvPosition(geneDescriptor.symbol))} to={tracksUrl}>
+          <Button>{geneDescriptor.symbol}</Button>
+        </Link>
+      </Descriptions.Item>
       <Descriptions.Item label="Description">{geneDescriptor.description}</Descriptions.Item>
       <Descriptions.Item label="Alternate IDs">
         <StringList values={geneDescriptor?.alternate_ids ?? []} />
