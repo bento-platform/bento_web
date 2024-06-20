@@ -16,7 +16,6 @@ const generateFileTree = (directory, valid, folderMode, basePrefix) =>
         .filter(entry => !folderMode || entry.contents !== undefined)  // Don't show files in folder mode
         .map(entry => {
             const { name, contents, relativePath } = entry;
-            console.log(entry);
             const isValid = valid(entry);
             const isFolder = contents !== undefined;
 
