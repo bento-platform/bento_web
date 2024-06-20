@@ -1,6 +1,6 @@
 import { Link } from "react-router-dom";
 import type { BentoMenuItem } from "@/types/menu";
-import { ItemType } from "antd/es/menu/hooks/useItems";
+import { ItemType } from "antd/es/menu/interface";
 
 // Custom menu renderer
 export const transformMenuItem = (i: BentoMenuItem): ItemType => {
