@@ -20,6 +20,7 @@ import {
   Tree,
   Typography,
   Upload,
+  Input,
   message,
 } from "antd";
 import {
@@ -293,21 +294,44 @@ const ManagerDropBoxContent = () => {
   const ingestionWorkflows = workflowsByType.ingestion.items;
   const ingestionWorkflowsByID = workflowsByType.ingestion.itemsByID;
 
+  const [searchTerm, setSearchTerm] = useState("");
+
+  const handleSearchChange = (event) => {
+    setSearchTerm(event.target.value.toLowerCase());
+  };
+
   const filesByPath = useMemo(
     () => Object.fromEntries(recursivelyFlattenFileTree([], tree).map((f) => [f.relativePath, f])),
     [tree],
   );
 
-  const treeData = useMemo(
-    () => [
+  const filterTree = (nodes) => {
+    return nodes.reduce((acc, node) => {
+      const matchesSearch = node.title.toLowerCase().includes(searchTerm);
+      const filteredChildren = node.children ? filterTree(node.children) : [];
+      const hasMatchingChildren = filteredChildren.length > 0;
+
+      if (matchesSearch || hasMatchingChildren) {
+        acc.push({
+          ...node,
+          children: filteredChildren,
+        });
+      }
+
+      return acc;
+    }, []);
+  };
+
+  const treeData = useMemo(() => {
+    const unfilteredTree = generateFileTree(tree);
+    return [
       {
         title: "Drop Box",
         key: DROP_BOX_ROOT_KEY,
-        children: generateFileTree(tree, ""),
+        children: filterTree(unfilteredTree),
       },
-    ],
-    [tree],
-  );
+    ];
+  }, [tree, searchTerm]);
 
   // Start with drop box root selected at first
   //  - Will enable the upload button so that users can quickly upload from initial page load
@@ -572,6 +596,13 @@ const ManagerDropBoxContent = () => {
             <Button icon={<UploadOutlined />} onClick={handleUpload} disabled={uploadDisabled}>
               Upload
             </Button>
+
+            <Input
+              placeholder="Search files..."
+              value={searchTerm}
+              onChange={handleSearchChange}
+              style={{ marginBottom: 8, maxWidth: 300 }}
+            />
             <Dropdown.Button
               menu={workflowMenu}
               disabled={ingestIntoDatasetDisabled}
