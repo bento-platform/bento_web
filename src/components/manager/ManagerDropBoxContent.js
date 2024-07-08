@@ -13,6 +13,7 @@ import {
   Dropdown,
   Empty,
   Form,
+  Input,
   Layout,
   Modal,
   Spin,
@@ -20,7 +21,6 @@ import {
   Tree,
   Typography,
   Upload,
-  Input,
   message,
 } from "antd";
 import {
@@ -281,6 +281,23 @@ DropBoxInformation.propTypes = {
 
 const DROP_BOX_ROOT_KEY = "/";
 
+const filterTree = (nodes, searchTerm) => {
+  return nodes.reduce((acc, node) => {
+    const matchesSearch = node.title.toLowerCase().includes(searchTerm);
+    const filteredChildren = node.children ? filterTree(node.children, searchTerm) : [];
+    const hasMatchingChildren = filteredChildren.length > 0;
+
+    if (matchesSearch || hasMatchingChildren) {
+      acc.push({
+        ...node,
+        children: filteredChildren,
+      });
+    }
+
+    return acc;
+  }, []);
+};
+
 const ManagerDropBoxContent = () => {
   const dispatch = useDispatch();
 
@@ -305,30 +322,13 @@ const ManagerDropBoxContent = () => {
     [tree],
   );
 
-  const filterTree = (nodes) => {
-    return nodes.reduce((acc, node) => {
-      const matchesSearch = node.title.toLowerCase().includes(searchTerm);
-      const filteredChildren = node.children ? filterTree(node.children) : [];
-      const hasMatchingChildren = filteredChildren.length > 0;
-
-      if (matchesSearch || hasMatchingChildren) {
-        acc.push({
-          ...node,
-          children: filteredChildren,
-        });
-      }
-
-      return acc;
-    }, []);
-  };
-
   const treeData = useMemo(() => {
     const unfilteredTree = generateFileTree(tree);
     return [
       {
         title: "Drop Box",
         key: DROP_BOX_ROOT_KEY,
-        children: filterTree(unfilteredTree),
+        children: filterTree(unfilteredTree, searchTerm),
       },
     ];
   }, [tree, searchTerm]);
