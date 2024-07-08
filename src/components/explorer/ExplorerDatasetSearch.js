@@ -46,6 +46,8 @@ const ExplorerDatasetSearch = () => {
   const fetchingTextSearch = useSelector((state) => state.explorer.fetchingTextSearch || false);
   const searchResults = useSelector((state) => state.explorer.searchResultsByDatasetID[datasetID] || null);
 
+  /// traer aqui los resultados de advanced search
+
   useEffect(() => {
     console.debug("search results: ", searchResults);
   }, [searchResults]);
@@ -86,6 +88,8 @@ const ExplorerDatasetSearch = () => {
   const hasExperiments = hasNonEmptyArrayProperty(searchResults, "searchFormattedResultsExperiment");
   const hasBiosamples = hasNonEmptyArrayProperty(searchResults, "searchFormattedResultsBiosamples");
   const showTabs = hasResults && (hasExperiments || hasBiosamples);
+
+  console.log("searchResults", searchResults);
 
   const tabItems = useMemo(
     () =>

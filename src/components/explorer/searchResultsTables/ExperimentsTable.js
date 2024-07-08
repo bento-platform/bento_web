@@ -79,6 +79,7 @@ const ExperimentsTable = ({ data, datasetID }) => {
   );
 
   const { sortedData, columnsWithSortOrder } = useSortedColumns(data, tableSortOrder, columns);
+  console.log(sortedData, "sortedData_experiment");
 
   return (
     <ExplorerSearchResultsTable

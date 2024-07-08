@@ -34,6 +34,9 @@ const ExplorerSearchResultsTable = ({
   const [summaryModalVisible, setSummaryModalVisible] = useState(false);
   const [tracksModalVisible, setTracksModalVisible] = useState(false);
 
+  console.log(dataset, "dataset");
+  console.log(data, "data");
+
   const filteredData = useMemo(
     () =>
       data.filter((item) =>

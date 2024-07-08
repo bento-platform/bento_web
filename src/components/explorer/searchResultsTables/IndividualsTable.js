@@ -49,6 +49,7 @@ const IndividualsTable = ({ data, datasetID }) => {
   const tableSortOrder = useSelector((state) => state.explorer.tableSortOrderByDatasetID[datasetID]?.["individuals"]);
 
   const { sortedData, columnsWithSortOrder } = useSortedColumns(data, tableSortOrder, SEARCH_RESULT_COLUMNS);
+  console.log(sortedData, "sortedData_individual");
 
   return (
     <ExplorerSearchResultsTable
