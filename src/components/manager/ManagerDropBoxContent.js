@@ -313,9 +313,9 @@ const ManagerDropBoxContent = () => {
 
   const [searchTerm, setSearchTerm] = useState("");
 
-  const handleSearchChange = (event) => {
+  const handleSearchChange = useCallback((event) => {
     setSearchTerm(event.target.value.toLowerCase());
-  };
+  }, []);
 
   const filesByPath = useMemo(
     () => Object.fromEntries(recursivelyFlattenFileTree([], tree).map((f) => [f.relativePath, f])),
