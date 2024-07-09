@@ -1,17 +1,24 @@
 import React, { useEffect, useState } from "react";
-import PropTypes from "prop-types";
 
-import { read, utils } from "xlsx";
+import { read, utils, type WorkBook } from "xlsx";
 import { Card } from "antd";
 
-import SpreadsheetTable, { SPREADSHEET_ROW_KEY_PROP } from "./SpreadsheetTable";
+import SpreadsheetTable, { SPREADSHEET_ROW_KEY_PROP, SpreadsheetTableProps } from "./SpreadsheetTable";
 
-const XlsxDisplay = ({ contents }) => {
-  const [excelFile, setExcelFile] = useState(null);
+type XlsxDisplayProps = {
+  contents: ArrayBuffer;
+};
 
-  const [selectedSheet, setSelectedSheet] = useState(undefined);
-  const [sheetColumns, setSheetColumns] = useState([]);
-  const [sheetJSON, setSheetJSON] = useState([]);
+type XlsxRecord = Record<string, string>;
+type XlsxData = XlsxRecord[];
+type XlsxColumns = SpreadsheetTableProps<XlsxRecord>["columns"];
+
+const XlsxDisplay = ({ contents }: XlsxDisplayProps) => {
+  const [excelFile, setExcelFile] = useState<WorkBook | null>(null);
+
+  const [selectedSheet, setSelectedSheet] = useState<string | undefined>(undefined);
+  const [sheetColumns, setSheetColumns] = useState<XlsxColumns>([]);
+  const [sheetJSON, setSheetJSON] = useState<XlsxData>([]);
 
   useEffect(() => {
     if (!contents) return;
@@ -25,12 +32,12 @@ const XlsxDisplay = ({ contents }) => {
   }, [excelFile]);
 
   useEffect(() => {
-    if (excelFile) {
-      const json = utils.sheet_to_json(excelFile.Sheets[selectedSheet]);
-      if (json.length === 0) return [];
+    if (excelFile && selectedSheet !== undefined) {
+      const json: object[] = utils.sheet_to_json(excelFile.Sheets[selectedSheet]);
+      if (json.length === 0) return;
 
       const columnSet = new Set();
-      const columns = [];
+      const columns: XlsxColumns = [];
 
       // explore first 30 rows to find all columns
       json.slice(0, 30).forEach((row) => {
@@ -51,20 +58,17 @@ const XlsxDisplay = ({ contents }) => {
 
   return (
     <Card
-      tabList={(excelFile?.SheetNames ?? []).map((s) => ({ key: s, tab: s }))}
+      tabList={(excelFile?.SheetNames ?? []).map((s) => ({ key: s, label: s }))}
       activeTabKey={selectedSheet}
       onTabChange={(s) => setSelectedSheet(s)}
     >
-      <SpreadsheetTable
+      <SpreadsheetTable<XlsxRecord>
         columns={sheetColumns}
         dataSource={sheetJSON}
         showHeader={sheetColumns.reduce((acc, v) => acc || v.title !== "", false)}
       />
     </Card>
   );
-};
-XlsxDisplay.propTypes = {
-  contents: PropTypes.instanceOf(ArrayBuffer),
 };
 
 export default XlsxDisplay;

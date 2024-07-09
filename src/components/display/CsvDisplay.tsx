@@ -1,5 +1,4 @@
 import React, { useEffect, useState } from "react";
-import PropTypes from "prop-types";
 import Papa from "papaparse";
 import { Alert } from "antd";
 
@@ -61,10 +60,6 @@ const CsvDisplay = ({ contents, loading }: CsvDisplayProps) => {
   }
 
   return <SpreadsheetTable<CsvRecord> columns={columns} dataSource={parsedData} loading={loading || isParsing} />;
-};
-CsvDisplay.propTypes = {
-  contents: PropTypes.string,
-  loading: PropTypes.bool,
 };
 
 export default CsvDisplay;
