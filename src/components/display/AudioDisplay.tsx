@@ -1,8 +1,11 @@
-import React, { useEffect, useRef } from "react";
-import PropTypes from "prop-types";
+import { useEffect, useRef } from "react";
 
-const AudioDisplay = ({ blob }) => {
-  const audioRef = useRef(null);
+type AudioDisplayProps = {
+  blob: Blob;
+};
+
+const AudioDisplay = ({ blob }: AudioDisplayProps) => {
+  const audioRef = useRef<HTMLAudioElement>(null);
 
   useEffect(() => {
     if (audioRef.current && blob) {
@@ -11,9 +14,6 @@ const AudioDisplay = ({ blob }) => {
   }, [audioRef, blob]);
 
   return <audio style={{ width: "100%" }} ref={audioRef} controls={true} />;
-};
-AudioDisplay.propTypes = {
-  blob: PropTypes.instanceOf(Blob),
 };
 
 export default AudioDisplay;
