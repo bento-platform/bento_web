@@ -3,23 +3,31 @@ import PropTypes from "prop-types";
 import Papa from "papaparse";
 import { Alert } from "antd";
 
-import SpreadsheetTable, { SPREADSHEET_ROW_KEY_PROP } from "./SpreadsheetTable";
+import SpreadsheetTable, { SPREADSHEET_ROW_KEY_PROP, SpreadsheetTableProps } from "./SpreadsheetTable";
 
 const DEFAULT_COLUMN = { key: "col" };
 
-const CsvDisplay = ({ contents, loading }) => {
-  const [parsedData, setParsedData] = useState([]);
+type CsvDisplayProps = {
+  contents?: string | null;
+  loading?: boolean;
+};
+
+type CsvRecord = Record<string, string>;
+type CsvData = CsvRecord[];
+
+const CsvDisplay = ({ contents, loading }: CsvDisplayProps) => {
+  const [parsedData, setParsedData] = useState<CsvData>([]);
   const [parseError, setParseError] = useState("");
   const [isParsing, setIsParsing] = useState(true); // Start in parsing state
-  const [columns, setColumns] = useState([DEFAULT_COLUMN]);
+  const [columns, setColumns] = useState<SpreadsheetTableProps<CsvRecord>["columns"]>([DEFAULT_COLUMN]);
 
   useEffect(() => {
     if (contents === undefined || contents === null) return;
 
     setIsParsing(true);
-    const rows = [];
+    const rows: CsvData = [];
     // noinspection JSUnusedGlobalSymbols
-    Papa.parse(contents, {
+    Papa.parse<string[]>(contents, {
       worker: true,
       step: (res) => {
         if (res.errors?.length) {
@@ -52,7 +60,7 @@ const CsvDisplay = ({ contents, loading }) => {
     return <Alert message="Parsing error" description={parseError} type="error" showIcon={true} />;
   }
 
-  return <SpreadsheetTable columns={columns} dataSource={parsedData} loading={loading || isParsing} />;
+  return <SpreadsheetTable<CsvRecord> columns={columns} dataSource={parsedData} loading={loading || isParsing} />;
 };
 CsvDisplay.propTypes = {
   contents: PropTypes.string,

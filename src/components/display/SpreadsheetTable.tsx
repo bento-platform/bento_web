@@ -1,14 +1,20 @@
 import React from "react";
-import PropTypes from "prop-types";
-import { Table } from "antd";
+import { Table, type TableProps } from "antd";
 
 // For spreadsheets, we generate synthetic keys based on row indices
 export const SPREADSHEET_ROW_KEY_PROP = "__key__";
 
-const TABLE_PAGINATION = { pageSize: 25 };
-const TABLE_SCROLL = { x: true };
+const TABLE_PAGINATION: TableProps["pagination"] = { pageSize: 25 };
+const TABLE_SCROLL: TableProps["scroll"] = { x: true };
 
-const SpreadsheetTable = ({ columns, dataSource, loading, showHeader }) => (
+export type SpreadsheetTableProps<T> = {
+  columns: TableProps["columns"];
+  dataSource: T[];
+  loading?: boolean;
+  showHeader?: boolean;
+};
+
+const SpreadsheetTable = <T,>({ columns, dataSource, loading, showHeader }: SpreadsheetTableProps<T>) => (
   <Table
     size="small"
     bordered={true}
@@ -21,11 +27,5 @@ const SpreadsheetTable = ({ columns, dataSource, loading, showHeader }) => (
     loading={loading}
   />
 );
-SpreadsheetTable.propTypes = {
-  columns: PropTypes.array.isRequired,
-  dataSource: PropTypes.array.isRequired,
-  loading: PropTypes.bool,
-  showHeader: PropTypes.bool,
-};
 
 export default SpreadsheetTable;
