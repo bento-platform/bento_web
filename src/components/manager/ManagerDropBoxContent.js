@@ -601,8 +601,10 @@ const ManagerDropBoxContent = () => {
               placeholder="Search files..."
               value={searchTerm}
               onChange={handleSearchChange}
+              allowClear={true}
               style={{ marginBottom: 8, maxWidth: 300 }}
             />
+
             <Dropdown.Button
               menu={workflowMenu}
               disabled={ingestIntoDatasetDisabled}
