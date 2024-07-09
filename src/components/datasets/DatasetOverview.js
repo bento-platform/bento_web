@@ -4,11 +4,11 @@ import PropTypes from "prop-types";
 import { Col, Divider, Row, Spin, Statistic, Typography } from "antd";
 
 import { EM_DASH } from "@/constants";
-import { useDatasetDataTypeByID } from "@/modules/datasets/hooks";
+import { useDatasetDataTypesByID } from "@/modules/datasets/hooks";
 import { datasetPropTypesShape, projectPropTypesShape } from "@/propTypes";
 
 const DatasetOverview = ({ isPrivate, project, dataset }) => {
-  const datasetDataTypes = useDatasetDataTypeByID(dataset.identifier);
+  const datasetDataTypes = useDatasetDataTypesByID(dataset.identifier);
   const isFetchingDataset = datasetDataTypes?.isFetching;
   // Count data types which actually have data in them for showing in the overview
   const dataTypeCount = useMemo(
