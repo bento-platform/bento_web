@@ -18,7 +18,7 @@ export const useDatasetDataTypes = () => {
   return useAppSelector((state) => state.datasetDataTypes);
 };
 
-export const useDatsetDataTypeById = (datasetId) => {
+export const useDatasetDataTypeByID = (datasetId) => {
   /**
    * Fetches the data types ONLY for the given dataset.
    * Returns the store's value for the given dataset ID.
