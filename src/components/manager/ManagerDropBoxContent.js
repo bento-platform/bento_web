@@ -317,7 +317,7 @@ const ManagerDropBoxContent = () => {
     const newSearchTerm = event.target.value.toLowerCase();
     setSearchTerm(newSearchTerm);
     setSelectedEntries(newSearchTerm === "" ? [DROP_BOX_ROOT_KEY] : []);
-}, []);
+  }, []);
 
   const filesByPath = useMemo(
     () => Object.fromEntries(recursivelyFlattenFileTree([], tree).map((f) => [f.relativePath, f])),
