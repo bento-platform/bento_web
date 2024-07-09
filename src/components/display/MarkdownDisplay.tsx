@@ -63,7 +63,8 @@ const MarkdownDisplay = ({ contents }: MarkdownDisplayProps) => {
 
   const markdownContainerStyle = useMemo<CSSProperties>(
     () => ({ overflowY: "hidden", height: displayMode === "code" ? 0 : "auto" }),
-    [displayMode]);
+    [displayMode],
+  );
 
   return (
     <div style={styles.container}>

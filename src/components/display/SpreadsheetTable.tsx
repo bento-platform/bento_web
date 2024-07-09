@@ -15,7 +15,7 @@ export type SpreadsheetTableProps<T extends object> = {
   showHeader?: boolean;
 };
 
-const SpreadsheetTable = <T extends object,>({ columns, dataSource, loading, showHeader }: SpreadsheetTableProps<T>) => (
+const SpreadsheetTable = <T extends object>({ columns, dataSource, loading, showHeader }: SpreadsheetTableProps<T>) => (
   <Table<T>
     size="small"
     bordered={true}
