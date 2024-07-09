@@ -1,13 +1,13 @@
-import React, { useCallback, useMemo, useState } from "react";
-import PropTypes from "prop-types";
+import { type CSSProperties, useCallback, useMemo, useState } from "react";
 
 import { Document, Page, pdfjs } from "react-pdf";
+import type { PDFDocumentProxy } from "pdfjs-dist";
 import { Button } from "antd";
 import { MinusOutlined, PlusOutlined } from "@ant-design/icons";
 
 import { useAuthorizationHeader } from "bento-auth-js";
 
-pdfjs.GlobalWorkerOptions.workerSrc = new URL("pdfjs-dist/build/pdf.worker.min.js", import.meta.url).toString();
+pdfjs.GlobalWorkerOptions.workerSrc = new URL("pdfjs-dist/build/pdf.worker.min.mjs", import.meta.url).toString();
 
 const BASE_PDF_OPTIONS = {
   cMapUrl: "cmaps/",
@@ -19,8 +19,7 @@ const SCALES = [0.5, 0.75, 1.0, 1.25, 1.5, 2.0];
 const INITIAL_SCALE = 2;
 const MAX_SCALE = SCALES.length - 1;
 
-/** @type {Object.<string, React.CSSProperties>} */
-const styles = {
+const styles: { [x: string]: CSSProperties } = {
   container: {
     width: "calc(90vw - 32px)",
     minWidth: "660px",
@@ -28,14 +27,20 @@ const styles = {
   header: {
     position: "absolute",
     right: 30,
-    top: -68,
+    top: -42,
   },
 };
 
-const PdfDisplay = ({ uri, onLoad, onFail }) => {
+type PdfDisplayProps = {
+  uri: string;
+  onLoad: () => void;
+  onFail: (err: Error) => void;
+};
+
+const PdfDisplay = ({ uri, onLoad, onFail }: PdfDisplayProps) => {
   const authHeader = useAuthorizationHeader();
 
-  const [pdfPageCounts, setPdfPageCounts] = useState({});
+  const [pdfPageCounts, setPdfPageCounts] = useState<{ [uri: string]: number }>({});
   const [scale, setScale] = useState(INITIAL_SCALE);
 
   const pdfOptions = useMemo(
@@ -47,14 +52,14 @@ const PdfDisplay = ({ uri, onLoad, onFail }) => {
   );
 
   const onLoadSuccess = useCallback(
-    ({ numPages }) => {
+    ({ numPages }: PDFDocumentProxy) => {
       if (onLoad) onLoad();
       setPdfPageCounts({ ...pdfPageCounts, [uri]: numPages });
     },
     [uri],
   );
 
-  const onLoadError = useCallback((err) => {
+  const onLoadError = useCallback((err: Error) => {
     console.error(err);
     if (onFail) onFail(err);
   }, []);
@@ -96,11 +101,6 @@ const PdfDisplay = ({ uri, onLoad, onFail }) => {
       </Document>
     </div>
   );
-};
-PdfDisplay.propTypes = {
-  uri: PropTypes.string,
-  onLoad: PropTypes.func,
-  onFail: PropTypes.func,
 };
 
 export default PdfDisplay;
