@@ -24,9 +24,12 @@ const XlsxDisplay = ({ contents }: XlsxDisplayProps) => {
   useEffect(() => {
     if (!contents) return;
     setReading(true);
-    contents.arrayBuffer().then((ab) => {
-      setExcelFile(read(ab));
-    }).finally(() => setReading(false));
+    contents
+      .arrayBuffer()
+      .then((ab) => {
+        setExcelFile(read(ab));
+      })
+      .finally(() => setReading(false));
   }, [contents]);
 
   useEffect(() => {
