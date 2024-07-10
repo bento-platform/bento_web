@@ -1,4 +1,4 @@
-import React, { type CSSProperties, useEffect, useMemo, useState } from "react";
+import { type CSSProperties, useEffect, useMemo, useState } from "react";
 import mammoth from "mammoth/mammoth.browser";
 import { Alert, Skeleton, Spin } from "antd";
 

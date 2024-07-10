@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 
 import { read, utils, type WorkBook } from "xlsx";
 import { Card } from "antd";
