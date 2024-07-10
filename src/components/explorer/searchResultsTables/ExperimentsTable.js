@@ -29,6 +29,7 @@ ExperimentRender.propTypes = {
 };
 
 const ExperimentsTable = ({ data, datasetID }) => {
+  console.log(data, "data_experiment");
   const tableSortOrder = useSelector((state) => state.explorer.tableSortOrderByDatasetID[datasetID]?.["experiments"]);
 
   const experimentTypeFilters = useDynamicTableFilterOptions(data, "experimentType");

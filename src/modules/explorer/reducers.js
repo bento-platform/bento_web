@@ -285,7 +285,7 @@ export const explorer = (
           [action.datasetID]: {
             results: freeTextResults(action.data),
             searchFormattedResults: tableSearchResults(action.data),
-            searchFormattedResultsExperiments: tableSearchResultsExperiments(action.data),
+            searchFormattedResultsExperiment: tableSearchResultsExperiments(action.data),
             searchFormattedResultsBiosamples: generateBiosampleObjects(action.data),
           },
         },
