@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { useEffect, useMemo } from "react";
 import { useProjects } from "@/modules/metadata/hooks";
 import { useAppDispatch, useAppSelector } from "@/store";
 import { fetchDatasetDataTypesSummariesIfPossible, fetchDatasetsDataTypes } from "@/modules/datasets/actions";
@@ -27,5 +27,13 @@ export const useDatasetDataTypesByID = (datasetId) => {
   useEffect(() => {
     dispatch(fetchDatasetDataTypesSummariesIfPossible(datasetId));
   }, [datasetId]);
-  return useAppSelector((state) => state.datasetDataTypes.itemsByID[datasetId]);
+
+  const dataTypes = useAppSelector((state) => state.datasetDataTypes.itemsByID[datasetId]);
+  return useMemo(() => {
+    return {
+      dataTypesByID: dataTypes?.itemsByID,
+      isFetchingDataTypes: dataTypes?.isFetching ?? true,
+      hasAttemptedDataTypes: dataTypes?.hasAttempted ?? false,
+    };
+  }, [dataTypes]);
 };
