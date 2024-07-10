@@ -19,7 +19,7 @@ const SCALES = [0.5, 0.75, 1.0, 1.25, 1.5, 2.0];
 const INITIAL_SCALE = 2;
 const MAX_SCALE = SCALES.length - 1;
 
-const styles: { [x: string]: CSSProperties } = {
+const styles: Record<string, CSSProperties> = {
   container: {
     width: "calc(90vw - 32px)",
     minWidth: "660px",
