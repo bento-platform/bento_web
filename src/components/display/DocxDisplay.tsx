@@ -1,7 +1,6 @@
-import React, { useEffect, useMemo, useState } from "react";
+import React, { type CSSProperties, useEffect, useMemo, useState } from "react";
 import mammoth from "mammoth/mammoth.browser";
 import { Alert, Skeleton, Spin } from "antd";
-import PropTypes from "prop-types";
 
 const MAMMOTH_OPTIONS = {
   convertImage: mammoth.images.imgElement((image) =>
@@ -12,17 +11,22 @@ const MAMMOTH_OPTIONS = {
   ),
 };
 
-const styles = {
+const styles: Record<string, CSSProperties> = {
   container: {
     maxWidth: 960, // Maximum width to roughly a nice page
     overflowX: "auto",
   },
 };
 
-const DocxDisplay = ({ contents, loading }) => {
+type DocxDisplayProps = {
+  contents: ArrayBuffer;
+  loading?: boolean;
+};
+
+const DocxDisplay = ({ contents, loading }: DocxDisplayProps) => {
   const [parsing, setParsing] = useState(false);
-  const [error, setError] = useState(null);
-  const [docHTML, setDocHTML] = useState(null);
+  const [error, setError] = useState<string | null>(null);
+  const [docHTML, setDocHTML] = useState<string | null>(null);
 
   useEffect(() => {
     if (!contents) return;
@@ -38,7 +42,7 @@ const DocxDisplay = ({ contents, loading }) => {
         setDocHTML(res.value);
       } catch (err) {
         console.error("Received error while parsing .docx:", err);
-        setError(err);
+        setError((err as Error).toString());
       } finally {
         setParsing(false);
       }
@@ -57,10 +61,6 @@ const DocxDisplay = ({ contents, loading }) => {
       <div style={styles.container} dangerouslySetInnerHTML={innerHTML} />
     </Spin>
   );
-};
-DocxDisplay.propTypes = {
-  contents: PropTypes.instanceOf(ArrayBuffer),
-  loading: PropTypes.bool,
 };
 
 export default DocxDisplay;
