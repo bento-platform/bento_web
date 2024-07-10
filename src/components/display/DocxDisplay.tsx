@@ -19,7 +19,7 @@ const styles: Record<string, CSSProperties> = {
 };
 
 type DocxDisplayProps = {
-  contents: ArrayBuffer;
+  contents: Blob;
   loading?: boolean;
 };
 
@@ -37,7 +37,7 @@ const DocxDisplay = ({ contents, loading }: DocxDisplayProps) => {
       setParsing(true);
 
       try {
-        const res = await mammoth.convertToHtml({ arrayBuffer: contents }, MAMMOTH_OPTIONS);
+        const res = await mammoth.convertToHtml({ arrayBuffer: await contents.arrayBuffer() }, MAMMOTH_OPTIONS);
         res.messages.forEach((msg) => console.info("Received message while parsing .docx:", msg));
         setDocHTML(res.value);
       } catch (err) {

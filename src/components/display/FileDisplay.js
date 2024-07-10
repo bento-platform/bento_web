@@ -98,8 +98,9 @@ export const VIEWABLE_FILE_EXTENSIONS = [
 ];
 
 const DEFER_LOADING_FILE_EXTENSIONS = ["pdf"]; // Don't use a fetch() for these extensions
-const ARRAY_BUFFER_FILE_EXTENSIONS = ["docx", "xls", "xlsx"];
-const BLOB_FILE_EXTENSIONS = [...AUDIO_FILE_EXTENSIONS, ...IMAGE_FILE_EXTENSIONS, ...VIDEO_FILE_EXTENSIONS, "pdf"];
+const BLOB_FILE_EXTENSIONS = [
+  ...AUDIO_FILE_EXTENSIONS, ...IMAGE_FILE_EXTENSIONS, ...VIDEO_FILE_EXTENSIONS, "pdf", "docx", "xls", "xlsx"
+];
 
 const EMPTY_LOADING_DIV = <div style={{ width: "100%", height: 100 }} />;
 
@@ -136,9 +137,7 @@ const FileDisplay = ({ uri, fileName, loading }) => {
         const r = await fetch(uri, { headers: authHeader });
         if (r.ok) {
           let content;
-          if (ARRAY_BUFFER_FILE_EXTENSIONS.includes(fileExt)) {
-            content = await r.arrayBuffer();
-          } else if (BLOB_FILE_EXTENSIONS.includes(fileExt)) {
+          if (BLOB_FILE_EXTENSIONS.includes(fileExt)) {
             content = await r.blob();
           } else {
             const text = await r.text();
@@ -149,7 +148,7 @@ const FileDisplay = ({ uri, fileName, loading }) => {
             [uri]: content,
           });
         } else {
-          setFileLoadError(`Could not load file: ${r.content}`);
+          setFileLoadError(`Could not load file: ${await r.text()}`);
         }
       } catch (e) {
         console.error(e);

@@ -6,7 +6,7 @@ import { Card } from "antd";
 import SpreadsheetTable, { SPREADSHEET_ROW_KEY_PROP, SpreadsheetTableProps } from "./SpreadsheetTable";
 
 type XlsxDisplayProps = {
-  contents: ArrayBuffer;
+  contents: Blob;
 };
 
 type XlsxRecord = Record<string, string>;
@@ -15,6 +15,7 @@ type XlsxColumns = SpreadsheetTableProps<XlsxRecord>["columns"];
 
 const XlsxDisplay = ({ contents }: XlsxDisplayProps) => {
   const [excelFile, setExcelFile] = useState<WorkBook | null>(null);
+  const [reading, setReading] = useState(false);
 
   const [selectedSheet, setSelectedSheet] = useState<string | undefined>(undefined);
   const [sheetColumns, setSheetColumns] = useState<XlsxColumns>([]);
@@ -22,7 +23,10 @@ const XlsxDisplay = ({ contents }: XlsxDisplayProps) => {
 
   useEffect(() => {
     if (!contents) return;
-    setExcelFile(read(contents));
+    setReading(true);
+    contents.arrayBuffer().then((ab) => {
+      setExcelFile(read(ab));
+    }).finally(() => setReading(false));
   }, [contents]);
 
   useEffect(() => {
@@ -66,6 +70,7 @@ const XlsxDisplay = ({ contents }: XlsxDisplayProps) => {
         columns={sheetColumns}
         dataSource={sheetJSON}
         showHeader={sheetColumns.reduce((acc, v) => acc || v.title !== "", false)}
+        loading={reading}
       />
     </Card>
   );
