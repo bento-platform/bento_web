@@ -9,7 +9,7 @@ SyntaxHighlighter.registerLanguage("markdown", markdown);
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 
-import { type CheckboxOptionType, Radio, type RadioChangeEvent } from "antd";
+import { type CheckboxOptionType, Radio, type RadioChangeEvent, Skeleton } from "antd";
 import { CodeOutlined, PicRightOutlined } from "@ant-design/icons";
 
 const REMARK_PLUGINS = [remarkGfm];
@@ -51,9 +51,10 @@ const DISPLAY_MODE_OPTIONS: CheckboxOptionType[] = [
 
 type MarkdownDisplayProps = {
   contents?: string;
+  loading?: boolean;
 };
 
-const MarkdownDisplay = ({ contents }: MarkdownDisplayProps) => {
+const MarkdownDisplay = ({ contents, loading }: MarkdownDisplayProps) => {
   const [displayMode, setDisplayMode] = useState<"render" | "code">("render");
 
   const onModeChange = useCallback((v: RadioChangeEvent) => setDisplayMode(v.target.value), []);
@@ -69,16 +70,22 @@ const MarkdownDisplay = ({ contents }: MarkdownDisplayProps) => {
   return (
     <div style={styles.container}>
       <div style={styles.header}>
-        <Radio.Group defaultValue="render" onChange={onModeChange} options={DISPLAY_MODE_OPTIONS} />
+        <Radio.Group disabled={loading} defaultValue="render" onChange={onModeChange} options={DISPLAY_MODE_OPTIONS} />
       </div>
-      <div style={markdownContainerStyle}>
-        <ReactMarkdown remarkPlugins={REMARK_PLUGINS}>{contents ?? ""}</ReactMarkdown>
-      </div>
-      {displayMode === "code" ? (
-        <SyntaxHighlighter language="markdown" style={a11yLight} customStyle={styles.code} showLineNumbers={true}>
-          {contents ?? ""}
-        </SyntaxHighlighter>
-      ) : null}
+      {loading ? (
+        <Skeleton active={true} />
+      ) : (
+        <>
+          <div style={markdownContainerStyle}>
+            <ReactMarkdown remarkPlugins={REMARK_PLUGINS}>{contents ?? ""}</ReactMarkdown>
+          </div>
+          {displayMode === "code" ? (
+            <SyntaxHighlighter language="markdown" style={a11yLight} customStyle={styles.code} showLineNumbers={true}>
+              {contents ?? ""}
+            </SyntaxHighlighter>
+          ) : null}
+        </>
+      )}
     </div>
   );
 };

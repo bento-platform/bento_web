@@ -7,12 +7,14 @@ import SpreadsheetTable, { SPREADSHEET_ROW_KEY_PROP, SpreadsheetTableProps } fro
 const DEFAULT_COLUMN = { key: "col" };
 
 type CsvDisplayProps = {
-  contents?: string | null;
+  contents?: Blob | null;
   loading?: boolean;
 };
 
 type CsvRecord = Record<string, string>;
 type CsvData = CsvRecord[];
+
+type CsvParseResult = [SpreadsheetTableProps<CsvRecord>["columns"], CsvData];
 
 const CsvDisplay = ({ contents, loading }: CsvDisplayProps) => {
   const [parsedData, setParsedData] = useState<CsvData>([]);
@@ -24,35 +26,51 @@ const CsvDisplay = ({ contents, loading }: CsvDisplayProps) => {
     if (contents === undefined || contents === null) return;
 
     setIsParsing(true);
-    const rows: CsvData = [];
-    // noinspection JSUnusedGlobalSymbols
-    Papa.parse<string[]>(contents, {
-      worker: true,
-      step: (res) => {
-        if (res.errors?.length) {
-          setParseError(res.errors[0].message);
-        }
-        rows.push(
-          Object.fromEntries([
-            [SPREADSHEET_ROW_KEY_PROP, `row${rows.length}`],
-            ...res.data.map((v, i) => [`col${i}`, v]),
-          ]),
-        );
-      },
-      complete() {
-        setIsParsing(false);
-        if (!parseError) {
-          setColumns(
-            rows[0]
-              ? Object.entries(rows[0])
-                  .filter(([k, _]) => k !== SPREADSHEET_ROW_KEY_PROP)
-                  .map((_, i) => ({ dataIndex: `col${i}` }))
-              : [DEFAULT_COLUMN],
-          );
-          setParsedData(rows);
-        }
-      },
-    });
+
+    contents
+      .text()
+      .then(
+        (csvText) =>
+          new Promise<CsvParseResult>((resolve, reject) => {
+            const rows: CsvData = [];
+            // noinspection JSUnusedGlobalSymbols
+            Papa.parse<string[]>(csvText, {
+              worker: true,
+              step: (res) => {
+                if (res.errors?.length) {
+                  setParseError(res.errors[0].message);
+                }
+                rows.push(
+                  Object.fromEntries([
+                    [SPREADSHEET_ROW_KEY_PROP, `row${rows.length}`],
+                    ...res.data.map((v, i) => [`col${i}`, v]),
+                  ]),
+                );
+              },
+              complete() {
+                setIsParsing(false);
+
+                if (parseError) {
+                  reject(parseError);
+                } else {
+                  resolve([
+                    rows[0]
+                      ? Object.entries(rows[0])
+                          .filter(([k, _]) => k !== SPREADSHEET_ROW_KEY_PROP)
+                          .map((_, i) => ({ dataIndex: `col${i}` }))
+                      : [DEFAULT_COLUMN],
+                    rows,
+                  ]);
+                }
+              },
+            });
+          }),
+      )
+      .then(([columns, rows]: CsvParseResult) => {
+        setColumns(columns);
+        setParsedData(rows);
+      })
+      .finally(() => setIsParsing(false));
   }, [contents]);
 
   if (parseError) {

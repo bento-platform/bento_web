@@ -1,24 +1,24 @@
 import { useCallback, useEffect, useState } from "react";
-import PropTypes from "prop-types";
 import { Alert, Skeleton, Spin } from "antd";
 import { useAuthorizationHeader } from "bento-auth-js";
 
 import fetch from "cross-fetch";
 
+import type { JSONType } from "ajv";
+
 import { Light as SyntaxHighlighter } from "react-syntax-highlighter";
-import { a11yLight } from "react-syntax-highlighter/dist/cjs/styles/hljs";
-import {
-  bash,
-  dockerfile,
-  javascript,
-  json,
-  markdown,
-  plaintext,
-  python,
-  r,
-  shell,
-  xml,
-} from "react-syntax-highlighter/dist/cjs/languages/hljs";
+import { a11yLight } from "react-syntax-highlighter/dist/esm/styles/hljs";
+
+import bash from "react-syntax-highlighter/dist/esm/languages/hljs/bash";
+import dockerfile from "react-syntax-highlighter/dist/esm/languages/hljs/dockerfile";
+import javascript from "react-syntax-highlighter/dist/esm/languages/hljs/javascript";
+import json from "react-syntax-highlighter/dist/esm/languages/hljs/json";
+import markdown from "react-syntax-highlighter/dist/esm/languages/hljs/markdown";
+import plaintext from "react-syntax-highlighter/dist/esm/languages/hljs/plaintext";
+import python from "react-syntax-highlighter/dist/esm/languages/hljs/python";
+import r from "react-syntax-highlighter/dist/esm/languages/hljs/r";
+import shell from "react-syntax-highlighter/dist/esm/languages/hljs/shell";
+import xml from "react-syntax-highlighter/dist/esm/languages/hljs/xml";
 
 import "react-pdf/dist/esm/Page/AnnotationLayer.css";
 import "react-pdf/dist/esm/Page/TextLayer.css";
@@ -44,7 +44,7 @@ SyntaxHighlighter.registerLanguage("r", r);
 SyntaxHighlighter.registerLanguage("shell", shell);
 SyntaxHighlighter.registerLanguage("xml", xml);
 
-const LANGUAGE_HIGHLIGHTERS = {
+const LANGUAGE_HIGHLIGHTERS: Record<string, string> = {
   bash: "bash",
   js: "javascript",
   json: "json",
@@ -98,26 +98,76 @@ export const VIEWABLE_FILE_EXTENSIONS = [
 ];
 
 const DEFER_LOADING_FILE_EXTENSIONS = ["pdf"]; // Don't use a fetch() for these extensions
-const BLOB_FILE_EXTENSIONS = [
-  ...AUDIO_FILE_EXTENSIONS,
-  ...IMAGE_FILE_EXTENSIONS,
-  ...VIDEO_FILE_EXTENSIONS,
-  "pdf",
-  "docx",
-  "xls",
-  "xlsx",
-];
 
-const EMPTY_LOADING_DIV = <div style={{ width: "100%", height: 100 }} />;
+type WrappedJsonDisplayProps = { contents?: Blob; loading?: boolean };
 
-const FileDisplay = ({ uri, fileName, loading }) => {
+const WrappedJsonDisplay = ({ contents, loading }: WrappedJsonDisplayProps) => {
+  const [parsing, setParsing] = useState(false);
+  const [json, setJson] = useState<JSONType | undefined>(undefined);
+
+  useEffect(() => {
+    if (contents) {
+      setParsing(true);
+      contents
+        .text()
+        .then((jt) => setJson(JSON.parse(jt)))
+        .finally(() => setParsing(false));
+    }
+  }, [contents]);
+
+  return (
+    <>
+      <Skeleton active={true} loading={loading || parsing} />
+      <JsonDisplay jsonSrc={json} />
+    </>
+  );
+};
+
+type WrappedCodeDisplayProps = { contents?: Blob; fileExt: string; loading?: boolean };
+
+const WrappedCodeDisplay = ({ contents, fileExt, loading }: WrappedCodeDisplayProps) => {
+  const [decoding, setDecoding] = useState(false);
+  const [code, setCode] = useState("");
+
+  useEffect(() => {
+    if (contents) {
+      setDecoding(true);
+      contents
+        .text()
+        .then((mt) => setCode(mt))
+        .finally(() => setDecoding(false));
+    }
+  }, [contents, loading]);
+
+  if (fileExt === "md") {
+    return <MarkdownDisplay contents={code} loading={loading || decoding} />;
+  } else {
+    return (
+      <>
+        <Skeleton active={true} loading={loading || decoding} />
+        <SyntaxHighlighter
+          language={LANGUAGE_HIGHLIGHTERS[fileExt]}
+          style={a11yLight}
+          customStyle={{ fontSize: "12px" }}
+          showLineNumbers={true}
+        >
+          {code || ""}
+        </SyntaxHighlighter>
+      </>
+    );
+  }
+};
+
+type FileDisplay = { uri: string; fileName: string; loading: boolean };
+
+const FileDisplay = ({ uri, fileName, loading }: FileDisplay) => {
   const authHeader = useAuthorizationHeader();
 
   const [fileLoadError, setFileLoadError] = useState("");
   const [loadingFileContents, setLoadingFileContents] = useState(false);
-  const [fileContents, setFileContents] = useState({});
+  const [fileContents, setFileContents] = useState<Record<string, Blob>>({});
 
-  const fileExt = fileName ? fileName.split(".").slice(-1)[0].toLowerCase() : null;
+  const fileExt = fileName ? fileName.split(".").slice(-1)[0].toLowerCase() : "";
 
   useEffect(() => {
     // File changed, so reset the load error
@@ -142,23 +192,16 @@ const FileDisplay = ({ uri, fileName, loading }) => {
         setLoadingFileContents(true);
         const r = await fetch(uri, { headers: authHeader });
         if (r.ok) {
-          let content;
-          if (BLOB_FILE_EXTENSIONS.includes(fileExt)) {
-            content = await r.blob();
-          } else {
-            const text = await r.text();
-            content = fileExt === "json" ? JSON.parse(text) : text;
-          }
           setFileContents({
             ...fileContents,
-            [uri]: content,
+            [uri]: await r.blob(),
           });
         } else {
           setFileLoadError(`Could not load file: ${await r.text()}`);
         }
       } catch (e) {
         console.error(e);
-        setFileLoadError(`Could not load file: ${e.message}`);
+        setFileLoadError(`Could not load file: ${(e as Error).message}`);
       } finally {
         setLoadingFileContents(false);
       }
@@ -169,7 +212,7 @@ const FileDisplay = ({ uri, fileName, loading }) => {
     setLoadingFileContents(false);
   }, []);
 
-  const onPdfFail = useCallback((err) => {
+  const onPdfFail = useCallback((err: Error) => {
     setLoadingFileContents(false);
     setFileLoadError(`Error loading PDF: ${err.message}`);
   }, []);
@@ -180,7 +223,7 @@ const FileDisplay = ({ uri, fileName, loading }) => {
   }
 
   return (
-    <Spin spinning={loading || loadingFileContents}>
+    <Spin spinning={loading}>
       {(() => {
         if (fileLoadError) {
           return (
@@ -203,44 +246,21 @@ const FileDisplay = ({ uri, fileName, loading }) => {
         } else if (CSV_LIKE_FILE_EXTENSIONS.includes(fileExt)) {
           return <CsvDisplay contents={fc} loading={loadingFileContents} />;
         } else if (["xls", "xlsx"].includes(fileExt)) {
-          if (loadingFileContents) return EMPTY_LOADING_DIV;
-          return <XlsxDisplay contents={fc} />;
+          return <XlsxDisplay contents={fc} loading={loadingFileContents} />;
         } else if (AUDIO_FILE_EXTENSIONS.includes(fileExt)) {
-          if (loadingFileContents) return EMPTY_LOADING_DIV;
-          return <AudioDisplay blob={fc} />;
+          return <AudioDisplay blob={fc} loading={loadingFileContents} />;
         } else if (IMAGE_FILE_EXTENSIONS.includes(fileExt)) {
-          if (loadingFileContents) return EMPTY_LOADING_DIV;
-          return <ImageBlobDisplay alt={fileName} blob={fc} />;
+          return <ImageBlobDisplay alt={fileName} blob={fc} loading={loadingFileContents} />;
         } else if (VIDEO_FILE_EXTENSIONS.includes(fileExt)) {
-          if (loadingFileContents) return EMPTY_LOADING_DIV;
-          return <VideoDisplay blob={fc} />;
+          return <VideoDisplay blob={fc} loading={loadingFileContents} />;
         } else if (fileExt === "json") {
-          if (loadingFileContents || !fc) return EMPTY_LOADING_DIV;
-          return <JsonDisplay jsonSrc={fc} />;
-        } else if (fileExt === "md") {
-          if (loadingFileContents) return <Skeleton loading={true} />;
-          return <MarkdownDisplay contents={fc} />;
+          return <WrappedJsonDisplay contents={fc} loading={loadingFileContents} />;
         } else {
-          // if (textFormat)
-          return (
-            <SyntaxHighlighter
-              language={LANGUAGE_HIGHLIGHTERS[fileExt]}
-              style={a11yLight}
-              customStyle={{ fontSize: "12px" }}
-              showLineNumbers={true}
-            >
-              {fc || ""}
-            </SyntaxHighlighter>
-          );
+          return <WrappedCodeDisplay contents={fc} fileExt={fileExt} loading={loadingFileContents} />;
         }
       })()}
     </Spin>
   );
-};
-FileDisplay.propTypes = {
-  uri: PropTypes.string,
-  fileName: PropTypes.string,
-  loading: PropTypes.bool,
 };
 
 export default FileDisplay;

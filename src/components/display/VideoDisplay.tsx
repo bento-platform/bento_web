@@ -1,12 +1,14 @@
 import { type CSSProperties, useEffect, useRef } from "react";
+import { Spin } from "antd";
 
 const VIDEO_STYLE: CSSProperties = { width: "100%" };
 
 type VideoDisplayProps = {
   blob: Blob;
+  loading?: boolean;
 };
 
-const VideoDisplay = ({ blob }: VideoDisplayProps) => {
+const VideoDisplay = ({ blob, loading }: VideoDisplayProps) => {
   const videoRef = useRef<HTMLVideoElement>(null);
 
   useEffect(() => {
@@ -15,7 +17,11 @@ const VideoDisplay = ({ blob }: VideoDisplayProps) => {
     }
   }, [videoRef, blob]);
 
-  return <video style={VIDEO_STYLE} ref={videoRef} controls={true} />;
+  return (
+    <Spin spinning={loading}>
+      <video style={VIDEO_STYLE} ref={videoRef} controls={true} />
+    </Spin>
+  );
 };
 
 export default VideoDisplay;

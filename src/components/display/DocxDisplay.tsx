@@ -1,6 +1,6 @@
 import { type CSSProperties, useEffect, useMemo, useState } from "react";
 import mammoth from "mammoth/mammoth.browser";
-import { Alert, Skeleton, Spin } from "antd";
+import { Alert, Skeleton } from "antd";
 
 const MAMMOTH_OPTIONS = {
   convertImage: mammoth.images.imgElement((image) =>
@@ -55,11 +55,11 @@ const DocxDisplay = ({ contents, loading }: DocxDisplayProps) => {
 
   // noinspection JSValidateTypes
   return (
-    <Spin spinning={waiting}>
-      {waiting && <Skeleton loading={true} />}
+    <>
+      <Skeleton active={true} loading={waiting} />
       {error && <Alert showIcon={true} message="Parsing error" description={error} />}
       <div style={styles.container} dangerouslySetInnerHTML={innerHTML} />
-    </Spin>
+    </>
   );
 };
 

@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 
 import { read, utils, type WorkBook } from "xlsx";
 import { Card } from "antd";
@@ -7,13 +7,14 @@ import SpreadsheetTable, { SPREADSHEET_ROW_KEY_PROP, SpreadsheetTableProps } fro
 
 type XlsxDisplayProps = {
   contents: Blob;
+  loading?: boolean;
 };
 
 type XlsxRecord = Record<string, string>;
 type XlsxData = XlsxRecord[];
 type XlsxColumns = SpreadsheetTableProps<XlsxRecord>["columns"];
 
-const XlsxDisplay = ({ contents }: XlsxDisplayProps) => {
+const XlsxDisplay = ({ contents, loading }: XlsxDisplayProps) => {
   const [excelFile, setExcelFile] = useState<WorkBook | null>(null);
   const [reading, setReading] = useState(false);
 
@@ -63,17 +64,17 @@ const XlsxDisplay = ({ contents }: XlsxDisplayProps) => {
     }
   }, [selectedSheet]);
 
+  const tabs = useMemo(() => (excelFile?.SheetNames ?? []).map((s) => ({ key: s, label: s })), [excelFile]);
+  const onTabChange = useCallback((s: string) => setSelectedSheet(s), []);
+  const showHeader = useMemo(() => sheetColumns.reduce((acc, v) => acc || v.title !== "", false), [sheetColumns]);
+
   return (
-    <Card
-      tabList={(excelFile?.SheetNames ?? []).map((s) => ({ key: s, label: s }))}
-      activeTabKey={selectedSheet}
-      onTabChange={(s) => setSelectedSheet(s)}
-    >
+    <Card tabList={tabs} activeTabKey={selectedSheet} onTabChange={onTabChange}>
       <SpreadsheetTable<XlsxRecord>
         columns={sheetColumns}
         dataSource={sheetJSON}
-        showHeader={sheetColumns.reduce((acc, v) => acc || v.title !== "", false)}
-        loading={reading}
+        showHeader={showHeader}
+        loading={loading || reading}
       />
     </Card>
   );
