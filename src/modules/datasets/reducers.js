@@ -26,6 +26,7 @@ export const datasetDataTypes = (
           ...state.itemsByID,
           [datasetID]: {
             itemsByID: state.itemsByID[datasetID]?.itemsByID ?? {},
+            hasAttempted: state.itemsByID[datasetID]?.hasAttempted ?? false,
             isFetching: true,
           },
         },
@@ -57,6 +58,7 @@ export const datasetDataTypes = (
           [datasetID]: {
             ...state.itemsByID[datasetID],
             isFetching: false,
+            hasAttempted: true,
           },
         },
       };
