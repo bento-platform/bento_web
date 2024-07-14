@@ -4,19 +4,26 @@ import PropTypes from "prop-types";
 import { Col, Divider, Row, Spin, Statistic, Typography } from "antd";
 
 import { EM_DASH } from "@/constants";
-import { useDatasetDataTypes } from "@/modules/datasets/hooks";
+import { useDatasetDataTypesByID } from "@/modules/datasets/hooks";
 import { datasetPropTypesShape, projectPropTypesShape } from "@/propTypes";
 
 const DatasetOverview = ({ isPrivate, project, dataset }) => {
-  const datasetsDataTypes = useDatasetDataTypes();
-  const datasetDataTypes = datasetsDataTypes[dataset.identifier];
-  const isFetchingDataset = datasetDataTypes?.isFetching;
+  const { dataTypesByID, isFetchingDataTypes, hasAttemptedDataTypes } = useDatasetDataTypesByID(dataset.identifier);
 
   // Count data types which actually have data in them for showing in the overview
-  const dataTypeCount = useMemo(
-    () => Object.values(datasetDataTypes?.itemsByID || {}).filter((value) => (value.count || 0) > 0).length,
-    [datasetDataTypes, dataset],
+  const dataTypesCount = useMemo(
+    () => Object.values(dataTypesByID ?? {}).filter((value) => (value.count || 0) > 0).length,
+    [dataTypesByID],
   );
+  const dataTypeDisplay = useMemo(() => {
+    if (isFetchingDataTypes) {
+      // refresh: display count based on previous state
+      if (hasAttemptedDataTypes) return dataTypesCount;
+      // first fetch: wait for data to display count
+      return EM_DASH;
+    }
+    return dataTypesCount;
+  }, [dataTypesCount, isFetchingDataTypes, hasAttemptedDataTypes]);
 
   return (
     <>
@@ -54,8 +61,8 @@ const DatasetOverview = ({ isPrivate, project, dataset }) => {
           <Statistic title="Created" value={new Date(Date.parse(dataset.created)).toLocaleString()} />
         </Col>
         <Col span={isPrivate ? 12 : 8}>
-          <Spin spinning={isFetchingDataset}>
-            <Statistic title="Data types" value={isFetchingDataset ? EM_DASH : dataTypeCount} />
+          <Spin spinning={isFetchingDataTypes}>
+            <Statistic title="Data types" value={dataTypeDisplay} />
           </Spin>
         </Col>
       </Row>
