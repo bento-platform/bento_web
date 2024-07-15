@@ -158,9 +158,13 @@ const WrappedCodeDisplay = ({ contents, fileExt, loading }: WrappedCodeDisplayPr
   }
 };
 
-type FileDisplay = { uri: string; fileName: string; loading: boolean };
+type FileDisplayProps = {
+  uri?: string;
+  fileName?: string;
+  loading?: boolean;
+};
 
-const FileDisplay = ({ uri, fileName, loading }: FileDisplay) => {
+const FileDisplay = ({ uri, fileName, loading }: FileDisplayProps) => {
   const authHeader = useAuthorizationHeader();
 
   const [fileLoadError, setFileLoadError] = useState("");
@@ -180,7 +184,7 @@ const FileDisplay = ({ uri, fileName, loading }: FileDisplay) => {
         setLoadingFileContents(true);
       }
 
-      if (DEFER_LOADING_FILE_EXTENSIONS.includes(fileExt) || fileContents.hasOwnProperty(uri)) return;
+      if (DEFER_LOADING_FILE_EXTENSIONS.includes(fileExt) || (uri && fileContents.hasOwnProperty(uri))) return;
 
       if (!uri) {
         console.error(`Files: something went wrong while trying to load ${uri}`);
