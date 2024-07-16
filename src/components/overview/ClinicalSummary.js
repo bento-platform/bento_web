@@ -38,7 +38,7 @@ const ClinicalSummary = ({ overviewSummary }) => {
         value: expSpecific?.experiments?.count,
       },
     ],
-    [phenoSpecific],
+    [phenoSpecific, expSpecific],
   );
 
   const charts = useMemo(

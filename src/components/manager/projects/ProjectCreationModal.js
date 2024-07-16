@@ -9,6 +9,7 @@ import ProjectForm from "./ProjectForm";
 
 import { toggleProjectCreationModal } from "@/modules/manager/actions";
 import { createProjectIfPossible } from "@/modules/metadata/actions";
+import { useProjects } from "@/modules/metadata/hooks";
 
 const ProjectCreationModal = () => {
   const dispatch = useDispatch();
@@ -17,7 +18,7 @@ const ProjectCreationModal = () => {
   const form = useRef(null);
 
   const showCreationModal = useSelector((state) => state.manager.projectCreationModal);
-  const isCreatingProject = useSelector((state) => state.projects.isCreating);
+  const isCreatingProject = useProjects().isCreating;
 
   const handleCreateCancel = useCallback(() => {
     dispatch(toggleProjectCreationModal());
@@ -38,7 +39,7 @@ const ProjectCreationModal = () => {
       .catch((err) => {
         console.error(err);
       });
-  }, [dispatch]);
+  }, [dispatch, navigate]);
 
   return (
     <Modal

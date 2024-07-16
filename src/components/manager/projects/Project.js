@@ -67,7 +67,7 @@ const Project = ({
         data_use: simpleDeepCopy(value.data_use || INITIAL_DATA_USE_VALUE),
       });
     }
-  }, [value]);
+  }, [value, projectState]);
 
   const handleSave = useCallback(() => {
     const form = editingForm.current;

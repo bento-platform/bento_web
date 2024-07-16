@@ -50,7 +50,7 @@ const NotificationList = ({ notifications, small }) => {
           return [];
       }
     },
-    [dispatch, navigate],
+    [dispatch, navigate, markAsRead],
   );
 
   const listItemRender = useCallback(
