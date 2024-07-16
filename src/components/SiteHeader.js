@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from "react";
+import React, { useCallback, useMemo, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { Link } from "react-router-dom";
 import { viewNotifications, useIsAuthenticated, usePerformSignOut, usePerformAuth, useAuthState } from "bento-auth-js";
@@ -65,9 +65,9 @@ const SiteHeader = () => {
 
   const [modalVisible, setModalVisible] = useState(false);
 
-  const toggleModalVisibility = () => {
+  const toggleModalVisibility = useCallback(() => {
     setModalVisible(!modalVisible);
-  };
+  }, [modalVisible]);
 
   const performSignOut = usePerformSignOut();
 
@@ -206,7 +206,7 @@ const SiteHeader = () => {
           ]),
     ],
     [
-      authHasAttempted,
+      dispatch,
       canQueryData,
       canViewNotifications,
       hasAttemptedManagerPermissions,
@@ -217,6 +217,7 @@ const SiteHeader = () => {
       isFetchingPermissions,
       managerPermissions,
       openIdConfigFetching,
+      toggleModalVisibility,
       performAuth,
       performSignOut,
       unreadNotifications,

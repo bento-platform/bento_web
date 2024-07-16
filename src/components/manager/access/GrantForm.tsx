@@ -108,13 +108,14 @@ const SubjectInput = ({ value, onChange }: SubjectInputProps) => {
     }
   }, [value]);
 
-  const onChangeDeps = [onChange, subjectType, iss, sub, client, group];
-
-  const onChangeSubjectType = useCallback((e: RadioChangeEvent) => {
-    const newSubjectType = e.target.value;
-    setSubjectType(newSubjectType);
-    handleSubjectChange(onChange, newSubjectType, iss, sub, client, group);
-  }, onChangeDeps);
+  const onChangeSubjectType = useCallback(
+    (e: RadioChangeEvent) => {
+      const newSubjectType = e.target.value;
+      setSubjectType(newSubjectType);
+      handleSubjectChange(onChange, newSubjectType, iss, sub, client, group);
+    },
+    [onChange, iss, sub, client, group],
+  );
 
   const subjectTypeOptions = useMemo(
     () => [
@@ -126,23 +127,32 @@ const SubjectInput = ({ value, onChange }: SubjectInputProps) => {
     [groups],
   );
 
-  const onChangeIssuer = useCallback<InputChangeEventHandler>((e) => {
-    const newIss = e.target.value;
-    setIss(newIss);
-    handleSubjectChange(onChange, subjectType, newIss, sub, client, group);
-  }, onChangeDeps);
+  const onChangeIssuer = useCallback<InputChangeEventHandler>(
+    (e) => {
+      const newIss = e.target.value;
+      setIss(newIss);
+      handleSubjectChange(onChange, subjectType, newIss, sub, client, group);
+    },
+    [onChange, subjectType, sub, client, group],
+  );
 
-  const onChangeSubject = useCallback<InputChangeEventHandler>((e) => {
-    const newSub = e.target.value;
-    setSub(newSub);
-    handleSubjectChange(onChange, subjectType, iss, newSub, client, group);
-  }, onChangeDeps);
+  const onChangeSubject = useCallback<InputChangeEventHandler>(
+    (e) => {
+      const newSub = e.target.value;
+      setSub(newSub);
+      handleSubjectChange(onChange, subjectType, iss, newSub, client, group);
+    },
+    [onChange, subjectType, iss, client, group],
+  );
 
-  const onChangeClient = useCallback<InputChangeEventHandler>((e) => {
-    const newClient = e.target.value;
-    setClient(newClient);
-    handleSubjectChange(onChange, subjectType, iss, sub, newClient, group);
-  }, onChangeDeps);
+  const onChangeClient = useCallback<InputChangeEventHandler>(
+    (e) => {
+      const newClient = e.target.value;
+      setClient(newClient);
+      handleSubjectChange(onChange, subjectType, iss, sub, newClient, group);
+    },
+    [onChange, subjectType, iss, sub, group],
+  );
 
   const groupOptions = useMemo(
     () =>
@@ -157,10 +167,13 @@ const SubjectInput = ({ value, onChange }: SubjectInputProps) => {
     [groups],
   );
 
-  const onChangeGroup = useCallback((v: number) => {
-    setGroup(v);
-    handleSubjectChange(onChange, subjectType, iss, sub, client, v);
-  }, onChangeDeps);
+  const onChangeGroup = useCallback(
+    (v: number) => {
+      setGroup(v);
+      handleSubjectChange(onChange, subjectType, iss, sub, client, v);
+    },
+    [onChange, subjectType, iss, sub, client],
+  );
 
   return (
     <Space direction="vertical" style={{ width: "100%", minHeight: 32 }}>
@@ -248,7 +261,7 @@ const ResourceInput = ({ value, onChange }: ResourceInputProps) => {
       if ("dataset" in value && value.dataset) setSelectedDataset(datasetsByID[value.dataset]);
       if ("data_type" in value && value.data_type) setSelectedDataType(value.data_type);
     }
-  }, [value]);
+  }, [value, projectsByID, datasetsByID]);
 
   useEffect(() => {
     if (!selectedProject && projects.length) {

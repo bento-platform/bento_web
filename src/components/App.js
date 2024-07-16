@@ -124,7 +124,7 @@ const App = () => {
       });
       return socket;
     })();
-  }, [navigate, isAuthenticated, eventRelay, eventRelayConnection]);
+  }, [navigate, isAuthenticated, eventRelayUrl, eventRelayConnection, accessToken]);
 
   const handleUserChange = useCallback(() => {
     if (lastIsAuthenticated && !isAuthenticated) {
@@ -148,6 +148,7 @@ const App = () => {
       createEventRelayConnectionIfNecessary();
     }
   }, [
+    dispatch,
     lastIsAuthenticated,
     isAuthenticated,
     signedOutModal,
@@ -159,11 +160,11 @@ const App = () => {
     if (eventRelayUrl) {
       createEventRelayConnectionIfNecessary();
     }
-  }, [eventRelay, createEventRelayConnectionIfNecessary]);
+  }, [eventRelayUrl, createEventRelayConnectionIfNecessary]);
 
   useEffect(() => {
     handleUserChange();
-  }, [eventRelayConnection, lastIsAuthenticated, idTokenContents]);
+  }, [handleUserChange, idTokenContents]);
 
   // TODO: Don't execute on focus if it's been checked recently
   useEffect(() => {

@@ -241,7 +241,7 @@ const ManagerDRSContent = () => {
 
   useEffect(() => {
     setSelectedRowKeys(selectedRowKeys.filter((k) => k in objectsByID));
-  }, [objectsByID]);
+  }, [selectedRowKeys, objectsByID]);
 
   const onDeleteSelected = useCallback(() => {
     Modal.confirm({
@@ -319,7 +319,7 @@ const ManagerDRSContent = () => {
         },
       },
     ],
-    [hasDownloadPermission, hasDeletePermission, projectsByID, datasetsByID],
+    [hasDownloadPermission, hasDeletePermission],
   );
 
   // noinspection JSUnusedGlobalSymbols
