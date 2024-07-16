@@ -56,7 +56,7 @@ const PdfDisplay = ({ uri, onLoad, onFail }: PdfDisplayProps) => {
       if (onLoad) onLoad();
       setPdfPageCounts({ ...pdfPageCounts, [uri]: numPages });
     },
-    [uri],
+    [onLoad, pdfPageCounts, uri],
   );
 
   const onLoadError = useCallback((err: Error) => {

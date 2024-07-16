@@ -33,12 +33,15 @@ const CsvDisplay = ({ contents, loading }: CsvDisplayProps) => {
         (csvText) =>
           new Promise<CsvParseResult>((resolve, reject) => {
             const rows: CsvData = [];
+
+            let innerParseError: string | null = null;
+
             // noinspection JSUnusedGlobalSymbols
             Papa.parse<string[]>(csvText, {
               worker: true,
               step: (res) => {
                 if (res.errors?.length) {
-                  setParseError(res.errors[0].message);
+                  innerParseError = res.errors[0].message;
                 }
                 rows.push(
                   Object.fromEntries([
@@ -50,8 +53,8 @@ const CsvDisplay = ({ contents, loading }: CsvDisplayProps) => {
               complete() {
                 setIsParsing(false);
 
-                if (parseError) {
-                  reject(parseError);
+                if (innerParseError) {
+                  reject(innerParseError);
                 } else {
                   resolve([
                     rows[0]
@@ -69,6 +72,9 @@ const CsvDisplay = ({ contents, loading }: CsvDisplayProps) => {
       .then(([columns, rows]: CsvParseResult) => {
         setColumns(columns);
         setParsedData(rows);
+      })
+      .catch((err) => {
+        setParseError(err.toString());
       })
       .finally(() => setIsParsing(false));
   }, [contents]);

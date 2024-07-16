@@ -210,7 +210,7 @@ const FileDisplay = ({ uri, fileName, loading }: FileDisplayProps) => {
         setLoadingFileContents(false);
       }
     })();
-  }, [uri]);
+  }, [fileName, fileExt, uri, fileContents, authHeader]);
 
   const onPdfLoad = useCallback(() => {
     setLoadingFileContents(false);

@@ -77,7 +77,7 @@ const DownloadButton = ({
         if (propsOnClick) propsOnClick(e);
       }
     },
-    [uri, accessToken, propsOnClick],
+    [fileName, uri, accessToken, extraFormData, propsOnClick],
   );
 
   return (
