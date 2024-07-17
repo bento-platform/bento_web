@@ -30,13 +30,11 @@ const XlsxDisplay = ({ contents, loading }: BlobDisplayProps) => {
   }, [contents]);
 
   useEffect(() => {
-    if (selectedSheet === undefined && excelFile?.SheetNames?.length) {
-      setSelectedSheet(excelFile.SheetNames[0]);
-    }
-  }, [excelFile]);
+    if (!excelFile) return;
 
-  useEffect(() => {
-    if (excelFile && selectedSheet !== undefined) {
+    if (excelFile.SheetNames.length && selectedSheet === undefined) {
+      setSelectedSheet(excelFile.SheetNames[0]);
+    } else if (selectedSheet !== undefined) {
       const json: object[] = utils.sheet_to_json(excelFile.Sheets[selectedSheet]);
       if (json.length === 0) return;
 
@@ -58,7 +56,7 @@ const XlsxDisplay = ({ contents, loading }: BlobDisplayProps) => {
       setSheetColumns(columns);
       setSheetJSON(json.map((r, i) => ({ ...r, [SPREADSHEET_ROW_KEY_PROP]: `row${i}` })));
     }
-  }, [selectedSheet]);
+  }, [excelFile, selectedSheet]);
 
   const tabs = useMemo(() => (excelFile?.SheetNames ?? []).map((s) => ({ key: s, label: s })), [excelFile]);
   const onTabChange = useCallback((s: string) => setSelectedSheet(s), []);
