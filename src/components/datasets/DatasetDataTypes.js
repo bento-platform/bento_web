@@ -121,7 +121,7 @@ const DatasetDataTypes = React.memo(({ isPrivate, project, dataset }) => {
           ]
         : null),
     ],
-    [isPrivate, project, dataset, ingestionWorkflows, startIngestionFlow],
+    [isPrivate, project, dataset, handleClearDataType, ingestionWorkflows, startIngestionFlow, showDataTypeSummary],
   );
 
   const onDataTypeSummaryModalCancel = useCallback(() => setDatatypeSummaryVisible(false), []);

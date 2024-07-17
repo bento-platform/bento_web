@@ -24,7 +24,7 @@ const IndividualPhenopackets = ({ individual }) => {
 
   useEffect(() => {
     dispatch(fetchIndividualPhenopacketsIfNecessary(individualId));
-  }, [individualId]);
+  }, [dispatch, individualId]);
 
   return (
     <>

@@ -60,7 +60,7 @@ const SiteHeader = () => {
 
   const { unreadItems: unreadNotifications } = useNotifications();
 
-  const { idTokenContents, isHandingOffCodeForToken, hasAttempted: authHasAttempted } = useAuthState();
+  const { idTokenContents, isHandingOffCodeForToken } = useAuthState();
   const isAuthenticated = useIsAuthenticated();
 
   const [modalVisible, setModalVisible] = useState(false);

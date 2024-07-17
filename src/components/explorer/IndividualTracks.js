@@ -278,7 +278,7 @@ const IndividualTracks = ({ individual }) => {
         igvBrowserRef.current.loadTrack(buildIgvTrack(igvUrls, track)).catch(console.error);
       }
     },
-    [allTracks],
+    [allTracks, igvUrls],
   );
 
   const storeIgvPosition = useCallback(
@@ -299,7 +299,7 @@ const IndividualTracks = ({ individual }) => {
       }
       dispatch(getIgvUrlsFromDrs(allTracks)).catch(console.error);
     }
-  }, [allTracks]);
+  }, [dispatch, allTracks, igvUrls]);
 
   // update access token whenever necessary
   useEffect(() => {

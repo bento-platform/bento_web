@@ -176,7 +176,7 @@ const DiscoverySearchForm = ({ onChange, dataType, setFormRef, handleVariantHidd
         conditions: [...existingConditions, fieldInitialValue],
       });
     },
-    [form, conditionsHelp, getConditionsArray, getDataTypeFieldSchema, getInitialOperator, updateHelpFromFieldChange],
+    [form, getConditionsArray, getDataTypeFieldSchema, getInitialOperator, updateHelpFromFieldChange],
   );
 
   const removeCondition = useCallback(
@@ -328,7 +328,7 @@ const DiscoverySearchForm = ({ onChange, dataType, setFormRef, handleVariantHidd
         },
       ],
     };
-  }, [getDataTypeFieldSchema]);
+  }, [addConditionFromDropdown, getDataTypeFieldSchema]);
 
   const existingUniqueFields = useMemo(
     () =>
