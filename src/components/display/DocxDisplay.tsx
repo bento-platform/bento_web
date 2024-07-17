@@ -2,6 +2,8 @@ import { type CSSProperties, useEffect, useMemo, useState } from "react";
 import mammoth from "mammoth/mammoth.browser";
 import { Alert, Skeleton } from "antd";
 
+import type { BlobDisplayProps } from "./types";
+
 const MAMMOTH_OPTIONS = {
   convertImage: mammoth.images.imgElement((image) =>
     image.read("base64").then((buffer) => ({
@@ -18,12 +20,7 @@ const styles: Record<string, CSSProperties> = {
   },
 };
 
-type DocxDisplayProps = {
-  contents: Blob;
-  loading?: boolean;
-};
-
-const DocxDisplay = ({ contents, loading }: DocxDisplayProps) => {
+const DocxDisplay = ({ contents, loading }: BlobDisplayProps) => {
   const [parsing, setParsing] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [docHTML, setDocHTML] = useState<string | null>(null);

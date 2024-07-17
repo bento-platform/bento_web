@@ -1,19 +1,15 @@
 import { useEffect, useRef } from "react";
 import { Skeleton } from "antd";
+import type { BlobDisplayProps } from "./types";
 
-type AudioDisplayProps = {
-  blob: Blob;
-  loading?: boolean;
-};
-
-const AudioDisplay = ({ blob, loading }: AudioDisplayProps) => {
+const AudioDisplay = ({ contents, loading }: BlobDisplayProps) => {
   const audioRef = useRef<HTMLAudioElement>(null);
 
   useEffect(() => {
-    if (audioRef.current && blob) {
-      audioRef.current.src = URL.createObjectURL(blob);
+    if (audioRef.current && contents) {
+      audioRef.current.src = URL.createObjectURL(contents);
     }
-  }, [audioRef, blob]);
+  }, [audioRef, contents]);
 
   return (
     <>

@@ -3,27 +3,23 @@ import Papa from "papaparse";
 import { Alert } from "antd";
 
 import SpreadsheetTable, { SPREADSHEET_ROW_KEY_PROP, SpreadsheetTableProps } from "./SpreadsheetTable";
+import type { BlobDisplayProps } from "./types";
 
 const DEFAULT_COLUMN = { key: "col" };
-
-type CsvDisplayProps = {
-  contents?: Blob | null;
-  loading?: boolean;
-};
 
 type CsvRecord = Record<string, string>;
 type CsvData = CsvRecord[];
 
 type CsvParseResult = [SpreadsheetTableProps<CsvRecord>["columns"], CsvData];
 
-const CsvDisplay = ({ contents, loading }: CsvDisplayProps) => {
+const CsvDisplay = ({ contents, loading }: BlobDisplayProps) => {
   const [parsedData, setParsedData] = useState<CsvData>([]);
   const [parseError, setParseError] = useState("");
   const [isParsing, setIsParsing] = useState(true); // Start in parsing state
   const [columns, setColumns] = useState<SpreadsheetTableProps<CsvRecord>["columns"]>([DEFAULT_COLUMN]);
 
   useEffect(() => {
-    if (contents === undefined || contents === null) return;
+    if (!contents) return;
 
     setIsParsing(true);
 
@@ -33,12 +29,15 @@ const CsvDisplay = ({ contents, loading }: CsvDisplayProps) => {
         (csvText) =>
           new Promise<CsvParseResult>((resolve, reject) => {
             const rows: CsvData = [];
+
+            const innerParseErrors: string[] = [];
+
             // noinspection JSUnusedGlobalSymbols
             Papa.parse<string[]>(csvText, {
               worker: true,
               step: (res) => {
                 if (res.errors?.length) {
-                  setParseError(res.errors[0].message);
+                  innerParseErrors.push(...res.errors.map((e) => e.message));
                 }
                 rows.push(
                   Object.fromEntries([
@@ -50,8 +49,8 @@ const CsvDisplay = ({ contents, loading }: CsvDisplayProps) => {
               complete() {
                 setIsParsing(false);
 
-                if (parseError) {
-                  reject(parseError);
+                if (innerParseErrors.length) {
+                  reject(new Error(`Encountered parse error(s): ${innerParseErrors.join("; ")}`));
                 } else {
                   resolve([
                     rows[0]
@@ -69,6 +68,9 @@ const CsvDisplay = ({ contents, loading }: CsvDisplayProps) => {
       .then(([columns, rows]: CsvParseResult) => {
         setColumns(columns);
         setParsedData(rows);
+      })
+      .catch((err) => {
+        setParseError(err.toString());
       })
       .finally(() => setIsParsing(false));
   }, [contents]);
