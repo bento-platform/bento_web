@@ -30,14 +30,14 @@ const CsvDisplay = ({ contents, loading }: BlobDisplayProps) => {
           new Promise<CsvParseResult>((resolve, reject) => {
             const rows: CsvData = [];
 
-            let innerParseError: string | null = null;
+            const innerParseErrors: string[] = [];
 
             // noinspection JSUnusedGlobalSymbols
             Papa.parse<string[]>(csvText, {
               worker: true,
               step: (res) => {
                 if (res.errors?.length) {
-                  innerParseError = res.errors[0].message;
+                  innerParseErrors.push(...res.errors.map((e) => e.message));
                 }
                 rows.push(
                   Object.fromEntries([
@@ -49,8 +49,8 @@ const CsvDisplay = ({ contents, loading }: BlobDisplayProps) => {
               complete() {
                 setIsParsing(false);
 
-                if (innerParseError) {
-                  reject(innerParseError);
+                if (innerParseErrors.length) {
+                  reject(new Error(`Encountered parse error(s): ${innerParseErrors.join("; ")}`));
                 } else {
                   resolve([
                     rows[0]
