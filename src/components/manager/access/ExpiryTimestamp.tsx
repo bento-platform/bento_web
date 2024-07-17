@@ -11,7 +11,7 @@ const ExpiryTimestamp = ({ expiry }: { expiry?: string }) => {
 
   const expired = expiryTs && expiryTs <= currentTs;
 
-  const spanStyle = useMemo((): CSSProperties => (expired ? { color: COLOR_ANTD_RED_6 } : {}), [expiry, expired]);
+  const spanStyle = useMemo((): CSSProperties => (expired ? { color: COLOR_ANTD_RED_6 } : {}), [expired]);
 
   if (!expiry) return EM_DASH;
 

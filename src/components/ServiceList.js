@@ -140,7 +140,7 @@ const ServiceList = () => {
           loading: servicesFetching,
         };
       }),
-    [servicesByKind, bentoServicesByKind],
+    [servicesByKind, bentoServicesByKind, servicesFetching],
   );
 
   const isAuthenticated = useIsAuthenticated();

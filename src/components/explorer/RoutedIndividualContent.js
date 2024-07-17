@@ -63,7 +63,10 @@ export const RoutedIndividualContent = ({ renderContent, urlParam }) => {
     [navigate],
   );
 
-  const contentNode = useMemo(() => renderContent({ onContentSelect: handleRoutedSelection }), [handleRoutedSelection]);
+  const contentNode = useMemo(
+    () => renderContent({ onContentSelect: handleRoutedSelection }),
+    [renderContent, handleRoutedSelection],
+  );
 
   return (
     <Routes>

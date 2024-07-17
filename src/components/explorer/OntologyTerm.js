@@ -25,17 +25,14 @@ const OntologyTerm = memo(({ term, renderLabel, br }) => {
   // TODO: perf: might be slow to generate this over and over
   const [resourcesByNamespacePrefix, isFetchingResources] = useResourcesByNamespacePrefix(resourcesTuple);
 
-  if (!term) {
-    return <>{EM_DASH}</>;
-  }
-
   useEffect(() => {
+    if (!term) return;
     if (!term.id || !term.label) {
       console.error("Invalid term provided to OntologyTerm component:", term);
     }
   }, [term]);
 
-  if (!term.id || !term.label) {
+  if (!term || !term.id || !term.label) {
     return <>{EM_DASH}</>;
   }
 

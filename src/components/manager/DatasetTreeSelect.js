@@ -25,7 +25,7 @@ const DatasetTreeSelect = forwardRef(({ value, onChange, style, idFormat }, ref)
         onChange(newSelected);
       }
     },
-    [value, onChange, selected],
+    [value, onChange],
   );
 
   const selectTreeData = useMemo(

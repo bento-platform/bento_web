@@ -243,13 +243,37 @@ ExperimentDetail.propTypes = {
 
 const expandedExperimentRowRender = (experiment) => <ExperimentDetail experiment={experiment} />;
 
+const EXPERIMENT_COLUMNS = [
+  {
+    title: "Experiment Type",
+    dataIndex: "experiment_type",
+    render: (type, { id }) => <span id={`experiment-${id}`}>{type}</span>, // scroll anchor wrapper
+  },
+  {
+    title: "Biosample",
+    dataIndex: "biosample",
+    render: (biosample) => <BiosampleLink biosample={biosample} />,
+  },
+  {
+    title: "Molecule",
+    dataIndex: "molecule_ontology",
+    render: (mo) => <OntologyTerm term={mo?.[0] ?? mo} />,
+  },
+  {
+    title: "Experiment Results",
+    key: "experiment_results",
+    // experiment_results can be undefined if no experiment results exist
+    render: (exp) => <span>{exp.experiment_results?.length ?? 0} files</span>,
+  },
+];
+
 const Experiments = ({ individual, handleExperimentClick }) => {
   const dispatch = useDispatch();
 
   const { selectedExperiment } = useParams();
 
   useEffect(() => {
-    // If, on first load, there's a selected experiment:
+    // If there's a selected experiment:
     //  - find the experiment-${id} element (a span in the table row)
     //  - scroll it into view
     setTimeout(() => {
@@ -259,7 +283,7 @@ const Experiments = ({ individual, handleExperimentClick }) => {
         el.scrollIntoView();
       }
     }, 100);
-  }, []);
+  }, [selectedExperiment]);
 
   const biosamplesData = useDeduplicatedIndividualBiosamples(individual);
   const experimentsData = useMemo(() => biosamplesData.flatMap((b) => b?.experiments ?? []), [biosamplesData]);
@@ -276,40 +300,13 @@ const Experiments = ({ individual, handleExperimentClick }) => {
       }));
 
     dispatch(getFileDownloadUrlsFromDrs(downloadableFiles)).catch(console.error);
-  }, [experimentsData]);
-
-  const columns = useMemo(
-    () => [
-      {
-        title: "Experiment Type",
-        dataIndex: "experiment_type",
-        render: (type, { id }) => <span id={`experiment-${id}`}>{type}</span>, // scroll anchor wrapper
-      },
-      {
-        title: "Biosample",
-        dataIndex: "biosample",
-        render: (biosample) => <BiosampleLink biosample={biosample} />,
-      },
-      {
-        title: "Molecule",
-        dataIndex: "molecule_ontology",
-        render: (mo) => <OntologyTerm term={mo?.[0] ?? mo} />,
-      },
-      {
-        title: "Experiment Results",
-        key: "experiment_results",
-        // experiment_results can be undefined if no experiment results exist
-        render: (exp) => <span>{exp.experiment_results?.length ?? 0} files</span>,
-      },
-    ],
-    [handleExperimentClick],
-  );
+  }, [dispatch, experimentsData]);
 
   return (
     <RoutedIndividualContentTable
       data={experimentsData}
       urlParam="selectedExperiment"
-      columns={columns}
+      columns={EXPERIMENT_COLUMNS}
       rowKey="id"
       handleRowSelect={handleExperimentClick}
       expandedRowRender={expandedExperimentRowRender}

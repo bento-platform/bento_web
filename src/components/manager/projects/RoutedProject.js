@@ -36,7 +36,7 @@ const RoutedProject = () => {
     if (!projectsByID[selectedProjectID] && !loadingProjects) {
       navigate("/data/manager/projects/");
     }
-  }, [projectsByID, loadingProjects, selectedProjectID]);
+  }, [projectsByID, loadingProjects, selectedProjectID, navigate]);
 
   const showDatasetAdditionModal = useCallback(() => {
     setDatasetAdditionModal(true);

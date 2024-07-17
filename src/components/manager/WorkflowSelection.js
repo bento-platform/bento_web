@@ -58,7 +58,7 @@ const INITIAL_FILTER_STATE = {
 const WorkflowSelection = ({ workflowType, initialFilterValues, handleWorkflowClick }) => {
   const { workflowsByType, workflowsLoading } = useWorkflows();
 
-  const workflowsOfType = workflowsByType[workflowType] ?? [];
+  const workflowsOfType = useMemo(() => workflowsByType[workflowType] ?? [], [workflowsByType, workflowType]);
   const tags = useMemo(
     () =>
       Array.from(
@@ -73,7 +73,7 @@ const WorkflowSelection = ({ workflowType, initialFilterValues, handleWorkflowCl
     if (filterValues.text === "" && !filterValues.tags.length && initialFilterValues) {
       setFilterValues({ ...INITIAL_FILTER_STATE, filterValues });
     }
-  }, [initialFilterValues]);
+  }, [filterValues, initialFilterValues]);
 
   /** @type {React.ReactNode[]} */
   const workflowItems = useMemo(() => {
@@ -95,7 +95,7 @@ const WorkflowSelection = ({ workflowType, initialFilterValues, handleWorkflowCl
       .map((w) => (
         <WorkflowListItem key={w.id} workflow={w} selectable={true} onClick={() => handleWorkflowClick(w)} />
       ));
-  }, [workflowsOfType, filterValues]);
+  }, [workflowsOfType, filterValues, handleWorkflowClick]);
 
   return (
     <Form labelCol={FORM_LABEL_COL} wrapperCol={FORM_WRAPPER_COL}>

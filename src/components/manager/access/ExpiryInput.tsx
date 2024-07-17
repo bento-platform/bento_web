@@ -35,7 +35,7 @@ const ExpiryInput = ({ value, onChange }: ExpiryInputProps) => {
         onChange(newRadioValue === EXPIRY_TYPE_NONE ? null : date?.toISOString() ?? null);
       }
     },
-    [onChange],
+    [date, onChange],
   );
 
   const onPickerChange = useCallback(

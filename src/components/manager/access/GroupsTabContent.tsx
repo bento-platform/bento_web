@@ -116,7 +116,7 @@ const GroupCreationModal = ({ open, closeModal }: { open: boolean; closeModal: (
       // a re-render/sudden-form-change hiccup.
       form.resetFields();
     }
-  }, [open]);
+  }, [form, open]);
 
   const onOk = useCallback(() => {
     setLoading(true);
@@ -134,7 +134,7 @@ const GroupCreationModal = ({ open, closeModal }: { open: boolean; closeModal: (
       .finally(() => {
         setLoading(false);
       });
-  }, [dispatch, form]);
+  }, [dispatch, form, closeModal]);
 
   return (
     <Modal
@@ -166,7 +166,7 @@ const GroupEditModal = ({ group, open, closeModal }: GroupEditModalProps) => {
     if (group) {
       form.setFieldsValue(group);
     }
-  }, [group]);
+  }, [form, group]);
 
   const name: string = Form.useWatch("name", form);
 
@@ -189,7 +189,7 @@ const GroupEditModal = ({ group, open, closeModal }: GroupEditModalProps) => {
         dispatch(invalidateGroups());
         setLoading(false);
       });
-  }, [dispatch, form, group]);
+  }, [dispatch, form, group, closeModal]);
 
   return (
     <Modal
@@ -334,7 +334,7 @@ const GroupsTabContent = () => {
           ] as TableColumnsType<StoredGroup>)
         : []),
     ],
-    [dispatch, hasEditPermission, groupGrants, editModalOpen],
+    [dispatch, modal, hasEditPermission, groupGrants, editModalOpen],
   );
 
   return (

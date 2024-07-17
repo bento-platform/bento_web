@@ -65,19 +65,6 @@ const RunSetupWizard = ({
     [selectedWorkflow],
   );
 
-  const handleInputSubmit = useCallback((inputs) => {
-    setInputs(inputs);
-    setStep(STEP_CONFIRM);
-  }, []);
-
-  const handleRunWorkflow = useCallback(() => {
-    if (!selectedWorkflow) {
-      console.error("handleRunWorkflow called without a selected workflow");
-      return;
-    }
-    onSubmit({ selectedWorkflow, inputs });
-  }, [selectedWorkflow, inputs]);
-
   const stepItems = useMemo(
     () => [
       {
@@ -115,24 +102,39 @@ const RunSetupWizard = ({
             initialValues={initialInputValues}
             formValues={inputFormFields}
             onChange={setInputFormFields}
-            onSubmit={handleInputSubmit}
+            onSubmit={(inputs) => {
+              setInputs(inputs);
+              setStep(STEP_CONFIRM);
+            }}
             onBack={() => setStep(STEP_WORKFLOW_SELECTION)}
           />
         );
       case STEP_CONFIRM:
-        return confirmDisplay({ selectedWorkflow, inputs, handleRunWorkflow });
+        return confirmDisplay({
+          selectedWorkflow,
+          inputs,
+          handleRunWorkflow: () => {
+            if (!selectedWorkflow) {
+              console.error("handleRunWorkflow called without a selected workflow");
+              return;
+            }
+            onSubmit({ selectedWorkflow, inputs });
+          },
+        });
       default:
         return <div />;
     }
   }, [
-    step,
-    inputs,
-    selectedWorkflow,
-    initialInputValues,
-    inputFormFields,
-    handleInputSubmit,
+    confirmDisplay,
     handleWorkflowClick,
-    handleRunWorkflow,
+    initialInputValues,
+    initialWorkflowFilterValues,
+    inputFormFields,
+    inputs,
+    onSubmit,
+    selectedWorkflow,
+    step,
+    workflowType,
   ]);
 
   return (

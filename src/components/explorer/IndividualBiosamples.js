@@ -123,7 +123,7 @@ const Biosamples = ({ individual, handleBiosampleClick, handleExperimentClick })
   const { selectedBiosample } = useParams();
 
   useEffect(() => {
-    // If, on first load, there's a selected biosample:
+    // If there's a selected biosample:
     //  - find the biosample-${id} element (a span in the table row)
     //  - scroll it into view
     setTimeout(() => {
@@ -133,7 +133,7 @@ const Biosamples = ({ individual, handleBiosampleClick, handleExperimentClick })
         el.scrollIntoView();
       }
     }, 100);
-  }, []);
+  }, [selectedBiosample]);
 
   const biosamples = useDeduplicatedIndividualBiosamples(individual);
 

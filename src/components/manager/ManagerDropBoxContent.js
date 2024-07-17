@@ -217,13 +217,13 @@ const FileUploadModal = ({ initialUploadFolder, initialUploadFiles, onCancel, op
           dispatch(endDropBoxPuttingObjects());
 
           // Close ourselves (the upload modal)
-          onCancel();
+          if (onCancel) onCancel();
         })();
       })
       .catch((err) => {
         console.error(err);
       });
-  }, [form]);
+  }, [dispatch, form, onCancel]);
 
   return (
     <Modal title="Upload" okButtonProps={{ loading: isPutting }} onCancel={onCancel} open={open} onOk={onOk}>
@@ -407,7 +407,7 @@ const ManagerDropBoxContent = () => {
 
   const handleViewFile = useCallback(() => {
     showFileContentsModal();
-  }, []);
+  }, [showFileContentsModal]);
 
   const workflowsSupported = useMemo(
     () => Object.fromEntries(ingestionWorkflows.map((w) => [w.id, getWorkflowFit(w)])),
@@ -497,7 +497,7 @@ const ManagerDropBoxContent = () => {
     // title disappears before the modal.
     setFileDeleteModalTitle(`Are you sure you want to delete '${(firstSelectedEntry ?? "").split("/").at(-1)}'?`);
     setFileDeleteModal(true);
-  }, [selectedEntries, selectedFolder]);
+  }, [selectedEntries, selectedFolder, firstSelectedEntry]);
   const handleDelete = useCallback(() => {
     if (selectedEntries.length !== 1 || selectedFolder) return;
     (async () => {
@@ -505,7 +505,7 @@ const ManagerDropBoxContent = () => {
       hideFileDeleteModal();
       setSelectedEntries([DROP_BOX_ROOT_KEY]);
     })();
-  }, [dispatch, selectedEntries]);
+  }, [dispatch, selectedEntries, selectedFolder, firstSelectedEntry, hideFileDeleteModal]);
 
   const selectedFileViewable =
     selectedEntries.length === 1 &&
@@ -526,7 +526,7 @@ const ManagerDropBoxContent = () => {
     if (!hasUploadPermission) return;
     if (selectedFolder) setInitialUploadFolder(selectedEntries[0]);
     showUploadModal();
-  }, [hasUploadPermission, selectedFolder, selectedEntries]);
+  }, [hasUploadPermission, selectedFolder, selectedEntries, showUploadModal]);
 
   const deleteDisabled = !dropBoxService || selectedFolder || selectedEntries.length !== 1 || !hasDeletePermission;
 

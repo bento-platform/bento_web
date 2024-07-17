@@ -75,7 +75,7 @@ const DiscoverySearchCondition = ({ dataType, value, onChange, onFieldChange, is
       if (value === undefined) setFieldState(newState);
       if (onChange) onChange(newState);
     },
-    [fieldState, onChange],
+    [fieldState, onChange, value],
   );
 
   const { field, fieldSchema, operation, negated, searchValue } = fieldState;

@@ -24,7 +24,7 @@ export const useIndividualInterpretations = (individual, withDiagnosis = false) 
             .map((i) => [i.id, i]),
         ),
       ),
-    [individual],
+    [individual, withDiagnosis],
   );
 
 /**
@@ -125,7 +125,7 @@ export const useIndividualPhenopacketDataIndex = (individual, fieldName) => {
       (individual?.phenopackets ?? [])
         .flatMap((p) => p?.[fieldName] ?? [])
         .map((element, index) => ({ ...element, idx: `${index}` })),
-    [individual],
+    [individual, fieldName],
   );
 };
 

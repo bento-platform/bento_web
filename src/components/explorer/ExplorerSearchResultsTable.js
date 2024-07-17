@@ -84,7 +84,7 @@ const ExplorerSearchResultsTable = ({
       setActiveFilters(filters);
       dispatch(setTableSortOrder(dataset, sorter.field, sorter.order, activeTab, newPage));
     },
-    [dispatch, dataset, activeTab],
+    [dispatch, dataset, activeTab, activeFilters],
   );
 
   const tableStyle = useMemo(

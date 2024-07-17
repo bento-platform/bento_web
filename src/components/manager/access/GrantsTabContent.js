@@ -8,7 +8,7 @@ import { editPermissions, makeResourceKey } from "bento-auth-js";
 
 import ActionContainer from "@/components/manager/ActionContainer";
 import { createGrant, deleteGrant } from "@/modules/authz/actions";
-import { useAuthzManagementPermissions, useGrants, useGroupsByID } from "@/modules/authz/hooks";
+import { useAuthzManagementPermissions, useGrants } from "@/modules/authz/hooks";
 import { useServices } from "@/modules/services/hooks";
 import { useAppDispatch } from "@/store";
 
@@ -27,7 +27,7 @@ const GrantCreationModal = ({ open, closeModal }) => {
       // a re-render/sudden-form-change hiccup.
       form.resetFields();
     }
-  }, [open]);
+  }, [form, open]);
 
   const onOk = useCallback(() => {
     setLoading(true);
@@ -45,7 +45,7 @@ const GrantCreationModal = ({ open, closeModal }) => {
       .finally(() => {
         setLoading(false);
       });
-  }, [dispatch, form]);
+  }, [dispatch, form, closeModal]);
 
   return (
     <Modal
@@ -72,7 +72,6 @@ const GrantsTabContent = () => {
   const isFetchingAllServices = useServices().isFetchingAll;
 
   const { data: grants, isFetching: isFetchingGrants } = useGrants();
-  const groupsByID = useGroupsByID();
 
   const {
     isFetching: isFetchingPermissions,
@@ -136,7 +135,7 @@ const GrantsTabContent = () => {
             },
           ]
         : [],
-    [dispatch, groupsByID, grantResourcePermissionsObjects, hasAtLeastOneEditPermissionsGrant, deleteModal],
+    [dispatch, grantResourcePermissionsObjects, hasAtLeastOneEditPermissionsGrant, deleteModal],
   );
 
   return (

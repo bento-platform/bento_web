@@ -26,7 +26,7 @@ export const useDatasetDataTypesByID = (datasetId) => {
   const dispatch = useAppDispatch();
   useEffect(() => {
     dispatch(fetchDatasetDataTypesSummariesIfPossible(datasetId));
-  }, [datasetId]);
+  }, [dispatch, datasetId]);
 
   const dataTypes = useAppSelector((state) => state.datasetDataTypes.itemsByID[datasetId]);
   return useMemo(() => {
