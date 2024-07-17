@@ -4,17 +4,13 @@ import { read, utils, type WorkBook } from "xlsx";
 import { Card } from "antd";
 
 import SpreadsheetTable, { SPREADSHEET_ROW_KEY_PROP, SpreadsheetTableProps } from "./SpreadsheetTable";
-
-type XlsxDisplayProps = {
-  contents: Blob;
-  loading?: boolean;
-};
+import type { BlobDisplayProps } from "./types";
 
 type XlsxRecord = Record<string, string>;
 type XlsxData = XlsxRecord[];
 type XlsxColumns = SpreadsheetTableProps<XlsxRecord>["columns"];
 
-const XlsxDisplay = ({ contents, loading }: XlsxDisplayProps) => {
+const XlsxDisplay = ({ contents, loading }: BlobDisplayProps) => {
   const [excelFile, setExcelFile] = useState<WorkBook | null>(null);
   const [reading, setReading] = useState(false);
 

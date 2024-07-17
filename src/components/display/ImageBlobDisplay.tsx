@@ -1,25 +1,24 @@
 import { type CSSProperties, useEffect, useMemo, useRef } from "react";
 import { Spin } from "antd";
+import type { BlobDisplayProps } from "./types";
 
 const styles: Record<string, CSSProperties> = {
   container: { width: "100%", position: "relative" },
   img: { maxWidth: "100%", height: "auto", position: "relative", top: 0 },
 };
 
-type ImageBlobDisplayProps = {
+interface ImageBlobDisplayProps extends BlobDisplayProps {
   alt: string;
-  blob: Blob;
-  loading?: boolean;
-};
+}
 
-const ImageBlobDisplay = ({ alt, blob, loading }: ImageBlobDisplayProps) => {
+const ImageBlobDisplay = ({ alt, contents, loading }: ImageBlobDisplayProps) => {
   const imgRef = useRef<HTMLImageElement>(null);
 
   useEffect(() => {
-    if (imgRef.current && blob) {
-      imgRef.current.src = URL.createObjectURL(blob);
+    if (imgRef.current && contents) {
+      imgRef.current.src = URL.createObjectURL(contents);
     }
-  }, [imgRef, blob]);
+  }, [imgRef, contents]);
 
   const imgStyle = useMemo(() => ({ ...styles.img, opacity: loading ? 0 : 1 }), [loading]);
 

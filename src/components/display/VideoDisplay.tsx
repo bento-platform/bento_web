@@ -1,21 +1,17 @@
 import { type CSSProperties, useEffect, useRef } from "react";
 import { Spin } from "antd";
+import type { BlobDisplayProps } from "./types";
 
 const VIDEO_STYLE: CSSProperties = { width: "100%" };
 
-type VideoDisplayProps = {
-  blob: Blob;
-  loading?: boolean;
-};
-
-const VideoDisplay = ({ blob, loading }: VideoDisplayProps) => {
+const VideoDisplay = ({ contents, loading }: BlobDisplayProps) => {
   const videoRef = useRef<HTMLVideoElement>(null);
 
   useEffect(() => {
-    if (videoRef.current && blob) {
-      videoRef.current.src = URL.createObjectURL(blob);
+    if (videoRef.current && contents) {
+      videoRef.current.src = URL.createObjectURL(contents);
     }
-  }, [videoRef, blob]);
+  }, [videoRef, contents]);
 
   return (
     <Spin spinning={loading}>

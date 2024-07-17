@@ -32,6 +32,7 @@ import XlsxDisplay from "./XlsxDisplay";
 import MarkdownDisplay from "./MarkdownDisplay";
 import DocxDisplay from "./DocxDisplay";
 import PdfDisplay from "./PdfDisplay";
+import type { BlobDisplayProps } from "./types";
 
 SyntaxHighlighter.registerLanguage("bash", bash);
 SyntaxHighlighter.registerLanguage("dockerfile", dockerfile);
@@ -99,9 +100,7 @@ export const VIEWABLE_FILE_EXTENSIONS = [
 
 const DEFER_LOADING_FILE_EXTENSIONS = ["pdf"]; // Don't use a fetch() for these extensions
 
-type WrappedJsonDisplayProps = { contents?: Blob; loading?: boolean };
-
-const WrappedJsonDisplay = ({ contents, loading }: WrappedJsonDisplayProps) => {
+const WrappedJsonDisplay = ({ contents, loading }: BlobDisplayProps) => {
   const [parsing, setParsing] = useState(false);
   const [json, setJson] = useState<JSONType | undefined>(undefined);
 
@@ -123,7 +122,9 @@ const WrappedJsonDisplay = ({ contents, loading }: WrappedJsonDisplayProps) => {
   );
 };
 
-type WrappedCodeDisplayProps = { contents?: Blob; fileExt: string; loading?: boolean };
+interface WrappedCodeDisplayProps extends BlobDisplayProps {
+  fileExt: string;
+}
 
 const WrappedCodeDisplay = ({ contents, fileExt, loading }: WrappedCodeDisplayProps) => {
   const [decoding, setDecoding] = useState(false);
@@ -252,11 +253,11 @@ const FileDisplay = ({ uri, fileName, loading }: FileDisplayProps) => {
         } else if (["xls", "xlsx"].includes(fileExt)) {
           return <XlsxDisplay contents={fc} loading={loadingFileContents} />;
         } else if (AUDIO_FILE_EXTENSIONS.includes(fileExt)) {
-          return <AudioDisplay blob={fc} loading={loadingFileContents} />;
+          return <AudioDisplay contents={fc} loading={loadingFileContents} />;
         } else if (IMAGE_FILE_EXTENSIONS.includes(fileExt)) {
-          return <ImageBlobDisplay alt={fileName} blob={fc} loading={loadingFileContents} />;
+          return <ImageBlobDisplay alt={fileName} contents={fc} loading={loadingFileContents} />;
         } else if (VIDEO_FILE_EXTENSIONS.includes(fileExt)) {
-          return <VideoDisplay blob={fc} loading={loadingFileContents} />;
+          return <VideoDisplay contents={fc} loading={loadingFileContents} />;
         } else if (fileExt === "json") {
           return <WrappedJsonDisplay contents={fc} loading={loadingFileContents} />;
         } else {
