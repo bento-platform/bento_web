@@ -6,17 +6,15 @@ import { Button, Form, Modal } from "antd";
 import { PlusOutlined } from "@ant-design/icons";
 
 import { createProjectJsonSchema } from "@/modules/metadata/actions";
-import ProjectJsonSchemaForm from "./ProjectJsonSchemaForm";
 import { useProjectJsonSchemaTypes } from "@/modules/metadata/hooks";
+
+import ProjectJsonSchemaForm from "./ProjectJsonSchemaForm";
 
 const ProjectJsonSchemaModal = ({ projectId, open, onOk, onCancel }) => {
   const dispatch = useDispatch();
 
-  const {
-    isFetching: isFetchingExtraPropertiesSchemaTypes,
-    isCreating: isCreatingJsonSchema,
-    schemaTypes: extraPropertiesSchemaTypes,
-  } = useProjectJsonSchemaTypes();
+  const { isFetchingExtraPropertiesSchemaTypes, isCreatingJsonSchema, extraPropertiesSchemaTypes } =
+    useProjectJsonSchemaTypes();
 
   const [form] = Form.useForm();
 

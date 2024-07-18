@@ -40,9 +40,13 @@ export const useProjectJsonSchemaTypes = () => {
   useEffect(() => {
     dispatch(fetchExtraPropertiesSchemaTypes());
   }, [dispatch, metadataService]);
-  return useSelector((state) => ({
-    isFetching: state.projects.isFetchingExtraPropertiesSchemaTypes,
-    isCreating: state.projects.isCreatingJsonSchema,
-    schemaTypes: state.projects.extraPropertiesSchemaTypes,
-  }));
+  const { isFetchingExtraPropertiesSchemaTypes, isCreatingJsonSchema, extraPropertiesSchemaTypes } = useProjects();
+  return useMemo(
+    () => ({
+      isFetchingExtraPropertiesSchemaTypes,
+      isCreatingJsonSchema,
+      extraPropertiesSchemaTypes,
+    }),
+    [isFetchingExtraPropertiesSchemaTypes, isCreatingJsonSchema, extraPropertiesSchemaTypes],
+  );
 };
