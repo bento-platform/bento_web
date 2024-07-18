@@ -27,7 +27,9 @@ import {
   SET_OTHER_THRESHOLD_PERCENTAGE,
   SET_IGV_POSITION,
   FETCH_IGV_GENOMES,
+  CLEAR_SEARCH,
 } from "./actions";
+import { objectWithoutProp } from "@/utils/misc";
 
 // TODO: Could this somehow be combined with discovery?
 export const explorer = (
@@ -108,6 +110,13 @@ export const explorer = (
       return {
         ...state,
         isSubmittingSearch: action.isSubmittingSearch,
+      };
+
+    case CLEAR_SEARCH:
+      return {
+        ...state,
+        searchResultsByDatasetID: objectWithoutProp(state.searchResultsByDatasetID, action.datasetID),
+        selectedRowsByDatasetID: { ...state.selectedRowsByDatasetID, [action.datasetID]: [] },
       };
 
     case PERFORM_INDIVIDUAL_CSV_DOWNLOAD.REQUEST:
