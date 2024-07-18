@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { useSelector } from "react-redux";
 import PropTypes from "prop-types";
 
@@ -29,8 +29,12 @@ const DiscoveryQueryBuilder = ({ activeDataset, dataTypeForms, requiredDataTypes
   const dataTypesByDataset = useDatasetDataTypes();
 
   const autoQuery = useSelector((state) => state.explorer.autoQuery);
+  // Mini state machine: when auto query is set:
+  //  1. clear form(s) and set this to true;
+  //  2. re-create forms and wait to receive ref;
+  //  3. if this is true, and we have refs, execute part two of auto-query.
+  const [shouldExecAutoQueryPt2, setShouldExecAutoQueryPt2] = useState(false);
 
-  const dataTypeFormsByDatasetID = useSelector((state) => state.explorer.dataTypeFormsByDatasetID);
   const isFetchingTextSearch = useSelector((state) => state.explorer.fetchingTextSearch);
 
   const { isFetching: isFetchingServices } = useServices();
@@ -38,7 +42,7 @@ const DiscoveryQueryBuilder = ({ activeDataset, dataTypeForms, requiredDataTypes
   const dataTypesLoading = isFetchingServices || isFetchingServiceDataTypes || dataTypesByDataset.isFetchingAll;
 
   const [schemasModalShown, setSchemasModalShown] = useState(false);
-  const forms = useRef({});
+  const [forms, setForms] = useState({});
 
   const handleAddDataTypeQueryForm = useCallback(
     (e) => {
@@ -61,7 +65,7 @@ const DiscoveryQueryBuilder = ({ activeDataset, dataTypeForms, requiredDataTypes
   }, [dispatch, requiredDataTypes, activeDataset]);
 
   useEffect(() => {
-    if (autoQuery?.isAutoQuery) {
+    if (autoQuery?.isAutoQuery && !shouldExecAutoQueryPt2) {
       const { autoQueryType } = autoQuery;
 
       // Clean old queries (if any)
@@ -70,15 +74,16 @@ const DiscoveryQueryBuilder = ({ activeDataset, dataTypeForms, requiredDataTypes
       // Set type of query
       handleAddDataTypeQueryForm({ key: autoQueryType });
 
-      // The rest of the auto-query is handled by handleSetFormRef() below, upon form load.
+      // The rest of the auto-query is handled by a second effect, after we receive the new form ref.
+      setShouldExecAutoQueryPt2(true);
     }
-  }, [autoQuery, dataTypesByID, handleTabsEdit, handleAddDataTypeQueryForm]);
+  }, [autoQuery, shouldExecAutoQueryPt2, dataTypesByID, handleTabsEdit, handleAddDataTypeQueryForm]);
 
   const handleSubmit = useCallback(async () => {
     dispatch(setIsSubmittingSearch(true));
 
     try {
-      await Promise.all(Object.values(forms.current).map((f) => f.validateFields()));
+      await Promise.all(Object.values(forms).map((f) => f.validateFields()));
       // TODO: If error, switch to errored tab
       (onSubmit ?? nop)();
     } catch (err) {
@@ -87,7 +92,7 @@ const DiscoveryQueryBuilder = ({ activeDataset, dataTypeForms, requiredDataTypes
       // done whether error caught or not
       dispatch(setIsSubmittingSearch(false));
     }
-  }, [dispatch, onSubmit]);
+  }, [dispatch, forms, onSubmit]);
 
   const handleFormChange = useCallback(
     (dataType, fields) => {
@@ -109,61 +114,61 @@ const DiscoveryQueryBuilder = ({ activeDataset, dataTypeForms, requiredDataTypes
 
   const handleSetFormRef = useCallback(
     (dataType, form) => {
-      forms.current[dataType.id] = form;
-
-      if (autoQuery?.isAutoQuery) {
-        // If we have an auto-query on this form, trigger it when we get the ref,
-        // so we can access the form object:
-
-        const { autoQueryType, autoQueryField, autoQueryValue } = autoQuery;
-        if (autoQueryType !== dataType.id) return;
-
-        console.debug(`executing auto-query on data type ${dataType.id}: ${autoQueryField} = ${autoQueryValue}`);
-
-        const fieldSchema = getFieldSchema(dataType.schema, autoQueryField);
-
-        // Set term
-        const fields = [
-          {
-            name: ["conditions"],
-            value: [
-              {
-                field: autoQueryField,
-                // from utils/schema:
-                fieldSchema,
-                negated: false,
-                operation: OP_EQUALS,
-                searchValue: autoQueryValue,
-              },
-            ],
-          },
-        ];
-
-        form?.setFields(fields);
-        handleFormChange(dataType, fields); // Not triggered by setFields; do it manually
-
-        (async () => {
-          // Simulate form submission click
-          const s = handleSubmit();
-
-          // Clean up auto-query "paper trail" (that is, the state segment that
-          // was introduced in order to transfer intent from the OverviewContent page)
-          dispatch(neutralizeAutoQueryPageTransition());
-
-          await s;
-        })();
-      } else {
-        // Put form fields back if they were filled out before, and we're not executing a new auto-query:
-
-        const stateForm = (dataTypeFormsByDatasetID[activeDataset] ?? []).find((f) => f.dataType.id === dataType.id);
-
-        if (!stateForm) return;
-
-        form?.setFields(stateForm.formValues);
-      }
+      setForms({ ...forms, [dataType.id]: form });
     },
-    [dispatch, autoQuery, handleFormChange, handleSubmit, dataTypeFormsByDatasetID, activeDataset],
+    [forms],
   );
+
+  useEffect(() => {
+    if (autoQuery?.isAutoQuery && shouldExecAutoQueryPt2) {
+      const { autoQueryType, autoQueryField, autoQueryValue } = autoQuery;
+
+      const form = forms[autoQueryType];
+
+      if (!form) {
+        // No ref yet; wait for form ref for this data type
+        return;
+      }
+
+      const dataType = dataTypesByID[autoQueryType];
+
+      console.debug(`executing auto-query on data type ${dataType.id}: ${autoQueryField} = ${autoQueryValue}`);
+
+      const fieldSchema = getFieldSchema(dataType.schema, autoQueryField);
+
+      // Set term
+      const fields = [
+        {
+          name: ["conditions"],
+          value: [
+            {
+              field: autoQueryField,
+              // from utils/schema:
+              fieldSchema,
+              negated: false,
+              operation: OP_EQUALS,
+              searchValue: autoQueryValue,
+            },
+          ],
+        },
+      ];
+
+      form.setFields(fields);
+      handleFormChange(dataType, fields); // Not triggered by setFields; do it manually
+
+      (async () => {
+        // Simulate form submission click
+        const s = handleSubmit();
+
+        // Clean up auto-query "paper trail" (that is, the state segment that
+        // was introduced in order to transfer intent from the OverviewContent page)
+        dispatch(neutralizeAutoQueryPageTransition());
+        setShouldExecAutoQueryPt2(false);
+
+        await s;
+      })();
+    }
+  }, [dispatch, autoQuery, dataTypesByID, forms, shouldExecAutoQueryPt2, handleFormChange, handleSubmit]);
 
   // --- render ---
 
