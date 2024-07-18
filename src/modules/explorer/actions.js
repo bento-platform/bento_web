@@ -6,6 +6,7 @@ import { extractQueriesFromDataTypeForms } from "@/utils/search";
 export const PERFORM_GET_GOHAN_VARIANTS_OVERVIEW = createNetworkActionTypes("GET_GOHAN_VARIANTS_OVERVIEW");
 export const PERFORM_SEARCH = createNetworkActionTypes("EXPLORER.PERFORM_SEARCH");
 export const SET_IS_SUBMITTING_SEARCH = "EXPLORER.SET_IS_SUBMITTING_SEARCH";
+export const CLEAR_SEARCH = "EXPLORER.CLEAR_SEARCH";
 export const PERFORM_INDIVIDUAL_CSV_DOWNLOAD = createNetworkActionTypes("EXPLORER.PERFORM_INDIVIDUAL_CSV_DOWNLOAD");
 export const PERFORM_BIOSAMPLE_CSV_DOWNLOAD = createNetworkActionTypes("EXPLORER.PERFORM_BIOSAMPLE_CSV_DOWNLOAD");
 export const PERFORM_EXPERIMENT_CSV_DOWNLOAD = createNetworkActionTypes("EXPLORER.PERFORM_EXPERIMENT_CSV_DOWNLOAD");
@@ -65,6 +66,11 @@ export const setIsSubmittingSearch = (isSubmittingSearch) => ({
   type: SET_IS_SUBMITTING_SEARCH,
   isSubmittingSearch,
 });
+
+export const clearSearch = (datasetID) => (dispatch, getState) => {
+  if (getState().explorer.fetchingSearchByDatasetID[datasetID]) return;
+  return dispatch({ type: CLEAR_SEARCH, datasetID });
+};
 
 // Helper function for CSV download functions
 const performCSVDownloadHelper = (actionTypes, urlPath) =>

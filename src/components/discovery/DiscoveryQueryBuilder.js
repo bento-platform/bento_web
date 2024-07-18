@@ -8,6 +8,7 @@ import { DownOutlined, PlusOutlined, QuestionCircleOutlined, SearchOutlined } fr
 import { useDatasetDataTypes } from "@/modules/datasets/hooks";
 import {
   setIsSubmittingSearch,
+  clearSearch,
   neutralizeAutoQueryPageTransition,
   addDataTypeQueryForm,
   updateDataTypeQueryForm,
@@ -71,13 +72,24 @@ const DiscoveryQueryBuilder = ({ activeDataset, dataTypeForms, requiredDataTypes
       // Clean old queries (if any)
       Object.values(dataTypesByID).forEach((value) => handleTabsEdit(value.id, "remove"));
 
+      // Clean old search results
+      dispatch(clearSearch(activeDataset));
+
       // Set type of query
       handleAddDataTypeQueryForm({ key: autoQueryType });
 
       // The rest of the auto-query is handled by a second effect, after we receive the new form ref.
       setShouldExecAutoQueryPt2(true);
     }
-  }, [autoQuery, shouldExecAutoQueryPt2, dataTypesByID, handleTabsEdit, handleAddDataTypeQueryForm]);
+  }, [
+    activeDataset,
+    autoQuery,
+    shouldExecAutoQueryPt2,
+    dataTypesByID,
+    dispatch,
+    handleTabsEdit,
+    handleAddDataTypeQueryForm,
+  ]);
 
   const handleSubmit = useCallback(async () => {
     dispatch(setIsSubmittingSearch(true));
