@@ -21,6 +21,7 @@
     "baseUrl": "./",
     "paths": {
       "@/*": ["./src/*"],
+      "mammoth/mammoth.browser": ["./node_modules/mammoth/lib/index.d.ts"],
     }
   },
   "include": ["./src/"]

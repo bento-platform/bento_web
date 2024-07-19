@@ -1,8 +1,10 @@
-import React from "react";
-import PropTypes from "prop-types";
 import { CheckCircleFilled, CloseCircleFilled } from "@ant-design/icons";
 
-const BooleanYesNo = ({ value }) => {
+type BooleanYesNoProps = {
+  value?: boolean;
+};
+
+const BooleanYesNo = ({ value }: BooleanYesNoProps) => {
   if (value) {
     return (
       <span style={{ color: "#52c41a" }}>
@@ -16,10 +18,6 @@ const BooleanYesNo = ({ value }) => {
       </span>
     );
   }
-};
-
-BooleanYesNo.propTypes = {
-  value: PropTypes.bool,
 };
 
 export default BooleanYesNo;

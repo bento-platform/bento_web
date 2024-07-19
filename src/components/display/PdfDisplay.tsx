@@ -56,13 +56,16 @@ const PdfDisplay = ({ uri, onLoad, onFail }: PdfDisplayProps) => {
       if (onLoad) onLoad();
       setPdfPageCounts({ ...pdfPageCounts, [uri]: numPages });
     },
-    [uri],
+    [onLoad, pdfPageCounts, uri],
   );
 
-  const onLoadError = useCallback((err: Error) => {
-    console.error(err);
-    if (onFail) onFail(err);
-  }, []);
+  const onLoadError = useCallback(
+    (err: Error) => {
+      console.error(err);
+      if (onFail) onFail(err);
+    },
+    [onFail],
+  );
 
   const decreaseScale = useCallback(() => {
     const newScale = Math.max(scale - 1, 0);
