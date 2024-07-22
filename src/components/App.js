@@ -38,6 +38,7 @@ const DataExplorerContent = lazy(() => import("./DataExplorerContent"));
 const DataManagerContent = lazy(() => import("./DataManagerContent"));
 const ReferenceGenomesContent = lazy(() => import("./ReferenceGenomesContent"));
 const CBioPortalContent = lazy(() => import("./CBioPortalContent"));
+const GrafanaContent = lazy(() => import("./GrafanaContent"));
 const NotificationsContent = lazy(() => import("./notifications/NotificationsContent"));
 const ServiceContent = lazy(() => import("./ServiceContent"));
 const ServiceDetail = lazy(() => import("./services/ServiceDetail"));
@@ -198,7 +199,7 @@ const App = () => {
 
     // On the cBioPortal tab only, eliminate the margin around the content
     // to give as much space as possible to the cBioPortal application itself.
-    const margin = window.location.pathname.endsWith("cbioportal") ? 0 : 26;
+    const margin = (window.location.pathname.endsWith("cbioportal") || window.location.pathname.endsWith("grafana")) ? 0 : 26;
 
     const threshold = useSelector((state) => state.explorer.otherThresholdPercentage) / 100;
 
@@ -238,6 +239,7 @@ const App = () => {
                             <Route path="/genomes"
                                    element={<AutoAuthenticate><ReferenceGenomesContent /></AutoAuthenticate>} />
                             <Route path="/cbioportal" element={<RequireAuth><CBioPortalContent /></RequireAuth>} />
+                            <Route path="/grafana" element={<RequireAuth><GrafanaContent /></RequireAuth>} />
                             <Route path="/services/:kind/*"
                                    element={<RequireAuth><ServiceDetail /></RequireAuth>} />
                             <Route path="/services" element={<RequireAuth><ServiceContent /></RequireAuth>} />
