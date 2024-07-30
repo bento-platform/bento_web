@@ -79,8 +79,6 @@ export const explorer = (
         },
       };
     case PERFORM_SEARCH.RECEIVE:
-      console.log('PERFORM_SEARCH.RECEIVE action.data:', action.data);
-      ///TODO here!! refactor to apply in FREE_TEXT_SEARCH the same data changes to obtain searchFormattedResultsExperiment and searchFormattedResultsBiosamples
       return {
         ...state,
         searchResultsByDatasetID: {
@@ -286,7 +284,6 @@ export const explorer = (
         fetchingTextSearch: true,
       };
     case FREE_TEXT_SEARCH.RECEIVE:
-      console.log('FREE_TEXT_SEARCH.RECEIVE action.data:', action.data);
       return {
         ...state,
         searchResultsByDatasetID: {

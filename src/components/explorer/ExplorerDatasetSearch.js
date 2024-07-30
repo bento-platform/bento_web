@@ -29,8 +29,6 @@ const TAB_KEYS = {
 };
 
 const hasNonEmptyArrayProperty = (targetObject, propertyKey) => {
-  console.log(targetObject, "targetObject")
-  console.log(propertyKey, "propertyKey")
   return targetObject && Array.isArray(targetObject[propertyKey]) && targetObject[propertyKey].length;
 };
 
@@ -90,9 +88,6 @@ const ExplorerDatasetSearch = () => {
   const hasExperiments = hasNonEmptyArrayProperty(searchResults, "searchFormattedResultsExperiment");
   const hasBiosamples = hasNonEmptyArrayProperty(searchResults, "searchFormattedResultsBiosamples");
   const showTabs = hasResults && (hasExperiments || hasBiosamples);
-
-  console.log("searchResults_experiments?", searchResults);
-  console.log("hasExperiments?", hasExperiments);
 
   const tabItems = useMemo(
     () =>

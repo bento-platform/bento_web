@@ -137,8 +137,6 @@ const BiosamplesTable = ({ data, datasetID }) => {
 
   const { sortedData, columnsWithSortOrder } = useSortedColumns(data, tableSortOrder, BIOSAMPLES_COLUMNS);
 
-  console.log(sortedData, "sortedData_biosample");
-
   return (
     <ExplorerSearchResultsTable
       data={sortedData}
