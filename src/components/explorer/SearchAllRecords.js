@@ -10,7 +10,7 @@ class SearchAllRecords extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      searchText: ""
+      searchText: "",
     };
     this.onSearch = this.onSearch.bind(this);
     this.handleChange = this.handleChange.bind(this);

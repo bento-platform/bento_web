@@ -46,7 +46,6 @@ const ExplorerDatasetSearch = () => {
   const fetchingTextSearch = useSelector((state) => state.explorer.fetchingTextSearch || false);
   const searchResults = useSelector((state) => state.explorer.searchResultsByDatasetID[datasetID] || null);
 
-
   useEffect(() => {
     console.debug("search results: ", searchResults);
   }, [searchResults]);
