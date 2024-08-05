@@ -11,6 +11,7 @@ export const BENTO_CBIOPORTAL_PUBLIC_URL = BENTO_WEB_CONFIG.BENTO_CBIOPORTAL_PUB
     process.env.BENTO_CBIOPORTAL_PUBLIC_URL ?? null;
 export const CUSTOM_HEADER = BENTO_WEB_CONFIG.CUSTOM_HEADER ?? process.env.CUSTOM_HEADER ?? null;
 
+export const GRAFANA_URL = `${BENTO_URL_NO_TRAILING_SLASH}/api/grafana`
 /** @type {string} */
 export const CLIENT_ID = BENTO_WEB_CONFIG.CLIENT_ID ?? process.env.CLIENT_ID ?? "";
 
