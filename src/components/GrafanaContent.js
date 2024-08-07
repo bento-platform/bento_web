@@ -1,6 +1,7 @@
 import React, {useEffect} from "react";
 
 import {SITE_NAME} from "../constants";
+import {BENTO_GRAFANA_URL} from "../config"
 
 
 const GrafanaContent = () => {
@@ -8,7 +9,6 @@ const GrafanaContent = () => {
         document.title = `${SITE_NAME} - Grafana`;
     }, []);
 
-    const accessToken = useAccessToken();
     return <div style={{flex: "1", display: "flex", flexDirection: "column"}}>
         {BENTO_GRAFANA_URL && (
             <iframe src={BENTO_GRAFANA_URL} style={{
