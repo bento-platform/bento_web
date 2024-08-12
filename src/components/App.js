@@ -261,6 +261,14 @@ const App = () => {
                 }
               />
               <Route
+                path="/grafana"
+                element={
+                  <RequireAuth>
+                    <GrafanaContent />
+                  </RequireAuth>
+                }
+              />
+              <Route
                 path="/services/:kind/*"
                 element={
                   <RequireAuth>
