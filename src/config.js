@@ -14,8 +14,8 @@ export const CUSTOM_HEADER = BENTO_WEB_CONFIG.CUSTOM_HEADER ?? process.env.CUSTO
 
 export const BENTO_GRAFANA_URL = `${BENTO_URL_NO_TRAILING_SLASH}/api/grafana`;
 export const BENTO_MONITORING_ENABLED =
-    BENTO_WEB_CONFIG.BENTO_MONITORING_ENABLED ||
-    ["true", "1", "yes"].includes(process.env.BENTO_MONITORING_ENABLED || "");
+  BENTO_WEB_CONFIG.BENTO_MONITORING_ENABLED ||
+  ["true", "1", "yes"].includes(process.env.BENTO_MONITORING_ENABLED || "");
 
 /** @type {string} */
 export const CLIENT_ID = BENTO_WEB_CONFIG.CLIENT_ID ?? process.env.CLIENT_ID ?? "";

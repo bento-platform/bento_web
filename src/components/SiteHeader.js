@@ -72,167 +72,167 @@ const SiteHeader = () => {
 
   const performSignOut = usePerformSignOut();
 
-    const menuItems = useMemo(
-        () => [
+  const menuItems = useMemo(
+    () => [
+      {
+        url: "/overview",
+        icon: <PieChartOutlined />,
+        text: "Overview",
+        key: "overview",
+      },
+      ...(canQueryData
+        ? [
             {
-                url: "/overview",
-                icon: <PieChartOutlined />,
-                text: "Overview",
-                key: "overview",
+              url: "/data/explorer",
+              icon: <BarChartOutlined />,
+              text: "Explorer",
+              key: "explorer",
             },
-            ...(canQueryData
-                ? [
-                      {
-                          url: "/data/explorer",
-                          icon: <BarChartOutlined />,
-                          text: "Explorer",
-                          key: "explorer",
-                      },
-                  ]
-                : []),
+          ]
+        : []),
+      {
+        url: "/genomes",
+        icon: <FileTextOutlined />,
+        text: "Reference Genomes",
+        key: "genomes",
+      },
+      ...(managerPermissions.canManageAnything
+        ? [
             {
-                url: "/genomes",
-                icon: <FileTextOutlined />,
-                text: "Reference Genomes",
-                key: "genomes",
+              key: "data-manager",
+              url: "/data/manager",
+              icon: <FolderOpenOutlined />,
+              text: "Data Manager",
             },
-            ...(managerPermissions.canManageAnything
-                ? [
-                      {
-                          key: "data-manager",
-                          url: "/data/manager",
-                          icon: <FolderOpenOutlined />,
-                          text: "Data Manager",
-                      },
-                      // For now, only show the services page to users who can manage something, since it's not useful for
-                      // end users.
-                      {
-                          key: "services",
-                          url: "/services",
-                          icon: <DashboardOutlined />,
-                          text: "Services",
-                      },
-                  ]
-                : []),
-            ...(hasAttemptedQueryPermissions && hasAttemptedManagerPermissions
-                ? []
-                : [
-                      {
-                          key: "loading-admin",
-                          text: (
-                              <Spin
-                                  indicator={
-                                      <LoadingOutlined
-                                          style={{
-                                              fontSize: 24,
-                                              marginTop: -4,
-                                              marginLeft: 16,
-                                              marginRight: 16,
-                                              color: "rgba(255, 255, 255, 0.65)",
-                                          }}
-                                      />
-                                  }
-                              />
-                          ),
-                          disabled: true,
-                      },
-                  ]),
-            // ---
-            ...(BENTO_CBIOPORTAL_ENABLED
-                ? [
-                      {
-                          url: "/cbioportal",
-                          icon: <DotChartOutlined />,
-                          text: "cBioPortal",
-                          key: "cbioportal",
-                      },
-                  ]
-                : []),
-            ...(BENTO_MONITORING_ENABLED
-                ? [
-                      {
-                          url: "/grafana",
-                          icon: <ApartmentOutlined />,
-                          text: "Grafana",
-                          key: "grafana",
-                      },
-                  ]
-                : []),
+            // For now, only show the services page to users who can manage something, since it's not useful for
+            // end users.
             {
-                style: { marginLeft: "auto" },
-                icon: <SettingOutlined />,
-                text: <span className="nav-text">Settings</span>,
-                onClick: toggleModalVisibility,
-                key: "settings",
+              key: "services",
+              url: "/services",
+              icon: <DashboardOutlined />,
+              text: "Services",
             },
+          ]
+        : []),
+      ...(hasAttemptedQueryPermissions && hasAttemptedManagerPermissions
+        ? []
+        : [
             {
-                disabled: isFetchingPermissions || !canViewNotifications || !isAuthenticated,
-                icon: (
-                    <Badge dot count={unreadNotifications.length}>
-                        <BellOutlined style={{ marginRight: 0, color: "rgba(255, 255, 255, 0.65)" }} />
-                    </Badge>
-                ),
-                text: (
-                    <span className="nav-text" style={{ marginLeft: "10px" }}>
-                        Notifications
-                        {unreadNotifications.length > 0 ? <span> ({unreadNotifications.length})</span> : null}
-                    </span>
-                ),
-                onClick: () => dispatch(showNotificationDrawer()),
-                key: "notifications",
+              key: "loading-admin",
+              text: (
+                <Spin
+                  indicator={
+                    <LoadingOutlined
+                      style={{
+                        fontSize: 24,
+                        marginTop: -4,
+                        marginLeft: 16,
+                        marginRight: 16,
+                        color: "rgba(255, 255, 255, 0.65)",
+                      }}
+                    />
+                  }
+                />
+              ),
+              disabled: true,
             },
-            ...(isAuthenticated
-                ? [
-                      {
-                          key: "user-menu",
-                          icon: <UserOutlined />,
-                          text: idTokenContents?.preferred_username,
-                          children: [
-                              {
-                                  key: "user-profile",
-                                  url: "/profile",
-                                  icon: <UserOutlined />,
-                                  text: "Profile",
-                              },
-                              {
-                                  key: "sign-out-link",
-                                  onClick: performSignOut,
-                                  icon: <LogoutOutlined />,
-                                  text: <span className="nav-text">Sign Out</span>,
-                              },
-                          ],
-                      },
-                  ]
-                : [
-                      {
-                          key: "sign-in",
-                          icon: <LoginOutlined />,
-                          text: (
-                              <span className="nav-text">
-                                  {openIdConfigFetching || isHandingOffCodeForToken ? "Loading..." : "Sign In"}
-                              </span>
-                          ),
-                          onClick: () => performAuth(),
-                      },
-                  ]),
-        ],
-        [
-            authHasAttempted,
-            canQueryData,
-            canViewNotifications,
-            hasAttemptedManagerPermissions,
-            hasAttemptedQueryPermissions,
-            idTokenContents,
-            isAuthenticated,
-            isHandingOffCodeForToken,
-            isFetchingPermissions,
-            managerPermissions,
-            openIdConfigFetching,
-            performAuth,
-            performSignOut,
-            unreadNotifications,
-        ]
-    );
+          ]),
+      // ---
+      ...(BENTO_CBIOPORTAL_ENABLED
+        ? [
+            {
+              url: "/cbioportal",
+              icon: <DotChartOutlined />,
+              text: "cBioPortal",
+              key: "cbioportal",
+            },
+          ]
+        : []),
+      ...(BENTO_MONITORING_ENABLED
+        ? [
+            {
+              url: "/grafana",
+              icon: <ApartmentOutlined />,
+              text: "Grafana",
+              key: "grafana",
+            },
+          ]
+        : []),
+      {
+        style: { marginLeft: "auto" },
+        icon: <SettingOutlined />,
+        text: <span className="nav-text">Settings</span>,
+        onClick: toggleModalVisibility,
+        key: "settings",
+      },
+      {
+        disabled: isFetchingPermissions || !canViewNotifications || !isAuthenticated,
+        icon: (
+          <Badge dot count={unreadNotifications.length}>
+            <BellOutlined style={{ marginRight: 0, color: "rgba(255, 255, 255, 0.65)" }} />
+          </Badge>
+        ),
+        text: (
+          <span className="nav-text" style={{ marginLeft: "10px" }}>
+            Notifications
+            {unreadNotifications.length > 0 ? <span> ({unreadNotifications.length})</span> : null}
+          </span>
+        ),
+        onClick: () => dispatch(showNotificationDrawer()),
+        key: "notifications",
+      },
+      ...(isAuthenticated
+        ? [
+            {
+              key: "user-menu",
+              icon: <UserOutlined />,
+              text: idTokenContents?.preferred_username,
+              children: [
+                {
+                  key: "user-profile",
+                  url: "/profile",
+                  icon: <UserOutlined />,
+                  text: "Profile",
+                },
+                {
+                  key: "sign-out-link",
+                  onClick: performSignOut,
+                  icon: <LogoutOutlined />,
+                  text: <span className="nav-text">Sign Out</span>,
+                },
+              ],
+            },
+          ]
+        : [
+            {
+              key: "sign-in",
+              icon: <LoginOutlined />,
+              text: (
+                <span className="nav-text">
+                  {openIdConfigFetching || isHandingOffCodeForToken ? "Loading..." : "Sign In"}
+                </span>
+              ),
+              onClick: () => performAuth(),
+            },
+          ]),
+    ],
+    [
+      authHasAttempted,
+      canQueryData,
+      canViewNotifications,
+      hasAttemptedManagerPermissions,
+      hasAttemptedQueryPermissions,
+      idTokenContents,
+      isAuthenticated,
+      isHandingOffCodeForToken,
+      isFetchingPermissions,
+      managerPermissions,
+      openIdConfigFetching,
+      performAuth,
+      performSignOut,
+      unreadNotifications,
+    ],
+  );
 
   return (
     <>

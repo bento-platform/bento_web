@@ -90,11 +90,11 @@ const _networkAction =
     const token = publicEndpoint
       ? null
       : url.startsWith("/") ||
-          (BENTO_URL && url.startsWith(BENTO_URL)) ||
-          (BENTO_PUBLIC_URL && url.startsWith(BENTO_PUBLIC_URL)) ||
-          (IDP_BASE_URL && url.startsWith(IDP_BASE_URL))
-        ? getState().auth.accessToken
-        : null;
+        (BENTO_URL && url.startsWith(BENTO_URL)) ||
+        (BENTO_PUBLIC_URL && url.startsWith(BENTO_PUBLIC_URL)) ||
+        (IDP_BASE_URL && url.startsWith(IDP_BASE_URL))
+      ? getState().auth.accessToken
+      : null;
 
     const finalReq = {
       ...(req ?? {
