@@ -13,22 +13,22 @@ import rootReducer from "./reducers";
 // These options prevent delay warnings caused by large states in DEV mode by increasing the warning delay.
 // See Redux Toolkit doc: https://redux-toolkit.js.org/api/getDefaultMiddleware#development
 const IMMUTABILITY_OPTIONS = {
-    thunk: true,
-    immutableCheck: false,
-    serializableCheck: false,
+  thunk: true,
+  immutableCheck: false,
+  serializableCheck: false,
 };
 
 const persistedState: { openIdConfiguration?: OIDCSliceState } = {};
-const persistedOpenIDConfig = readFromLocalStorage(LS_OPENID_CONFIG_KEY);
+const persistedOpenIDConfig = readFromLocalStorage<OIDCSliceState>(LS_OPENID_CONFIG_KEY);
 if (persistedOpenIDConfig) {
-    console.debug("attempting to load OpenID configuration from localStorage");
-    persistedState.openIdConfiguration = persistedOpenIDConfig;
+  console.debug("attempting to load OpenID configuration from localStorage");
+  persistedState.openIdConfiguration = persistedOpenIDConfig;
 }
 
 export const store = configureStore({
-    reducer: rootReducer,
-    middleware: (getDefaultMiddleware) => getDefaultMiddleware(IMMUTABILITY_OPTIONS),
-    preloadedState: persistedState,
+  reducer: rootReducer,
+  middleware: (getDefaultMiddleware) => getDefaultMiddleware(IMMUTABILITY_OPTIONS),
+  preloadedState: persistedState,
 });
 
 export type RootState = ReturnType<typeof store.getState>;
@@ -47,28 +47,28 @@ export const useAppSelector: TypedUseSelectorHook<RootState> = useSelector;
  * See Redux store.subscribe doc: https://redux.js.org/api/store#subscribelistener
  */
 const observeStore = <T>(store: ToolkitStore, select: (state: RootState) => T, onChange: (state: T) => void) => {
-    let currentState: T;
+  let currentState: T;
 
-    const handleChange = () => {
-        const nextState = select(store.getState());
-        if (nextState !== currentState) {
-            currentState = nextState;
-            onChange(currentState);
-        }
-    };
+  const handleChange = () => {
+    const nextState = select(store.getState());
+    if (nextState !== currentState) {
+      currentState = nextState;
+      onChange(currentState);
+    }
+  };
 
-    const unsubscribe = store.subscribe(handleChange);
-    handleChange();
-    return unsubscribe;
+  const unsubscribe = store.subscribe(handleChange);
+  handleChange();
+  return unsubscribe;
 };
 
 observeStore(
-    store,
-    (state) => state.openIdConfiguration,
-    (currentState) => {
-        const { data, expiry, isFetching } = currentState;
-        if (data && expiry && !isFetching) {
-            writeToLocalStorage(LS_OPENID_CONFIG_KEY, { data, expiry, isFetching });
-        }
-    },
+  store,
+  (state) => state.openIdConfiguration,
+  (currentState) => {
+    const { data, expiry, isFetching } = currentState;
+    if (data && expiry && !isFetching) {
+      writeToLocalStorage(LS_OPENID_CONFIG_KEY, { data, expiry, isFetching });
+    }
+  },
 );

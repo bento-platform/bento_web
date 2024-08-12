@@ -10,62 +10,65 @@ import ServiceOverview from "./ServiceOverview";
 import { matchingMenuKeys, transformMenuItem } from "@/utils/menu";
 
 const styles = {
-    // TODO: Deduplicate with data manager
-    menu: {
-        marginLeft: "-24px",
-        marginRight: "-24px",
-        marginTop: "-12px",
-    },
-    suspenseFallback: {
-        padding: "24px",
-        backgroundColor: "white",
-    },
+  // TODO: Deduplicate with data manager
+  menu: {
+    marginLeft: "-24px",
+    marginRight: "-24px",
+    marginTop: "-12px",
+  },
+  suspenseFallback: {
+    padding: "24px",
+    backgroundColor: "white",
+  },
 };
 
 const SuspenseFallback = React.memo(() => (
-    <div style={styles.suspenseFallback}><Skeleton active /></div>
+  <div style={styles.suspenseFallback}>
+    <Skeleton active />
+  </div>
 ));
 
 const ServiceDetail = () => {
-    // TODO: 404
-    const navigate = useNavigate();
-    const { kind } = useParams();
+  // TODO: 404
+  const navigate = useNavigate();
+  const { kind } = useParams();
 
-    const serviceInfoByKind = useSelector((state) => state.services.itemsByKind);
+  const serviceInfoByKind = useSelector((state) => state.services.itemsByKind);
 
-    const serviceInfo = useMemo(() => serviceInfoByKind[kind], [kind, serviceInfoByKind]);
+  const serviceInfo = useMemo(() => serviceInfoByKind[kind], [kind, serviceInfoByKind]);
 
-    const menuItems = useMemo(() => [
-        { url: `/services/${kind}/overview`, style: { marginLeft: "4px" }, text: "Overview" },
-    ], [kind]);
-    const selectedKeys = matchingMenuKeys(menuItems);
+  const menuItems = useMemo(
+    () => [{ url: `/services/${kind}/overview`, style: { marginLeft: "4px" }, text: "Overview" }],
+    [kind],
+  );
+  const selectedKeys = matchingMenuKeys(menuItems);
 
-    const onBack = useCallback(() => navigate("/services"), [navigate]);
+  const onBack = useCallback(() => navigate("/services"), [navigate]);
 
-    return (
-        <>
-            <SitePageHeader
-                title={serviceInfo?.name || ""}
-                subTitle={serviceInfo?.description || ""}
-                footer={
-                    <Menu
-                        mode="horizontal"
-                        style={styles.menu}
-                        selectedKeys={selectedKeys}
-                        items={menuItems.map(transformMenuItem)}
-                    />
-                }
-                withTabBar={true}
-                onBack={onBack}
-            />
-            <Suspense fallback={<SuspenseFallback />}>
-                <Routes>
-                    <Route path="overview" element={<ServiceOverview />} />
-                    <Route path="/" element={<Navigate to="overview" replace={true} />} />
-                </Routes>
-            </Suspense>
-        </>
-    );
+  return (
+    <>
+      <SitePageHeader
+        title={serviceInfo?.name || ""}
+        subTitle={serviceInfo?.description || ""}
+        footer={
+          <Menu
+            mode="horizontal"
+            style={styles.menu}
+            selectedKeys={selectedKeys}
+            items={menuItems.map(transformMenuItem)}
+          />
+        }
+        withTabBar={true}
+        onBack={onBack}
+      />
+      <Suspense fallback={<SuspenseFallback />}>
+        <Routes>
+          <Route path="overview" element={<ServiceOverview />} />
+          <Route path="/" element={<Navigate to="overview" replace={true} />} />
+        </Routes>
+      </Suspense>
+    </>
+  );
 };
 
 export default ServiceDetail;

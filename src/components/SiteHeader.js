@@ -5,19 +5,19 @@ import { viewNotifications, useIsAuthenticated, usePerformSignOut, usePerformAut
 
 import { Badge, Layout, Menu, Spin } from "antd";
 import {
-    BarChartOutlined,
-    BellOutlined,
-    DashboardOutlined,
-    DotChartOutlined,
-    FileTextOutlined,
-    FolderOpenOutlined,
-    LoadingOutlined,
-    LoginOutlined,
-    LogoutOutlined,
-    PieChartOutlined,
-    SettingOutlined,
-    UserOutlined,
-    ApartmentOutlined,
+  BarChartOutlined,
+  BellOutlined,
+  DashboardOutlined,
+  DotChartOutlined,
+  FileTextOutlined,
+  FolderOpenOutlined,
+  LoadingOutlined,
+  LoginOutlined,
+  LogoutOutlined,
+  PieChartOutlined,
+  SettingOutlined,
+  UserOutlined,
+  ApartmentOutlined,
 } from "@ant-design/icons";
 
 import { BENTO_CBIOPORTAL_ENABLED, CUSTOM_HEADER, BENTO_MONITORING_ENABLED } from "@/config";
@@ -30,47 +30,47 @@ import OverviewSettingsControl from "./overview/OverviewSettingsControl";
 import { useCanQueryAtLeastOneProjectOrDataset, useManagerPermissions } from "@/modules/authz/hooks";
 
 const LinkedLogo = React.memo(() => (
-    <Link to="/">
-        <div style={{ margin: "0 20px 0 0", float: "left" }}>
-            <img
-                style={{ height: "32px", verticalAlign: "top", marginTop: "15px" }}
-                src="/static/branding.png"
-                alt={CUSTOM_HEADER || "Bento"}
-            />
-        </div>
-    </Link>
+  <Link to="/">
+    <div style={{ margin: "0 20px 0 0", float: "left" }}>
+      <img
+        style={{ height: "32px", verticalAlign: "top", marginTop: "15px" }}
+        src="/static/branding.png"
+        alt={CUSTOM_HEADER || "Bento"}
+      />
+    </div>
+  </Link>
 ));
 
 const CustomHeaderText = React.memo(() => (
-    <h1 style={{ color: "rgba(255, 255, 255, 0.95)", float: "left", margin: "0 24px 0 0" }}>{CUSTOM_HEADER}</h1>
+  <h1 style={{ color: "rgba(255, 255, 255, 0.95)", float: "left", margin: "0 24px 0 0" }}>{CUSTOM_HEADER}</h1>
 ));
 
 const SiteHeader = () => {
-    const dispatch = useDispatch();
+  const dispatch = useDispatch();
 
-    const performAuth = usePerformAuth();
+  const performAuth = usePerformAuth();
 
-    const { permissions, isFetchingPermissions } = useEverythingPermissions();
-    const canViewNotifications = useMemo(() => permissions.includes(viewNotifications), [permissions]);
+  const { permissions, isFetchingPermissions } = useEverythingPermissions();
+  const canViewNotifications = useMemo(() => permissions.includes(viewNotifications), [permissions]);
 
-    const { hasPermission: canQueryData, hasAttempted: hasAttemptedQueryPermissions } =
-        useCanQueryAtLeastOneProjectOrDataset();
-    const { permissions: managerPermissions, hasAttempted: hasAttemptedManagerPermissions } = useManagerPermissions();
+  const { hasPermission: canQueryData, hasAttempted: hasAttemptedQueryPermissions } =
+    useCanQueryAtLeastOneProjectOrDataset();
+  const { permissions: managerPermissions, hasAttempted: hasAttemptedManagerPermissions } = useManagerPermissions();
 
-    const { isFetching: openIdConfigFetching } = useSelector((state) => state.openIdConfiguration);
+  const { isFetching: openIdConfigFetching } = useSelector((state) => state.openIdConfiguration);
 
-    const { unreadItems: unreadNotifications } = useNotifications();
+  const { unreadItems: unreadNotifications } = useNotifications();
 
-    const { idTokenContents, isHandingOffCodeForToken, hasAttempted: authHasAttempted } = useAuthState();
-    const isAuthenticated = useIsAuthenticated();
+  const { idTokenContents, isHandingOffCodeForToken, hasAttempted: authHasAttempted } = useAuthState();
+  const isAuthenticated = useIsAuthenticated();
 
-    const [modalVisible, setModalVisible] = useState(false);
+  const [modalVisible, setModalVisible] = useState(false);
 
-    const toggleModalVisibility = () => {
-        setModalVisible(!modalVisible);
-    };
+  const toggleModalVisibility = () => {
+    setModalVisible(!modalVisible);
+  };
 
-    const performSignOut = usePerformSignOut();
+  const performSignOut = usePerformSignOut();
 
     const menuItems = useMemo(
         () => [
@@ -234,22 +234,22 @@ const SiteHeader = () => {
         ]
     );
 
-    return (
-        <>
-            <Layout.Header>
-                <LinkedLogo />
-                {CUSTOM_HEADER && <CustomHeaderText />}
-                <Menu
-                    theme="dark"
-                    mode="horizontal"
-                    selectedKeys={matchingMenuKeys(menuItems)}
-                    style={{ lineHeight: "64px" }}
-                    items={menuItems.map((i) => transformMenuItem(i))}
-                />
-            </Layout.Header>
-            <OverviewSettingsControl modalVisible={modalVisible} toggleModalVisibility={toggleModalVisibility} />
-        </>
-    );
+  return (
+    <>
+      <Layout.Header>
+        <LinkedLogo />
+        {CUSTOM_HEADER && <CustomHeaderText />}
+        <Menu
+          theme="dark"
+          mode="horizontal"
+          selectedKeys={matchingMenuKeys(menuItems)}
+          style={{ lineHeight: "64px" }}
+          items={menuItems.map((i) => transformMenuItem(i))}
+        />
+      </Layout.Header>
+      <OverviewSettingsControl modalVisible={modalVisible} toggleModalVisibility={toggleModalVisibility} />
+    </>
+  );
 };
 
 export default SiteHeader;
