@@ -110,26 +110,26 @@ const App = () => {
             if (!isAuthenticated) return null;
             // ... or if we don't have the event relay (yet or at all)
             if (!eventRelayUrl) return null;
-
+      
             const urlObj = new URL(eventRelayUrl);
-
+      
             const manager = new io.Manager(urlObj.origin, {
-                // path should get rewritten by the reverse proxy in front of event-relay if necessary:
-                path: `${urlObj.pathname}/private/socket.io/`,
-                reconnection: true,
+              // path should get rewritten by the reverse proxy in front of event-relay if necessary:
+              path: `${urlObj.pathname}/private/socket.io/`,
+              reconnection: true,
             });
             const socket = manager.socket("/", {
-                auth: {
-                    token: accessToken,
-                },
+              auth: {
+                token: accessToken,
+              },
             }); // Connect to the main socket.io namespace on the server side
             socket.on("events", (message) => eventHandler(message, navigate));
             socket.on("connect_error", (err) => {
-                console.error(`socket.io: connect_error - ${err.message}`);
+              console.error(`socket.io: connect_error - ${err.message}`);
             });
             return socket;
-        })();
-    }, [navigate, isAuthenticated, eventRelay, eventRelayConnection]);
+          })();
+        }, [navigate, isAuthenticated, eventRelay, eventRelayConnection]);
 
     const handleUserChange = useCallback(() => {
         if (lastIsAuthenticated && !isAuthenticated) {
@@ -209,53 +209,118 @@ const App = () => {
 
     return (
         <ChartConfigProvider
-            Lng="en"
-            translationMap={{ en: { Count: "Count", Other: "Other" } }}
-            globalThreshold={threshold}
+          Lng="en"
+          translationMap={{ en: { Count: "Count", Other: "Other" } }}
+          globalThreshold={threshold}
         >
-            <Modal
-                title="You have been signed out"
-                footer={null}
-                onCancel={() => {
-                    clearPingInterval(); // Stop pinging until the user decides to sign in again
-                    setSignedOutModal(false); // Close the modal
-                }}
-                open={signedOutModal}
-            >
-                Please <a onClick={openSignInWindow}>sign in</a> (uses a popup window) to continue working.
-            </Modal>
-            <Layout style={{ minHeight: "100vh" }}>
-                <NotificationDrawer />
-                <SiteHeader />
-                <Layout.Content style={{ margin, display: "flex", flexDirection: "column" }}>
-                    <Suspense fallback={<SitePageLoading />}>
-                        <Routes>
-                            <Route path={CALLBACK_PATH} element={<SitePageLoading />} />
-                            <Route path="/overview" element={<RequireAuth><OverviewContent /></RequireAuth>} />
-                            <Route path="/data/explorer/*"
-                                   element={<RequireAuth><DataExplorerContent /></RequireAuth>} />
-                            {/* Reference content is available to everyone to view, at least, so wrap it in an
-                                AutoAuthenticate (to re-authenticate if we were before) rather than requiring auth. */}
-                            <Route path="/genomes"
-                                   element={<AutoAuthenticate><ReferenceGenomesContent /></AutoAuthenticate>} />
-                            <Route path="/cbioportal" element={<RequireAuth><CBioPortalContent /></RequireAuth>} />
-                            <Route path="/grafana" element={<RequireAuth><GrafanaContent /></RequireAuth>} />
-                            <Route path="/services/:kind/*"
-                                   element={<RequireAuth><ServiceDetail /></RequireAuth>} />
-                            <Route path="/services" element={<RequireAuth><ServiceContent /></RequireAuth>} />
-                            <Route path="/data/manager/*"
-                                   element={<RequireAuth><DataManagerContent /></RequireAuth>} />
-                            <Route path="/notifications"
-                                   element={<RequireAuth><NotificationsContent /></RequireAuth>} />
-                            <Route path="/profile" element={<RequireAuth><UserProfileContent /></RequireAuth>} />
-                            <Route path="/*" element={<Navigate to="/overview" replace={true} />} />
-                        </Routes>
-                    </Suspense>
-                </Layout.Content>
-                <SiteFooter />
-            </Layout>
+          <Modal
+            title="You have been signed out"
+            footer={null}
+            onCancel={() => {
+              clearPingInterval(); // Stop pinging until the user decides to sign in again
+              setSignedOutModal(false); // Close the modal
+            }}
+            open={signedOutModal}
+          >
+            Please <a onClick={openSignInWindow}>sign in</a> (uses a popup window) to continue working.
+          </Modal>
+          <Layout style={{ minHeight: "100vh" }}>
+            <NotificationDrawer />
+            <SiteHeader />
+            <Layout.Content style={{ margin, display: "flex", flexDirection: "column" }}>
+              <Suspense fallback={<SitePageLoading />}>
+                <Routes>
+                  <Route path={CALLBACK_PATH} element={<SitePageLoading />} />
+                  <Route
+                    path="/overview"
+                    element={
+                      <RequireAuth>
+                        <OverviewContent />
+                      </RequireAuth>
+                    }
+                  />
+                  <Route
+                    path="/data/explorer/*"
+                    element={
+                      <RequireAuth>
+                        <DataExplorerContent />
+                      </RequireAuth>
+                    }
+                  />
+                  {/* Reference content is available to everyone to view, at least, so wrap it in an
+                                    AutoAuthenticate (to re-authenticate if we were before) rather than requiring auth. */}
+                  <Route
+                    path="/genomes"
+                    element={
+                      <AutoAuthenticate>
+                        <ReferenceGenomesContent />
+                      </AutoAuthenticate>
+                    }
+                  />
+                  <Route
+                    path="/cbioportal"
+                    element={
+                      <RequireAuth>
+                        <CBioPortalContent />
+                      </RequireAuth>
+                    }
+                  />
+                  <Route
+                    path="/grafana" 
+                    element={
+                      <RequireAuth>
+                        <GrafanaContent />
+                      </RequireAuth>
+                    } 
+                  />
+                  <Route
+                    path="/services/:kind/*"
+                    element={
+                      <RequireAuth>
+                        <ServiceDetail />
+                      </RequireAuth>
+                    }
+                  />
+                  <Route
+                    path="/services"
+                    element={
+                      <RequireAuth>
+                        <ServiceContent />
+                      </RequireAuth>
+                    }
+                  />
+                  <Route
+                    path="/data/manager/*"
+                    element={
+                      <RequireAuth>
+                        <DataManagerContent />
+                      </RequireAuth>
+                    }
+                  />
+                  <Route
+                    path="/notifications"
+                    element={
+                      <RequireAuth>
+                        <NotificationsContent />
+                      </RequireAuth>
+                    }
+                  />
+                  <Route
+                    path="/profile"
+                    element={
+                      <RequireAuth>
+                        <UserProfileContent />
+                      </RequireAuth>
+                    }
+                  />
+                  <Route path="/*" element={<Navigate to="/overview" replace={true} />} />
+                </Routes>
+              </Suspense>
+            </Layout.Content>
+            <SiteFooter />
+          </Layout>
         </ChartConfigProvider>
-    );
-};
+      );
+    };
 
 export default App;
