@@ -17,9 +17,10 @@ import {
     PieChartOutlined,
     SettingOutlined,
     UserOutlined,
+    ApartmentOutlined,
 } from "@ant-design/icons";
 
-import { BENTO_CBIOPORTAL_ENABLED, CUSTOM_HEADER } from "@/config";
+import { BENTO_CBIOPORTAL_ENABLED, CUSTOM_HEADER, BENTO_MONITORING_ENABLED } from "@/config";
 import { useEverythingPermissions } from "@/hooks";
 import { showNotificationDrawer } from "@/modules/notifications/actions";
 import { useNotifications } from "@/modules/notifications/hooks";
@@ -138,6 +139,16 @@ const SiteHeader = () => {
                         icon: <DotChartOutlined />,
                         text: "cBioPortal",
                         key: "cbioportal",
+                    },
+                ]
+                : []),
+            ...(BENTO_MONITORING_ENABLED
+                ? [
+                    {
+                        url: "/grafana",
+                        icon: <ApartmentOutlined />,
+                        text: "Grafana",
+                        key: "grafana",
                     },
                 ]
                 : []),
