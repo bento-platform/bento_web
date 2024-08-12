@@ -53,21 +53,15 @@ const SiteHeader = () => {
     const { permissions, isFetchingPermissions } = useEverythingPermissions();
     const canViewNotifications = useMemo(() => permissions.includes(viewNotifications), [permissions]);
 
-    const {
-        hasPermission: canQueryData,
-        hasAttempted: hasAttemptedQueryPermissions,
-    } = useCanQueryAtLeastOneProjectOrDataset();
+    const { hasPermission: canQueryData, hasAttempted: hasAttemptedQueryPermissions } =
+        useCanQueryAtLeastOneProjectOrDataset();
     const { permissions: managerPermissions, hasAttempted: hasAttemptedManagerPermissions } = useManagerPermissions();
 
     const { isFetching: openIdConfigFetching } = useSelector((state) => state.openIdConfiguration);
 
     const { unreadItems: unreadNotifications } = useNotifications();
 
-    const {
-        idTokenContents,
-        isHandingOffCodeForToken,
-        hasAttempted: authHasAttempted,
-    } = useAuthState();
+    const { idTokenContents, isHandingOffCodeForToken, hasAttempted: authHasAttempted } = useAuthState();
     const isAuthenticated = useIsAuthenticated();
 
     const [modalVisible, setModalVisible] = useState(false);
@@ -86,71 +80,83 @@ const SiteHeader = () => {
                 text: "Overview",
                 key: "overview",
             },
-            ...(canQueryData ? [
-                {
-                    url: "/data/explorer",
-                    icon: <BarChartOutlined />,
-                    text: "Explorer",
-                    key: "explorer",
-                },
-            ] : []),
+            ...(canQueryData
+                ? [
+                      {
+                          url: "/data/explorer",
+                          icon: <BarChartOutlined />,
+                          text: "Explorer",
+                          key: "explorer",
+                      },
+                  ]
+                : []),
             {
                 url: "/genomes",
                 icon: <FileTextOutlined />,
                 text: "Reference Genomes",
                 key: "genomes",
             },
-            ...(managerPermissions.canManageAnything ? [
-                {
-                    key: "data-manager",
-                    url: "/data/manager",
-                    icon: <FolderOpenOutlined />,
-                    text: "Data Manager",
-                },
-                // For now, only show the services page to users who can manage something, since it's not useful for
-                // end users.
-                {
-                    key: "services",
-                    url: "/services",
-                    icon: <DashboardOutlined />,
-                    text: "Services",
-                },
-            ] : []),
-            ...((hasAttemptedQueryPermissions && hasAttemptedManagerPermissions) ? [] : [{
-                key: "loading-admin",
-                text: (
-                    <Spin indicator={
-                        <LoadingOutlined style={{
-                            fontSize: 24,
-                            marginTop: -4,
-                            marginLeft: 16,
-                            marginRight: 16,
-                            color: "rgba(255, 255, 255, 0.65)",
-                        }} />
-                    } />
-                ),
-                disabled: true,
-            }]),
+            ...(managerPermissions.canManageAnything
+                ? [
+                      {
+                          key: "data-manager",
+                          url: "/data/manager",
+                          icon: <FolderOpenOutlined />,
+                          text: "Data Manager",
+                      },
+                      // For now, only show the services page to users who can manage something, since it's not useful for
+                      // end users.
+                      {
+                          key: "services",
+                          url: "/services",
+                          icon: <DashboardOutlined />,
+                          text: "Services",
+                      },
+                  ]
+                : []),
+            ...(hasAttemptedQueryPermissions && hasAttemptedManagerPermissions
+                ? []
+                : [
+                      {
+                          key: "loading-admin",
+                          text: (
+                              <Spin
+                                  indicator={
+                                      <LoadingOutlined
+                                          style={{
+                                              fontSize: 24,
+                                              marginTop: -4,
+                                              marginLeft: 16,
+                                              marginRight: 16,
+                                              color: "rgba(255, 255, 255, 0.65)",
+                                          }}
+                                      />
+                                  }
+                              />
+                          ),
+                          disabled: true,
+                      },
+                  ]),
             // ---
             ...(BENTO_CBIOPORTAL_ENABLED
                 ? [
-                    {
-                        url: "/cbioportal",
-                        icon: <DotChartOutlined />,
-                        text: "cBioPortal",
-                        key: "cbioportal",
-                    },
-                ]
+                      {
+                          url: "/cbioportal",
+                          icon: <DotChartOutlined />,
+                          text: "cBioPortal",
+                          key: "cbioportal",
+                      },
+                  ]
                 : []),
             ...(BENTO_MONITORING_ENABLED
                 ? [
-                    {
-                        url: "/grafana",
-                        icon: <ApartmentOutlined />,
-                        text: "Grafana",
-                        key: "grafana",
-                    },
-                ]
+                      {
+                          url: "/grafana",
+                          icon: <ApartmentOutlined />,
+                          text: "Grafana",
+                          key: "grafana",
+                      },
+                  ]
                 : []),
             {
                 style: { marginLeft: "auto" },
@@ -177,38 +183,38 @@ const SiteHeader = () => {
             },
             ...(isAuthenticated
                 ? [
-                    {
-                        key: "user-menu",
-                        icon: <UserOutlined />,
-                        text: idTokenContents?.preferred_username,
-                        children: [
-                            {
-                                key: "user-profile",
-                                url: "/profile",
-                                icon: <UserOutlined />,
-                                text: "Profile",
-                            },
-                            {
-                                key: "sign-out-link",
-                                onClick: performSignOut,
-                                icon: <LogoutOutlined />,
-                                text: <span className="nav-text">Sign Out</span>,
-                            },
-                        ],
-                    },
-                ]
+                      {
+                          key: "user-menu",
+                          icon: <UserOutlined />,
+                          text: idTokenContents?.preferred_username,
+                          children: [
+                              {
+                                  key: "user-profile",
+                                  url: "/profile",
+                                  icon: <UserOutlined />,
+                                  text: "Profile",
+                              },
+                              {
+                                  key: "sign-out-link",
+                                  onClick: performSignOut,
+                                  icon: <LogoutOutlined />,
+                                  text: <span className="nav-text">Sign Out</span>,
+                              },
+                          ],
+                      },
+                  ]
                 : [
-                    {
-                        key: "sign-in",
-                        icon: <LoginOutlined />,
-                        text: (
-                            <span className="nav-text">
-                                {openIdConfigFetching || isHandingOffCodeForToken ? "Loading..." : "Sign In"}
-                            </span>
-                        ),
-                        onClick: () => performAuth(),
-                    },
-                ]),
+                      {
+                          key: "sign-in",
+                          icon: <LoginOutlined />,
+                          text: (
+                              <span className="nav-text">
+                                  {openIdConfigFetching || isHandingOffCodeForToken ? "Loading..." : "Sign In"}
+                              </span>
+                          ),
+                          onClick: () => performAuth(),
+                      },
+                  ]),
         ],
         [
             authHasAttempted,
@@ -225,7 +231,7 @@ const SiteHeader = () => {
             performAuth,
             performSignOut,
             unreadNotifications,
-        ],
+        ]
     );
 
     return (
