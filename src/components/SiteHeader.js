@@ -5,6 +5,7 @@ import { viewNotifications, useIsAuthenticated, usePerformSignOut, usePerformAut
 
 import { Badge, Layout, Menu, Spin } from "antd";
 import {
+  ApartmentOutlined,
   BarChartOutlined,
   BellOutlined,
   DashboardOutlined,
@@ -17,10 +18,9 @@ import {
   PieChartOutlined,
   SettingOutlined,
   UserOutlined,
-  ApartmentOutlined,
 } from "@ant-design/icons";
 
-import { BENTO_CBIOPORTAL_ENABLED, CUSTOM_HEADER, BENTO_MONITORING_ENABLED } from "@/config";
+import { BENTO_CBIOPORTAL_ENABLED, BENTO_MONITORING_ENABLED, CUSTOM_HEADER, } from "@/config";
 import { useEverythingPermissions } from "@/hooks";
 import { showNotificationDrawer } from "@/modules/notifications/actions";
 import { useNotifications } from "@/modules/notifications/hooks";

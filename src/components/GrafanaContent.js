@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import { useEffect } from "react";
 
 import { SITE_NAME } from "../constants";
 import { BENTO_GRAFANA_URL } from "../config";
