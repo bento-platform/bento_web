@@ -148,7 +148,7 @@ const SiteHeader = () => {
             },
           ]
         : []),
-      ...(BENTO_MONITORING_ENABLED
+      ...(BENTO_MONITORING_ENABLED && isAuthenticated
         ? [
             {
               url: "/grafana",
