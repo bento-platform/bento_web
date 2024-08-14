@@ -459,7 +459,8 @@ const PermissionsInput = ({ id, value, onChange, currentResource, ...rest }: Per
     if (newPermissionsDifferent(checked, filteredChecked)) {
       handleChange(filteredChecked);
     }
-  }, [currentResource]); // explicitly don't have checked as a dependency; otherwise, we get an infinite loop
+    // explicitly don't have checked as a dependency; otherwise, we get an infinite loop
+  }, [currentResource]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const checkboxGroups = useMemo((): ReactNode => {
     // TODO: use Object.groupBy when available:
