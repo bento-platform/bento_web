@@ -434,10 +434,12 @@ const PermissionsInput = ({ id, value, onChange, currentResource, ...rest }: Per
   const isInvalid = "aria-invalid" in rest && !!rest["aria-invalid"];
 
   useEffect(() => {
-    if (value && newPermissionsDifferent(checked, value)) {
+    // If we're in controlled mode, i.e., a value array is set, then the checked array should be set directly from the
+    // value when it changes, if the values differ from whatever the checked array currently is internally.
+    if (value !== undefined && newPermissionsDifferent(checked, value)) {
       setChecked(value);
     }
-  }, [value]);
+  }, [checked, value]);
 
   const handleChange = useCallback(
     (newChecked: string[]) => {
@@ -445,11 +447,17 @@ const PermissionsInput = ({ id, value, onChange, currentResource, ...rest }: Per
         permissionCompatibleWithResource(permissionsByID[cc], currentResource),
       );
       if (newPermissionsDifferent(checked, filteredNewChecked)) {
-        setChecked(filteredNewChecked);
-        if (onChange) onChange(filteredNewChecked);
+        if (value === undefined) {
+          // If we're not in "controlled mode", i.e., we don't have a value array set, then the value should not change,
+          // so we should directly update the checked array.
+          setChecked(filteredNewChecked);
+        }
+        if (onChange) {
+          onChange(filteredNewChecked);
+        }
       }
     },
-    [checked, onChange, permissionsByID, currentResource],
+    [checked, onChange, permissionsByID, currentResource, value],
   );
 
   useEffect(() => {
@@ -553,7 +561,7 @@ const PermissionsInput = ({ id, value, onChange, currentResource, ...rest }: Per
           </div>
         );
       });
-  }, [permissions, permissionsByID, handleChange, currentResource, isInvalid]);
+  }, [checked, currentResource, handleChange, isInvalid, permissions, permissionsByID]);
 
   return (
     <Spin spinning={isFetchingPermissions}>
