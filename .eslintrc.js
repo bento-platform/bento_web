@@ -61,6 +61,7 @@ module.exports = {
                 functions: "always-multiline",
             },
         ],
+        "@typescript-eslint/consistent-type-imports": "error",
         "@typescript-eslint/no-unused-vars": ["error", { argsIgnorePattern: "^_" }],
     },
     settings: {
