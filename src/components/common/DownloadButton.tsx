@@ -1,7 +1,6 @@
-import React, { useCallback } from "react";
-import PropTypes from "prop-types";
+import { type MouseEventHandler, useCallback } from "react";
 
-import { Button } from "antd";
+import { Button, type ButtonProps } from "antd";
 import { DownloadOutlined } from "@ant-design/icons";
 
 import { useAccessToken } from "bento-auth-js";
@@ -20,20 +19,23 @@ const FORM_ALLOWED_EXTRA_KEYS = new Set([
   "path", // Used by RunOutputs to download specific WES run artifacts
 ]);
 
+interface DownloadButtonProps extends ButtonProps {
+  uri: string;
+  fileName: string;
+  extraFormData?: Record<string, string | number>;
+}
+
 const DownloadButton = ({
-  disabled,
   uri,
   fileName,
   extraFormData,
   children,
-  size,
-  type,
   onClick: propsOnClick,
   ...props
-}) => {
+}: DownloadButtonProps) => {
   const accessToken = useAccessToken();
 
-  const onClick = useCallback(
+  const onClick = useCallback<MouseEventHandler<HTMLElement>>(
     (e) => {
       if (!uri) return;
 
@@ -50,7 +52,7 @@ const DownloadButton = ({
       const tokenInput = document.createElement("input");
       tokenInput.setAttribute("type", "hidden");
       tokenInput.setAttribute("name", "token");
-      tokenInput.setAttribute("value", accessToken);
+      if (accessToken) tokenInput.setAttribute("value", accessToken);
       form.appendChild(tokenInput);
 
       Object.entries(extraFormData ?? {})
@@ -75,39 +77,14 @@ const DownloadButton = ({
         if (propsOnClick) propsOnClick(e);
       }
     },
-    [uri, accessToken, propsOnClick],
+    [fileName, uri, accessToken, extraFormData, propsOnClick],
   );
 
   return (
-    <Button
-      key="download"
-      icon={<DownloadOutlined />}
-      size={size}
-      type={type}
-      disabled={disabled}
-      onClick={onClick}
-      {...props}
-    >
+    <Button key="download" icon={<DownloadOutlined />} onClick={onClick} {...props}>
       {children === undefined ? "Download" : children}
     </Button>
   );
-};
-
-DownloadButton.defaultProps = {
-  disabled: false,
-  size: "default",
-  type: "default",
-};
-
-DownloadButton.propTypes = {
-  disabled: PropTypes.bool,
-  uri: PropTypes.string,
-  fileName: PropTypes.string,
-  extraFormData: PropTypes.object,
-  children: PropTypes.oneOfType([PropTypes.object, PropTypes.string]),
-  size: PropTypes.oneOf(["small", "default", "large"]),
-  type: PropTypes.oneOf(["primary", "ghost", "dashed", "danger", "link", "default"]),
-  onClick: PropTypes.func,
 };
 
 export default DownloadButton;

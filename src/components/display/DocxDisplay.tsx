@@ -1,7 +1,8 @@
-import React, { useEffect, useMemo, useState } from "react";
+import { type CSSProperties, useEffect, useMemo, useState } from "react";
 import mammoth from "mammoth/mammoth.browser";
-import { Alert, Skeleton, Spin } from "antd";
-import PropTypes from "prop-types";
+import { Alert, Skeleton } from "antd";
+
+import type { BlobDisplayProps } from "./types";
 
 const MAMMOTH_OPTIONS = {
   convertImage: mammoth.images.imgElement((image) =>
@@ -12,17 +13,17 @@ const MAMMOTH_OPTIONS = {
   ),
 };
 
-const styles = {
+const styles: Record<string, CSSProperties> = {
   container: {
     maxWidth: 960, // Maximum width to roughly a nice page
     overflowX: "auto",
   },
 };
 
-const DocxDisplay = ({ contents, loading }) => {
+const DocxDisplay = ({ contents, loading }: BlobDisplayProps) => {
   const [parsing, setParsing] = useState(false);
-  const [error, setError] = useState(null);
-  const [docHTML, setDocHTML] = useState(null);
+  const [error, setError] = useState<string | null>(null);
+  const [docHTML, setDocHTML] = useState<string | null>(null);
 
   useEffect(() => {
     if (!contents) return;
@@ -33,12 +34,12 @@ const DocxDisplay = ({ contents, loading }) => {
       setParsing(true);
 
       try {
-        const res = await mammoth.convertToHtml({ arrayBuffer: contents }, MAMMOTH_OPTIONS);
+        const res = await mammoth.convertToHtml({ arrayBuffer: await contents.arrayBuffer() }, MAMMOTH_OPTIONS);
         res.messages.forEach((msg) => console.info("Received message while parsing .docx:", msg));
         setDocHTML(res.value);
       } catch (err) {
         console.error("Received error while parsing .docx:", err);
-        setError(err);
+        setError((err as Error).toString());
       } finally {
         setParsing(false);
       }
@@ -51,16 +52,12 @@ const DocxDisplay = ({ contents, loading }) => {
 
   // noinspection JSValidateTypes
   return (
-    <Spin spinning={waiting}>
-      {waiting && <Skeleton loading={true} />}
+    <>
+      <Skeleton active={true} loading={waiting} />
       {error && <Alert showIcon={true} message="Parsing error" description={error} />}
       <div style={styles.container} dangerouslySetInnerHTML={innerHTML} />
-    </Spin>
+    </>
   );
-};
-DocxDisplay.propTypes = {
-  contents: PropTypes.instanceOf(ArrayBuffer),
-  loading: PropTypes.bool,
 };
 
 export default DocxDisplay;

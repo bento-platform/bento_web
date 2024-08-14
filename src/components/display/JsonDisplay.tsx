@@ -1,5 +1,5 @@
-import React, { useCallback, useEffect, useState } from "react";
-import PropTypes from "prop-types";
+import { useCallback, useEffect, useState } from "react";
+import type { JSONType } from "ajv";
 import { Collapse, Select, Typography } from "antd";
 
 import JsonView from "@/components/common/JsonView";
@@ -11,14 +11,19 @@ const DEFAULT_JSON_VIEW_OPTIONS = {
 
 const JSON_ARRAY_GROUP_SIZE = 100;
 
-const JsonArrayDisplay = ({ doc, standalone }) => {
-  const [jsonArrayGroups, setJsonArrayGroups] = useState(null);
-  const [selectedJsonGroup, setSelectedJsonGroup] = useState(null);
+type JsonArrayDisplayProps = {
+  doc: JSONType[];
+  standalone?: boolean;
+};
+
+const JsonArrayDisplay = ({ doc, standalone }: JsonArrayDisplayProps) => {
+  const [jsonArrayGroups, setJsonArrayGroups] = useState<Record<string, JSONType[]> | null>(null);
+  const [selectedJsonGroup, setSelectedJsonGroup] = useState<string | null>(null);
 
   useEffect(() => {
     if (Array.isArray(doc) && doc.length > JSON_ARRAY_GROUP_SIZE) {
       // Array group selector options
-      const arrayGroups = {};
+      const arrayGroups: Record<string, JSONType[]> = {};
       for (let start = 0; start < doc.length; start += JSON_ARRAY_GROUP_SIZE) {
         const chunk = doc.slice(start, start + JSON_ARRAY_GROUP_SIZE);
         const next = start + JSON_ARRAY_GROUP_SIZE;
@@ -34,7 +39,7 @@ const JsonArrayDisplay = ({ doc, standalone }) => {
     }
   }, [doc]);
 
-  const onJsonGroupSelect = useCallback((key) => {
+  const onJsonGroupSelect = useCallback((key: string) => {
     setSelectedJsonGroup(key);
   }, []);
 
@@ -43,7 +48,7 @@ const JsonArrayDisplay = ({ doc, standalone }) => {
   // Wait for group slicing to avoid render flicker
   if (shouldGroup && !(jsonArrayGroups && selectedJsonGroup)) return <div />;
 
-  const src = shouldGroup ? jsonArrayGroups[selectedJsonGroup] : doc;
+  const src = jsonArrayGroups && selectedJsonGroup ? jsonArrayGroups[selectedJsonGroup] : doc;
 
   return (
     <>
@@ -55,7 +60,7 @@ const JsonArrayDisplay = ({ doc, standalone }) => {
             style={{ width: 120, padding: 5 }}
             onChange={onJsonGroupSelect}
             value={selectedJsonGroup}
-            options={Object.keys(jsonArrayGroups).map((value) => ({ value, label: value }))}
+            options={Object.keys(jsonArrayGroups ?? {}).map((value) => ({ value, label: value }))}
           />
         </>
       )}
@@ -69,16 +74,11 @@ const JsonArrayDisplay = ({ doc, standalone }) => {
   );
 };
 
-JsonArrayDisplay.propTypes = {
-  doc: PropTypes.array,
-  standalone: PropTypes.bool,
+type JsonObjectDisplayProps = {
+  doc: Record<string, JSONType>;
 };
 
-JsonArrayDisplay.defaultProps = {
-  standalone: false,
-};
-
-const JsonObjectDisplay = ({ doc }) => {
+const JsonObjectDisplay = ({ doc }: JsonObjectDisplayProps) => {
   const entries = Object.entries(doc);
   return (
     <>
@@ -95,11 +95,12 @@ const JsonObjectDisplay = ({ doc }) => {
   );
 };
 
-JsonObjectDisplay.propTypes = {
-  doc: PropTypes.object,
+type JsonDisplayProps = {
+  jsonSrc?: JSONType;
+  showObjectWithReactJson?: boolean;
 };
 
-const JsonDisplay = ({ jsonSrc, showObjectWithReactJson }) => {
+const JsonDisplay = ({ jsonSrc, showObjectWithReactJson }: JsonDisplayProps) => {
   if (Array.isArray(jsonSrc)) {
     // Special display for array nav
     return <JsonArrayDisplay doc={jsonSrc || []} standalone />;
@@ -116,11 +117,6 @@ const JsonDisplay = ({ jsonSrc, showObjectWithReactJson }) => {
 
   // Display primitive
   return <MonospaceText>{JSON.stringify(jsonSrc)}</MonospaceText>;
-};
-
-JsonDisplay.propTypes = {
-  jsonSrc: PropTypes.oneOfType([PropTypes.object, PropTypes.array, PropTypes.string, PropTypes.bool, PropTypes.number]),
-  showObjectWithReactJson: PropTypes.bool,
 };
 
 export default JsonDisplay;
