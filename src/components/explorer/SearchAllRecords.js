@@ -9,7 +9,22 @@ import { performFreeTextSearchIfPossible } from "@/modules/explorer/actions";
 class SearchAllRecords extends Component {
   constructor(props) {
     super(props);
+    this.state = {
+      searchText: "",
+    };
     this.onSearch = this.onSearch.bind(this);
+    this.handleChange = this.handleChange.bind(this);
+  }
+
+  componentDidUpdate(prevProps) {
+    // When isFetchingAdvancedSearch becomes true, clear the search text
+    if (this.props.isFetchingAdvancedSearch && !prevProps.isFetchingAdvancedSearch) {
+      this.setState({ searchText: "" });
+    }
+  }
+
+  handleChange(e) {
+    this.setState({ searchText: e.target.value });
   }
 
   async onSearch(searchTerm) {
@@ -25,6 +40,8 @@ class SearchAllRecords extends Component {
         <Search
           placeholder="Search"
           onSearch={this.onSearch}
+          onChange={this.handleChange}
+          value={this.state.searchText}
           style={{ width: "40%" }}
           loading={this.props.isFetchingTextSearch}
           disabled={this.props.isFetchingAdvancedSearch}
