@@ -20,7 +20,7 @@ import {
   UserOutlined,
 } from "@ant-design/icons";
 
-import { BENTO_CBIOPORTAL_ENABLED, BENTO_MONITORING_ENABLED, CUSTOM_HEADER, } from "@/config";
+import { BENTO_CBIOPORTAL_ENABLED, BENTO_MONITORING_ENABLED, CUSTOM_HEADER } from "@/config";
 import { useEverythingPermissions } from "@/hooks";
 import { showNotificationDrawer } from "@/modules/notifications/actions";
 import { useNotifications } from "@/modules/notifications/hooks";
