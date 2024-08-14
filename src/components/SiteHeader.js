@@ -5,6 +5,7 @@ import { viewNotifications, useIsAuthenticated, usePerformSignOut, usePerformAut
 
 import { Badge, Layout, Menu, Spin } from "antd";
 import {
+  ApartmentOutlined,
   BarChartOutlined,
   BellOutlined,
   DashboardOutlined,
@@ -19,7 +20,7 @@ import {
   UserOutlined,
 } from "@ant-design/icons";
 
-import { BENTO_CBIOPORTAL_ENABLED, CUSTOM_HEADER } from "@/config";
+import { BENTO_CBIOPORTAL_ENABLED, BENTO_MONITORING_ENABLED, CUSTOM_HEADER } from "@/config";
 import { useEverythingPermissions } from "@/hooks";
 import { showNotificationDrawer } from "@/modules/notifications/actions";
 import { useNotifications } from "@/modules/notifications/hooks";
@@ -144,6 +145,16 @@ const SiteHeader = () => {
               icon: <DotChartOutlined />,
               text: "cBioPortal",
               key: "cbioportal",
+            },
+          ]
+        : []),
+      ...(BENTO_MONITORING_ENABLED && isAuthenticated
+        ? [
+            {
+              url: "/grafana",
+              icon: <ApartmentOutlined />,
+              text: "Grafana",
+              key: "grafana",
             },
           ]
         : []),
