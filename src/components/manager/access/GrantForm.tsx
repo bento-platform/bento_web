@@ -1,4 +1,4 @@
-import { Fragment, ReactNode, useCallback, useEffect, useMemo, useState } from "react";
+import { Fragment, type ReactNode, useCallback, useEffect, useMemo, useState } from "react";
 
 import { Alert, Checkbox, Form, Input, Popover, Radio, Select, Space, Spin } from "antd";
 import type { FormInstance, RadioGroupProps, RadioChangeEvent, SelectProps } from "antd";
@@ -7,7 +7,7 @@ import { RESOURCE_EVERYTHING, useOpenIdConfig } from "bento-auth-js";
 
 import MonospaceText from "@/components/common/MonospaceText";
 import { useAllPermissions, useGroups } from "@/modules/authz/hooks";
-import {
+import type {
   Grant,
   GrantSubject,
   PermissionDefinition,
