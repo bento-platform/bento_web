@@ -70,22 +70,21 @@ export const useWorkflows = () => {
   }, [serviceWorkflows, workflowsLoading]);
 };
 
-
 export const useMetadataDependentData = () => {
-    const dispatch = useAppDispatch();
-    const metadata = useBentoService("metadata");
-    useEffect(() => {
-        if (!metadata?.url) return;
-        dispatch(fetchExtraPropertiesSchemaTypes());
-        dispatch(fetchDiscoverySchema());
-    }, [metadata, dispatch]);
+  const dispatch = useAppDispatch();
+  const metadata = useBentoService("metadata");
+  useEffect(() => {
+    if (!metadata?.url) return;
+    dispatch(fetchExtraPropertiesSchemaTypes());
+    dispatch(fetchDiscoverySchema());
+  }, [metadata, dispatch]);
 };
 
 export const useGohanDependentData = () => {
-    const dispatch = useAppDispatch();
-    const gohan = useBentoService("gohan");
-    useEffect(() => {
-        if (!gohan?.url) return;
-        dispatch(performGetGohanVariantsOverviewIfPossible());
-    }, [gohan, dispatch]);
+  const dispatch = useAppDispatch();
+  const gohan = useBentoService("gohan");
+  useEffect(() => {
+    if (!gohan?.url) return;
+    dispatch(performGetGohanVariantsOverviewIfPossible());
+  }, [gohan, dispatch]);
 };

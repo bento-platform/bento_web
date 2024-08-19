@@ -44,5 +44,5 @@ export const testFileAgainstPattern = (fileName: string, pattern: string): boole
 };
 
 export const dropBoxTreeNodeEnabledJson = (entry: DropBoxEntry) => {
-    return entry?.contents !== undefined || testFileAgainstPattern(entry.name, "^.*.json$");
+  return entry?.contents !== undefined || testFileAgainstPattern(entry.name, "^.*.json$");
 };

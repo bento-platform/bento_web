@@ -56,16 +56,13 @@ export const fetchWorkflows = networkAction(() => ({
 }));
 
 export const fetchServicesWithMetadataAndDataTypes = () => async (dispatch, getState) => {
-    dispatch(beginFlow(LOADING_ALL_SERVICE_DATA));
+  dispatch(beginFlow(LOADING_ALL_SERVICE_DATA));
 
-    // Fetch Services
-    await Promise.all([
-        (async () => {
-            await Promise.all([
-                dispatch(fetchBentoServices()),
-                dispatch(fetchServices()),
-            ]);
-        })(),
+  // Fetch Services
+  await Promise.all([
+    (async () => {
+      await Promise.all([dispatch(fetchBentoServices()), dispatch(fetchServices())]);
+    })(),
 
     dispatch(fetchDataTypes()),
     dispatch(fetchWorkflows()),
