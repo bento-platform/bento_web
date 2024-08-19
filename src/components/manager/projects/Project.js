@@ -7,7 +7,8 @@ import { CheckOutlined, CloseOutlined, DeleteOutlined, EditOutlined, PlusOutline
 import { createDataset, deleteProject, editProject, makeProjectResource, RESOURCE_EVERYTHING } from "bento-auth-js";
 
 import { INITIAL_DATA_USE_VALUE } from "@/duo";
-import { useDropBoxFileContent, useHasResourcePermissionWrapper, useResourcePermissionsWrapper } from "@/hooks";
+import { useHasResourcePermissionWrapper, useResourcePermissionsWrapper } from "@/hooks";
+import { useDropBoxFileContent } from "@/modules/dropBox/hooks";
 import { projectPropTypesShape } from "@/propTypes";
 import { nop, simpleDeepCopy } from "@/utils/misc";
 

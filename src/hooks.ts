@@ -1,15 +1,9 @@
 import { useSelector } from "react-redux";
-import { useCallback, useEffect, useState } from "react";
+import { useCallback } from "react";
 import type { SchemaObject } from "ajv";
 import Ajv from "ajv";
 
-import {
-  RESOURCE_EVERYTHING,
-  useAuthorizationHeader,
-  useHasResourcePermission,
-  useResourcePermissions,
-  type Resource,
-} from "bento-auth-js";
+import { RESOURCE_EVERYTHING, useHasResourcePermission, useResourcePermissions, type Resource } from "bento-auth-js";
 
 import { type RootState } from "@/store";
 import { useService } from "@/modules/services/hooks";
@@ -79,47 +73,6 @@ export const useOpenIDConfigNotLoaded = (): boolean => {
   // Need `=== false`, since if this is loaded from localStorage from a prior version, it'll be undefined and prevent
   // the page from showing.
   return openIdConfigHasAttempted === false || openIdConfigFetching;
-};
-
-export const useDropBoxFileContent = (filePath?: string): Blob | null => {
-  const file = useSelector((state: RootState) =>
-    state.dropBox.tree.find((f: { filePath: string | undefined }) => f?.filePath === filePath),
-  );
-  const authHeader = useAuthorizationHeader();
-
-  const [fileContents, setFileContents] = useState<Blob | null>(null);
-
-  const fileExt = filePath?.split(".").slice(-1)[0].toLowerCase();
-
-  // fetch effect
-  useEffect(() => {
-    setFileContents(null);
-    (async () => {
-      if (!file || !fileExt) return;
-      if (!file?.uri) {
-        console.error(`Files: something went wrong while trying to load ${file?.name}`);
-        return;
-      }
-      if (fileExt === "pdf") {
-        console.error("Cannot retrieve PDF with useDropBoxFileContent");
-        return;
-      }
-
-      try {
-        const r = await fetch(file.uri, { headers: authHeader });
-        if (r.ok) {
-          const content = await r.blob();
-          setFileContents(content);
-        } else {
-          console.error(`Could not load file: ${r.body}`);
-        }
-      } catch (e) {
-        console.error(e);
-      }
-    })();
-  }, [file, fileExt, authHeader]);
-
-  return fileContents;
 };
 
 export const useJsonSchemaValidator = (schema: SchemaObject, acceptFalsyValue: boolean) => {

@@ -3,8 +3,7 @@ import PropTypes from "prop-types";
 import { TreeSelect, Form } from "antd";
 
 import { BENTO_DROP_BOX_FS_BASE_PATH } from "@/config";
-import { useDropBoxFileContent } from "@/hooks";
-import { useDropBox } from "@/modules/dropBox/hooks";
+import { useDropBox, useDropBoxFileContent } from "@/modules/dropBox/hooks";
 import { dropBoxTreeNodeEnabledJson } from "@/utils/files";
 import { getTrue } from "@/utils/misc";
 
