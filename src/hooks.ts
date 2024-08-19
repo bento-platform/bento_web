@@ -1,7 +1,7 @@
+import { useCallback, useMemo } from "react";
 import { useSelector } from "react-redux";
-import { useCallback } from "react";
-import type { SchemaObject } from "ajv";
 import Ajv from "ajv";
+import type { SchemaObject } from "ajv";
 
 import { RESOURCE_EVERYTHING, useHasResourcePermission, useResourcePermissions, type Resource } from "bento-auth-js";
 
@@ -76,7 +76,7 @@ export const useOpenIDConfigNotLoaded = (): boolean => {
 };
 
 export const useJsonSchemaValidator = (schema: SchemaObject, acceptFalsyValue: boolean) => {
-  const ajv = new Ajv();
+  const ajv = useMemo(() => new Ajv(), []);
   return useCallback(
     (rule: unknown, value: unknown) => {
       if (!schema) {
@@ -94,7 +94,7 @@ export const useJsonSchemaValidator = (schema: SchemaObject, acceptFalsyValue: b
         return Promise.reject(new Error(ajv.errorsText(ajv.errors)));
       }
     },
-    [ajv, schema],
+    [acceptFalsyValue, ajv, schema],
   );
 };
 

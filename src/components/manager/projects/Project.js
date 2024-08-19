@@ -99,12 +99,12 @@ const Project = ({
       .catch((err) => {
         console.error(err);
       });
-  }, [onSave, projectState, newDiscoveryContent]);
+  }, [editingForm, onSave, projectState, newDiscoveryContent]);
 
   const handleCancelEdit = useCallback(() => {
     editingForm.resetFields();
     (onCancelEdit || nop)();
-  }, [onCancelEdit]);
+  }, [editingForm, onCancelEdit]);
 
   return (
     <div>

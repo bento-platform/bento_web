@@ -36,14 +36,16 @@ const RoutedProject = () => {
     if (!projectsByID[selectedProjectID] && !loadingProjects) {
       navigate("/data/manager/projects/");
     }
-  }, [projectsByID, loadingProjects, selectedProjectID]);
+  }, [navigate, projectsByID, loadingProjects, selectedProjectID]);
 
   useEffect(() => {
     // end project editing on project changes
     if (editingProject) {
       dispatch(endProjectEditing());
     }
-  }, [selectedProjectID]);
+    // Shouldn't trigger when editingProject flips to true
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [dispatch, selectedProjectID]);
 
   const showDatasetAdditionModal = useCallback(() => {
     setDatasetAdditionModal(true);

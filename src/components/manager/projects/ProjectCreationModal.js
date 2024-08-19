@@ -36,7 +36,7 @@ const ProjectCreationModal = () => {
       .catch((err) => {
         console.error(err);
       });
-  }, [form, dispatch]);
+  }, [form, dispatch, navigate]);
 
   return (
     <Modal

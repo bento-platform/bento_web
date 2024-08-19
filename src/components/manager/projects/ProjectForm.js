@@ -10,7 +10,7 @@ const ProjectForm = ({ form, style, initialValues }) => {
     if (initialValues) {
       form.setFieldsValue(initialValues);
     }
-  }, [initialValues]);
+  }, [form, initialValues]);
   const discoveryValidator = useDiscoveryValidator();
   return (
     <Form form={form} style={style || {}} layout="vertical" initialValues={initialValues}>
