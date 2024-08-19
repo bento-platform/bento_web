@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { RESOURCE_EVERYTHING, useAuthorizationHeader, viewDropBox } from "bento-auth-js";
 import { useHasResourcePermissionWrapper } from "@/hooks";
 import { useService } from "@/modules/services/hooks";
-import { RootState, useAppDispatch, useAppSelector } from "@/store";
+import { type RootState, useAppDispatch, useAppSelector } from "@/store";
 import { fetchDropBoxTree } from "./actions";
 
 export const useDropBox = () => {
