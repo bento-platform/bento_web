@@ -10,7 +10,7 @@ import {
   type Resource,
 } from "bento-auth-js";
 
-import { type RootState, useAppSelector } from "@/store";
+import { type RootState } from "@/store";
 import { useService } from "@/modules/services/hooks";
 import { ARRAY_BUFFER_FILE_EXTENSIONS, BLOB_FILE_EXTENSIONS } from "@/components/display/FileDisplay";
 
