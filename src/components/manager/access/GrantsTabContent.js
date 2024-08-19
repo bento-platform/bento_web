@@ -1,106 +1,161 @@
-import React, { useMemo } from "react";
-import { useSelector } from "react-redux";
+import React, { useCallback, useEffect, useMemo, useState } from "react";
+import PropTypes from "prop-types";
 
-import { Popover, Table } from "antd";
-// import { PlusOutlined } from "@ant-design/icons";
+import { Button, Form, Modal, Typography } from "antd";
+import { DeleteOutlined, PlusOutlined } from "@ant-design/icons";
 
-import { RESOURCE_EVERYTHING } from "bento-auth-js";
-import { useResourcePermissionsWrapper } from "@/hooks";
+import { editPermissions, makeResourceKey } from "bento-auth-js";
 
-import { stringifyJSONRenderIfMultiKey, rowKey } from "./utils";
+import ActionContainer from "@/components/manager/ActionContainer";
+import { createGrant, deleteGrant } from "@/modules/authz/actions";
+import { useAuthzManagementPermissions, useGrants } from "@/modules/authz/hooks";
+import { useServices } from "@/modules/services/hooks";
+import { useAppDispatch } from "@/store";
 
-// import ActionContainer from "../ActionContainer";
-import PermissionsList from "./PermissionsList";
-import Subject from "./Subject";
+import GrantForm from "./GrantForm";
+import GrantSummary from "./GrantSummary";
+import GrantsTable from "./GrantsTable";
+
+const GrantCreationModal = ({ open, closeModal }) => {
+  const dispatch = useAppDispatch();
+  const [form] = Form.useForm();
+  const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    if (open) {
+      // Instead of resetting fields on close/finish, reset on next open to avoid
+      // a re-render/sudden-form-change hiccup.
+      form.resetFields();
+    }
+  }, [form, open]);
+
+  const onOk = useCallback(() => {
+    setLoading(true);
+    form
+      .validateFields()
+      .then(async (values) => {
+        console.debug("received grant values for creation:", values);
+        await dispatch(createGrant(values));
+        closeModal();
+        // Form will be reset upon next open.
+      })
+      .catch((err) => {
+        console.error(err);
+      })
+      .finally(() => {
+        setLoading(false);
+      });
+  }, [dispatch, form, closeModal]);
+
+  return (
+    <Modal
+      open={open}
+      width={720}
+      title="Create Grant"
+      onCancel={closeModal}
+      onOk={onOk}
+      okText="Create"
+      okButtonProps={{ loading }}
+    >
+      <GrantForm form={form} />
+    </Modal>
+  );
+};
+GrantCreationModal.propTypes = {
+  open: PropTypes.bool,
+  closeModal: PropTypes.func,
+};
 
 const GrantsTabContent = () => {
-    const isFetchingAllServices = useSelector((state) => state.services.isFetchingAll);
+  const dispatch = useAppDispatch();
 
-    const { data: grants, isFetching: isFetchingGrants } = useSelector(state => state.grants);
-    const { data: groups } = useSelector(state => state.groups);
+  const isFetchingAllServices = useServices().isFetchingAll;
 
-    const groupsByID = useMemo(() => Object.fromEntries(groups.map(g => [g.id, g])), [groups]);
+  const { data: grants, isFetching: isFetchingGrants } = useGrants();
 
-    const {
-        // permissions,
-        isFetchingPermissions,
-        // hasAttemptedPermissions,
-    } = useResourcePermissionsWrapper(RESOURCE_EVERYTHING);
-    // const hasEditPermission = permissions.includes(editPermissions);
+  const {
+    isFetching: isFetchingPermissions,
+    hasAtLeastOneEditPermissionsGrant,
+    grantResourcePermissionsObjects,
+  } = useAuthzManagementPermissions();
 
-    const grantsColumns = useMemo(() => [
-        {
-            title: "ID",
-            dataIndex: "id",
-            width: 42,  // Effectively a minimum width, but means the ID column doesn't take up a weird amount of space
-        },
-        {
-            title: "Subject",
-            dataIndex: "subject",
-            render: (subject) => (
-                <Subject subject={subject} groupsByID={groupsByID} />
-            ),
-        },
-        {
-            title: "Resource",
-            dataIndex: "resource",
-            render: (resource) => {
-                if (resource.everything) {
-                    return <Popover content="Everything in this Bento instance.">Everything</Popover>;
-                }
-                return <pre>{stringifyJSONRenderIfMultiKey(resource)}</pre>;
+  const [createModalOpen, setCreateModalOpen] = useState(false);
+  const openCreateModal = useCallback(() => setCreateModalOpen(true), []);
+  const closeCreateModal = useCallback(() => setCreateModalOpen(false), []);
+  const [deleteModal, deleteModalContextHolder] = Modal.useModal();
+
+  const extraColumns = useMemo(
+    () =>
+      hasAtLeastOneEditPermissionsGrant
+        ? [
+            {
+              title: "Actions",
+              key: "actions",
+              // TODO: hook up edit
+              render: (grant) => {
+                const pObj = grantResourcePermissionsObjects[makeResourceKey(grant.resource)];
+                const pLoading = pObj.isFetching;
+                const canEdit = pObj.permissions.includes(editPermissions);
+                return (
+                  <>
+                    {/*TODO: no edit grant right now; originally designed to be immutable but this should change*/}
+                    {/*<Button size="small" icon={<EditOutlined />} loading={pLoading} disabled={!canEdit}>*/}
+                    {/*    Edit</Button>{" "}*/}
+                    <Button
+                      size="small"
+                      danger={true}
+                      icon={<DeleteOutlined />}
+                      loading={pLoading}
+                      disabled={!canEdit}
+                      onClick={() => {
+                        deleteModal.confirm({
+                          title: <>Are you sure you wish to delete grant {grant.id}?</>,
+                          content: (
+                            <>
+                              <Typography.Paragraph>
+                                Doing so will alter who can view or manipulate data inside this Bento instance, and may
+                                even affect <strong>your own</strong> access!
+                              </Typography.Paragraph>
+                              <GrantSummary grant={grant} onCancel={() => setCreateModalOpen(false)} />
+                            </>
+                          ),
+                          okButtonProps: { danger: true, icon: <DeleteOutlined /> },
+                          okText: "Delete",
+                          onOk: () => dispatch(deleteGrant(grant)),
+                          width: 600,
+                          maskClosable: true,
+                        });
+                      }}
+                    >
+                      Delete
+                    </Button>
+                  </>
+                );
+              },
             },
-        },
-        {
-            title: "Expiry",
-            dataIndex: "expiry",
-            render: (expiry) => <span>{expiry ?? "—"}</span>,
-        },
-        {
-            title: "Notes",
-            dataIndex: "notes",
-        },
-        {
-            title: "Permissions",
-            dataIndex: "permissions",
-            render: (permissions) => <PermissionsList permissions={permissions} />,
-        },
-        // TODO: enable when this becomes more than a viewer
-        // ...(hasEditPermission ? [
-        //     {
-        //         title: "Actions",
-        //         key: "actions",
-        //         // TODO: hook up edit + delete
-        //         render: () => (
-        //             <>
-        //                 <Button size="small" icon="edit" disabled={true}>Edit</Button>{" "}
-        //                 <Button size="small" type="danger" icon="delete" disabled={true}>Delete</Button>
-        //             </>
-        //         ),
-        //     },
-        // ] : []),
-    ], [groupsByID/*, hasEditPermission*/]);
+          ]
+        : [],
+    [dispatch, grantResourcePermissionsObjects, hasAtLeastOneEditPermissionsGrant, deleteModal],
+  );
 
-    return (
-        <>
-            {/*{hasEditPermission && (*/}
-            {/*    <ActionContainer style={{ marginBottom: 8 }}>*/}
-            {/*        <Button icon={<PlusOutlined />}*/}
-            {/*                loading={isFetchingPermissions || isFetchingGrants}>*/}
-            {/*            Create Grant*/}
-            {/*        </Button>*/}
-            {/*    </ActionContainer>*/}
-            {/*)}*/}
-            <Table
-                size="middle"
-                bordered={true}
-                columns={grantsColumns}
-                dataSource={grants}
-                rowKey={rowKey}
-                loading={isFetchingAllServices || isFetchingPermissions || isFetchingGrants}
-            />
-        </>
-    );
+  return (
+    <>
+      {deleteModalContextHolder}
+      {hasAtLeastOneEditPermissionsGrant && (
+        <ActionContainer style={{ marginBottom: 8 }}>
+          <Button icon={<PlusOutlined />} loading={isFetchingPermissions || isFetchingGrants} onClick={openCreateModal}>
+            Create Grant
+          </Button>
+        </ActionContainer>
+      )}
+      <GrantCreationModal open={createModalOpen} closeModal={closeCreateModal} />
+      <GrantsTable
+        grants={grants}
+        loading={isFetchingAllServices || isFetchingPermissions || isFetchingGrants}
+        extraColumns={extraColumns}
+      />
+    </>
+  );
 };
 
 export default GrantsTabContent;

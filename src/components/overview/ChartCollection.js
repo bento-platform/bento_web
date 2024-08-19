@@ -8,42 +8,39 @@ import Histogram from "../charts/Histogram";
 const CHART_HEIGHT = 285;
 
 const ChartCollection = ({ charts, dataType, isFetching }) => (
-    <Row style={{ display: "flex", flexWrap: "wrap", width: "100%" }} gutter={[8, 0]}>
-        {charts
-            .map((c, i) => (
-                <Col key={i} style={{ textAlign: "center", width: 445 }}>
-                    <Spin spinning={isFetching}>
-                        {c.type === "PIE" ? (
-                            <PieChart
-                                title={c.title}
-                                data={c.data}
-                                chartHeight={CHART_HEIGHT}
-                                chartThreshold={c.thresholdFraction}
-                                labelKey={c.fieldLabel}
-                                dataType={dataType}
-                                clickable={true}
-                            />
-                        ) : (
-                            <Histogram
-                                title={c.title}
-                                data={c.data}
-                                chartHeight={CHART_HEIGHT}
-                            />
-                        )}
-                    </Spin>
-                </Col>
-            ))}
-    </Row>
+  <Row style={{ display: "flex", flexWrap: "wrap", width: "100%" }} gutter={[8, 0]}>
+    {charts.map((c, i) => (
+      <Col key={i} style={{ textAlign: "center", width: 445 }}>
+        <Spin spinning={isFetching}>
+          {c.type === "PIE" ? (
+            <PieChart
+              title={c.title}
+              data={c.data}
+              chartHeight={CHART_HEIGHT}
+              chartThreshold={c.thresholdFraction}
+              labelKey={c.fieldLabel}
+              dataType={dataType}
+              clickable={true}
+            />
+          ) : (
+            <Histogram title={c.title} data={c.data} chartHeight={CHART_HEIGHT} />
+          )}
+        </Spin>
+      </Col>
+    ))}
+  </Row>
 );
 ChartCollection.propTypes = {
-    charts: PropTypes.arrayOf(PropTypes.shape({
-        title: PropTypes.string.isRequired,
-        data: PropTypes.arrayOf(PropTypes.shape({ name: PropTypes.string, value: PropTypes.number })),
-        fieldLabel: PropTypes.string,
-        thresholdFraction: PropTypes.number,
-    })),
-    dataType: PropTypes.string.isRequired,
-    isFetching: PropTypes.bool,
+  charts: PropTypes.arrayOf(
+    PropTypes.shape({
+      title: PropTypes.string.isRequired,
+      data: PropTypes.arrayOf(PropTypes.shape({ name: PropTypes.string, value: PropTypes.number })),
+      fieldLabel: PropTypes.string,
+      thresholdFraction: PropTypes.number,
+    }),
+  ),
+  dataType: PropTypes.string.isRequired,
+  isFetching: PropTypes.bool,
 };
 
 export default ChartCollection;

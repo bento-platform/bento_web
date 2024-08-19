@@ -12,27 +12,27 @@ import RunSetupWizard from "./RunSetupWizard";
 import RunSetupConfirmDisplay from "./RunSetupConfirmDisplay";
 
 const ManagerExportContent = () => {
-    const dispatch = useDispatch();
-    const navigate = useNavigate();
+  const dispatch = useDispatch();
+  const navigate = useNavigate();
 
-    const { permissions, hasAttemptedPermissions } = useResourcePermissionsWrapper(RESOURCE_EVERYTHING);
+  const { permissions, hasAttemptedPermissions } = useResourcePermissionsWrapper(RESOURCE_EVERYTHING);
 
-    // TODO: each workflow should have definitions for permissions scopes, so we can instead check if we can run at
-    //  least one workflow.
+  // TODO: each workflow should have definitions for permissions scopes, so we can instead check if we can run at
+  //  least one workflow.
 
-    if (hasAttemptedPermissions && !permissions.includes(exportData)) {
-        return (
-            <ForbiddenContent message="You do not have permission to view the export wizard." />
-        );
-    }
+  if (hasAttemptedPermissions && !permissions.includes(exportData)) {
+    return <ForbiddenContent message="You do not have permission to view the export wizard." />;
+  }
 
-    return <RunSetupWizard
-        workflowType="export"
-        confirmDisplay={(props) => <RunSetupConfirmDisplay runButtonText="Run Export" {...props} />}
-        onSubmit={({ selectedWorkflow, inputs }) => {
-            dispatch(submitExportWorkflowRun(selectedWorkflow, inputs, "/data/manager/runs", navigate));
-        }}
-    />;
+  return (
+    <RunSetupWizard
+      workflowType="export"
+      confirmDisplay={(props) => <RunSetupConfirmDisplay runButtonText="Run Export" {...props} />}
+      onSubmit={({ selectedWorkflow, inputs }) => {
+        dispatch(submitExportWorkflowRun(selectedWorkflow, inputs, "/data/manager/runs", navigate));
+      }}
+    />
+  );
 };
 
 export default ManagerExportContent;

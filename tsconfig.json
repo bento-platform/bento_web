@@ -1,10 +1,12 @@
 {
   "compilerOptions": {
+    "module": "esnext",
+    "moduleResolution": "bundler",
+    "target": "es2015",
+
     "outDir": "./dist/",
     "sourceMap": true,
     "strictNullChecks": true,
-    "module": "ES2022",
-    "target": "es6",
     "downlevelIteration": true,
     "allowJs": true,
     "skipLibCheck": true,
@@ -12,7 +14,6 @@
     "allowSyntheticDefaultImports": true,
     "strict": true,
     "forceConsistentCasingInFileNames": true,
-    "moduleResolution": "bundler",
     "resolveJsonModule": true,
     "isolatedModules": true,
     "noEmit": false,
@@ -20,6 +21,7 @@
     "baseUrl": "./",
     "paths": {
       "@/*": ["./src/*"],
+      "mammoth/mammoth.browser": ["./node_modules/mammoth/lib/index.d.ts"],
     }
   },
   "include": ["./src/"]

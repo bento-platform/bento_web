@@ -5,14 +5,14 @@ import SitePageLoading from "./SitePageLoading";
 import { useOpenIDConfigNotLoaded } from "@/hooks";
 
 const AutoAuthenticate = ({ children }: { children: React.ReactNode }) => {
-    const { isAutoAuthenticating } = useAutoAuthenticate();
-    const openIdConfigNotLoaded = useOpenIDConfigNotLoaded();
+  const { isAutoAuthenticating } = useAutoAuthenticate();
+  const openIdConfigNotLoaded = useOpenIDConfigNotLoaded();
 
-    if (openIdConfigNotLoaded || isAutoAuthenticating) {
-        return <SitePageLoading />;
-    }
+  if (openIdConfigNotLoaded || isAutoAuthenticating) {
+    return <SitePageLoading />;
+  }
 
-    return children;
+  return children;
 };
 
 export default AutoAuthenticate;
