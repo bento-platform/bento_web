@@ -1,9 +1,6 @@
 import { useEffect, useMemo } from "react";
 import { useSelector } from "react-redux";
-import { fetchBentoServices, fetchServices } from "./actions";
-import { fetchExtraPropertiesSchemaTypes } from "@/modules/metadata/actions";
-import { fetchDiscoverySchema } from "@/modules/discovery/actions";
-import { performGetGohanVariantsOverviewIfPossible } from "@/modules/explorer/actions";
+import { fetchBentoServices, fetchDataTypes, fetchServices } from "./actions";
 import { useAppDispatch } from "@/store";
 
 export const useBentoServices = () => {
@@ -68,23 +65,4 @@ export const useWorkflows = () => {
 
     return { workflowsByType, workflowsLoading };
   }, [serviceWorkflows, workflowsLoading]);
-};
-
-export const useMetadataDependentData = () => {
-  const dispatch = useAppDispatch();
-  const metadata = useBentoService("metadata");
-  useEffect(() => {
-    if (!metadata?.url) return;
-    dispatch(fetchExtraPropertiesSchemaTypes());
-    dispatch(fetchDiscoverySchema());
-  }, [metadata, dispatch]);
-};
-
-export const useGohanDependentData = () => {
-  const dispatch = useAppDispatch();
-  const gohan = useBentoService("gohan");
-  useEffect(() => {
-    if (!gohan?.url) return;
-    dispatch(performGetGohanVariantsOverviewIfPossible());
-  }, [gohan, dispatch]);
 };

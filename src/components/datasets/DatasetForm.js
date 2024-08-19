@@ -8,8 +8,9 @@ const { Item } = Form;
 import DataUseInput from "../DataUseInput";
 
 import { DATA_USE_PROP_TYPE_SHAPE, INITIAL_DATA_USE_VALUE } from "@/duo";
+import { useDatsValidator } from "@/hooks";
+import { useDiscoveryValidator } from "@/modules/discovery/hooks";
 import { simpleDeepCopy } from "@/utils/misc";
-import { useDatsValidator, useDiscoveryValidator } from "@/hooks";
 import { DropBoxJsonSelect } from "../manager/DropBoxTreeSelect";
 
 const DatasetForm = ({ initialValue, form, updateMode }) => {

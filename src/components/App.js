@@ -21,9 +21,10 @@ import { Layout, message, Modal } from "antd";
 
 import { BENTO_URL_NO_TRAILING_SLASH, OPENID_CONFIG_URL } from "@/config";
 import eventHandler from "@/events";
+import { useService } from "@/modules/services/hooks";
+import { fetchUserDependentData } from "@/modules/user/actions";
 import SessionWorker from "@/session.worker";
 import { nop } from "@/utils/misc";
-import { fetchUserDependentData } from "@/modules/user/actions";
 
 import NotificationDrawer from "./notifications/NotificationDrawer";
 import AutoAuthenticate from "./AutoAuthenticate";
@@ -31,7 +32,6 @@ import RequireAuth from "./RequireAuth";
 import SiteHeader from "./SiteHeader";
 import SiteFooter from "./SiteFooter";
 import SitePageLoading from "./SitePageLoading";
-import { useGohanDependentData, useMetadataDependentData, useService } from "@/modules/services/hooks";
 
 // Lazy-load route components
 const OverviewContent = lazy(() => import("./OverviewContent"));
@@ -61,9 +61,6 @@ const uiErrorCallback = (msg) => message.error(msg);
 const App = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
-
-  useMetadataDependentData();
-  useGohanDependentData();
 
   const eventRelayConnection = useRef(null);
   const signInWindow = useRef(null);

@@ -153,11 +153,6 @@ export const useJsonSchemaValidator = (schema: SchemaObject, acceptFalsyValue: b
   );
 };
 
-export const useDiscoveryValidator = () => {
-  const discoverySchema = useAppSelector((state) => state.discovery.discoverySchema);
-  return useJsonSchemaValidator(discoverySchema, true);
-};
-
 export const useDatsValidator = () => {
   // Simply verify that the file is a valid JSON object.
   // The backend will perform the more expensive validation

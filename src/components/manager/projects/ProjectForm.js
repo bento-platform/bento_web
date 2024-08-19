@@ -3,7 +3,7 @@ import PropTypes from "prop-types";
 
 import { Form, Input, Typography } from "antd";
 import { DropBoxJsonSelect } from "../DropBoxTreeSelect";
-import { useDiscoveryValidator } from "@/hooks";
+import { useDiscoveryValidator } from "@/modules/discovery/hooks";
 
 const ProjectForm = ({ form, style, initialValues }) => {
   useEffect(() => {
