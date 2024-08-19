@@ -1,6 +1,7 @@
 import { useSelector } from "react-redux";
 import { useCallback, useEffect, useState } from "react";
-import Ajv, { SchemaObject } from "ajv";
+import type { SchemaObject } from "ajv";
+import Ajv from "ajv";
 
 import {
   RESOURCE_EVERYTHING,
@@ -12,7 +13,6 @@ import {
 
 import { type RootState } from "@/store";
 import { useService } from "@/modules/services/hooks";
-import { ARRAY_BUFFER_FILE_EXTENSIONS, BLOB_FILE_EXTENSIONS } from "@/components/display/FileDisplay";
 
 // AUTHORIZATION:
 // Wrapper hooks for bento-auth-js permissions hooks, which expect a 'authzUrl' argument.
@@ -81,13 +81,13 @@ export const useOpenIDConfigNotLoaded = (): boolean => {
   return openIdConfigHasAttempted === false || openIdConfigFetching;
 };
 
-export const useDropBoxFileContent = (filePath?: string) => {
+export const useDropBoxFileContent = (filePath?: string): Blob | null => {
   const file = useSelector((state: RootState) =>
     state.dropBox.tree.find((f: { filePath: string | undefined }) => f?.filePath === filePath),
   );
   const authHeader = useAuthorizationHeader();
 
-  const [fileContents, setFileContents] = useState(null);
+  const [fileContents, setFileContents] = useState<Blob | null>(null);
 
   const fileExt = filePath?.split(".").slice(-1)[0].toLowerCase();
 
@@ -108,15 +108,7 @@ export const useDropBoxFileContent = (filePath?: string) => {
       try {
         const r = await fetch(file.uri, { headers: authHeader });
         if (r.ok) {
-          let content;
-          if (ARRAY_BUFFER_FILE_EXTENSIONS.includes(fileExt)) {
-            content = await r.arrayBuffer();
-          } else if (BLOB_FILE_EXTENSIONS.includes(fileExt)) {
-            content = await r.blob();
-          } else {
-            const text = await r.text();
-            content = fileExt === "json" ? JSON.parse(text) : text;
-          }
+          const content = await r.blob();
           setFileContents(content);
         } else {
           console.error(`Could not load file: ${r.body}`);

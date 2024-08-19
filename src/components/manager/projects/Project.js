@@ -60,7 +60,13 @@ const Project = ({
 
   const [editingForm] = Form.useForm();
   const newDiscoveryFile = Form.useWatch("discoveryPath", editingForm);
-  const newDiscoveryContent = useDropBoxFileContent(newDiscoveryFile);
+
+  const newDiscoveryBlob = useDropBoxFileContent(newDiscoveryFile);
+  const [newDiscoveryContent, setNewDiscoveryContent] = useState(null);
+
+  useEffect(() => {
+    if (newDiscoveryBlob) newDiscoveryBlob.text().then((t) => setNewDiscoveryContent(t));
+  }, [newDiscoveryBlob]);
 
   const [selectedKey, setSelectedKey] = useState(SUB_TAB_KEYS.DATASETS);
 
