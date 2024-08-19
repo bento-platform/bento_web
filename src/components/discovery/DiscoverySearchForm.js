@@ -176,7 +176,7 @@ const DiscoverySearchForm = ({ onChange, dataType, setFormRef, handleVariantHidd
         conditions: [...existingConditions, fieldInitialValue],
       });
     },
-    [form, conditionsHelp, getConditionsArray, getDataTypeFieldSchema, getInitialOperator, updateHelpFromFieldChange],
+    [form, getConditionsArray, getDataTypeFieldSchema, getInitialOperator, updateHelpFromFieldChange],
   );
 
   const removeCondition = useCallback(
@@ -206,7 +206,7 @@ const DiscoverySearchForm = ({ onChange, dataType, setFormRef, handleVariantHidd
       ? [...VARIANT_REQUIRED_FIELDS, ...VARIANT_OPTIONAL_FIELDS].map((c) => addCondition(c))
       : // currently unused, since only variant search has required fields:
         requiredFields.map((c) => addCondition(c));
-  }, []);
+  }, [addCondition, dataType, getConditionsArray, isVariantSearch]);
 
   // methods for user-friendly variant search
 
@@ -328,7 +328,7 @@ const DiscoverySearchForm = ({ onChange, dataType, setFormRef, handleVariantHidd
         },
       ],
     };
-  }, [getDataTypeFieldSchema]);
+  }, [addConditionFromDropdown, getDataTypeFieldSchema]);
 
   const existingUniqueFields = useMemo(
     () =>

@@ -141,7 +141,7 @@ const MembershipInput = ({ value, onChange, ...rest }: MembershipInputProps) => 
         />
       </List.Item>
     ),
-    [members],
+    [members, onChangeMembers],
   );
 
   const onChangeMemberAddMode = useCallback((e: RadioChangeEvent) => {
@@ -177,7 +177,7 @@ const MembershipInput = ({ value, onChange, ...rest }: MembershipInputProps) => 
     setSubOrClient("");
     setIssErrorReady(false);
     setSubOrClientErrorReady(false);
-  }, [members, memberAddMode, iss, subOrClient]);
+  }, [members, onChangeMembers, memberAddMode, iss, subOrClient]);
 
   return (
     <Card size="small" {...rest}>

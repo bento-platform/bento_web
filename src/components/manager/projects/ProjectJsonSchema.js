@@ -60,7 +60,7 @@ const ProjectJsonSchema = ({ projectSchema }) => {
         deleteModal.update({ okButtonProps: { loading: false } });
       },
     });
-  }, [projectSchema]);
+  }, [dispatch, projectSchema]);
 
   return (
     <Card

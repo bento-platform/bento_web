@@ -1,4 +1,4 @@
-import React, { useMemo } from "react";
+import { memo } from "react";
 import PropTypes from "prop-types";
 import { Table } from "antd";
 
@@ -47,14 +47,10 @@ const COLUMNS = [
   },
 ];
 
-const RunSetupInputsTable = ({ selectedWorkflow, inputs }) => {
-  const dataSource = useMemo(
-    () =>
-      selectedWorkflow.inputs
-        .filter((i) => !(i.hidden ?? false) && !i.injected)
-        .map((i) => ({ id: i.id, value: inputs[i.id], inputConfig: i })),
-    [inputs],
-  );
+const RunSetupInputsTable = memo(({ selectedWorkflow, inputs }) => {
+  const dataSource = selectedWorkflow.inputs
+    .filter((i) => !(i.hidden ?? false) && !i.injected)
+    .map((i) => ({ id: i.id, value: inputs[i.id], inputConfig: i }));
 
   return (
     <Table
@@ -67,7 +63,7 @@ const RunSetupInputsTable = ({ selectedWorkflow, inputs }) => {
       dataSource={dataSource}
     />
   );
-};
+});
 RunSetupInputsTable.propTypes = {
   selectedWorkflow: PropTypes.object,
   inputs: PropTypes.object,

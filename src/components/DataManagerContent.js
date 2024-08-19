@@ -91,10 +91,19 @@ const DataManagerContent = () => {
         disabled: !canViewPermissions,
       },
     ],
-    [canViewDropBox, canViewPermissions],
+    [
+      canManageProjectsDatasets,
+      canViewDropBox,
+      canIngest,
+      canAnalyzeData,
+      canExportData,
+      canViewRuns,
+      canQueryData,
+      canViewPermissions,
+    ],
   );
 
-  const selectedKeys = useMemo(() => matchingMenuKeys(menuItems), [menuItems, window.location.pathname]);
+  const selectedKeys = useMemo(() => matchingMenuKeys(menuItems), [menuItems]);
 
   return (
     <>

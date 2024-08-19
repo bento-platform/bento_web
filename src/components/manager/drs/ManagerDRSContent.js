@@ -124,7 +124,6 @@ DRSObjectDeleteWarningParagraph.propTypes = { plural: PropTypes.bool };
 
 const DRSObjectDeleteButton = ({ drsObject, disabled }) => {
   const dispatch = useDispatch();
-  const drsURL = useSelector((state) => state.services.drsService?.url);
 
   const onClick = useCallback(() => {
     Modal.confirm({
@@ -136,7 +135,7 @@ const DRSObjectDeleteButton = ({ drsObject, disabled }) => {
       },
       maskClosable: true,
     });
-  }, [dispatch, drsURL, drsObject]);
+  }, [dispatch, drsObject]);
 
   return (
     <Button size="small" danger={true} icon={<DeleteOutlined />} onClick={onClick} disabled={disabled}>
@@ -207,11 +206,14 @@ const ManagerDRSContent = () => {
   const [searchValue, setSearchValue] = useState(initialSearchQuery ?? "");
   const [selectedRowKeys, setSelectedRowKeys] = useState([]);
 
-  const onSearch = useCallback((e) => {
-    const q = (e.target?.value ?? e ?? "").trim();
-    setSearchValue(q);
-    setSearchParams({ q });
-  }, []);
+  const onSearch = useCallback(
+    (e) => {
+      const q = (e.target?.value ?? e ?? "").trim();
+      setSearchValue(q);
+      setSearchParams({ q });
+    },
+    [setSearchParams],
+  );
 
   const performSearch = useMemo(
     () =>
@@ -235,11 +237,11 @@ const ManagerDRSContent = () => {
 
   useEffect(() => {
     performSearch();
-  }, [searchValue]);
+  }, [performSearch, searchValue]);
 
   useEffect(() => {
     setSelectedRowKeys(selectedRowKeys.filter((k) => k in objectsByID));
-  }, [objectsByID]);
+  }, [selectedRowKeys, objectsByID]);
 
   const onDeleteSelected = useCallback(() => {
     Modal.confirm({
@@ -317,7 +319,7 @@ const ManagerDRSContent = () => {
         },
       },
     ],
-    [hasDownloadPermission, hasDeletePermission, projectsByID, datasetsByID],
+    [hasDownloadPermission, hasDeletePermission],
   );
 
   // noinspection JSUnusedGlobalSymbols

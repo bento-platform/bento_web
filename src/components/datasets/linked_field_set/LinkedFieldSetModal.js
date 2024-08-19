@@ -26,9 +26,9 @@ const LinkedFieldSetModal = ({ dataset, linkedFieldSetIndex, linkedFieldSet, mod
   );
 
   const saveLinkedFieldSet = useCallback(
-    (linkedFieldSet, onSuccess) =>
-      dispatch(saveDatasetLinkedFieldSetIfPossible(dataset, linkedFieldSetIndex, linkedFieldSet, onSuccess)),
-    [dispatch, dataset, linkedFieldSetIndex, linkedFieldSet],
+    (newLinkedFieldSet, onSuccess) =>
+      dispatch(saveDatasetLinkedFieldSetIfPossible(dataset, linkedFieldSetIndex, newLinkedFieldSet, onSuccess)),
+    [dispatch, dataset, linkedFieldSetIndex],
   );
 
   const handleSubmit = useCallback(() => {

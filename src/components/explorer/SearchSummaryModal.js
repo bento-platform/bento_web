@@ -42,6 +42,8 @@ const SearchSummaryModal = ({ searchResults, ...props }) => {
   const authorizationHeader = useAuthorizationHeader();
 
   useEffect(() => {
+    if (!katsuUrl) return;
+
     const ids = searchResults.searchFormattedResults.map(({ key }) => key);
 
     const raw = JSON.stringify({
@@ -61,7 +63,7 @@ const SearchSummaryModal = ({ searchResults, ...props }) => {
         setData(result);
       })
       .catch((error) => console.error("error", error));
-  }, [searchResults]);
+  }, [katsuUrl, searchResults, authorizationHeader]);
 
   const phenopacketData = data?.phenopacket?.data_type_specific;
   const experimentData = data?.experiment?.data_type_specific;

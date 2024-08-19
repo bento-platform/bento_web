@@ -1,5 +1,4 @@
-import React, { forwardRef, useCallback, useEffect, useMemo, useState } from "react";
-import { useSelector } from "react-redux";
+import { forwardRef, useCallback, useEffect, useMemo, useState } from "react";
 import PropTypes from "prop-types";
 
 import Handlebars from "handlebars";
@@ -9,6 +8,7 @@ import { Button, Checkbox, Form, Input, Select, Spin } from "antd";
 import { FORM_LABEL_COL, FORM_WRAPPER_COL, FORM_BUTTON_COL } from "./workflowCommon";
 
 import { BENTO_DROP_BOX_FS_BASE_PATH } from "@/config";
+import { useBentoServices } from "@/modules/services/hooks";
 import { workflowPropTypesShape } from "@/propTypes";
 import { testFileAgainstPattern } from "@/utils/files";
 import { nop } from "@/utils/misc";
@@ -22,15 +22,21 @@ const EnumSelect = forwardRef(({ mode, onChange, values: valuesConfig, value }, 
 
   const [values, setValues] = useState(isUrl ? [] : valuesConfig);
   const [fetching, setFetching] = useState(false);
+  const [attemptedFetch, setAttemptedFetch] = useState(false);
 
-  const bentoServicesByKind = useSelector((state) => state.bentoServices.itemsByKind);
+  const bentoServicesByKind = useBentoServices().itemsByKind;
   const serviceUrls = useMemo(
     () => Object.fromEntries(Object.entries(bentoServicesByKind).map(([k, v]) => [k, v.url])),
     [bentoServicesByKind],
   );
 
   useEffect(() => {
-    if (isUrl) {
+    // Reset attempted-fetch state when value changes
+    setAttemptedFetch(false);
+  }, [value]);
+
+  useEffect(() => {
+    if (isUrl && !fetching && !attemptedFetch) {
       setFetching(true);
 
       const url = Handlebars.compile(valuesConfig)({ serviceUrls });
@@ -41,15 +47,17 @@ const EnumSelect = forwardRef(({ mode, onChange, values: valuesConfig, value }, 
           if (Array.isArray(data)) {
             setValues(data);
           }
-          setFetching(false);
         })
         .catch((err) => {
           console.error(err);
           setValues([]);
+        })
+        .finally(() => {
+          setAttemptedFetch(true);
           setFetching(false);
         });
     }
-  }, [isUrl]);
+  }, [isUrl, fetching, attemptedFetch, valuesConfig, serviceUrls]);
 
   return (
     <Select

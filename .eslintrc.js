@@ -6,6 +6,7 @@ module.exports = {
     extends: [
         "eslint:recommended",
         "plugin:react/recommended",
+        "plugin:react-hooks/recommended",
         "plugin:@typescript-eslint/recommended",
         "plugin:prettier/recommended",
         "prettier",
@@ -30,10 +31,11 @@ module.exports = {
         "react/react-in-jsx-scope": "off",
         "react/jsx-uses-react": "off",
         "react/forbid-elements": ["error", { forbid: ["b", "font"] }],
+        "react/prop-types": ["error", { ignore: ["form", "match", "history"] }],
+        "react-hooks/exhaustive-deps": "error",
         "no-prototype-builtins": "off",
         "react/display-name": "off",
         "linebreak-style": ["error", "unix"],
-        "react/prop-types": ["error", { ignore: ["form", "match", "history"] }],
         quotes: ["error", "double"],
         semi: ["error", "always"],
         "semi-spacing": ["error"],
@@ -59,6 +61,7 @@ module.exports = {
                 functions: "always-multiline",
             },
         ],
+        "@typescript-eslint/consistent-type-imports": "error",
         "@typescript-eslint/no-unused-vars": ["error", { argsIgnorePattern: "^_" }],
     },
     settings: {

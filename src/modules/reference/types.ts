@@ -1,4 +1,4 @@
-import { OntologyTerm } from "@/types/ontology";
+import type { OntologyTerm } from "@/types/ontology";
 
 export type Contig = {
   name: string;

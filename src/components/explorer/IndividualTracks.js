@@ -278,7 +278,7 @@ const IndividualTracks = ({ individual }) => {
         igvBrowserRef.current.loadTrack(buildIgvTrack(igvUrls, track)).catch(console.error);
       }
     },
-    [allTracks],
+    [allTracks, igvUrls],
   );
 
   const storeIgvPosition = useCallback(
@@ -299,7 +299,7 @@ const IndividualTracks = ({ individual }) => {
       }
       dispatch(getIgvUrlsFromDrs(allTracks)).catch(console.error);
     }
-  }, [allTracks]);
+  }, [dispatch, allTracks, igvUrls]);
 
   // update access token whenever necessary
   useEffect(() => {
@@ -402,6 +402,7 @@ const IndividualTracks = ({ individual }) => {
     // track's visibility changes – allFoundFiles is left out of these dependencies on purpose, otherwise the entire
     // browser will be re-rendered if a track's visibility changes. By using viewableResults as a dependency
     // instead, the browser is only re-rendered if the overall track set (i.e., individual) changes.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [igvUrls, viewableResults, availableBrowserGenomes, selectedAssemblyID]);
 
   return (

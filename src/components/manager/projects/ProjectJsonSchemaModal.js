@@ -42,7 +42,7 @@ const ProjectJsonSchemaModal = ({ projectId, open, onOk, onCancel }) => {
         });
       })
       .catch((err) => console.error(err));
-  }, [projectId, onOk]);
+  }, [dispatch, form, projectId, onOk]);
 
   return (
     <Modal

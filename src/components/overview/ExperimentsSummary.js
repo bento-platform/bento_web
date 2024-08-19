@@ -10,7 +10,7 @@ import ChartCollection from "./ChartCollection";
 
 const ExperimentsSummary = ({ overviewSummary }) => {
   const { data, isFetching, hasAttempted } = overviewSummary;
-  const experimentsSummary = data?.experiment?.data_type_specific?.experiments ?? {};
+  const experimentsSummary = useMemo(() => data?.experiment?.data_type_specific?.experiments ?? {}, [data]);
 
   // TODO: most of these have "other" categories, so counts here are ambiguous or simply incorrect
   const statistics = useMemo(

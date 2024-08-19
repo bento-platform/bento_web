@@ -1,4 +1,4 @@
-import { CSSProperties, ReactNode, memo } from "react";
+import { type CSSProperties, type ReactNode, memo } from "react";
 import { COLOR_ANTD_RED_6 } from "@/constants";
 
 export type ErrorTextProps = {

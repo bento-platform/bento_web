@@ -30,7 +30,7 @@ const LinkedFieldSetForm = ({ form, dataTypes, initialValue, mode }) => {
 
   useEffect(() => {
     form.resetFields();
-  }, [initialValue]);
+  }, [form, initialValue]); // Reset form values when initial value changes
 
   const initialListValue = useMemo(
     () =>

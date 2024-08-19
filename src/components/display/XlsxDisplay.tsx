@@ -3,7 +3,7 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 import { read, utils, type WorkBook } from "xlsx";
 import { Card } from "antd";
 
-import SpreadsheetTable, { SPREADSHEET_ROW_KEY_PROP, SpreadsheetTableProps } from "./SpreadsheetTable";
+import SpreadsheetTable, { SPREADSHEET_ROW_KEY_PROP, type SpreadsheetTableProps } from "./SpreadsheetTable";
 import type { BlobDisplayProps } from "./types";
 
 type XlsxRecord = Record<string, string>;

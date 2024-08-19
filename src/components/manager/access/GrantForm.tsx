@@ -1,4 +1,4 @@
-import { Fragment, ReactNode, useCallback, useEffect, useMemo, useState } from "react";
+import { Fragment, type ReactNode, useCallback, useEffect, useMemo, useState } from "react";
 
 import { Alert, Checkbox, Form, Input, Popover, Radio, Select, Space, Spin } from "antd";
 import type { FormInstance, RadioGroupProps, RadioChangeEvent, SelectProps } from "antd";
@@ -7,7 +7,7 @@ import { RESOURCE_EVERYTHING, useOpenIdConfig } from "bento-auth-js";
 
 import MonospaceText from "@/components/common/MonospaceText";
 import { useAllPermissions, useGroups } from "@/modules/authz/hooks";
-import {
+import type {
   Grant,
   GrantSubject,
   PermissionDefinition,
@@ -108,13 +108,14 @@ const SubjectInput = ({ value, onChange }: SubjectInputProps) => {
     }
   }, [value]);
 
-  const onChangeDeps = [onChange, subjectType, iss, sub, client, group];
-
-  const onChangeSubjectType = useCallback((e: RadioChangeEvent) => {
-    const newSubjectType = e.target.value;
-    setSubjectType(newSubjectType);
-    handleSubjectChange(onChange, newSubjectType, iss, sub, client, group);
-  }, onChangeDeps);
+  const onChangeSubjectType = useCallback(
+    (e: RadioChangeEvent) => {
+      const newSubjectType = e.target.value;
+      setSubjectType(newSubjectType);
+      handleSubjectChange(onChange, newSubjectType, iss, sub, client, group);
+    },
+    [onChange, iss, sub, client, group],
+  );
 
   const subjectTypeOptions = useMemo(
     () => [
@@ -126,23 +127,32 @@ const SubjectInput = ({ value, onChange }: SubjectInputProps) => {
     [groups],
   );
 
-  const onChangeIssuer = useCallback<InputChangeEventHandler>((e) => {
-    const newIss = e.target.value;
-    setIss(newIss);
-    handleSubjectChange(onChange, subjectType, newIss, sub, client, group);
-  }, onChangeDeps);
+  const onChangeIssuer = useCallback<InputChangeEventHandler>(
+    (e) => {
+      const newIss = e.target.value;
+      setIss(newIss);
+      handleSubjectChange(onChange, subjectType, newIss, sub, client, group);
+    },
+    [onChange, subjectType, sub, client, group],
+  );
 
-  const onChangeSubject = useCallback<InputChangeEventHandler>((e) => {
-    const newSub = e.target.value;
-    setSub(newSub);
-    handleSubjectChange(onChange, subjectType, iss, newSub, client, group);
-  }, onChangeDeps);
+  const onChangeSubject = useCallback<InputChangeEventHandler>(
+    (e) => {
+      const newSub = e.target.value;
+      setSub(newSub);
+      handleSubjectChange(onChange, subjectType, iss, newSub, client, group);
+    },
+    [onChange, subjectType, iss, client, group],
+  );
 
-  const onChangeClient = useCallback<InputChangeEventHandler>((e) => {
-    const newClient = e.target.value;
-    setClient(newClient);
-    handleSubjectChange(onChange, subjectType, iss, sub, newClient, group);
-  }, onChangeDeps);
+  const onChangeClient = useCallback<InputChangeEventHandler>(
+    (e) => {
+      const newClient = e.target.value;
+      setClient(newClient);
+      handleSubjectChange(onChange, subjectType, iss, sub, newClient, group);
+    },
+    [onChange, subjectType, iss, sub, group],
+  );
 
   const groupOptions = useMemo(
     () =>
@@ -157,10 +167,13 @@ const SubjectInput = ({ value, onChange }: SubjectInputProps) => {
     [groups],
   );
 
-  const onChangeGroup = useCallback((v: number) => {
-    setGroup(v);
-    handleSubjectChange(onChange, subjectType, iss, sub, client, v);
-  }, onChangeDeps);
+  const onChangeGroup = useCallback(
+    (v: number) => {
+      setGroup(v);
+      handleSubjectChange(onChange, subjectType, iss, sub, client, v);
+    },
+    [onChange, subjectType, iss, sub, client],
+  );
 
   return (
     <Space direction="vertical" style={{ width: "100%", minHeight: 32 }}>
@@ -248,7 +261,7 @@ const ResourceInput = ({ value, onChange }: ResourceInputProps) => {
       if ("dataset" in value && value.dataset) setSelectedDataset(datasetsByID[value.dataset]);
       if ("data_type" in value && value.data_type) setSelectedDataType(value.data_type);
     }
-  }, [value]);
+  }, [value, projectsByID, datasetsByID]);
 
   useEffect(() => {
     if (!selectedProject && projects.length) {
@@ -421,10 +434,12 @@ const PermissionsInput = ({ id, value, onChange, currentResource, ...rest }: Per
   const isInvalid = "aria-invalid" in rest && !!rest["aria-invalid"];
 
   useEffect(() => {
-    if (value && newPermissionsDifferent(checked, value)) {
+    // If we're in controlled mode, i.e., a value array is set, then the checked array should be set directly from the
+    // value when it changes, if the values differ from whatever the checked array currently is internally.
+    if (value !== undefined && newPermissionsDifferent(checked, value)) {
       setChecked(value);
     }
-  }, [value]);
+  }, [checked, value]);
 
   const handleChange = useCallback(
     (newChecked: string[]) => {
@@ -432,11 +447,17 @@ const PermissionsInput = ({ id, value, onChange, currentResource, ...rest }: Per
         permissionCompatibleWithResource(permissionsByID[cc], currentResource),
       );
       if (newPermissionsDifferent(checked, filteredNewChecked)) {
-        setChecked(filteredNewChecked);
-        if (onChange) onChange(filteredNewChecked);
+        if (value === undefined) {
+          // If we're not in "controlled mode", i.e., we don't have a value array set, then the value should not change,
+          // so we should directly update the checked array.
+          setChecked(filteredNewChecked);
+        }
+        if (onChange) {
+          onChange(filteredNewChecked);
+        }
       }
     },
-    [checked, onChange, permissionsByID, currentResource],
+    [checked, onChange, permissionsByID, currentResource, value],
   );
 
   useEffect(() => {
@@ -446,7 +467,8 @@ const PermissionsInput = ({ id, value, onChange, currentResource, ...rest }: Per
     if (newPermissionsDifferent(checked, filteredChecked)) {
       handleChange(filteredChecked);
     }
-  }, [currentResource]); // explicitly don't have checked as a dependency; otherwise, we get an infinite loop
+    // explicitly don't have checked as a dependency; otherwise, we get an infinite loop
+  }, [currentResource]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const checkboxGroups = useMemo((): ReactNode => {
     // TODO: use Object.groupBy when available:
@@ -539,7 +561,7 @@ const PermissionsInput = ({ id, value, onChange, currentResource, ...rest }: Per
           </div>
         );
       });
-  }, [permissions, permissionsByID, handleChange, currentResource, isInvalid]);
+  }, [checked, currentResource, handleChange, isInvalid, permissions, permissionsByID]);
 
   return (
     <Spin spinning={isFetchingPermissions}>
