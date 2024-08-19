@@ -3,6 +3,7 @@ const siteConfig = {
     BENTO_PUBLIC_URL: process.env.BENTO_PUBLIC_URL || null,
     BENTO_CBIOPORTAL_ENABLED: ["true", "1", "yes"].includes((process.env.BENTO_CBIOPORTAL_ENABLED || "").toLowerCase()),
     BENTO_CBIOPORTAL_PUBLIC_URL: process.env.BENTO_CBIOPORTAL_PUBLIC_URL || null,
+    BENTO_MONITORING_ENABLED: ["true", "1", "yes"].includes((process.env.BENTO_MONITORING_ENABLED || "").toLowerCase()),
     CUSTOM_HEADER: (process.env.CUSTOM_HEADER || "").trim(),
 
     // OAuth/OIDC stuff
