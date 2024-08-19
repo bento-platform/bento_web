@@ -1,17 +1,20 @@
 import React, { useCallback, useEffect, useMemo, useState } from "react";
 import PropTypes from "prop-types";
 
-import { Button, Col, Empty, Row, Space, Tabs, Typography, Form } from "antd";
+import { Button, Col, Empty, Form, Row, Space, Tabs, Typography } from "antd";
 import { CheckOutlined, CloseOutlined, DeleteOutlined, EditOutlined, PlusOutlined } from "@ant-design/icons";
+
+import { createDataset, deleteProject, editProject, makeProjectResource, RESOURCE_EVERYTHING } from "bento-auth-js";
+
+import { INITIAL_DATA_USE_VALUE } from "@/duo";
+import { useHasResourcePermissionWrapper, useResourcePermissionsWrapper } from "@/hooks";
+import { useDropBoxFileContent } from "@/modules/dropBox/hooks";
+import { projectPropTypesShape } from "@/propTypes";
+import { nop, simpleDeepCopy } from "@/utils/misc";
 
 import Dataset from "../../datasets/Dataset";
 import ProjectForm from "./ProjectForm";
-import { nop, simpleDeepCopy } from "@/utils/misc";
-import { projectPropTypesShape } from "@/propTypes";
 import ProjectJsonSchema from "./ProjectJsonSchema";
-import { useDropBoxFileContent, useHasResourcePermissionWrapper, useResourcePermissionsWrapper } from "@/hooks";
-import { createDataset, deleteProject, editProject, makeProjectResource, RESOURCE_EVERYTHING } from "bento-auth-js";
-import { INITIAL_DATA_USE_VALUE } from "@/duo";
 
 const SUB_TAB_KEYS = {
   DATASETS: "project-datasets",
@@ -58,7 +61,13 @@ const Project = ({
 
   const [editingForm] = Form.useForm();
   const newDiscoveryFile = Form.useWatch("discoveryPath", editingForm);
-  const newDiscoveryContent = useDropBoxFileContent(newDiscoveryFile);
+
+  const newDiscoveryBlob = useDropBoxFileContent(newDiscoveryFile);
+  const [newDiscoveryContent, setNewDiscoveryContent] = useState(null);
+
+  useEffect(() => {
+    if (newDiscoveryBlob) newDiscoveryBlob.text().then((t) => setNewDiscoveryContent(t));
+  }, [newDiscoveryBlob]);
 
   const [selectedKey, setSelectedKey] = useState(SUB_TAB_KEYS.DATASETS);
 
@@ -160,6 +169,7 @@ const Project = ({
           ))}
         </>
       )}
+
       <Tabs onChange={(tab) => setSelectedKey(tab)} activeKey={selectedKey} items={SUB_TAB_ITEMS} size="large" />
 
       {selectedKey === SUB_TAB_KEYS.DATASETS ? (

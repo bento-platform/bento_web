@@ -1,4 +1,4 @@
-import { DropBoxEntry } from "@/types";
+import type { DropBoxEntry } from "@/modules/dropBox/types";
 
 export type GenomicsFileType = "gvcf" | "vcf" | "maf" | "sam" | "bam" | "cram" | "bigwig";
 

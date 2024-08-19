@@ -3,10 +3,11 @@ import { combineReducers } from "redux";
 import { AuthReducer as auth, OIDCReducer as openIdConfiguration } from "bento-auth-js";
 
 import { allPermissions, grants, groups } from "./modules/authz/reducers";
+import { dropBox } from "@/modules/dropBox/reducers";
 import { drs } from "./modules/drs/reducers";
 import { explorer, igvGenomes } from "./modules/explorer/reducers";
 import { projects, biosamples, individuals, overviewSummary } from "./modules/metadata/reducers";
-import { manager, dropBox } from "./modules/manager/reducers";
+import { manager } from "./modules/manager/reducers";
 import { notifications } from "./modules/notifications/reducers";
 import { referenceGenomes } from "./modules/reference/reducers";
 import { bentoServices, services, serviceDataTypes, serviceWorkflows } from "./modules/services/reducers";
@@ -25,6 +26,9 @@ const rootReducer = combineReducers({
   grants,
   groups,
 
+  // Drop box module
+  dropBox,
+
   // DRS module
   drs,
 
@@ -41,7 +45,6 @@ const rootReducer = combineReducers({
 
   // Manager module
   manager,
-  dropBox,
 
   // Notifications module
   notifications,

@@ -1,10 +1,9 @@
-import React, { useMemo, useEffect } from "react";
+import React, { useMemo, useEffect, useState } from "react";
 import PropTypes from "prop-types";
 import { TreeSelect, Form } from "antd";
 
 import { BENTO_DROP_BOX_FS_BASE_PATH } from "@/config";
-import { useDropBoxFileContent } from "@/hooks";
-import { useDropBox } from "@/modules/manager/hooks";
+import { useDropBox, useDropBoxFileContent } from "@/modules/dropBox/hooks";
 import { dropBoxTreeNodeEnabledJson } from "@/utils/files";
 import { getTrue } from "@/utils/misc";
 
@@ -80,7 +79,14 @@ export const DropBoxJsonSelect = ({ form, name, labels, initialValue, rules }) =
   const pathName = name + "Path";
   const filePath = Form.useWatch(pathName, form);
   const fileContent = useDropBoxFileContent(filePath);
-  const currentFieldData = fileContent || initialValue;
+  const [currentFieldData, setCurrentFieldData] = useState(initialValue); // string | undefined
+
+  useEffect(() => {
+    if (fileContent !== null) {
+      fileContent.text().then((t) => setCurrentFieldData(t));
+    }
+    setCurrentFieldData(initialValue);
+  }, [fileContent, initialValue]);
 
   const contentLabel = filePath && labels?.updatedContent ? labels.updatedContent : labels.defaultContent;
 
