@@ -240,8 +240,8 @@ const ManagerDRSContent = () => {
   }, [performSearch, searchValue]);
 
   useEffect(() => {
-    setSelectedRowKeys(selectedRowKeys.filter((k) => k in objectsByID));
-  }, [selectedRowKeys, objectsByID]);
+    setSelectedRowKeys((s) => s.filter((k) => k in objectsByID));
+  }, [objectsByID]);
 
   const onDeleteSelected = useCallback(() => {
     Modal.confirm({

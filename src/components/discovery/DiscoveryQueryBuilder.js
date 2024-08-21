@@ -121,8 +121,8 @@ const DiscoveryQueryBuilder = ({ activeDataset, dataTypeForms, requiredDataTypes
   );
 
   const handleHelpAndSchemasToggle = useCallback(() => {
-    setSchemasModalShown(!schemasModalShown);
-  }, [schemasModalShown]);
+    setSchemasModalShown((s) => !s);
+  }, []);
 
   const handleSetFormRef = useCallback(
     (dataType, form) => {

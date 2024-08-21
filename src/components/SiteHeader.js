@@ -67,8 +67,8 @@ const SiteHeader = () => {
   const [modalVisible, setModalVisible] = useState(false);
 
   const toggleModalVisibility = useCallback(() => {
-    setModalVisible(!modalVisible);
-  }, [modalVisible]);
+    setModalVisible((v) => !v);
+  }, []);
 
   const performSignOut = usePerformSignOut();
 
