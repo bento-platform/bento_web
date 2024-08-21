@@ -270,7 +270,7 @@ const IndividualTracks = ({ individual }) => {
       if (!igvBrowserRef.current) return;
 
       const wasViewing = track.viewInIgv;
-      setAllTracks(allTracks.map((t) => (t.filename === track.filename ? { ...track, viewInIgv: !wasViewing } : t)));
+      setAllTracks((at) => at.map((t) => (t.filename === track.filename ? { ...track, viewInIgv: !wasViewing } : t)));
 
       if (wasViewing) {
         igvBrowserRef.current.removeTrackByName(track.filename);
@@ -278,7 +278,7 @@ const IndividualTracks = ({ individual }) => {
         igvBrowserRef.current.loadTrack(buildIgvTrack(igvUrls, track)).catch(console.error);
       }
     },
-    [allTracks, igvUrls],
+    [igvUrls],
   );
 
   const storeIgvPosition = useCallback(
