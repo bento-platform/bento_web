@@ -61,13 +61,13 @@ const Project = ({
 
   useEffect(() => {
     if (value) {
-      setProjectState({
-        ...projectState,
+      setProjectState((ps) => ({
+        ...ps,
         ...value,
         data_use: simpleDeepCopy(value.data_use || INITIAL_DATA_USE_VALUE),
-      });
+      }));
     }
-  }, [value, projectState]);
+  }, [value]);
 
   const handleSave = useCallback(() => {
     const form = editingForm.current;
