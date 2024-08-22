@@ -115,15 +115,12 @@ const DiscoverySearchForm = ({ onChange, dataType, setFormRef, handleVariantHidd
     [dataType],
   );
 
-  const updateHelpFromFieldChange = useCallback(
-    (k, change) => {
-      setConditionsHelp({
-        ...conditionsHelp,
-        [k]: change.fieldSchema.description, // can be undefined
-      });
-    },
-    [conditionsHelp],
-  );
+  const updateHelpFromFieldChange = useCallback((k, change) => {
+    setConditionsHelp((h) => ({
+      ...h,
+      [k]: change.fieldSchema.description, // can be undefined
+    }));
+  }, []);
 
   const getInitialOperator = useCallback(
     (field, fieldSchema) => {
