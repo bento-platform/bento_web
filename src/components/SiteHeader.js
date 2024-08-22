@@ -10,6 +10,7 @@ import {
   BellOutlined,
   DashboardOutlined,
   DotChartOutlined,
+  ExportOutlined,
   FileTextOutlined,
   FolderOpenOutlined,
   LoadingOutlined,
@@ -20,7 +21,7 @@ import {
   UserOutlined,
 } from "@ant-design/icons";
 
-import { BENTO_CBIOPORTAL_ENABLED, BENTO_MONITORING_ENABLED, CUSTOM_HEADER } from "@/config";
+import { BENTO_CBIOPORTAL_ENABLED, BENTO_GRAFANA_URL, BENTO_MONITORING_ENABLED, CUSTOM_HEADER } from "@/config";
 import { useEverythingPermissions } from "@/hooks";
 import { showNotificationDrawer } from "@/modules/notifications/actions";
 import { useNotifications } from "@/modules/notifications/hooks";
@@ -71,6 +72,10 @@ const SiteHeader = () => {
   }, [modalVisible]);
 
   const performSignOut = usePerformSignOut();
+
+  const openGrafanaInNewTab = () => {
+    window.open(BENTO_GRAFANA_URL, "_blank");
+  };
 
   const menuItems = useMemo(
     () => [
@@ -151,9 +156,9 @@ const SiteHeader = () => {
       ...(BENTO_MONITORING_ENABLED && isAuthenticated
         ? [
             {
-              url: "/grafana",
               icon: <ApartmentOutlined />,
-              text: "Grafana",
+              text: <>Grafana <ExportOutlined style={{ fontSize: '14px' }} /></>,
+              onClick: openGrafanaInNewTab,
               key: "grafana",
             },
           ]
