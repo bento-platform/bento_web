@@ -124,12 +124,10 @@ const DiscoveryQueryBuilder = ({ activeDataset, dataTypeForms, requiredDataTypes
     setSchemasModalShown((s) => !s);
   }, []);
 
-  const handleSetFormRef = useCallback(
-    (dataType, form) => {
-      setForms({ ...forms, [dataType.id]: form });
-    },
-    [forms],
-  );
+  const handleSetFormRef = useCallback((dataType, form) => {
+    // Without a functional state update, this triggers an infinite loop in rendering variant search
+    setForms((forms) => ({ ...forms, [dataType.id]: form }));
+  }, []);
 
   useEffect(() => {
     if (autoQuery?.isAutoQuery && shouldExecAutoQueryPt2) {
