@@ -106,8 +106,14 @@ const DiscoveryQueryBuilder = ({ activeDataset, dataTypeForms, requiredDataTypes
     }
   }, [dispatch, forms, onSubmit]);
 
-  const handleFormChange = (dataType) => (fields) => dispatch(updateDataTypeQueryForm(activeDataset, dataType, fields));
-  const handleVariantHiddenFieldChange = useMemo(() => handleFormChange(dataTypesByID["variant"]), [dataTypesByID]);
+  const handleFormChange = useCallback(
+    (dataType) => (fields) => dispatch(updateDataTypeQueryForm(activeDataset, dataType, fields)),
+    [dispatch, activeDataset],
+  );
+  const handleVariantHiddenFieldChange = useMemo(
+    () => handleFormChange(dataTypesByID["variant"]),
+    [handleFormChange, dataTypesByID],
+  );
 
   const handleHelpAndSchemasToggle = useCallback(() => {
     setSchemasModalShown((s) => !s);
@@ -167,7 +173,7 @@ const DiscoveryQueryBuilder = ({ activeDataset, dataTypeForms, requiredDataTypes
         await s;
       })();
     }
-  }, [dispatch, autoQuery, dataTypesByID, forms, shouldExecAutoQueryPt2, handleSubmit]);
+  }, [dispatch, autoQuery, dataTypesByID, forms, shouldExecAutoQueryPt2, handleFormChange, handleSubmit]);
 
   // --- render ---
 
@@ -221,7 +227,7 @@ const DiscoveryQueryBuilder = ({ activeDataset, dataTypeForms, requiredDataTypes
           ),
         };
       }),
-    [requiredDataTypes, dataTypeForms, searchLoading, handleVariantHiddenFieldChange],
+    [requiredDataTypes, dataTypeForms, searchLoading, handleFormChange, handleVariantHiddenFieldChange],
   );
 
   const addConditionsOnDataType = (buttonProps = { style: { float: "right" } }) => (
