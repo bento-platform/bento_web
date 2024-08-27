@@ -28,7 +28,11 @@ import { useNotifications } from "@/modules/notifications/hooks";
 import { matchingMenuKeys, transformMenuItem } from "@/utils/menu";
 
 import OverviewSettingsControl from "./overview/OverviewSettingsControl";
-import { useCanQueryAtLeastOneProjectOrDataset, useManagerPermissions } from "@/modules/authz/hooks";
+import {
+  useCanQueryAtLeastOneProjectOrDataset,
+  useHasValidGrafanaRole,
+  useManagerPermissions,
+} from "@/modules/authz/hooks";
 
 const LinkedLogo = memo(() => (
   <Link to="/">
@@ -72,6 +76,7 @@ const SiteHeader = () => {
   }, [modalVisible]);
 
   const performSignOut = usePerformSignOut();
+  const hasValidGrafanaRole = useHasValidGrafanaRole();
 
   const openGrafanaInNewTab = () => {
     window.open(BENTO_GRAFANA_URL, "_blank");
@@ -153,7 +158,7 @@ const SiteHeader = () => {
             },
           ]
         : []),
-      ...(BENTO_MONITORING_ENABLED && isAuthenticated
+      ...(BENTO_MONITORING_ENABLED && isAuthenticated && hasValidGrafanaRole
         ? [
             {
               icon: <ApartmentOutlined />,
@@ -241,6 +246,7 @@ const SiteHeader = () => {
       performAuth,
       performSignOut,
       unreadNotifications,
+      hasValidGrafanaRole,
     ],
   );
 

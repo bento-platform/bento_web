@@ -15,6 +15,7 @@ import {
   makeResourceKey,
   queryData,
   RESOURCE_EVERYTHING,
+  useAuthState,
   useResourcesPermissions,
   viewDropBox,
   viewPermissions,
@@ -245,4 +246,18 @@ export const useManagerPermissions = () => {
     isFetchingManageProjectsDatasetsPermissions,
     hasAttemptedManageProjectsDatasetsPermissions,
   ]);
+};
+
+/**
+ * Checks if the ID token contains valid roles for the Grafana OAUTH client.
+ * Grafana roles are determined by group membership with client-role mappings.
+ * For UI purposes only, the Grafana login uses the signed token to check permissions securely.
+ * @returns true if ID token contains valid Grafana role
+ */
+export const useHasValidGrafanaRole = () => {
+  const { idTokenContents } = useAuthState();
+  return useMemo(() => {
+    const grafanaRoles = idTokenContents?.resource_access?.grafana?.roles ?? [];
+    return ["admin", "editor", "viewer"].some((role) => grafanaRoles.includes(role));
+  }, [idTokenContents]);
 };
