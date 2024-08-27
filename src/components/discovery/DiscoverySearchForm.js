@@ -250,6 +250,7 @@ const DiscoverySearchForm = ({ onChange, dataType, setFormRef, handleVariantHidd
         updatedConditionsArray = updateVariantConditions(updatedConditionsArray, "[dataset item].alternative", alt);
       }
 
+      form.setFieldsValue({ conditions: updatedConditionsArray }); // update form separately - not controlled
       handleVariantHiddenFieldChange([
         {
           name: ["conditions"],
@@ -257,7 +258,7 @@ const DiscoverySearchForm = ({ onChange, dataType, setFormRef, handleVariantHidd
         },
       ]);
     },
-    [getConditionsArray, handleVariantHiddenFieldChange],
+    [form, getConditionsArray, handleVariantHiddenFieldChange],
   );
 
   const getHelpText = useCallback(
