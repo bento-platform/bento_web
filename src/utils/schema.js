@@ -1,5 +1,3 @@
-import React from "react";
-
 import { Button, Popover, Typography } from "antd";
 import { QuestionCircleOutlined } from "@ant-design/icons";
 

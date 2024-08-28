@@ -1,8 +1,8 @@
-import React, { Component } from "react";
+import { Component } from "react";
 
 import { TreeSelect } from "antd";
 
-import { ROOT_SCHEMA_ID, generateSchemaTreeData, getFieldSchema } from "../../utils/schema";
+import { ROOT_SCHEMA_ID, generateSchemaTreeData, getFieldSchema } from "@/utils/schema";
 import PropTypes from "prop-types";
 
 class SchemaTreeSelect extends Component {

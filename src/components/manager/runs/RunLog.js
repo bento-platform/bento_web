@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import { useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import PropTypes from "prop-types";
 
@@ -6,8 +6,8 @@ import { AnsiUp } from "ansi_up";
 
 import { Descriptions, Skeleton } from "antd";
 
-import { fetchRunLogStreamsIfPossibleAndNeeded } from "../../../modules/wes/actions";
-import { runPropTypesShape } from "../../../propTypes";
+import { fetchRunLogStreamsIfPossibleAndNeeded } from "@/modules/wes/actions";
+import { runPropTypesShape } from "@/propTypes";
 import MonospaceText from "@/components/common/MonospaceText";
 
 const ansiUp = new AnsiUp();

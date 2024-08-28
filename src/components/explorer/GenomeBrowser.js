@@ -1,8 +1,8 @@
-import React from "react";
+import { Component } from "react";
 
 // TODO: rewrite this component using views of vcf files, focused on variants of interest
 
-class GenomeBrowser extends React.Component {
+class GenomeBrowser extends Component {
   render() {
     return null;
   }
@@ -10,7 +10,7 @@ class GenomeBrowser extends React.Component {
 
 export default GenomeBrowser;
 
-// import React, {Component, createRef} from "react";
+// import {Component, createRef} from "react";
 // import PropTypes from "prop-types";
 // import {Table, Divider} from "antd";
 // import igv from "igv/js";

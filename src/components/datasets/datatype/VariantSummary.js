@@ -1,9 +1,7 @@
-import React from "react";
-
 import { Col, Row, Statistic } from "antd";
 import { FileOutlined } from "@ant-design/icons";
 
-import { summaryPropTypesShape } from "../../../propTypes";
+import { summaryPropTypesShape } from "@/propTypes";
 
 const VariantSummary = ({ summary }) => (
   <Row gutter={16}>

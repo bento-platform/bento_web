@@ -1,4 +1,4 @@
-import React from "react";
+import { memo, type CSSProperties, type ReactNode } from "react";
 
 import { useIsAuthenticated, usePerformAuth } from "bento-auth-js";
 
@@ -8,18 +8,18 @@ import { LoginOutlined } from "@ant-design/icons";
 import AutoAuthenticate from "./AutoAuthenticate";
 import { useOpenIDConfigNotLoaded } from "@/hooks";
 
-const styles: Record<string, React.CSSProperties> = {
+const styles: Record<string, CSSProperties> = {
   layout: { background: "white", padding: "48px 24px" },
   emptyImage: { height: "auto", marginBottom: "16px" },
 };
 
-const SignInIcon = React.memo(() => (
+const SignInIcon = memo(() => (
   <div style={{ textAlign: "center" }}>
     <LoginOutlined style={{ fontSize: 48 }} />
   </div>
 ));
 
-const RequireAuth = ({ children }: { children: React.ReactNode }) => {
+const RequireAuth = ({ children }: { children: ReactNode }) => {
   const isAuthenticated = useIsAuthenticated();
   const performAuth = usePerformAuth();
   const openIdConfigNotLoaded = useOpenIDConfigNotLoaded();

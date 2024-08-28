@@ -1,4 +1,3 @@
-import React from "react";
 import { Popover } from "antd";
 import type { Resource } from "@/modules/authz/types";
 import MonospaceText from "@/components/common/MonospaceText";

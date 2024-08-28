@@ -1,8 +1,8 @@
-import React from "react";
+import type { ReactNode } from "react";
 import { Layout, Result } from "antd";
 import { LAYOUT_CONTENT_STYLE } from "@/styles/layoutContent";
 
-export type ForbiddenContentProps = { message: React.ReactNode };
+export type ForbiddenContentProps = { message: ReactNode };
 
 const ForbiddenContent = ({ message }: ForbiddenContentProps) => (
   <Layout>

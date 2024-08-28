@@ -1,4 +1,4 @@
-import React, { Suspense, useCallback, useMemo } from "react";
+import { memo, Suspense, useCallback, useMemo } from "react";
 import { useSelector } from "react-redux";
 import { Navigate, Route, Routes, useNavigate, useParams } from "react-router-dom";
 
@@ -22,7 +22,7 @@ const styles = {
   },
 };
 
-const SuspenseFallback = React.memo(() => (
+const SuspenseFallback = memo(() => (
   <div style={styles.suspenseFallback}>
     <Skeleton active />
   </div>

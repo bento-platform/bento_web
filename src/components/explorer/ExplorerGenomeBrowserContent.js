@@ -1,8 +1,8 @@
-import React, { Component } from "react";
+import { Component } from "react";
 
 import { Layout, Typography } from "antd";
 
-import { LAYOUT_CONTENT_STYLE } from "../../styles/layoutContent";
+import { LAYOUT_CONTENT_STYLE } from "@/styles/layoutContent";
 
 class ExplorerGenomeBrowserContent extends Component {
   render() {

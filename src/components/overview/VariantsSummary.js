@@ -1,4 +1,3 @@
-import React from "react";
 import { useSelector } from "react-redux";
 import { BiDna } from "react-icons/bi";
 import { Col, Row, Spin, Statistic, Typography } from "antd";

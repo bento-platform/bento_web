@@ -1,4 +1,4 @@
-import React, { Component } from "react";
+import { Component } from "react";
 import PropTypes from "prop-types";
 
 import { Checkbox, List, Radio, Space, Typography } from "antd";
@@ -12,7 +12,7 @@ import {
   DATA_USE_KEYS,
   DATA_USE_INFO,
   DUO_NOT_FOR_PROFIT_USE_ONLY,
-} from "../duo";
+} from "@/duo";
 import { StopOutlined } from "@ant-design/icons";
 
 const sortSCC = (a, b) => SECONDARY_CONSENT_CODE_KEYS.indexOf(a.code) - SECONDARY_CONSENT_CODE_KEYS.indexOf(b.code);

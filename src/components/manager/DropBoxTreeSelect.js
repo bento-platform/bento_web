@@ -1,4 +1,4 @@
-import React, { useMemo } from "react";
+import { forwardRef, useMemo } from "react";
 import PropTypes from "prop-types";
 import { TreeSelect } from "antd";
 
@@ -35,7 +35,7 @@ const generateFileTree = (directory, valid, folderMode, basePrefix) =>
       };
     });
 
-const DropBoxTreeSelect = React.forwardRef(({ folderMode, nodeEnabled, basePrefix, ...props }, ref) => {
+const DropBoxTreeSelect = forwardRef(({ folderMode, nodeEnabled, basePrefix, ...props }, ref) => {
   const { tree } = useDropBox();
 
   const fileTree = useMemo(

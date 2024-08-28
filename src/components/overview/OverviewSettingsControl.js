@@ -1,10 +1,10 @@
-import React, { useState } from "react";
+import { useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { Col, InputNumber, Row, Slider, Modal } from "antd";
 import PropTypes from "prop-types";
-import { setOtherThresholdPercentage } from "../../modules/explorer/actions";
-import { writeToLocalStorage } from "../../utils/localStorageUtils";
-import { DEFAULT_OTHER_THRESHOLD_PERCENTAGE } from "../../constants";
+import { setOtherThresholdPercentage } from "@/modules/explorer/actions";
+import { writeToLocalStorage } from "@/utils/localStorageUtils";
+import { DEFAULT_OTHER_THRESHOLD_PERCENTAGE } from "@/constants";
 
 // currently only sets pie chart "Other" threshold:
 // writes to redux store on all changes, writes to redux and localStorage on close

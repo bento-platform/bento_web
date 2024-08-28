@@ -33,6 +33,18 @@ module.exports = {
         "react/forbid-elements": ["error", { forbid: ["b", "font"] }],
         "react/prop-types": ["error", { ignore: ["form", "match", "history"] }],
         "react-hooks/exhaustive-deps": "error",
+        "no-restricted-imports": [
+            "error",
+            {
+                "paths": [
+                    {
+                        "name": "react",
+                        "importNames": ["default"],
+                        "message": "default-importing React is not necessary",
+                    }
+                ]
+            }
+        ],
         "no-prototype-builtins": "off",
         "react/display-name": "off",
         "linebreak-style": ["error", "unix"],

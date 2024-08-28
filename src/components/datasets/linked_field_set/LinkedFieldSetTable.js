@@ -1,4 +1,3 @@
-import React from "react";
 import { Table } from "antd";
 import { linkedFieldSetPropTypesShape } from "@/propTypes";
 import MonospaceText from "@/components/common/MonospaceText";

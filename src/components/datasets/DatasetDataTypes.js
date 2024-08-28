@@ -1,4 +1,4 @@
-import React, { useCallback, useMemo, useState } from "react";
+import { memo, useCallback, useMemo, useState } from "react";
 import { useSelector, useDispatch } from "react-redux";
 import PropTypes from "prop-types";
 
@@ -16,7 +16,7 @@ import DataTypeSummaryModal from "./datatype/DataTypeSummaryModal";
 
 const NA_TEXT = <span style={{ color: "#999", fontStyle: "italic" }}>N/A</span>;
 
-const DatasetDataTypes = React.memo(({ isPrivate, project, dataset }) => {
+const DatasetDataTypes = memo(({ isPrivate, project, dataset }) => {
   const dispatch = useDispatch();
   const datasetDataTypes = useSelector((state) => state.datasetDataTypes.itemsByID[dataset.identifier]);
   const datasetDataTypeValues = useMemo(() => Object.values(datasetDataTypes?.itemsByID ?? {}), [datasetDataTypes]);

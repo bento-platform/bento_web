@@ -1,8 +1,8 @@
-import React from "react";
+import { memo } from "react";
 import PropTypes from "prop-types";
 import { Col, Spin, Statistic } from "antd";
 
-const StatisticCollection = React.memo(({ statistics, isFetching }) => {
+const StatisticCollection = memo(({ statistics, isFetching }) => {
   return (
     <>
       {statistics.map((s, i) => (
