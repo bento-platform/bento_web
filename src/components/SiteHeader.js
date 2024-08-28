@@ -162,11 +162,8 @@ const SiteHeader = () => {
         ? [
             {
               icon: <ApartmentOutlined />,
-              text: (
-                <>
-                  Grafana <ExportOutlined style={{ fontSize: "14px" }} />
-                </>
-              ),
+              text: "Grafana",
+              iconAfter: <ExportOutlined />,
               onClick: openGrafanaInNewTab,
               key: "grafana",
             },

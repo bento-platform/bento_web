@@ -1,9 +1,10 @@
 import type { CSSProperties, ReactNode } from "react";
 
 interface BentoBaseMenuItem {
-  text?: ReactNode;
+  text?: string;
   disabled?: boolean;
   icon?: ReactNode;
+  iconAfter?: ReactNode;
   style?: CSSProperties;
   children?: BentoMenuItem[];
   onClick?: () => void;
