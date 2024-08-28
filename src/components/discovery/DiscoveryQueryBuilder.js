@@ -107,29 +107,22 @@ const DiscoveryQueryBuilder = ({ activeDataset, dataTypeForms, requiredDataTypes
   }, [dispatch, forms, onSubmit]);
 
   const handleFormChange = useCallback(
-    (dataType, fields) => {
-      dispatch(updateDataTypeQueryForm(activeDataset, dataType, fields));
-    },
+    (dataType) => (fields) => dispatch(updateDataTypeQueryForm(activeDataset, dataType, fields)),
     [dispatch, activeDataset],
   );
-
-  const handleVariantHiddenFieldChange = useCallback(
-    (fields) => {
-      dispatch(updateDataTypeQueryForm(activeDataset, dataTypesByID["variant"], fields));
-    },
-    [dispatch, activeDataset, dataTypesByID],
+  const handleVariantHiddenFieldChange = useMemo(
+    () => handleFormChange(dataTypesByID["variant"]),
+    [handleFormChange, dataTypesByID],
   );
 
   const handleHelpAndSchemasToggle = useCallback(() => {
     setSchemasModalShown((s) => !s);
   }, []);
 
-  const handleSetFormRef = useCallback(
-    (dataType, form) => {
-      setForms({ ...forms, [dataType.id]: form });
-    },
-    [forms],
-  );
+  const handleSetFormRef = (dataType) => (form) => {
+    // Without a functional state update, this triggers an infinite loop in rendering variant search
+    setForms((fs) => ({ ...fs, [dataType.id]: form }));
+  };
 
   useEffect(() => {
     if (autoQuery?.isAutoQuery && shouldExecAutoQueryPt2) {
@@ -166,7 +159,7 @@ const DiscoveryQueryBuilder = ({ activeDataset, dataTypeForms, requiredDataTypes
       ];
 
       form.setFields(fields);
-      handleFormChange(dataType, fields); // Not triggered by setFields; do it manually
+      handleFormChange(dataType)(fields); // Not triggered by setFields; do it manually
 
       (async () => {
         // Simulate form submission click
@@ -216,6 +209,8 @@ const DiscoveryQueryBuilder = ({ activeDataset, dataTypeForms, requiredDataTypes
         // Use data type label for tab name, unless it isn't specified - then fall back to ID.
         // This behaviour should be the same everywhere in bento_web or almost anywhere the
         // data type is shown to 'end users'.
+        const handleChange = handleFormChange(dataType);
+        const setFormRef = handleSetFormRef(dataType);
         const { id, label } = dataType;
         return {
           key: id,
@@ -225,21 +220,14 @@ const DiscoveryQueryBuilder = ({ activeDataset, dataTypeForms, requiredDataTypes
             <DiscoverySearchForm
               dataType={dataType}
               loading={searchLoading}
-              setFormRef={(form) => handleSetFormRef(dataType, form)}
-              onChange={(fields) => handleFormChange(dataType, fields)}
+              setFormRef={setFormRef}
+              onChange={handleChange}
               handleVariantHiddenFieldChange={handleVariantHiddenFieldChange}
             />
           ),
         };
       }),
-    [
-      requiredDataTypes,
-      dataTypeForms,
-      searchLoading,
-      handleSetFormRef,
-      handleFormChange,
-      handleVariantHiddenFieldChange,
-    ],
+    [requiredDataTypes, dataTypeForms, searchLoading, handleFormChange, handleVariantHiddenFieldChange],
   );
 
   const addConditionsOnDataType = (buttonProps = { style: { float: "right" } }) => (

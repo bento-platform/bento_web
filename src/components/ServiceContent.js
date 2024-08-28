@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import { useEffect } from "react";
 import { useSelector } from "react-redux";
 
 import { Col, Layout, Row, Spin, Statistic, Typography } from "antd";
@@ -6,9 +6,9 @@ import { Col, Layout, Row, Spin, Statistic, Typography } from "antd";
 import SitePageHeader from "./SitePageHeader";
 import ServiceList from "./ServiceList";
 
-import { SITE_NAME } from "../constants";
-import { EM_DASH } from "../constants";
-import { BENTO_URL } from "../config";
+import { SITE_NAME } from "@/constants";
+import { EM_DASH } from "@/constants";
+import { BENTO_URL } from "@/config";
 
 const ServiceContent = () => {
   useEffect(() => {

@@ -1,4 +1,4 @@
-import React, { useContext, useMemo } from "react";
+import { memo, useContext, useMemo } from "react";
 import { Link } from "react-router-dom";
 import { useDispatch } from "react-redux";
 import PropTypes from "prop-types";
@@ -65,7 +65,7 @@ GeneDescriptor.propTypes = {
   geneDescriptor: PropTypes.object,
 };
 
-const GeneIGVLink = React.memo(({ symbol, tracksUrl }) => {
+const GeneIGVLink = memo(({ symbol, tracksUrl }) => {
   const dispatch = useDispatch();
   return (
     <Link onClick={() => dispatch(setIgvPosition(symbol))} to={tracksUrl}>

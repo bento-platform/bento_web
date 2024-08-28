@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { useAuthorizationHeader } from "bento-auth-js";
 
 import { Col, Divider, Modal, Row, Skeleton, Statistic, Typography } from "antd";

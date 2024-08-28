@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import PropTypes from "prop-types";
 
 import { Button, Dropdown, Form, Tooltip } from "antd";
@@ -115,15 +115,12 @@ const DiscoverySearchForm = ({ onChange, dataType, setFormRef, handleVariantHidd
     [dataType],
   );
 
-  const updateHelpFromFieldChange = useCallback(
-    (k, change) => {
-      setConditionsHelp({
-        ...conditionsHelp,
-        [k]: change.fieldSchema.description, // can be undefined
-      });
-    },
-    [conditionsHelp],
-  );
+  const updateHelpFromFieldChange = useCallback((k, change) => {
+    setConditionsHelp((h) => ({
+      ...h,
+      [k]: change.fieldSchema.description, // can be undefined
+    }));
+  }, []);
 
   const getInitialOperator = useCallback(
     (field, fieldSchema) => {
@@ -253,6 +250,7 @@ const DiscoverySearchForm = ({ onChange, dataType, setFormRef, handleVariantHidd
         updatedConditionsArray = updateVariantConditions(updatedConditionsArray, "[dataset item].alternative", alt);
       }
 
+      form.setFieldsValue({ conditions: updatedConditionsArray }); // update form separately - not controlled
       handleVariantHiddenFieldChange([
         {
           name: ["conditions"],
@@ -260,7 +258,7 @@ const DiscoverySearchForm = ({ onChange, dataType, setFormRef, handleVariantHidd
         },
       ]);
     },
-    [getConditionsArray, handleVariantHiddenFieldChange],
+    [form, getConditionsArray, handleVariantHiddenFieldChange],
   );
 
   const getHelpText = useCallback(

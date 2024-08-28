@@ -1,4 +1,4 @@
-import React, { Suspense, lazy, useRef, useState, useEffect, useCallback } from "react";
+import { Suspense, lazy, useRef, useState, useEffect, useCallback } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { Navigate, Route, Routes, useNavigate } from "react-router-dom";
 import { ChartConfigProvider } from "bento-charts";
@@ -39,7 +39,6 @@ const DataExplorerContent = lazy(() => import("./DataExplorerContent"));
 const DataManagerContent = lazy(() => import("./DataManagerContent"));
 const ReferenceGenomesContent = lazy(() => import("./ReferenceGenomesContent"));
 const CBioPortalContent = lazy(() => import("./CBioPortalContent"));
-const GrafanaContent = lazy(() => import("./GrafanaContent"));
 const NotificationsContent = lazy(() => import("./notifications/NotificationsContent"));
 const ServiceContent = lazy(() => import("./ServiceContent"));
 const ServiceDetail = lazy(() => import("./services/ServiceDetail"));
@@ -260,14 +259,6 @@ const App = () => {
                 element={
                   <RequireAuth>
                     <CBioPortalContent />
-                  </RequireAuth>
-                }
-              />
-              <Route
-                path="/grafana"
-                element={
-                  <RequireAuth>
-                    <GrafanaContent />
                   </RequireAuth>
                 }
               />

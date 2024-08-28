@@ -1,4 +1,4 @@
-import React, { useCallback } from "react";
+import { useCallback } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import PropTypes from "prop-types";
 
@@ -84,11 +84,8 @@ const LinkedFieldSetModal = ({ dataset, linkedFieldSetIndex, linkedFieldSet, mod
     </Modal>
   );
 };
-LinkedFieldSetModal.defaultProps = {
-  mode: FORM_MODE_ADD,
-};
 LinkedFieldSetModal.propTypes = {
-  mode: propTypesFormMode,
+  mode: propTypesFormMode.isRequired,
   open: PropTypes.bool,
   dataset: datasetPropTypesShape,
   onSubmit: PropTypes.func,

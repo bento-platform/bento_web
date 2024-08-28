@@ -10,6 +10,7 @@ import {
   BellOutlined,
   DashboardOutlined,
   DotChartOutlined,
+  ExportOutlined,
   FileTextOutlined,
   FolderOpenOutlined,
   LoadingOutlined,
@@ -20,14 +21,18 @@ import {
   UserOutlined,
 } from "@ant-design/icons";
 
-import { BENTO_CBIOPORTAL_ENABLED, BENTO_MONITORING_ENABLED, CUSTOM_HEADER } from "@/config";
+import { BENTO_CBIOPORTAL_ENABLED, BENTO_GRAFANA_URL, BENTO_MONITORING_ENABLED, CUSTOM_HEADER } from "@/config";
 import { useEverythingPermissions } from "@/hooks";
 import { showNotificationDrawer } from "@/modules/notifications/actions";
 import { useNotifications } from "@/modules/notifications/hooks";
 import { matchingMenuKeys, transformMenuItem } from "@/utils/menu";
 
 import OverviewSettingsControl from "./overview/OverviewSettingsControl";
-import { useCanQueryAtLeastOneProjectOrDataset, useManagerPermissions } from "@/modules/authz/hooks";
+import {
+  useCanQueryAtLeastOneProjectOrDataset,
+  useHasValidGrafanaRole,
+  useManagerPermissions,
+} from "@/modules/authz/hooks";
 
 const LinkedLogo = memo(() => (
   <Link to="/">
@@ -71,6 +76,11 @@ const SiteHeader = () => {
   }, []);
 
   const performSignOut = usePerformSignOut();
+  const hasValidGrafanaRole = useHasValidGrafanaRole();
+
+  const openGrafanaInNewTab = () => {
+    window.open(BENTO_GRAFANA_URL, "_blank");
+  };
 
   const menuItems = useMemo(
     () => [
@@ -148,12 +158,13 @@ const SiteHeader = () => {
             },
           ]
         : []),
-      ...(BENTO_MONITORING_ENABLED && isAuthenticated
+      ...(BENTO_MONITORING_ENABLED && isAuthenticated && hasValidGrafanaRole
         ? [
             {
-              url: "/grafana",
               icon: <ApartmentOutlined />,
               text: "Grafana",
+              iconAfter: <ExportOutlined />,
+              onClick: openGrafanaInNewTab,
               key: "grafana",
             },
           ]
@@ -232,6 +243,7 @@ const SiteHeader = () => {
       performAuth,
       performSignOut,
       unreadNotifications,
+      hasValidGrafanaRole,
     ],
   );
 

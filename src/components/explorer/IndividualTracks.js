@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { memo, useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import PropTypes from "prop-types";
 import { debounce } from "lodash";
@@ -81,7 +81,7 @@ const expResFileFormatToIgvTypeAndFormat = (fileFormat) => {
   return [undefined, undefined];
 };
 
-const TrackControlTable = React.memo(({ toggleView, allFoundFiles }) => {
+const TrackControlTable = memo(({ toggleView, allFoundFiles }) => {
   const trackTableColumns = [
     {
       title: "File",

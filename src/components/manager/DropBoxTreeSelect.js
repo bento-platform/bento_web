@@ -1,6 +1,6 @@
-import React, { useMemo, useEffect, useState } from "react";
+import { forwardRef, useEffect, useMemo, useState } from "react";
 import PropTypes from "prop-types";
-import { TreeSelect, Form } from "antd";
+import { Form, TreeSelect } from "antd";
 
 import { BENTO_DROP_BOX_FS_BASE_PATH } from "@/config";
 import { useDropBox, useDropBoxFileContent } from "@/modules/dropBox/hooks";
@@ -39,7 +39,7 @@ const generateFileTree = (directory, valid, folderMode, basePrefix) =>
       };
     });
 
-const DropBoxTreeSelect = React.forwardRef(({ folderMode, nodeEnabled, basePrefix, ...props }, ref) => {
+const DropBoxTreeSelect = forwardRef(({ folderMode = false, nodeEnabled, basePrefix, ...props }, ref) => {
   const { tree } = useDropBox();
 
   const fileTree = useMemo(
@@ -69,10 +69,6 @@ DropBoxTreeSelect.propTypes = {
   folderMode: PropTypes.bool,
   nodeEnabled: PropTypes.func,
   basePrefix: PropTypes.string,
-};
-
-DropBoxTreeSelect.defaultProps = {
-  folderMode: false,
 };
 
 export const DropBoxJsonSelect = ({ form, name, labels, initialValue, rules }) => {

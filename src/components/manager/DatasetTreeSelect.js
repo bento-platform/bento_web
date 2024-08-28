@@ -1,4 +1,4 @@
-import React, { forwardRef, useCallback, useEffect, useMemo, useState } from "react";
+import { forwardRef, useCallback, useEffect, useMemo, useState } from "react";
 import { useSelector } from "react-redux";
 import PropTypes from "prop-types";
 
@@ -62,15 +62,11 @@ const DatasetTreeSelect = forwardRef(({ value, onChange, style, idFormat }, ref)
   );
 });
 
-DatasetTreeSelect.defaultProps = {
-  idFormat: ID_FORMAT_PROJECT_DATASET,
-};
-
 DatasetTreeSelect.propTypes = {
   style: PropTypes.object,
   value: PropTypes.string,
   onChange: PropTypes.func,
-  idFormat: PropTypes.oneOf([ID_FORMAT_PROJECT_DATASET, ID_FORMAT_DATASET]),
+  idFormat: PropTypes.oneOf([ID_FORMAT_PROJECT_DATASET, ID_FORMAT_DATASET]).isRequired,
 };
 
 export default DatasetTreeSelect;

@@ -1,4 +1,4 @@
-import React, { memo } from "react";
+import { memo } from "react";
 
 import { Col, List, Row, Tag, Typography, Popover } from "antd";
 
@@ -9,7 +9,7 @@ import {
   DATA_USE_PROP_TYPE_SHAPE,
   PRIMARY_CONSENT_CODE_INFO,
   SECONDARY_CONSENT_CODE_INFO,
-} from "../duo";
+} from "@/duo";
 import { StopOutlined } from "@ant-design/icons";
 
 const TAG_LABEL_STYLING = {

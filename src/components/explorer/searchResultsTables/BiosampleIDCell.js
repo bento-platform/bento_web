@@ -1,4 +1,4 @@
-import React, { useContext } from "react";
+import { memo, useContext } from "react";
 import { Link, useLocation } from "react-router-dom";
 import PropTypes from "prop-types";
 
@@ -11,7 +11,7 @@ import { explorerIndividualUrl } from "../utils";
  * @param {string} biosample biosample ID to link to
  * @param {string} individualID (optional) individual ID to link to
  */
-const BiosampleIDCell = React.memo(({ biosample, individualID }) => {
+const BiosampleIDCell = memo(({ biosample, individualID }) => {
   const location = useLocation();
   const { individualID: contextIndividualID } = useContext(ExplorerIndividualContext);
   const usedIndividualID = individualID ?? contextIndividualID;

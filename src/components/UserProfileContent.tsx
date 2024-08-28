@@ -1,5 +1,3 @@
-import React from "react";
-
 import { Descriptions, Layout, Skeleton } from "antd";
 
 import { useAuthState } from "bento-auth-js";
@@ -22,7 +20,7 @@ const UserProfileContent = () => {
           {idTokenContents ? (
             <Descriptions bordered={true} style={DESCRIPTIONS_STYLE}>
               <Descriptions.Item label="Username" span={3}>
-                {username}
+                {username as string | undefined}
               </Descriptions.Item>
               <Descriptions.Item label="Issuer" span={3}>
                 {iss}

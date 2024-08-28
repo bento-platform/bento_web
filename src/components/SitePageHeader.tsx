@@ -1,9 +1,8 @@
-import React from "react";
-import PropTypes from "prop-types";
+import { type CSSProperties, memo } from "react";
 
-import { PageHeader } from "@ant-design/pro-components";
+import { PageHeader, type PageHeaderProps } from "@ant-design/pro-components";
 
-const styles = {
+const styles: Record<string, CSSProperties> = {
   pageHeader: {
     borderBottom: "1px solid rgb(232, 232, 232)",
     background: "white",
@@ -23,7 +22,13 @@ const styles = {
   },
 };
 
-const SitePageHeader = React.memo(({ title, subTitle, withTabBar, style, ...props }) => (
+type SitePageHeaderProps = PageHeaderProps & {
+  title?: string;
+  subTitle?: string;
+  withTabBar?: boolean;
+};
+
+const SitePageHeader = memo(({ title, subTitle, withTabBar, style, ...props }: SitePageHeaderProps) => (
   <PageHeader
     {...props}
     title={<div style={styles.pageHeaderTitle}>{title || ""}</div>}
@@ -35,12 +40,5 @@ const SitePageHeader = React.memo(({ title, subTitle, withTabBar, style, ...prop
     }}
   />
 ));
-
-SitePageHeader.propTypes = {
-  title: PropTypes.string,
-  subTitle: PropTypes.string,
-  withTabBar: PropTypes.bool,
-  style: PropTypes.object,
-};
 
 export default SitePageHeader;

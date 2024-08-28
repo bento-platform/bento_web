@@ -1,4 +1,4 @@
-import React, { useMemo } from "react";
+import { memo, useMemo } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { useSelector } from "react-redux";
 import PropTypes from "prop-types";
@@ -9,7 +9,7 @@ import { explorerIndividualUrl } from "../utils";
 import BiosampleIDCell from "./BiosampleIDCell";
 import ExplorerSearchResultsTable from "../ExplorerSearchResultsTable";
 
-const ExperimentRender = React.memo(({ experimentId, individual }) => {
+const ExperimentRender = memo(({ experimentId, individual }) => {
   const location = useLocation();
   return (
     <Link

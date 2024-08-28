@@ -1,7 +1,6 @@
-import React from "react";
-import SitePageHeader from "./SitePageHeader";
-
 import { Skeleton } from "antd";
+
+import SitePageHeader from "./SitePageHeader";
 
 const SitePageLoading = () => (
   <>

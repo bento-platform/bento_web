@@ -1,12 +1,12 @@
-import React, { memo, useContext, useEffect } from "react";
+import { memo, useContext, useEffect } from "react";
 import PropTypes from "prop-types";
 
 import { Button } from "antd";
 import { LinkOutlined } from "@ant-design/icons";
 
-import { EM_DASH } from "../../constants";
-import { ontologyShape } from "../../propTypes";
-import { id } from "../../utils/misc";
+import { EM_DASH } from "@/constants";
+import { ontologyShape } from "@/propTypes";
+import { id } from "@/utils/misc";
 
 import { ExplorerIndividualContext } from "./contexts/individual";
 import { useResourcesByNamespacePrefix } from "./utils";
@@ -19,7 +19,7 @@ export const conditionalOntologyRender = (field) => (_, record) => {
   return EM_DASH;
 };
 
-const OntologyTerm = memo(({ term, renderLabel, br }) => {
+const OntologyTerm = memo(({ term, renderLabel = id, br = false }) => {
   const { resourcesTuple } = useContext(ExplorerIndividualContext);
 
   // TODO: perf: might be slow to generate this over and over
@@ -75,10 +75,6 @@ OntologyTerm.propTypes = {
   term: ontologyShape,
   renderLabel: PropTypes.func,
   br: PropTypes.bool,
-};
-OntologyTerm.defaultProps = {
-  renderLabel: id,
-  br: false,
 };
 
 export const OntologyTermList = (items) => {

@@ -1,4 +1,4 @@
-import React, { useCallback } from "react";
+import { useCallback } from "react";
 import PropTypes from "prop-types";
 import { Button, Checkbox, Form, Select, Tooltip, message } from "antd";
 import { useDropzone } from "react-dropzone";

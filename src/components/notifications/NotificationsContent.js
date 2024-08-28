@@ -1,4 +1,4 @@
-import React from "react";
+import { memo } from "react";
 import { useSelector } from "react-redux";
 
 import { Layout, Typography } from "antd";
@@ -6,7 +6,7 @@ import { Layout, Typography } from "antd";
 import NotificationList from "./NotificationList";
 import SitePageHeader from "../SitePageHeader";
 
-const NotificationsContent = React.memo(() => {
+const NotificationsContent = memo(() => {
   const ns = useSelector((state) => state.notifications.items);
   return (
     <>

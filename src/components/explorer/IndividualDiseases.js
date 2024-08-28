@@ -1,4 +1,3 @@
-import React from "react";
 import { Descriptions } from "antd";
 import PropTypes from "prop-types";
 

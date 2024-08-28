@@ -1,4 +1,4 @@
-import React, { memo } from "react";
+import { memo } from "react";
 import PropTypes from "prop-types";
 
 import { Row, Statistic, Tabs, Tag } from "antd";
@@ -29,7 +29,7 @@ const Run = memo(({ run: runOrUndefined, tab, onChangeTab, onBack }) => {
   const endTime = runLog.end_time;
 
   const tabItems = [
-    // Don't need to memoize this; the React.memo() wrapper should take care of it
+    // Don't need to memoize this; the memo() wrapper should take care of it
     { key: "request", label: "Request" },
     { key: "run_log", label: "Run Log" },
     /* { key: "task_logs", label: "Task Logs" }, TODO: Implement in WES */
