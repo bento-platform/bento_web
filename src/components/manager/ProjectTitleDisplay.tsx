@@ -7,7 +7,7 @@ import { useProjects } from "@/modules/metadata/hooks";
 
 export type ProjectTitleDisplayProps = {
   projectID: string;
-  link: boolean;
+  link?: boolean;
 };
 
 const ProjectTitleDisplay = ({ projectID, link }: ProjectTitleDisplayProps) => {
@@ -26,10 +26,6 @@ const ProjectTitleDisplay = ({ projectID, link }: ProjectTitleDisplayProps) => {
 
   if (!link) return title;
   return <Link to={`/data/manager/projects/${projectID}`}>{title}</Link>;
-};
-
-ProjectTitleDisplay.defaultProps = {
-  link: false,
 };
 
 export default ProjectTitleDisplay;

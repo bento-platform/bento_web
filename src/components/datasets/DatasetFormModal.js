@@ -92,12 +92,8 @@ const DatasetFormModal = ({ project, mode, initialValue, onCancel, onOk, open })
   );
 };
 
-DatasetFormModal.defaultProps = {
-  mode: FORM_MODE_ADD,
-};
-
 DatasetFormModal.propTypes = {
-  mode: propTypesFormMode,
+  mode: propTypesFormMode.isRequired,
   initialValue: datasetPropTypesShape,
 
   onOk: PropTypes.func,

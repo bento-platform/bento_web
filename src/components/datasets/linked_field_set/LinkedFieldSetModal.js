@@ -84,11 +84,8 @@ const LinkedFieldSetModal = ({ dataset, linkedFieldSetIndex, linkedFieldSet, mod
     </Modal>
   );
 };
-LinkedFieldSetModal.defaultProps = {
-  mode: FORM_MODE_ADD,
-};
 LinkedFieldSetModal.propTypes = {
-  mode: propTypesFormMode,
+  mode: propTypesFormMode.isRequired,
   open: PropTypes.bool,
   dataset: datasetPropTypesShape,
   onSubmit: PropTypes.func,
