@@ -16,7 +16,7 @@ import {
   FETCH_OVERVIEW_SUMMARY,
   FETCH_EXTRA_PROPERTIES_SCHEMA_TYPES,
   CREATE_PROJECT_JSON_SCHEMA,
-  DELETE_PROJECT_JSON_SCHEMA,
+  DELETE_PROJECT_JSON_SCHEMA, INVALIDATE_PROJECTS,
 } from "./actions";
 
 const projectSort = (a, b) => a.title.localeCompare(b.title);
@@ -64,6 +64,9 @@ export const projects = (
 
     case FETCH_PROJECTS.FINISH:
       return { ...state, isFetching: false, isInvalid: false };
+
+    case INVALIDATE_PROJECTS:
+      return { ...state, isInvalid: true };
 
     case CREATE_PROJECT.REQUEST:
       return { ...state, isCreating: true };

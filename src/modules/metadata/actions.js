@@ -70,7 +70,7 @@ export const fetchProjectsWithDatasets = () => (dispatch, getState) => {
   return dispatch(fetchProjects());
 };
 
-const invalidateProjects = basicAction(INVALIDATE_PROJECTS);
+export const invalidateProjects = basicAction(INVALIDATE_PROJECTS);
 
 const createProject = networkAction((project, navigate) => (_dispatch, getState) => ({
   types: CREATE_PROJECT,
