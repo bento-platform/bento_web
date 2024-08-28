@@ -2,6 +2,7 @@ import { arrayToObjectByProperty, objectWithoutProp } from "@/utils/misc";
 
 import {
   FETCH_PROJECTS,
+  INVALIDATE_PROJECTS,
   CREATE_PROJECT,
   DELETE_PROJECT,
   SAVE_PROJECT,
@@ -16,7 +17,7 @@ import {
   FETCH_OVERVIEW_SUMMARY,
   FETCH_EXTRA_PROPERTIES_SCHEMA_TYPES,
   CREATE_PROJECT_JSON_SCHEMA,
-  DELETE_PROJECT_JSON_SCHEMA, INVALIDATE_PROJECTS,
+  DELETE_PROJECT_JSON_SCHEMA,
 } from "./actions";
 
 const projectSort = (a, b) => a.title.localeCompare(b.title);
