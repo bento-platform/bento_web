@@ -7,7 +7,7 @@ import MonospaceText from "@/components/common/MonospaceText";
 
 export type DatasetTitleDisplayProps = {
   datasetID: string;
-  link: boolean;
+  link?: boolean;
 };
 
 const DatasetTitleDisplay = ({ datasetID, link = false }: DatasetTitleDisplayProps) => {
