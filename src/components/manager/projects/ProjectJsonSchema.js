@@ -22,7 +22,7 @@ const CODE_STYLE = {
   borderRadius: "3px",
 };
 
-export const ExtraPropertiesCode = ({ tooltip }) => {
+export const ExtraPropertiesCode = ({ tooltip = false }) => {
   if (tooltip) {
     return <span style={CODE_STYLE}>extra_properties</span>;
   }
@@ -31,10 +31,6 @@ export const ExtraPropertiesCode = ({ tooltip }) => {
 
 ExtraPropertiesCode.propTypes = {
   tooltip: PropTypes.bool,
-};
-
-ExtraPropertiesCode.defaultProps = {
-  tooltip: false,
 };
 
 const ProjectJsonSchema = ({ projectSchema }) => {

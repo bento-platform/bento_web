@@ -13,7 +13,7 @@ import { useProjects } from "@/modules/metadata/hooks";
 import { datasetPropTypesShape, projectPropTypesShape, propTypesFormMode } from "@/propTypes";
 import { nop } from "@/utils/misc";
 
-const DatasetFormModal = ({ project, mode, initialValue, onCancel, onOk, open }) => {
+const DatasetFormModal = ({ project, mode = FORM_MODE_ADD, initialValue, onCancel, onOk, open }) => {
   const dispatch = useDispatch();
 
   const {
@@ -90,10 +90,6 @@ const DatasetFormModal = ({ project, mode, initialValue, onCancel, onOk, open })
       <DatasetForm formRef={formRef} initialValue={mode === FORM_MODE_ADD ? undefined : initialValue} />
     </Modal>
   );
-};
-
-DatasetFormModal.defaultProps = {
-  mode: FORM_MODE_ADD,
 };
 
 DatasetFormModal.propTypes = {

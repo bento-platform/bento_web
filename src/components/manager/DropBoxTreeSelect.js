@@ -35,7 +35,7 @@ const generateFileTree = (directory, valid, folderMode, basePrefix) =>
       };
     });
 
-const DropBoxTreeSelect = forwardRef(({ folderMode, nodeEnabled, basePrefix, ...props }, ref) => {
+const DropBoxTreeSelect = forwardRef(({ folderMode = false, nodeEnabled, basePrefix, ...props }, ref) => {
   const { tree } = useDropBox();
 
   const fileTree = useMemo(
@@ -65,10 +65,6 @@ DropBoxTreeSelect.propTypes = {
   folderMode: PropTypes.bool,
   nodeEnabled: PropTypes.func,
   basePrefix: PropTypes.string,
-};
-
-DropBoxTreeSelect.defaultProps = {
-  folderMode: false,
 };
 
 export default DropBoxTreeSelect;

@@ -10,7 +10,7 @@ export type DatasetTitleDisplayProps = {
   link: boolean;
 };
 
-const DatasetTitleDisplay = ({ datasetID, link }: DatasetTitleDisplayProps) => {
+const DatasetTitleDisplay = ({ datasetID, link = false }: DatasetTitleDisplayProps) => {
   // @ts-expect-error We have not typed the state yet
   const datasetsByID = useSelector((state) => state.projects.datasetsByID);
 
@@ -29,9 +29,6 @@ const DatasetTitleDisplay = ({ datasetID, link }: DatasetTitleDisplayProps) => {
 
   if (!link) return title;
   return <Link to={`/data/manager/projects/${project}#dataset-${datasetID}`}>{title}</Link>;
-};
-DatasetTitleDisplay.defaultProps = {
-  link: false,
 };
 
 export default DatasetTitleDisplay;

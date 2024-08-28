@@ -8,7 +8,7 @@ import { useProjects } from "@/modules/metadata/hooks";
 export const ID_FORMAT_PROJECT_DATASET = "project:dataset";
 export const ID_FORMAT_DATASET = "dataset";
 
-const DatasetTreeSelect = forwardRef(({ value, onChange, style, idFormat }, ref) => {
+const DatasetTreeSelect = forwardRef(({ value, onChange, style, idFormat = ID_FORMAT_PROJECT_DATASET }, ref) => {
   const { items: projectItems, isFetching: projectsFetching } = useProjects();
   const servicesFetching = useSelector((state) => state.services.isFetchingAll);
 
@@ -61,10 +61,6 @@ const DatasetTreeSelect = forwardRef(({ value, onChange, style, idFormat }, ref)
     </Spin>
   );
 });
-
-DatasetTreeSelect.defaultProps = {
-  idFormat: ID_FORMAT_PROJECT_DATASET,
-};
 
 DatasetTreeSelect.propTypes = {
   style: PropTypes.object,

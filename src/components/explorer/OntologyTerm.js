@@ -19,7 +19,7 @@ export const conditionalOntologyRender = (field) => (_, record) => {
   return EM_DASH;
 };
 
-const OntologyTerm = memo(({ term, renderLabel, br }) => {
+const OntologyTerm = memo(({ term, renderLabel = id, br = false }) => {
   const { resourcesTuple } = useContext(ExplorerIndividualContext);
 
   // TODO: perf: might be slow to generate this over and over
@@ -75,10 +75,6 @@ OntologyTerm.propTypes = {
   term: ontologyShape,
   renderLabel: PropTypes.func,
   br: PropTypes.bool,
-};
-OntologyTerm.defaultProps = {
-  renderLabel: id,
-  br: false,
 };
 
 export const OntologyTermList = (items) => {
