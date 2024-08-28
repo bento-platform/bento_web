@@ -1,4 +1,3 @@
-import React from "react";
 import ReactJson from "react18-json-view";
 import type { Collapsed } from "react18-json-view/dist/types";
 import type { JSONType } from "ajv";

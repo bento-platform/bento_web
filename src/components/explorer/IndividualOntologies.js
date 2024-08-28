@@ -1,5 +1,3 @@
-import React from "react";
-
 import { Table } from "antd";
 
 import { individualPropTypesShape } from "@/propTypes";

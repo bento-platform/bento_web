@@ -1,4 +1,4 @@
-import React, { Component } from "react";
+import { Component } from "react";
 import { connect } from "react-redux";
 import PropTypes from "prop-types";
 
@@ -11,19 +11,19 @@ import {
   addDatasetLinkedFieldSetIfPossible,
   deleteProjectDatasetIfPossible,
   deleteDatasetLinkedFieldSetIfPossible,
-} from "../../modules/metadata/actions";
+} from "@/modules/metadata/actions";
 
 import {
   fetchDatasetDataTypesSummariesIfPossible,
   fetchDatasetSummariesIfPossible,
-} from "../../modules/datasets/actions";
+} from "@/modules/datasets/actions";
 
-import { INITIAL_DATA_USE_VALUE } from "../../duo";
-import { simpleDeepCopy, nop } from "../../utils/misc";
+import { INITIAL_DATA_USE_VALUE } from "@/duo";
+import { simpleDeepCopy, nop } from "@/utils/misc";
 import LinkedFieldSetTable from "./linked_field_set/LinkedFieldSetTable";
 import LinkedFieldSetModal from "./linked_field_set/LinkedFieldSetModal";
-import { FORM_MODE_ADD, FORM_MODE_EDIT } from "../../constants";
-import { datasetPropTypesShape, projectPropTypesShape } from "../../propTypes";
+import { FORM_MODE_ADD, FORM_MODE_EDIT } from "@/constants";
+import { datasetPropTypesShape, projectPropTypesShape } from "@/propTypes";
 
 import DatasetOverview from "./DatasetOverview";
 import DatasetDataTypes from "./DatasetDataTypes";

@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { AutoComplete, Tag } from "antd";
 import PropTypes from "prop-types";
 import { useGeneNameSearch, useReferenceGenomes } from "@/modules/reference/hooks";

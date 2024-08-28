@@ -1,5 +1,3 @@
-import React from "react";
-
 import { Descriptions, Layout, Skeleton } from "antd";
 
 import { useAuthState } from "bento-auth-js";

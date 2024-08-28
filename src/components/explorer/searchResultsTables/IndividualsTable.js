@@ -1,4 +1,4 @@
-import React from "react";
+import { Fragment } from "react";
 import PropTypes from "prop-types";
 import { useSortedColumns } from "../hooks/explorerHooks";
 import { useSelector } from "react-redux";
@@ -22,10 +22,10 @@ const SEARCH_RESULT_COLUMNS = [
         {samples.length} Sample{samples.length === 1 ? "" : "s"}
         {samples.length ? ": " : ""}
         {samples.map((s, si) => (
-          <React.Fragment key={s}>
+          <Fragment key={s}>
             <BiosampleIDCell biosample={s} individualID={individualID} />
             {si < samples.length - 1 ? ", " : ""}
-          </React.Fragment>
+          </Fragment>
         ))}
       </>
     ),

@@ -1,7 +1,5 @@
-import React from "react";
-
 import { Col, Row, Statistic } from "antd";
-import { summaryPropTypesShape } from "../../../propTypes";
+import { summaryPropTypesShape } from "@/propTypes";
 
 const GenericSummary = ({ summary }) =>
   summary ? (

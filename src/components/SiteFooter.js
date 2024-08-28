@@ -1,4 +1,4 @@
-import React from "react";
+import { memo } from "react";
 import { Layout, Typography } from "antd";
 
 import pkg from "../../package.json";
@@ -8,7 +8,7 @@ import MonospaceText from "@/components/common/MonospaceText";
 
 const BENTO_LOGO_WIDTH = "148px";
 
-const SiteFooter = React.memo(() => (
+const SiteFooter = memo(() => (
   <Layout.Footer>
     <div
       style={{

@@ -1,5 +1,3 @@
-import React from "react";
-
 import { Descriptions } from "antd";
 
 import { EM_DASH } from "@/constants";

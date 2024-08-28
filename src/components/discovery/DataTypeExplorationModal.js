@@ -1,12 +1,12 @@
-import React, { Component } from "react";
+import { Component } from "react";
 import PropTypes from "prop-types";
 
 import { Divider, Input, Modal, Radio, Table, Tabs, Typography } from "antd";
 import { ShareAltOutlined, TableOutlined } from "@ant-design/icons";
 
 import SchemaTree from "../schema_trees/SchemaTree";
-import { generateSchemaTreeData, generateSchemaTableData } from "../../utils/schema";
-import { nop } from "../../utils/misc";
+import { generateSchemaTreeData, generateSchemaTableData } from "@/utils/schema";
+import { nop } from "@/utils/misc";
 
 // TODO: Add more columns
 const FIELD_COLUMNS = [

@@ -1,4 +1,3 @@
-import React from "react";
 import { Col, Divider, Row, Statistic, Typography } from "antd";
 
 import { summaryPropTypesShape } from "@/propTypes";

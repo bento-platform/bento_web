@@ -1,4 +1,3 @@
-import React from "react";
 import PropTypes from "prop-types";
 import { useSortedColumns } from "../hooks/explorerHooks";
 import { useSelector } from "react-redux";
@@ -8,8 +7,8 @@ import ExplorerSearchResultsTable from "../ExplorerSearchResultsTable";
 import IndividualIDCell from "./IndividualIDCell";
 import OntologyTerm from "../OntologyTerm";
 
-import { ontologyShape } from "../../../propTypes";
-import { countNonNullElements } from "../../../utils/misc";
+import { ontologyShape } from "@/propTypes";
+import { countNonNullElements } from "@/utils/misc";
 import { ontologyTermSorter } from "../utils";
 
 const NO_EXPERIMENTS_VALUE = -Infinity;

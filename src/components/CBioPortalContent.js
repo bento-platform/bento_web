@@ -1,7 +1,7 @@
-import React, { useEffect } from "react";
+import { useEffect } from "react";
 
-import { BENTO_CBIOPORTAL_PUBLIC_URL } from "../config";
-import { SITE_NAME } from "../constants";
+import { BENTO_CBIOPORTAL_PUBLIC_URL } from "@/config";
+import { SITE_NAME } from "@/constants";
 
 const CBioPortalContent = () => {
   useEffect(() => {

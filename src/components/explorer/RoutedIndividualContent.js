@@ -1,4 +1,4 @@
-import React, { useCallback, useMemo } from "react";
+import { useCallback, useMemo } from "react";
 import { Route, Routes, useNavigate, useParams } from "react-router-dom";
 import PropTypes from "prop-types";
 

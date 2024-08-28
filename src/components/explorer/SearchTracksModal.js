@@ -1,5 +1,3 @@
-import React from "react";
-
 import { Modal } from "antd";
 
 import { explorerSearchResultsPropTypesShape } from "@/propTypes";

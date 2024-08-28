@@ -1,4 +1,3 @@
-import React from "react";
 import SitePageHeader from "./SitePageHeader";
 
 import { Skeleton } from "antd";

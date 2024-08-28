@@ -1,12 +1,12 @@
-import React, { memo, useContext, useEffect } from "react";
+import { memo, useContext, useEffect } from "react";
 import PropTypes from "prop-types";
 
 import { Button } from "antd";
 import { LinkOutlined } from "@ant-design/icons";
 
-import { EM_DASH } from "../../constants";
-import { ontologyShape } from "../../propTypes";
-import { id } from "../../utils/misc";
+import { EM_DASH } from "@/constants";
+import { ontologyShape } from "@/propTypes";
+import { id } from "@/utils/misc";
 
 import { ExplorerIndividualContext } from "./contexts/individual";
 import { useResourcesByNamespacePrefix } from "./utils";

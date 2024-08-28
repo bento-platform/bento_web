@@ -1,4 +1,4 @@
-import React from "react";
+import { memo } from "react";
 import PropTypes from "prop-types";
 
 import { EM_DASH } from "@/constants";
@@ -73,7 +73,7 @@ InnerTimeElement.propTypes = {
   timeElement: PropTypes.object,
 };
 
-const TimeElement = React.memo(({ timeElement }) => {
+const TimeElement = memo(({ timeElement }) => {
   if (!timeElement) {
     return EM_DASH;
   }
