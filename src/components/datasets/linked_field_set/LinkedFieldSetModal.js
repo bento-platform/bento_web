@@ -11,15 +11,7 @@ import { addDatasetLinkedFieldSetIfPossible, saveDatasetLinkedFieldSetIfPossible
 import { datasetPropTypesShape, linkedFieldSetPropTypesShape, propTypesFormMode } from "@/propTypes";
 import { nop } from "@/utils/misc";
 
-const LinkedFieldSetModal = ({
-  dataset,
-  linkedFieldSetIndex,
-  linkedFieldSet,
-  mode,
-  open,
-  onCancel,
-  onSubmit,
-}) => {
+const LinkedFieldSetModal = ({ dataset, linkedFieldSetIndex, linkedFieldSet, mode, open, onCancel, onSubmit }) => {
   const dispatch = useDispatch();
 
   const [form] = Form.useForm();
