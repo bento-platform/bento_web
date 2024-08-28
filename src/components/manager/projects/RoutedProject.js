@@ -11,8 +11,9 @@ import ProjectJsonSchemaModal from "./ProjectJsonSchemaModal";
 import ProjectSkeleton from "./ProjectSkeleton";
 
 import { FORM_MODE_ADD, FORM_MODE_EDIT } from "@/constants";
-import { deleteProjectIfPossible, saveProjectIfPossible } from "@/modules/metadata/actions";
 import { beginProjectEditing, endProjectEditing } from "@/modules/manager/actions";
+import { deleteProjectIfPossible, saveProjectIfPossible } from "@/modules/metadata/actions";
+import { useProjects } from "@/modules/metadata/hooks";
 
 const RoutedProject = () => {
   const dispatch = useDispatch();
@@ -20,10 +21,14 @@ const RoutedProject = () => {
 
   const { project: selectedProjectID } = useParams();
 
-  const projectsByID = useSelector((state) => state.projects.itemsByID);
-  const loadingProjects = useSelector((state) => state.projects.isCreating || state.projects.isFetching);
+  const {
+    itemsByID: projectsByID,
+    isCreating: creatingProject,
+    isFetching: fetchingProjects,
+    isSaving: savingProject,
+  } = useProjects();
+  const loadingProjects = creatingProject || fetchingProjects;
   const editingProject = useSelector((state) => state.manager.editingProject);
-  const savingProject = useSelector((state) => state.projects.isSaving);
 
   const [datasetAdditionModal, setDatasetAdditionModal] = useState(false);
   const [datasetEditModal, setDatasetEditModal] = useState(false);

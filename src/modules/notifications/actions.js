@@ -14,7 +14,7 @@ export const addNotification = (data) => ({
 });
 
 export const FETCH_NOTIFICATIONS = createNetworkActionTypes("FETCH_NOTIFICATIONS");
-export const fetchNotifications = networkAction(() => (dispatch, getState) => ({
+export const fetchNotifications = networkAction(() => (_dispatch, getState) => ({
   types: FETCH_NOTIFICATIONS,
   check: (state) => state.services.notificationService && !state.notifications.isFetching,
   url: `${getState().services.notificationService.url}/notifications`,
@@ -22,7 +22,7 @@ export const fetchNotifications = networkAction(() => (dispatch, getState) => ({
 }));
 
 export const MARK_NOTIFICATION_AS_READ = createNetworkActionTypes("MARK_NOTIFICATION_AS_READ");
-export const markNotificationAsRead = networkAction((notificationID) => (dispatch, getState) => ({
+export const markNotificationAsRead = networkAction((notificationID) => (_dispatch, getState) => ({
   types: MARK_NOTIFICATION_AS_READ,
   params: { notificationID },
   url: `${getState().services.notificationService.url}/notifications/${notificationID}/read`,
@@ -31,7 +31,7 @@ export const markNotificationAsRead = networkAction((notificationID) => (dispatc
 }));
 
 export const MARK_ALL_NOTIFICATIONS_AS_READ = createNetworkActionTypes("MARK_ALL_NOTIFICATIONS_AS_READ");
-export const markAllNotificationsAsRead = networkAction(() => (dispatch, getState) => ({
+export const markAllNotificationsAsRead = networkAction(() => (_dispatch, getState) => ({
   types: MARK_ALL_NOTIFICATIONS_AS_READ,
   url: `${getState().services.notificationService.url}/notifications/all-read`,
   req: { method: "PUT" },

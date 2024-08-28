@@ -1,11 +1,12 @@
 import { message } from "antd";
 
 import { endProjectEditing } from "../manager/actions";
-import { createNetworkActionTypes, networkAction } from "@/utils/actions";
+import { basicAction, createNetworkActionTypes, networkAction } from "@/utils/actions";
 import { nop, objectWithoutProps } from "@/utils/misc";
 import { jsonRequest } from "@/utils/requests";
 
 export const FETCH_PROJECTS = createNetworkActionTypes("FETCH_PROJECTS");
+export const INVALIDATE_PROJECTS = "INVALIDATE_PROJECTS";
 
 export const CREATE_PROJECT = createNetworkActionTypes("CREATE_PROJECT");
 export const DELETE_PROJECT = createNetworkActionTypes("DELETE_PROJECT");
@@ -52,16 +53,24 @@ const fetchProjects = networkAction(() => (_dispatch, getState) => ({
   err: "Error fetching projects",
 }));
 
-// TODO: if needed fetching + invalidation
 export const fetchProjectsWithDatasets = () => (dispatch, getState) => {
   const state = getState();
 
   if (!state.services.itemsByKind.metadata) return Promise.resolve();
-  if (state.projects.isFetching || state.projects.isCreating || state.projects.isDeleting || state.projects.isSaving)
+  if (
+    state.projects.isFetching ||
+    state.projects.isCreating ||
+    state.projects.isDeleting ||
+    state.projects.isSaving ||
+    (state.projects.items.length && !state.projects.isInvalid)
+  ) {
     return Promise.resolve();
+  }
 
   return dispatch(fetchProjects());
 };
+
+const invalidateProjects = basicAction(INVALIDATE_PROJECTS);
 
 const createProject = networkAction((project, navigate) => (_dispatch, getState) => ({
   types: CREATE_PROJECT,

@@ -1,7 +1,14 @@
 import { memo, useCallback, useMemo, useState } from "react";
-import { useDispatch, useSelector } from "react-redux";
+import { useDispatch } from "react-redux";
 import { Link } from "react-router-dom";
-import { viewNotifications, useIsAuthenticated, usePerformSignOut, usePerformAuth, useAuthState } from "bento-auth-js";
+import {
+  viewNotifications,
+  useIsAuthenticated,
+  usePerformSignOut,
+  usePerformAuth,
+  useAuthState,
+  useOpenIdConfig,
+} from "bento-auth-js";
 
 import { Badge, Layout, Menu, Spin } from "antd";
 import {
@@ -57,7 +64,7 @@ const SiteHeader = () => {
     useCanQueryAtLeastOneProjectOrDataset();
   const { permissions: managerPermissions, hasAttempted: hasAttemptedManagerPermissions } = useManagerPermissions();
 
-  const { isFetching: openIdConfigFetching } = useSelector((state) => state.openIdConfiguration);
+  const { isFetching: openIdConfigFetching } = useOpenIdConfig();
 
   const { unreadItems: unreadNotifications } = useNotifications();
 
