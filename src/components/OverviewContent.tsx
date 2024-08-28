@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { type CSSProperties, useEffect } from "react";
 
 import { Layout, Divider } from "antd";
 
@@ -9,7 +9,7 @@ import VariantsSummary from "./overview/VariantsSummary";
 import ExperimentsSummary from "./overview/ExperimentsSummary";
 import { useOverviewSummary } from "@/modules/metadata/hooks";
 
-const styles = {
+const styles: Record<string, CSSProperties> = {
   pageHeaderContainer: {
     display: "flex",
     justifyContent: "space-between",

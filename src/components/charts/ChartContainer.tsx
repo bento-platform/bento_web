@@ -1,3 +1,4 @@
+import type { ReactNode } from "react";
 import { Empty } from "antd";
 import PropTypes from "prop-types";
 
@@ -7,19 +8,24 @@ const TITLE_STYLE = {
   margin: "0 0 10px 0",
 };
 
-const ChartContainer = ({ title, children, empty }) => (
+type ChartContainerProps = {
+  title: string;
+  children: ReactNode;
+  empty?: boolean;
+};
+
+const ChartContainer = ({ title, children, empty }: ChartContainerProps) => (
   <div style={{ marginBottom: "20px", width: "100%" }}>
     <h2 style={TITLE_STYLE}>{title}</h2>
     {empty ? <NoDataComponent height={300} /> : children}
   </div>
 );
 
-ChartContainer.propTypes = {
-  title: PropTypes.string.isRequired,
-  children: PropTypes.node.isRequired,
-  empty: PropTypes.bool,
+type NoDataComponentProps = {
+  height: number;
 };
-const NoDataComponent = ({ height }) => (
+
+const NoDataComponent = ({ height }: NoDataComponentProps) => (
   <div
     style={{
       height: height,
