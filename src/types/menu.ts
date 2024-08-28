@@ -4,6 +4,7 @@ interface BentoBaseMenuItem {
   text?: string;
   disabled?: boolean;
   icon?: ReactNode;
+  iconAfter?: ReactNode;
   style?: CSSProperties;
   children?: BentoMenuItem[];
   onClick?: () => void;

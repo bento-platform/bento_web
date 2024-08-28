@@ -15,8 +15,9 @@ export const transformMenuItem = (i: BentoMenuItem): ItemType => {
       ...baseItem,
       label: (
         <span className="submenu-title-wrapper">
-          {i.icon ?? null}
+          {i.icon}
           {i.text ? <span className="nav-text">{i.text}</span> : null}
+          {i.iconAfter ? <span className="nav-icon-after">{i.iconAfter}</span> : null}
         </span>
       ),
       children: (i.children ?? []).map((ii) => transformMenuItem(ii)),
@@ -29,13 +30,15 @@ export const transformMenuItem = (i: BentoMenuItem): ItemType => {
     label:
       "url" in i ? (
         <Link to={i.url}>
-          {i.icon ?? null}
+          {i.icon}
           {i.text ? <span className="nav-text">{i.text}</span> : null}
+          {i.iconAfter ? <span className="nav-icon-after">{i.iconAfter}</span> : null}
         </Link>
       ) : (
         <span>
-          {i.icon ?? null}
+          {i.icon}
           {i.text ? <span className="nav-text">{i.text}</span> : null}
+          {i.iconAfter ? <span className="nav-icon-after">{i.iconAfter}</span> : null}
         </span>
       ),
   };
