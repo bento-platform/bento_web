@@ -1,22 +1,21 @@
 import { LinkOutlined } from "@ant-design/icons";
+import type { ColumnFilterItem } from "antd/es/table/interface";
 
 type ExcludedProps = {
   model: "phenotype" | "disease";
 };
 
-export const excludedTableColumnFilterConfig = {
+type ExcludedTableColumnFilterConfig = {
+  filters: ColumnFilterItem[];
+  onFilter: (value: "excluded" | "not_excluded", record: { excluded: boolean }) => boolean;
+};
+
+export const excludedTableColumnFilterConfig: ExcludedTableColumnFilterConfig = {
   filters: [
     { text: "Excluded", value: "excluded" },
     { text: "Not Excluded", value: "not_excluded" },
   ],
-  onFilter: (
-    value: "excluded" | "not_excluded",
-    {
-      excluded,
-    }: {
-      excluded: boolean;
-    },
-  ) => (value === "excluded" ? excluded : !excluded),
+  onFilter: (value, { excluded }) => (value === "excluded" ? excluded : !excluded),
 };
 
 const Excluded = ({ model }: ExcludedProps) => (
