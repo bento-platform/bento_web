@@ -2,12 +2,13 @@ import { Descriptions } from "antd";
 import PropTypes from "prop-types";
 
 import { diseasePropTypesShape, individualPropTypesShape } from "@/propTypes";
-import { booleanFieldSorter, ontologyTermSorter, renderBoolean, useIndividualPhenopacketDataIndex } from "./utils";
+import { ontologyTermSorter, useIndividualPhenopacketDataIndex } from "./utils";
 
 import OntologyTerm, { OntologyTermList } from "./OntologyTerm";
 import TimeElement from "./TimeElement";
 import { RoutedIndividualContent, RoutedIndividualContentTable } from "./RoutedIndividualContent";
 import ExtraProperties from "./ExtraProperties";
+import Excluded, { excludedTableColumnFilterConfig } from "@/components/explorer/Excluded";
 
 // TODO: Only show diseases from the relevant dataset, if specified;
 //  highlight those found in search results, if specified
@@ -18,14 +19,14 @@ const DISEASES_COLUMNS = [
     dataIndex: "term",
     // Tag the ontology term with a data attribute holding the disease ID. This has no effect, but might
     // help us debug diseases in production if we need it.
-    render: (term, disease) => <OntologyTerm term={term} data-disease-id={disease.id} />,
+    // Render excluded beside ontology term with a link to the documentation, if this disease is excluded.
+    render: (term, { id, excluded }) => (
+      <>
+        <OntologyTerm term={term} data-disease-id={id} /> {excluded ? <Excluded model="disease" /> : null}
+      </>
+    ),
+    ...excludedTableColumnFilterConfig,
     sorter: ontologyTermSorter("term"),
-  },
-  {
-    title: "Excluded",
-    dataIndex: "excluded",
-    render: renderBoolean("excluded"),
-    sorter: booleanFieldSorter("excluded"),
   },
   {
     title: "Onset Age",
