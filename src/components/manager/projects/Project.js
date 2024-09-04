@@ -8,7 +8,7 @@ import { createDataset, deleteProject, editProject, makeProjectResource, RESOURC
 
 import { INITIAL_DATA_USE_VALUE } from "@/duo";
 import { useHasResourcePermissionWrapper, useResourcePermissionsWrapper } from "@/hooks";
-import { useDropBoxFileContent } from "@/modules/dropBox/hooks";
+import { useDropBoxJsonContent } from "@/modules/dropBox/hooks";
 import { projectPropTypesShape } from "@/propTypes";
 import { nop, simpleDeepCopy } from "@/utils/misc";
 
@@ -60,14 +60,9 @@ const Project = ({
   });
 
   const [editingForm] = Form.useForm();
-  const newDiscoveryFile = Form.useWatch("discoveryPath", editingForm);
 
-  const newDiscoveryBlob = useDropBoxFileContent(newDiscoveryFile);
-  const [newDiscoveryContent, setNewDiscoveryContent] = useState(null);
-
-  useEffect(() => {
-    if (newDiscoveryBlob) newDiscoveryBlob.text().then((t) => setNewDiscoveryContent(t));
-  }, [newDiscoveryBlob]);
+  const newDiscoveryFilePath = Form.useWatch("discoveryPath", editingForm);
+  const newDiscovery = useDropBoxJsonContent(newDiscoveryFilePath);
 
   const [selectedKey, setSelectedKey] = useState(SUB_TAB_KEYS.DATASETS);
 
@@ -77,10 +72,10 @@ const Project = ({
         ...ps,
         ...value,
         data_use: simpleDeepCopy(value.data_use || INITIAL_DATA_USE_VALUE),
-        discovery: newDiscoveryContent || value.discovery,
+        discovery: newDiscovery || value.discovery,
       }));
     }
-  }, [value, newDiscoveryContent]);
+  }, [value, newDiscovery]);
 
   const handleSave = useCallback(() => {
     editingForm
@@ -92,14 +87,14 @@ const Project = ({
           title: values.title || projectState.title,
           description: values.description || projectState.description,
           data_use: values.data_use || projectState.data_use,
-          discovery: newDiscoveryContent || values.discovery,
+          discovery: newDiscovery || values.discovery,
         });
         editingForm.resetFields();
       })
       .catch((err) => {
         console.error(err);
       });
-  }, [editingForm, onSave, projectState, newDiscoveryContent]);
+  }, [editingForm, onSave, projectState, newDiscovery]);
 
   const handleCancelEdit = useCallback(() => {
     editingForm.resetFields();
