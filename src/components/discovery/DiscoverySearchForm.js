@@ -387,7 +387,6 @@ const DiscoverySearchForm = ({ onChange, dataType, setFormRef, handleVariantHidd
 };
 
 DiscoverySearchForm.propTypes = {
-  form: PropTypes.object,
   onChange: PropTypes.func,
   dataType: PropTypes.object, // TODO: Shape?
   setFormRef: PropTypes.func,

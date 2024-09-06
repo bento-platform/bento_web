@@ -21,7 +21,6 @@ const ProjectForm = ({ form, style, initialValues }) => {
         <Input.TextArea placeholder="Description" rows={3} />
       </Form.Item>
       <DropBoxJsonSelect
-        form={form}
         name="discovery"
         labels={{
           parent: (

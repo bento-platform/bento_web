@@ -64,21 +64,33 @@ const DropBoxTreeSelect = forwardRef(({ folderMode = false, nodeEnabled, basePre
     />
   );
 });
-
 DropBoxTreeSelect.propTypes = {
   folderMode: PropTypes.bool,
   nodeEnabled: PropTypes.func,
   basePrefix: PropTypes.string,
 };
 
-export const DropBoxJsonSelect = ({ form, name, labels, initialValue, rules }) => {
+/**
+ * Acts as an antd Form.Item wrapper for DropBox JSON file selection.
+ * Must be the child of an antd Form component.
+ * The JSON data can be retrieved from the form using the 'name' prop.
+ */
+export const DropBoxJsonSelect = ({ name, labels, initialValue, rules }) => {
+  // get form from parent
+  const form = Form.useFormInstance();
+
+  // field name for intermediate Form.Item that holds the value of the selected file's path
   const pathName = name + "Path";
+  // watch for file selection changes
   const filePath = Form.useWatch(pathName, form);
+
+  // file data if one is selected, else the 'initialValue'
   const currentFieldData = useDropBoxJsonContent(filePath, initialValue);
 
   const contentLabel = filePath && labels?.updatedContent ? labels.updatedContent : labels.defaultContent;
 
   useEffect(() => {
+    // set the currentFieldData on 'name' field on file selection changes.
     form.setFieldValue(name, currentFieldData);
   }, [form, name, currentFieldData]);
 
@@ -101,7 +113,6 @@ export const DropBoxJsonSelect = ({ form, name, labels, initialValue, rules }) =
 };
 
 DropBoxJsonSelect.propTypes = {
-  form: PropTypes.object.isRequired,
   name: PropTypes.string.isRequired,
   labels: PropTypes.shape({
     parent: PropTypes.node.isRequired,

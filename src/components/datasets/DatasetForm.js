@@ -30,7 +30,6 @@ const DatasetForm = ({ initialValue, form, updateMode }) => {
         <Input.TextArea placeholder={"Name\nInfo@c3g.ca"} />
       </Item>
       <DropBoxJsonSelect
-        form={form}
         name="dats_file"
         initialValue={initialValue?.dats_file}
         labels={{
@@ -42,7 +41,6 @@ const DatasetForm = ({ initialValue, form, updateMode }) => {
         rules={[{ required: true }, { validator: datsValidator }]}
       />
       <DropBoxJsonSelect
-        form={form}
         name="discovery"
         initialValue={initialValue?.discovery}
         labels={{
