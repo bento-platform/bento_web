@@ -78,22 +78,17 @@ export const fetchProjectsWithDatasets = () => (dispatch, getState) => {
   return dispatch(fetchProjects());
 };
 
-const createProject = networkAction((project, navigate) => (_dispatch, getState) => ({
+export const createProjectIfPossible = networkAction((project, navigate) => (_dispatch, getState) => ({
   types: CREATE_PROJECT,
   url: `${getState().services.metadataService.url}/api/projects`,
   req: jsonRequest(project, "POST"),
   err: "Error creating project",
+  check: (state) => !state.projects.isCreating,
   onSuccess: (data) => {
     if (navigate) navigate(`/data/manager/projects/${data.identifier}`);
     message.success(`Project '${data.title}' created!`);
   },
 }));
-
-export const createProjectIfPossible = (project, navigate) => (dispatch, getState) => {
-  // TODO: Need object response from POST (is this done??)
-  if (getState().projects.isCreating) return Promise.resolve();
-  return dispatch(createProject(project, navigate));
-};
 
 const _fetchExtraPropertiesSchemaTypes = networkAction(() => (_dispatch, getState) => ({
   types: FETCH_EXTRA_PROPERTIES_SCHEMA_TYPES,
@@ -158,21 +153,17 @@ export const clearDatasetDataTypes = (datasetId) => async (dispatch, getState) =
   return await Promise.all(dataTypes.map((dt) => dispatch(clearDatasetDataType(datasetId, dt.id))));
 };
 
-const saveProject = networkAction((project) => (dispatch, getState) => ({
+export const saveProjectIfPossible = networkAction((project) => (dispatch, getState) => ({
   types: SAVE_PROJECT,
   url: `${getState().services.metadataService.url}/api/projects/${project.identifier}`,
   req: jsonRequest(project, "PUT"),
   err: `Error saving project '${project.title}'`, // TODO: More user-friendly error
+  check: (state) => !state.projects.isDeleting || !state.projects.isSaving,
   onSuccess: () => {
     dispatch(endProjectEditing());
     message.success(`Project '${project.title}' saved!`);
   },
 }));
-
-export const saveProjectIfPossible = (project) => (dispatch, getState) => {
-  if (getState().projects.isDeleting || getState().projects.isSaving) return;
-  return dispatch(saveProject(project));
-};
 
 export const addProjectDataset = networkAction((project, dataset, onSuccess = nop) => (_dispatch, getState) => ({
   types: ADD_PROJECT_DATASET,

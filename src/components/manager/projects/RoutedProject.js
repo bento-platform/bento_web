@@ -1,5 +1,4 @@
 import { useCallback, useEffect, useState } from "react";
-import { useDispatch, useSelector } from "react-redux";
 import { useNavigate, useParams } from "react-router-dom";
 
 import { Modal } from "antd";
@@ -13,17 +12,18 @@ import ProjectSkeleton from "./ProjectSkeleton";
 import { FORM_MODE_ADD, FORM_MODE_EDIT } from "@/constants";
 import { deleteProjectIfPossible, saveProjectIfPossible } from "@/modules/metadata/actions";
 import { beginProjectEditing, endProjectEditing } from "@/modules/manager/actions";
+import { useAppDispatch, useAppSelector } from "@/store";
 
 const RoutedProject = () => {
-  const dispatch = useDispatch();
+  const dispatch = useAppDispatch();
   const navigate = useNavigate();
 
   const { project: selectedProjectID } = useParams();
 
-  const projectsByID = useSelector((state) => state.projects.itemsByID);
-  const loadingProjects = useSelector((state) => state.projects.isCreating || state.projects.isFetching);
-  const editingProject = useSelector((state) => state.manager.editingProject);
-  const savingProject = useSelector((state) => state.projects.isSaving);
+  const projectsByID = useAppSelector((state) => state.projects.itemsByID);
+  const loadingProjects = useAppSelector((state) => state.projects.isCreating || state.projects.isFetching);
+  const editingProject = useAppSelector((state) => state.manager.editingProject);
+  const savingProject = useAppSelector((state) => state.projects.isSaving);
 
   const [datasetAdditionModal, setDatasetAdditionModal] = useState(false);
   const [datasetEditModal, setDatasetEditModal] = useState(false);
@@ -64,8 +64,8 @@ const RoutedProject = () => {
   }, []);
 
   const handleProjectSave = useCallback(
-    (newProject) => {
-      dispatch(saveProjectIfPossible(newProject));
+    async (newProject) => {
+      await dispatch(saveProjectIfPossible(newProject));
     },
     [dispatch],
   );

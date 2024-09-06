@@ -1,6 +1,5 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import PropTypes from "prop-types";
-
 import { Button, Col, Empty, Form, Row, Space, Tabs, Typography } from "antd";
 import { CheckOutlined, CloseOutlined, DeleteOutlined, EditOutlined, PlusOutlined } from "@ant-design/icons";
 
@@ -11,8 +10,8 @@ import { useHasResourcePermissionWrapper, useResourcePermissionsWrapper } from "
 import { useDropBoxJsonContent } from "@/modules/dropBox/hooks";
 import { projectPropTypesShape } from "@/propTypes";
 import { nop, simpleDeepCopy } from "@/utils/misc";
+import Dataset from "@/components/datasets/Dataset";
 
-import Dataset from "../../datasets/Dataset";
 import ProjectForm from "./ProjectForm";
 import ProjectJsonSchema from "./ProjectJsonSchema";
 
@@ -77,23 +76,20 @@ const Project = ({
     }
   }, [value, newDiscovery]);
 
-  const handleSave = useCallback(() => {
-    editingForm
-      .validateFields()
-      .then((values) => {
-        // Don't save datasets since it's a related set.
-        onSave({
-          identifier: projectState.identifier,
-          title: values.title || projectState.title,
-          description: values.description || projectState.description,
-          data_use: values.data_use || projectState.data_use,
-          discovery: newDiscovery || values.discovery,
-        });
-        editingForm.resetFields();
-      })
-      .catch((err) => {
-        console.error(err);
+  const handleSave = useCallback(async () => {
+    try {
+      const values = await editingForm.validateFields();
+      await onSave({
+        identifier: projectState.identifier,
+        title: values.title || projectState.title,
+        description: values.description || projectState.description,
+        data_use: values.data_use || projectState.data_use,
+        discovery: newDiscovery || values.discovery,
       });
+      editingForm.resetFields();
+    } catch (err) {
+      console.log(err);
+    }
   }, [editingForm, onSave, projectState, newDiscovery]);
 
   const handleCancelEdit = useCallback(() => {

@@ -1,5 +1,4 @@
 import { useCallback } from "react";
-import { useSelector, useDispatch } from "react-redux";
 import { useNavigate } from "react-router-dom";
 
 import { Button, Form, Modal } from "antd";
@@ -10,13 +9,14 @@ import ProjectForm from "./ProjectForm";
 import { toggleProjectCreationModal } from "@/modules/manager/actions";
 import { createProjectIfPossible } from "@/modules/metadata/actions";
 import { useProjects } from "@/modules/metadata/hooks";
+import { useAppDispatch, useAppSelector } from "@/store";
 
 const ProjectCreationModal = () => {
-  const dispatch = useDispatch();
+  const dispatch = useAppDispatch();
   const navigate = useNavigate();
 
   const [form] = Form.useForm();
-  const showCreationModal = useSelector((state) => state.manager.projectCreationModal);
+  const showCreationModal = useAppSelector((state) => state.manager.projectCreationModal);
   const isCreatingProject = useProjects().isCreating;
 
   const handleCreateCancel = useCallback(() => {
@@ -24,18 +24,15 @@ const ProjectCreationModal = () => {
     dispatch(toggleProjectCreationModal());
   }, [form, dispatch]);
 
-  const handleCreateSubmit = useCallback(() => {
-    form
-      .validateFields()
-      .then(async (values) => {
-        console.log("VALUESSS", values);
-        await dispatch(createProjectIfPossible(values, navigate));
-        form.resetFields();
-        dispatch(toggleProjectCreationModal());
-      })
-      .catch((err) => {
-        console.error(err);
-      });
+  const handleCreateSubmit = useCallback(async () => {
+    try {
+      const values = await form.validateFields();
+      await dispatch(createProjectIfPossible(values, navigate));
+      form.resetFields();
+      dispatch(toggleProjectCreationModal());
+    } catch (err) {
+      console.error(err);
+    }
   }, [form, dispatch, navigate]);
 
   return (

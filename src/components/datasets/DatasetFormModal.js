@@ -22,7 +22,6 @@ const DatasetFormModal = ({ project, mode, initialValue, onCancel, onOk, open })
     isSavingDataset: projectDatasetsSaving,
   } = useProjects();
 
-  // const formRef = useRef(null);
   const [form] = Form.useForm();
 
   const handleSuccess = useCallback(
