@@ -1,5 +1,4 @@
 import { useCallback } from "react";
-import { useDispatch } from "react-redux";
 import PropTypes from "prop-types";
 
 import { Button, Form, Modal } from "antd";
@@ -12,9 +11,10 @@ import { addProjectDataset, saveProjectDataset, fetchProjectsWithDatasets } from
 import { useProjects } from "@/modules/metadata/hooks";
 import { datasetPropTypesShape, projectPropTypesShape, propTypesFormMode } from "@/propTypes";
 import { nop } from "@/utils/misc";
+import { useAppDispatch } from "@/store";
 
 const DatasetFormModal = ({ project, mode, initialValue, onCancel, onOk, open }) => {
-  const dispatch = useDispatch();
+  const dispatch = useAppDispatch();
 
   const {
     isFetching: projectsFetching,
@@ -28,12 +28,16 @@ const DatasetFormModal = ({ project, mode, initialValue, onCancel, onOk, open })
     async (values) => {
       await dispatch(fetchProjectsWithDatasets()); // TODO: If needed / only this project...
       await (onOk || nop)({ ...(initialValue || {}), values });
-      if (mode === FORM_MODE_ADD) form.resetFields();
+      form.resetFields();
     },
     [dispatch, form, initialValue, mode, onOk],
   );
 
-  const handleCancel = useCallback(() => (onCancel || nop)(), [onCancel]);
+  const handleCancel = useCallback(() => {
+    (onCancel || nop)();
+    form.resetFields();
+  }, [form, onCancel]);
+
   const handleSubmit = useCallback(() => {
     form
       .validateFields()

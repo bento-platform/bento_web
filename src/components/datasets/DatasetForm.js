@@ -15,12 +15,14 @@ import { DropBoxJsonSelect } from "../manager/DropBoxTreeSelect";
 const DatasetForm = ({ initialValue, form, updateMode }) => {
   const discoveryValidator = useDiscoveryValidator();
   const datsValidator = useDatsValidator();
+  if (initialValue && !initialValue?.data_use) {
+    initialValue["data_use"] = simpleDeepCopy(INITIAL_DATA_USE_VALUE)
+  }
   return (
     <Form form={form} layout="vertical" initialValues={initialValue}>
       <Item
         label="Title"
         name="title"
-        // initialValue={initialValue?.title || ""}
         rules={[{ required: true }, { min: 3 }]}
       >
         <Input placeholder="My Dataset" size="large" />
@@ -28,7 +30,6 @@ const DatasetForm = ({ initialValue, form, updateMode }) => {
       <Item
         label="Description"
         name="description"
-        // initialValue={initialValue?.description || ""}
         rules={[{ required: true }]}
       >
         <Input.TextArea placeholder="This is a dataset" />
@@ -63,7 +64,6 @@ const DatasetForm = ({ initialValue, form, updateMode }) => {
       <Item
         label="Consent Code and Data Use Requirements"
         name="data_use"
-        initialValue={initialValue?.data_use ?? simpleDeepCopy(INITIAL_DATA_USE_VALUE)}
         rules={[
           { required: true },
           (rule, value, callback) => {
