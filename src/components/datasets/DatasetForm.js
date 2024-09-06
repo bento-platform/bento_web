@@ -16,22 +16,14 @@ const DatasetForm = ({ initialValue, form, updateMode }) => {
   const discoveryValidator = useDiscoveryValidator();
   const datsValidator = useDatsValidator();
   if (initialValue && !initialValue?.data_use) {
-    initialValue["data_use"] = simpleDeepCopy(INITIAL_DATA_USE_VALUE)
+    initialValue["data_use"] = simpleDeepCopy(INITIAL_DATA_USE_VALUE);
   }
   return (
     <Form form={form} layout="vertical" initialValues={initialValue}>
-      <Item
-        label="Title"
-        name="title"
-        rules={[{ required: true }, { min: 3 }]}
-      >
+      <Item label="Title" name="title" rules={[{ required: true }, { min: 3 }]}>
         <Input placeholder="My Dataset" size="large" />
       </Item>
-      <Item
-        label="Description"
-        name="description"
-        rules={[{ required: true }]}
-      >
+      <Item label="Description" name="description" rules={[{ required: true }]}>
         <Input.TextArea placeholder="This is a dataset" />
       </Item>
       <Item label="Contact Information" name="contact_info">

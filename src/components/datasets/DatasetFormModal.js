@@ -30,7 +30,7 @@ const DatasetFormModal = ({ project, mode, initialValue, onCancel, onOk, open })
       await (onOk || nop)({ ...(initialValue || {}), values });
       form.resetFields();
     },
-    [dispatch, form, initialValue, mode, onOk],
+    [dispatch, form, initialValue, onOk],
   );
 
   const handleCancel = useCallback(() => {
