@@ -28,6 +28,21 @@ export const FETCH_OVERVIEW_SUMMARY = createNetworkActionTypes("FETCH_OVERVIEW_S
 
 export const DELETE_DATASET_DATA_TYPE = createNetworkActionTypes("DELETE_DATASET_DATA_TYPE");
 
+export const FETCH_DISCOVERY_SCHEMA = createNetworkActionTypes("FETCH_DISCOVERY_SCHEMA");
+export const FETCH_DATS_SCHEMA = createNetworkActionTypes("FETCH_DATS_SCHEMA");
+
+const _fetchDiscoverySchema = networkAction(() => (_dispatch, getState) => ({
+  types: FETCH_DISCOVERY_SCHEMA,
+  url: `${getState().bentoServices.itemsByKind.metadata.url}/api/schemas/discovery`,
+  err: "Error fetching discovery JSON schema",
+}));
+
+export const fetchDiscoverySchema = () => (dispatch, getState) => {
+  const metadataUrl = getState()?.bentoServices?.itemsByKind?.metadata?.url;
+  if (!metadataUrl) return Promise.resolve();
+  return dispatch(_fetchDiscoverySchema());
+};
+
 export const clearDatasetDataType = networkAction((datasetId, dataTypeID) => (_dispatch, getState) => {
   const { service_base_url: serviceBaseUrl } = getState().serviceDataTypes.itemsByID[dataTypeID];
   // noinspection JSUnusedGlobalSymbols

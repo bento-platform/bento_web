@@ -37,7 +37,6 @@ const useDropBoxFileBlob = (filePath?: string): Blob | null => {
   // fetch effect
   useEffect(() => {
     setFileBlob(null);
-    console.log("useDropBoxFileBlob");
     (async () => {
       if (!file || !fileExt) return;
       if (!file?.uri) {
@@ -73,7 +72,6 @@ const useDropBoxFileText = (filePath?: string): string | null => {
   const fileContentBlob = useDropBoxFileBlob(filePath);
   const [text, setText] = useState<string | null>(null);
   useEffect(() => {
-    console.log("useDropBoxFileText");
     (async () => {
       if (fileContentBlob) {
         setText(await fileContentBlob.text());

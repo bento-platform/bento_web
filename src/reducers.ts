@@ -3,11 +3,10 @@ import { combineReducers } from "redux";
 import { AuthReducer as auth, OIDCReducer as openIdConfiguration } from "bento-auth-js";
 
 import { allPermissions, grants, groups } from "./modules/authz/reducers";
-import { discovery } from "./modules/discovery/reducers";
 import { dropBox } from "@/modules/dropBox/reducers";
 import { drs } from "./modules/drs/reducers";
 import { explorer, igvGenomes } from "./modules/explorer/reducers";
-import { projects, biosamples, individuals, overviewSummary } from "./modules/metadata/reducers";
+import { projects, biosamples, individuals, overviewSummary, discovery } from "./modules/metadata/reducers";
 import { manager } from "./modules/manager/reducers";
 import { notifications } from "./modules/notifications/reducers";
 import { referenceGenomes } from "./modules/reference/reducers";
