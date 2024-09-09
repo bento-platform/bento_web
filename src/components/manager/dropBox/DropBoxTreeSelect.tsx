@@ -45,7 +45,7 @@ export const generateFileTree = (
 
 export type DropBoxTreeSelectProps = Omit<TreeSelectProps, "showSearch" | "treeDefaultExpandAll" | "treeData"> & {
   folderMode?: boolean;
-  nodeEnabled?: DropBoxEntryValidFunction; // TODO: more precise typing when common functions are typed
+  nodeEnabled?: DropBoxEntryValidFunction;
   basePrefix?: string;
 };
 
