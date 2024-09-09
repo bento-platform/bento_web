@@ -36,7 +36,7 @@ import { LAYOUT_CONTENT_STYLE } from "@/styles/layoutContent";
 
 import ActionContainer from "./ActionContainer";
 import DownloadButton from "../common/DownloadButton";
-import DropBoxTreeSelect from "./DropBoxTreeSelect";
+import DropBoxTreeSelect from "./dropBox/DropBoxTreeSelect";
 import FileModal from "../display/FileModal";
 import ForbiddenContent from "../ForbiddenContent";
 

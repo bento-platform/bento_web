@@ -4,6 +4,7 @@ import PropTypes from "prop-types";
 import Handlebars from "handlebars";
 
 import { Button, Checkbox, Form, Input, Select, Spin } from "antd";
+import { LeftOutlined, RightOutlined } from "@ant-design/icons";
 
 import { FORM_LABEL_COL, FORM_WRAPPER_COL, FORM_BUTTON_COL } from "./workflowCommon";
 
@@ -13,9 +14,8 @@ import { workflowPropTypesShape } from "@/propTypes";
 import { testFileAgainstPattern } from "@/utils/files";
 import { nop } from "@/utils/misc";
 
+import DropBoxTreeSelect from "./dropBox/DropBoxTreeSelect";
 import DatasetTreeSelect, { ID_FORMAT_PROJECT_DATASET } from "./DatasetTreeSelect";
-import DropBoxTreeSelect from "./DropBoxTreeSelect";
-import { LeftOutlined, RightOutlined } from "@ant-design/icons";
 
 const EnumSelect = forwardRef(({ mode, onChange, values: valuesConfig, value }, ref) => {
   const isUrl = typeof valuesConfig === "string";

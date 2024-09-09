@@ -1,8 +1,11 @@
 import { useEffect, useMemo, useState } from "react";
 import { RESOURCE_EVERYTHING, useAuthorizationHeader, viewDropBox } from "bento-auth-js";
+
 import { useHasResourcePermissionWrapper } from "@/hooks";
 import { useService } from "@/modules/services/hooks";
 import { type RootState, useAppDispatch, useAppSelector } from "@/store";
+import type { JSONType } from "@/types/json";
+
 import { fetchDropBoxTree } from "./actions";
 
 export const useDropBox = () => {
@@ -91,7 +94,7 @@ const useDropBoxFileText = (filePath?: string): string | null => {
  * @param defaultValue default value to return when there is no selected file.
  * @returns the dropbox file data in JSON if it can be parsed, null if no text in the file, otherwise defaultValue.
  */
-export const useDropBoxJsonContent = (filePath?: string, defaultValue: object | null = null): object | null => {
+export const useDropBoxJsonContent = (filePath?: string, defaultValue: JSONType = null): JSONType => {
   const rawText = useDropBoxFileText(filePath);
   return useMemo(() => {
     if (!filePath) {
