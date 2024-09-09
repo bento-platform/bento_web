@@ -1,5 +1,5 @@
-import { Suspense, lazy, useEffect } from "react";
-import { Navigate, Route, Routes } from "react-router-dom";
+import { Suspense, useEffect } from "react";
+import { Outlet } from "react-router-dom";
 
 import { Menu, Skeleton } from "antd";
 
@@ -8,15 +8,6 @@ import { useManagerPermissions } from "@/modules/authz/hooks";
 import { matchingMenuKeys, transformMenuItem } from "@/utils/menu";
 
 import SitePageHeader from "./SitePageHeader";
-
-const ManagerProjectDatasetContent = lazy(() => import("./manager/projects/ManagerProjectDatasetContent"));
-const ManagerAccessContent = lazy(() => import("./manager/access/ManagerAccessContent"));
-const ManagerDropBoxContent = lazy(() => import("./manager/ManagerDropBoxContent"));
-const ManagerIngestionContent = lazy(() => import("./manager/ManagerIngestionContent"));
-const ManagerAnalysisContent = lazy(() => import("./manager/ManagerAnalysisContent"));
-const ManagerExportContent = lazy(() => import("./manager/ManagerExportContent"));
-const ManagerRunsContent = lazy(() => import("./manager/runs/ManagerRunsContent"));
-const ManagerDRSContent = lazy(() => import("./manager/drs/ManagerDRSContent"));
 
 const styles = {
   menu: {
@@ -112,17 +103,18 @@ const DataManagerContent = () => {
           </div>
         }
       >
-        <Routes>
-          <Route path="projects/*" element={<ManagerProjectDatasetContent />} />
-          <Route path="access/*" element={<ManagerAccessContent />} />
-          <Route path="files" element={<ManagerDropBoxContent />} />
-          <Route path="ingestion" element={<ManagerIngestionContent />} />
-          <Route path="analysis" element={<ManagerAnalysisContent />} />
-          <Route path="export" element={<ManagerExportContent />} />
-          <Route path="drs" element={<ManagerDRSContent />} />
-          <Route path="runs/*" element={<ManagerRunsContent />} />
-          <Route path="*" element={<Navigate to="projects" replace={true} />} />
-        </Routes>
+        <Outlet />
+        {/*<Routes>*/}
+        {/*  <Route path="projects/*" element={<ManagerProjectDatasetContent />} />*/}
+        {/*  <Route path="access/*" element={<ManagerAccessContent />} />*/}
+        {/*  <Route path="files" element={<ManagerDropBoxContent />} />*/}
+        {/*  <Route path="ingestion" element={<ManagerIngestionContent />} />*/}
+        {/*  <Route path="analysis" element={<ManagerAnalysisContent />} />*/}
+        {/*  <Route path="export" element={<ManagerExportContent />} />*/}
+        {/*  <Route path="drs" element={<ManagerDRSContent />} />*/}
+        {/*  <Route path="runs/*" element={<ManagerRunsContent />} />*/}
+        {/*  <Route path="*" element={<Navigate to="projects" replace={true} />} />*/}
+        {/*</Routes>*/}
       </Suspense>
     </>
   );

@@ -22,8 +22,9 @@ import { Layout, message, Modal } from "antd";
 import { BENTO_URL_NO_TRAILING_SLASH, OPENID_CONFIG_URL } from "@/config";
 import eventHandler from "@/events";
 import SessionWorker from "@/session.worker";
-import { nop } from "@/utils/misc";
+import { useService } from "@/modules/services/hooks";
 import { fetchUserDependentData } from "@/modules/user/actions";
+import { nop } from "@/utils/misc";
 
 import NotificationDrawer from "./notifications/NotificationDrawer";
 import AutoAuthenticate from "./AutoAuthenticate";
@@ -31,18 +32,35 @@ import RequireAuth from "./RequireAuth";
 import SiteHeader from "./SiteHeader";
 import SiteFooter from "./SiteFooter";
 import SitePageLoading from "./SitePageLoading";
-import { useService } from "@/modules/services/hooks";
 
-// Lazy-load route components
+// --- Begin route element components ----------------------------------------------------------------------------------
+//  - Lazy-load route components
+
 const OverviewContent = lazy(() => import("./OverviewContent"));
+
 const DataExplorerContent = lazy(() => import("./DataExplorerContent"));
+const ExplorerSearchContent = lazy(() => import("@/components/explorer/ExplorerSearchContent"));
+const ExplorerIndividualContent = lazy(() => import("@/components/explorer/ExplorerIndividualContent"));
+const ExplorerGenomeBrowserContent = lazy(() => import("@/components/explorer/ExplorerGenomeBrowserContent"));
+
 const DataManagerContent = lazy(() => import("./DataManagerContent"));
+const ManagerProjectDatasetContent = lazy(() => import("@/components/manager/projects/ManagerProjectDatasetContent"));
+const ManagerAccessContent = lazy(() => import("@/components/manager/access/ManagerAccessContent"));
+const ManagerDropBoxContent = lazy(() => import("@/components/manager/ManagerDropBoxContent"));
+const ManagerIngestionContent = lazy(() => import("@/components/manager/ManagerIngestionContent"));
+const ManagerAnalysisContent = lazy(() => import("@/components/manager/ManagerAnalysisContent"));
+const ManagerExportContent = lazy(() => import("@/components/manager/ManagerExportContent"));
+const ManagerRunsContent = lazy(() => import("@/components/manager/runs/ManagerRunsContent"));
+const ManagerDRSContent = lazy(() => import("@/components/manager/drs/ManagerDRSContent"));
+
 const ReferenceGenomesContent = lazy(() => import("./ReferenceGenomesContent"));
 const CBioPortalContent = lazy(() => import("./CBioPortalContent"));
 const NotificationsContent = lazy(() => import("./notifications/NotificationsContent"));
 const ServiceContent = lazy(() => import("./ServiceContent"));
 const ServiceDetail = lazy(() => import("./services/ServiceDetail"));
 const UserProfileContent = lazy(() => import("./UserProfileContent"));
+
+// ---------------------------------------------------------------------------------------------------------------------
 
 const SIGN_IN_WINDOW_FEATURES = "scrollbars=no, toolbar=no, menubar=no, width=800, height=600";
 
@@ -237,13 +255,18 @@ const App = () => {
                 }
               />
               <Route
-                path="/data/explorer/*"
+                path="/data/explorer"
                 element={
                   <RequireAuth>
                     <DataExplorerContent />
                   </RequireAuth>
                 }
-              />
+              >
+                <Route path="search/*" element={<ExplorerSearchContent />} />
+                <Route path="individuals/:individual/*" element={<ExplorerIndividualContent />} />
+                <Route path="genome/*" element={<ExplorerGenomeBrowserContent />} />
+                <Route index element={<Navigate to="search" replace={true} />} />
+              </Route>
               {/* Reference content is available to everyone to view, at least, so wrap it in an
                                 AutoAuthenticate (to re-authenticate if we were before) rather than requiring auth. */}
               <Route
@@ -279,13 +302,23 @@ const App = () => {
                 }
               />
               <Route
-                path="/data/manager/*"
+                path="/data/manager"
                 element={
                   <RequireAuth>
                     <DataManagerContent />
                   </RequireAuth>
                 }
-              />
+              >
+                <Route path="projects/*" element={<ManagerProjectDatasetContent />} />
+                <Route path="access/*" element={<ManagerAccessContent />} />
+                <Route path="files" element={<ManagerDropBoxContent />} />
+                <Route path="ingestion" element={<ManagerIngestionContent />} />
+                <Route path="analysis" element={<ManagerAnalysisContent />} />
+                <Route path="export" element={<ManagerExportContent />} />
+                <Route path="drs" element={<ManagerDRSContent />} />
+                <Route path="runs/*" element={<ManagerRunsContent />} />
+                <Route index element={<Navigate to="projects" replace={true} />} />
+              </Route>
               <Route
                 path="/notifications"
                 element={
@@ -302,7 +335,7 @@ const App = () => {
                   </RequireAuth>
                 }
               />
-              <Route path="/*" element={<Navigate to="/overview" replace={true} />} />
+              <Route index element={<Navigate to="/overview" replace={true} />} />
             </Routes>
           </Suspense>
         </Layout.Content>
