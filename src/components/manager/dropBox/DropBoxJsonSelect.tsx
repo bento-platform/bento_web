@@ -28,10 +28,11 @@ const InnerDropBoxJsonSelect = ({
   );
 };
 
-const EXISTING = "existing";
-const NEW = "new";
-const NONE = "none";
-type DropBoxSelectType = typeof EXISTING | typeof NEW | typeof NONE;
+enum DropBoxSelectType {
+  New = "new",
+  Existing = "existing",
+  None = "none",
+}
 
 export type DropBoxJsonSelectProps = {
   initialValue?: JSONType;
@@ -44,18 +45,20 @@ export type DropBoxJsonSelectProps = {
 const DropBoxJsonSelect = ({ initialValue, onChange, nullable = false }: DropBoxJsonSelectProps) => {
   const editing = initialValue !== undefined;
 
-  const [radioValue, setRadioValue] = useState<DropBoxSelectType>(editing ? EXISTING : NEW);
+  const [radioValue, setRadioValue] = useState<DropBoxSelectType>(
+    editing ? DropBoxSelectType.Existing : DropBoxSelectType.New,
+  );
   const [selectedFile, setSelectedFile] = useState<string | undefined>(undefined);
 
   const currentFieldData = useDropBoxJsonContent(selectedFile, null);
 
   const selection = useMemo(() => {
     switch (radioValue) {
-      case NEW:
+      case DropBoxSelectType.New:
         return currentFieldData;
-      case EXISTING:
+      case DropBoxSelectType.Existing:
         return initialValue ?? null;
-      case NONE:
+      case DropBoxSelectType.None:
       default:
         return null;
     }
@@ -71,15 +74,17 @@ const DropBoxJsonSelect = ({ initialValue, onChange, nullable = false }: DropBox
     <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
       {editing && (
         <Radio.Group value={radioValue} onChange={(e) => setRadioValue(e.target.value)}>
-          <Radio value={EXISTING}>Existing value</Radio>
-          <Radio value={NEW}>New value from file</Radio>
-          {nullable && <Radio value={NONE}>None</Radio>}
+          <Radio value={DropBoxSelectType.Existing}>Existing value</Radio>
+          <Radio value={DropBoxSelectType.New}>New value from file</Radio>
+          {nullable && <Radio value={DropBoxSelectType.None}>None</Radio>}
         </Radio.Group>
       )}
 
-      {radioValue === NEW && <InnerDropBoxJsonSelect selectedFile={selectedFile} setSelectedFile={setSelectedFile} />}
+      {radioValue === DropBoxSelectType.New && (
+        <InnerDropBoxJsonSelect selectedFile={selectedFile} setSelectedFile={setSelectedFile} />
+      )}
 
-      {(radioValue !== NEW || selectedFile) && (
+      {(radioValue !== DropBoxSelectType.New || selectedFile) && (
         <JsonDisplay showObjectWithReactJson={true} jsonSrc={selection} showArrayTitle={false} />
       )}
     </div>
