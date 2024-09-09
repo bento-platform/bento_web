@@ -45,11 +45,7 @@ const DropBoxJsonSelect = ({ initialValue, onChange }: DropBoxJsonSelectProps) =
 
   useEffect(() => {
     if (onChange) {
-      if (radioValue === "new") {
-        onChange(currentFieldData);
-      } else {
-        onChange(initialValue ?? null);
-      }
+      onChange(radioValue === "new" ? currentFieldData : initialValue ?? null);
     }
   }, [currentFieldData, initialValue, onChange, radioValue]);
 
