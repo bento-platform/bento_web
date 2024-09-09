@@ -63,12 +63,7 @@ const RoutedProject = () => {
     setJsonSchemaModal(visible);
   }, []);
 
-  const handleProjectSave = useCallback(
-    async (newProject) => {
-      await dispatch(saveProjectIfPossible(newProject));
-    },
-    [dispatch],
-  );
+  const handleProjectSave = useCallback((newProject) => dispatch(saveProjectIfPossible(newProject)), [dispatch]);
 
   const handleProjectDelete = useCallback(() => {
     if (!project) return;

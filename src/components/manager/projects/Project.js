@@ -7,7 +7,6 @@ import { createDataset, deleteProject, editProject, makeProjectResource, RESOURC
 
 import { INITIAL_DATA_USE_VALUE } from "@/duo";
 import { useHasResourcePermissionWrapper, useResourcePermissionsWrapper } from "@/hooks";
-import { useDropBoxJsonContent } from "@/modules/dropBox/hooks";
 import { projectPropTypesShape } from "@/propTypes";
 import { nop, simpleDeepCopy } from "@/utils/misc";
 import Dataset from "@/components/datasets/Dataset";
@@ -60,9 +59,6 @@ const Project = ({
 
   const [editingForm] = Form.useForm();
 
-  const newDiscoveryFilePath = Form.useWatch("discoveryPath", editingForm);
-  const newDiscovery = useDropBoxJsonContent(newDiscoveryFilePath);
-
   const [selectedKey, setSelectedKey] = useState(SUB_TAB_KEYS.DATASETS);
 
   useEffect(() => {
@@ -71,10 +67,9 @@ const Project = ({
         ...ps,
         ...value,
         data_use: simpleDeepCopy(value.data_use || INITIAL_DATA_USE_VALUE),
-        discovery: newDiscovery || value.discovery,
       }));
     }
-  }, [value, newDiscovery]);
+  }, [value]);
 
   const handleSave = useCallback(async () => {
     try {
@@ -84,13 +79,13 @@ const Project = ({
         title: values.title || projectState.title,
         description: values.description || projectState.description,
         data_use: values.data_use || projectState.data_use,
-        discovery: newDiscovery || values.discovery,
+        discovery: values.discovery, // discovery is nullable, so no projectState fallback
       });
       editingForm.resetFields();
     } catch (err) {
       console.log(err);
     }
-  }, [editingForm, onSave, projectState, newDiscovery]);
+  }, [editingForm, onSave, projectState]);
 
   const handleCancelEdit = useCallback(() => {
     editingForm.resetFields();

@@ -31,7 +31,7 @@ const InnerDropBoxJsonSelect = ({
 const EXISTING = "existing";
 const NEW = "new";
 const NONE = "none";
-type DROP_BOX_SELECT_TYPE = typeof EXISTING | typeof NEW | typeof NONE;
+type DropBoxSelectType = typeof EXISTING | typeof NEW | typeof NONE;
 
 export type DropBoxJsonSelectProps = {
   initialValue?: JSONType;
@@ -44,7 +44,7 @@ export type DropBoxJsonSelectProps = {
 const DropBoxJsonSelect = ({ initialValue, onChange, nullable = false }: DropBoxJsonSelectProps) => {
   const editing = initialValue !== undefined;
 
-  const [radioValue, setRadioValue] = useState<DROP_BOX_SELECT_TYPE>(editing ? EXISTING : NEW);
+  const [radioValue, setRadioValue] = useState<DropBoxSelectType>(editing ? EXISTING : NEW);
   const [selectedFile, setSelectedFile] = useState<string | undefined>(undefined);
 
   const currentFieldData = useDropBoxJsonContent(selectedFile, null);
