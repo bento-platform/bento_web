@@ -34,11 +34,7 @@ export type DropBoxJsonSelectProps = {
   onChange?: (x: JSONType) => void;
 };
 
-/**
- * Acts as an antd Form.Item wrapper for DropBox JSON file selection.
- * Must be the child of an antd Form component.
- * The JSON data can be retrieved from the form using the 'name' prop.
- */
+/** A form input component for DropBox JSON file selection. */
 const DropBoxJsonSelect = ({ initialValue, onChange }: DropBoxJsonSelectProps) => {
   const editing = initialValue !== undefined;
 
