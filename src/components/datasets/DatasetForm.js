@@ -10,9 +10,9 @@ import { DATA_USE_PROP_TYPE_SHAPE, INITIAL_DATA_USE_VALUE } from "@/duo";
 import { useDatsValidator } from "@/hooks";
 import { useDiscoveryValidator } from "@/modules/metadata/hooks";
 import { simpleDeepCopy } from "@/utils/misc";
-import { DropBoxJsonSelect } from "../manager/DropBoxTreeSelect";
+import DropBoxJsonSelect from "../manager/dropBox/DropBoxJsonSelect";
 
-const DatasetForm = ({ initialValue, form, updateMode }) => {
+const DatasetForm = ({ initialValue, form }) => {
   const discoveryValidator = useDiscoveryValidator();
   const datsValidator = useDatsValidator();
   if (initialValue && !initialValue?.data_use) {
@@ -29,28 +29,12 @@ const DatasetForm = ({ initialValue, form, updateMode }) => {
       <Item label="Contact Information" name="contact_info">
         <Input.TextArea placeholder={"Name\nInfo@c3g.ca"} />
       </Item>
-      <DropBoxJsonSelect
-        name="dats_file"
-        initialValue={initialValue?.dats_file}
-        labels={{
-          parent: "DATS",
-          select: "DATS file",
-          defaultContent: "DATS data",
-          updatedContent: updateMode ? "New DATS data" : "DATS data",
-        }}
-        rules={[{ required: true }, { validator: datsValidator }]}
-      />
-      <DropBoxJsonSelect
-        name="discovery"
-        initialValue={initialValue?.discovery}
-        labels={{
-          parent: "Public Discovery Configuration",
-          select: "Config file",
-          defaultContent: "Discovery config",
-          updatedContent: updateMode ? "New discovery config" : "Discovery config",
-        }}
-        rules={[{ validator: discoveryValidator }]}
-      />
+      <Item label="DATS File" name="dats_file" rules={[{ required: true }, { validator: datsValidator }]}>
+        <DropBoxJsonSelect initialValue={initialValue?.dats_file} />
+      </Item>
+      <Item label="Discovery Configuration" name="discovery" rules={[{ validator: discoveryValidator }]}>
+        <DropBoxJsonSelect initialValue={initialValue?.discovery} />
+      </Item>
       <Item
         label="Consent Code and Data Use Requirements"
         name="data_use"
@@ -81,7 +65,6 @@ DatasetForm.propTypes = {
     discovery: PropTypes.object,
   }),
   form: PropTypes.object,
-  updateMode: PropTypes.bool,
 };
 
 export default DatasetForm;

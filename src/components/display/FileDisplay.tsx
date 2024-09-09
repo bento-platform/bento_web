@@ -4,8 +4,6 @@ import { useAuthorizationHeader } from "bento-auth-js";
 
 import fetch from "cross-fetch";
 
-import type { JSONType } from "ajv";
-
 import { Light as SyntaxHighlighter } from "react-syntax-highlighter";
 import { a11yLight } from "react-syntax-highlighter/dist/esm/styles/hljs";
 
@@ -22,6 +20,8 @@ import xml from "react-syntax-highlighter/dist/esm/languages/hljs/xml";
 
 import "react-pdf/dist/esm/Page/AnnotationLayer.css";
 import "react-pdf/dist/esm/Page/TextLayer.css";
+
+import type { JSONType } from "@/types/json";
 
 import AudioDisplay from "./AudioDisplay";
 import CsvDisplay from "./CsvDisplay";

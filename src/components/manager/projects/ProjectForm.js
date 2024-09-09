@@ -1,9 +1,11 @@
 import { useEffect } from "react";
 import PropTypes from "prop-types";
 
-import { Form, Input, Typography } from "antd";
-import { DropBoxJsonSelect } from "../DropBoxTreeSelect";
+import { Form, Input } from "antd";
+
 import { useDiscoveryValidator } from "@/modules/metadata/hooks";
+
+import DropBoxJsonSelect from "../dropBox/DropBoxJsonSelect";
 
 const ProjectForm = ({ form, style, initialValues }) => {
   useEffect(() => {
@@ -20,21 +22,9 @@ const ProjectForm = ({ form, style, initialValues }) => {
       <Form.Item label="Description" name="description">
         <Input.TextArea placeholder="Description" rows={3} />
       </Form.Item>
-      <DropBoxJsonSelect
-        name="discovery"
-        labels={{
-          parent: (
-            <Typography.Title level={5} style={{ fontSize: "20px" }}>
-              Public Discovery Configuration
-            </Typography.Title>
-          ),
-          select: "Config file",
-          defaultContent: "Discovery config",
-          updatedContent: "New discovery config",
-        }}
-        initialValue={initialValues?.discovery}
-        rules={[{ validator: discoveryValidator }]}
-      />
+      <Form.Item label="Discovery Configuration" name="discovery" rules={[{ validator: discoveryValidator }]}>
+        <DropBoxJsonSelect initialValue={initialValues?.discovery} />
+      </Form.Item>
     </Form>
   );
 };
