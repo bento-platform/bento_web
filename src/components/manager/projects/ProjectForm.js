@@ -23,7 +23,7 @@ const ProjectForm = ({ form, style, initialValues }) => {
         <Input.TextArea placeholder="Description" rows={3} />
       </Form.Item>
       <Form.Item label="Discovery Configuration" name="discovery" rules={[{ validator: discoveryValidator }]}>
-        <DropBoxJsonSelect initialValue={initialValues?.discovery} />
+        <DropBoxJsonSelect initialValue={initialValues?.discovery} nullable={true} />
       </Form.Item>
     </Form>
   );

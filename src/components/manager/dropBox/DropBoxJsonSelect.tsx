@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Radio } from "antd";
 
 import { BENTO_DROP_BOX_FS_BASE_PATH } from "@/config";
@@ -28,44 +28,59 @@ const InnerDropBoxJsonSelect = ({
   );
 };
 
+const EXISTING = "existing";
+const NEW = "new";
+const NONE = "none";
+type DROP_BOX_SELECT_TYPE = typeof EXISTING | typeof NEW | typeof NONE;
+
 export type DropBoxJsonSelectProps = {
   initialValue?: JSONType;
   value?: JSONType;
   onChange?: (x: JSONType) => void;
+  nullable?: boolean;
 };
 
 /** A form input component for DropBox JSON file selection. */
-const DropBoxJsonSelect = ({ initialValue, onChange }: DropBoxJsonSelectProps) => {
+const DropBoxJsonSelect = ({ initialValue, onChange, nullable = false }: DropBoxJsonSelectProps) => {
   const editing = initialValue !== undefined;
 
-  const [radioValue, setRadioValue] = useState<"existing" | "new">(editing ? "existing" : "new");
+  const [radioValue, setRadioValue] = useState<DROP_BOX_SELECT_TYPE>(editing ? EXISTING : NEW);
   const [selectedFile, setSelectedFile] = useState<string | undefined>(undefined);
 
   const currentFieldData = useDropBoxJsonContent(selectedFile, null);
 
+  const selection = useMemo(() => {
+    switch (radioValue) {
+      case NEW:
+        return currentFieldData;
+      case EXISTING:
+        return initialValue ?? null;
+      case NONE:
+      default:
+        return null;
+    }
+  }, [radioValue, currentFieldData, initialValue]);
+
   useEffect(() => {
     if (onChange) {
-      onChange(radioValue === "new" ? currentFieldData : initialValue ?? null);
+      onChange(selection);
     }
-  }, [currentFieldData, initialValue, onChange, radioValue]);
+  }, [onChange, selection]);
 
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
       {editing && (
         <Radio.Group value={radioValue} onChange={(e) => setRadioValue(e.target.value)}>
-          <Radio value="existing">Existing value</Radio>
-          <Radio value="new">New value from file</Radio>
+          <Radio value={EXISTING}>Existing value</Radio>
+          <Radio value={NEW}>New value from file</Radio>
+          {nullable && <Radio value={NONE}>None</Radio>}
         </Radio.Group>
       )}
 
-      {radioValue === "new" && <InnerDropBoxJsonSelect selectedFile={selectedFile} setSelectedFile={setSelectedFile} />}
+      {radioValue === NEW && <InnerDropBoxJsonSelect selectedFile={selectedFile} setSelectedFile={setSelectedFile} />}
 
-      {(radioValue !== "new" || selectedFile) && (
-        <JsonDisplay
-          showObjectWithReactJson={true}
-          jsonSrc={radioValue === "new" ? currentFieldData : initialValue}
-          showArrayTitle={false}
-        />
+      {(radioValue !== NEW || selectedFile) && (
+        <JsonDisplay showObjectWithReactJson={true} jsonSrc={selection} showArrayTitle={false} />
       )}
     </div>
   );

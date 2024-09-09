@@ -33,7 +33,7 @@ const DatasetForm = ({ initialValue, form }) => {
         <DropBoxJsonSelect initialValue={initialValue?.dats_file} />
       </Item>
       <Item label="Discovery Configuration" name="discovery" rules={[{ validator: discoveryValidator }]}>
-        <DropBoxJsonSelect initialValue={initialValue?.discovery} />
+        <DropBoxJsonSelect initialValue={initialValue?.discovery} nullable={true} />
       </Item>
       <Item
         label="Consent Code and Data Use Requirements"
