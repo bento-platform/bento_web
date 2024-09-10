@@ -1,8 +1,11 @@
+import { useCallback, useMemo } from "react";
 import { useSelector } from "react-redux";
+import Ajv from "ajv";
+import type { SchemaObject } from "ajv";
 
-import { RESOURCE_EVERYTHING, useHasResourcePermission, useResourcePermissions } from "bento-auth-js";
-import type { Resource } from "bento-auth-js";
+import { RESOURCE_EVERYTHING, useHasResourcePermission, useResourcePermissions, type Resource } from "bento-auth-js";
 
+import { type RootState } from "@/store";
 import { useService } from "@/modules/services/hooks";
 
 // AUTHORIZATION:
@@ -63,13 +66,43 @@ export const useEverythingPermissions = () => useResourcePermissionsWrapper(RESO
  * Returns true if the OpenID config hasn't been loaded yet.
  */
 export const useOpenIDConfigNotLoaded = (): boolean => {
-  const {
-    hasAttempted: openIdConfigHasAttempted,
-    isFetching: openIdConfigFetching,
-    // @ts-expect-error We haven't typed the state object yet
-  } = useSelector((state) => state.openIdConfiguration);
+  const { hasAttempted: openIdConfigHasAttempted, isFetching: openIdConfigFetching } = useSelector(
+    (state: RootState) => state.openIdConfiguration,
+  );
 
   // Need `=== false`, since if this is loaded from localStorage from a prior version, it'll be undefined and prevent
   // the page from showing.
   return openIdConfigHasAttempted === false || openIdConfigFetching;
+};
+
+export const useJsonSchemaValidator = (schema: SchemaObject, acceptFalsyValue: boolean) => {
+  const ajv = useMemo(() => new Ajv(), []);
+  return useCallback(
+    (rule: unknown, value: unknown) => {
+      if (!schema) {
+        return Promise.reject(new Error("No JSON schema provided, cannot validate."));
+      }
+
+      if (!value && acceptFalsyValue) {
+        return Promise.resolve();
+      }
+      const valid = ajv.validate(schema, value);
+
+      if (valid) {
+        return Promise.resolve();
+      } else {
+        return Promise.reject(new Error(ajv.errorsText(ajv.errors)));
+      }
+    },
+    [acceptFalsyValue, ajv, schema],
+  );
+};
+
+export const useDatsValidator = () => {
+  // Simply verify that the file is a valid JSON object.
+  // The backend will perform the more expensive validation
+  const datsSchema = {
+    type: "object",
+  };
+  return useJsonSchemaValidator(datsSchema, false);
 };

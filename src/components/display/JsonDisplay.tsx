@@ -1,9 +1,9 @@
 import { useCallback, useEffect, useState } from "react";
-import type { JSONType } from "ajv";
 import { Collapse, Select, Typography } from "antd";
 
 import JsonView from "@/components/common/JsonView";
 import MonospaceText from "@/components/common/MonospaceText";
+import type { JSONType } from "@/types/json";
 
 const DEFAULT_JSON_VIEW_OPTIONS = {
   collapsed: true,
@@ -98,12 +98,17 @@ const JsonObjectDisplay = ({ doc }: JsonObjectDisplayProps) => {
 type JsonDisplayProps = {
   jsonSrc?: JSONType;
   showObjectWithReactJson?: boolean;
+  showArrayTitle?: boolean;
 };
 
-const JsonDisplay = ({ jsonSrc, showObjectWithReactJson }: JsonDisplayProps) => {
+const JsonDisplay = ({ jsonSrc, showObjectWithReactJson, showArrayTitle }: JsonDisplayProps) => {
   if (Array.isArray(jsonSrc)) {
     // Special display for array nav
-    return <JsonArrayDisplay doc={jsonSrc || []} standalone />;
+    return <JsonArrayDisplay doc={jsonSrc || []} standalone={showArrayTitle ?? true} />;
+  }
+
+  if (jsonSrc === null) {
+    return <MonospaceText>null</MonospaceText>;
   }
 
   if (typeof jsonSrc === "object") {

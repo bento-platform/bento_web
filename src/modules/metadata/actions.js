@@ -28,6 +28,21 @@ export const FETCH_OVERVIEW_SUMMARY = createNetworkActionTypes("FETCH_OVERVIEW_S
 
 export const DELETE_DATASET_DATA_TYPE = createNetworkActionTypes("DELETE_DATASET_DATA_TYPE");
 
+export const FETCH_DISCOVERY_SCHEMA = createNetworkActionTypes("FETCH_DISCOVERY_SCHEMA");
+export const FETCH_DATS_SCHEMA = createNetworkActionTypes("FETCH_DATS_SCHEMA");
+
+const _fetchDiscoverySchema = networkAction(() => (_dispatch, getState) => ({
+  types: FETCH_DISCOVERY_SCHEMA,
+  url: `${getState().bentoServices.itemsByKind.metadata.url}/api/schemas/discovery`,
+  err: "Error fetching discovery JSON schema",
+}));
+
+export const fetchDiscoverySchema = () => (dispatch, getState) => {
+  const metadataUrl = getState()?.bentoServices?.itemsByKind?.metadata?.url;
+  if (!metadataUrl) return Promise.resolve();
+  return dispatch(_fetchDiscoverySchema());
+};
+
 export const clearDatasetDataType = networkAction((datasetId, dataTypeID) => (_dispatch, getState) => {
   const { service_base_url: serviceBaseUrl } = getState().serviceDataTypes.itemsByID[dataTypeID];
   // noinspection JSUnusedGlobalSymbols
@@ -63,22 +78,17 @@ export const fetchProjectsWithDatasets = () => (dispatch, getState) => {
   return dispatch(fetchProjects());
 };
 
-const createProject = networkAction((project, navigate) => (_dispatch, getState) => ({
+export const createProjectIfPossible = networkAction((project, navigate) => (_dispatch, getState) => ({
   types: CREATE_PROJECT,
   url: `${getState().services.metadataService.url}/api/projects`,
   req: jsonRequest(project, "POST"),
   err: "Error creating project",
+  check: (state) => !state.projects.isCreating,
   onSuccess: (data) => {
     if (navigate) navigate(`/data/manager/projects/${data.identifier}`);
     message.success(`Project '${data.title}' created!`);
   },
 }));
-
-export const createProjectIfPossible = (project, navigate) => (dispatch, getState) => {
-  // TODO: Need object response from POST (is this done??)
-  if (getState().projects.isCreating) return Promise.resolve();
-  return dispatch(createProject(project, navigate));
-};
 
 const _fetchExtraPropertiesSchemaTypes = networkAction(() => (_dispatch, getState) => ({
   types: FETCH_EXTRA_PROPERTIES_SCHEMA_TYPES,
@@ -143,21 +153,17 @@ export const clearDatasetDataTypes = (datasetId) => async (dispatch, getState) =
   return await Promise.all(dataTypes.map((dt) => dispatch(clearDatasetDataType(datasetId, dt.id))));
 };
 
-const saveProject = networkAction((project) => (dispatch, getState) => ({
+export const saveProjectIfPossible = networkAction((project) => (dispatch, getState) => ({
   types: SAVE_PROJECT,
   url: `${getState().services.metadataService.url}/api/projects/${project.identifier}`,
   req: jsonRequest(project, "PUT"),
   err: `Error saving project '${project.title}'`, // TODO: More user-friendly error
+  check: (state) => !state.projects.isDeleting || !state.projects.isSaving,
   onSuccess: () => {
     dispatch(endProjectEditing());
     message.success(`Project '${project.title}' saved!`);
   },
 }));
-
-export const saveProjectIfPossible = (project) => (dispatch, getState) => {
-  if (getState().projects.isDeleting || getState().projects.isSaving) return;
-  return dispatch(saveProject(project));
-};
 
 export const addProjectDataset = networkAction((project, dataset, onSuccess = nop) => (_dispatch, getState) => ({
   types: ADD_PROJECT_DATASET,
