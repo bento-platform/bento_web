@@ -1,12 +1,10 @@
 import { useCallback, useMemo, useState } from "react";
 import { RESOURCE_EVERYTHING, deleteDropBox, ingestDropBox, viewDropBox } from "bento-auth-js";
 
-import PropTypes from "prop-types";
 
 import { filesize } from "filesize";
 
 import {
-  Alert,
   Button,
   Descriptions,
   Dropdown,
@@ -32,6 +30,7 @@ import {
 import { LAYOUT_CONTENT_STYLE } from "@/styles/layoutContent";
 
 import DownloadButton from "@/components/common/DownloadButton";
+import DropBoxInformation from "./DropBoxInformation";
 import FileContentsModal from "./FileContentsModal";
 import FileUploadModal from "./FileUploadModal";
 import ForbiddenContent from "@/components/ForbiddenContent";
@@ -97,23 +96,6 @@ const stopEvent = (event) => {
   event.stopPropagation();
 };
 
-const DropBoxInformation = ({ style }) => (
-  <Alert
-    type="info"
-    showIcon={true}
-    message="About the drop box"
-    description={`
-        The drop box contains files which are not yet ingested into this Bento instance. They are not
-        organized in any particular structure; instead, this serves as a place for incoming data files to be
-        deposited and examined.
-    `}
-    style={style}
-  />
-);
-DropBoxInformation.propTypes = {
-  style: PropTypes.object,
-};
-
 const DROP_BOX_ROOT_KEY = "/";
 
 const filterTree = (nodes, searchTerm) => {
@@ -143,8 +125,7 @@ const ManagerDropBoxContent = () => {
   const { tree, isFetching: treeLoading, isDeleting } = useDropBox();
 
   const { workflowsByType } = useWorkflows();
-  const ingestionWorkflows = workflowsByType.ingestion.items;
-  const ingestionWorkflowsByID = workflowsByType.ingestion.itemsByID;
+  const { items: ingestionWorkflows, itemsByID: ingestionWorkflowsByID } = workflowsByType.ingestion;
 
   const [searchTerm, setSearchTerm] = useState("");
 
