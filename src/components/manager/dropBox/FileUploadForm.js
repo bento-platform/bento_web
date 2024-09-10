@@ -16,17 +16,17 @@ const FileUploadForm = ({ initialUploadFolder, initialUploadFiles, form }) => {
       ...(initialUploadFolder ? { parent: initialUploadFolder } : {}),
       ...(initialUploadFiles
         ? {
-          files: initialUploadFiles.map((u, i) => ({
-            // ...u doesn't work for File object
-            lastModified: u.lastModified,
-            name: u.name,
-            size: u.size,
-            type: u.type,
+            files: initialUploadFiles.map((u, i) => ({
+              // ...u doesn't work for File object
+              lastModified: u.lastModified,
+              name: u.name,
+              size: u.size,
+              type: u.type,
 
-            uid: (-1 * (i + 1)).toString(),
-            originFileObj: u,
-          })),
-        }
+              uid: (-1 * (i + 1)).toString(),
+              originFileObj: u,
+            })),
+          }
         : {}),
     }),
     [initialUploadFolder, initialUploadFiles],
