@@ -17,7 +17,7 @@ const DatasetForm = ({ initialValue, form }) => {
   const discoveryValidator = useDiscoveryValidator();
   const datsValidator = useDatsValidator();
 
-  const formData = useMemo(() => {
+  const initialFormData = useMemo(() => {
     return {
       ...initialValue,
       data_use: initialValue?.data_use ?? simpleDeepCopy(INITIAL_DATA_USE_VALUE),
@@ -25,7 +25,7 @@ const DatasetForm = ({ initialValue, form }) => {
   }, [initialValue]);
 
   return (
-    <Form form={form} layout="vertical" initialValues={formData}>
+    <Form form={form} layout="vertical" initialValues={initialFormData}>
       <Item label="Title" name="title" rules={[{ required: true }, { min: 3 }]}>
         <Input placeholder="My Dataset" size="large" />
       </Item>
@@ -36,10 +36,10 @@ const DatasetForm = ({ initialValue, form }) => {
         <Input.TextArea placeholder={"Name\nInfo@c3g.ca"} />
       </Item>
       <Item label="DATS File" name="dats_file" rules={[{ required: true }, { validator: datsValidator }]}>
-        <DropBoxJsonSelect initialValue={formData?.dats_file} />
+        <DropBoxJsonSelect initialValue={initialFormData?.dats_file} />
       </Item>
       <Item label="Discovery Configuration" name="discovery" rules={[{ validator: discoveryValidator }]}>
-        <DropBoxJsonSelect initialValue={formData?.discovery} nullable={true} />
+        <DropBoxJsonSelect initialValue={initialFormData?.discovery} nullable={true} />
       </Item>
       <Item
         label="Consent Code and Data Use Requirements"
