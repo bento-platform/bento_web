@@ -1,7 +1,6 @@
 import { useCallback, useMemo, useState } from "react";
 import { RESOURCE_EVERYTHING, deleteDropBox, ingestDropBox, viewDropBox } from "bento-auth-js";
 
-
 import { filesize } from "filesize";
 
 import {
