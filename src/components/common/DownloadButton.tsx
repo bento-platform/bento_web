@@ -21,7 +21,7 @@ const FORM_ALLOWED_EXTRA_KEYS = new Set([
 
 interface DownloadButtonProps extends ButtonProps {
   uri: string;
-  fileName: string;
+  fileName?: string;
   extraFormData?: Record<string, string | number>;
 }
 
