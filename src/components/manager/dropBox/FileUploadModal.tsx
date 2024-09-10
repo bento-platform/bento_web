@@ -28,7 +28,7 @@ const FileUploadModal = ({ initialUploadFolder, initialUploadFiles, onCancel, op
 
   useEffect(() => {
     if (open) {
-      // If we just re-opened the model, reset the fields
+      // If we just re-opened the modal, reset the fields
       form.resetFields();
     }
   }, [open, form]);
