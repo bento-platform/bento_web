@@ -1,16 +1,24 @@
-import { useCallback, useMemo } from "react";
-import PropTypes from "prop-types";
+import { useMemo } from "react";
 
-import { Button, Form, Upload } from "antd";
+import { Button, Form, type FormInstance, Upload } from "antd";
+import type { RcFile } from "antd/es/upload";
 import { UploadOutlined } from "@ant-design/icons";
 
 import { getFalse } from "@/utils/misc";
 
 import DropBoxTreeSelect from "./DropBoxTreeSelect";
 
-const FileUploadForm = ({ initialUploadFolder, initialUploadFiles, form }) => {
-  const getFileListFromEvent = useCallback((e) => (Array.isArray(e) ? e : e && e.fileList), []);
+type FileUploadFormProps = {
+  initialUploadFolder?: string;
+  initialUploadFiles?: File[];
+  form: FormInstance;
+};
 
+// In Ant Design example code, they allow for the possibility of an array being passed here instead of an object with
+// the fileList property. I'm not sure why, but we have kept that handling here just in case.
+const getFileListFromEvent = (e: RcFile[] | { fileList: RcFile[] }) => (Array.isArray(e) ? e : e && e.fileList);
+
+const FileUploadForm = ({ initialUploadFolder, initialUploadFiles, form }: FileUploadFormProps) => {
   const initialValues = useMemo(
     () => ({
       ...(initialUploadFolder ? { parent: initialUploadFolder } : {}),
@@ -54,12 +62,6 @@ const FileUploadForm = ({ initialUploadFolder, initialUploadFiles, form }) => {
       </Form.Item>
     </Form>
   );
-};
-
-FileUploadForm.propTypes = {
-  initialUploadFolder: PropTypes.string,
-  initialUploadFiles: PropTypes.arrayOf(PropTypes.object),
-  form: PropTypes.object,
 };
 
 export default FileUploadForm;
