@@ -1,6 +1,7 @@
 import PropTypes from "prop-types";
 
 import { Form, Input } from "antd";
+import { useMemo } from "react";
 
 const { Item } = Form;
 
@@ -15,11 +16,16 @@ import DropBoxJsonSelect from "../manager/dropBox/DropBoxJsonSelect";
 const DatasetForm = ({ initialValue, form }) => {
   const discoveryValidator = useDiscoveryValidator();
   const datsValidator = useDatsValidator();
-  if (initialValue && !initialValue?.data_use) {
-    initialValue["data_use"] = simpleDeepCopy(INITIAL_DATA_USE_VALUE);
-  }
+
+  const formData = useMemo(() => {
+    return {
+      ...initialValue,
+      data_use: initialValue?.data_use ?? simpleDeepCopy(INITIAL_DATA_USE_VALUE),
+    };
+  }, [initialValue]);
+
   return (
-    <Form form={form} layout="vertical" initialValues={initialValue}>
+    <Form form={form} layout="vertical" initialValues={formData}>
       <Item label="Title" name="title" rules={[{ required: true }, { min: 3 }]}>
         <Input placeholder="My Dataset" size="large" />
       </Item>
