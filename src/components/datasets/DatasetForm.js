@@ -36,10 +36,10 @@ const DatasetForm = ({ initialValue, form }) => {
         <Input.TextArea placeholder={"Name\nInfo@c3g.ca"} />
       </Item>
       <Item label="DATS File" name="dats_file" rules={[{ required: true }, { validator: datsValidator }]}>
-        <DropBoxJsonSelect initialValue={initialValue?.dats_file} />
+        <DropBoxJsonSelect initialValue={formData?.dats_file} />
       </Item>
       <Item label="Discovery Configuration" name="discovery" rules={[{ validator: discoveryValidator }]}>
-        <DropBoxJsonSelect initialValue={initialValue?.discovery} nullable={true} />
+        <DropBoxJsonSelect initialValue={formData?.discovery} nullable={true} />
       </Item>
       <Item
         label="Consent Code and Data Use Requirements"
