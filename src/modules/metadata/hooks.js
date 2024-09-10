@@ -69,5 +69,5 @@ export const useDiscoverySchema = () => {
 
 export const useDiscoveryValidator = () => {
   const discoverySchema = useDiscoverySchema();
-  return useJsonSchemaValidator(discoverySchema, true);
+  return useJsonSchemaValidator(discoverySchema, "discovery", true);
 };
