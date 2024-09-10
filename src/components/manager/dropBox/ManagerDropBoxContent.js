@@ -153,7 +153,7 @@ const ManagerDropBoxContent = () => {
   // Start with drop box root selected at first
   //  - Will enable the upload button so that users can quickly upload from initial page load
   const [selectedEntries, setSelectedEntries] = useState([DROP_BOX_ROOT_KEY]);
-  const firstSelectedEntry = useMemo(() => selectedEntries[0], [selectedEntries]);
+  const firstSelectedEntry = selectedEntries[0];
 
   const [draggingOver, setDraggingOver] = useState(false);
 
@@ -362,7 +362,7 @@ const ManagerDropBoxContent = () => {
         />
 
         <FileContentsModal
-          selectedFilePath={selectedEntries.length === 1 ? firstSelectedEntry : null}
+          selectedFilePath={selectedEntries.length === 1 ? firstSelectedEntry : undefined}
           open={fileContentsModal}
           onCancel={hideFileContentsModal}
         />
