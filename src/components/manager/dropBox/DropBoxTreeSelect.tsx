@@ -6,9 +6,10 @@ import { useDropBox } from "@/modules/dropBox/hooks";
 import type { DropBoxEntry } from "@/modules/dropBox/types";
 import { getTrue } from "@/utils/misc";
 
+import { sortByName } from "./common";
+
 type DropBoxEntryValidFunction = (x: DropBoxEntry) => boolean;
 
-const sortByName = (a: DropBoxEntry, b: DropBoxEntry) => a.name.localeCompare(b.name);
 export const generateFileTree = (
   directory: DropBoxEntry[],
   valid: DropBoxEntryValidFunction,

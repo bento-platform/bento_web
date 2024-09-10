@@ -1,5 +1,4 @@
-import { useCallback, useEffect, useMemo, useState } from "react";
-import { useDispatch, useSelector } from "react-redux";
+import { useCallback, useMemo, useState } from "react";
 import { RESOURCE_EVERYTHING, deleteDropBox, ingestDropBox, viewDropBox } from "bento-auth-js";
 
 import PropTypes from "prop-types";
@@ -12,7 +11,6 @@ import {
   Descriptions,
   Dropdown,
   Empty,
-  Form,
   Input,
   Layout,
   Modal,
@@ -20,7 +18,6 @@ import {
   Statistic,
   Tree,
   Typography,
-  Upload,
   message,
 } from "antd";
 import {
@@ -34,28 +31,24 @@ import {
 
 import { LAYOUT_CONTENT_STYLE } from "@/styles/layoutContent";
 
-import ActionContainer from "./ActionContainer";
-import DownloadButton from "../common/DownloadButton";
-import DropBoxTreeSelect from "./dropBox/DropBoxTreeSelect";
-import FileModal from "../display/FileModal";
-import ForbiddenContent from "../ForbiddenContent";
+import DownloadButton from "@/components/common/DownloadButton";
+import FileContentsModal from "./FileContentsModal";
+import FileUploadModal from "./FileUploadModal";
+import ForbiddenContent from "@/components/ForbiddenContent";
+import ActionContainer from "../ActionContainer";
 
 import { BENTO_DROP_BOX_FS_BASE_PATH } from "@/config";
+import { VIEWABLE_FILE_EXTENSIONS } from "@/components/display/FileDisplay";
 import { useResourcePermissionsWrapper } from "@/hooks";
-import {
-  beginDropBoxPuttingObjects,
-  endDropBoxPuttingObjects,
-  putDropBoxObject,
-  deleteDropBoxObject,
-  invalidateDropBoxTree,
-} from "@/modules/dropBox/actions";
+import { deleteDropBoxObject } from "@/modules/dropBox/actions";
 import { useDropBox } from "@/modules/dropBox/hooks";
 import { useService, useWorkflows } from "@/modules/services/hooks";
+import { useAppDispatch } from "@/store";
 import { testFileAgainstPattern } from "@/utils/files";
-import { getFalse } from "@/utils/misc";
 
-import { VIEWABLE_FILE_EXTENSIONS } from "../display/FileDisplay";
-import { useStartIngestionFlow } from "./workflowCommon";
+import { useStartIngestionFlow } from "../workflowCommon";
+
+import { sortByName } from "./common";
 
 const DROP_BOX_CONTENT_CONTAINER_STYLE = { display: "flex", flexDirection: "column", gap: 8 };
 const DROP_BOX_INFO_CONTAINER_STYLE = { display: "flex", gap: "2em", paddingTop: 8 };
@@ -79,24 +72,12 @@ const TREE_DROP_ZONE_OVERLAY_STYLE = {
 };
 const TREE_DROP_ZONE_OVERLAY_ICON_STYLE = { fontSize: 48, color: "#1890ff" };
 
-const sortByName = (a, b) => a.name.localeCompare(b.name);
 const generateFileTree = (directory) =>
   [...directory].sort(sortByName).map(({ name: title, contents, relativePath: key }) => ({
     title,
     key,
     ...(contents !== undefined ? { children: generateFileTree(contents) } : { isLeaf: true }),
   }));
-
-const generateURIsByRelPath = (entry, acc) => {
-  if (Array.isArray(entry)) {
-    entry.forEach((e) => generateURIsByRelPath(e, acc));
-  } else if (entry.uri) {
-    acc[entry.relativePath] = entry.uri;
-  } else if (entry.contents) {
-    entry.contents.forEach((e) => generateURIsByRelPath(e, acc));
-  }
-  return acc;
-};
 
 const recursivelyFlattenFileTree = (acc, contents) => {
   contents.forEach((c) => {
@@ -114,152 +95,6 @@ const formatTimestamp = (timestamp) => new Date(timestamp * 1000).toLocaleString
 const stopEvent = (event) => {
   event.preventDefault();
   event.stopPropagation();
-};
-
-const FileUploadForm = ({ initialUploadFolder, initialUploadFiles, form }) => {
-  const getFileListFromEvent = useCallback((e) => (Array.isArray(e) ? e : e && e.fileList), []);
-
-  const initialValues = useMemo(
-    () => ({
-      ...(initialUploadFolder ? { parent: initialUploadFolder } : {}),
-      ...(initialUploadFiles
-        ? {
-            files: initialUploadFiles.map((u, i) => ({
-              // ...u doesn't work for File object
-              lastModified: u.lastModified,
-              name: u.name,
-              size: u.size,
-              type: u.type,
-
-              uid: (-1 * (i + 1)).toString(),
-              originFileObj: u,
-            })),
-          }
-        : {}),
-    }),
-    [initialUploadFolder, initialUploadFiles],
-  );
-
-  return (
-    <Form initialValues={initialValues} form={form} layout="vertical">
-      <Form.Item
-        label="Parent Folder"
-        name="parent"
-        rules={[{ required: true, message: "Please select a folder to upload into." }]}
-      >
-        <DropBoxTreeSelect folderMode={true} />
-      </Form.Item>
-      <Form.Item
-        label="File"
-        name="files"
-        valuePropName="fileList"
-        getValueFromEvent={getFileListFromEvent}
-        rules={[{ required: true, message: "Please specify at least one file to upload." }]}
-      >
-        <Upload beforeUpload={getFalse}>
-          <Button icon={<UploadOutlined />}>Upload</Button>
-        </Upload>
-      </Form.Item>
-    </Form>
-  );
-};
-FileUploadForm.propTypes = {
-  initialUploadFolder: PropTypes.string,
-  initialUploadFiles: PropTypes.arrayOf(PropTypes.object),
-  form: PropTypes.object,
-};
-
-const FileUploadModal = ({ initialUploadFolder, initialUploadFiles, onCancel, open }) => {
-  const dispatch = useDispatch();
-  const [form] = Form.useForm();
-
-  const isPutting = useSelector((state) => state.dropBox.isPuttingFlow);
-
-  useEffect(() => {
-    if (open) {
-      // If we just re-opened the model, reset the fields
-      form.resetFields();
-    }
-  }, [open, form]);
-
-  const onOk = useCallback(() => {
-    if (!form) {
-      console.error("missing form");
-      return;
-    }
-
-    form
-      .validateFields()
-      .then((values) => {
-        (async () => {
-          dispatch(beginDropBoxPuttingObjects());
-
-          for (const file of values.files) {
-            if (!file.name) {
-              console.error("Cannot upload file with no name", file);
-              continue;
-            }
-
-            const path = `${values.parent.replace(/\/$/, "")}/${file.name}`;
-
-            try {
-              await dispatch(putDropBoxObject(path, file.originFileObj));
-            } catch (e) {
-              console.error(e);
-              message.error(`Error uploading file to drop box path: ${path}`);
-            }
-          }
-
-          // Trigger a reload of the file tree with the newly-uploaded file(s)
-          dispatch(invalidateDropBoxTree());
-
-          // Finish the object-putting flow
-          dispatch(endDropBoxPuttingObjects());
-
-          // Close ourselves (the upload modal)
-          if (onCancel) onCancel();
-        })();
-      })
-      .catch((err) => {
-        console.error(err);
-      });
-  }, [dispatch, form, onCancel]);
-
-  return (
-    <Modal title="Upload" okButtonProps={{ loading: isPutting }} onCancel={onCancel} open={open} onOk={onOk}>
-      <FileUploadForm form={form} initialUploadFolder={initialUploadFolder} initialUploadFiles={initialUploadFiles} />
-    </Modal>
-  );
-};
-FileUploadModal.propTypes = {
-  initialUploadFolder: PropTypes.string,
-  initialUploadFiles: PropTypes.arrayOf(PropTypes.instanceOf(File)),
-  onCancel: PropTypes.func,
-  open: PropTypes.bool,
-};
-
-const FileContentsModal = ({ selectedFilePath, open, onCancel }) => {
-  const { tree, isFetching: treeLoading } = useDropBox();
-
-  const urisByFilePath = useMemo(() => generateURIsByRelPath(tree, {}), [tree]);
-  const uri = useMemo(() => urisByFilePath[selectedFilePath], [urisByFilePath, selectedFilePath]);
-
-  // destroyOnClose in order to stop audio/video from playing & avoid memory leaks at the cost of re-fetching
-  return (
-    <FileModal
-      open={open}
-      onCancel={onCancel}
-      title={selectedFilePath ? `${selectedFilePath.split("/").at(-1)} - contents` : ""}
-      url={uri}
-      fileName={selectedFilePath}
-      loading={treeLoading}
-    />
-  );
-};
-FileContentsModal.propTypes = {
-  selectedFilePath: PropTypes.string,
-  open: PropTypes.bool,
-  onCancel: PropTypes.func,
 };
 
 const DropBoxInformation = ({ style }) => (
@@ -299,7 +134,7 @@ const filterTree = (nodes, searchTerm) => {
 };
 
 const ManagerDropBoxContent = () => {
-  const dispatch = useDispatch();
+  const dispatch = useAppDispatch();
 
   const { permissions, isFetchingPermissions, hasAttemptedPermissions } =
     useResourcePermissionsWrapper(RESOURCE_EVERYTHING);
