@@ -158,7 +158,7 @@ const ManagerDropBoxContent = () => {
 
   const [draggingOver, setDraggingOver] = useState(false);
 
-  const [initialUploadFolder, setInitialUploadFolder] = useState(null);
+  const [initialUploadFolder, setInitialUploadFolder] = useState(undefined);
   const [initialUploadFiles, setInitialUploadFiles] = useState([]);
   const [uploadModal, setUploadModal] = useState(false);
 

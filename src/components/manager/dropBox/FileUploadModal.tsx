@@ -1,5 +1,4 @@
 import { useCallback, useEffect } from "react";
-import PropTypes from "prop-types";
 
 import { Form, message, Modal } from "antd";
 
@@ -14,7 +13,14 @@ import { useAppDispatch } from "@/store";
 
 import FileUploadForm from "./FileUploadForm";
 
-const FileUploadModal = ({ initialUploadFolder, initialUploadFiles, onCancel, open }) => {
+type FileUploadModalProps = {
+  initialUploadFolder?: string;
+  initialUploadFiles?: File[];
+  onCancel?: () => void;
+  open?: boolean;
+};
+
+const FileUploadModal = ({ initialUploadFolder, initialUploadFiles, onCancel, open }: FileUploadModalProps) => {
   const dispatch = useAppDispatch();
   const [form] = Form.useForm();
 
@@ -75,13 +81,6 @@ const FileUploadModal = ({ initialUploadFolder, initialUploadFiles, onCancel, op
       <FileUploadForm form={form} initialUploadFolder={initialUploadFolder} initialUploadFiles={initialUploadFiles} />
     </Modal>
   );
-};
-
-FileUploadModal.propTypes = {
-  initialUploadFolder: PropTypes.string,
-  initialUploadFiles: PropTypes.arrayOf(PropTypes.instanceOf(File)),
-  onCancel: PropTypes.func,
-  open: PropTypes.bool,
 };
 
 export default FileUploadModal;
