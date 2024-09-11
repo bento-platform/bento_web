@@ -1,6 +1,6 @@
 import { useMemo } from "react";
 import PropTypes from "prop-types";
-import { Histogram as BentoChartsHistogram } from "bento-charts";
+import { Histogram as BentoHistogram } from "bento-charts";
 import ChartContainer from "./ChartContainer";
 
 const transformAgeData = (data) => data && data.map(({ ageBin, count }) => ({ x: ageBin, y: count }));
@@ -10,7 +10,7 @@ const Histogram = ({ title = "Histogram", data = [], chartHeight = 300, unit = "
 
   return (
     <ChartContainer title={title} empty={!Array.isArray(data) || !data.length}>
-      <BentoChartsHistogram data={transformedData} height={chartHeight} removeEmpty={false} units={unit} />
+      <BentoHistogram data={transformedData} height={chartHeight} removeEmpty={false} units={unit} />
     </ChartContainer>
   );
 };
