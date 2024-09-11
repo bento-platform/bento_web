@@ -57,6 +57,10 @@ const CustomHeaderText = memo(() => (
   <h1 style={{ color: "rgba(255, 255, 255, 0.95)", float: "left", margin: "0 24px 0 0" }}>{CUSTOM_HEADER}</h1>
 ));
 
+const openGrafanaInNewTab = () => {
+  window.open(BENTO_GRAFANA_URL, "_blank");
+};
+
 const SiteHeader = () => {
   const dispatch = useDispatch();
 
@@ -84,10 +88,6 @@ const SiteHeader = () => {
 
   const performSignOut = usePerformSignOut();
   const hasValidGrafanaRole = useHasValidGrafanaRole();
-
-  const openGrafanaInNewTab = () => {
-    window.open(BENTO_GRAFANA_URL, "_blank");
-  };
 
   const menuItems = useMemo(
     () => [
