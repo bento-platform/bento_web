@@ -193,10 +193,9 @@ const App = () => {
 
   const openSignInWindow = useOpenSignInWindowCallback(signInWindow, SIGN_IN_WINDOW_FEATURES);
 
-  // On the cBioPortal and Grafana tabs, eliminate the margin around the content
-  // to give as much space as possible to the application itself.
-  const margin =
-    window.location.pathname.endsWith("cbioportal") || window.location.pathname.endsWith("grafana") ? 0 : 26;
+  // On the cBioPortal tab, eliminate the margin around the content to give as much space as possible to the
+  // application itself.
+  const margin = window.location.pathname.endsWith("cbioportal") ? 0 : 26;
 
   const threshold = useSelector((state) => state.explorer.otherThresholdPercentage) / 100;
 
