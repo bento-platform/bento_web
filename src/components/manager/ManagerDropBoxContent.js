@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
-import { useDispatch, useSelector } from "react-redux";
+import { useDispatch } from "react-redux";
 import { RESOURCE_EVERYTHING, deleteDropBox, ingestDropBox, viewDropBox } from "bento-auth-js";
 
 import PropTypes from "prop-types";
@@ -173,7 +173,7 @@ const FileUploadModal = ({ initialUploadFolder, initialUploadFiles, onCancel, op
   const dispatch = useDispatch();
   const [form] = Form.useForm();
 
-  const isPutting = useSelector((state) => state.dropBox.isPuttingFlow);
+  const { isPuttingFlow: isPutting } = useDropBox();
 
   useEffect(() => {
     if (open) {

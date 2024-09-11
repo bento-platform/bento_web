@@ -5,6 +5,9 @@ import PropTypes from "prop-types";
 import { Table, Modal } from "antd";
 import { MoreOutlined } from "@ant-design/icons";
 
+import { useDatasetsArray } from "@/modules/metadata/hooks";
+import { useServices } from "@/modules/services/hooks";
+
 const COLUMNS_LAST_CONTENT = [
   {
     title: "Date",
@@ -173,11 +176,10 @@ const processIngestions = (data, currentDatasets) => {
 };
 
 const LastIngestionTable = () => {
-  const servicesFetching = useSelector((state) => state.services.isFetchingAll);
+  const { isFetchingAll: servicesFetching } = useServices();
   const { items: runs, isFetching: runsFetching } = useSelector((state) => state.runs);
-  const currentProjects = useSelector((state) => state.projects.items);
-  const currentDatasets = useMemo(() => currentProjects.flatMap((p) => p.datasets), [currentProjects]);
-  const ingestions = useMemo(() => processIngestions(runs, currentDatasets), [runs, currentDatasets]);
+  const datasets = useDatasetsArray();
+  const ingestions = useMemo(() => processIngestions(runs, datasets), [runs, datasets]);
 
   return (
     <Table

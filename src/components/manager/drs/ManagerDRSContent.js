@@ -12,14 +12,16 @@ import { DeleteOutlined } from "@ant-design/icons";
 import { RESOURCE_EVERYTHING, deleteData, downloadData, queryData } from "bento-auth-js";
 
 import { EM_DASH } from "@/constants";
-import { LAYOUT_CONTENT_STYLE } from "@/styles/layoutContent";
-
 import BooleanYesNo from "@/components/common/BooleanYesNo";
 import DownloadButton from "@/components/common/DownloadButton";
 import MonospaceText from "@/components/common/MonospaceText";
 import ForbiddenContent from "@/components/ForbiddenContent";
 import { useResourcePermissionsWrapper } from "@/hooks";
 import { clearDRSObjectSearch, deleteDRSObject, performDRSObjectSearch } from "@/modules/drs/actions";
+import { useProjects } from "@/modules/metadata/hooks";
+import { useService } from "@/modules/services/hooks";
+import { LAYOUT_CONTENT_STYLE } from "@/styles/layoutContent";
+
 import DatasetTitleDisplay from "../DatasetTitleDisplay";
 import ProjectTitleDisplay from "../ProjectTitleDisplay";
 
@@ -161,8 +163,7 @@ const DRS_TABLE_EXPANDABLE = {
 const ManagerDRSContent = () => {
   const dispatch = useDispatch();
 
-  const projectsByID = useSelector((state) => state.projects.itemsByID);
-  const datasetsByID = useSelector((state) => state.projects.datasetsByID);
+  const { itemsByID: projectsByID, datasetsByID } = useProjects();
 
   // TODO: per-object permissions
   //  For now, use whole-node permissions for DRS object viewer
@@ -178,7 +179,7 @@ const ManagerDRSContent = () => {
   const hasDownloadPermission = permissions.includes(downloadData);
   const hasDeletePermission = permissions.includes(deleteData);
 
-  const drsURL = useSelector((state) => state.services.drsService?.url);
+  const drsURL = useService("drs")?.url;
   const {
     objectSearchResults: rawObjectResults,
     objectSearchIsFetching,

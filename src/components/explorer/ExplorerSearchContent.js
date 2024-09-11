@@ -4,13 +4,15 @@ import { Navigate, Route, Routes } from "react-router-dom";
 
 import { Layout, Menu, Skeleton } from "antd";
 
-import ExplorerDatasetSearch from "./ExplorerDatasetSearch";
-import SitePageHeader from "../SitePageHeader";
+import { useDatasetsArray, useProjectsArray } from "@/modules/metadata/hooks";
 import { LAYOUT_CONTENT_STYLE } from "@/styles/layoutContent";
 import { matchingMenuKeys, transformMenuItem } from "@/utils/menu";
 
+import ExplorerDatasetSearch from "./ExplorerDatasetSearch";
+import SitePageHeader from "../SitePageHeader";
+
 const ExplorerSearchContent = () => {
-  const projects = useSelector((state) => state.projects.items);
+  const projects = useProjectsArray();
   const isFetchingDependentData = useSelector((state) => state.user.isFetchingDependentData);
 
   const menuItems = useMemo(
@@ -27,7 +29,7 @@ const ExplorerSearchContent = () => {
     [projects],
   );
 
-  const datasets = useMemo(() => projects.flatMap((p) => p.datasets), [projects]);
+  const datasets = useDatasetsArray();
 
   return (
     <>

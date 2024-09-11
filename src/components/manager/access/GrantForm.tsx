@@ -72,7 +72,7 @@ const handleSubjectChange = (
 const SubjectInput = ({ value, onChange }: SubjectInputProps) => {
   const groups: StoredGroup[] = useGroups().data;
 
-  const homeIssuer = useOpenIdConfig()?.issuer ?? "";
+  const homeIssuer = useOpenIdConfig().data?.issuer ?? "";
 
   const [subjectType, setSubjectType] = useState<SubjectType>(SUBJECT_TYPE_EVERYONE);
   const [iss, setIss] = useState(homeIssuer);
@@ -583,7 +583,7 @@ const PermissionsInput = ({ id, value, onChange, currentResource, ...rest }: Per
 };
 
 const GrantForm = ({ form }: { form: FormInstance<Grant> }) => {
-  const homeIssuer = useOpenIdConfig()?.issuer ?? "";
+  const homeIssuer = useOpenIdConfig().data?.issuer ?? "";
   const defaultSubject = useMemo<GrantSubject>(() => ({ iss: homeIssuer, sub: "" }), [homeIssuer]);
 
   const currentResource = Form.useWatch("resource", form);

@@ -1,13 +1,13 @@
 import { memo, Suspense, useCallback, useMemo } from "react";
-import { useSelector } from "react-redux";
 import { Navigate, Route, Routes, useNavigate, useParams } from "react-router-dom";
 
 import { Menu, Skeleton } from "antd";
 
+import { useServices } from "@/modules/services/hooks";
+import { matchingMenuKeys, transformMenuItem } from "@/utils/menu";
+
 import SitePageHeader from "../SitePageHeader";
 import ServiceOverview from "./ServiceOverview";
-
-import { matchingMenuKeys, transformMenuItem } from "@/utils/menu";
 
 const styles = {
   // TODO: Deduplicate with data manager
@@ -33,7 +33,7 @@ const ServiceDetail = () => {
   const navigate = useNavigate();
   const { kind } = useParams();
 
-  const serviceInfoByKind = useSelector((state) => state.services.itemsByKind);
+  const { itemsByKind: serviceInfoByKind } = useServices();
 
   const serviceInfo = useMemo(() => serviceInfoByKind[kind], [kind, serviceInfoByKind]);
 

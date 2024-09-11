@@ -20,8 +20,11 @@ export const useProjects = () => {
   return useSelector((state) => state.projects);
 };
 
+export const useProjectsArray = () => useProjects().items;
+export const useDatasetsArray = () => useProjects().datasets;
+
 export const useProjectsAndDatasetsAsAuthzResources = () => {
-  const { items: projects } = useProjects();
+  const projects = useProjectsArray();
   return useMemo(
     () =>
       projects.flatMap(({ identifier: projectID, datasets }) => [

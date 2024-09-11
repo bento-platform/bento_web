@@ -1,7 +1,8 @@
-import { objectWithoutProp } from "@/utils/misc";
+import { arrayToObjectByProperty, objectWithoutProp } from "@/utils/misc";
 
 import {
   FETCH_PROJECTS,
+  INVALIDATE_PROJECTS,
   CREATE_PROJECT,
   DELETE_PROJECT,
   SAVE_PROJECT,
@@ -28,6 +29,8 @@ export const projects = (
     isCreating: false,
     isDeleting: false,
     isSaving: false,
+    isInvalid: false,
+
     isAddingDataset: false,
     isSavingDataset: false,
     isDeletingDataset: false,
@@ -40,6 +43,7 @@ export const projects = (
     items: [],
     itemsByID: {},
 
+    datasets: [],
     datasetsByID: {},
   },
   action,
@@ -48,18 +52,23 @@ export const projects = (
     case FETCH_PROJECTS.REQUEST:
       return { ...state, isFetching: true };
 
-    case FETCH_PROJECTS.RECEIVE:
+    case FETCH_PROJECTS.RECEIVE: {
+      const projects = action.data.toSorted(projectSort);
+      const datasets = projects.flatMap((p) => p.datasets.map((d) => ({ ...d, project: p.identifier })));
       return {
         ...state,
-        items: action.data.toSorted(projectSort),
-        itemsByID: Object.fromEntries(action.data.map((p) => [p.identifier, p])),
-        datasetsByID: Object.fromEntries(
-          action.data.flatMap((p) => p.datasets.map((d) => [d.identifier, { ...d, project: p.identifier }])),
-        ),
+        items: projects,
+        itemsByID: arrayToObjectByProperty(projects, "identifier"),
+        datasets,
+        datasetsByID: arrayToObjectByProperty(datasets, "identifier"),
       };
+    }
 
     case FETCH_PROJECTS.FINISH:
-      return { ...state, isFetching: false };
+      return { ...state, isFetching: false, isInvalid: false };
+
+    case INVALIDATE_PROJECTS:
+      return { ...state, isInvalid: true };
 
     case CREATE_PROJECT.REQUEST:
       return { ...state, isCreating: true };
@@ -115,7 +124,7 @@ export const projects = (
       return { ...state, isAddingDataset: true };
 
     case ADD_PROJECT_DATASET.RECEIVE: {
-      const newDataset = action.data;
+      const newDataset = action.data; // dataset with project
       const projectID = newDataset.project;
       return {
         ...state,
@@ -130,6 +139,7 @@ export const projects = (
             datasets: [...(state.itemsByID[projectID]?.datasets || []), newDataset],
           },
         },
+        datasets: [...state.datasets, action.data],
         datasetsByID: {
           ...state.datasetsByID,
           [newDataset.identifier]: action.data,
@@ -158,7 +168,8 @@ export const projects = (
             datasets: ((state.itemsByID[action.project.identifier] || {}).datasets || []).filter(deleteDataset),
           },
         },
-        datasetsByID: Object.fromEntries(Object.entries(state.datasetsByID).filter(([_, d]) => deleteDataset(d))),
+        datasets: state.datasets.filter(deleteDataset),
+        datasetsByID: objectWithoutProp(state.datasetsByID, action.dataset.identifier),
       };
     }
 

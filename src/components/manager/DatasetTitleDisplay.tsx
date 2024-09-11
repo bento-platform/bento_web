@@ -1,9 +1,9 @@
-import { useSelector } from "react-redux";
 import { Link } from "react-router-dom";
 
 import { EM_DASH } from "@/constants";
 import ErrorText from "@/components/common/ErrorText";
 import MonospaceText from "@/components/common/MonospaceText";
+import { useProjects } from "@/modules/metadata/hooks";
 
 export type DatasetTitleDisplayProps = {
   datasetID: string;
@@ -11,8 +11,7 @@ export type DatasetTitleDisplayProps = {
 };
 
 const DatasetTitleDisplay = ({ datasetID, link = false }: DatasetTitleDisplayProps) => {
-  // @ts-expect-error We have not typed the state yet
-  const datasetsByID = useSelector((state) => state.projects.datasetsByID);
+  const { datasetsByID } = useProjects();
 
   if (!datasetID) return EM_DASH;
 

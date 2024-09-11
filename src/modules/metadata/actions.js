@@ -1,11 +1,12 @@
 import { message } from "antd";
 
 import { endProjectEditing } from "../manager/actions";
-import { createNetworkActionTypes, networkAction } from "@/utils/actions";
+import { basicAction, createNetworkActionTypes, networkAction } from "@/utils/actions";
 import { nop, objectWithoutProps } from "@/utils/misc";
 import { jsonRequest } from "@/utils/requests";
 
 export const FETCH_PROJECTS = createNetworkActionTypes("FETCH_PROJECTS");
+export const INVALIDATE_PROJECTS = "INVALIDATE_PROJECTS";
 
 export const CREATE_PROJECT = createNetworkActionTypes("CREATE_PROJECT");
 export const DELETE_PROJECT = createNetworkActionTypes("DELETE_PROJECT");
@@ -65,18 +66,28 @@ const fetchProjects = networkAction(() => (_dispatch, getState) => ({
   publicEndpoint: true,
   paginated: true,
   err: "Error fetching projects",
+  check: (state) => {
+    const sp = state.projects;
+    return (
+      !sp.isFetching &&
+      !sp.isCreating &&
+      !sp.isDeleting &&
+      !sp.isSaving &&
+      !(state.projects.items.length && !sp.isInvalid)
+    );
+  },
 }));
 
-// TODO: if needed fetching + invalidation
 export const fetchProjectsWithDatasets = () => (dispatch, getState) => {
-  const state = getState();
-
-  if (!state.services.itemsByKind.metadata) return Promise.resolve();
-  if (state.projects.isFetching || state.projects.isCreating || state.projects.isDeleting || state.projects.isSaving)
-    return Promise.resolve();
-
+  if (!getState().services.itemsByKind.metadata) return Promise.resolve();
   return dispatch(fetchProjects());
 };
+
+// "Invalidates" project data currently in the state. This means that data in the state should be re-fetched the next
+// time the data is used, i.e., should not be counted as already fetched for the purposes of possibly dispatching a
+// fetch action. This is useful for handling known changes to back-end state (e.g., signing in as another user, deleting
+// a project) and reloading as needed.
+export const invalidateProjects = basicAction(INVALIDATE_PROJECTS);
 
 export const createProjectIfPossible = networkAction((project, navigate) => (_dispatch, getState) => ({
   types: CREATE_PROJECT,

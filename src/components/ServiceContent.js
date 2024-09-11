@@ -9,14 +9,15 @@ import ServiceList from "./ServiceList";
 import { SITE_NAME } from "@/constants";
 import { EM_DASH } from "@/constants";
 import { BENTO_URL } from "@/config";
+import { useProjects } from "@/modules/metadata/hooks";
 
 const ServiceContent = () => {
   useEffect(() => {
     document.title = `${SITE_NAME}: Admin / Services`;
   }, []);
 
-  const projects = useSelector((state) => state.projects.items);
-  const isFetchingProjects = useSelector((state) => state.user.isFetchingDependentData || state.projects.isFetching);
+  const { items: projects, isFetching: isFetchingProjects } = useProjects();
+  const isFetching = useSelector((state) => state.user.isFetchingDependentData) || isFetchingProjects;
 
   return (
     <>
@@ -28,16 +29,13 @@ const ServiceContent = () => {
               <Statistic title="Node URL" value={BENTO_URL} />
             </Col>
             <Col md={12} lg={8} xl={3}>
-              <Spin spinning={isFetchingProjects}>
-                <Statistic title="Projects" value={isFetchingProjects ? EM_DASH : projects.length} />
+              <Spin spinning={isFetching}>
+                <Statistic title="Projects" value={isFetching ? EM_DASH : projects.length} />
               </Spin>
             </Col>
             <Col md={12} lg={8} xl={3}>
-              <Spin spinning={isFetchingProjects}>
-                <Statistic
-                  title="Datasets"
-                  value={isFetchingProjects ? EM_DASH : projects.flatMap((p) => p.datasets).length}
-                />
+              <Spin spinning={isFetching}>
+                <Statistic title="Datasets" value={isFetching ? EM_DASH : projects.flatMap((p) => p.datasets).length} />
               </Spin>
             </Col>
           </Row>

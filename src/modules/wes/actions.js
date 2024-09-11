@@ -10,7 +10,7 @@ export const FETCH_RUN_LOG_STDERR = createNetworkActionTypes("FETCH_RUN_LOG_STDE
 
 export const SUBMIT_WORKFLOW_RUN = createNetworkActionTypes("SUBMIT_WORKFLOW_RUN");
 
-export const fetchRuns = networkAction(() => (dispatch, getState) => ({
+export const fetchRuns = networkAction(() => (_dispatch, getState) => ({
   types: FETCH_RUNS,
   check: (state) => state.services.itemsByKind.wes && !state.runs.isFetching,
   url: `${getState().services.wesService.url}/runs?with_details=true`,

@@ -5,6 +5,8 @@ import { debounce } from "lodash";
 
 import igv from "igv/dist/igv.esm";
 
+import { useAccessToken } from "bento-auth-js";
+
 import { Button, Divider, Empty, Modal, Table, Select, Skeleton, Switch, message } from "antd";
 import { SettingOutlined } from "@ant-design/icons";
 
@@ -146,7 +148,7 @@ const IGV_JS_ANNOTATION_ALIASES = {
 };
 
 const IndividualTracks = ({ individual }) => {
-  const { accessToken } = useSelector((state) => state.auth);
+  const accessToken = useAccessToken();
 
   const igvDivRef = useRef();
   const igvBrowserRef = useRef(null);

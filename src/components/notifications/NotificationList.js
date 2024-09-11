@@ -1,5 +1,5 @@
 import { useCallback, useMemo } from "react";
-import { useDispatch, useSelector } from "react-redux";
+import { useDispatch } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import PropTypes from "prop-types";
 
@@ -7,6 +7,8 @@ import { Button, List } from "antd";
 import { ReadOutlined } from "@ant-design/icons";
 
 import { markNotificationAsRead } from "@/modules/notifications/actions";
+import { useNotifications } from "@/modules/notifications/hooks";
+import { useServices } from "@/modules/services/hooks";
 import { notificationPropTypesShape } from "@/propTypes";
 import { NOTIFICATION_WES_RUN_COMPLETED, NOTIFICATION_WES_RUN_FAILED, navigateToWESRun } from "@/utils/notifications";
 
@@ -24,8 +26,9 @@ const NotificationList = ({ notifications, small }) => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
 
-  /** @type boolean */
-  const fetchingNotifications = useSelector((state) => state.services.isFetchingAll || state.notifications.isFetching);
+  const fetchingNotifications = useNotifications().isFetching;
+  const { isFetchingAll: fetchingServices } = useServices();
+  const fetching = fetchingServices || fetchingNotifications;
 
   const markAsRead = useCallback((id) => dispatch(markNotificationAsRead(id)), [dispatch]);
 
@@ -115,7 +118,7 @@ const NotificationList = ({ notifications, small }) => {
       itemLayout="vertical"
       dataSource={processedNotifications}
       pagination={pagination}
-      loading={fetchingNotifications}
+      loading={fetching}
       renderItem={listItemRender}
     />
   );
@@ -124,11 +127,6 @@ const NotificationList = ({ notifications, small }) => {
 NotificationList.propTypes = {
   notifications: PropTypes.arrayOf(notificationPropTypesShape),
   small: PropTypes.bool,
-
-  fetchingNotifications: PropTypes.bool,
-
-  markNotificationAsRead: PropTypes.func,
-  navigateToWESRun: PropTypes.func,
 };
 
 export default NotificationList;
