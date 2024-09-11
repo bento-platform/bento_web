@@ -23,7 +23,7 @@ const DatasetForm = ({ initialValue, form }) => {
     if (initialValue) {
       form.resetFields();
     }
-  }, [initialValue]);
+  }, [form, initialValue]);
 
   const initialFormData = useMemo(
     () => ({
