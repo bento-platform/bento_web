@@ -66,22 +66,20 @@ const fetchProjects = networkAction(() => (_dispatch, getState) => ({
   publicEndpoint: true,
   paginated: true,
   err: "Error fetching projects",
+  check: (state) => {
+    const sp = state.projects;
+    return (
+      !sp.isFetching &&
+      !sp.isCreating &&
+      !sp.isDeleting &&
+      !sp.isSaving &&
+      !(state.projects.items.length && !sp.isInvalid)
+    );
+  },
 }));
 
 export const fetchProjectsWithDatasets = () => (dispatch, getState) => {
-  const state = getState();
-
-  if (!state.services.itemsByKind.metadata) return Promise.resolve();
-  if (
-    state.projects.isFetching ||
-    state.projects.isCreating ||
-    state.projects.isDeleting ||
-    state.projects.isSaving ||
-    (state.projects.items.length && !state.projects.isInvalid)
-  ) {
-    return Promise.resolve();
-  }
-
+  if (!getState().services.itemsByKind.metadata) return Promise.resolve();
   return dispatch(fetchProjects());
 };
 
