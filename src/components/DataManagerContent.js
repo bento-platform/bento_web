@@ -11,7 +11,7 @@ import SitePageHeader from "./SitePageHeader";
 
 const ManagerProjectDatasetContent = lazy(() => import("./manager/projects/ManagerProjectDatasetContent"));
 const ManagerAccessContent = lazy(() => import("./manager/access/ManagerAccessContent"));
-const ManagerDropBoxContent = lazy(() => import("./manager/ManagerDropBoxContent"));
+const ManagerDropBoxContent = lazy(() => import("./manager/dropBox/ManagerDropBoxContent"));
 const ManagerIngestionContent = lazy(() => import("./manager/ManagerIngestionContent"));
 const ManagerAnalysisContent = lazy(() => import("./manager/ManagerAnalysisContent"));
 const ManagerExportContent = lazy(() => import("./manager/ManagerExportContent"));
