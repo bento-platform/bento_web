@@ -11,7 +11,7 @@
     "ansi_up": "^6.0.2",
     "antd": "^5.20.6",
     "bento-auth-js": "^6.0.1",
-    "bento-charts": "~2.6.8",
+    "bento-charts": "~2.9.0",
     "cross-fetch": "^4.0.0",
     "dayjs": "^1.11.13",
     "file-saver": "^2.0.5",
