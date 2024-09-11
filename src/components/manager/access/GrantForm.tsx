@@ -583,7 +583,7 @@ const PermissionsInput = ({ id, value, onChange, currentResource, ...rest }: Per
 };
 
 const GrantForm = ({ form }: { form: FormInstance<Grant> }) => {
-  const homeIssuer = useOpenIdConfig()?.data?.issuer ?? "";
+  const homeIssuer = useOpenIdConfig().data?.issuer ?? "";
   const defaultSubject = useMemo<GrantSubject>(() => ({ iss: homeIssuer, sub: "" }), [homeIssuer]);
 
   const currentResource = Form.useWatch("resource", form);
