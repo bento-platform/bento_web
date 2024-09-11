@@ -65,7 +65,6 @@ const App = () => {
   const signInWindow = useRef(null);
   const windowMessageHandler = useRef(null);
   const pingInterval = useRef(null);
-  const focusListener = useRef(undefined);
 
   const [signedOutModal, setSignedOutModal] = useState(false);
 
@@ -165,14 +164,6 @@ const App = () => {
   useEffect(() => {
     handleUserChange();
   }, [handleUserChange, idTokenContents]);
-
-  // TODO: Don't execute on focus if it's been checked recently
-  useEffect(() => {
-    if (focusListener.current === handleUserChange) return; // Same as before
-    if (focusListener.current) window.removeEventListener("focus", focusListener.current);
-    window.addEventListener("focus", handleUserChange);
-    focusListener.current = handleUserChange;
-  }, [focusListener, handleUserChange]);
 
   useEffect(() => {
     if (didPostLoadEffects) return;
