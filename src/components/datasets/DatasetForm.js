@@ -25,11 +25,14 @@ const DatasetForm = ({ initialValue, form }) => {
     }
   }, [initialValue]);
 
-  const initialFormData = useMemo(() => ({
-    ...(initialValue ?? {}),
-    // TODO: the input should populate its own initial value
-    data_use: initialValue?.data_use ?? simpleDeepCopy(INITIAL_DATA_USE_VALUE),
-  }), [initialValue]);
+  const initialFormData = useMemo(
+    () => ({
+      ...(initialValue ?? {}),
+      // TODO: the input should populate its own initial value
+      data_use: initialValue?.data_use ?? simpleDeepCopy(INITIAL_DATA_USE_VALUE),
+    }),
+    [initialValue],
+  );
 
   return (
     <Form form={form} layout="vertical" initialValues={initialFormData}>
