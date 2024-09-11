@@ -3,7 +3,7 @@ import { Navigate, Route, Routes } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 
 import { Button, Empty, Layout, Menu, Result, Typography } from "antd";
-import { PlusOutlined } from "@ant-design/icons";
+import { PlusOutlined, ReloadOutlined } from "@ant-design/icons";
 
 import { createProject, RESOURCE_EVERYTHING } from "bento-auth-js";
 
@@ -12,6 +12,7 @@ import ProjectSkeleton from "./ProjectSkeleton";
 import RoutedProject from "./RoutedProject";
 
 import { useHasResourcePermissionWrapper } from "@/hooks";
+import { fetchProjectsWithDatasets, invalidateProjects } from "@/modules/metadata/actions";
 import { useProjects } from "@/modules/metadata/hooks";
 import { toggleProjectCreationModal as toggleProjectCreationModalAction } from "@/modules/manager/actions";
 import { LAYOUT_CONTENT_STYLE } from "@/styles/layoutContent";
@@ -20,17 +21,19 @@ import { useServices } from "@/modules/services/hooks";
 import { useCanManageAtLeastOneProjectOrDataset } from "@/modules/authz/hooks";
 import ForbiddenContent from "@/components/ForbiddenContent";
 
-const PROJECT_HELP_TEXT_STYLE = {
-  maxWidth: "600px",
-  marginLeft: "auto",
-  marginRight: "auto",
+const styles = {
+  projectHelpText: {
+    maxWidth: "600px",
+    marginLeft: "auto",
+    marginRight: "auto",
+  },
+  sidebar: { background: "white" },
+  sidebarInner: { display: "flex", height: "100%", flexDirection: "column" },
+  sidebarMenu: { flex: 1, paddingTop: "8px" },
+  sidebarButtonContainer: { display: "flex", borderRight: "1px solid #e8e8e8", padding: "24px", gap: 16 },
+  sidebarAddProjectButton: { flex: "100%" },
+  sidebarRefreshButton: { width: 46 },
 };
-
-const SIDEBAR_STYLE = { background: "white" };
-const SIDEBAR_INNER_STYLE = { display: "flex", height: "100%", flexDirection: "column" };
-const SIDEBAR_MENU_STYLE = { flex: 1, paddingTop: "8px" };
-const SIDEBAR_BUTTON_CONTAINER = { borderRight: "1px solid #e8e8e8", padding: "24px" };
-const SIDEBAR_BUTTON_STYLE = { width: "100%" };
 
 const ManagerProjectDatasetContent = () => {
   const dispatch = useDispatch();
@@ -44,7 +47,7 @@ const ManagerProjectDatasetContent = () => {
   const { hasPermission: canCreateProject, fetchingPermission: fetchingCanCreateProject } =
     useHasResourcePermissionWrapper(RESOURCE_EVERYTHING, createProject);
 
-  const { items } = useProjects();
+  const { items, isFetching: isFetchingProjects } = useProjects();
   const { isFetchingDependentData } = useSelector((state) => state.user);
 
   const { metadataService, isFetchingAll: isFetchingAllServices } = useServices();
@@ -59,6 +62,10 @@ const ManagerProjectDatasetContent = () => {
   );
 
   const toggleProjectCreationModal = useCallback(() => dispatch(toggleProjectCreationModalAction()), [dispatch]);
+  const refreshProjects = useCallback(() => {
+    dispatch(invalidateProjects());
+    dispatch(fetchProjectsWithDatasets());
+  }, [dispatch]);
 
   if (attemptedManagePermissions && !fetchingManagePermissions && !canManageProjectsDatasets) {
     return <ForbiddenContent message="You do not have permission to view the project/dataset manager." />;
@@ -86,7 +93,7 @@ const ManagerProjectDatasetContent = () => {
           <Layout.Content style={LAYOUT_CONTENT_STYLE}>
             <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} description={false}>
               <Typography.Title level={3}>No Projects</Typography.Title>
-              <Typography.Paragraph style={PROJECT_HELP_TEXT_STYLE}>
+              <Typography.Paragraph style={styles.projectHelpText}>
                 To create datasets and ingest data, you have to create a Bento project first. Bento projects have a name
                 and description, and let you group related datasets together. You can then specify project-wide consent
                 codes and data use restrictions to control data access.
@@ -105,18 +112,18 @@ const ManagerProjectDatasetContent = () => {
     <>
       {canCreateProject && <ProjectCreationModal />}
       <Layout>
-        <Layout.Sider style={SIDEBAR_STYLE} width={256} breakpoint="lg" collapsedWidth={0}>
-          <div style={SIDEBAR_INNER_STYLE}>
+        <Layout.Sider style={styles.sidebar} width={256} breakpoint="lg" collapsedWidth={0}>
+          <div style={styles.sidebarInner}>
             <Menu
-              style={SIDEBAR_MENU_STYLE}
+              style={styles.sidebarMenu}
               mode="inline"
               selectedKeys={matchingMenuKeys(projectMenuItems)}
               items={projectMenuItems.map(transformMenuItem)}
             />
-            <div style={SIDEBAR_BUTTON_CONTAINER}>
+            <div style={styles.sidebarButtonContainer}>
               <Button
                 type="primary"
-                style={SIDEBAR_BUTTON_STYLE}
+                style={styles.sidebarAddProjectButton}
                 onClick={toggleProjectCreationModal}
                 loading={fetchingCanCreateProject || isFetchingDependentData}
                 disabled={!canCreateProject || isFetchingDependentData}
@@ -124,6 +131,12 @@ const ManagerProjectDatasetContent = () => {
               >
                 Create Project
               </Button>
+              <Button
+                icon={<ReloadOutlined />}
+                style={styles.sidebarRefreshButton}
+                onClick={refreshProjects}
+                loading={isFetchingProjects}
+              />
             </div>
           </div>
         </Layout.Sider>

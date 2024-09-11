@@ -1,16 +1,17 @@
 import { useEffect, useMemo, useRef } from "react";
-import { useDispatch, useSelector } from "react-redux";
 
 import { Table, Typography } from "antd";
 
-import LastIngestionTable from "./RunLastContent";
-
+import { useServices } from "@/modules/services/hooks";
 import { fetchAllRunDetailsIfNeeded } from "@/modules/wes/actions";
 import { useRuns } from "@/modules/wes/hooks";
+import { useAppDispatch } from "@/store";
+
+import LastIngestionTable from "./RunLastContent";
 import { RUN_REFRESH_TIMEOUT, RUN_TABLE_COLUMNS } from "./utils";
 
 const RunListContent = () => {
-  const dispatch = useDispatch();
+  const dispatch = useAppDispatch();
   const runRefreshTimeout = useRef(null);
 
   const { items: runs } = useRuns();
@@ -24,8 +25,8 @@ const RunListContent = () => {
     [runs],
   );
 
-  const servicesFetching = useSelector((state) => state.services.isFetchingAll);
-  const runsFetching = useSelector((state) => state.runs.isFetching);
+  const { isFetchingAll: servicesFetching } = useServices();
+  const { isFetching: runsFetching } = useRuns();
 
   useEffect(() => {
     dispatch(fetchAllRunDetailsIfNeeded()).catch((err) => console.error(err));

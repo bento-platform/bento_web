@@ -1,10 +1,9 @@
-import { useSelector } from "react-redux";
 import { BiDna } from "react-icons/bi";
 import { Col, Row, Spin, Statistic, Typography } from "antd";
+import { useGohanVariantsOverview } from "@/modules/explorer/hooks";
 
 const VariantsSummary = () => {
-  const fetchingVariantsOverview = useSelector((state) => state.explorer.fetchingVariantsOverview);
-  const variantsOverviewResults = useSelector((state) => state.explorer.variantsOverviewResponse);
+  const { isFetching: fetchingVariantsOverview, data: variantsOverviewResults } = useGohanVariantsOverview();
   const hasSampleIds =
     variantsOverviewResults?.sampleIDs !== undefined && !variantsOverviewResults?.sampleIDs.hasOwnProperty("error");
   // retrieve list of values from `sampleIDs`

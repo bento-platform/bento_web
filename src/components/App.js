@@ -65,7 +65,6 @@ const App = () => {
   const signInWindow = useRef(null);
   const windowMessageHandler = useRef(null);
   const pingInterval = useRef(null);
-  const focusListener = useRef(undefined);
 
   const [signedOutModal, setSignedOutModal] = useState(false);
 
@@ -166,14 +165,6 @@ const App = () => {
     handleUserChange();
   }, [handleUserChange, idTokenContents]);
 
-  // TODO: Don't execute on focus if it's been checked recently
-  useEffect(() => {
-    if (focusListener.current === handleUserChange) return; // Same as before
-    if (focusListener.current) window.removeEventListener("focus", focusListener.current);
-    window.addEventListener("focus", handleUserChange);
-    focusListener.current = handleUserChange;
-  }, [focusListener, handleUserChange]);
-
   useEffect(() => {
     if (didPostLoadEffects) return;
     (async () => {
@@ -193,10 +184,9 @@ const App = () => {
 
   const openSignInWindow = useOpenSignInWindowCallback(signInWindow, SIGN_IN_WINDOW_FEATURES);
 
-  // On the cBioPortal and Grafana tabs, eliminate the margin around the content
-  // to give as much space as possible to the application itself.
-  const margin =
-    window.location.pathname.endsWith("cbioportal") || window.location.pathname.endsWith("grafana") ? 0 : 26;
+  // On the cBioPortal tab, eliminate the margin around the content to give as much space as possible to the
+  // application itself.
+  const margin = window.location.pathname.endsWith("cbioportal") ? 0 : 26;
 
   const threshold = useSelector((state) => state.explorer.otherThresholdPercentage) / 100;
 

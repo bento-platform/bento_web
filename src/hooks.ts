@@ -1,11 +1,14 @@
 import { useCallback, useMemo } from "react";
-import { useSelector } from "react-redux";
-import Ajv from "ajv";
-import type { SchemaObject } from "ajv";
+import Ajv, { type SchemaObject } from "ajv";
 
-import { RESOURCE_EVERYTHING, useHasResourcePermission, useResourcePermissions, type Resource } from "bento-auth-js";
+import {
+  RESOURCE_EVERYTHING,
+  useHasResourcePermission,
+  useResourcePermissions,
+  type Resource,
+  useOpenIdConfig,
+} from "bento-auth-js";
 
-import { type RootState } from "@/store";
 import { useService } from "@/modules/services/hooks";
 
 // AUTHORIZATION:
@@ -66,35 +69,39 @@ export const useEverythingPermissions = () => useResourcePermissionsWrapper(RESO
  * Returns true if the OpenID config hasn't been loaded yet.
  */
 export const useOpenIDConfigNotLoaded = (): boolean => {
-  const { hasAttempted: openIdConfigHasAttempted, isFetching: openIdConfigFetching } = useSelector(
-    (state: RootState) => state.openIdConfiguration,
-  );
+  const { hasAttempted: openIdConfigHasAttempted, isFetching: openIdConfigFetching } = useOpenIdConfig();
 
   // Need `=== false`, since if this is loaded from localStorage from a prior version, it'll be undefined and prevent
   // the page from showing.
+  // noinspection PointlessBooleanExpressionJS
   return openIdConfigHasAttempted === false || openIdConfigFetching;
 };
 
-export const useJsonSchemaValidator = (schema: SchemaObject, acceptFalsyValue: boolean) => {
-  const ajv = useMemo(() => new Ajv(), []);
+export const useJsonSchemaValidator = (schema: SchemaObject, schemaName: string, acceptFalsyValue: boolean) => {
+  const ajv = useMemo(() => {
+    if (schema) {
+      // for schemas obtained by API: only instantiate Ajv when the schema is resolved
+      return new Ajv().addSchema(schema, schemaName);
+    }
+  }, [schema, schemaName]);
   return useCallback(
     (rule: unknown, value: unknown) => {
-      if (!schema) {
-        return Promise.reject(new Error("No JSON schema provided, cannot validate."));
+      const validator = ajv?.getSchema(schemaName);
+      if (!ajv || !validator) {
+        return Promise.reject(new Error(`No JSON schema provided for ${schemaName}, cannot validate.`));
       }
 
       if (!value && acceptFalsyValue) {
         return Promise.resolve();
       }
-      const valid = ajv.validate(schema, value);
 
-      if (valid) {
+      if (validator(value)) {
         return Promise.resolve();
       } else {
-        return Promise.reject(new Error(ajv.errorsText(ajv.errors)));
+        return Promise.reject(new Error(ajv.errorsText(validator.errors)));
       }
     },
-    [acceptFalsyValue, ajv, schema],
+    [acceptFalsyValue, ajv, schemaName],
   );
 };
 
@@ -104,5 +111,5 @@ export const useDatsValidator = () => {
   const datsSchema = {
     type: "object",
   };
-  return useJsonSchemaValidator(datsSchema, false);
+  return useJsonSchemaValidator(datsSchema, "dats", false);
 };

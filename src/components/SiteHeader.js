@@ -1,7 +1,14 @@
 import { memo, useCallback, useMemo, useState } from "react";
-import { useDispatch, useSelector } from "react-redux";
+import { useDispatch } from "react-redux";
 import { Link } from "react-router-dom";
-import { viewNotifications, useIsAuthenticated, usePerformSignOut, usePerformAuth, useAuthState } from "bento-auth-js";
+import {
+  viewNotifications,
+  useIsAuthenticated,
+  usePerformSignOut,
+  usePerformAuth,
+  useAuthState,
+  useOpenIdConfig,
+} from "bento-auth-js";
 
 import { Badge, Layout, Menu, Spin } from "antd";
 import {
@@ -50,6 +57,10 @@ const CustomHeaderText = memo(() => (
   <h1 style={{ color: "rgba(255, 255, 255, 0.95)", float: "left", margin: "0 24px 0 0" }}>{CUSTOM_HEADER}</h1>
 ));
 
+const openGrafanaInNewTab = () => {
+  window.open(BENTO_GRAFANA_URL, "_blank");
+};
+
 const SiteHeader = () => {
   const dispatch = useDispatch();
 
@@ -62,7 +73,7 @@ const SiteHeader = () => {
     useCanQueryAtLeastOneProjectOrDataset();
   const { permissions: managerPermissions, hasAttempted: hasAttemptedManagerPermissions } = useManagerPermissions();
 
-  const { isFetching: openIdConfigFetching } = useSelector((state) => state.openIdConfiguration);
+  const { isFetching: openIdConfigFetching } = useOpenIdConfig();
 
   const { unreadItems: unreadNotifications } = useNotifications();
 
@@ -77,10 +88,6 @@ const SiteHeader = () => {
 
   const performSignOut = usePerformSignOut();
   const hasValidGrafanaRole = useHasValidGrafanaRole();
-
-  const openGrafanaInNewTab = () => {
-    window.open(BENTO_GRAFANA_URL, "_blank");
-  };
 
   const menuItems = useMemo(
     () => [

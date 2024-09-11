@@ -1,7 +1,7 @@
 import { beginFlow, createFlowActionTypes, endFlow } from "@/utils/actions";
 import { nop } from "@/utils/misc";
 import { fetchDatasetsDataTypes } from "../datasets/actions";
-import { fetchProjectsWithDatasets } from "../metadata/actions";
+import { fetchProjectsWithDatasets, invalidateProjects } from "../metadata/actions";
 import { fetchServicesWithMetadataAndDataTypesIfNeeded } from "../services/actions";
 
 export const FETCHING_USER_DEPENDENT_DATA = createFlowActionTypes("FETCHING_USER_DEPENDENT_DATA");
@@ -23,7 +23,8 @@ export const fetchUserDependentData = (servicesCb) => async (dispatch, getState)
     if (idTokenContents) {
       // If we're newly authenticated as an owner, we run all actions that may have changed with authentication
       // (via the callback).
-      // TODO: invalidate projects/datasets/other user-dependent data
+      // TODO: invalidate other user-dependent data
+      dispatch(invalidateProjects());
       await dispatch(fetchServicesWithMetadataAndDataTypesIfNeeded());
       await (servicesCb || nop)();
       await dispatch(fetchProjectsWithDatasets());
