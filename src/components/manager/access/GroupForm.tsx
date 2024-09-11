@@ -51,7 +51,7 @@ const isValidJSONArray = (x: string): boolean => {
     try {
       const y = JSON.parse(x);
       return Array.isArray(y);
-    } catch (e) {
+    } catch {
       return false;
     }
   } else {

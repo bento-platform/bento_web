@@ -44,7 +44,7 @@ const LinkedFieldSetForm = ({ form, dataTypes, initialValue, mode }) => {
                 return { selected, schema: getFieldSchema(rootSchema, selected) };
               } catch (err) {
                 // Possibly invalid field (due to migration / data model change), skip it.
-                console.error(`Encountered invalid field: ${selected}`);
+                console.error(`Encountered invalid field: ${selected}`, err);
                 return null;
               }
             })

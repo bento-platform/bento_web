@@ -32,7 +32,7 @@ const ExpiryInput = ({ value, onChange }: ExpiryInputProps) => {
       setExpiryType(newRadioValue);
       if (onChange) {
         // Controlled mode
-        onChange(newRadioValue === EXPIRY_TYPE_NONE ? null : date?.toISOString() ?? null);
+        onChange(newRadioValue === EXPIRY_TYPE_NONE ? null : (date?.toISOString() ?? null));
       }
     },
     [date, onChange],

@@ -77,7 +77,7 @@ const WorkflowListItem = ({ onClick, workflow, rightAlignedTags, style }) => {
         .filter((i) => !i.hidden && !i.injected) // Filter out hidden/injected inputs
         .map(({ id, type, pattern }) => (
           <WorkflowInputTag key={id} id={id} type={type}>
-            {type.startsWith("file") ? pattern ?? "" : ""}
+            {type.startsWith("file") ? (pattern ?? "") : ""}
           </WorkflowInputTag>
         )),
     [inputs],

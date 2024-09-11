@@ -61,7 +61,7 @@ const DatasetDataTypes = memo(({ isPrivate, project, dataset }) => {
         title: "Name",
         key: "label",
         render: (dt) =>
-          isPrivate ? <a onClick={() => showDataTypeSummary(dt)}>{dt.label ?? NA_TEXT}</a> : dt.label ?? NA_TEXT,
+          isPrivate ? <a onClick={() => showDataTypeSummary(dt)}>{dt.label ?? NA_TEXT}</a> : (dt.label ?? NA_TEXT),
         defaultSortOrder: "ascend",
         sorter: (a, b) => a.label.localeCompare(b.label),
       },

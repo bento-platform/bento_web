@@ -199,10 +199,12 @@ const DiscoverySearchForm = ({ onChange, dataType, setFormRef, handleVariantHidd
       ? getFields(dataType.schema).filter((f) => getFieldSchema(dataType.schema, f).search?.required ?? false)
       : [];
 
-    isVariantSearch
-      ? [...VARIANT_REQUIRED_FIELDS, ...VARIANT_OPTIONAL_FIELDS].map((c) => addCondition(c))
-      : // currently unused, since only variant search has required fields:
-        requiredFields.map((c) => addCondition(c));
+    if (isVariantSearch) {
+      [...VARIANT_REQUIRED_FIELDS, ...VARIANT_OPTIONAL_FIELDS].forEach((c) => addCondition(c));
+    } else {
+      // currently unused, since only variant search has required fields:
+      requiredFields.forEach((c) => addCondition(c));
+    }
   }, [addCondition, dataType, getConditionsArray, isVariantSearch]);
 
   // methods for user-friendly variant search
@@ -262,7 +264,7 @@ const DiscoverySearchForm = ({ onChange, dataType, setFormRef, handleVariantHidd
   );
 
   const getHelpText = useCallback(
-    (key) => (isVariantSearch ? "" : conditionsHelp[key] ?? undefined),
+    (key) => (isVariantSearch ? "" : (conditionsHelp[key] ?? undefined)),
     [isVariantSearch, conditionsHelp],
   );
 

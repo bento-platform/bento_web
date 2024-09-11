@@ -6,4 +6,6 @@ interface JSONObject {
   [x: string]: JSONType;
 }
 
+// Cleaner name, need to use interfaces for circular referencing - see above
+// eslint-disable-next-line @typescript-eslint/no-empty-object-type
 interface JSONArray extends Array<JSONType> {}
