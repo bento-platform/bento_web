@@ -15,13 +15,13 @@ const generateURIsByRelPath = (entry: DropBoxEntry, acc: Record<string, string>)
   return acc;
 };
 
-type FileContentsModalType = {
+type FileContentsModalProps = {
   selectedFilePath?: string;
   open: boolean;
   onCancel: () => void;
 };
 
-const FileContentsModal = ({ selectedFilePath, open, onCancel }: FileContentsModalType) => {
+const FileContentsModal = ({ selectedFilePath, open, onCancel }: FileContentsModalProps) => {
   const { tree, isFetching: treeLoading } = useDropBox();
 
   const urisByFilePath = useMemo(() => generateURIsByRelPath(tree, {}), [tree]);
