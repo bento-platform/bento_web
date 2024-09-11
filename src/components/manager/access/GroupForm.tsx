@@ -65,7 +65,7 @@ type MembershipInputProps = {
 };
 
 const MembershipInput = ({ value, onChange, ...rest }: MembershipInputProps) => {
-  const homeIssuer = useOpenIdConfig()?.data?.issuer ?? "";
+  const homeIssuer = useOpenIdConfig().data?.issuer ?? "";
 
   const [membershipType, setMembershipType] = useState<"expr" | "list">("list");
 
