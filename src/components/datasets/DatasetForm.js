@@ -1,7 +1,7 @@
 import PropTypes from "prop-types";
 
 import { Form, Input } from "antd";
-import { useMemo } from "react";
+import { useEffect, useMemo } from "react";
 
 const { Item } = Form;
 
@@ -17,12 +17,19 @@ const DatasetForm = ({ initialValue, form }) => {
   const discoveryValidator = useDiscoveryValidator();
   const datsValidator = useDatsValidator();
 
-  const initialFormData = useMemo(() => {
-    return {
-      ...initialValue,
-      data_use: initialValue?.data_use ?? simpleDeepCopy(INITIAL_DATA_USE_VALUE),
-    };
+  // If the initial value changes (and is truthy), i.e., the dataset being edited has changed, then reset the form.
+  // This lets it be re-populated from the initialFormData object below.
+  useEffect(() => {
+    if (initialValue) {
+      form.resetFields();
+    }
   }, [initialValue]);
+
+  const initialFormData = useMemo(() => ({
+    ...(initialValue ?? {}),
+    // TODO: the input should populate its own initial value
+    data_use: initialValue?.data_use ?? simpleDeepCopy(INITIAL_DATA_USE_VALUE),
+  }), [initialValue]);
 
   return (
     <Form form={form} layout="vertical" initialValues={initialFormData}>
