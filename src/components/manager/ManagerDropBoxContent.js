@@ -36,26 +36,26 @@ import { LAYOUT_CONTENT_STYLE } from "@/styles/layoutContent";
 
 import ActionContainer from "./ActionContainer";
 import DownloadButton from "../common/DownloadButton";
-import DropBoxTreeSelect from "./DropBoxTreeSelect";
+import DropBoxTreeSelect from "./dropBox/DropBoxTreeSelect";
 import FileModal from "../display/FileModal";
 import ForbiddenContent from "../ForbiddenContent";
 
 import { BENTO_DROP_BOX_FS_BASE_PATH } from "@/config";
-import { useStartIngestionFlow } from "./workflowCommon";
-import { testFileAgainstPattern } from "@/utils/files";
-import { getFalse } from "@/utils/misc";
+import { useResourcePermissionsWrapper } from "@/hooks";
 import {
   beginDropBoxPuttingObjects,
   endDropBoxPuttingObjects,
   putDropBoxObject,
   deleteDropBoxObject,
   invalidateDropBoxTree,
-} from "@/modules/manager/actions";
-import { useDropBox } from "@/modules/manager/hooks";
+} from "@/modules/dropBox/actions";
+import { useDropBox } from "@/modules/dropBox/hooks";
+import { useService, useWorkflows } from "@/modules/services/hooks";
+import { testFileAgainstPattern } from "@/utils/files";
+import { getFalse } from "@/utils/misc";
 
 import { VIEWABLE_FILE_EXTENSIONS } from "../display/FileDisplay";
-import { useResourcePermissionsWrapper } from "@/hooks";
-import { useService, useWorkflows } from "@/modules/services/hooks";
+import { useStartIngestionFlow } from "./workflowCommon";
 
 const DROP_BOX_CONTENT_CONTAINER_STYLE = { display: "flex", flexDirection: "column", gap: 8 };
 const DROP_BOX_INFO_CONTAINER_STYLE = { display: "flex", gap: "2em", paddingTop: 8 };

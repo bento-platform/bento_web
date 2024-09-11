@@ -1,8 +1,7 @@
-import { useCallback, useRef } from "react";
-import { useDispatch } from "react-redux";
+import { useCallback } from "react";
 import PropTypes from "prop-types";
 
-import { Button, Modal } from "antd";
+import { Button, Form, Modal } from "antd";
 import { PlusOutlined, SaveOutlined } from "@ant-design/icons";
 
 import DatasetForm from "./DatasetForm";
@@ -12,9 +11,10 @@ import { addProjectDataset, saveProjectDataset, fetchProjectsWithDatasets } from
 import { useProjects } from "@/modules/metadata/hooks";
 import { datasetPropTypesShape, projectPropTypesShape, propTypesFormMode } from "@/propTypes";
 import { nop } from "@/utils/misc";
+import { useAppDispatch } from "@/store";
 
 const DatasetFormModal = ({ project, mode, initialValue, onCancel, onOk, open }) => {
-  const dispatch = useDispatch();
+  const dispatch = useAppDispatch();
 
   const {
     isFetching: projectsFetching,
@@ -22,26 +22,31 @@ const DatasetFormModal = ({ project, mode, initialValue, onCancel, onOk, open })
     isSavingDataset: projectDatasetsSaving,
   } = useProjects();
 
-  const formRef = useRef(null);
+  const [form] = Form.useForm();
 
   const handleSuccess = useCallback(
     async (values) => {
       await dispatch(fetchProjectsWithDatasets()); // TODO: If needed / only this project...
       await (onOk || nop)({ ...(initialValue || {}), values });
-      if (formRef.current && mode === FORM_MODE_ADD) formRef.current.resetFields();
+      form.resetFields();
     },
-    [dispatch, initialValue, mode, onOk],
+    [dispatch, form, initialValue, onOk],
   );
 
-  const handleCancel = useCallback(() => (onCancel || nop)(), [onCancel]);
-  const handleSubmit = useCallback(() => {
-    const form = formRef.current;
-    if (!form) return;
+  const handleCancel = useCallback(() => {
+    (onCancel || nop)();
+    form.resetFields();
+  }, [form, onCancel]);
 
+  const handleSubmit = useCallback(() => {
     form
       .validateFields()
       .then((values) => {
         const onSuccess = () => handleSuccess(values);
+
+        if (typeof values?.discovery === "string") {
+          values["discovery"] = JSON.parse(values["discovery"]);
+        }
 
         return mode === FORM_MODE_ADD
           ? dispatch(addProjectDataset(project, values, onSuccess))
@@ -61,7 +66,7 @@ const DatasetFormModal = ({ project, mode, initialValue, onCancel, onOk, open })
       .catch((err) => {
         console.error(err);
       });
-  }, [dispatch, handleSuccess, mode, project, initialValue]);
+  }, [dispatch, form, handleSuccess, mode, project, initialValue]);
 
   if (!project) return null;
   return (
@@ -87,7 +92,7 @@ const DatasetFormModal = ({ project, mode, initialValue, onCancel, onOk, open })
       ]}
       onCancel={handleCancel}
     >
-      <DatasetForm formRef={formRef} initialValue={mode === FORM_MODE_ADD ? undefined : initialValue} />
+      <DatasetForm form={form} initialValue={mode === FORM_MODE_ADD ? undefined : initialValue} />
     </Modal>
   );
 };

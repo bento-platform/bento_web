@@ -55,16 +55,13 @@ export const fetchWorkflows = networkAction(() => ({
   err: "Error fetching workflows",
 }));
 
-export const fetchServicesWithMetadataAndDataTypes = (onServiceFetchFinish) => async (dispatch, getState) => {
+export const fetchServicesWithMetadataAndDataTypes = () => async (dispatch, getState) => {
   dispatch(beginFlow(LOADING_ALL_SERVICE_DATA));
 
   // Fetch Services
   await Promise.all([
     (async () => {
       await Promise.all([dispatch(fetchBentoServices()), dispatch(fetchServices())]);
-      // - Custom stuff to start
-      //    - explicitly don't wait for this promise to finish since it runs parallel to this flow.
-      if (onServiceFetchFinish) onServiceFetchFinish();
     })(),
 
     dispatch(fetchDataTypes()),
@@ -80,7 +77,7 @@ export const fetchServicesWithMetadataAndDataTypes = (onServiceFetchFinish) => a
   dispatch(endFlow(LOADING_ALL_SERVICE_DATA));
 };
 
-export const fetchServicesWithMetadataAndDataTypesIfNeeded = (onServiceFetchFinish) => (dispatch, getState) => {
+export const fetchServicesWithMetadataAndDataTypesIfNeeded = () => (dispatch, getState) => {
   const state = getState();
   if (
     (Object.keys(state.bentoServices.itemsByArtifact).length === 0 ||
@@ -88,6 +85,6 @@ export const fetchServicesWithMetadataAndDataTypesIfNeeded = (onServiceFetchFini
       state.serviceDataTypes.items.length === 0) &&
     !state.services.isFetchingAll
   ) {
-    return dispatch(fetchServicesWithMetadataAndDataTypes(onServiceFetchFinish));
+    return dispatch(fetchServicesWithMetadataAndDataTypes());
   }
 };

@@ -55,6 +55,7 @@ export const datasetPropTypesShape = PropTypes.shape({
   description: PropTypes.string,
   contact_info: PropTypes.string,
   data_use: PropTypes.object, // TODO: Shape
+  dats_file: PropTypes.object,
   linked_field_sets: PropTypes.arrayOf(linkedFieldSetPropTypesShape),
   created: PropTypes.string,
   updated: PropTypes.string,
@@ -78,6 +79,7 @@ export const projectPropTypesShape = PropTypes.shape({
   description: PropTypes.string,
   datasets: PropTypes.arrayOf(datasetPropTypesShape),
   project_schemas: PropTypes.arrayOf(projectJsonSchemaTypesShape),
+  discovery: PropTypes.object,
   created: PropTypes.string,
   updated: PropTypes.string,
 });

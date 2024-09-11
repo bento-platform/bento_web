@@ -1,6 +1,6 @@
 import { useEffect, useMemo } from "react";
 import { useSelector } from "react-redux";
-import { fetchBentoServices, fetchDataTypes, fetchServices } from "@/modules/services/actions";
+import { fetchBentoServices, fetchDataTypes, fetchServices } from "./actions";
 import { useAppDispatch } from "@/store";
 
 export const useBentoServices = () => {

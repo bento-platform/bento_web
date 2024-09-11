@@ -1,17 +1,18 @@
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import PropTypes from "prop-types";
-
-import { Button, Col, Empty, Row, Space, Tabs, Typography } from "antd";
+import { Button, Col, Empty, Form, Row, Space, Tabs, Typography } from "antd";
 import { CheckOutlined, CloseOutlined, DeleteOutlined, EditOutlined, PlusOutlined } from "@ant-design/icons";
 
-import Dataset from "../../datasets/Dataset";
-import ProjectForm from "./ProjectForm";
-import { INITIAL_DATA_USE_VALUE } from "@/duo";
-import { nop, simpleDeepCopy } from "@/utils/misc";
-import { projectPropTypesShape } from "@/propTypes";
-import ProjectJsonSchema from "./ProjectJsonSchema";
-import { useHasResourcePermissionWrapper, useResourcePermissionsWrapper } from "@/hooks";
 import { createDataset, deleteProject, editProject, makeProjectResource, RESOURCE_EVERYTHING } from "bento-auth-js";
+
+import { INITIAL_DATA_USE_VALUE } from "@/duo";
+import { useHasResourcePermissionWrapper, useResourcePermissionsWrapper } from "@/hooks";
+import { projectPropTypesShape } from "@/propTypes";
+import { nop, simpleDeepCopy } from "@/utils/misc";
+import Dataset from "@/components/datasets/Dataset";
+
+import ProjectForm from "./ProjectForm";
+import ProjectJsonSchema from "./ProjectJsonSchema";
 
 const SUB_TAB_KEYS = {
   DATASETS: "project-datasets",
@@ -53,9 +54,10 @@ const Project = ({
     description: value.description,
     datasets: value.datasets || [],
     project_schemas: value.project_schemas || [],
+    discovery: value.discovery || {},
   });
 
-  const editingForm = useRef();
+  const [editingForm] = Form.useForm();
 
   const [selectedKey, setSelectedKey] = useState(SUB_TAB_KEYS.DATASETS);
 
@@ -69,24 +71,26 @@ const Project = ({
     }
   }, [value]);
 
-  const handleSave = useCallback(() => {
-    const form = editingForm.current;
-    if (!form) return;
-    form
-      .validateFields()
-      .then((values) => {
-        // Don't save datasets since it's a related set.
-        onSave({
-          identifier: projectState.identifier,
-          title: values.title || projectState.title,
-          description: values.description || projectState.description,
-          data_use: values.data_use || projectState.data_use,
-        });
-      })
-      .catch((err) => {
-        console.error(err);
+  const handleSave = useCallback(async () => {
+    try {
+      const values = await editingForm.validateFields();
+      await onSave({
+        identifier: projectState.identifier,
+        title: values.title || projectState.title,
+        description: values.description || projectState.description,
+        data_use: values.data_use || projectState.data_use,
+        discovery: values.discovery, // discovery is nullable, so no projectState fallback
       });
-  }, [onSave, projectState]);
+      editingForm.resetFields();
+    } catch (err) {
+      console.log(err);
+    }
+  }, [editingForm, onSave, projectState]);
+
+  const handleCancelEdit = useCallback(() => {
+    editingForm.resetFields();
+    (onCancelEdit || nop)();
+  }, [editingForm, onCancelEdit]);
 
   return (
     <div>
@@ -100,7 +104,7 @@ const Project = ({
               icon={<CloseOutlined />}
               style={{ marginLeft: "10px" }}
               disabled={saving}
-              onClick={() => onCancelEdit()}
+              onClick={() => handleCancelEdit()}
             >
               Cancel
             </Button>
@@ -130,13 +134,14 @@ const Project = ({
       </div>
       {editing ? (
         <ProjectForm
+          form={editingForm}
           style={{ maxWidth: "600px" }}
           initialValues={{
             title: projectState.title,
             description: projectState.description,
             data_use: projectState.data_use,
+            discovery: projectState.discovery,
           }}
-          formRef={editingForm}
         />
       ) : (
         <>

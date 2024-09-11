@@ -1,16 +1,24 @@
-import { forwardRef, useMemo } from "react";
-import PropTypes from "prop-types";
-import { TreeSelect } from "antd";
+import { useMemo } from "react";
 
+import { TreeSelect, type TreeSelectProps } from "antd";
+
+import { useDropBox } from "@/modules/dropBox/hooks";
+import type { DropBoxEntry } from "@/modules/dropBox/types";
 import { getTrue } from "@/utils/misc";
-import { useDropBox } from "@/modules/manager/hooks";
 
-const sortByName = (a, b) => a.name.localeCompare(b.name);
-const generateFileTree = (directory, valid, folderMode, basePrefix) =>
+type DropBoxEntryValidFunction = (x: DropBoxEntry) => boolean;
+
+const sortByName = (a: DropBoxEntry, b: DropBoxEntry) => a.name.localeCompare(b.name);
+export const generateFileTree = (
+  directory: DropBoxEntry[],
+  valid: DropBoxEntryValidFunction,
+  folderMode: boolean,
+  basePrefix: string | undefined,
+): TreeSelectProps["treeData"] =>
   [...directory]
     .sort(sortByName)
     .filter((entry) => !folderMode || entry.contents !== undefined) // Don't show files in folder mode
-    .map((entry) => {
+    .map((entry: DropBoxEntry) => {
       const { name, contents, relativePath } = entry;
       const isValid = valid(entry);
       const isFolder = contents !== undefined;
@@ -35,7 +43,13 @@ const generateFileTree = (directory, valid, folderMode, basePrefix) =>
       };
     });
 
-const DropBoxTreeSelect = forwardRef(({ folderMode = false, nodeEnabled, basePrefix, ...props }, ref) => {
+export type DropBoxTreeSelectProps = Omit<TreeSelectProps, "showSearch" | "treeDefaultExpandAll" | "treeData"> & {
+  folderMode?: boolean;
+  nodeEnabled?: DropBoxEntryValidFunction;
+  basePrefix?: string;
+};
+
+const DropBoxTreeSelect = ({ folderMode = false, nodeEnabled, basePrefix, ...props }: DropBoxTreeSelectProps) => {
   const { tree } = useDropBox();
 
   const fileTree = useMemo(
@@ -45,7 +59,6 @@ const DropBoxTreeSelect = forwardRef(({ folderMode = false, nodeEnabled, basePre
 
   return (
     <TreeSelect
-      ref={ref}
       showSearch={true}
       treeDefaultExpandAll={true}
       treeData={[
@@ -59,12 +72,6 @@ const DropBoxTreeSelect = forwardRef(({ folderMode = false, nodeEnabled, basePre
       {...props}
     />
   );
-});
-
-DropBoxTreeSelect.propTypes = {
-  folderMode: PropTypes.bool,
-  nodeEnabled: PropTypes.func,
-  basePrefix: PropTypes.string,
 };
 
 export default DropBoxTreeSelect;

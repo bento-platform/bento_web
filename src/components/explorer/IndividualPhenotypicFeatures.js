@@ -7,12 +7,14 @@ import { EM_DASH } from "@/constants";
 import { evidencePropTypesShape, individualPropTypesShape, phenotypicFeaturePropTypesShape } from "@/propTypes";
 import { isValidUrl } from "@/utils/url";
 
+import Excluded, { excludedTableColumnFilterConfig } from "./Excluded";
+import ExtraProperties from "./ExtraProperties";
 import OntologyTerm, { conditionalOntologyRender } from "./OntologyTerm";
-import { booleanFieldSorter, renderBoolean } from "./utils";
 import TimeElement from "./TimeElement";
 import { RoutedIndividualContent, RoutedIndividualContentTable } from "./RoutedIndividualContent";
-import ExtraProperties from "./ExtraProperties";
+import { ontologyTermSorter } from "@/components/explorer/utils";
 
+// noinspection JSUnusedGlobalSymbols
 const PHENOTYPIC_FEATURES_COLUMNS = [
   {
     title: "Feature",
@@ -25,31 +27,14 @@ const PHENOTYPIC_FEATURES_COLUMNS = [
         </h4>
       ) : (
         <>
-          <OntologyTerm term={type} />{" "}
-          {excluded ? (
-            <span style={{ color: "#CC3333" }}>
-              (<span style={{ fontWeight: "bold" }}>Excluded:</span> Found to be absent{" "}
-              <a
-                href="https://phenopacket-schema.readthedocs.io/en/2.0.0/phenotype.html#excluded"
-                target="_blank"
-                rel="noopener noreferrer"
-              >
-                <LinkOutlined />
-              </a>
-              )
-            </span>
-          ) : null}
+          <OntologyTerm term={type} /> {excluded ? <Excluded model="phenotype" /> : null}
         </>
       ),
+    ...excludedTableColumnFilterConfig,
     onCell: ({ header }) => ({
       colSpan: header ? 2 : 1,
     }),
-  },
-  {
-    title: "Excluded",
-    key: "excluded",
-    render: renderBoolean("excluded"),
-    sorter: booleanFieldSorter("excluded"),
+    sorter: ontologyTermSorter("type"),
   },
   {
     title: "Severity",

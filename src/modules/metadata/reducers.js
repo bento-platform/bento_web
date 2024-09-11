@@ -18,6 +18,7 @@ import {
   FETCH_EXTRA_PROPERTIES_SCHEMA_TYPES,
   CREATE_PROJECT_JSON_SCHEMA,
   DELETE_PROJECT_JSON_SCHEMA,
+  FETCH_DISCOVERY_SCHEMA,
 } from "./actions";
 
 const projectSort = (a, b) => a.title.localeCompare(b.title);
@@ -390,6 +391,23 @@ export const overviewSummary = (
         hasAttempted: true,
       };
 
+    default:
+      return state;
+  }
+};
+
+export const discovery = (
+  state = {
+    discoverySchema: {},
+  },
+  action,
+) => {
+  switch (action.type) {
+    case FETCH_DISCOVERY_SCHEMA.RECEIVE:
+      return {
+        ...state,
+        discoverySchema: action.data,
+      };
     default:
       return state;
   }

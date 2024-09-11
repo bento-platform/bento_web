@@ -1,5 +1,4 @@
 import { useCallback, useEffect, useState } from "react";
-import { useDispatch, useSelector } from "react-redux";
 import { useNavigate, useParams } from "react-router-dom";
 
 import { Modal } from "antd";
@@ -14,9 +13,10 @@ import { FORM_MODE_ADD, FORM_MODE_EDIT } from "@/constants";
 import { beginProjectEditing, endProjectEditing } from "@/modules/manager/actions";
 import { deleteProjectIfPossible, saveProjectIfPossible } from "@/modules/metadata/actions";
 import { useProjects } from "@/modules/metadata/hooks";
+import { useAppDispatch, useAppSelector } from "@/store";
 
 const RoutedProject = () => {
-  const dispatch = useDispatch();
+  const dispatch = useAppDispatch();
   const navigate = useNavigate();
 
   const { project: selectedProjectID } = useParams();
@@ -28,7 +28,7 @@ const RoutedProject = () => {
     isSaving: savingProject,
   } = useProjects();
   const loadingProjects = creatingProject || fetchingProjects;
-  const editingProject = useSelector((state) => state.manager.editingProject);
+  const editingProject = useAppSelector((state) => state.manager.editingProject);
 
   const [datasetAdditionModal, setDatasetAdditionModal] = useState(false);
   const [datasetEditModal, setDatasetEditModal] = useState(false);
@@ -41,7 +41,16 @@ const RoutedProject = () => {
     if (!projectsByID[selectedProjectID] && !loadingProjects) {
       navigate("/data/manager/projects/");
     }
-  }, [projectsByID, loadingProjects, selectedProjectID, navigate]);
+  }, [navigate, projectsByID, loadingProjects, selectedProjectID]);
+
+  useEffect(() => {
+    // end project editing on project changes
+    if (editingProject) {
+      dispatch(endProjectEditing());
+    }
+    // Shouldn't trigger when editingProject flips to true
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [dispatch, selectedProjectID]);
 
   const showDatasetAdditionModal = useCallback(() => {
     setDatasetAdditionModal(true);
@@ -59,13 +68,7 @@ const RoutedProject = () => {
     setJsonSchemaModal(visible);
   }, []);
 
-  const handleProjectSave = useCallback(
-    (newProject) => {
-      // TODO: Form validation for project
-      dispatch(saveProjectIfPossible(newProject));
-    },
-    [dispatch],
-  );
+  const handleProjectSave = useCallback((newProject) => dispatch(saveProjectIfPossible(newProject)), [dispatch]);
 
   const handleProjectDelete = useCallback(() => {
     if (!project) return;
