@@ -83,6 +83,10 @@ export const fetchProjectsWithDatasets = () => (dispatch, getState) => {
   return dispatch(fetchProjects());
 };
 
+// "Invalidates" project data currently in the state. This means that data in the state should be re-fetched the next
+// time the data is used, i.e., should not be counted as already fetched for the purposes of possibly dispatching a
+// fetch action. This is useful for handling known changes to back-end state (e.g., signing in as another user, deleting
+// a project) and reloading as needed.
 export const invalidateProjects = basicAction(INVALIDATE_PROJECTS);
 
 export const createProjectIfPossible = networkAction((project, navigate) => (_dispatch, getState) => ({
