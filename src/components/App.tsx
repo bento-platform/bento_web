@@ -1,5 +1,4 @@
 import { Suspense, lazy, useRef, useState, useEffect, useCallback } from "react";
-import { useDispatch, useSelector } from "react-redux";
 import { Navigate, Route, Routes, useNavigate } from "react-router-dom";
 import { ChartConfigProvider } from "bento-charts";
 import {
@@ -16,6 +15,7 @@ import {
 } from "bento-auth-js";
 
 import * as io from "socket.io-client";
+import type { Socket } from "socket.io-client";
 
 import { Layout, message, Modal } from "antd";
 
@@ -23,7 +23,7 @@ import { BENTO_URL_NO_TRAILING_SLASH, OPENID_CONFIG_URL } from "@/config";
 import eventHandler from "@/events";
 import { useService } from "@/modules/services/hooks";
 import { fetchUserDependentData } from "@/modules/user/actions";
-import SessionWorker from "@/session.worker";
+import { useAppDispatch, useAppSelector } from "@/store";
 import { nop } from "@/utils/misc";
 
 import NotificationDrawer from "./notifications/NotificationDrawer";
@@ -48,23 +48,22 @@ const SIGN_IN_WINDOW_FEATURES = "scrollbars=no, toolbar=no, menubar=no, width=80
 
 const CALLBACK_PATH = "/callback";
 
-const createSessionWorker = () => new SessionWorker();
+const createSessionWorker = () => new Worker(new URL("../session.worker.js", import.meta.url));
 
 // Using the fetchUserDependentData thunk creator as a hook argument may lead to unwanted triggers on re-renders.
 // So we store the thunk inner function of the fetchUserDependentData thunk creator in a constant outside of the
 // component function.
 const onAuthSuccess = fetchUserDependentData(nop);
 
-const uiErrorCallback = (msg) => message.error(msg);
+const uiErrorCallback = (msg: string) => message.error(msg);
 
 const App = () => {
-  const dispatch = useDispatch();
+  const dispatch = useAppDispatch();
   const navigate = useNavigate();
 
-  const eventRelayConnection = useRef(null);
+  const eventRelayConnection = useRef<Socket | null>(null);
   const signInWindow = useRef(null);
   const windowMessageHandler = useRef(null);
-  const pingInterval = useRef(null);
 
   const [signedOutModal, setSignedOutModal] = useState(false);
 
@@ -176,19 +175,13 @@ const App = () => {
 
   useSessionWorkerTokenRefresh(sessionWorker, createSessionWorker, onAuthSuccess);
 
-  const clearPingInterval = useCallback(() => {
-    if (pingInterval.current === null) return;
-    clearInterval(pingInterval.current);
-    pingInterval.current = null;
-  }, [pingInterval]);
-
   const openSignInWindow = useOpenSignInWindowCallback(signInWindow, SIGN_IN_WINDOW_FEATURES);
 
   // On the cBioPortal tab, eliminate the margin around the content to give as much space as possible to the
   // application itself.
   const margin = window.location.pathname.endsWith("cbioportal") ? 0 : 26;
 
-  const threshold = useSelector((state) => state.explorer.otherThresholdPercentage) / 100;
+  const threshold = useAppSelector((state) => state.explorer.otherThresholdPercentage) / 100;
 
   if (isInAuthPopup) {
     return <div>Authenticating...</div>;
@@ -197,14 +190,13 @@ const App = () => {
   return (
     <ChartConfigProvider
       Lng="en"
-      translationMap={{ en: { Count: "Count", Other: "Other" } }}
+      translationMap={{ en: { Count: "Count", Other: "Other" }, fr: { Count: "Comptage", Other: "Autre" } }}
       globalThreshold={threshold}
     >
       <Modal
         title="You have been signed out"
         footer={null}
         onCancel={() => {
-          clearPingInterval(); // Stop pinging until the user decides to sign in again
           setSignedOutModal(false); // Close the modal
         }}
         open={signedOutModal}
