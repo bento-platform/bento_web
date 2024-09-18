@@ -190,7 +190,7 @@ const App = () => {
   return (
     <ChartConfigProvider
       Lng="en"
-      translationMap={{ en: { Count: "Count", Other: "Other" }, fr: { Count: "Observations", Other: "Autre" } }}
+      translationMap={{ en: { Count: "Count", Other: "Other" }, fr: { Count: "Comptage", Other: "Autre" } }}
       globalThreshold={threshold}
     >
       <Modal
