@@ -16,8 +16,7 @@ components.
   * `.eslintrc.js`: ESLint configuration file
   * `src/`: All application source code
     * `components/`: UI components. 
-      * `App.js`: The root component, which determines the overall layout of 
-                  the entire application.
+      * `App.tsx`: The root component, which determines the overall layout of the entire application.
       * `...`
     * `modules/`: Redux "modules", which determine the structure of the Redux 
                   state tree and specify relevant actions and reducers to 
