@@ -27,8 +27,22 @@ const styles: Record<string, CSSProperties> = {
 };
 
 const VIEW_RADIO_OPTIONS: RadioGroupProps["options"] = [
-  {value: "tree", label: <><ShareAltOutlined /> Tree View</>},
-  {value: "table", label: <><TableOutlined /> Table Detail View</>},
+  {
+    value: "tree",
+    label: (
+      <>
+        <ShareAltOutlined /> Tree View
+      </>
+    ),
+  },
+  {
+    value: "table",
+    label: (
+      <>
+        <TableOutlined /> Table Detail View
+      </>
+    ),
+  },
 ];
 
 // TODO: Add more columns
