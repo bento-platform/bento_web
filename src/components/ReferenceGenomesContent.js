@@ -6,26 +6,30 @@ import { BarsOutlined, DeleteOutlined, ImportOutlined } from "@ant-design/icons"
 
 import { deleteReferenceMaterial, ingestReferenceMaterial, RESOURCE_EVERYTHING } from "bento-auth-js";
 
+import MonospaceText from "@/components/common/MonospaceText";
+import ServiceError from "@/components/common/ServiceError";
+import OntologyTerm from "@/components/explorer/OntologyTerm";
 import { useResourcePermissionsWrapper } from "@/hooks";
 import { deleteReferenceGenomeIfPossible } from "@/modules/reference/actions";
 import { useReferenceGenomes } from "@/modules/reference/hooks";
-import { useWorkflows } from "@/modules/services/hooks";
+import { useService, useServices, useWorkflows } from "@/modules/services/hooks";
 import { LAYOUT_CONTENT_STYLE } from "@/styles/layoutContent";
+
 import SitePageHeader from "./SitePageHeader";
 import { useStartIngestionFlow } from "./manager/workflowCommon";
-import MonospaceText from "@/components/common/MonospaceText";
-import OntologyTerm from "@/components/explorer/OntologyTerm";
 
 const DEFAULT_REF_INGEST_WORKFLOW_ID = "fasta_ref";
 
 const ReferenceGenomesContent = () => {
   const dispatch = useDispatch();
 
+  const { hasAttempted: hasAttemptedServiceFetch } = useServices();
   const { permissions } = useResourcePermissionsWrapper(RESOURCE_EVERYTHING);
 
   const canIngestReference = permissions.includes(ingestReferenceMaterial);
   const canDeleteReference = permissions.includes(deleteReferenceMaterial);
 
+  const referenceService = useService("reference");
   const { items: genomes, isFetching: isFetchingGenomes, hasAttempted, isDeletingIDs } = useReferenceGenomes();
 
   const { workflowsByType, workflowsLoading } = useWorkflows();
@@ -168,26 +172,33 @@ const ReferenceGenomesContent = () => {
       <SitePageHeader title="Reference Genomes" />
       <Layout>
         <Layout.Content style={LAYOUT_CONTENT_STYLE}>
-          {canIngestReference && (
-            <Dropdown.Button
-              menu={ingestMenu}
-              onClick={onWorkflowButtonClick}
-              disabled={!defaultIngestionWorkflow}
-              style={{ marginBottom: "1rem" }}
-            >
-              <ImportOutlined />{" "}
-              {defaultIngestionWorkflow?.name ?? (workflowsLoading ? "Loading..." : "No ingestion workflows available")}
-            </Dropdown.Button>
+          {hasAttemptedServiceFetch && !referenceService ? (
+            <ServiceError service="reference" />
+          ) : (
+            <>
+              {canIngestReference && (
+                <Dropdown.Button
+                  menu={ingestMenu}
+                  onClick={onWorkflowButtonClick}
+                  disabled={!defaultIngestionWorkflow}
+                  style={{ marginBottom: "1rem" }}
+                >
+                  <ImportOutlined />{" "}
+                  {defaultIngestionWorkflow?.name ??
+                    (workflowsLoading ? "Loading..." : "No ingestion workflows available")}
+                </Dropdown.Button>
+              )}
+              <Table
+                columns={columns}
+                dataSource={genomes}
+                size="middle"
+                bordered={true}
+                pagination={false}
+                loading={!hasAttempted || isFetchingGenomes}
+                rowKey="id"
+              />
+            </>
           )}
-          <Table
-            columns={columns}
-            dataSource={genomes}
-            size="middle"
-            bordered={true}
-            pagination={false}
-            loading={!hasAttempted || isFetchingGenomes}
-            rowKey="id"
-          />
         </Layout.Content>
       </Layout>
     </>
