@@ -117,10 +117,10 @@ const DataTypeExplorationModal = ({ dataTypes, open, onCancel }: DataTypeExplora
   return (
     <Modal title="Help" open={open} width={1280} onCancel={onCancel ?? nop} footer={null}>
       <Typography.Paragraph>
-        Bento separate data types across multiple queryable data services. For instance, clinical and phenotypic data is
-        stored in the Katsu data service, while genomic data is stored in the Gohan data service. Each data service has
-        its own set of queryable properties, and parameters for multiple data types can be used in the same query. If
-        two or more data types are queried at the same time, an aggregation service will look for datasets that have
+        Bento separates data types across multiple queryable data services. For instance, clinical and phenotypic data
+        is stored in the Katsu data service, while genomic data is stored in the Gohan data service. Each data service
+        has its own set of queryable properties, and parameters for multiple data types can be used in the same query.
+        If two or more data types are queried at the same time, an aggregation service will look for datasets that have
         linked data objects matching both criteria.
       </Typography.Paragraph>
       <Typography.Paragraph>
