@@ -12,7 +12,7 @@ import {
   Tabs,
   Typography,
 } from "antd";
-import { ShareAltOutlined, TableOutlined } from "@ant-design/icons";
+import { PlusOutlined, ShareAltOutlined, TableOutlined } from "@ant-design/icons";
 
 import SchemaTree from "../schema_trees/SchemaTree";
 import type { BentoDataType } from "@/modules/services/types";
@@ -124,8 +124,9 @@ const DataTypeExplorationModal = ({ dataTypes, open, onCancel }: DataTypeExplora
         linked data objects matching both criteria.
       </Typography.Paragraph>
       <Typography.Paragraph>
-        To run a query on a data type, click on the &ldquo;Query Data Type&rdquo; button and choose the data type you
-        want to add query conditions on.
+        To run a query on a data type, click on the &ldquo;
+        <PlusOutlined /> Data Type&rdquo; button in the &ldquo;Advanced Search&rdquo; section of the explorer and choose
+        the data type you want to add query conditions on.
       </Typography.Paragraph>
 
       <Divider />
