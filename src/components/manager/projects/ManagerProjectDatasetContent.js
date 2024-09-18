@@ -2,7 +2,7 @@ import { useCallback, useMemo } from "react";
 import { Navigate, Route, Routes } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 
-import { Button, Empty, Layout, Menu, Result, Typography } from "antd";
+import { Button, Empty, Layout, Menu, Typography } from "antd";
 import { PlusOutlined, ReloadOutlined } from "@ant-design/icons";
 
 import { createProject, RESOURCE_EVERYTHING } from "bento-auth-js";
@@ -20,6 +20,7 @@ import { matchingMenuKeys, transformMenuItem } from "@/utils/menu";
 import { useServices } from "@/modules/services/hooks";
 import { useCanManageAtLeastOneProjectOrDataset } from "@/modules/authz/hooks";
 import ForbiddenContent from "@/components/ForbiddenContent";
+import ServiceError from "@/components/common/ServiceError";
 
 const styles = {
   projectHelpText: {
@@ -76,11 +77,7 @@ const ManagerProjectDatasetContent = () => {
       return (
         <Layout>
           <Layout.Content style={LAYOUT_CONTENT_STYLE}>
-            <Result
-              status="error"
-              title="Could not contact the metadata service"
-              subTitle="Please contact your Bento node administrator or ensure that all services are running."
-            />
+            <ServiceError service="metadata" />
           </Layout.Content>
         </Layout>
       );

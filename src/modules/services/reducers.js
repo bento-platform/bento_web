@@ -54,6 +54,7 @@ export const bentoServices = (
 export const services = (
   state = {
     isFetching: false,
+    hasAttempted: false,
     isFetchingAll: false, // TODO: Rename this, since it means more "all data including other stuff"
     items: [],
     itemsByID: {},
@@ -109,7 +110,7 @@ export const services = (
     }
 
     case FETCH_SERVICES.FINISH:
-      return { ...state, isFetching: false };
+      return { ...state, isFetching: false, hasAttempted: true };
 
     default:
       return state;
