@@ -1,7 +1,17 @@
-import { type ChangeEvent, useCallback, useMemo, useState } from "react";
+import { type ChangeEvent, type CSSProperties, useCallback, useMemo, useState } from "react";
 
-import type { TableColumnsType } from "antd";
-import { Divider, Input, Modal, Radio, Table, Tabs, Typography } from "antd";
+import {
+  Divider,
+  Input,
+  Modal,
+  Radio,
+  type RadioChangeEvent,
+  type RadioGroupProps,
+  Table,
+  type TableColumnsType,
+  Tabs,
+  Typography,
+} from "antd";
 import { ShareAltOutlined, TableOutlined } from "@ant-design/icons";
 
 import SchemaTree from "../schema_trees/SchemaTree";
@@ -9,12 +19,24 @@ import type { BentoDataType } from "@/modules/services/types";
 import { generateSchemaTreeData, generateSchemaTableData } from "@/utils/schema";
 import { nop } from "@/utils/misc";
 
+const styles: Record<string, CSSProperties> = {
+  viewRadioContainer: { position: "relative" },
+  viewRadioGroup: { position: "absolute", top: 0, right: 0, zIndex: 50 },
+  fieldSearch: { marginBottom: "16px" },
+  tableKey: { fontFamily: "monospace", fontSize: "12px", whiteSpace: "nowrap" },
+};
+
+const VIEW_RADIO_OPTIONS: RadioGroupProps["options"] = [
+  {value: "tree", label: <><ShareAltOutlined /> Tree View</>},
+  {value: "table", label: <><TableOutlined /> Table Detail View</>},
+];
+
 // TODO: Add more columns
 const FIELD_COLUMNS: TableColumnsType = [
   {
     title: "Key",
     dataIndex: "key",
-    render: (t: string) => <span style={{ fontFamily: "monospace", fontSize: "12px", whiteSpace: "nowrap" }}>{t}</span>,
+    render: (t: string) => <span style={styles.tableKey}>{t}</span>,
   },
   { title: "JSON Type", dataIndex: ["data", "type"] },
   { title: "Description", dataIndex: ["data", "description"] },
@@ -29,6 +51,8 @@ type DataTypeExplorationModalProps = {
 const DataTypeExplorationModal = ({ dataTypes, open, onCancel }: DataTypeExplorationModalProps) => {
   const [view, setView] = useState("table");
   const [filter, setFilter] = useState("");
+
+  const onViewChange = useCallback((e: RadioChangeEvent) => setView(e.target.value), []);
 
   const onFilterChange = useCallback((v: ChangeEvent<HTMLInputElement>) => {
     setFilter(v.target.value.toLocaleLowerCase().trim());
@@ -67,7 +91,7 @@ const DataTypeExplorationModal = ({ dataTypes, open, onCancel }: DataTypeExplora
                 allowClear={true}
                 onChange={onFilterChange}
                 placeholder="Search for a field..."
-                style={{ marginBottom: "16px" }}
+                style={styles.fieldSearch}
               />
               <Table bordered={true} columns={FIELD_COLUMNS} dataSource={getTableData(dataType)} />
             </>
@@ -93,20 +117,15 @@ const DataTypeExplorationModal = ({ dataTypes, open, onCancel }: DataTypeExplora
       <Divider />
 
       <Typography.Title level={3}>Data Types</Typography.Title>
-      <div style={{ position: "relative" }}>
+      <div style={styles.viewRadioContainer}>
         <Radio.Group
           value={view}
-          onChange={(e) => setView(e.target.value)}
+          onChange={onViewChange}
           buttonStyle="solid"
-          style={{ position: "absolute", top: 0, right: 0, zIndex: 50 }}
-        >
-          <Radio.Button value="tree">
-            <ShareAltOutlined /> Tree View
-          </Radio.Button>
-          <Radio.Button value="table">
-            <TableOutlined /> Table Detail View
-          </Radio.Button>
-        </Radio.Group>
+          optionType="button"
+          style={styles.viewRadioGroup}
+          options={VIEW_RADIO_OPTIONS}
+        />
         <Tabs items={tabItems} />
       </div>
     </Modal>
