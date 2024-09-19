@@ -120,7 +120,7 @@ const serviceColumns = (isAuthenticated, setRequestModalService) => [
 /* eslint-enable react/prop-types */
 
 const ServiceList = () => {
-  const [requestModalService, setRequestModalService] = useState(null);
+  const [requestModalService, setRequestModalService] = useState(undefined);
 
   const { isFetching: servicesFetching, itemsByKind: servicesByKind } = useServices();
   const { isFetching: bentoServicesFetching, itemsByKind: bentoServicesByKind } = useBentoServices();
@@ -152,7 +152,7 @@ const ServiceList = () => {
 
   return (
     <>
-      <ServiceRequestModal service={requestModalService} onCancel={() => setRequestModalService(null)} />
+      <ServiceRequestModal service={requestModalService} onCancel={() => setRequestModalService(undefined)} />
       <Table
         bordered
         style={{ marginBottom: 24 }}
