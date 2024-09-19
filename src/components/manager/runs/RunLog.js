@@ -1,35 +1,17 @@
 import { useEffect } from "react";
-import { useDispatch, useSelector } from "react-redux";
-import PropTypes from "prop-types";
+import { useSelector } from "react-redux";
 
-import { AnsiUp } from "ansi_up";
+import { Descriptions } from "antd";
 
-import { Descriptions, Skeleton } from "antd";
-
+import MonospaceText from "@/components/common/MonospaceText";
 import { fetchRunLogStreamsIfPossibleAndNeeded } from "@/modules/wes/actions";
 import { runPropTypesShape } from "@/propTypes";
-import MonospaceText from "@/components/common/MonospaceText";
+import { useAppDispatch } from "@/store";
 
-const ansiUp = new AnsiUp();
-
-const LogOutput = ({ log }) => {
-  if (log === null) return <Skeleton paragraph={false} />;
-
-  return (
-    <div
-      style={{ fontFamily: "monospace", fontSize: "12px", whiteSpace: "break-spaces", overflowX: "auto" }}
-      dangerouslySetInnerHTML={{ __html: ansiUp.ansi_to_html(log?.data || "") }}
-    />
-  );
-};
-LogOutput.propTypes = {
-  log: PropTypes.shape({
-    data: PropTypes.string,
-  }),
-};
+import LogOutput from "./LogOutput";
 
 const RunLog = ({ run }) => {
-  const dispatch = useDispatch();
+  const dispatch = useAppDispatch();
 
   const { isFetching: isFetchingRuns, streamsByID: runLogStreams } = useSelector((state) => state.runs);
 
