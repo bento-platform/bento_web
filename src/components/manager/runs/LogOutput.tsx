@@ -6,7 +6,7 @@ const ansiUp = new AnsiUp();
 
 type LogOutputProps = {
   log?: {
-    data: string;
+    data: string | null;
   };
 };
 

@@ -14,7 +14,7 @@ const RunListContent = () => {
   const dispatch = useAppDispatch();
   const runRefreshTimeout = useRef(null);
 
-  const { items: runs } = useRuns();
+  const { items: runs, isFetching: runsFetching } = useRuns();
   const mappedRuns = useMemo(
     () =>
       runs.map((r) => ({
@@ -26,7 +26,6 @@ const RunListContent = () => {
   );
 
   const { isFetchingAll: servicesFetching } = useServices();
-  const { isFetching: runsFetching } = useRuns();
 
   useEffect(() => {
     dispatch(fetchAllRunDetailsIfNeeded()).catch((err) => console.error(err));

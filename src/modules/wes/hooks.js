@@ -1,14 +1,15 @@
 import { useEffect } from "react";
-import { useDispatch, useSelector } from "react-redux";
+import { useSelector } from "react-redux";
 
 import { RESOURCE_EVERYTHING, viewRuns } from "bento-auth-js";
 
 import { useHasResourcePermissionWrapper } from "@/hooks";
 import { useService } from "@/modules/services/hooks";
 import { fetchRuns } from "@/modules/wes/actions";
+import { useAppDispatch } from "@/store";
 
 export const useRuns = () => {
-  const dispatch = useDispatch();
+  const dispatch = useAppDispatch();
 
   const wes = useService("wes"); // TODO: associate this with the network action somehow
   const { hasPermission } = useHasResourcePermissionWrapper(RESOURCE_EVERYTHING, viewRuns);

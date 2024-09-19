@@ -8,6 +8,7 @@ import {
 
 const INITIAL_RUNS_STATE = {
   isFetching: false,
+  hasAttempted: false,
   isSubmittingRun: false,
   items: [],
   itemsByID: {},
@@ -91,7 +92,7 @@ export const runs = (state = INITIAL_RUNS_STATE, action) => {
       };
 
     case FETCH_RUNS.FINISH:
-      return { ...state, isFetching: false };
+      return { ...state, isFetching: false, hasAttempted: true };
 
     case FETCH_RUN_DETAILS.REQUEST: {
       const newItem = { ...(state.itemsByID[action.runID] ?? {}), isFetching: true };

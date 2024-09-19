@@ -1,29 +1,44 @@
 import { useEffect } from "react";
-import { useSelector } from "react-redux";
 
 import { Descriptions } from "antd";
 
 import MonospaceText from "@/components/common/MonospaceText";
 import { fetchRunLogStreamsIfPossibleAndNeeded } from "@/modules/wes/actions";
-import { runPropTypesShape } from "@/propTypes";
-import { useAppDispatch } from "@/store";
+import type { WorkflowRunStreamState } from "@/modules/wes/types";
+import { useAppDispatch, useAppSelector } from "@/store";
 
 import LogOutput from "./LogOutput";
+import type { RunPageProps } from "./types";
 
-const RunLog = ({ run }) => {
+const RunLog = ({ run }: RunPageProps) => {
   const dispatch = useAppDispatch();
 
-  const { isFetching: isFetchingRuns, streamsByID: runLogStreams } = useSelector((state) => state.runs);
+  // TODO: when state is typed properly, don't need the type here
+  const {
+    isFetching: isFetchingRuns,
+    streamsByID: runLogStreams,
+  }: {
+    isFetching: boolean;
+    streamsByID: Record<
+      string,
+      {
+        stdout: WorkflowRunStreamState;
+        stderr: WorkflowRunStreamState;
+      }
+    >;
+  } = useAppSelector((state) => state.runs);
 
   useEffect(() => {
     if (isFetchingRuns) return;
     dispatch(fetchRunLogStreamsIfPossibleAndNeeded(run.run_id));
   }, [dispatch, run, isFetchingRuns]);
 
-  const stdout = runLogStreams[run.run_id]?.stdout ?? null;
-  const stderr = runLogStreams[run.run_id]?.stderr ?? null;
+  const stdout = runLogStreams[run.run_id]?.stdout;
+  const stderr = runLogStreams[run.run_id]?.stderr;
 
-  const runLog = run?.details?.run_log ?? {};
+  const runLog = run?.details?.run_log;
+
+  if (!runLog) return <div />;
 
   return (
     <Descriptions bordered style={{ overflow: "auto" }}>
@@ -44,9 +59,6 @@ const RunLog = ({ run }) => {
       </Descriptions.Item>
     </Descriptions>
   );
-};
-RunLog.propTypes = {
-  run: runPropTypesShape,
 };
 
 export default RunLog;
