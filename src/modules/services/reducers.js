@@ -9,6 +9,7 @@ import {
 export const bentoServices = (
   state = {
     isFetching: false,
+    hasAttempted: false,
     itemsByArtifact: {},
     itemsByKind: {},
   },
@@ -44,7 +45,7 @@ export const bentoServices = (
         ),
       };
     case FETCH_BENTO_SERVICES.FINISH:
-      return { ...state, isFetching: false };
+      return { ...state, isFetching: false, hasAttempted: true };
 
     default:
       return state;

@@ -54,7 +54,7 @@ module.exports = {
         "no-var": ["error"],
         "prefer-const": ["error"],
         eqeqeq: ["error"],
-        "max-len": ["error", { code: 124, tabWidth: 2, ignoreComments: true }],
+        "max-len": ["error", { code: 124, tabWidth: 2, ignoreComments: true, ignoreTemplateLiterals: true }],
         "no-trailing-spaces": ["error"],
         "space-before-blocks": ["error", "always"],
         "eol-last": ["error", "always"],
