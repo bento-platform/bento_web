@@ -81,7 +81,7 @@ const PdfDisplay = ({ uri, onLoad, onFail }: PdfDisplayProps) => {
 
   const pageArray = useMemo(() => {
     const pages = [];
-    for (let i = 1; i <= pdfPageCounts[uri] ?? 1; i++) {
+    for (let i = 1; i <= (pdfPageCounts[uri] ?? 1); i++) {
       pages.push(<Page pageNumber={i} key={i} scale={SCALES[scale]} />);
     }
     return pages;
