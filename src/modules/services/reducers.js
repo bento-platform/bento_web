@@ -10,7 +10,6 @@ export const bentoServices = (
   state = {
     isFetching: false,
     hasAttempted: false,
-    itemsByArtifact: {},
     itemsByKind: {},
   },
   action,
@@ -19,24 +18,9 @@ export const bentoServices = (
     case FETCH_BENTO_SERVICES.REQUEST:
       return { ...state, isFetching: true };
     case FETCH_BENTO_SERVICES.RECEIVE:
-      if (Array.isArray(action.data)) {
-        // Handle old CHORD services format
-        // TODO: Remove when no longer relevant
-        console.warn("The old chord_services.json format will be deprecated soon.");
-        const byArtifact = Object.fromEntries(action.data.map((s) => [s.type.artifact, s]));
-        return {
-          ...state,
-          itemsByArtifact: byArtifact,
-          itemsByKind: byArtifact, // technically wrong but only rarely; deprecated code to be removed
-        };
-      }
-
-      // Handle the new Bento services format: an object with the docker-compose service ID as the key
+      // Handle the Bento services format: an object with the docker-compose service ID as the key
       return {
         ...state,
-        itemsByArtifact: Object.fromEntries(
-          Object.entries(action.data).map(([composeID, service]) => [service.artifact, { ...service, composeID }]),
-        ),
         itemsByKind: Object.fromEntries(
           Object.entries(action.data).map(([composeID, service]) => [
             service.service_kind ?? service.artifact,
@@ -59,7 +43,6 @@ export const services = (
     isFetchingAll: false, // TODO: Rename this, since it means more "all data including other stuff"
     items: [],
     itemsByID: {},
-    itemsByArtifact: {},
     itemsByKind: {},
 
     aggregationService: null,
@@ -87,7 +70,6 @@ export const services = (
       const items = action.data.filter((s) => s?.type);
       const itemsByID = Object.fromEntries(items.map((s) => [s.id, s]));
       const itemsByKind = Object.fromEntries(items.map((s) => [s.bento?.serviceKind ?? s.type.artifact, s]));
-      const itemsByArtifact = Object.fromEntries(items.map((s) => [s.type.artifact, s]));
 
       return {
         ...state,
@@ -95,10 +77,9 @@ export const services = (
         items,
         itemsByID,
         itemsByKind,
-        itemsByArtifact,
 
         // Backwards-compatibility with older Bento versions, where this was called 'federation'
-        aggregationService: itemsByKind["aggregation"] ?? itemsByKind["federation"] ?? null,
+        aggregationService: itemsByKind["aggregation"] ?? null,
         dropBoxService: itemsByKind["drop-box"] ?? null,
         drsService: itemsByKind["drs"] ?? null,
         eventRelay: itemsByKind["event-relay"] ?? null,

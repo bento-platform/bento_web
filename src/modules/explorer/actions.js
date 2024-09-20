@@ -74,9 +74,9 @@ export const clearSearch = (datasetID) => (dispatch, getState) => {
 
 // Helper function for CSV download functions
 const performCSVDownloadHelper = (actionTypes, urlPath) =>
-  networkAction((ids) => (dispatch, getState) => ({
+  networkAction((ids) => (_dispatch, getState) => ({
     types: actionTypes,
-    url: `${getState().services.itemsByArtifact.metadata.url}/api/batch/${urlPath}`,
+    url: `${getState().services.itemsByKind.metadata.url}/api/batch/${urlPath}`,
     req: jsonRequest(
       {
         id: ids,
