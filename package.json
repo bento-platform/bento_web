@@ -1,6 +1,6 @@
 {
   "name": "bento_web",
-  "version": "5.0.1",
+  "version": "6.0.0",
   "description": "Bento platform front-end",
   "main": "src/index.tsx",
   "dependencies": {
