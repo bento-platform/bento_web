@@ -68,7 +68,7 @@ const ServiceDetail = () => {
             <Result
               status="error"
               title="Could not get service information"
-              subTitle={`Make sure the service registry and the ${kind} service are running.`}
+              subTitle={`Make sure that the service registry is running, and that the "${kind}" service exists and is running.`}
             />
           ) : (
             <Suspense fallback={<Skeleton active={true} />}>
