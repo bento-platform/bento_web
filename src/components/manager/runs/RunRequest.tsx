@@ -36,6 +36,10 @@ const RunRequest = ({ run }: RunPageProps) => {
         </List>
       </Descriptions.Item>
       <Descriptions.Item label="Tags">
+        {/*
+        TypeScript gets grumpy about tags not being JSON-compatible with the way these types are defined. This
+        `as unknown` hack forces the type-checker to see them as compatible.
+        */}
         <JsonView src={details.request.tags as unknown as JSONType} collapsed={false} />
       </Descriptions.Item>
     </Descriptions>
