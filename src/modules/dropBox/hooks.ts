@@ -3,10 +3,11 @@ import { RESOURCE_EVERYTHING, useAuthorizationHeader, viewDropBox } from "bento-
 
 import { useHasResourcePermissionWrapper } from "@/hooks";
 import { useService } from "@/modules/services/hooks";
-import { type RootState, useAppDispatch, useAppSelector } from "@/store";
+import { useAppDispatch, useAppSelector } from "@/store";
 import type { JSONType } from "@/types/json";
 
 import { fetchDropBoxTree } from "./actions";
+import type { DropBoxEntry } from "./types";
 
 export const useDropBox = () => {
   const dispatch = useAppDispatch();
@@ -24,19 +25,46 @@ export const useDropBox = () => {
   return useAppSelector((state) => state.dropBox);
 };
 
+const findDropBoxEntryRecursive = (treeNode: DropBoxEntry, filePath: string): DropBoxEntry | null => {
+  if (treeNode.filePath === filePath) {
+    return treeNode;
+  } else if (treeNode.contents) {
+    for (const childNode of treeNode.contents) {
+      const result = findDropBoxEntryRecursive(childNode, filePath);
+      if (result) {
+        return result;
+      }
+    }
+  }
+  return null;
+};
+
+const useFindDropBoxEntry = (filePath?: string): DropBoxEntry | null => {
+  const { tree } = useDropBox();
+  return useMemo(() => {
+    if (!filePath) {
+      return null;
+    }
+    const dropBoxRoot: DropBoxEntry = {
+      name: "root",
+      filePath: "",
+      relativePath: "",
+      contents: tree,
+    };
+    return findDropBoxEntryRecursive(dropBoxRoot, filePath);
+  }, [tree, filePath]);
+};
+
 /**
  * Given the path of a dropbox file, will attempt to retrieve the blob using the file's URI.
  */
 const useDropBoxFileBlob = (filePath?: string): Blob | null => {
-  const file = useAppSelector((state: RootState) =>
-    state.dropBox.tree.find((f: { filePath: string | undefined }) => f?.filePath === filePath),
-  );
+  const file = useFindDropBoxEntry(filePath);
   const authHeader = useAuthorizationHeader();
 
   const [fileBlob, setFileBlob] = useState<Blob | null>(null);
 
   const fileExt = filePath?.split(".").slice(-1)[0].toLowerCase();
-
   // fetch effect
   useEffect(() => {
     setFileBlob(null);
