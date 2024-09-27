@@ -3,7 +3,7 @@ import { RESOURCE_EVERYTHING, useAuthorizationHeader, viewDropBox } from "bento-
 
 import { useHasResourcePermissionWrapper } from "@/hooks";
 import { useService } from "@/modules/services/hooks";
-import { type RootState, useAppDispatch, useAppSelector } from "@/store";
+import { useAppDispatch, useAppSelector } from "@/store";
 import type { JSONType } from "@/types/json";
 
 import { fetchDropBoxTree } from "./actions";
@@ -40,7 +40,7 @@ const findDropBoxEntryRecursive = (treeNode: DropBoxEntry, filePath: string): Dr
 };
 
 const useFindDropBoxEntry = (filePath?: string): DropBoxEntry | null => {
-  const tree: DropBoxEntry[] = useAppSelector((state: RootState) => state.dropBox.tree);
+  const { tree } = useDropBox();
   return useMemo(() => {
     if (!filePath) {
       return null;
