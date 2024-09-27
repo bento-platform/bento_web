@@ -78,7 +78,6 @@ export const services = (
         itemsByID,
         itemsByKind,
 
-        // Backwards-compatibility with older Bento versions, where this was called 'federation'
         aggregationService: itemsByKind["aggregation"] ?? null,
         dropBoxService: itemsByKind["drop-box"] ?? null,
         drsService: itemsByKind["drs"] ?? null,
