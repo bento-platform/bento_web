@@ -1,11 +1,12 @@
-import PropTypes from "prop-types";
-
 import { Descriptions, List, Tag } from "antd";
 
 import JsonView from "@/components/common/JsonView";
+import type { JSONType } from "@/types/json";
+
+import type { RunPageProps } from "./types";
 import WorkflowListItem from "../WorkflowListItem";
 
-const RunRequest = ({ run }) => {
+const RunRequest = ({ run }: RunPageProps) => {
   const details = run?.details;
 
   if (!details) return <div />;
@@ -35,23 +36,14 @@ const RunRequest = ({ run }) => {
         </List>
       </Descriptions.Item>
       <Descriptions.Item label="Tags">
-        <JsonView src={details.request.tags} collapsed={false} />
+        {/*
+        TypeScript gets grumpy about tags not being JSON-compatible with the way these types are defined. This
+        `as unknown` hack forces the type-checker to see them as compatible.
+        */}
+        <JsonView src={details.request.tags as unknown as JSONType} collapsed={false} />
       </Descriptions.Item>
     </Descriptions>
   );
-};
-
-RunRequest.propTypes = {
-  run: PropTypes.shape({
-    details: PropTypes.shape({
-      request: PropTypes.shape({
-        workflow_type: PropTypes.string,
-        workflow_type_version: PropTypes.string,
-        workflow_url: PropTypes.string,
-        tags: PropTypes.object,
-      }),
-    }),
-  }),
 };
 
 export default RunRequest;

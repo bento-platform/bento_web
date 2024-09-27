@@ -95,43 +95,6 @@ export const notificationPropTypesShape = PropTypes.shape({
   timestamp: PropTypes.string, // TODO: de-serialize?
 });
 
-// Prop types object shape for a run object.
-// TODO: Missing stuff
-export const runPropTypesShape = PropTypes.shape({
-  run_id: PropTypes.string,
-  state: PropTypes.string,
-
-  // withDetails=true
-  details: PropTypes.shape({
-    run_id: PropTypes.string,
-    state: PropTypes.string,
-    request: PropTypes.shape({
-      workflow_params: PropTypes.object,
-      workflow_type: PropTypes.string,
-      workflow_type_version: PropTypes.string,
-      workflow_engine_parameters: PropTypes.object,
-      workflow_url: PropTypes.string,
-      tags: PropTypes.object,
-    }),
-    run_log: PropTypes.shape({
-      name: PropTypes.string,
-      cmd: PropTypes.string,
-      start_time: PropTypes.string, // TODO: De-serialize?
-      end_time: PropTypes.string, // TODO: De-serialize?
-      stdout: PropTypes.string,
-      stderr: PropTypes.string,
-      exit_code: PropTypes.number,
-    }),
-    // with outputs
-    outputs: PropTypes.objectOf(
-      PropTypes.shape({
-        type: PropTypes.string,
-        value: PropTypes.oneOfType([PropTypes.string, PropTypes.array, PropTypes.number, PropTypes.bool]),
-      }),
-    ),
-  }),
-});
-
 // Prop types object shape for a single table summary object.
 export const summaryPropTypesShape = PropTypes.object;
 

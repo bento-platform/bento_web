@@ -1,5 +1,4 @@
 import { useState, useMemo } from "react";
-import { useSelector } from "react-redux";
 import PropTypes from "prop-types";
 
 import { Table, Modal } from "antd";
@@ -7,6 +6,7 @@ import { MoreOutlined } from "@ant-design/icons";
 
 import { useDatasetsArray } from "@/modules/metadata/hooks";
 import { useServices } from "@/modules/services/hooks";
+import { useRuns } from "@/modules/wes/hooks";
 
 const COLUMNS_LAST_CONTENT = [
   {
@@ -177,7 +177,7 @@ const processIngestions = (data, currentDatasets) => {
 
 const LastIngestionTable = () => {
   const { isFetchingAll: servicesFetching } = useServices();
-  const { items: runs, isFetching: runsFetching } = useSelector((state) => state.runs);
+  const { items: runs, isFetching: runsFetching } = useRuns();
   const datasets = useDatasetsArray();
   const ingestions = useMemo(() => processIngestions(runs, datasets), [runs, datasets]);
 
