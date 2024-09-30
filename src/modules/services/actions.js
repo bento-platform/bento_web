@@ -80,7 +80,7 @@ export const fetchServicesWithMetadataAndDataTypes = () => async (dispatch, getS
 export const fetchServicesWithMetadataAndDataTypesIfNeeded = () => (dispatch, getState) => {
   const state = getState();
   if (
-    (Object.keys(state.bentoServices.itemsByArtifact).length === 0 ||
+    (Object.keys(state.bentoServices.itemsByKind).length === 0 ||
       state.services.items.length === 0 ||
       state.serviceDataTypes.items.length === 0) &&
     !state.services.isFetchingAll
