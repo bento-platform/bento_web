@@ -1,7 +1,6 @@
-import { useSelector } from "react-redux";
 import PropTypes from "prop-types";
 
-import { Modal, Skeleton } from "antd";
+import { Alert, Modal, Skeleton } from "antd";
 
 import { summaryPropTypesShape } from "@/propTypes";
 
@@ -9,9 +8,7 @@ import GenericSummary from "./GenericSummary";
 import PhenopacketSummary from "./PhenopacketSummary";
 import VariantSummary from "./VariantSummary";
 
-const DataTypeSummaryModal = ({ dataType, summary, onCancel, open }) => {
-  const isFetchingSummaries = useSelector((state) => state.datasetDataTypes.isFetchingAll);
-
+const DataTypeSummaryModal = ({ dataType, summary, onCancel, open, isFetching }) => {
   if (!dataType) {
     return <></>;
   }
@@ -38,7 +35,9 @@ const DataTypeSummaryModal = ({ dataType, summary, onCancel, open }) => {
       width={960}
       footer={null}
     >
-      {!summaryData || isFetchingSummaries ? <Skeleton /> : <Summary summary={summaryData} />}
+      <Alert.ErrorBoundary>
+        {!summaryData || isFetching ? <Skeleton /> : <Summary summary={summaryData} />}
+      </Alert.ErrorBoundary>
     </Modal>
   );
 };
@@ -48,6 +47,7 @@ DataTypeSummaryModal.propTypes = {
   summary: summaryPropTypesShape,
   onCancel: PropTypes.func,
   open: PropTypes.bool,
+  isFetching: PropTypes.bool,
 };
 
 export default DataTypeSummaryModal;

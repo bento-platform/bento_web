@@ -13,7 +13,7 @@ import {
   deleteDatasetLinkedFieldSetIfPossible,
 } from "@/modules/metadata/actions";
 
-import { fetchDatasetDataTypesSummariesIfPossible, fetchDatasetSummariesIfPossible } from "@/modules/datasets/actions";
+import { fetchDatasetDataTypesIfPossible, fetchDatasetSummariesIfPossible } from "@/modules/datasets/actions";
 
 import { INITIAL_DATA_USE_VALUE } from "@/duo";
 import { simpleDeepCopy, nop } from "@/utils/misc";
@@ -336,7 +336,7 @@ const mapDispatchToProps = (dispatch, ownProps) => ({
   deleteLinkedFieldSet: (dataset, linkedFieldSet, linkedFieldSetIndex) =>
     dispatch(deleteDatasetLinkedFieldSetIfPossible(dataset, linkedFieldSet, linkedFieldSetIndex)),
   fetchDatasetSummary: (datasetId) => dispatch(fetchDatasetSummariesIfPossible(datasetId)),
-  fetchDatasetDataTypesSummary: (datasetId) => dispatch(fetchDatasetDataTypesSummariesIfPossible(datasetId)),
+  fetchDatasetDataTypesSummary: (datasetId) => dispatch(fetchDatasetDataTypesIfPossible(datasetId)),
 });
 
 export default connect(mapStateToProps, mapDispatchToProps)(Dataset);
