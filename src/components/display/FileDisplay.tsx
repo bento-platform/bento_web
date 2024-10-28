@@ -25,14 +25,14 @@ import type { JSONType } from "@/types/json";
 
 import AudioDisplay from "./AudioDisplay";
 import CsvDisplay from "./CsvDisplay";
+import DocxDisplay from "./DocxDisplay";
+import HtmlDisplay from "./HtmlDisplay";
 import ImageBlobDisplay from "./ImageBlobDisplay";
 import JsonDisplay from "./JsonDisplay";
-import HtmlDisplay from "./HtmlDisplay";
+import MarkdownDisplay from "./MarkdownDisplay";
+import PdfDisplay from "./PdfDisplay";
 import VideoDisplay from "./VideoDisplay";
 import XlsxDisplay from "./XlsxDisplay";
-import MarkdownDisplay from "./MarkdownDisplay";
-import DocxDisplay from "./DocxDisplay";
-import PdfDisplay from "./PdfDisplay";
 import type { BlobDisplayProps } from "./types";
 
 SyntaxHighlighter.registerLanguage("bash", bash);
