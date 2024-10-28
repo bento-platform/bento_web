@@ -27,6 +27,7 @@ import AudioDisplay from "./AudioDisplay";
 import CsvDisplay from "./CsvDisplay";
 import ImageBlobDisplay from "./ImageBlobDisplay";
 import JsonDisplay from "./JsonDisplay";
+import HtmlDisplay from "./HtmlDisplay";
 import VideoDisplay from "./VideoDisplay";
 import XlsxDisplay from "./XlsxDisplay";
 import MarkdownDisplay from "./MarkdownDisplay";
@@ -85,6 +86,7 @@ export const VIEWABLE_FILE_EXTENSIONS = [
 
   // Documents
   "docx",
+  "html",
   "pdf",
 
   // Tabular data
@@ -260,6 +262,8 @@ const FileDisplay = ({ uri, fileName, loading }: FileDisplayProps) => {
           return <VideoDisplay contents={fc} loading={loadingFileContents} />;
         } else if (fileExt === "json") {
           return <WrappedJsonDisplay contents={fc} loading={loadingFileContents} />;
+        } else if (fileExt === "html") {
+          return <HtmlDisplay contents={fc} loading={loadingFileContents} />;
         } else {
           return <WrappedCodeDisplay contents={fc} fileExt={fileExt} loading={loadingFileContents} />;
         }
