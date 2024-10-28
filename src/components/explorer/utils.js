@@ -1,6 +1,6 @@
 import { useEffect, useMemo } from "react";
-import { useDispatch, useSelector } from "react-redux";
 import { fetchDatasetResourcesIfNecessary } from "@/modules/datasets/actions";
+import { useAppDispatch, useAppSelector } from "@/store";
 
 export const useDeduplicatedIndividualBiosamples = (individual) =>
   useMemo(
@@ -82,9 +82,9 @@ export const useIndividualGeneDescriptors = (individual) => {
 };
 
 export const useDatasetResources = (datasetIDOrDatasetIDs) => {
-  const dispatch = useDispatch();
+  const dispatch = useAppDispatch();
 
-  const datasetResources = useSelector((state) => state.datasetResources.itemsByID);
+  const datasetResources = useAppSelector((state) => state.datasetResources.itemsByID);
 
   const datasetIDs = useMemo(
     () => (Array.isArray(datasetIDOrDatasetIDs) ? datasetIDOrDatasetIDs : [datasetIDOrDatasetIDs]),

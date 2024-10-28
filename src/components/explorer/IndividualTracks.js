@@ -1,5 +1,4 @@
 import { memo, useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { useDispatch, useSelector } from "react-redux";
 import PropTypes from "prop-types";
 import { debounce } from "lodash";
 
@@ -17,8 +16,10 @@ import { setIgvPosition } from "@/modules/explorer/actions";
 import { useIgvGenomes } from "@/modules/explorer/hooks";
 import { useReferenceGenomes } from "@/modules/reference/hooks";
 import { useService } from "@/modules/services/hooks";
+import { useAppDispatch, useAppSelector } from "@/store";
 import { guessFileType } from "@/utils/files";
 import { simpleDeepCopy } from "@/utils/misc";
+
 import { useDeduplicatedIndividualBiosamples } from "./utils";
 
 const SQUISHED_CALL_HEIGHT = 10;
@@ -154,15 +155,15 @@ const IndividualTracks = ({ individual }) => {
   const igvBrowserRef = useRef(null);
   const [creatingIgvBrowser, setCreatingIgvBrowser] = useState(false);
 
-  const { igvUrlsByFilename: igvUrls, isFetchingIgvUrls } = useSelector((state) => state.drs);
+  const { igvUrlsByFilename: igvUrls, isFetchingIgvUrls } = useAppSelector((state) => state.drs);
 
   // read stored position only on first render
-  const igvPosition = useSelector(
-    (state) => state.explorer.igvPosition,
+  const { igvPosition } = useAppSelector(
+    (state) => state.explorer,
     () => true, // We don't want to re-render anything when the position changes
   );
 
-  const dispatch = useDispatch();
+  const dispatch = useAppDispatch();
 
   const referenceService = useService("reference");
   // Built-in igv.js genomes (with annotations):

@@ -1,5 +1,4 @@
 import { useEffect } from "react";
-import { useSelector } from "react-redux";
 
 import { Col, Layout, Row, Spin, Statistic, Typography } from "antd";
 
@@ -10,6 +9,7 @@ import { SITE_NAME } from "@/constants";
 import { EM_DASH } from "@/constants";
 import { BENTO_URL } from "@/config";
 import { useProjects } from "@/modules/metadata/hooks";
+import { useAppSelector } from "@/store";
 
 const ServiceContent = () => {
   useEffect(() => {
@@ -17,7 +17,7 @@ const ServiceContent = () => {
   }, []);
 
   const { items: projects, isFetching: isFetchingProjects } = useProjects();
-  const isFetching = useSelector((state) => state.user.isFetchingDependentData) || isFetchingProjects;
+  const isFetching = useAppSelector((state) => state.user.isFetchingDependentData) || isFetchingProjects;
 
   return (
     <>

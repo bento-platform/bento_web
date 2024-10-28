@@ -1,5 +1,4 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
-import { useDispatch, useSelector } from "react-redux";
 import { Link, useParams } from "react-router-dom";
 import PropTypes from "prop-types";
 
@@ -9,6 +8,7 @@ import { BarsOutlined, EyeOutlined, FileTextOutlined, ProfileOutlined } from "@a
 import { EM_DASH } from "@/constants";
 import { experimentPropTypesShape, experimentResultPropTypesShape, individualPropTypesShape } from "@/propTypes";
 import { getFileDownloadUrlsFromDrs } from "@/modules/drs/actions";
+import { useAppDispatch, useAppSelector } from "@/store";
 import { guessFileType } from "@/utils/files";
 
 import { useDeduplicatedIndividualBiosamples } from "./utils";
@@ -32,7 +32,7 @@ const VIEWABLE_FILE_FORMATS = ["PDF", "CSV", "TSV"];
 const ExperimentResultActions = ({ result }) => {
   const { filename } = result;
 
-  const downloadUrls = useSelector((state) => state.drs.downloadUrlsByFilename);
+  const downloadUrls = useAppSelector((state) => state.drs.downloadUrlsByFilename);
   const url = downloadUrls[filename]?.url;
 
   const [viewModalVisible, setViewModalVisible] = useState(false);
@@ -268,7 +268,7 @@ const EXPERIMENT_COLUMNS = [
 ];
 
 const Experiments = ({ individual, handleExperimentClick }) => {
-  const dispatch = useDispatch();
+  const dispatch = useAppDispatch();
 
   const { selectedExperiment } = useParams();
 

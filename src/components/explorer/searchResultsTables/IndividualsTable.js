@@ -1,7 +1,7 @@
 import { Fragment } from "react";
 import PropTypes from "prop-types";
+import { useAppSelector } from "@/store";
 import { useSortedColumns } from "../hooks/explorerHooks";
-import { useSelector } from "react-redux";
 import ExplorerSearchResultsTable from "../ExplorerSearchResultsTable";
 import BiosampleIDCell from "./BiosampleIDCell";
 import IndividualIDCell from "./IndividualIDCell";
@@ -46,7 +46,7 @@ const SEARCH_RESULT_COLUMNS = [
 ];
 
 const IndividualsTable = ({ data, datasetID }) => {
-  const tableSortOrder = useSelector((state) => state.explorer.tableSortOrderByDatasetID[datasetID]?.["individuals"]);
+  const tableSortOrder = useAppSelector((state) => state.explorer.tableSortOrderByDatasetID[datasetID]?.["individuals"]);
 
   const { sortedData, columnsWithSortOrder } = useSortedColumns(data, tableSortOrder, SEARCH_RESULT_COLUMNS);
 

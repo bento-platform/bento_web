@@ -1,11 +1,12 @@
 import { useCallback, useMemo } from "react";
-import { useDispatch } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import PropTypes from "prop-types";
 
 import { PieChart as BentoPie } from "bento-charts";
 
 import { setAutoQueryPageTransition } from "@/modules/explorer/actions";
+import { useAppDispatch } from "@/store";
+
 import ChartContainer from "./ChartContainer";
 
 const PieChart = ({
@@ -18,7 +19,7 @@ const PieChart = ({
   clickable = false,
   sortData = true,
 }) => {
-  const dispatch = useDispatch();
+  const dispatch = useAppDispatch();
   const navigate = useNavigate();
 
   const onAutoQueryTransition = useCallback(

@@ -1,6 +1,5 @@
 import { memo, useContext, useMemo } from "react";
 import { Link } from "react-router-dom";
-import { useDispatch } from "react-redux";
 import PropTypes from "prop-types";
 
 import { Button, Descriptions, List, Table, Typography } from "antd";
@@ -8,6 +7,7 @@ import { Button, Descriptions, List, Table, Typography } from "antd";
 import { ExplorerIndividualContext } from "./contexts/individual";
 import { setIgvPosition } from "@/modules/explorer/actions";
 import { individualPropTypesShape } from "@/propTypes";
+import { useAppDispatch } from "@/store";
 
 import { explorerIndividualUrl } from "./utils";
 
@@ -32,7 +32,7 @@ StringList.propTypes = {
 };
 
 export const GeneDescriptor = ({ geneDescriptor }) => {
-  const dispatch = useDispatch();
+  const dispatch = useAppDispatch();
   const { individualID } = useContext(ExplorerIndividualContext);
   const tracksUrl = useMemo(() => {
     if (individualID) {
@@ -66,7 +66,7 @@ GeneDescriptor.propTypes = {
 };
 
 const GeneIGVLink = memo(({ symbol, tracksUrl }) => {
-  const dispatch = useDispatch();
+  const dispatch = useAppDispatch();
   return (
     <Link onClick={() => dispatch(setIgvPosition(symbol))} to={tracksUrl}>
       <Button>{symbol}</Button>

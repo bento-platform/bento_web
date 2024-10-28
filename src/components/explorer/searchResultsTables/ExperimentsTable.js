@@ -1,8 +1,8 @@
 import { memo, useMemo } from "react";
 import { Link, useLocation } from "react-router-dom";
-import { useSelector } from "react-redux";
 import PropTypes from "prop-types";
 
+import { useAppSelector } from "@/store";
 import { useSortedColumns, useDynamicTableFilterOptions } from "../hooks/explorerHooks";
 import { explorerIndividualUrl } from "../utils";
 
@@ -29,7 +29,7 @@ ExperimentRender.propTypes = {
 };
 
 const ExperimentsTable = ({ data, datasetID }) => {
-  const tableSortOrder = useSelector((state) => state.explorer.tableSortOrderByDatasetID[datasetID]?.["experiments"]);
+  const tableSortOrder = useAppSelector((state) => state.explorer.tableSortOrderByDatasetID[datasetID]?.["experiments"]);
 
   const experimentTypeFilters = useDynamicTableFilterOptions(data, "experimentType");
 

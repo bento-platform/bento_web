@@ -1,7 +1,8 @@
-import { useSelector } from "react-redux";
 import PropTypes from "prop-types";
 
 import { Button, Form, List } from "antd";
+
+import { useRuns } from "@/modules/wes/hooks";
 
 import WorkflowListItem from "./WorkflowListItem";
 import RunSetupInputsTable from "./RunSetupInputsTable";
@@ -14,7 +15,7 @@ const styles = {
 };
 
 const RunSetupConfirmDisplay = ({ selectedWorkflow, inputs, handleRunWorkflow, runButtonText }) => {
-  const isSubmittingRun = useSelector((state) => state.runs.isSubmittingRun);
+  const { isSubmittingRun } = useRuns();
 
   return (
     <Form labelCol={FORM_LABEL_COL} wrapperCol={FORM_WRAPPER_COL}>

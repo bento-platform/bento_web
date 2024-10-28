@@ -2,7 +2,7 @@ import { FETCHING_USER_DEPENDENT_DATA } from "./actions";
 
 export const user = (
   state = {
-    isFetchingUserDependentData: false,
+    isFetchingDependentData: false,
   },
   action,
 ) => {

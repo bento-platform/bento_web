@@ -1,8 +1,7 @@
 import { useEffect } from "react";
-import { useSelector } from "react-redux";
 
 import { useService } from "@/modules/services/hooks";
-import { useAppDispatch } from "@/store";
+import { useAppDispatch, useAppSelector } from "@/store";
 
 import { fetchIgvGenomes, performGetGohanVariantsOverviewIfPossible } from "./actions";
 
@@ -11,7 +10,7 @@ export const useIgvGenomes = () => {
   useEffect(() => {
     dispatch(fetchIgvGenomes());
   }, [dispatch]);
-  return useSelector((state) => state.igvGenomes);
+  return useAppSelector((state) => state.igvGenomes);
 };
 
 export const useGohanVariantsOverview = () => {
@@ -24,8 +23,9 @@ export const useGohanVariantsOverview = () => {
     }
   }, [dispatch, gohan]);
 
-  const data = useSelector((state) => state.explorer.variantsOverviewResponse);
-  const isFetching = useSelector((state) => state.explorer.fetchingVariantsOverview);
+  const { variantsOverviewResponse: data, fetchingVariantsOverview: isFetching } = useAppSelector(
+    (state) => state.explorer,
+  );
 
   return { data, isFetching };
 };

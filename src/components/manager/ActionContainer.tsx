@@ -1,6 +1,6 @@
-import PropTypes from "prop-types";
+import type { CSSProperties, ReactNode } from "react";
 
-const style = {
+const style: CSSProperties = {
   display: "flex",
   gap: "12px",
   alignItems: "baseline",
@@ -12,13 +12,14 @@ const style = {
   zIndex: 10,
 };
 
-const ActionContainer = ({ children, ...props }) => (
+type ActionContainerProps = {
+  children: ReactNode;
+};
+
+const ActionContainer = ({ children, ...props }: ActionContainerProps) => (
   <div style={style} {...props}>
     {children}
   </div>
 );
-ActionContainer.propTypes = {
-  children: PropTypes.node,
-};
 
 export default ActionContainer;
