@@ -48,7 +48,6 @@ module.exports = {
         "no-prototype-builtins": "off",
         "react/display-name": "off",
         "linebreak-style": ["error", "unix"],
-        quotes: ["error", "double"],
         semi: ["error", "always"],
         "semi-spacing": ["error"],
         "no-var": ["error"],

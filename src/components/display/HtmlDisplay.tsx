@@ -34,7 +34,7 @@ const HtmlDisplay = ({ contents, loading }: BlobDisplayProps) => {
         let modifiedHtml = html;
         if (!modifiedHtml.includes("<base target") && !modifiedHtml.includes("<base href")) {
           // noinspection HtmlRequiredTitleElement
-          modifiedHtml = modifiedHtml.replace("<head>", "<head><base target=\"_parent\" />");
+          modifiedHtml = modifiedHtml.replace("<head>", '<head><base target="_parent" />');
         }
 
         // When we update the srcdoc attribute, it'll cause the iframe to re-load the content.
