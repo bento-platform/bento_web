@@ -22,7 +22,7 @@ export const useDatasetDataTypes = () => {
   return useAppSelector((state) => state.datasetDataTypes);
 };
 
-export const useDatasetDataTypesByID = (datasetID) => {
+export const useDatasetDataTypesByID = (datasetId) => {
   /**
    * Fetches the data types ONLY for the given dataset.
    * Returns the store's value for the given dataset ID.
@@ -30,10 +30,10 @@ export const useDatasetDataTypesByID = (datasetID) => {
 
   const dispatch = useAppDispatch();
   useEffect(() => {
-    dispatch(fetchDatasetDataTypesIfPossible(datasetID)).catch(console.error);
-  }, [dispatch, datasetID]);
+    dispatch(fetchDatasetDataTypesIfPossible(datasetId)).catch(console.error);
+  }, [dispatch, datasetId]);
 
-  const dataTypes = useAppSelector((state) => state.datasetDataTypes.itemsByID[datasetID]);
+  const dataTypes = useAppSelector((state) => state.datasetDataTypes.itemsByID[datasetId]);
   return useMemo(() => {
     return {
       dataTypesByID: dataTypes?.itemsByID ?? {},
@@ -43,14 +43,14 @@ export const useDatasetDataTypesByID = (datasetID) => {
   }, [dataTypes]);
 };
 
-export const useDatasetSummariesByID = (datasetID) => {
+export const useDatasetSummariesByID = (datasetId) => {
   /**
    * Fetches the data type summaries ONLY for the given dataset.
    * Returns the store's value for the given dataset ID.
    */
   const dispatch = useAppDispatch();
   useEffect(() => {
-    dispatch(fetchDatasetSummariesIfPossible(datasetID)).catch(console.error);
-  }, [dispatch, datasetID]);
-  return useAppSelector((state) => state.datasetSummaries.itemsByID[datasetID]);
+    dispatch(fetchDatasetSummariesIfPossible(datasetId)).catch(console.error);
+  }, [dispatch, datasetId]);
+  return useAppSelector((state) => state.datasetSummaries.itemsByID[datasetId]);
 };
