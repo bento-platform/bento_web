@@ -39,7 +39,7 @@ const fetchServiceDatasetSummary = networkAction((serviceInfo, datasetID) => ({
   url: `${serviceInfo.url}/datasets/${datasetID}/summary`,
 }));
 
-export const fetchDatasetSummariesIfPossible = (datasetID) => async (dispatch, getState) => {
+export const fetchDatasetSummariesIfNeeded = (datasetID) => async (dispatch, getState) => {
   const existingSummaryState = getState().datasetSummaries.itemsByID[datasetID] ?? {};
   if (existingSummaryState.isFetching || (!existingSummaryState.isInvalid && existingSummaryState.hasAttempted)) return;
   dispatch(beginFlow(FETCHING_DATASET_SUMMARIES, { datasetID }));

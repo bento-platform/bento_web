@@ -4,7 +4,7 @@ import { useAppDispatch, useAppSelector } from "@/store";
 import {
   fetchDatasetDataTypesIfPossible,
   fetchDatasetsDataTypes,
-  fetchDatasetSummariesIfPossible,
+  fetchDatasetSummariesIfNeeded,
 } from "@/modules/datasets/actions";
 
 export const useDatasetDataTypes = () => {
@@ -50,7 +50,7 @@ export const useDatasetSummariesByID = (datasetId) => {
    */
   const dispatch = useAppDispatch();
   useEffect(() => {
-    dispatch(fetchDatasetSummariesIfPossible(datasetId)).catch(console.error);
+    dispatch(fetchDatasetSummariesIfNeeded(datasetId)).catch(console.error);
   }, [dispatch, datasetId]);
   return useAppSelector((state) => state.datasetSummaries.itemsByID[datasetId]);
 };
