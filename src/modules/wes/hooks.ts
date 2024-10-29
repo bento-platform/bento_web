@@ -4,10 +4,12 @@ import { RESOURCE_EVERYTHING, viewRuns } from "bento-auth-js";
 
 import { useHasResourcePermissionWrapper } from "@/hooks";
 import { useService } from "@/modules/services/hooks";
-import { fetchRuns } from "@/modules/wes/actions";
 import { useAppDispatch, useAppSelector } from "@/store";
 
-export const useRuns = () => {
+import { fetchRuns } from "./actions";
+import type { WorkflowRunsState } from "./types";
+
+export const useRuns = (): WorkflowRunsState => {
   const dispatch = useAppDispatch();
 
   const wes = useService("wes"); // TODO: associate this with the network action somehow
