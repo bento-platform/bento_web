@@ -1,5 +1,4 @@
 import { useCallback } from "react";
-import { useDispatch } from "react-redux";
 import PropTypes from "prop-types";
 
 import { Button, Card, Descriptions, Modal, Typography } from "antd";
@@ -8,6 +7,7 @@ import { DeleteOutlined } from "@ant-design/icons";
 import JsonView from "@/components/common/JsonView";
 import { deleteProjectJsonSchema } from "@/modules/metadata/actions";
 import { projectJsonSchemaTypesShape } from "@/propTypes";
+import { useAppDispatch } from "@/store";
 
 // Custom style based on Typography.Text in 'code' mode, with colors for dark backgrounds
 const CODE_STYLE = {
@@ -34,7 +34,7 @@ ExtraPropertiesCode.propTypes = {
 };
 
 const ProjectJsonSchema = ({ projectSchema }) => {
-  const dispatch = useDispatch();
+  const dispatch = useAppDispatch();
 
   const handleDelete = useCallback(() => {
     const deleteModal = Modal.confirm({

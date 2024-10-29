@@ -1,7 +1,6 @@
 import { useState, useMemo, useCallback } from "react";
 import PropTypes from "prop-types";
 import { useParams } from "react-router-dom";
-import { useSelector, useDispatch } from "react-redux";
 
 import { Table, Typography, Button, Spin } from "antd";
 import { BarChartOutlined, ExportOutlined } from "@ant-design/icons";
@@ -16,6 +15,7 @@ import {
   performExperimentsDownloadCSVIfPossible,
   setTableSortOrder,
 } from "@/modules/explorer/actions";
+import { useAppDispatch, useAppSelector } from "@/store";
 
 const PAGE_SIZE = 25;
 
@@ -51,11 +51,11 @@ const ExplorerSearchResultsTable = ({
     return `Showing results ${start}-${end} of ${filteredData.length}`;
   }, [currentPage, filteredData]);
 
-  const searchResults = useSelector((state) => state.explorer.searchResultsByDatasetID[dataset] || null);
-  const selectedRows = useSelector((state) => state.explorer.selectedRowsByDatasetID[dataset]);
-  const isFetchingDownload = useSelector((state) => state.explorer.isFetchingDownload || false);
-  const fetchingSearch = useSelector((state) => state.explorer.fetchingSearchByDatasetID[dataset] || false);
-  const dispatch = useDispatch();
+  const searchResults = useAppSelector((state) => state.explorer.searchResultsByDatasetID[dataset] || null);
+  const selectedRows = useAppSelector((state) => state.explorer.selectedRowsByDatasetID[dataset]);
+  const isFetchingDownload = useAppSelector((state) => state.explorer.isFetchingDownload || false);
+  const fetchingSearch = useAppSelector((state) => state.explorer.fetchingSearchByDatasetID[dataset] || false);
+  const dispatch = useAppDispatch();
 
   const handleSetSelectedRows = useCallback(
     (...args) => dispatch(setSelectedRows(dataset, ...args)),

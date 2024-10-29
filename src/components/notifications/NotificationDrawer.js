@@ -1,5 +1,4 @@
 import { memo, useCallback } from "react";
-import { useDispatch } from "react-redux";
 import { useNavigate } from "react-router-dom";
 
 import { Button, Divider, Drawer } from "antd";
@@ -8,9 +7,10 @@ import NotificationList from "./NotificationList";
 
 import { hideNotificationDrawer, markAllNotificationsAsRead } from "@/modules/notifications/actions";
 import { useNotifications } from "@/modules/notifications/hooks";
+import { useAppDispatch } from "@/store";
 
 const NotificationDrawer = memo(() => {
-  const dispatch = useDispatch();
+  const dispatch = useAppDispatch();
   const navigate = useNavigate();
 
   const markAllAsRead = useCallback(() => {

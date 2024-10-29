@@ -1,5 +1,4 @@
 import { useCallback, useEffect, useMemo } from "react";
-import { useSelector, useDispatch } from "react-redux";
 import { useParams } from "react-router-dom";
 
 import { Typography, Tabs } from "antd";
@@ -17,6 +16,7 @@ import {
   setActiveTab,
 } from "@/modules/explorer/actions";
 import { useProjects } from "@/modules/metadata/hooks";
+import { useAppDispatch, useAppSelector } from "@/store";
 
 import IndividualsTable from "./searchResultsTables/IndividualsTable";
 import BiosamplesTable from "./searchResultsTables/BiosamplesTable";
@@ -36,15 +36,15 @@ const EMPTY_ARRAY = [];
 
 const ExplorerDatasetSearch = () => {
   const { dataset: datasetID } = useParams();
-  const dispatch = useDispatch();
+  const dispatch = useAppDispatch();
 
   const datasetsByID = useProjects().datasetsByID;
 
-  const activeKey = useSelector((state) => state.explorer.activeTabByDatasetID[datasetID]) || TAB_KEYS.INDIVIDUAL;
-  const dataTypeForms = useSelector((state) => state.explorer.dataTypeFormsByDatasetID[datasetID]) ?? EMPTY_ARRAY;
-  const fetchingSearch = useSelector((state) => state.explorer.fetchingSearchByDatasetID[datasetID] || false);
-  const fetchingTextSearch = useSelector((state) => state.explorer.fetchingTextSearch || false);
-  const searchResults = useSelector((state) => state.explorer.searchResultsByDatasetID[datasetID] || null);
+  const activeKey = useAppSelector((state) => state.explorer.activeTabByDatasetID[datasetID]) || TAB_KEYS.INDIVIDUAL;
+  const dataTypeForms = useAppSelector((state) => state.explorer.dataTypeFormsByDatasetID[datasetID]) ?? EMPTY_ARRAY;
+  const fetchingSearch = useAppSelector((state) => state.explorer.fetchingSearchByDatasetID[datasetID] || false);
+  const fetchingTextSearch = useAppSelector((state) => state.explorer.fetchingTextSearch || false);
+  const searchResults = useAppSelector((state) => state.explorer.searchResultsByDatasetID[datasetID] || null);
 
   useEffect(() => {
     console.debug("search results: ", searchResults);

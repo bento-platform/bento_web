@@ -1,10 +1,10 @@
 import { useMemo } from "react";
-import { useSelector } from "react-redux";
 import { Navigate, Route, Routes } from "react-router-dom";
 
 import { Layout, Menu, Skeleton } from "antd";
 
 import { useDatasetsArray, useProjectsArray } from "@/modules/metadata/hooks";
+import { useAppSelector } from "@/store";
 import { LAYOUT_CONTENT_STYLE } from "@/styles/layoutContent";
 import { matchingMenuKeys, transformMenuItem } from "@/utils/menu";
 
@@ -13,7 +13,7 @@ import SitePageHeader from "../SitePageHeader";
 
 const ExplorerSearchContent = () => {
   const projects = useProjectsArray();
-  const isFetchingDependentData = useSelector((state) => state.user.isFetchingDependentData);
+  const { isFetchingDependentData } = useAppSelector((state) => state.user);
 
   const menuItems = useMemo(
     () =>

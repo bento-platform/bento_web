@@ -1,5 +1,4 @@
 import { useEffect } from "react";
-import { useDispatch, useSelector } from "react-redux";
 
 import { Divider, Skeleton } from "antd";
 
@@ -9,16 +8,17 @@ import { individualPropTypesShape } from "@/propTypes";
 import DownloadButton from "@/components/common/DownloadButton";
 import JsonView from "@/components/common/JsonView";
 import { useService } from "@/modules/services/hooks";
+import { useAppDispatch, useAppSelector } from "@/store";
 
 const IndividualPhenopackets = ({ individual }) => {
-  const dispatch = useDispatch();
+  const dispatch = useAppDispatch();
 
   const { id: individualId } = individual;
 
   const katsuUrl = useService("metadata")?.url ?? "";
   const downloadUrl = `${katsuUrl}/api/individuals/${individualId}/phenopackets?attachment=1&format=json`;
 
-  const phenopacketsByIndividualID = useSelector((state) => state.individuals.phenopacketsByIndividualID);
+  const { phenopacketsByIndividualID } = useAppSelector((state) => state.individuals);
 
   const { isFetching, data } = phenopacketsByIndividualID[individualId] ?? {};
 

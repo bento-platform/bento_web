@@ -1,5 +1,4 @@
 import { useCallback } from "react";
-import { useDispatch } from "react-redux";
 import PropTypes from "prop-types";
 
 import { Form, Modal } from "antd";
@@ -8,13 +7,14 @@ import LinkedFieldSetForm from "./LinkedFieldSetForm";
 
 import { FORM_MODE_ADD } from "@/constants";
 import { addDatasetLinkedFieldSetIfPossible, saveDatasetLinkedFieldSetIfPossible } from "@/modules/metadata/actions";
+import { useProjects } from "@/modules/metadata/hooks";
 import { useDataTypes } from "@/modules/services/hooks";
 import { datasetPropTypesShape, linkedFieldSetPropTypesShape, propTypesFormMode } from "@/propTypes";
+import { useAppDispatch } from "@/store";
 import { nop } from "@/utils/misc";
-import { useProjects } from "@/modules/metadata/hooks";
 
 const LinkedFieldSetModal = ({ dataset, linkedFieldSetIndex, linkedFieldSet, mode, open, onCancel, onSubmit }) => {
-  const dispatch = useDispatch();
+  const dispatch = useAppDispatch();
 
   const [form] = Form.useForm();
 

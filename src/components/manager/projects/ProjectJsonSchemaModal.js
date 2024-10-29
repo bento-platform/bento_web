@@ -1,5 +1,4 @@
 import { useCallback } from "react";
-import { useDispatch } from "react-redux";
 import PropTypes from "prop-types";
 
 import { Button, Form, Modal } from "antd";
@@ -7,11 +6,12 @@ import { PlusOutlined } from "@ant-design/icons";
 
 import { createProjectJsonSchema } from "@/modules/metadata/actions";
 import { useProjectJsonSchemaTypes } from "@/modules/metadata/hooks";
+import { useAppDispatch } from "@/store";
 
 import ProjectJsonSchemaForm from "./ProjectJsonSchemaForm";
 
 const ProjectJsonSchemaModal = ({ projectId, open, onOk, onCancel }) => {
-  const dispatch = useDispatch();
+  const dispatch = useAppDispatch();
 
   const { isFetchingExtraPropertiesSchemaTypes, isCreatingJsonSchema, extraPropertiesSchemaTypes } =
     useProjectJsonSchemaTypes();

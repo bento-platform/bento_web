@@ -15,7 +15,10 @@ type ServiceRequestModalProps = {
 
 const ServiceRequestModal = ({ service, onCancel }: ServiceRequestModalProps) => {
   const bentoServicesByKind = useBentoServices().itemsByKind;
-  const serviceUrl = useMemo(() => bentoServicesByKind[service]?.url, [bentoServicesByKind, service]);
+  const serviceUrl = useMemo(
+    () => (service ? bentoServicesByKind[service]?.url : undefined),
+    [bentoServicesByKind, service],
+  );
 
   const [requestPath, setRequestPath] = useState<string>("service-info");
   const [requestLoading, setRequestLoading] = useState<boolean>(false);

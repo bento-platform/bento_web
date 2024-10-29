@@ -4,7 +4,6 @@ import { Navigate, Route, Routes, useNavigate, useParams } from "react-router-do
 import { Result, Skeleton } from "antd";
 
 import { useRuns } from "@/modules/wes/hooks";
-import type { WorkflowRunWithNestedDetailsState } from "@/modules/wes/types";
 
 import Run from "./Run";
 
@@ -14,7 +13,7 @@ const RunDetailContentInner = () => {
 
   const { itemsByID: runsByID, isFetching, hasAttempted } = useRuns();
 
-  const run = runsByID[id] as WorkflowRunWithNestedDetailsState | undefined;
+  const run = id ? runsByID[id] : undefined;
   const loading = isFetching || !!run?.isFetching;
 
   const onChangeTab = useCallback((key: string) => navigate(`../${key}`), [navigate]);

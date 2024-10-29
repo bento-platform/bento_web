@@ -1,5 +1,4 @@
 import { memo, useCallback, useEffect, useMemo, useState } from "react";
-import { useDispatch, useSelector } from "react-redux";
 import { useSearchParams } from "react-router-dom";
 import PropTypes from "prop-types";
 
@@ -20,6 +19,7 @@ import { useResourcePermissionsWrapper } from "@/hooks";
 import { clearDRSObjectSearch, deleteDRSObject, performDRSObjectSearch } from "@/modules/drs/actions";
 import { useProjects } from "@/modules/metadata/hooks";
 import { useService } from "@/modules/services/hooks";
+import { useAppDispatch, useAppSelector } from "@/store";
 import { LAYOUT_CONTENT_STYLE } from "@/styles/layoutContent";
 
 import DatasetTitleDisplay from "../DatasetTitleDisplay";
@@ -125,7 +125,7 @@ const DRSObjectDeleteWarningParagraph = memo(({ plural }) => (
 DRSObjectDeleteWarningParagraph.propTypes = { plural: PropTypes.bool };
 
 const DRSObjectDeleteButton = ({ drsObject, disabled }) => {
-  const dispatch = useDispatch();
+  const dispatch = useAppDispatch();
 
   const onClick = useCallback(() => {
     Modal.confirm({
@@ -161,7 +161,7 @@ const DRS_TABLE_EXPANDABLE = {
 };
 
 const ManagerDRSContent = () => {
-  const dispatch = useDispatch();
+  const dispatch = useAppDispatch();
 
   const { itemsByID: projectsByID, datasetsByID } = useProjects();
 
@@ -184,7 +184,7 @@ const ManagerDRSContent = () => {
     objectSearchResults: rawObjectResults,
     objectSearchIsFetching,
     objectSearchAttempted,
-  } = useSelector((state) => state.drs);
+  } = useAppSelector((state) => state.drs);
 
   const objectResults = useMemo(
     () =>

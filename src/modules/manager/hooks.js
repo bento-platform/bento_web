@@ -1,14 +1,14 @@
 import { useEffect } from "react";
-import { useDispatch, useSelector } from "react-redux";
 
 import { fetchIndividual } from "@/modules/metadata/actions";
 import { useService } from "@/modules/services/hooks";
+import { useAppDispatch, useAppSelector } from "@/store";
 
 export const useIndividual = (individualID) => {
-  const dispatch = useDispatch();
+  const dispatch = useAppDispatch();
 
   const metadataService = useService("metadata");
-  const individuals = useSelector((state) => state.individuals.itemsByID);
+  const individuals = useAppSelector((state) => state.individuals.itemsByID);
 
   useEffect(() => {
     if (metadataService && individualID) {

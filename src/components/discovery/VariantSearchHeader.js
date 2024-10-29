@@ -1,5 +1,4 @@
 import { useState, useEffect, useCallback, useMemo } from "react";
-import { useSelector } from "react-redux";
 import PropTypes from "prop-types";
 
 import { Form, Input, Select } from "antd";
@@ -8,6 +7,7 @@ import LocusSearch from "./LocusSearch";
 
 import { notAlleleCharactersRegex } from "@/utils/misc";
 import { useGohanVariantsOverview } from "@/modules/explorer/hooks";
+import { useAppSelector } from "@/store";
 
 const isValidLocus = (locus) => locus.chrom !== null && locus.start !== null && locus.end !== null;
 const normalizeAlleleText = (text) => text.toUpperCase().replaceAll(notAlleleCharactersRegex, "");
@@ -44,7 +44,7 @@ const VariantSearchHeader = ({ dataType, addVariantSearchValues }) => {
   const [activeAltValue, setActiveAltValue] = useState(null);
   const [assemblyId, setAssemblyId] = useState(overviewAssemblyIds.length === 1 ? overviewAssemblyIds[0] : null);
   const [locus, setLocus] = useState({ chrom: null, start: null, end: null });
-  const isSubmitting = useSelector((state) => state.explorer.isSubmittingSearch);
+  const { isSubmittingSearch: isSubmitting } = useAppSelector((state) => state.explorer);
 
   // begin with required fields considered valid, so user isn't assaulted with error messages
   const [fieldsValidity, setFieldsValidity] = useState(INITIAL_FIELDS_VALIDITY);

@@ -1,13 +1,13 @@
 import { useEffect } from "react";
-import { useDispatch, useSelector } from "react-redux";
 import { RESOURCE_EVERYTHING, viewNotifications } from "bento-auth-js";
 
 import { useHasResourcePermissionWrapper } from "@/hooks";
 import { useService } from "@/modules/services/hooks";
+import { useAppDispatch, useAppSelector } from "@/store";
 import { fetchNotifications } from "./actions";
 
 export const useNotifications = () => {
-  const dispatch = useDispatch();
+  const dispatch = useAppDispatch();
 
   const service = useService("notification");
 
@@ -20,5 +20,5 @@ export const useNotifications = () => {
     }
   }, [dispatch, service, hasPermission]);
 
-  return useSelector((state) => state.notifications);
+  return useAppSelector((state) => state.notifications);
 };

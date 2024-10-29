@@ -1,18 +1,19 @@
 import { useEffect, useState } from "react";
-import { useDispatch, useSelector } from "react-redux";
 
 import { useAuthorizationHeader } from "bento-auth-js";
 
 import { useService } from "@/modules/services/hooks";
+import { useAppDispatch, useAppSelector } from "@/store";
+
 import { fetchReferenceGenomesIfNeeded } from "./actions";
 
 export const useReferenceGenomes = () => {
-  const dispatch = useDispatch();
+  const dispatch = useAppDispatch();
   const referenceService = useService("reference");
   useEffect(() => {
     dispatch(fetchReferenceGenomesIfNeeded());
   }, [dispatch, referenceService]);
-  return useSelector((state) => state.referenceGenomes);
+  return useAppSelector((state) => state.referenceGenomes);
 };
 
 /**

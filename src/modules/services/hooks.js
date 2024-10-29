@@ -1,14 +1,13 @@
 import { useEffect, useMemo } from "react";
-import { useSelector } from "react-redux";
 import { fetchBentoServices, fetchDataTypes, fetchServices } from "./actions";
-import { useAppDispatch } from "@/store";
+import { useAppDispatch, useAppSelector } from "@/store";
 
 export const useBentoServices = () => {
   const dispatch = useAppDispatch();
   useEffect(() => {
     dispatch(fetchBentoServices()).catch((err) => console.error(err));
   }, [dispatch]);
-  return useSelector((state) => state.bentoServices);
+  return useAppSelector((state) => state.bentoServices);
 };
 
 export const useBentoService = (kind) => {
@@ -21,7 +20,7 @@ export const useServices = () => {
   useEffect(() => {
     dispatch(fetchServices()).catch((err) => console.error(err));
   }, [dispatch]);
-  return useSelector((state) => state.services); // From service registry; service-info style
+  return useAppSelector((state) => state.services); // From service registry; service-info style
 };
 
 export const useService = (kind) => {
@@ -34,12 +33,12 @@ export const useDataTypes = () => {
   useEffect(() => {
     dispatch(fetchDataTypes()).catch((err) => console.error(err));
   }, [dispatch]);
-  return useSelector((state) => state.serviceDataTypes);
+  return useAppSelector((state) => state.serviceDataTypes);
 };
 
 export const useWorkflows = () => {
   const isFetchingAllServices = useServices().isFetchingAll;
-  const { isFetching: isFetchingServiceWorkflows, items: serviceWorkflows } = useSelector(
+  const { isFetching: isFetchingServiceWorkflows, items: serviceWorkflows } = useAppSelector(
     (state) => state.serviceWorkflows,
   );
 
