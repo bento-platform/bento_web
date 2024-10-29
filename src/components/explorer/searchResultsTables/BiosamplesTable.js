@@ -1,6 +1,7 @@
 import PropTypes from "prop-types";
+
+import { useAppSelector } from "@/store";
 import { useSortedColumns } from "../hooks/explorerHooks";
-import { useSelector } from "react-redux";
 
 import BiosampleIDCell from "./BiosampleIDCell";
 import ExplorerSearchResultsTable from "../ExplorerSearchResultsTable";
@@ -132,7 +133,7 @@ const BIOSAMPLES_COLUMNS = [
 ];
 
 const BiosamplesTable = ({ data, datasetID }) => {
-  const tableSortOrder = useSelector((state) => state.explorer.tableSortOrderByDatasetID[datasetID]?.["biosamples"]);
+  const tableSortOrder = useAppSelector((state) => state.explorer.tableSortOrderByDatasetID[datasetID]?.["biosamples"]);
 
   const { sortedData, columnsWithSortOrder } = useSortedColumns(data, tableSortOrder, BIOSAMPLES_COLUMNS);
 

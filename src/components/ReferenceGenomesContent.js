@@ -1,5 +1,4 @@
 import { useCallback, useMemo } from "react";
-import { useDispatch } from "react-redux";
 
 import { Button, Descriptions, Dropdown, Layout, Modal, Popover, Space, Table } from "antd";
 import { BarsOutlined, DeleteOutlined, ImportOutlined } from "@ant-design/icons";
@@ -13,6 +12,7 @@ import { useResourcePermissionsWrapper } from "@/hooks";
 import { deleteReferenceGenomeIfPossible } from "@/modules/reference/actions";
 import { useReferenceGenomes } from "@/modules/reference/hooks";
 import { useService, useServices, useWorkflows } from "@/modules/services/hooks";
+import { useAppDispatch } from "@/store";
 import { LAYOUT_CONTENT_STYLE } from "@/styles/layoutContent";
 
 import SitePageHeader from "./SitePageHeader";
@@ -21,7 +21,7 @@ import { useStartIngestionFlow } from "./manager/workflowCommon";
 const DEFAULT_REF_INGEST_WORKFLOW_ID = "fasta_ref";
 
 const ReferenceGenomesContent = () => {
-  const dispatch = useDispatch();
+  const dispatch = useAppDispatch();
 
   const { hasAttempted: hasAttemptedServiceFetch } = useServices();
   const { permissions } = useResourcePermissionsWrapper(RESOURCE_EVERYTHING);

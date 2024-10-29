@@ -1,14 +1,15 @@
 import { memo, useCallback, useMemo, useState } from "react";
-import { useSelector, useDispatch } from "react-redux";
 import PropTypes from "prop-types";
 
 import { Button, Col, Dropdown, Row, Table, Typography } from "antd";
 import { DeleteOutlined, DownOutlined, ImportOutlined } from "@ant-design/icons";
 
 import { datasetPropTypesShape, projectPropTypesShape } from "@/propTypes";
-import { fetchDatasetDataTypesSummariesIfPossible } from "@/modules/datasets/actions";
+import { fetchDatasetDataTypesIfPossible, invalidateDatasetSummaries } from "@/modules/datasets/actions";
+import { useDatasetDataTypesByID, useDatasetSummariesByID } from "@/modules/datasets/hooks";
 import { clearDatasetDataType } from "@/modules/metadata/actions";
 import { useWorkflows } from "@/modules/services/hooks";
+import { useAppDispatch } from "@/store";
 import { useStartIngestionFlow } from "../manager/workflowCommon";
 
 import genericConfirm from "../ConfirmationModal";
@@ -17,20 +18,19 @@ import DataTypeSummaryModal from "./datatype/DataTypeSummaryModal";
 const NA_TEXT = <span style={{ color: "#999", fontStyle: "italic" }}>N/A</span>;
 
 const DatasetDataTypes = memo(({ isPrivate, project, dataset }) => {
-  const dispatch = useDispatch();
-  const datasetDataTypes = useSelector((state) => state.datasetDataTypes.itemsByID[dataset.identifier]);
-  const datasetDataTypeValues = useMemo(() => Object.values(datasetDataTypes?.itemsByID ?? {}), [datasetDataTypes]);
-  const datasetSummaries = useSelector((state) => state.datasetSummaries.itemsByID[dataset.identifier]);
+  const dispatch = useAppDispatch();
+  const datasetDataTypes = useDatasetDataTypesByID(dataset.identifier);
+  const datasetDataTypeValues = useMemo(() => Object.values(datasetDataTypes.dataTypesByID), [datasetDataTypes]);
+  const datasetSummaries = useDatasetSummariesByID(dataset.identifier);
 
-  const isFetchingDataset = datasetDataTypes?.isFetching ?? false;
+  const isFetchingDataset = datasetDataTypes.isFetching ?? false;
 
   const { workflowsByType } = useWorkflows();
   const ingestionWorkflows = workflowsByType.ingestion.items;
 
-  const [datatypeSummaryVisible, setDatatypeSummaryVisible] = useState(false);
   const [selectedDataType, setSelectedDataType] = useState(null);
 
-  const selectedSummary = datasetSummaries?.data?.[selectedDataType?.id] ?? {};
+  const selectedDataTypeSummary = datasetSummaries?.data?.[selectedDataType?.id] ?? {};
 
   const handleClearDataType = useCallback(
     (dataType) => {
@@ -41,7 +41,8 @@ const DatasetDataTypes = memo(({ isPrivate, project, dataset }) => {
           "will be deleted permanently, and will no longer be available for exploration.",
         onOk: async () => {
           await dispatch(clearDatasetDataType(dataset.identifier, dataType.id));
-          await dispatch(fetchDatasetDataTypesSummariesIfPossible(dataset.identifier));
+          await dispatch(fetchDatasetDataTypesIfPossible(dataset.identifier));
+          dispatch(invalidateDatasetSummaries(dataset.identifier));
         },
       });
     },
@@ -50,7 +51,6 @@ const DatasetDataTypes = memo(({ isPrivate, project, dataset }) => {
 
   const showDataTypeSummary = useCallback((dataType) => {
     setSelectedDataType(dataType);
-    setDatatypeSummaryVisible(true);
   }, []);
 
   const startIngestionFlow = useStartIngestionFlow();
@@ -124,15 +124,16 @@ const DatasetDataTypes = memo(({ isPrivate, project, dataset }) => {
     [isPrivate, project, dataset, handleClearDataType, ingestionWorkflows, startIngestionFlow, showDataTypeSummary],
   );
 
-  const onDataTypeSummaryModalCancel = useCallback(() => setDatatypeSummaryVisible(false), []);
+  const onDataTypeSummaryModalCancel = useCallback(() => setSelectedDataType(null), []);
 
   return (
     <>
       <DataTypeSummaryModal
         dataType={selectedDataType}
-        summary={selectedSummary}
-        open={datatypeSummaryVisible}
+        summary={selectedDataTypeSummary}
+        open={selectedDataType !== null}
         onCancel={onDataTypeSummaryModalCancel}
+        isFetching={datasetSummaries?.isFetching}
       />
 
       <Typography.Title level={4} style={{ marginTop: 0 }}>

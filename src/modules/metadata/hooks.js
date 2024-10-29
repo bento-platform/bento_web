@@ -1,8 +1,7 @@
 import { useEffect, useMemo } from "react";
-import { useDispatch, useSelector } from "react-redux";
 import { makeProjectDatasetResource, makeProjectResource } from "bento-auth-js";
 import { useService } from "@/modules/services/hooks";
-import { useAppSelector } from "@/store";
+import { useAppDispatch, useAppSelector } from "@/store";
 import {
   fetchDiscoverySchema,
   fetchExtraPropertiesSchemaTypes,
@@ -12,12 +11,12 @@ import {
 import { useJsonSchemaValidator } from "@/hooks";
 
 export const useProjects = () => {
-  const dispatch = useDispatch();
+  const dispatch = useAppDispatch();
   const metadataService = useService("metadata");
   useEffect(() => {
     dispatch(fetchProjectsWithDatasets()).catch((err) => console.error(err));
   }, [dispatch, metadataService]);
-  return useSelector((state) => state.projects);
+  return useAppSelector((state) => state.projects);
 };
 
 export const useProjectsArray = () => useProjects().items;
@@ -36,16 +35,16 @@ export const useProjectsAndDatasetsAsAuthzResources = () => {
 };
 
 export const useOverviewSummary = () => {
-  const dispatch = useDispatch();
+  const dispatch = useAppDispatch();
   const metadataService = useService("metadata");
   useEffect(() => {
     dispatch(fetchOverviewSummaryIfNeeded()).catch((err) => console.error(err));
   }, [dispatch, metadataService]);
-  return useSelector((state) => state.overviewSummary);
+  return useAppSelector((state) => state.overviewSummary);
 };
 
 export const useProjectJsonSchemaTypes = () => {
-  const dispatch = useDispatch();
+  const dispatch = useAppDispatch();
   const metadataService = useService("metadata");
   useEffect(() => {
     dispatch(fetchExtraPropertiesSchemaTypes());
@@ -62,7 +61,7 @@ export const useProjectJsonSchemaTypes = () => {
 };
 
 export const useDiscoverySchema = () => {
-  const dispatch = useDispatch();
+  const dispatch = useAppDispatch();
   const metadataService = useService("metadata");
   useEffect(() => {
     dispatch(fetchDiscoverySchema()).catch((err) => console.error(err));

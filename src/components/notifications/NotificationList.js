@@ -1,5 +1,4 @@
 import { useCallback, useMemo } from "react";
-import { useDispatch } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import PropTypes from "prop-types";
 
@@ -10,6 +9,7 @@ import { markNotificationAsRead } from "@/modules/notifications/actions";
 import { useNotifications } from "@/modules/notifications/hooks";
 import { useServices } from "@/modules/services/hooks";
 import { notificationPropTypesShape } from "@/propTypes";
+import { useAppDispatch } from "@/store";
 import { NOTIFICATION_WES_RUN_COMPLETED, NOTIFICATION_WES_RUN_FAILED, navigateToWESRun } from "@/utils/notifications";
 
 const sortNotificationTimestamps = (a, b) => b.timestamp - a.timestamp;
@@ -23,7 +23,7 @@ const notificationTimestampStyle = {
 };
 
 const NotificationList = ({ notifications, small }) => {
-  const dispatch = useDispatch();
+  const dispatch = useAppDispatch();
   const navigate = useNavigate();
 
   const fetchingNotifications = useNotifications().isFetching;

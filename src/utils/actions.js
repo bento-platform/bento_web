@@ -157,6 +157,6 @@ const formatErrorMessage = (errorMessageIntro, errorDetail) => {
   return errorMessageIntro ? errorMessageIntro + (errorDetail ? `: ${errorDetail}` : "") : errorDetail;
 };
 
-export const beginFlow = (types) => (dispatch) => dispatch({ type: types.BEGIN });
-export const endFlow = (types) => (dispatch) => dispatch({ type: types.END });
-export const terminateFlow = (types) => (dispatch) => dispatch({ type: types.TERMINATE });
+export const beginFlow = (types, params) => (dispatch) => dispatch({ type: types.BEGIN, ...(params ?? {}) });
+export const endFlow = (types, params) => (dispatch) => dispatch({ type: types.END, ...(params ?? {}) });
+export const terminateFlow = (types, params) => (dispatch) => dispatch({ type: types.TERMINATE, ...(params ?? {}) });

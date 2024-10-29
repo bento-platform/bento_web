@@ -1,14 +1,15 @@
 import { useEffect } from "react";
-import { useSelector } from "react-redux";
 
 import { RESOURCE_EVERYTHING, viewRuns } from "bento-auth-js";
 
 import { useHasResourcePermissionWrapper } from "@/hooks";
 import { useService } from "@/modules/services/hooks";
-import { fetchRuns } from "@/modules/wes/actions";
-import { useAppDispatch } from "@/store";
+import { useAppDispatch, useAppSelector } from "@/store";
 
-export const useRuns = () => {
+import { fetchRuns } from "./actions";
+import type { WorkflowRunsState } from "./types";
+
+export const useRuns = (): WorkflowRunsState => {
   const dispatch = useAppDispatch();
 
   const wes = useService("wes"); // TODO: associate this with the network action somehow
@@ -21,5 +22,5 @@ export const useRuns = () => {
     }
   }, [dispatch, wes, hasPermission]);
 
-  return useSelector((state) => state.runs);
+  return useAppSelector((state) => state.runs);
 };

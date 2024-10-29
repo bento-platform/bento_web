@@ -91,3 +91,15 @@ export type WorkflowRunStreamState = {
   isFetching: boolean;
   data: string | null;
 };
+
+export type WorkflowRunsState = {
+  isFetching: boolean;
+  hasAttempted: boolean;
+  isSubmittingRun: boolean;
+  items: WorkflowRunWithNestedDetailsState[];
+  itemsByID: Record<string, WorkflowRunWithNestedDetailsState>;
+  streamsByID: {
+    stdout?: WorkflowRunStreamState;
+    stderr?: WorkflowRunStreamState;
+  };
+};

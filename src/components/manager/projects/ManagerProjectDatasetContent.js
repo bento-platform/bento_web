@@ -1,12 +1,13 @@
 import { useCallback, useMemo } from "react";
 import { Navigate, Route, Routes } from "react-router-dom";
-import { useDispatch, useSelector } from "react-redux";
 
 import { Button, Empty, Layout, Menu, Typography } from "antd";
 import { PlusOutlined, ReloadOutlined } from "@ant-design/icons";
 
 import { createProject, RESOURCE_EVERYTHING } from "bento-auth-js";
 
+import ForbiddenContent from "@/components/ForbiddenContent";
+import ServiceError from "@/components/common/ServiceError";
 import ProjectCreationModal from "./ProjectCreationModal";
 import ProjectSkeleton from "./ProjectSkeleton";
 import RoutedProject from "./RoutedProject";
@@ -19,8 +20,7 @@ import { LAYOUT_CONTENT_STYLE } from "@/styles/layoutContent";
 import { matchingMenuKeys, transformMenuItem } from "@/utils/menu";
 import { useServices } from "@/modules/services/hooks";
 import { useCanManageAtLeastOneProjectOrDataset } from "@/modules/authz/hooks";
-import ForbiddenContent from "@/components/ForbiddenContent";
-import ServiceError from "@/components/common/ServiceError";
+import { useAppDispatch, useAppSelector } from "@/store";
 
 const styles = {
   projectHelpText: {
@@ -37,7 +37,7 @@ const styles = {
 };
 
 const ManagerProjectDatasetContent = () => {
-  const dispatch = useDispatch();
+  const dispatch = useAppDispatch();
 
   const {
     hasPermission: canManageProjectsDatasets,
@@ -49,7 +49,7 @@ const ManagerProjectDatasetContent = () => {
     useHasResourcePermissionWrapper(RESOURCE_EVERYTHING, createProject);
 
   const { items, isFetching: isFetchingProjects } = useProjects();
-  const { isFetchingDependentData } = useSelector((state) => state.user);
+  const { isFetchingDependentData } = useAppSelector((state) => state.user);
 
   const { metadataService, isFetchingAll: isFetchingAllServices } = useServices();
 

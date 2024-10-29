@@ -1,5 +1,4 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
-import { useSelector } from "react-redux";
 import PropTypes from "prop-types";
 
 import { Button, Card, Dropdown, Empty, Tabs, Typography } from "antd";
@@ -15,7 +14,7 @@ import {
   removeDataTypeQueryForm,
 } from "@/modules/explorer/actions";
 import { useDataTypes, useServices } from "@/modules/services/hooks";
-import { useAppDispatch } from "@/store";
+import { useAppDispatch, useAppSelector } from "@/store";
 import { nop } from "@/utils/misc";
 import { OP_EQUALS } from "@/utils/search";
 import { getFieldSchema } from "@/utils/schema";
@@ -28,17 +27,15 @@ const DiscoveryQueryBuilder = ({ activeDataset, dataTypeForms, requiredDataTypes
 
   const { isFetching: isFetchingServiceDataTypes, itemsByID: dataTypesByID } = useDataTypes();
   const dataTypesByDataset = useDatasetDataTypes();
+  const { isFetching: isFetchingServices } = useServices();
 
-  const autoQuery = useSelector((state) => state.explorer.autoQuery);
+  const { autoQuery, fetchingTextSearch } = useAppSelector((state) => state.explorer);
+
   // Mini state machine: when auto query is set:
   //  1. clear form(s) and set this to true;
   //  2. re-create forms and wait to receive ref;
   //  3. if this is true, and we have refs, execute part two of auto-query.
   const [shouldExecAutoQueryPt2, setShouldExecAutoQueryPt2] = useState(false);
-
-  const isFetchingTextSearch = useSelector((state) => state.explorer.fetchingTextSearch);
-
-  const { isFetching: isFetchingServices } = useServices();
 
   const dataTypesLoading = isFetchingServices || isFetchingServiceDataTypes || dataTypesByDataset.isFetchingAll;
 
@@ -274,7 +271,7 @@ const DiscoveryQueryBuilder = ({ activeDataset, dataTypeForms, requiredDataTypes
         type="primary"
         icon={<SearchOutlined />}
         loading={searchLoading}
-        disabled={dataTypeForms.length === 0 || isFetchingTextSearch}
+        disabled={dataTypeForms.length === 0 || fetchingTextSearch}
         onClick={handleSubmit}
       >
         Search

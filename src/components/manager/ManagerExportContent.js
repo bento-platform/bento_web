@@ -1,17 +1,17 @@
-import { useDispatch } from "react-redux";
 import { useNavigate } from "react-router-dom";
 
 import { exportData, RESOURCE_EVERYTHING } from "bento-auth-js";
 
 import { useResourcePermissionsWrapper } from "@/hooks";
 import { submitExportWorkflowRun } from "@/modules/wes/actions";
+import { useAppDispatch } from "@/store";
 
 import ForbiddenContent from "../ForbiddenContent";
 import RunSetupWizard from "./RunSetupWizard";
 import RunSetupConfirmDisplay from "./RunSetupConfirmDisplay";
 
 const ManagerExportContent = () => {
-  const dispatch = useDispatch();
+  const dispatch = useAppDispatch();
   const navigate = useNavigate();
 
   const { permissions, hasAttemptedPermissions } = useResourcePermissionsWrapper(RESOURCE_EVERYTHING);

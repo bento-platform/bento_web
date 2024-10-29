@@ -1,4 +1,3 @@
-import { useDispatch } from "react-redux";
 import { useNavigate } from "react-router-dom";
 
 import { ingestData, ingestReferenceMaterial, RESOURCE_EVERYTHING } from "bento-auth-js";
@@ -9,9 +8,10 @@ import { submitIngestionWorkflowRun } from "@/modules/wes/actions";
 import ForbiddenContent from "../ForbiddenContent";
 import RunSetupWizard from "./RunSetupWizard";
 import RunSetupConfirmDisplay from "./RunSetupConfirmDisplay";
+import { useAppDispatch } from "@/store";
 
 const ManagerIngestionContent = () => {
-  const dispatch = useDispatch();
+  const dispatch = useAppDispatch();
   const navigate = useNavigate();
 
   const { permissions, hasAttemptedPermissions } = useResourcePermissionsWrapper(RESOURCE_EVERYTHING);

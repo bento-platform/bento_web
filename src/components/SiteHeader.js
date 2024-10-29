@@ -1,5 +1,4 @@
 import { memo, useCallback, useMemo, useState } from "react";
-import { useDispatch } from "react-redux";
 import { Link } from "react-router-dom";
 import {
   viewNotifications,
@@ -30,16 +29,17 @@ import {
 
 import { BENTO_CBIOPORTAL_ENABLED, BENTO_GRAFANA_URL, BENTO_MONITORING_ENABLED, CUSTOM_HEADER } from "@/config";
 import { useEverythingPermissions } from "@/hooks";
-import { showNotificationDrawer } from "@/modules/notifications/actions";
-import { useNotifications } from "@/modules/notifications/hooks";
-import { matchingMenuKeys, transformMenuItem } from "@/utils/menu";
-
-import OverviewSettingsControl from "./overview/OverviewSettingsControl";
 import {
   useCanQueryAtLeastOneProjectOrDataset,
   useHasValidGrafanaRole,
   useManagerPermissions,
 } from "@/modules/authz/hooks";
+import { showNotificationDrawer } from "@/modules/notifications/actions";
+import { useNotifications } from "@/modules/notifications/hooks";
+import { useAppDispatch } from "@/store";
+import { matchingMenuKeys, transformMenuItem } from "@/utils/menu";
+
+import OverviewSettingsControl from "./overview/OverviewSettingsControl";
 
 const LinkedLogo = memo(() => (
   <Link to="/">
@@ -62,7 +62,7 @@ const openGrafanaInNewTab = () => {
 };
 
 const SiteHeader = () => {
-  const dispatch = useDispatch();
+  const dispatch = useAppDispatch();
 
   const performAuth = usePerformAuth();
 
