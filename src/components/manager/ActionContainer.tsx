@@ -1,6 +1,6 @@
 import type { CSSProperties, ReactNode } from "react";
 
-const style: CSSProperties = {
+const BASE_STYLE: CSSProperties = {
   display: "flex",
   gap: "12px",
   alignItems: "baseline",
@@ -14,10 +14,11 @@ const style: CSSProperties = {
 
 type ActionContainerProps = {
   children: ReactNode;
+  style?: CSSProperties;
 };
 
-const ActionContainer = ({ children, ...props }: ActionContainerProps) => (
-  <div style={style} {...props}>
+const ActionContainer = ({ children, style, ...props }: ActionContainerProps) => (
+  <div style={{ ...BASE_STYLE, ...(style ?? {}) }} {...props}>
     {children}
   </div>
 );
