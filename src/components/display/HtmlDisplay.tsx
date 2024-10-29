@@ -1,11 +1,11 @@
-import { useEffect, useId, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Spin } from "antd";
 
 import type { BlobDisplayProps } from "./types";
 import { LoadingOutlined } from "@ant-design/icons";
 
 const HtmlDisplay = ({ contents, loading }: BlobDisplayProps) => {
-  const iframeId = useId();
+  const iframeRef = useRef<HTMLIFrameElement>(null);
 
   const [isConverting, setIsConverting] = useState(false);
   const [iframeLoading, setIframeLoading] = useState(false);
@@ -13,15 +13,19 @@ const HtmlDisplay = ({ contents, loading }: BlobDisplayProps) => {
   // Effect used to define the iframe load listener used to turn off the iframe loading state after the iframe has
   // finished loading the specified srcdoc (derived from contents.)
   useEffect(() => {
-    const iframe = document.getElementById(iframeId);
+    const iframe = iframeRef.current;
+    if (!iframe) return;
     const listener = () => {
       setIframeLoading(false);
     };
-    iframe?.addEventListener("load", listener);
-    return () => iframe?.removeEventListener("load", listener);
-  }, [iframeId]);
+    iframe.addEventListener("load", listener);
+    return () => iframe.removeEventListener("load", listener);
+  }, []);
 
   useEffect(() => {
+    const iframe = iframeRef.current;
+
+    if (!iframe) return;
     if (!contents) return;
 
     setIsConverting(true);
@@ -40,11 +44,11 @@ const HtmlDisplay = ({ contents, loading }: BlobDisplayProps) => {
         // When we update the srcdoc attribute, it'll cause the iframe to re-load the content.
         // When it finishes loading, it'll trigger a load event listener on the iframe, defined above in another
         // useEffect, which turns iframeLoading back off. This process lets us render a loading indicator.
-        document.getElementById(iframeId)?.setAttribute("srcdoc", modifiedHtml);
+        iframe?.setAttribute("srcdoc", modifiedHtml);
         setIframeLoading(true);
       })
       .finally(() => setIsConverting(false));
-  }, [iframeId, contents]);
+  }, [contents]);
 
   // Three different loading states:
   //  - loading bytes from server
@@ -55,7 +59,7 @@ const HtmlDisplay = ({ contents, loading }: BlobDisplayProps) => {
   return (
     <Spin spinning={isLoading} size="large" indicator={<LoadingOutlined spin={true} />}>
       <iframe
-        id={iframeId}
+        ref={iframeRef}
         sandbox="allow-downloads allow-scripts allow-top-navigation"
         style={{
           width: "90vw",
