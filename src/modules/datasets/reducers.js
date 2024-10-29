@@ -1,9 +1,10 @@
 import {
-  FETCHING_DATASETS_DATA_TYPES,
-  FETCH_DATASET_DATA_TYPES_SUMMARY,
-  FETCH_DATASET_SUMMARY,
-  FETCHING_ALL_DATASET_SUMMARIES,
+  FETCH_DATASET_DATA_TYPES,
   FETCH_DATASET_RESOURCES,
+  FETCH_SERVICE_DATASET_SUMMARY,
+  FETCHING_DATASET_SUMMARIES,
+  FETCHING_DATASETS_DATA_TYPES,
+  INVALIDATE_DATASET_SUMMARIES,
 } from "./actions";
 
 export const datasetDataTypes = (
@@ -18,7 +19,7 @@ export const datasetDataTypes = (
       return { ...state, isFetchingAll: true };
     case FETCHING_DATASETS_DATA_TYPES.END:
       return { ...state, isFetchingAll: false };
-    case FETCH_DATASET_DATA_TYPES_SUMMARY.REQUEST: {
+    case FETCH_DATASET_DATA_TYPES.REQUEST: {
       const { datasetID } = action;
       return {
         ...state,
@@ -32,7 +33,7 @@ export const datasetDataTypes = (
         },
       };
     }
-    case FETCH_DATASET_DATA_TYPES_SUMMARY.RECEIVE: {
+    case FETCH_DATASET_DATA_TYPES.RECEIVE: {
       const { datasetID } = action;
       const itemsByID = Object.fromEntries(action.data.map((d) => [d.id, d]));
       return {
@@ -48,8 +49,8 @@ export const datasetDataTypes = (
         },
       };
     }
-    case FETCH_DATASET_DATA_TYPES_SUMMARY.FINISH:
-    case FETCH_DATASET_DATA_TYPES_SUMMARY.ERROR: {
+    case FETCH_DATASET_DATA_TYPES.FINISH:
+    case FETCH_DATASET_DATA_TYPES.ERROR: {
       const { datasetID } = action;
       return {
         ...state,
@@ -78,7 +79,7 @@ const datasetItemSet = (oldState, datasetID, key, value) => {
           ...value,
         }
       : value;
-  const newState = {
+  return {
     ...oldState,
     itemsByID: {
       ...oldState.itemsByID,
@@ -88,28 +89,36 @@ const datasetItemSet = (oldState, datasetID, key, value) => {
       },
     },
   };
-  return newState;
 };
 
 export const datasetSummaries = (
   state = {
-    isFetchingAll: false,
     itemsByID: {},
   },
   action,
 ) => {
+  // This reducer is a bit funky, since it is combining data from multiple services.
   switch (action.type) {
-    case FETCH_DATASET_SUMMARY.REQUEST:
-      return datasetItemSet(state, action.datasetID, "isFetching", true);
-    case FETCH_DATASET_SUMMARY.RECEIVE:
+    case FETCH_SERVICE_DATASET_SUMMARY.RECEIVE:
       return datasetItemSet(state, action.datasetID, "data", action.data);
-    case FETCH_DATASET_SUMMARY.FINISH:
-      return datasetItemSet(state, action.datasetID, "isFetching", false);
-    case FETCHING_ALL_DATASET_SUMMARIES.BEGIN:
-      return { ...state, isFetchingAll: true };
-    case FETCHING_ALL_DATASET_SUMMARIES.END:
-    case FETCHING_ALL_DATASET_SUMMARIES.TERMINATE:
-      return { ...state, isFetchingAll: false };
+    case FETCHING_DATASET_SUMMARIES.BEGIN:
+      return datasetItemSet(state, action.datasetID, "isFetching", true);
+    case FETCHING_DATASET_SUMMARIES.END:
+    case FETCHING_DATASET_SUMMARIES.TERMINATE:
+      return {
+        ...state,
+        itemsByID: {
+          ...state.itemsByID,
+          [action.datasetID]: {
+            ...(state.itemsByID[action.datasetID] ?? {}),
+            isFetching: false,
+            isInvalid: false,
+            hasAttempted: true,
+          },
+        },
+      };
+    case INVALIDATE_DATASET_SUMMARIES:
+      return datasetItemSet(state, action.datasetID, "isInvalid", true);
     default:
       return state;
   }
