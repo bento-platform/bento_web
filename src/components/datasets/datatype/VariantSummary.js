@@ -1,22 +1,16 @@
 import { Col, Row, Statistic } from "antd";
-import { FileOutlined } from "@ant-design/icons";
 
 import { EM_DASH } from "@/constants";
 import { summaryPropTypesShape } from "@/propTypes";
 
 const VariantSummary = ({ summary }) => (
   <Row gutter={16}>
-    <Col span={8}>
+    <Col span={12}>
       <Statistic title="Variants" value={summary.count} />
     </Col>
-    <Col span={8}>
+    <Col span={12}>
       <Statistic title="Samples" value={summary.data_type_specific?.samples ?? EM_DASH} />
     </Col>
-    {summary.data_type_specific?.vcf_files !== undefined ? (
-      <Col span={8}>
-        <Statistic title="VCF Files" prefix={<FileOutlined />} value={summary.data_type_specific.vcf_files} />
-      </Col>
-    ) : null}
   </Row>
 );
 
