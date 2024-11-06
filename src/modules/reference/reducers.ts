@@ -1,4 +1,4 @@
-import type { AnyAction, Reducer } from "redux";
+import type { Reducer } from "redux";
 
 import { arrayToObjectByProperty, objectWithoutProp } from "@/utils/misc";
 
@@ -21,7 +21,7 @@ export const referenceGenomes: Reducer<ReferenceGenomesState> = (
     items: [],
     itemsByID: {},
   },
-  action: AnyAction,
+  action,
 ) => {
   switch (action.type) {
     // FETCH_REFERENCE_GENOMES
