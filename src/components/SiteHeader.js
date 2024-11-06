@@ -19,10 +19,10 @@ import {
   ExportOutlined,
   FileTextOutlined,
   FolderOpenOutlined,
+  HomeOutlined,
   LoadingOutlined,
   LoginOutlined,
   LogoutOutlined,
-  PieChartOutlined,
   SettingOutlined,
   UserOutlined,
 } from "@ant-design/icons";
@@ -92,10 +92,10 @@ const SiteHeader = () => {
   const menuItems = useMemo(
     () => [
       {
-        url: "/overview",
-        icon: <PieChartOutlined />,
-        text: "Overview",
-        key: "overview",
+        url: "/home",
+        icon: <HomeOutlined />,
+        text: "Home",
+        key: "home",
       },
       ...(canQueryData
         ? [

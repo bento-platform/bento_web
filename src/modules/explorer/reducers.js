@@ -21,8 +21,6 @@ import {
   SET_TABLE_SORT_ORDER,
   RESET_TABLE_SORT_ORDER,
   SET_ACTIVE_TAB,
-  SET_AUTO_QUERY_PAGE_TRANSITION,
-  NEUTRALIZE_AUTO_QUERY_PAGE_TRANSITION,
   FREE_TEXT_SEARCH,
   SET_OTHER_THRESHOLD_PERCENTAGE,
   SET_IGV_POSITION,
@@ -46,9 +44,6 @@ export const explorer = (
     fetchingTextSearch: false,
     isSubmittingSearch: false,
 
-    autoQuery: {
-      isAutoQuery: false,
-    },
     otherThresholdPercentage: readFromLocalStorage("otherThresholdPercentage") ?? DEFAULT_OTHER_THRESHOLD_PERCENTAGE,
     igvPosition: undefined,
   },
@@ -250,32 +245,6 @@ export const explorer = (
         },
       };
     }
-
-    // Auto-Queries start here ----
-    case SET_AUTO_QUERY_PAGE_TRANSITION:
-      return {
-        ...state,
-        autoQuery: {
-          isAutoQuery: true,
-          pageUrlBeforeAutoQuery: action.pageUrlBeforeAutoQuery,
-          autoQueryType: action.autoQueryType,
-          autoQueryField: action.autoQueryField,
-          autoQueryValue: action.autoQueryValue,
-        },
-      };
-
-    case NEUTRALIZE_AUTO_QUERY_PAGE_TRANSITION:
-      return {
-        ...state,
-        autoQuery: {
-          isAutoQuery: false,
-          pageUrlBeforeAutoQuery: undefined,
-          autoQueryType: undefined,
-          autoQueryField: undefined,
-          autoQueryValue: undefined,
-        },
-      };
-    //.. and end here.. ----
 
     // free-text search
     case FREE_TEXT_SEARCH.REQUEST:

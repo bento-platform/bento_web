@@ -6,7 +6,7 @@ import { allPermissions, grants, groups } from "./modules/authz/reducers";
 import { dropBox } from "@/modules/dropBox/reducers";
 import { drs } from "./modules/drs/reducers";
 import { explorer, igvGenomes } from "./modules/explorer/reducers";
-import { projects, biosamples, individuals, overviewSummary, discovery } from "./modules/metadata/reducers";
+import { projects, biosamples, individuals, discovery } from "./modules/metadata/reducers";
 import { manager } from "./modules/manager/reducers";
 import { notifications } from "./modules/notifications/reducers";
 import { referenceGenomes } from "./modules/reference/reducers";
@@ -44,7 +44,6 @@ const rootReducer = combineReducers({
 
   biosamples,
   individuals,
-  overviewSummary,
 
   // Manager module
   manager,

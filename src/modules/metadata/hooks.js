@@ -2,12 +2,7 @@ import { useEffect, useMemo } from "react";
 import { makeProjectDatasetResource, makeProjectResource } from "bento-auth-js";
 import { useService } from "@/modules/services/hooks";
 import { useAppDispatch, useAppSelector } from "@/store";
-import {
-  fetchDiscoverySchema,
-  fetchExtraPropertiesSchemaTypes,
-  fetchOverviewSummaryIfNeeded,
-  fetchProjectsWithDatasets,
-} from "./actions";
+import { fetchDiscoverySchema, fetchExtraPropertiesSchemaTypes, fetchProjectsWithDatasets } from "./actions";
 import { useJsonSchemaValidator } from "@/hooks";
 
 export const useProjects = () => {
@@ -32,15 +27,6 @@ export const useProjectsAndDatasetsAsAuthzResources = () => {
       ]),
     [projects],
   );
-};
-
-export const useOverviewSummary = () => {
-  const dispatch = useAppDispatch();
-  const metadataService = useService("metadata");
-  useEffect(() => {
-    dispatch(fetchOverviewSummaryIfNeeded()).catch((err) => console.error(err));
-  }, [dispatch, metadataService]);
-  return useAppSelector((state) => state.overviewSummary);
 };
 
 export const useProjectJsonSchemaTypes = () => {
