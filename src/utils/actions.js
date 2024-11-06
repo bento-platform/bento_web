@@ -4,20 +4,9 @@ import { message } from "antd";
 
 import { BENTO_PUBLIC_URL, BENTO_URL, IDP_BASE_URL } from "@/config";
 
-export const basicAction = (t) => () => ({ type: t });
-
-export const createNetworkActionTypes = (name) => ({
-  REQUEST: `${name}.REQUEST`,
-  RECEIVE: `${name}.RECEIVE`,
-  ERROR: `${name}.ERROR`,
-  FINISH: `${name}.FINISH`,
-});
-
-export const createFlowActionTypes = (name) => ({
-  BEGIN: `${name}.BEGIN`,
-  END: `${name}.END`,
-  TERMINATE: `${name}.TERMINATE`,
-});
+export { basicAction } from "./actions/basic";
+export { createFlowActionTypes, beginFlow, endFlow, terminateFlow } from "./actions/flow";
+export { createNetworkActionTypes } from "./actions/network";
 
 const _unpaginatedNetworkFetch = async (url, _baseUrl, req, parse) => {
   const response = await fetch(url, req);
@@ -156,7 +145,3 @@ const handleNetworkErrorMessaging = (state, e, reduxErrDetail) => {
 const formatErrorMessage = (errorMessageIntro, errorDetail) => {
   return errorMessageIntro ? errorMessageIntro + (errorDetail ? `: ${errorDetail}` : "") : errorDetail;
 };
-
-export const beginFlow = (types, params) => (dispatch) => dispatch({ type: types.BEGIN, ...(params ?? {}) });
-export const endFlow = (types, params) => (dispatch) => dispatch({ type: types.END, ...(params ?? {}) });
-export const terminateFlow = (types, params) => (dispatch) => dispatch({ type: types.TERMINATE, ...(params ?? {}) });

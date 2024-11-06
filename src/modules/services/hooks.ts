@@ -1,6 +1,10 @@
 import { useEffect, useMemo } from "react";
-import { fetchBentoServices, fetchDataTypes, fetchServices } from "./actions";
+
+import type { WorkflowType } from "@/modules/wes/types";
 import { useAppDispatch, useAppSelector } from "@/store";
+
+import { fetchBentoServices, fetchDataTypes, fetchServices } from "./actions";
+import type { WorkflowsByType, WorkflowWithID } from "./types";
 
 export const useBentoServices = () => {
   const dispatch = useAppDispatch();
@@ -10,7 +14,7 @@ export const useBentoServices = () => {
   return useAppSelector((state) => state.bentoServices);
 };
 
-export const useBentoService = (kind) => {
+export const useBentoService = (kind: string) => {
   const bentoServices = useBentoServices();
   return bentoServices.itemsByKind[kind];
 };
@@ -23,7 +27,7 @@ export const useServices = () => {
   return useAppSelector((state) => state.services); // From service registry; service-info style
 };
 
-export const useService = (kind) => {
+export const useService = (kind: string) => {
   const services = useServices();
   return services.itemsByKind[kind];
 };
@@ -45,7 +49,7 @@ export const useWorkflows = () => {
   const workflowsLoading = isFetchingAllServices || isFetchingServiceWorkflows;
 
   return useMemo(() => {
-    const workflowsByType = {
+    const workflowsByType: WorkflowsByType = {
       ingestion: { items: [], itemsByID: {} },
       analysis: { items: [], itemsByID: {} },
       export: { items: [], itemsByID: {} },
@@ -56,9 +60,9 @@ export const useWorkflows = () => {
 
       // noinspection JSCheckFunctionSignatures
       Object.entries(workflowTypeWorkflows).forEach(([k, v]) => {
-        const wf = { ...v, id: k };
-        workflowsByType[workflowType].items.push(wf);
-        workflowsByType[workflowType].itemsByID[k] = wf;
+        const wf: WorkflowWithID = { ...v, id: k };
+        workflowsByType[workflowType as WorkflowType].items.push(wf);
+        workflowsByType[workflowType as WorkflowType].itemsByID[k] = wf;
       });
     });
 

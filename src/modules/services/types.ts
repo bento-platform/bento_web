@@ -1,3 +1,5 @@
+import { Workflow, WorkflowType } from "@/modules/wes/types";
+
 export type GA4GHServiceInfo = {
   id: string;
   name: string;
@@ -19,6 +21,8 @@ export type GA4GHServiceInfo = {
 
   bento?: {
     serviceKind: string;
+    dataService?: boolean;
+    workflowProvider?: boolean;
     gitTag?: string;
     gitBranch?: string;
     gitCommit?: string;
@@ -33,6 +37,10 @@ export type BentoService = {
   url: string;
 };
 
+export interface BentoServiceWithComposeID extends BentoService {
+  composeID: string;
+}
+
 export interface BentoDataType {
   id: string;
   label: string;
@@ -45,3 +53,11 @@ export interface BentoDataType {
 export interface BentoServiceDataType extends BentoDataType {
   service_base_url: string;
 }
+
+export type WorkflowWithID = Workflow & { id: string };
+
+type WorkflowItems = { items: WorkflowWithID[], itemsByID: Record<string, WorkflowWithID> };
+
+export type WorkflowsByType = {
+  [key in WorkflowType]: WorkflowItems;
+};

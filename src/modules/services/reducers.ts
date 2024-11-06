@@ -1,3 +1,5 @@
+import type { Reducer } from "redux";
+import type { Workflow, WorkflowType } from "@/modules/wes/types";
 import {
   LOADING_ALL_SERVICE_DATA,
   FETCH_BENTO_SERVICES,
@@ -5,8 +7,15 @@ import {
   FETCH_DATA_TYPES,
   FETCH_WORKFLOWS,
 } from "./actions";
+import type { BentoService, BentoServiceDataType, BentoServiceWithComposeID, GA4GHServiceInfo } from "./types";
 
-export const bentoServices = (
+type BentoServicesState = {
+  isFetching: boolean;
+  hasAttempted: boolean;
+  itemsByKind: Record<string, BentoServiceWithComposeID>;
+};
+
+export const bentoServices: Reducer<BentoServicesState> = (
   state = {
     isFetching: false,
     hasAttempted: false,
@@ -22,8 +31,8 @@ export const bentoServices = (
       return {
         ...state,
         itemsByKind: Object.fromEntries(
-          Object.entries(action.data).map(([composeID, service]) => [
-            service.service_kind ?? service.artifact,
+          Object.entries(action.data as Record<string, BentoService>).map(([composeID, service]) => [
+            service.service_kind,
             { ...service, composeID },
           ]),
         ),
@@ -36,7 +45,23 @@ export const bentoServices = (
   }
 };
 
-export const services = (
+type ServicesState = {
+  isFetching: boolean;
+  hasAttempted: boolean;
+  isFetchingAll: boolean;
+  items: GA4GHServiceInfo[];
+  itemsByID: Record<string, GA4GHServiceInfo>;
+  itemsByKind: Record<string, GA4GHServiceInfo>;
+
+  aggregationService: GA4GHServiceInfo | null;
+  dropBoxService: GA4GHServiceInfo | null;
+  eventRelay: GA4GHServiceInfo | null;
+  metadataService: GA4GHServiceInfo | null;
+  notificationService: GA4GHServiceInfo | null;
+  wesService: GA4GHServiceInfo | null;
+};
+
+export const services: Reducer<ServicesState> = (
   state = {
     isFetching: false,
     hasAttempted: false,
@@ -67,7 +92,8 @@ export const services = (
 
     case FETCH_SERVICES.RECEIVE: {
       // Filter out services without a valid serviceInfo.type:
-      const items = action.data.filter((s) => s?.type);
+      const res = action.data as GA4GHServiceInfo[];
+      const items = res.filter((s: GA4GHServiceInfo) => s?.type);
       const itemsByID = Object.fromEntries(items.map((s) => [s.id, s]));
       const itemsByKind = Object.fromEntries(items.map((s) => [s.bento?.serviceKind ?? s.type.artifact, s]));
 
@@ -98,7 +124,13 @@ export const services = (
   }
 };
 
-export const serviceDataTypes = (
+type ServiceDataTypesState = {
+  isFetching: boolean;
+  itemsByID: Record<string, BentoServiceDataType>;
+  items: BentoServiceDataType[];
+};
+
+export const serviceDataTypes: Reducer<ServiceDataTypesState> = (
   state = {
     isFetching: false,
     itemsByID: {},
@@ -113,7 +145,7 @@ export const serviceDataTypes = (
       return {
         ...state,
         items: action.data,
-        itemsByID: Object.fromEntries(action.data.map((dt) => [dt.id, dt])),
+        itemsByID: Object.fromEntries(action.data.map((dt: BentoServiceDataType) => [dt.id, dt])),
       };
     case FETCH_DATA_TYPES.FINISH:
       return { ...state, isFetching: false };
@@ -123,10 +155,19 @@ export const serviceDataTypes = (
   }
 };
 
-export const serviceWorkflows = (
+type ServiceWorkflowsState = {
+  isFetching: boolean;
+  items: Record<WorkflowType, Record<string, Workflow>>;
+};
+
+export const serviceWorkflows: Reducer<ServiceWorkflowsState> = (
   state = {
     isFetching: false,
-    items: {}, // by purpose and then by workflow ID
+    items: {
+      ingestion: {},
+      analysis: {},
+      export: {},
+    }, // by purpose and then by workflow ID
   },
   action,
 ) => {
