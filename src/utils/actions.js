@@ -8,15 +8,7 @@ export { basicAction } from "./actions/basic";
 export { createFlowActionTypes, beginFlow, endFlow, terminateFlow } from "./actions/flow";
 export { createNetworkActionTypes } from "./actions/network";
 
-const _unpaginatedNetworkFetch = async (url, _baseUrl, req, parse) => {
-  const response = await fetch(url, req);
-  if (!response.ok) {
-    const errorData = await parse(response);
-    const errorsArray = errorData.errors ?? [];
-    throw new Error(errorData.message || `${response.status} ${response.statusText}`, { cause: errorsArray });
-  }
-  return response.status === 204 ? null : await parse(response);
-};
+import { _unpaginatedNetworkFetch } from "./actions/network";
 
 const _paginatedNetworkFetch = async (url, baseUrl, req, parse) => {
   const results = [];
