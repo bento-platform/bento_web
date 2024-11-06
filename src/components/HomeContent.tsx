@@ -48,10 +48,9 @@ const HomeContent = () => {
             )}
             {canManageAnything && (
               <>
-                To manage data, go to the <Link to="/data/manager">Data Manager</Link>
+                To manage data, go to the <Link to="/data/manager">Data Manager</Link>.
               </>
             )}
-            .
           </Typography.Paragraph>
         </Layout.Content>
       </Layout>
