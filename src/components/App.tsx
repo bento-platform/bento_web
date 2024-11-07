@@ -53,7 +53,7 @@ const createSessionWorker = () => new Worker(new URL("../session.worker.js", imp
 // Using the fetchUserDependentData thunk creator as a hook argument may lead to unwanted triggers on re-renders.
 // So we store the thunk inner function of the fetchUserDependentData thunk creator in a constant outside of the
 // component function.
-const onAuthSuccess = fetchUserDependentData(nop);
+const onAuthSuccess = fetchUserDependentData();
 
 const uiErrorCallback = (msg: string) => message.error(msg);
 

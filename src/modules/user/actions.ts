@@ -8,7 +8,7 @@ import { nop } from "@/utils/misc";
 export const FETCHING_USER_DEPENDENT_DATA = createFlowActionTypes("FETCHING_USER_DEPENDENT_DATA");
 
 export const fetchUserDependentData =
-  (servicesCb: (() => unknown) | (() => Promise<unknown>)) =>
+  (servicesCb: (() => unknown) | (() => Promise<unknown>) | undefined = undefined) =>
   async (dispatch: AppDispatch, getState: () => RootState) => {
     const { idTokenContents, hasAttempted } = getState().auth;
     const { isFetchingDependentData } = getState().user;
