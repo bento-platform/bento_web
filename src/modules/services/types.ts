@@ -3,6 +3,7 @@ import { Workflow, WorkflowType } from "@/modules/wes/types";
 export type GA4GHServiceInfo = {
   id: string;
   name: string;
+  description?: string;
   version: string;
   type: {
     group: string;
@@ -15,9 +16,14 @@ export type GA4GHServiceInfo = {
     url: string;
   };
   contactUrl?: string;
+  documentationUrl?: string;
+
+  createdAt?: string;
+  updatedAt?: string;
 
   environment: "dev" | "prod";
-  url: string;
+
+  url: string;  // Only for services inside a service registry
 
   bento?: {
     serviceKind: string;

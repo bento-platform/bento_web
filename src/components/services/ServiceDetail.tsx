@@ -4,6 +4,7 @@ import { Navigate, Route, Routes, useNavigate, useParams } from "react-router-do
 import { Layout, Menu, Result, Skeleton } from "antd";
 
 import { useBentoService, useBentoServices, useService, useServices } from "@/modules/services/hooks";
+import type { BentoService, GA4GHServiceInfo } from "@/modules/services/types";
 import { matchingMenuKeys, transformMenuItem } from "@/utils/menu";
 
 import SitePageHeader from "../SitePageHeader";
@@ -75,7 +76,12 @@ const ServiceDetail = () => {
               <Routes>
                 <Route
                   path="overview"
-                  element={<ServiceOverview serviceInfo={serviceInfo} bentoServiceInfo={bentoServiceInfo} />}
+                  element={
+                    <ServiceOverview
+                      serviceInfo={serviceInfo as GA4GHServiceInfo}
+                      bentoServiceInfo={bentoServiceInfo as BentoService}
+                    />
+                  }
                 />
                 <Route path="/" element={<Navigate to="overview" replace={true} />} />
               </Routes>

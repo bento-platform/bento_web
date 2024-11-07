@@ -14,8 +14,9 @@ export const useBentoServices = () => {
   return useAppSelector((state) => state.bentoServices);
 };
 
-export const useBentoService = (kind: string) => {
+export const useBentoService = (kind: string | undefined) => {
   const bentoServices = useBentoServices();
+  if (kind === undefined) return undefined;
   return bentoServices.itemsByKind[kind];
 };
 
@@ -27,8 +28,9 @@ export const useServices = () => {
   return useAppSelector((state) => state.services); // From service registry; service-info style
 };
 
-export const useService = (kind: string) => {
+export const useService = (kind: string | undefined) => {
   const services = useServices();
+  if (kind === undefined) return undefined;
   return services.itemsByKind[kind];
 };
 
