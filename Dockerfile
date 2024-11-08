@@ -1,4 +1,4 @@
-FROM --platform=$BUILDPLATFORM node:20-bookworm-slim AS build
+FROM --platform=$BUILDPLATFORM node:22-bookworm-slim AS build
 
 # Build bento_web with NodeJS + Webpack
 #  - Use BUILDPLATFORM for running webpack, since it should perform a lot better.
