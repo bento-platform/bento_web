@@ -10,7 +10,7 @@
     "ajv": "^8.17.1",
     "ansi_up": "^6.0.2",
     "antd": "~5.21.1",
-    "bento-auth-js": "^6.0.2",
+    "bento-auth-js": "^7.0.0",
     "bento-charts": "2.9.2",
     "cross-fetch": "^4.0.0",
     "dayjs": "^1.11.13",

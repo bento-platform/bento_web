@@ -50,11 +50,6 @@ const CALLBACK_PATH = "/callback";
 
 const createSessionWorker = () => new Worker(new URL("../session.worker.js", import.meta.url));
 
-// Using the fetchUserDependentData thunk creator as a hook argument may lead to unwanted triggers on re-renders.
-// So we store the thunk inner function of the fetchUserDependentData thunk creator in a constant outside of the
-// component function.
-const onAuthSuccess = fetchUserDependentData();
-
 const uiErrorCallback = (msg: string) => message.error(msg);
 
 const App = () => {
@@ -77,12 +72,12 @@ const App = () => {
   const eventRelayUrl = eventRelay?.url ?? null;
 
   const [lastIsAuthenticated, setLastIsAuthenticated] = useState(false);
-
   const [didPostLoadEffects, setDidPostLoadEffects] = useState(false);
 
   const isInAuthPopup = checkIsInAuthPopup(BENTO_URL_NO_TRAILING_SLASH);
-
   const popupOpenerAuthCallback = usePopupOpenerAuthCallback();
+
+  const onAuthSuccess = useCallback(() => dispatch(fetchUserDependentData()), [dispatch]);
 
   // Set up auth callback handling
   useHandleCallback(CALLBACK_PATH, onAuthSuccess, isInAuthPopup ? popupOpenerAuthCallback : undefined, uiErrorCallback);
