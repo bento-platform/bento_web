@@ -1,4 +1,4 @@
-import { Workflow, WorkflowType } from "@/modules/wes/types";
+import type { Workflow, WorkflowType } from "@/modules/wes/types";
 
 export type GA4GHServiceInfo = {
   id: string;
@@ -23,7 +23,7 @@ export type GA4GHServiceInfo = {
 
   environment: "dev" | "prod";
 
-  url: string;  // Only for services inside a service registry
+  url: string; // Only for services inside a service registry
 
   bento?: {
     serviceKind: string;
@@ -62,7 +62,7 @@ export interface BentoServiceDataType extends BentoDataType {
 
 export type WorkflowWithID = Workflow & { id: string };
 
-type WorkflowItems = { items: WorkflowWithID[], itemsByID: Record<string, WorkflowWithID> };
+type WorkflowItems = { items: WorkflowWithID[]; itemsByID: Record<string, WorkflowWithID> };
 
 export type WorkflowsByType = {
   [key in WorkflowType]: WorkflowItems;

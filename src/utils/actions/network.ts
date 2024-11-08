@@ -28,5 +28,5 @@ export const _unpaginatedNetworkFetch = async <T extends object>(
     const errorsArray = errorData.errors ?? [];
     throw new Error(errorData.message || `${response.status} ${response.statusText}`, { cause: errorsArray });
   }
-  return response.status === 204 ? null : (await parse(response) as T);
+  return response.status === 204 ? null : ((await parse(response)) as T);
 };

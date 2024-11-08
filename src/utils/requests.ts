@@ -1,4 +1,4 @@
-import { JSONType } from "@/types/json";
+import type { JSONType } from "@/types/json";
 
 const SERIALIZED_TYPES = ["object", "array"];
 
