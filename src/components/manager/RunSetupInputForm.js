@@ -165,12 +165,19 @@ const RunSetupInputForm = ({ initialValues, onSubmit, workflow, onBack, onChange
           .filter((i) => !i.hidden && !i.injected)
           .map((i) => {
             const [component, options] = getInputComponentAndOptions(i);
+
+            // Default to setting initialValue for boolean inputs to "false"
+            // so that the value is set when the form item is not interacted with
+            let initialValue = initialValues[i.id];
+            if (!initialValue && i.type === "boolean") {
+              initialValue = false;
+            }
             return (
               <Form.Item
                 key={i.id}
                 label={i.id}
                 name={i.id}
-                initialValue={initialValues[i.id]}
+                initialValue={initialValue}
                 rules={
                   // Default to requiring the field unless the "required" property is set on the input
                   // or the input is a boolean (i.e., checkbox), since booleans will always be present.
