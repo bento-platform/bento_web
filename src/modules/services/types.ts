@@ -1,3 +1,4 @@
+import type { JSONSchema7 } from "json-schema";
 import type { Workflow, WorkflowType } from "@/modules/wes/types";
 
 export type GA4GHServiceInfo = {
@@ -51,8 +52,8 @@ export interface BentoDataType {
   id: string;
   label: string;
   queryable: boolean;
-  schema: object;
-  metadata_schema: object;
+  schema: JSONSchema7;
+  metadata_schema: JSONSchema7;
   count?: number;
 }
 
