@@ -261,6 +261,7 @@ class Dataset extends Component {
         activeTabKey={selectedTab}
         tabProps={{ size: "middle" }}
         onTabChange={(t) => this.setState({ selectedTab: t })}
+        style={{ boxShadow: "0 2px 10px rgba(0,0,0,0.05)" }}
         extra={
           isPrivate ? (
             <>

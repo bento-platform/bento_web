@@ -1,7 +1,14 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import PropTypes from "prop-types";
-import { Button, Col, Empty, Form, Row, Space, Tabs, Typography } from "antd";
-import { CheckOutlined, CloseOutlined, DeleteOutlined, EditOutlined, PlusOutlined } from "@ant-design/icons";
+import { Button, Col, Empty, Form, Space, Typography } from "antd";
+import {
+  CheckOutlined,
+  CloseOutlined,
+  DeleteOutlined,
+  EditOutlined,
+  PartitionOutlined,
+  PlusOutlined,
+} from "@ant-design/icons";
 
 import { createDataset, deleteProject, editProject, makeProjectResource, RESOURCE_EVERYTHING } from "bento-auth-js";
 
@@ -12,16 +19,7 @@ import { nop, simpleDeepCopy } from "@/utils/misc";
 import Dataset from "@/components/datasets/Dataset";
 
 import ProjectForm from "./ProjectForm";
-import ProjectJsonSchema from "./ProjectJsonSchema";
-
-const SUB_TAB_KEYS = {
-  DATASETS: "project-datasets",
-  EXTRA_PROPERTIES: "project-json-schemas",
-};
-const SUB_TAB_ITEMS = [
-  { key: SUB_TAB_KEYS.DATASETS, label: "Datasets" },
-  { key: SUB_TAB_KEYS.EXTRA_PROPERTIES, label: "Extra Properties" },
-];
+import ProjectExtraPropertiesModal from "@/components/manager/projects/ProjectExtraPropertiesModal";
 
 const Project = ({
   value,
@@ -59,7 +57,7 @@ const Project = ({
 
   const [editingForm] = Form.useForm();
 
-  const [selectedKey, setSelectedKey] = useState(SUB_TAB_KEYS.DATASETS);
+  const [isExtraPropertyModalOpen, setIsExtraPropertyModalOpen] = useState(false);
 
   useEffect(() => {
     if (value) {
@@ -93,7 +91,7 @@ const Project = ({
   }, [editingForm, onCancelEdit]);
 
   return (
-    <div>
+    <>
       <div style={{ position: "absolute", top: "24px", right: "24px" }}>
         {editing ? (
           <>
@@ -110,7 +108,22 @@ const Project = ({
             </Button>
           </>
         ) : (
-          <>
+          <Space>
+            <Button
+              icon={<PlusOutlined />}
+              loading={isFetchingProjectPermissions}
+              disabled={!canCreateDataset}
+              onClick={() => (onAddDataset || nop)()}
+            >
+              Add Dataset
+            </Button>
+            <Button
+              icon={<PartitionOutlined />}
+              loading={isFetchingProjectPermissions}
+              onClick={() => setIsExtraPropertyModalOpen(true)}
+            >
+              Extra Properties
+            </Button>
             <Button
               icon={<EditOutlined />}
               loading={isFetchingProjectPermissions}
@@ -124,12 +137,11 @@ const Project = ({
               icon={<DeleteOutlined />}
               loading={isFetchingGlobalPermissions}
               disabled={!canDeleteProject}
-              style={{ marginLeft: "10px" }}
               onClick={() => (onDelete || nop)()}
             >
               Delete
             </Button>
-          </>
+          </Space>
         )}
       </div>
       {editing ? (
@@ -156,92 +168,44 @@ const Project = ({
         </>
       )}
 
-      <Tabs onChange={(tab) => setSelectedKey(tab)} activeKey={selectedKey} items={SUB_TAB_ITEMS} size="large" />
-
-      {selectedKey === SUB_TAB_KEYS.DATASETS ? (
-        <>
-          <Typography.Title level={3} style={{ marginTop: "0.6em" }}>
-            Datasets
-            <div style={{ float: "right" }}>
-              <Button
-                icon={<PlusOutlined />}
-                loading={isFetchingProjectPermissions}
-                disabled={!canCreateDataset}
-                style={{ verticalAlign: "top" }}
-                onClick={() => (onAddDataset || nop)()}
-              >
-                Add Dataset
-              </Button>
-            </div>
-          </Typography.Title>
-          {(projectState.datasets || []).length > 0 ? (
-            <Space direction="vertical" size={16} style={{ width: "100%" }}>
-              {projectState.datasets
-                .sort((d1, d2) => d1.title.localeCompare(d2.title))
-                .map((d) => (
-                  <Col span={24} key={d.identifier}>
-                    <Dataset
-                      key={d.identifier}
-                      mode="private"
-                      project={value}
-                      value={d}
-                      onEdit={() => (onEditDataset || nop)(d)}
-                    />
-                  </Col>
-                ))}
-            </Space>
-          ) : (
-            <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} description="No Datasets">
-              <Button
-                icon={<PlusOutlined />}
-                loading={isFetchingProjectPermissions}
-                disabled={!canEditProject}
-                onClick={onAddDataset || nop}
-              >
-                Add Dataset
-              </Button>
-            </Empty>
-          )}
-        </>
+      {(projectState.datasets || []).length > 0 ? (
+        <Space direction="vertical" size={16} style={{ width: "100%" }}>
+          {projectState.datasets
+            .sort((d1, d2) => d1.title.localeCompare(d2.title))
+            .map((d) => (
+              <Col span={24} key={d.identifier}>
+                <Dataset
+                  key={d.identifier}
+                  mode="private"
+                  project={value}
+                  value={d}
+                  onEdit={() => (onEditDataset || nop)(d)}
+                />
+              </Col>
+            ))}
+        </Space>
       ) : (
-        <>
-          <Typography.Title level={3} style={{ marginTop: "0.6em" }}>
-            Extra Properties JSON schemas
-            <div style={{ float: "right" }}>
-              <Button
-                icon={<PlusOutlined />}
-                loading={isFetchingProjectPermissions}
-                disabled={!canEditProject}
-                style={{ verticalAlign: "top" }}
-                onClick={onAddJsonSchema || nop}
-              >
-                Add JSON schema
-              </Button>
-            </div>
-          </Typography.Title>
-          {projectState.project_schemas.length > 0 ? (
-            projectState.project_schemas.map((pjs) => (
-              <Row gutter={[0, 16]} key={pjs["id"]}>
-                <Col span={24}>
-                  <ProjectJsonSchema projectSchema={pjs} />
-                </Col>
-              </Row>
-            ))
-          ) : (
-            <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} description="No project JSON schemas">
-              <Button
-                icon={<PlusOutlined />}
-                onClick={onAddJsonSchema}
-                loading={isFetchingProjectPermissions}
-                disabled={!canEditProject}
-              >
-                Add JSON schema
-              </Button>
-            </Empty>
-          )}
-        </>
+        <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} description="No Datasets">
+          <Button
+            icon={<PlusOutlined />}
+            loading={isFetchingProjectPermissions}
+            disabled={!canEditProject}
+            onClick={onAddDataset || nop}
+          >
+            Add Dataset
+          </Button>
+        </Empty>
       )}
-    </div>
+
+      <ProjectExtraPropertiesModal
+        open={isExtraPropertyModalOpen}
+        loading={isFetchingProjectPermissions}
+        onCancel={() => setIsExtraPropertyModalOpen(false)}
+        projectState={projectState}
+        canEditProject={canEditProject}
+        onAddJsonSchema={onAddJsonSchema}
+      />
+    </>
   );
 };
 
