@@ -4,6 +4,7 @@ import PropTypes from "prop-types";
 import { Button, Dropdown, Form, Tooltip } from "antd";
 import { PlusOutlined } from "@ant-design/icons";
 
+import { objectWithoutProp } from "@/utils/misc";
 import { getFields, getFieldSchema } from "@/utils/schema";
 import {
   DEFAULT_SEARCH_PARAMETERS,
@@ -351,7 +352,7 @@ const DiscoverySearchForm = ({ onChange, dataType, setFormRef, handleVariantHidd
                 fields.map((field, i) => (
                   <Form.Item
                     key={field.key}
-                    {...field}
+                    {...objectWithoutProp(field, "key")}
                     labelCol={CONDITION_LABEL_COL}
                     wrapperCol={CONDITION_WRAPPER_COL}
                     label={conditionLabel(i)}
