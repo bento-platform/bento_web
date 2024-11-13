@@ -26,9 +26,6 @@ const ProjectExtraPropertiesModal = ({ open, onCancel, loading, projectState, ca
         >
           Add JSON schema
         </Button>,
-        <Button key={"ok"} type="primary" onClick={onCancel}>
-          Ok
-        </Button>,
       ]}
       onCancel={onCancel}
     >
