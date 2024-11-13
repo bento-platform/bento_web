@@ -4,32 +4,13 @@ import { message } from "antd";
 
 import { BENTO_PUBLIC_URL, BENTO_URL, IDP_BASE_URL } from "@/config";
 
-export const basicAction = (t) => () => ({ type: t });
+export { basicAction } from "./actions/basic";
+export { createFlowActionTypes, beginFlow, endFlow, terminateFlow } from "./actions/flow";
+export { createNetworkActionTypes } from "./actions/network";
 
-export const createNetworkActionTypes = (name) => ({
-  REQUEST: `${name}.REQUEST`,
-  RECEIVE: `${name}.RECEIVE`,
-  ERROR: `${name}.ERROR`,
-  FINISH: `${name}.FINISH`,
-});
+import { unpaginatedNetworkFetch } from "./actions/network";
 
-export const createFlowActionTypes = (name) => ({
-  BEGIN: `${name}.BEGIN`,
-  END: `${name}.END`,
-  TERMINATE: `${name}.TERMINATE`,
-});
-
-const _unpaginatedNetworkFetch = async (url, _baseUrl, req, parse) => {
-  const response = await fetch(url, req);
-  if (!response.ok) {
-    const errorData = await parse(response);
-    const errorsArray = errorData.errors ?? [];
-    throw new Error(errorData.message || `${response.status} ${response.statusText}`, { cause: errorsArray });
-  }
-  return response.status === 204 ? null : await parse(response);
-};
-
-const _paginatedNetworkFetch = async (url, baseUrl, req, parse) => {
+const paginatedNetworkFetch = async (url, baseUrl, req, parse) => {
   const results = [];
   const _fetchNext = async (pageUrl) => {
     const response = await fetch(pageUrl, req);
@@ -112,7 +93,7 @@ const _networkAction =
 
     dispatch({ type: types.REQUEST, ...params });
     try {
-      const data = await (paginated ? _paginatedNetworkFetch : _unpaginatedNetworkFetch)(url, baseUrl, finalReq, parse);
+      const data = await (paginated ? paginatedNetworkFetch : unpaginatedNetworkFetch)(url, baseUrl, finalReq, parse);
       dispatch({
         type: types.RECEIVE,
         ...params,
@@ -156,7 +137,3 @@ const handleNetworkErrorMessaging = (state, e, reduxErrDetail) => {
 const formatErrorMessage = (errorMessageIntro, errorDetail) => {
   return errorMessageIntro ? errorMessageIntro + (errorDetail ? `: ${errorDetail}` : "") : errorDetail;
 };
-
-export const beginFlow = (types, params) => (dispatch) => dispatch({ type: types.BEGIN, ...(params ?? {}) });
-export const endFlow = (types, params) => (dispatch) => dispatch({ type: types.END, ...(params ?? {}) });
-export const terminateFlow = (types, params) => (dispatch) => dispatch({ type: types.TERMINATE, ...(params ?? {}) });

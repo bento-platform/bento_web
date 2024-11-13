@@ -1,8 +1,12 @@
+import type { Reducer } from "redux";
 import { FETCHING_USER_DEPENDENT_DATA } from "./actions";
 
-export const user = (
+type UserState = { isFetchingDependentData: boolean; hasAttempted: boolean };
+
+export const user: Reducer<UserState> = (
   state = {
     isFetchingDependentData: false,
+    hasAttempted: false,
   },
   action,
 ) => {

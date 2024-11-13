@@ -6,6 +6,7 @@ import { useService } from "@/modules/services/hooks";
 import { useAppDispatch, useAppSelector } from "@/store";
 
 import { fetchReferenceGenomesIfNeeded } from "./actions";
+import type { GenomeFeature } from "./types";
 
 export const useReferenceGenomes = () => {
   const dispatch = useAppDispatch();
@@ -16,19 +17,15 @@ export const useReferenceGenomes = () => {
   return useAppSelector((state) => state.referenceGenomes);
 };
 
-/**
- * @param {string | undefined} referenceGenomeID
- * @param {string | null | undefined} nameQuery
- */
-export const useGeneNameSearch = (referenceGenomeID, nameQuery) => {
+export const useGeneNameSearch = (referenceGenomeID: string | undefined, nameQuery: string | null | undefined) => {
   const referenceService = useService("reference");
 
   const authHeader = useAuthorizationHeader();
 
   const [hasAttempted, setHasAttempted] = useState(false);
   const [isFetching, setIsFetching] = useState(false);
-  const [data, setData] = useState([]);
-  const [error, setError] = useState(null);
+  const [data, setData] = useState<GenomeFeature[]>([]);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     if (!referenceService || !referenceGenomeID || !nameQuery) return;
@@ -52,7 +49,7 @@ export const useGeneNameSearch = (referenceGenomeID, nameQuery) => {
         }
       } catch (e) {
         console.error(e);
-        setError(`Genome feature search failed: ${e.toString()}`);
+        setError(`Genome feature search failed: ${(e as Error).toString()}`);
       } finally {
         setIsFetching(false);
         setHasAttempted(true);

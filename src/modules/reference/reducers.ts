@@ -1,7 +1,19 @@
-import { DELETE_REFERENCE_GENOME, FETCH_REFERENCE_GENOMES } from "./actions";
+import type { Reducer } from "redux";
+
 import { arrayToObjectByProperty, objectWithoutProp } from "@/utils/misc";
 
-export const referenceGenomes = (
+import { DELETE_REFERENCE_GENOME, FETCH_REFERENCE_GENOMES } from "./actions";
+import type { Genome } from "./types";
+
+type ReferenceGenomesState = {
+  hasAttempted: boolean;
+  isFetching: boolean;
+  isDeletingIDs: Record<string, boolean>; // TODO: refactor into set
+  items: Genome[];
+  itemsByID: Record<string, Genome>;
+};
+
+export const referenceGenomes: Reducer<ReferenceGenomesState> = (
   state = {
     hasAttempted: false,
     isFetching: false,
