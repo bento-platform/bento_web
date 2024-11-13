@@ -8,9 +8,9 @@ export { basicAction } from "./actions/basic";
 export { createFlowActionTypes, beginFlow, endFlow, terminateFlow } from "./actions/flow";
 export { createNetworkActionTypes } from "./actions/network";
 
-import { _unpaginatedNetworkFetch } from "./actions/network";
+import { unpaginatedNetworkFetch } from "./actions/network";
 
-const _paginatedNetworkFetch = async (url, baseUrl, req, parse) => {
+const paginatedNetworkFetch = async (url, baseUrl, req, parse) => {
   const results = [];
   const _fetchNext = async (pageUrl) => {
     const response = await fetch(pageUrl, req);
@@ -93,7 +93,7 @@ const _networkAction =
 
     dispatch({ type: types.REQUEST, ...params });
     try {
-      const data = await (paginated ? _paginatedNetworkFetch : _unpaginatedNetworkFetch)(url, baseUrl, finalReq, parse);
+      const data = await (paginated ? paginatedNetworkFetch : unpaginatedNetworkFetch)(url, baseUrl, finalReq, parse);
       dispatch({
         type: types.RECEIVE,
         ...params,

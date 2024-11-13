@@ -16,7 +16,7 @@ export const createNetworkActionTypes = (name: string): NetworkActionTypes => ({
 
 type BaseBentoResponse = { errors?: string[]; message?: string };
 
-export const _unpaginatedNetworkFetch = async <T extends object>(
+export const unpaginatedNetworkFetch = async <T extends object>(
   url: string,
   _baseUrl: unknown,
   req: RequestInit,
