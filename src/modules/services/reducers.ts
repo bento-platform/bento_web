@@ -157,12 +157,14 @@ export const serviceDataTypes: Reducer<ServiceDataTypesState> = (
 
 type ServiceWorkflowsState = {
   isFetching: boolean;
+  hasAttempted: boolean;
   items: Record<WorkflowType, Record<string, Workflow>>;
 };
 
 export const serviceWorkflows: Reducer<ServiceWorkflowsState> = (
   state = {
     isFetching: false,
+    hasAttempted: false,
     items: {
       ingestion: {},
       analysis: {},
@@ -183,6 +185,7 @@ export const serviceWorkflows: Reducer<ServiceWorkflowsState> = (
       return {
         ...state,
         isFetching: false,
+        hasAttempted: true,
       };
 
     default:

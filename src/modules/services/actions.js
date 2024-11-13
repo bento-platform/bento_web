@@ -49,7 +49,7 @@ export const fetchDataTypes = networkAction(() => ({
 
 export const fetchWorkflows = networkAction(() => ({
   types: FETCH_WORKFLOWS,
-  check: (state) => !state.serviceWorkflows.isFetching && !Object.keys(state.serviceWorkflows.items).length,
+  check: (state) => !state.serviceWorkflows.isFetching && !state.serviceWorkflows.hasAttempted,
   url: `${SERVICE_REGISTRY}/workflows`,
   publicEndpoint: true,
   err: "Error fetching workflows",
