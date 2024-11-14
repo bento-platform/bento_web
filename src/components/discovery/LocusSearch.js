@@ -128,6 +128,11 @@ const LocusSearch = ({
     );
   }, [geneSearchResults]);
 
+  useEffect(() => {
+    // If the input mode changes, we need to clear the corresponding Redux state since it isn't directly linked
+    addVariantSearchValues({ chrom: null, start: null, end: null });
+  }, [addVariantSearchValues, geneSearchEnabled]);
+
   if (!geneSearchEnabled) {
     return <Input onChange={handleChangeInput} onBlur={handleOnBlur} />;
   }
