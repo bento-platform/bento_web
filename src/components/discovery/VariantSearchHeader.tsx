@@ -1,17 +1,17 @@
 import { useState, useEffect, useCallback, useMemo } from "react";
 import PropTypes from "prop-types";
+import type { JSONSchema7 } from "json-schema";
 
 import { Form, Input, Select } from "antd";
 
 import LocusSearch from "./LocusSearch";
 
-import { notAlleleCharactersRegex } from "@/utils/misc";
+import type { InputChangeEventHandler } from "@/components/manager/access/types";
 import { useGohanVariantsOverview } from "@/modules/explorer/hooks";
 import type { BentoDataType } from "@/modules/services/types";
-import { useAppSelector } from "@/store";
-import type { InputChangeEventHandler } from "@/components/manager/access/types";
-import type { JSONSchema7 } from "json-schema";
 import { useReferenceGenomes } from "@/modules/reference/hooks";
+import { useAppSelector } from "@/store";
+import { notAlleleCharactersRegex } from "@/utils/misc";
 
 type Locus = { chrom: string | null; start: string | null; end: string | null };
 
