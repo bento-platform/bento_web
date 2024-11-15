@@ -25,6 +25,8 @@ export const MARK_NOTIFICATION_AS_READ = createNetworkActionTypes("MARK_NOTIFICA
 export const markNotificationAsRead = networkAction((notificationID) => (_dispatch, getState) => ({
   types: MARK_NOTIFICATION_AS_READ,
   params: { notificationID },
+  check: (state) =>
+    state.services.notificationService && !state.notifications.itemsByID[notificationID]?.isMarkingAsRead,
   url: `${getState().services.notificationService.url}/notifications/${notificationID}/read`,
   req: { method: "PUT" },
   err: "Error marking notification as read",
