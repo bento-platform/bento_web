@@ -1,22 +1,33 @@
 import { useState, useEffect, useCallback, useMemo } from "react";
 import PropTypes from "prop-types";
+import type { JSONSchema7 } from "json-schema";
 
 import { Form, Input, Select } from "antd";
 
 import LocusSearch from "./LocusSearch";
 
-import { notAlleleCharactersRegex } from "@/utils/misc";
+import type { InputChangeEventHandler } from "@/components/manager/access/types";
 import { useGohanVariantsOverview } from "@/modules/explorer/hooks";
+import type { BentoDataType } from "@/modules/services/types";
+import { useReferenceGenomes } from "@/modules/reference/hooks";
 import { useAppSelector } from "@/store";
+import { notAlleleCharactersRegex } from "@/utils/misc";
 
-const isValidLocus = (locus) => locus.chrom !== null && locus.start !== null && locus.end !== null;
-const normalizeAlleleText = (text) => text.toUpperCase().replaceAll(notAlleleCharactersRegex, "");
-const containsInvalid = (text) => {
+type Locus = { chrom: string | null; start: string | null; end: string | null };
+
+const isValidLocus = (locus: Locus) => locus.chrom !== null && locus.start !== null && locus.end !== null;
+const normalizeAlleleText = (text: string) => text.toUpperCase().replaceAll(notAlleleCharactersRegex, "");
+const containsInvalid = (text: string) => {
   const matches = text.toUpperCase().match(notAlleleCharactersRegex);
   return matches && matches.length > 0;
 };
 
-const INITIAL_FIELDS_VALIDITY = {
+type FieldsValidity = {
+  assemblyId: boolean;
+  locus: boolean;
+};
+
+const INITIAL_FIELDS_VALIDITY: FieldsValidity = {
   assemblyId: true,
   locus: true,
 };
@@ -25,7 +36,20 @@ const INITIAL_FIELDS_VALIDITY = {
 const LABEL_COL = { lg: { span: 24 }, xl: { span: 4 }, xxl: { span: 3 } };
 const WRAPPER_COL = { lg: { span: 24 }, xl: { span: 20 }, xxl: { span: 18 } };
 
-const VariantSearchHeader = ({ dataType, addVariantSearchValues }) => {
+type VariantSearchHeaderProps = {
+  dataType: BentoDataType;
+  addVariantSearchValues: (
+    x:
+      | { assemblyId: string }
+      | { alt: string }
+      | { ref: string }
+      | {
+          genotypeType: string;
+        },
+  ) => void;
+};
+
+const VariantSearchHeader = ({ dataType, addVariantSearchValues }: VariantSearchHeaderProps) => {
   const { data: variantsOverviewResults, isFetching: isFetchingVariantsOverview } = useGohanVariantsOverview();
   const overviewAssemblyIds = useMemo(() => {
     const hasAssemblyIds =
@@ -40,26 +64,34 @@ const VariantSearchHeader = ({ dataType, addVariantSearchValues }) => {
 
   const [refFormReceivedValidKeystroke, setRefFormReceivedValidKeystroke] = useState(true);
   const [altFormReceivedValidKeystroke, setAltFormReceivedValidKeystroke] = useState(true);
-  const [activeRefValue, setActiveRefValue] = useState(null);
-  const [activeAltValue, setActiveAltValue] = useState(null);
-  const [assemblyId, setAssemblyId] = useState(overviewAssemblyIds.length === 1 ? overviewAssemblyIds[0] : null);
-  const [locus, setLocus] = useState({ chrom: null, start: null, end: null });
+  const [activeRefValue, setActiveRefValue] = useState<string>("");
+  const [activeAltValue, setActiveAltValue] = useState<string>("");
+
+  const [assemblyId, setAssemblyId] = useState<string | null>(
+    overviewAssemblyIds.length === 1 ? overviewAssemblyIds[0] : null,
+  );
+  const referenceGenomes = useReferenceGenomes();
+  const geneSearchEnabled = assemblyId !== null && !!referenceGenomes.itemsByID[assemblyId]?.gff3_gz;
+
+  const [locus, setLocus] = useState<Locus>({ chrom: null, start: null, end: null });
   const { isSubmittingSearch: isSubmitting } = useAppSelector((state) => state.explorer);
 
   // begin with required fields considered valid, so user isn't assaulted with error messages
-  const [fieldsValidity, setFieldsValidity] = useState(INITIAL_FIELDS_VALIDITY);
+  const [fieldsValidity, setFieldsValidity] = useState<FieldsValidity>(INITIAL_FIELDS_VALIDITY);
 
-  const genotypeSchema = dataType.schema?.properties?.calls?.items?.properties?.genotype_type;
+  const genotypeSchema = (
+    (dataType.schema?.properties?.calls as JSONSchema7 | undefined)?.items as JSONSchema7 | undefined
+  )?.properties?.genotype_type as JSONSchema7 | undefined;
   const genotypeSchemaDescription = genotypeSchema?.description;
   const genotypeOptions = useMemo(
-    () => (genotypeSchema?.enum ?? []).map((value) => ({ value, label: value })),
+    () => ((genotypeSchema?.enum ?? []) as string[]).map((value: string) => ({ value, label: value })),
     [genotypeSchema],
   );
 
   const helpText = useMemo(() => {
-    const assemblySchema = dataType.schema?.properties?.assembly_id;
+    const assemblySchema = dataType.schema?.properties?.assembly_id as JSONSchema7 | undefined;
     return {
-      assemblyId: assemblySchema?.description,
+      assemblyId: assemblySchema?.description ?? "",
       genotype: genotypeSchemaDescription,
       // eslint-disable-next-line quotes
       locus: 'Enter gene name (eg "BRCA1") or position ("chr17:41195311-41278381")',
@@ -74,16 +106,16 @@ const VariantSearchHeader = ({ dataType, addVariantSearchValues }) => {
     // check assembly
     if (!assemblyId) {
       // change assemblyId help text & outline
-      setFieldsValidity({ ...fieldsValidity, assemblyId: false });
+      setFieldsValidity((fv) => ({ ...fv, assemblyId: false }));
     }
 
     // check locus
     const { chrom, start, end } = locus;
     if (!chrom || !start || !end) {
       // change locus help text & outline
-      setFieldsValidity({ ...fieldsValidity, locus: false });
+      setFieldsValidity((fv) => ({ ...fv, locus: false }));
     }
-  }, [assemblyId, locus, fieldsValidity]);
+  }, [assemblyId, locus]);
 
   useEffect(() => {
     if (isSubmitting) {
@@ -91,15 +123,12 @@ const VariantSearchHeader = ({ dataType, addVariantSearchValues }) => {
     }
   }, [isSubmitting, validateVariantSearchForm]);
 
-  const setLocusValidity = useCallback(
-    (isValid) => {
-      setFieldsValidity({ ...fieldsValidity, locus: isValid });
-    },
-    [fieldsValidity],
-  );
+  const setLocusValidity = useCallback((isValid: boolean) => {
+    setFieldsValidity((fv) => ({ ...fv, locus: isValid }));
+  }, []);
 
   const handleLocusChange = useCallback(
-    (locus) => {
+    (locus: Locus) => {
       setLocusValidity(isValidLocus(locus));
 
       // set even if invalid, so we don't keep old values
@@ -109,7 +138,7 @@ const VariantSearchHeader = ({ dataType, addVariantSearchValues }) => {
   );
 
   const handleAssemblyIdChange = useCallback(
-    (value) => {
+    (value: string) => {
       addVariantSearchValues({ assemblyId: value });
       setAssemblyId(value);
     },
@@ -117,13 +146,13 @@ const VariantSearchHeader = ({ dataType, addVariantSearchValues }) => {
   );
 
   const handleGenotypeChange = useCallback(
-    (value) => {
+    (value: string) => {
       addVariantSearchValues({ genotypeType: value });
     },
     [addVariantSearchValues],
   );
 
-  const handleRefChange = useCallback(
+  const handleRefChange = useCallback<InputChangeEventHandler>(
     (e) => {
       const latestInputValue = e.target.value;
       const normalizedRef = normalizeAlleleText(latestInputValue);
@@ -141,7 +170,7 @@ const VariantSearchHeader = ({ dataType, addVariantSearchValues }) => {
     [addVariantSearchValues],
   );
 
-  const handleAltChange = useCallback(
+  const handleAltChange = useCallback<InputChangeEventHandler>(
     (e) => {
       const latestInputValue = e.target.value;
       const normalizedAlt = normalizeAlleleText(latestInputValue);
@@ -187,13 +216,14 @@ const VariantSearchHeader = ({ dataType, addVariantSearchValues }) => {
       <Form.Item
         labelCol={LABEL_COL}
         wrapperCol={WRAPPER_COL}
-        label="Gene / position"
+        label={isFetchingVariantsOverview || geneSearchEnabled ? "Gene / position" : "Position"}
         help={helpText["locus"]}
         validateStatus={fieldsValidity.locus ? "success" : "error"}
         required
       >
         <LocusSearch
           assemblyId={assemblyId}
+          geneSearchEnabled={geneSearchEnabled}
           addVariantSearchValues={addVariantSearchValues}
           handleLocusChange={handleLocusChange}
           setLocusValidity={setLocusValidity}

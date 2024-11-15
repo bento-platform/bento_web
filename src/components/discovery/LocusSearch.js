@@ -1,14 +1,20 @@
-import { useCallback, useEffect, useMemo, useState } from "react";
-import { AutoComplete, Tag } from "antd";
+import { useCallback, useEffect, useRef, useState } from "react";
+import { AutoComplete, Input, Tag } from "antd";
 import PropTypes from "prop-types";
-import { useGeneNameSearch, useReferenceGenomes } from "@/modules/reference/hooks";
+import { useGeneNameSearch } from "@/modules/reference/hooks";
+
+const NULL_LOCUS = { chrom: null, start: null, end: null };
+
+// Position notation pattern
+//  - strip chr prefix, but allow any other types of chromosome - eventually this should instead autocomplete from the
+//    reference service.
+const POS_NOTATION_PATTERN = /(?:CHR|chr)?([\w.-]+):(\d+)-(\d+)/;
 
 const parsePosition = (value) => {
-  const parse = /(?:CHR|chr)([0-9]{1,2}|X|x|Y|y|M|m):(\d+)-(\d+)/;
-  const result = parse.exec(value);
+  const result = POS_NOTATION_PATTERN.exec(value);
 
   if (!result) {
-    return { chrom: null, start: null, end: null };
+    return NULL_LOCUS;
   }
 
   const chrom = result[1].toUpperCase(); //for eg 'x', has no effect on numbers
@@ -19,16 +25,21 @@ const parsePosition = (value) => {
 
 const looksLikePositionNotation = (value) => !value.includes(" ") && value.includes(":");
 
-const LocusSearch = ({ assemblyId, addVariantSearchValues, handleLocusChange, setLocusValidity }) => {
-  const referenceGenomes = useReferenceGenomes();
+const LocusSearch = ({
+  assemblyId,
+  geneSearchEnabled,
+  addVariantSearchValues,
+  handleLocusChange,
+  setLocusValidity,
+}) => {
+  const mounted = useRef(false);
+
   const [autoCompleteOptions, setAutoCompleteOptions] = useState([]);
   const [inputValue, setInputValue] = useState("");
 
-  const showAutoCompleteOptions = useMemo(
-    () =>
-      !!referenceGenomes.itemsByID[assemblyId]?.gff3_gz && inputValue.length && !looksLikePositionNotation(inputValue),
-    [referenceGenomes, assemblyId, inputValue],
-  );
+  const valueLooksLikePosNot = looksLikePositionNotation(inputValue);
+
+  const showAutoCompleteOptions = geneSearchEnabled && !!inputValue.length && !valueLooksLikePosNot;
 
   const handlePositionNotation = useCallback(
     (value) => {
@@ -50,10 +61,10 @@ const LocusSearch = ({ assemblyId, addVariantSearchValues, handleLocusChange, se
     }
   }, [inputValue, handlePositionNotation, setLocusValidity]);
 
-  const handleChange = useCallback((value) => {
-    setInputValue(value);
-  }, []);
+  const handleChangeInput = useCallback((e) => setInputValue(e.target.value), []);
+  const handleChangeAutoComplete = useCallback((value) => setInputValue(value), []);
 
+  // Don't execute search if showAutoCompleteOptions is false (gene search disabled / input doesn't look like search)
   const { data: geneSearchResults } = useGeneNameSearch(assemblyId, showAutoCompleteOptions ? inputValue : null);
 
   const handleOnBlur = useCallback(() => {
@@ -70,8 +81,8 @@ const LocusSearch = ({ assemblyId, addVariantSearchValues, handleLocusChange, se
     const isPositionNotation = inputValue.includes(":") && !isAutoCompleteOption;
 
     if (!(isAutoCompleteOption || isPositionNotation)) {
-      handleLocusChange({ chrom: null, start: null, end: null });
-      addVariantSearchValues({ chrom: null, start: null, end: null });
+      handleLocusChange(NULL_LOCUS);
+      addVariantSearchValues(NULL_LOCUS);
       return;
     }
 
@@ -121,10 +132,27 @@ const LocusSearch = ({ assemblyId, addVariantSearchValues, handleLocusChange, se
     );
   }, [geneSearchResults]);
 
+  useEffect(() => {
+    // If the input mode changes, we need to clear the corresponding Redux state since it isn't directly linked
+    //  - if we're making the state newly invalid (rather than on first run), run handleLocusChange() too
+    if (mounted.current) handleLocusChange(NULL_LOCUS);
+    addVariantSearchValues(NULL_LOCUS);
+  }, [addVariantSearchValues, handleLocusChange, geneSearchEnabled]);
+
+  // This effect needs to be last before rendering!
+  // A small hack to change the above effect's behaviour if we're making the input invalid (vs. it starting invalid)
+  useEffect(() => {
+    mounted.current = true;
+  }, []);
+
+  if (!geneSearchEnabled) {
+    return <Input onChange={handleChangeInput} onBlur={handleOnBlur} />;
+  }
+
   return (
     <AutoComplete
       options={showAutoCompleteOptions ? autoCompleteOptions : []}
-      onChange={handleChange}
+      onChange={handleChangeAutoComplete}
       onSelect={handleSelect}
       onBlur={handleOnBlur}
     />
@@ -133,6 +161,7 @@ const LocusSearch = ({ assemblyId, addVariantSearchValues, handleLocusChange, se
 
 LocusSearch.propTypes = {
   assemblyId: PropTypes.string,
+  geneSearchEnabled: PropTypes.bool,
   addVariantSearchValues: PropTypes.func,
   handleLocusChange: PropTypes.func,
   setLocusValidity: PropTypes.func,
