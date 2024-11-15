@@ -8,6 +8,9 @@ import {
 } from "./actions";
 
 const unreadNotifications = (items) => items.filter((n) => !n.read);
+const setMarkingAsRead = (i) => ({ ...i, isMarkingAsRead: true });
+const setRead = (i) => ({ ...i, read: true });
+const setNotMarkingAsRead = (i) => ({ ...i, isMarkingAsRead: false });
 
 export const notifications = (
   state = {
@@ -57,33 +60,32 @@ export const notifications = (
       return { ...state, isFetching: false };
 
     case MARK_NOTIFICATION_AS_READ.REQUEST: {
-      const rp = (i) => ({ ...i, isMarkingAsRead: true });
+      const items = replaceNotificationInArray(setMarkingAsRead);
       return {
         ...state,
         isMarkingAsRead: true,
-        items: replaceNotificationInArray(rp),
-        unreadItems: replaceNotificationInArray(rp),
-        itemsByID: replaceNotificationInObject(rp),
+        items,
+        unreadItems: unreadNotifications(items),
+        itemsByID: replaceNotificationInObject(setMarkingAsRead),
       };
     }
     case MARK_NOTIFICATION_AS_READ.RECEIVE: {
-      const rp = (i) => ({ ...i, read: true });
-      const items = replaceNotificationInArray(rp);
+      const items = replaceNotificationInArray(setRead);
       return {
         ...state,
-        items: items,
+        items,
         unreadItems: unreadNotifications(items),
-        itemsByID: replaceNotificationInObject(rp),
+        itemsByID: replaceNotificationInObject(setRead),
       };
     }
     case MARK_NOTIFICATION_AS_READ.FINISH: {
-      const rp = (i) => ({ ...i, isMarkingAsRead: false });
+      const items = replaceNotificationInArray(setNotMarkingAsRead);
       return {
         ...state,
         isMarkingAsRead: false,
-        items: replaceNotificationInArray(rp),
-        unreadItems: replaceNotificationInArray(rp), // should do nothing unless there's an error
-        itemsByID: replaceNotificationInObject(rp),
+        items,
+        unreadItems: unreadNotifications(items), // should do nothing unless there's an error
+        itemsByID: replaceNotificationInObject(setNotMarkingAsRead),
       };
     }
 
