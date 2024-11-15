@@ -73,7 +73,7 @@ export const notifications = (
       const items = replaceNotificationInArray(setRead);
       return {
         ...state,
-        items: items,
+        items,
         unreadItems: unreadNotifications(items),
         itemsByID: replaceNotificationInObject(setRead),
       };
