@@ -1,7 +1,9 @@
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { AutoComplete, Input, Tag } from "antd";
 import PropTypes from "prop-types";
 import { useGeneNameSearch } from "@/modules/reference/hooks";
+
+const NULL_LOCUS = { chrom: null, start: null, end: null };
 
 // Position notation pattern
 //  - strip chr prefix, but allow any other types of chromosome - eventually this should instead autocomplete from the
@@ -12,7 +14,7 @@ const parsePosition = (value) => {
   const result = POS_NOTATION_PATTERN.exec(value);
 
   if (!result) {
-    return { chrom: null, start: null, end: null };
+    return NULL_LOCUS;
   }
 
   const chrom = result[1].toUpperCase(); //for eg 'x', has no effect on numbers
@@ -30,6 +32,8 @@ const LocusSearch = ({
   handleLocusChange,
   setLocusValidity,
 }) => {
+  const mounted = useRef(false);
+
   const [autoCompleteOptions, setAutoCompleteOptions] = useState([]);
   const [inputValue, setInputValue] = useState("");
 
@@ -77,8 +81,8 @@ const LocusSearch = ({
     const isPositionNotation = inputValue.includes(":") && !isAutoCompleteOption;
 
     if (!(isAutoCompleteOption || isPositionNotation)) {
-      handleLocusChange({ chrom: null, start: null, end: null });
-      addVariantSearchValues({ chrom: null, start: null, end: null });
+      handleLocusChange(NULL_LOCUS);
+      addVariantSearchValues(NULL_LOCUS);
       return;
     }
 
@@ -130,8 +134,16 @@ const LocusSearch = ({
 
   useEffect(() => {
     // If the input mode changes, we need to clear the corresponding Redux state since it isn't directly linked
-    addVariantSearchValues({ chrom: null, start: null, end: null });
-  }, [addVariantSearchValues, geneSearchEnabled]);
+    //  - if we're making the state newly invalid (rather than on first run), run handleLocusChange() too
+    if (mounted.current) handleLocusChange(NULL_LOCUS);
+    addVariantSearchValues(NULL_LOCUS);
+  }, [addVariantSearchValues, handleLocusChange, geneSearchEnabled]);
+
+  // This effect needs to be last before rendering!
+  // A small hack to change the above effect's behaviour if we're making the input invalid (vs. it starting invalid)
+  useEffect(() => {
+    mounted.current = true;
+  }, []);
 
   if (!geneSearchEnabled) {
     return <Input onChange={handleChangeInput} onBlur={handleOnBlur} />;
