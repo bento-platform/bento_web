@@ -41,6 +41,7 @@ module.exports = {
         filename: "[name].js",
         chunkFilename: "[name].[contenthash].bundle.js",
         sourceMapFilename: "[file].map",
+        clean: true,
     },
     optimization: {
         splitChunks: {
