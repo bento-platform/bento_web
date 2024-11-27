@@ -34,7 +34,7 @@ import SiteFooter from "./SiteFooter";
 import SitePageLoading from "./SitePageLoading";
 
 // Lazy-load route components
-const OverviewContent = lazy(() => import("./OverviewContent"));
+const HomeContent = lazy(() => import("./HomeContent"));
 const DataExplorerContent = lazy(() => import("./DataExplorerContent"));
 const DataManagerContent = lazy(() => import("./DataManagerContent"));
 const ReferenceGenomesContent = lazy(() => import("./ReferenceGenomesContent"));
@@ -206,11 +206,11 @@ const App = () => {
             <Routes>
               <Route path={CALLBACK_PATH} element={<SitePageLoading />} />
               <Route
-                path="/overview"
+                path="/home"
                 element={
-                  <RequireAuth>
-                    <OverviewContent />
-                  </RequireAuth>
+                  <AutoAuthenticate>
+                    <HomeContent />
+                  </AutoAuthenticate>
                 }
               />
               <Route
@@ -279,7 +279,7 @@ const App = () => {
                   </RequireAuth>
                 }
               />
-              <Route path="/*" element={<Navigate to="/overview" replace={true} />} />
+              <Route path="/*" element={<Navigate to="/home" replace={true} />} />
             </Routes>
           </Suspense>
         </Layout.Content>

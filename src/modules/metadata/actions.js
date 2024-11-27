@@ -25,7 +25,6 @@ export const DELETE_DATASET_LINKED_FIELD_SET = createNetworkActionTypes("DELETE_
 
 export const FETCH_INDIVIDUAL = createNetworkActionTypes("FETCH_INDIVIDUAL");
 export const FETCH_INDIVIDUAL_PHENOPACKETS = createNetworkActionTypes("FETCH_INDIVIDUAL_PHENOPACKETS");
-export const FETCH_OVERVIEW_SUMMARY = createNetworkActionTypes("FETCH_OVERVIEW_SUMMARY");
 
 export const DELETE_DATASET_DATA_TYPE = createNetworkActionTypes("DELETE_DATASET_DATA_TYPE");
 
@@ -331,23 +330,4 @@ export const fetchIndividualPhenopacketsIfNecessary = (individualID) => (dispatc
   if (!getState().services.metadataService.url) return Promise.resolve();
   if (record.isFetching || record.data) return Promise.resolve(); // Don't fetch if already fetching or loaded.
   return dispatch(fetchIndividualPhenopackets(individualID));
-};
-
-const _fetchOverviewSummary = networkAction(() => (_dispatch, getState) => ({
-  types: FETCH_OVERVIEW_SUMMARY,
-  url: `${getState().services.metadataService.url}/api/overview`,
-  err: "Error fetching overview summary metadata",
-}));
-
-export const fetchOverviewSummary = () => (dispatch, getState) => {
-  if (!getState().services.itemsByKind.metadata) return Promise.resolve();
-  return dispatch(_fetchOverviewSummary());
-};
-
-export const fetchOverviewSummaryIfNeeded = () => (dispatch, getState) => {
-  const state = getState();
-  if (state.overviewSummary.isFetching || Object.keys(state.overviewSummary.data).length) {
-    return Promise.resolve();
-  }
-  return dispatch(fetchOverviewSummary());
 };

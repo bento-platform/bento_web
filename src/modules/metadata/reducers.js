@@ -14,7 +14,6 @@ import {
   DELETE_DATASET_LINKED_FIELD_SET,
   FETCH_INDIVIDUAL,
   FETCH_INDIVIDUAL_PHENOPACKETS,
-  FETCH_OVERVIEW_SUMMARY,
   FETCH_EXTRA_PROPERTIES_SCHEMA_TYPES,
   CREATE_PROJECT_JSON_SCHEMA,
   DELETE_PROJECT_JSON_SCHEMA,
@@ -364,32 +363,6 @@ export const individuals = (
         },
       };
     }
-
-    default:
-      return state;
-  }
-};
-
-export const overviewSummary = (
-  state = {
-    data: {},
-    isFetching: false,
-    hasAttempted: false,
-  },
-  action,
-) => {
-  switch (action.type) {
-    case FETCH_OVERVIEW_SUMMARY.REQUEST:
-      return { ...state, data: {}, isFetching: true };
-    case FETCH_OVERVIEW_SUMMARY.RECEIVE:
-      return { ...state, data: action.data };
-    case FETCH_OVERVIEW_SUMMARY.FINISH:
-      return {
-        ...state,
-        data: state.data,
-        isFetching: false,
-        hasAttempted: true,
-      };
 
     default:
       return state;

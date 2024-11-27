@@ -7,8 +7,6 @@ import { DownOutlined, PlusOutlined, QuestionCircleOutlined, SearchOutlined } fr
 import { useDatasetDataTypes } from "@/modules/datasets/hooks";
 import {
   setIsSubmittingSearch,
-  clearSearch,
-  neutralizeAutoQueryPageTransition,
   addDataTypeQueryForm,
   updateDataTypeQueryForm,
   removeDataTypeQueryForm,
@@ -16,8 +14,6 @@ import {
 import { useDataTypes, useServices } from "@/modules/services/hooks";
 import { useAppDispatch, useAppSelector } from "@/store";
 import { nop } from "@/utils/misc";
-import { OP_EQUALS } from "@/utils/search";
-import { getFieldSchema } from "@/utils/schema";
 
 import DataTypeExplorationModal from "./DataTypeExplorationModal";
 import DiscoverySearchForm from "./DiscoverySearchForm";
@@ -29,13 +25,7 @@ const DiscoveryQueryBuilder = ({ activeDataset, dataTypeForms, requiredDataTypes
   const dataTypesByDataset = useDatasetDataTypes();
   const { isFetching: isFetchingServices } = useServices();
 
-  const { autoQuery, fetchingTextSearch } = useAppSelector((state) => state.explorer);
-
-  // Mini state machine: when auto query is set:
-  //  1. clear form(s) and set this to true;
-  //  2. re-create forms and wait to receive ref;
-  //  3. if this is true, and we have refs, execute part two of auto-query.
-  const [shouldExecAutoQueryPt2, setShouldExecAutoQueryPt2] = useState(false);
+  const { fetchingTextSearch } = useAppSelector((state) => state.explorer);
 
   const dataTypesLoading = isFetchingServices || isFetchingServiceDataTypes || dataTypesByDataset.isFetchingAll;
 
@@ -61,32 +51,6 @@ const DiscoveryQueryBuilder = ({ activeDataset, dataTypeForms, requiredDataTypes
   useEffect(() => {
     (requiredDataTypes ?? []).forEach((dt) => dispatch(addDataTypeQueryForm(activeDataset, dt)));
   }, [dispatch, requiredDataTypes, activeDataset]);
-
-  useEffect(() => {
-    if (autoQuery?.isAutoQuery && !shouldExecAutoQueryPt2) {
-      const { autoQueryType } = autoQuery;
-
-      // Clean old queries (if any)
-      Object.values(dataTypesByID).forEach((value) => handleTabsEdit(value.id, "remove"));
-
-      // Clean old search results
-      dispatch(clearSearch(activeDataset));
-
-      // Set type of query
-      handleAddDataTypeQueryForm({ key: autoQueryType });
-
-      // The rest of the auto-query is handled by a second effect, after we receive the new form ref.
-      setShouldExecAutoQueryPt2(true);
-    }
-  }, [
-    activeDataset,
-    autoQuery,
-    shouldExecAutoQueryPt2,
-    dataTypesByID,
-    dispatch,
-    handleTabsEdit,
-    handleAddDataTypeQueryForm,
-  ]);
 
   const handleSubmit = useCallback(async () => {
     dispatch(setIsSubmittingSearch(true));
@@ -120,57 +84,6 @@ const DiscoveryQueryBuilder = ({ activeDataset, dataTypeForms, requiredDataTypes
     // Without a functional state update, this triggers an infinite loop in rendering variant search
     setForms((fs) => ({ ...fs, [dataType.id]: form }));
   };
-
-  useEffect(() => {
-    if (autoQuery?.isAutoQuery && shouldExecAutoQueryPt2) {
-      const { autoQueryType, autoQueryField, autoQueryValue } = autoQuery;
-
-      const form = forms[autoQueryType];
-
-      if (!form) {
-        // No ref yet; wait for form ref for this data type
-        return;
-      }
-
-      const dataType = dataTypesByID[autoQueryType];
-
-      console.debug(`executing auto-query on data type ${dataType.id}: ${autoQueryField} = ${autoQueryValue}`);
-
-      const fieldSchema = getFieldSchema(dataType.schema, autoQueryField);
-
-      // Set term
-      const fields = [
-        {
-          name: ["conditions"],
-          value: [
-            {
-              field: autoQueryField,
-              // from utils/schema:
-              fieldSchema,
-              negated: false,
-              operation: OP_EQUALS,
-              searchValue: autoQueryValue,
-            },
-          ],
-        },
-      ];
-
-      form.setFields(fields);
-      handleFormChange(dataType)(fields); // Not triggered by setFields; do it manually
-
-      (async () => {
-        // Simulate form submission click
-        const s = handleSubmit();
-
-        // Clean up auto-query "paper trail" (that is, the state segment that
-        // was introduced in order to transfer intent from the OverviewContent page)
-        dispatch(neutralizeAutoQueryPageTransition());
-        setShouldExecAutoQueryPt2(false);
-
-        await s;
-      })();
-    }
-  }, [dispatch, autoQuery, dataTypesByID, forms, shouldExecAutoQueryPt2, handleFormChange, handleSubmit]);
 
   // --- render ---
 

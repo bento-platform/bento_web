@@ -1,7 +1,6 @@
 import { notification } from "antd";
 
 import { addNotification, markNotificationAsRead } from "./actions";
-import { fetchOverviewSummary } from "../metadata/actions";
 import { navigateToWESRun } from "@/utils/notifications";
 
 const EVENT_NOTIFICATION = "notification";
@@ -48,8 +47,6 @@ export default {
           ...notificationBasics,
           onClick: wesClickAction,
         });
-        // Reload overview data when a workflow completes
-        dispatch(fetchOverviewSummary());
         break;
 
       default:
