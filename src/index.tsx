@@ -12,16 +12,13 @@ import { AUTH_CALLBACK_URL, BENTO_URL_NO_TRAILING_SLASH, CLIENT_ID, OPENID_CONFI
 import App from "./components/App";
 import { store } from "./store";
 
-// Suppress warnings about upcoming changes from React Router by opting into this feature
-// TODO: router v7: remove
-const ROUTER_FUTURE = { v7_relativeSplatPath: true, v7_startTransition: true };
-
+// TODO: migrate router to v7
 document.addEventListener("DOMContentLoaded", () => {
   const container = document.getElementById("root")!;
   const root = createRoot(container);
   root.render(
     <Provider store={store}>
-      <BrowserRouter future={ROUTER_FUTURE}>
+      <BrowserRouter>
         <BentoAuthContextProvider
           value={{
             applicationUrl: BENTO_URL_NO_TRAILING_SLASH,
