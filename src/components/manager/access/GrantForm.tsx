@@ -6,6 +6,7 @@ import type { FormInstance, RadioGroupProps, RadioChangeEvent, SelectProps } fro
 import { RESOURCE_EVERYTHING, useOpenIdConfig } from "bento-auth-js";
 
 import MonospaceText from "@/components/common/MonospaceText";
+import { PERMISSIONS_HELP } from "@/modules/authz/help";
 import { useAllPermissions, useGroups } from "@/modules/authz/hooks";
 import type {
   Grant,
@@ -491,24 +492,37 @@ const PermissionsInput = ({ id, value, onChange, currentResource, ...rest }: Per
           const givenBy = pGivenBy[p.id] ?? [];
           const givenByAnother = givenBy.some((g) => checked.includes(g.id));
           const disabled = !permissionCompatibleWithResource(p, currentResource);
+          const help: ReactNode | undefined = PERMISSIONS_HELP[p.id];
           return {
             value: p.id,
             label:
-              !disabled && givenByAnother ? (
+              !!help || (!disabled && givenByAnother) ? (
                 <Popover
                   content={
-                    <span>
-                      Given by:{" "}
-                      {givenBy.map((g, gi) => (
-                        <Fragment key={g.id}>
-                          <MonospaceText>{g.id}</MonospaceText>
-                          {gi !== givenBy.length - 1 ? ", " : ""}
-                        </Fragment>
-                      ))}
-                    </span>
+                    <div style={{ maxWidth: 500 }}>
+                      {!!help && (
+                        <span>
+                          {help}
+                          {givenByAnother && <br />}
+                        </span>
+                      )}
+                      {givenByAnother && (
+                        <span>
+                          <strong>Given by:</strong>{" "}
+                          {givenBy.map((g, gi) => (
+                            <Fragment key={g.id}>
+                              <MonospaceText>{g.id}</MonospaceText>
+                              {gi !== givenBy.length - 1 ? ", " : ""}
+                            </Fragment>
+                          ))}
+                        </span>
+                      )}
+                    </div>
                   }
                 >
-                  <MonospaceText style={{ textDecoration: "underline", color: "#999" }}>{p.verb}</MonospaceText>
+                  <MonospaceText style={{ textDecoration: "underline", ...(givenByAnother ? { color: "#999" } : {}) }}>
+                    {p.verb}
+                  </MonospaceText>
                 </Popover>
               ) : (
                 <MonospaceText>{p.verb}</MonospaceText>
