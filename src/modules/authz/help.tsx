@@ -66,8 +66,10 @@ export const PERMISSIONS_HELP: Record<string, ReactNode> = {
   [deleteDropBox]: "Whether the subject can delete files / folders from the drop box.",
 
   // notifications
-  [viewNotifications]: "TODO", // TODO
-  [createNotifications]: "TODO", // TODO
+  [viewNotifications]:
+    "Whether the subject can view notifications. Currently, this only works on the instance level; any " +
+    "project/dataset context is ignored.",
+  [createNotifications]: <strong>CURRENTLY UNUSED.</strong>,
 
   // permissions
   [viewPermissions]:
