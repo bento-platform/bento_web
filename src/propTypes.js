@@ -270,6 +270,7 @@ export const experimentResultPropTypesShape = PropTypes.shape({
     "JPEG",
     "PNG",
     "GIF",
+    "HTML",
     "MARKDOWN",
     "MP3",
     "M4A",
