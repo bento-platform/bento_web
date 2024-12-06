@@ -36,8 +36,8 @@ export const PERMISSIONS_HELP: Record<string, ReactNode> = {
     "experiment results.",
   [deleteData]: "Whether the subject can delete data from the resource, e.g., clearing all variants.",
   [ingestData]: "Whether the subject can ingest new data into the resource, e.g., adding new biosamples.",
-  [analyzeData]: "TODO", // TODO
-  [exportData]: "TODO", // TODO
+  [analyzeData]: <strong>CURRENTLY UNUSED.</strong>,
+  [exportData]: <strong>CURRENTLY UNUSED.</strong>,
 
   // dataset
   [editDataset]:
