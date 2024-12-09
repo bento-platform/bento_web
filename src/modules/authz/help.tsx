@@ -1,4 +1,5 @@
 import type { ReactNode } from "react";
+import { Typography } from "antd";
 import {
   analyzeData,
   createDataset,
@@ -73,10 +74,13 @@ export const PERMISSIONS_HELP: Record<string, ReactNode> = {
 
   // permissions
   [viewPermissions]: "Whether the subject can view permissions on this resource, or any given sub-resource.",
-  [editPermissions]:
-    "Whether the subject can edit permissions which apply to only this resource, or any sub-resources. For example, " +
-    "a user with the edit:permissions permission on just a specific dataset cannot edit grants for the project which " +
-    "contains this dataset.",
+  [editPermissions]: (
+    <>
+      Whether the subject can edit permissions which apply to only this resource, or any sub-resources. For example, a
+      user with the <Typography.Text code={true}>edit:permissions</Typography.Text> permission on just a specific
+      dataset cannot edit grants for the project which contains this dataset.
+    </>
+  ),
 
   // private_portal
   "view:private_portal": (
