@@ -72,10 +72,11 @@ export const PERMISSIONS_HELP: Record<string, ReactNode> = {
   [createNotifications]: <strong>CURRENTLY UNUSED.</strong>,
 
   // permissions
-  [viewPermissions]:
-    "Whether the subject can view permissions which apply to only this resource, or any sub-resources.",
+  [viewPermissions]: "Whether the subject can view permissions on this resource, or any given sub-resource.",
   [editPermissions]:
-    "Whether the subject can edit permissions which apply to only this resource, or any sub-resources.",
+    "Whether the subject can edit permissions which apply to only this resource, or any sub-resources. For example, " +
+    "a user with the edit:permissions permission on just a specific dataset cannot edit grants for the project which " +
+    "contains this dataset.",
 
   // private_portal
   "view:private_portal": (
