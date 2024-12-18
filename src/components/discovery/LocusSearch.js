@@ -68,8 +68,7 @@ const LocusSearch = ({
   const { data: geneSearchResults } = useGeneNameSearch(assemblyId, showAutoCompleteOptions ? inputValue : null);
 
   const handleOnBlur = useCallback(() => {
-    // antd has no "select on tab" option
-    // so when tabbing away, handle the current contents of the input
+    // custom checking when tabbing away
     // input can be one of three cases:
     // - an autocomplete selection
     // - position notation

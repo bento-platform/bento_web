@@ -94,8 +94,9 @@ const VariantSearchHeader = ({ dataType, addVariantSearchValues }: VariantSearch
       assemblyId: assemblySchema?.description ?? "",
       genotype: genotypeSchemaDescription,
       // eslint-disable-next-line quotes
-      locus: 'Enter gene name (eg "BRCA1") or position ("chr17:41195311-41278381")',
-      "ref/alt": "Combination of nucleotides A, C, T, and G, including N as a wildcard - i.e. AATG, CG, TNN",
+      locus: 'Enter gene name (e.g., "BRCA1") or position ("chr17:41195311-41278381")',
+      "ref/alt": "Combination of nucleotides A, C, T, and G, including N as a wildcard - e.g., AATG, CG, TNN",
+      locusPositionOnly: 'Enter position, e.g., "chr17:10000-20000"',
     };
   }, [dataType, genotypeSchemaDescription]);
 
@@ -217,7 +218,7 @@ const VariantSearchHeader = ({ dataType, addVariantSearchValues }: VariantSearch
         labelCol={LABEL_COL}
         wrapperCol={WRAPPER_COL}
         label={isFetchingVariantsOverview || geneSearchEnabled ? "Gene / position" : "Position"}
-        help={helpText["locus"]}
+        help={geneSearchEnabled ? helpText["locus"] : helpText["locusPositionOnly"]}
         validateStatus={fieldsValidity.locus ? "success" : "error"}
         required
       >
