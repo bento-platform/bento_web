@@ -1,21 +1,21 @@
+import { useEffect, useState } from "react";
+import { Skeleton } from "antd";
 import PropTypes from "prop-types";
 
+import { useAuthorizationHeader } from "bento-auth-js";
+import { useService } from "@/modules/services/hooks";
+import { ontologyShape } from "@/propTypes";
 import { useAppSelector } from "@/store";
+import { countNonNullElements } from "@/utils/misc";
+
 import { useSortedColumns } from "../hooks/explorerHooks";
+import { ontologyTermSorter } from "../utils";
 
 import BiosampleIDCell from "./BiosampleIDCell";
 import ExplorerSearchResultsTable from "../ExplorerSearchResultsTable";
 import { BiosampleDetail } from "../IndividualBiosamples";
 import IndividualIDCell from "./IndividualIDCell";
 import OntologyTerm from "../OntologyTerm";
-
-import { ontologyShape } from "@/propTypes";
-import { countNonNullElements } from "@/utils/misc";
-import { ontologyTermSorter } from "../utils";
-import { useService } from "@/modules/services/hooks";
-import { useAuthorizationHeader } from "bento-auth-js";
-import { useEffect, useState } from "react";
-import { Skeleton } from "antd";
 
 const NO_EXPERIMENTS_VALUE = -Infinity;
 
