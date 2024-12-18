@@ -6,6 +6,7 @@ import PropTypes from "prop-types";
 import { useAuthorizationHeader } from "bento-auth-js";
 import { useService } from "@/modules/services/hooks";
 import { useAppSelector } from "@/store";
+import { objectWithoutProp } from "@/utils/misc";
 import { useSortedColumns, useDynamicTableFilterOptions } from "../hooks/explorerHooks";
 
 import BiosampleIDCell from "./BiosampleIDCell";
@@ -70,7 +71,9 @@ const ExperimentsTable = ({ data, datasetID }) => {
       {
         title: "Experiment",
         dataIndex: "experimentId",
-        render: (experimentId, record) => <ExperimentRender experimentId={experimentId} {...record} />,
+        render: (experimentId, record) => (
+          <ExperimentRender experimentId={experimentId} {...objectWithoutProp(record, "key")} />
+        ),
         sorter: (a, b) => a.experimentId.localeCompare(b.experimentId),
         defaultSortOrder: "ascend",
       },
