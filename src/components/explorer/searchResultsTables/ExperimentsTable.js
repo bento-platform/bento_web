@@ -1,13 +1,19 @@
-import { memo, useMemo } from "react";
+import { memo, useEffect, useMemo, useState } from "react";
 import { Link, useLocation } from "react-router-dom";
+import { Skeleton } from "antd";
 import PropTypes from "prop-types";
 
+import { useAuthorizationHeader } from "bento-auth-js";
+import { useService } from "@/modules/services/hooks";
 import { useAppSelector } from "@/store";
+import { objectWithoutProp } from "@/utils/misc";
 import { useSortedColumns, useDynamicTableFilterOptions } from "../hooks/explorerHooks";
-import { explorerIndividualUrl } from "../utils";
 
 import BiosampleIDCell from "./BiosampleIDCell";
+import IndividualIDCell from "./IndividualIDCell";
+import { ExperimentDetail } from "../IndividualExperiments";
 import ExplorerSearchResultsTable from "../ExplorerSearchResultsTable";
+import { explorerIndividualUrl } from "../utils";
 
 const ExperimentRender = memo(({ experimentId, individual }) => {
   const location = useLocation();
@@ -28,6 +34,31 @@ ExperimentRender.propTypes = {
   }).isRequired,
 };
 
+const ExperimentRowDetail = ({ experimentId }) => {
+  const katsuUrl = useService("metadata")?.url;
+  const authorizationHeader = useAuthorizationHeader();
+
+  const [data, setData] = useState(null);
+
+  useEffect(() => {
+    if (!katsuUrl) return;
+    fetch(`${katsuUrl}/api/experiments/${experimentId}`, { headers: authorizationHeader })
+      .then((r) => r.json())
+      .then((d) => setData(d))
+      .catch(console.error);
+  }, [katsuUrl, authorizationHeader, experimentId]);
+
+  return (
+    <div>
+      <Skeleton active={true} loading={data === null} />
+      {data ? <ExperimentDetail experiment={data} /> : null}
+    </div>
+  );
+};
+ExperimentRowDetail.propTypes = {
+  experimentId: PropTypes.string.isRequired,
+};
+
 const ExperimentsTable = ({ data, datasetID }) => {
   const tableSortOrder = useAppSelector(
     (state) => state.explorer.tableSortOrderByDatasetID[datasetID]?.["experiments"],
@@ -40,14 +71,16 @@ const ExperimentsTable = ({ data, datasetID }) => {
       {
         title: "Experiment",
         dataIndex: "experimentId",
-        render: (experimentId, record) => <ExperimentRender experimentId={experimentId} {...record} />,
+        render: (experimentId, record) => (
+          <ExperimentRender experimentId={experimentId} {...objectWithoutProp(record, "key")} />
+        ),
         sorter: (a, b) => a.experimentId.localeCompare(b.experimentId),
         defaultSortOrder: "ascend",
       },
       {
         title: "Individual",
         dataIndex: "individual",
-        render: (individual) => <>{individual.id}</>,
+        render: (individual) => <IndividualIDCell individual={individual} />,
         sorter: (a, b) => a.individual.id.localeCompare(b.individual.id),
         sortDirections: ["descend", "ascend", "descend"],
       },
@@ -91,6 +124,9 @@ const ExperimentsTable = ({ data, datasetID }) => {
       activeTab="experiments"
       columns={columnsWithSortOrder}
       currentPage={tableSortOrder?.currentPage}
+      expandable={{
+        expandedRowRender: (rec) => <ExperimentRowDetail experimentId={rec.experimentId} />,
+      }}
     />
   );
 };

@@ -136,7 +136,7 @@ const EXPERIMENT_RESULTS_COLUMNS = [
   },
 ];
 
-const ExperimentDetail = ({ experiment }) => {
+export const ExperimentDetail = ({ experiment }) => {
   const {
     id,
     biosample,

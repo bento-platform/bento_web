@@ -1,16 +1,21 @@
+import { useEffect, useState } from "react";
+import { Skeleton } from "antd";
 import PropTypes from "prop-types";
 
+import { useAuthorizationHeader } from "bento-auth-js";
+import { useService } from "@/modules/services/hooks";
+import { ontologyShape } from "@/propTypes";
 import { useAppSelector } from "@/store";
+import { countNonNullElements } from "@/utils/misc";
+
 import { useSortedColumns } from "../hooks/explorerHooks";
+import { ontologyTermSorter } from "../utils";
 
 import BiosampleIDCell from "./BiosampleIDCell";
 import ExplorerSearchResultsTable from "../ExplorerSearchResultsTable";
+import { BiosampleDetail } from "../IndividualBiosamples";
 import IndividualIDCell from "./IndividualIDCell";
 import OntologyTerm from "../OntologyTerm";
-
-import { ontologyShape } from "@/propTypes";
-import { countNonNullElements } from "@/utils/misc";
-import { ontologyTermSorter } from "../utils";
 
 const NO_EXPERIMENTS_VALUE = -Infinity;
 
@@ -53,6 +58,31 @@ const ExperimentsRender = ({ studiesType }) => {
 
 ExperimentsRender.propTypes = {
   studiesType: PropTypes.arrayOf(PropTypes.string).isRequired,
+};
+
+const BiosampleRowDetail = ({ biosampleId }) => {
+  const katsuUrl = useService("metadata")?.url;
+  const authorizationHeader = useAuthorizationHeader();
+
+  const [data, setData] = useState(null);
+
+  useEffect(() => {
+    if (!katsuUrl) return;
+    fetch(`${katsuUrl}/api/biosamples/${biosampleId}`, { headers: authorizationHeader })
+      .then((r) => r.json())
+      .then((d) => setData(d))
+      .catch(console.error);
+  }, [katsuUrl, authorizationHeader, biosampleId]);
+
+  return (
+    <div>
+      <Skeleton active={true} loading={data === null} />
+      {data ? <BiosampleDetail biosample={data} /> : null}
+    </div>
+  );
+};
+BiosampleRowDetail.propTypes = {
+  biosampleId: PropTypes.string.isRequired,
 };
 
 const experimentsSorter = (a, b) => {
@@ -145,6 +175,9 @@ const BiosamplesTable = ({ data, datasetID }) => {
       activeTab="biosamples"
       columns={columnsWithSortOrder}
       currentPage={tableSortOrder?.currentPage}
+      expandable={{
+        expandedRowRender: (rec) => <BiosampleRowDetail biosampleId={rec.biosample} />,
+      }}
     />
   );
 };
