@@ -26,6 +26,7 @@ const ExplorerSearchResultsTable = ({
   currentPage: initialCurrentPage,
   sortOrder,
   sortColumnKey,
+  expandable,
 }) => {
   const { dataset } = useParams();
   const [currentPage, setCurrentPage] = useState(initialCurrentPage || 1);
@@ -192,6 +193,7 @@ const ExplorerSearchResultsTable = ({
             return record.key;
           }}
           rowSelection={rowSelection}
+          expandable={expandable}
         />
       </div>
     </div>
@@ -205,6 +207,7 @@ ExplorerSearchResultsTable.propTypes = {
   sortOrder: PropTypes.string,
   sortColumnKey: PropTypes.string,
   currentPage: PropTypes.number,
+  expandable: PropTypes.object,
 };
 
 export default ExplorerSearchResultsTable;

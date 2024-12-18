@@ -1,10 +1,41 @@
-import { Fragment } from "react";
+import { Fragment, useEffect, useState } from "react";
+import { Skeleton } from "antd";
 import PropTypes from "prop-types";
+
+import { useAuthorizationHeader } from "bento-auth-js";
+import { useService } from "@/modules/services/hooks";
 import { useAppSelector } from "@/store";
 import { useSortedColumns } from "../hooks/explorerHooks";
+
 import ExplorerSearchResultsTable from "../ExplorerSearchResultsTable";
 import BiosampleIDCell from "./BiosampleIDCell";
 import IndividualIDCell from "./IndividualIDCell";
+import IndividualOverview from "../IndividualOverview";
+
+const IndividualRowDetail = ({ individualId }) => {
+  const katsuUrl = useService("metadata")?.url;
+  const authorizationHeader = useAuthorizationHeader();
+
+  const [data, setData] = useState(null);
+
+  useEffect(() => {
+    if (!katsuUrl) return;
+    fetch(`${katsuUrl}/api/individuals/${individualId}`, { headers: authorizationHeader })
+      .then((r) => r.json())
+      .then((d) => setData(d))
+      .catch(console.error);
+  }, [katsuUrl, authorizationHeader, individualId]);
+
+  return (
+    <div>
+      <Skeleton active={true} loading={data === null} />
+      {data ? <IndividualOverview individual={data} /> : null}
+    </div>
+  );
+};
+IndividualRowDetail.propTypes = {
+  individualId: PropTypes.string,
+};
 
 const SEARCH_RESULT_COLUMNS = [
   {
@@ -61,6 +92,9 @@ const IndividualsTable = ({ data, datasetID }) => {
       activeTab="individuals"
       columns={columnsWithSortOrder}
       currentPage={tableSortOrder?.currentPage}
+      expandable={{
+        expandedRowRender: (rec) => <IndividualRowDetail individualId={rec.individual.id} />,
+      }}
     />
   );
 };

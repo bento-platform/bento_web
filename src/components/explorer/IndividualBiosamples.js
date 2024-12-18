@@ -73,7 +73,7 @@ ExperimentsClickList.propTypes = {
   handleExperimentClick: PropTypes.func,
 };
 
-const BiosampleDetail = ({ biosample, handleExperimentClick }) => {
+export const BiosampleDetail = ({ biosample, handleExperimentClick }) => {
   return (
     <Descriptions bordered={true} column={1} size="small">
       <Descriptions.Item label="ID">{biosample.id}</Descriptions.Item>
@@ -108,9 +108,11 @@ const BiosampleDetail = ({ biosample, handleExperimentClick }) => {
       <Descriptions.Item label="Extra Properties">
         <ExtraProperties extraProperties={biosample?.extra_properties} />
       </Descriptions.Item>
-      <Descriptions.Item label="Available Experiments">
-        <ExperimentsClickList experiments={biosample.experiments} handleExperimentClick={handleExperimentClick} />
-      </Descriptions.Item>
+      {handleExperimentClick && (
+        <Descriptions.Item label="Available Experiments">
+          <ExperimentsClickList experiments={biosample.experiments} handleExperimentClick={handleExperimentClick} />
+        </Descriptions.Item>
+      )}
     </Descriptions>
   );
 };
