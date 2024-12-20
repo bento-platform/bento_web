@@ -41,7 +41,14 @@ export const DEFAULT_SEARCH_PARAMETERS = {
   queryable: "all",
 };
 
-const VARIANT_OPTIONAL_FIELDS = [
+export const VARIANT_REQUIRED_FIELDS = [
+  "[dataset item].assembly_id",
+  "[dataset item].chromosome",
+  "[dataset item].start",
+  "[dataset item].end", //always filled in UI but not required in spec
+];
+
+export const VARIANT_OPTIONAL_FIELDS = [
   "[dataset item].calls.[item].genotype_type",
   "[dataset item].alternative",
   "[dataset item].reference",

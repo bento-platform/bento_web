@@ -14,9 +14,36 @@ import {
 import { useDataTypes, useServices } from "@/modules/services/hooks";
 import { useAppDispatch, useAppSelector } from "@/store";
 import { nop } from "@/utils/misc";
+import { VARIANT_OPTIONAL_FIELDS } from "@/utils/search";
 
 import DataTypeExplorationModal from "./DataTypeExplorationModal";
 import DiscoverySearchForm from "./DiscoverySearchForm";
+import { getSchemaTypeTransformer } from "./DiscoverySearchCondition";
+
+const conditionValidator = (rule, { field, fieldSchema, searchValue }) => {
+  console.log("running conditionValidator()");
+
+  if (field === undefined) {
+    return Promise.reject("A field must be specified for this search condition.");
+  }
+
+  const transformedSearchValue = getSchemaTypeTransformer(fieldSchema.type)[1](searchValue);
+  const isEnum = fieldSchema.hasOwnProperty("enum");
+  const isString = fieldSchema.type === "string";
+
+  // noinspection JSCheckFunctionSignatures
+  if (
+    !VARIANT_OPTIONAL_FIELDS.includes(field) &&
+    (transformedSearchValue === null ||
+      (!isEnum && !transformedSearchValue) ||
+      (!isEnum && isString && !transformedSearchValue.trim()) || // Forbid whitespace-only free-text searches
+      (isEnum && !fieldSchema.enum.includes(transformedSearchValue)))
+  ) {
+    return Promise.reject(`This field must have a value: ${field}`);
+  }
+
+  return Promise.resolve();
+};
 
 const DiscoveryQueryBuilder = ({ activeDataset, dataTypeForms, requiredDataTypes, onSubmit, searchLoading }) => {
   const dispatch = useAppDispatch();
@@ -57,6 +84,13 @@ const DiscoveryQueryBuilder = ({ activeDataset, dataTypeForms, requiredDataTypes
 
     try {
       await Promise.all(Object.values(forms).map((f) => f.validateFields()));
+
+      // force validation of variant fields
+      if (forms["variant"]) {
+        const variantFields = forms["variant"].getFieldValue("conditions");
+        await Promise.all(variantFields.map((field) => conditionValidator(null, field)));
+      }
+
       // TODO: If error, switch to errored tab
       (onSubmit ?? nop)();
     } catch (err) {
@@ -133,6 +167,7 @@ const DiscoveryQueryBuilder = ({ activeDataset, dataTypeForms, requiredDataTypes
               setFormRef={setFormRef}
               onChange={handleChange}
               handleVariantHiddenFieldChange={handleVariantHiddenFieldChange}
+              conditionValidator={conditionValidator}
             />
           ),
         };

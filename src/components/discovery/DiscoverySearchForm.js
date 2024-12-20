@@ -13,54 +13,17 @@ import {
   OP_GREATER_THAN_OR_EQUAL,
   OP_LESS_THAN_OR_EQUAL,
   searchUiMappings,
+  VARIANT_REQUIRED_FIELDS,
+  VARIANT_OPTIONAL_FIELDS,
 } from "@/utils/search";
 
-import DiscoverySearchCondition, { getSchemaTypeTransformer } from "./DiscoverySearchCondition";
+import DiscoverySearchCondition from "./DiscoverySearchCondition";
 import VariantSearchHeader from "./VariantSearchHeader";
 
 const TOOLTIP_DELAY_SECONDS = 0.8;
 
-// required by ui not precisely the same as required in spec, possible TODO
-const VARIANT_REQUIRED_FIELDS = [
-  "[dataset item].assembly_id",
-  "[dataset item].chromosome",
-  "[dataset item].start",
-  "[dataset item].end",
-];
-
-const VARIANT_OPTIONAL_FIELDS = [
-  "[dataset item].calls.[item].genotype_type",
-  "[dataset item].alternative",
-  "[dataset item].reference",
-];
-
 const updateVariantConditions = (conditions, fieldName, searchValue) =>
   conditions.map((c) => (c.field === fieldName ? { ...c, searchValue } : c));
-
-const conditionValidator = (rule, { field, fieldSchema, searchValue }) => {
-  if (field === undefined) {
-    return Promise.reject("A field must be specified for this search condition.");
-  }
-
-  const transformedSearchValue = getSchemaTypeTransformer(fieldSchema.type)[1](searchValue);
-  const isEnum = fieldSchema.hasOwnProperty("enum");
-  const isString = fieldSchema.type === "string";
-
-  // noinspection JSCheckFunctionSignatures
-  if (
-    !VARIANT_OPTIONAL_FIELDS.includes(field) &&
-    (transformedSearchValue === null ||
-      (!isEnum && !transformedSearchValue) ||
-      (!isEnum && isString && !transformedSearchValue.trim()) || // Forbid whitespace-only free-text searches
-      (isEnum && !fieldSchema.enum.includes(transformedSearchValue)))
-  ) {
-    return Promise.reject(`This field must have a value: ${field}`);
-  }
-
-  return Promise.resolve();
-};
-
-const CONDITION_RULES = [{ validator: conditionValidator }];
 
 const CONDITION_LABEL_COL = {
   lg: { span: 24 },
@@ -92,8 +55,16 @@ PhenopacketDropdownOption.propTypes = {
   getDataTypeFieldSchema: PropTypes.func,
 };
 
-const DiscoverySearchForm = ({ onChange, dataType, setFormRef, handleVariantHiddenFieldChange }) => {
+const DiscoverySearchForm = ({
+  onChange,
+  dataType,
+  setFormRef,
+  handleVariantHiddenFieldChange,
+  conditionValidator,
+}) => {
   const [form] = Form.useForm();
+
+  const CONDITION_RULES = [{ validator: conditionValidator }];
 
   useEffect(() => {
     if (setFormRef) setFormRef(form);
@@ -394,6 +365,7 @@ DiscoverySearchForm.propTypes = {
   dataType: PropTypes.object, // TODO: Shape?
   setFormRef: PropTypes.func,
   handleVariantHiddenFieldChange: PropTypes.func.isRequired,
+  conditionValidator: PropTypes.func,
 };
 
 export default DiscoverySearchForm;
