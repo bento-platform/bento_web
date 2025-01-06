@@ -15,14 +15,13 @@ import { useDataTypes, useServices } from "@/modules/services/hooks";
 import { useAppDispatch, useAppSelector } from "@/store";
 import { nop } from "@/utils/misc";
 import { VARIANT_OPTIONAL_FIELDS } from "@/utils/search";
+import { objectWithoutProp } from "@/utils/misc";
 
 import DataTypeExplorationModal from "./DataTypeExplorationModal";
 import DiscoverySearchForm from "./DiscoverySearchForm";
 import { getSchemaTypeTransformer } from "./DiscoverySearchCondition";
 
 const conditionValidator = (rule, { field, fieldSchema, searchValue }) => {
-  console.log("running conditionValidator()");
-
   if (field === undefined) {
     return Promise.reject("A field must be specified for this search condition.");
   }
@@ -73,10 +72,7 @@ const DiscoveryQueryBuilder = ({ activeDataset, dataTypeForms, requiredDataTypes
       dispatch(removeDataTypeQueryForm(activeDataset, dataTypesByID[key]));
 
       // remove this field from antd form
-      setForms((fs) => {
-        const { [key]: _, ...rest } = fs;
-        return rest;
-      });
+      setForms((fs) => objectWithoutProp(fs, key));
     },
     [dispatch, activeDataset, dataTypesByID],
   );
