@@ -71,6 +71,12 @@ const DiscoveryQueryBuilder = ({ activeDataset, dataTypeForms, requiredDataTypes
     (key, action) => {
       if (action !== "remove") return;
       dispatch(removeDataTypeQueryForm(activeDataset, dataTypesByID[key]));
+
+      // remove this field from antd form
+      setForms((fs) => {
+        const { [key]: _, ...rest } = fs;
+        return rest;
+      });
     },
     [dispatch, activeDataset, dataTypesByID],
   );
@@ -85,7 +91,7 @@ const DiscoveryQueryBuilder = ({ activeDataset, dataTypeForms, requiredDataTypes
     try {
       await Promise.all(Object.values(forms).map((f) => f.validateFields()));
 
-      // force validation of variant fields
+      // force validation of variant fields, validateFields() has no effect
       if (forms["variant"]) {
         const variantFields = forms["variant"].getFieldValue("conditions");
         await Promise.all(variantFields.map((field) => conditionValidator(null, field)));
