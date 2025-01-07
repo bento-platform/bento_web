@@ -48,11 +48,12 @@ const TYPE_TAG_DISPLAY = {
 };
 
 const WorkflowInputTag = ({ id, type, children }) => {
-  const display = useMemo(() => TYPE_TAG_DISPLAY[type.replace("[]", "")], [type]);
+  const typeNoArray = type.replace("[]", "");
+  const display = useMemo(() => TYPE_TAG_DISPLAY[typeNoArray], [typeNoArray]);
   return (
     <Tag key={id} color={display.color} style={{ marginBottom: "2px" }}>
       {display.icon}&nbsp;
-      {id} ({children || type}
+      {id} ({children || typeNoArray}
       {type.endsWith("[]") ? " array" : ""})
     </Tag>
   );
@@ -77,7 +78,7 @@ const WorkflowListItem = ({ onClick, workflow, rightAlignedTags, style }) => {
         .filter((i) => !i.hidden && !i.injected) // Filter out hidden/injected inputs
         .map(({ id, type, pattern }) => (
           <WorkflowInputTag key={id} id={id} type={type}>
-            {type.startsWith("file") ? (pattern ?? "") : ""}
+            {type.startsWith("file") && ![".*", ".+"].includes(pattern) ? (pattern ?? "") : ""}
           </WorkflowInputTag>
         )),
     [inputs],
