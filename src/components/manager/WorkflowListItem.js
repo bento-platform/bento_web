@@ -49,7 +49,7 @@ const TYPE_TAG_DISPLAY = {
 
 const WorkflowInputTag = ({ id, type, children }) => {
   const typeNoArray = type.replace("[]", "");
-  const display = useMemo(() => TYPE_TAG_DISPLAY[typeNoArray], [type]);
+  const display = useMemo(() => TYPE_TAG_DISPLAY[typeNoArray], [typeNoArray]);
   return (
     <Tag key={id} color={display.color} style={{ marginBottom: "2px" }}>
       {display.icon}&nbsp;
