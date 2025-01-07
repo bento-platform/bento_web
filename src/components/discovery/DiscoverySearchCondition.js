@@ -5,8 +5,14 @@ import { Button, Input, Select, Space } from "antd";
 import { CloseOutlined } from "@ant-design/icons";
 
 import SchemaTreeSelect from "../schema_trees/SchemaTreeSelect";
-import { constFn, id, nop } from "@/utils/misc";
-import { DEFAULT_SEARCH_PARAMETERS, OP_EQUALS, OPERATION_TEXT, UI_SUPPORTED_OPERATIONS } from "@/utils/search";
+import { nop } from "@/utils/misc";
+import {
+  DEFAULT_SEARCH_PARAMETERS,
+  OP_EQUALS,
+  OPERATION_TEXT,
+  UI_SUPPORTED_OPERATIONS,
+  getSchemaTypeTransformer,
+} from "@/utils/search";
 
 const BOOLEAN_OPTIONS = ["true", "false"];
 const NEGATE_SELECT_OPTIONS = [
@@ -29,23 +35,6 @@ const styles = {
   negationSelect: { width: `${NEGATION_WIDTH}px`, float: "left" },
   operationSelect: { width: `${OPERATION_WIDTH}px`, float: "left" },
   closeButton: { width: `${CLOSE_WIDTH}px` },
-};
-
-const toStringOrNull = (x) => (x === null ? null : x.toString());
-
-export const getSchemaTypeTransformer = (type) => {
-  switch (type) {
-    case "integer":
-      return [(s) => parseInt(s, 10), toStringOrNull];
-    case "number":
-      return [(s) => parseFloat(s), toStringOrNull];
-    case "boolean":
-      return [(s) => s === "true", toStringOrNull];
-    case "null":
-      return [constFn(null), constFn("null")];
-    default:
-      return [id, id];
-  }
 };
 
 const DEFAULT_FIELD_SCHEMA = {

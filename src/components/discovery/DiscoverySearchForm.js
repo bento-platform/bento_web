@@ -15,6 +15,7 @@ import {
   searchUiMappings,
   VARIANT_REQUIRED_FIELDS,
   VARIANT_OPTIONAL_FIELDS,
+  conditionValidator,
 } from "@/utils/search";
 
 import DiscoverySearchCondition from "./DiscoverySearchCondition";
@@ -55,13 +56,7 @@ PhenopacketDropdownOption.propTypes = {
   getDataTypeFieldSchema: PropTypes.func,
 };
 
-const DiscoverySearchForm = ({
-  onChange,
-  dataType,
-  setFormRef,
-  handleVariantHiddenFieldChange,
-  conditionValidator,
-}) => {
+const DiscoverySearchForm = ({ onChange, dataType, setFormRef, handleVariantHiddenFieldChange }) => {
   const [form] = Form.useForm();
 
   const CONDITION_RULES = [{ validator: conditionValidator }];
@@ -365,7 +360,6 @@ DiscoverySearchForm.propTypes = {
   dataType: PropTypes.object, // TODO: Shape?
   setFormRef: PropTypes.func,
   handleVariantHiddenFieldChange: PropTypes.func.isRequired,
-  conditionValidator: PropTypes.func,
 };
 
 export default DiscoverySearchForm;

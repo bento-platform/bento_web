@@ -1,4 +1,4 @@
-import { simpleDeepCopy } from "./misc";
+import { constFn, id, simpleDeepCopy } from "./misc";
 
 export const OP_EQUALS = "eq";
 export const OP_LESS_THAN = "lt";
@@ -93,6 +93,46 @@ export const extractQueriesFromDataTypeForms = (dataTypeForms) =>
       .map((d) => [d.dataType.id, conditionsToQuery(extractQueryConditionsFromFormValues(d.formValues))])
       .filter((c) => c[1] !== null),
   );
+
+const toStringOrNull = (x) => (x === null ? null : x.toString());
+
+export const getSchemaTypeTransformer = (type) => {
+  switch (type) {
+    case "integer":
+      return [(s) => parseInt(s, 10), toStringOrNull];
+    case "number":
+      return [(s) => parseFloat(s), toStringOrNull];
+    case "boolean":
+      return [(s) => s === "true", toStringOrNull];
+    case "null":
+      return [constFn(null), constFn("null")];
+    default:
+      return [id, id];
+  }
+};
+
+export const conditionValidator = (_, { field, fieldSchema, searchValue }) => {
+  if (field === undefined) {
+    return Promise.reject("A field must be specified for this search condition.");
+  }
+
+  const transformedSearchValue = getSchemaTypeTransformer(fieldSchema.type)[1](searchValue);
+  const isEnum = fieldSchema.hasOwnProperty("enum");
+  const isString = fieldSchema.type === "string";
+
+  // noinspection JSCheckFunctionSignatures
+  if (
+    !VARIANT_OPTIONAL_FIELDS.includes(field) &&
+    (transformedSearchValue === null ||
+      (!isEnum && !transformedSearchValue) ||
+      (!isEnum && isString && !transformedSearchValue.trim()) || // Forbid whitespace-only free-text searches
+      (isEnum && !fieldSchema.enum.includes(transformedSearchValue)))
+  ) {
+    return Promise.reject(`This field must have a value: ${field}`);
+  }
+
+  return Promise.resolve();
+};
 
 export const searchUiMappings = {
   phenopacket: {
