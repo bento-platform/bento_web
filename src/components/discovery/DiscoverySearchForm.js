@@ -43,6 +43,8 @@ const ADD_CONDITION_WRAPPER_COL = {
 
 const conditionLabel = (i) => `Condition ${i + 1}`;
 
+const CONDITION_RULES = [{ validator: conditionValidator }];
+
 const PhenopacketDropdownOption = ({ option: { path, ui_name: uiName }, getDataTypeFieldSchema }) => (
   <Tooltip title={getDataTypeFieldSchema(`[dataset item].${path}`).description} mouseEnterDelay={TOOLTIP_DELAY_SECONDS}>
     {uiName}
@@ -58,8 +60,6 @@ PhenopacketDropdownOption.propTypes = {
 
 const DiscoverySearchForm = ({ onChange, dataType, setFormRef, handleVariantHiddenFieldChange }) => {
   const [form] = Form.useForm();
-
-  const CONDITION_RULES = [{ validator: conditionValidator }];
 
   useEffect(() => {
     if (setFormRef) setFormRef(form);
