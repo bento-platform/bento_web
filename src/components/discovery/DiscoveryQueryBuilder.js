@@ -71,7 +71,7 @@ const DiscoveryQueryBuilder = ({ activeDataset, dataTypeForms, requiredDataTypes
       if (action !== "remove") return;
       dispatch(removeDataTypeQueryForm(activeDataset, dataTypesByID[key]));
 
-      // remove this field from antd form
+      // remove this field from submitted form
       setForms((fs) => objectWithoutProp(fs, key));
     },
     [dispatch, activeDataset, dataTypesByID],
