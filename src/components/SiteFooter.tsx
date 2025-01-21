@@ -30,7 +30,7 @@ const SiteFooter = memo(() => (
       </div>
 
       <Typography.Paragraph style={{ textAlign: "center", marginBottom: 0 }}>
-        Copyright &copy; 2019-2024 the{" "}
+        Copyright &copy; 2019-2025 the{" "}
         <a href="https://computationalgenomics.ca">Canadian Centre for Computational Genomics</a>. <br />
         <MonospaceText>bento_web</MonospaceText> (v{pkg.version}) is licensed under the{" "}
         <a href="https://github.com/bento-platform/bento_web/blob/master/LICENSE">LGPLv3</a>. The source code is
