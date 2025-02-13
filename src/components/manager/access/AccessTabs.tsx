@@ -26,7 +26,8 @@ const AccessTabs = () => {
   const navigate = useNavigate();
   const { tab } = useParams();
 
-  const { hasAtLeastOneViewPermissionsGrant, hasAttempted: hasAttemptedPermissions } = useAuthzManagementPermissions();
+  const authzPerms = useAuthzManagementPermissions();
+  const { hasAtLeastOneViewPermissionsGrant, hasAttempted: hasAttemptedPermissions } = authzPerms;
 
   const onTabClick = useCallback(
     (key: string) => {
@@ -36,7 +37,7 @@ const AccessTabs = () => {
   );
 
   if (hasAttemptedPermissions && !hasAtLeastOneViewPermissionsGrant) {
-    return <ForbiddenContent message="You do not have permission to view grants and groups." />;
+    return <ForbiddenContent message="You do not have permission to view grants and groups." debugState={authzPerms} />;
   }
   return <Tabs type="card" activeKey={tab} onTabClick={onTabClick} items={TAB_ITEMS} />;
 };

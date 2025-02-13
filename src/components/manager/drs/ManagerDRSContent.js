@@ -11,10 +11,10 @@ import { DeleteOutlined } from "@ant-design/icons";
 import { RESOURCE_EVERYTHING, deleteData, downloadData, queryData } from "bento-auth-js";
 
 import { EM_DASH } from "@/constants";
+import PermissionsGate from "@/components/PermissionsGate";
 import BooleanYesNo from "@/components/common/BooleanYesNo";
 import DownloadButton from "@/components/common/DownloadButton";
 import MonospaceText from "@/components/common/MonospaceText";
-import ForbiddenContent from "@/components/ForbiddenContent";
 import { useResourcePermissionsWrapper } from "@/hooks";
 import { clearDRSObjectSearch, deleteDRSObject, performDRSObjectSearch } from "@/modules/drs/actions";
 import { useProjects } from "@/modules/metadata/hooks";
@@ -172,10 +172,8 @@ const ManagerDRSContent = () => {
   //  - disable bulk button if any cannot be deleted
   //  - map to resources and get back delete permissions for returned objects
 
-  const { permissions, isFetchingPermissions, hasAttemptedPermissions } =
-    useResourcePermissionsWrapper(RESOURCE_EVERYTHING);
+  const { permissions, isFetchingPermissions } = useResourcePermissionsWrapper(RESOURCE_EVERYTHING);
 
-  const hasQueryPermission = permissions.includes(queryData);
   const hasDownloadPermission = permissions.includes(downloadData);
   const hasDeletePermission = permissions.includes(deleteData);
 
@@ -334,47 +332,51 @@ const ManagerDRSContent = () => {
     [selectedRowKeys],
   );
 
-  if (hasAttemptedPermissions && !hasQueryPermission) {
-    return <ForbiddenContent message="You do not have permission to view DRS objects." />;
-  }
-
+  // TODO: per-object permissions
+  //  For now, use whole-node permissions for DRS object viewer
   return (
-    <Layout>
-      <Layout.Content style={LAYOUT_CONTENT_STYLE}>
-        <div style={{ marginBottom: "1rem", display: "flex", gap: 16 }}>
-          <div style={SEARCH_CONTAINER_STYLE}>
-            <Input.Search
-              placeholder="Search DRS objects by name."
-              loading={isFetchingPermissions || objectSearchIsFetching || !drsURL}
-              disabled={!drsURL}
-              onChange={onSearch}
-              onSearch={onSearch}
-              value={searchValue}
-              // size="large"
-            />
+    <PermissionsGate
+      resource={RESOURCE_EVERYTHING}
+      requiredPermissions={[queryData]}
+      forbiddenMessage="You do not have permission to view DRS objects."
+    >
+      <Layout>
+        <Layout.Content style={LAYOUT_CONTENT_STYLE}>
+          <div style={{ marginBottom: "1rem", display: "flex", gap: 16 }}>
+            <div style={SEARCH_CONTAINER_STYLE}>
+              <Input.Search
+                placeholder="Search DRS objects by name."
+                loading={isFetchingPermissions || objectSearchIsFetching || !drsURL}
+                disabled={!drsURL}
+                onChange={onSearch}
+                onSearch={onSearch}
+                value={searchValue}
+                // size="large"
+              />
+            </div>
+            <Button
+              icon={<DeleteOutlined />}
+              danger={true}
+              onClick={onDeleteSelected}
+              disabled={selectedRowKeys.length === 0}
+            >
+              Delete Selected{selectedRowKeys.length > 0 ? ` (${selectedRowKeys.length})` : ""}
+            </Button>
           </div>
-          <Button
-            icon={<DeleteOutlined />}
-            danger={true}
-            onClick={onDeleteSelected}
-            disabled={selectedRowKeys.length === 0}
-          >
-            Delete Selected{selectedRowKeys.length > 0 ? ` (${selectedRowKeys.length})` : ""}
-          </Button>
-        </div>
-        <Table
-          rowKey="id"
-          columns={columns}
-          dataSource={objectResults}
-          loading={isFetchingPermissions || objectSearchIsFetching}
-          bordered={true}
-          size="middle"
-          expandable={DRS_TABLE_EXPANDABLE}
-          locale={tableLocale}
-          rowSelection={rowSelection}
-        />
-      </Layout.Content>
-    </Layout>
+          <Table
+            rowKey="id"
+            columns={columns}
+            dataSource={objectResults}
+            loading={isFetchingPermissions || objectSearchIsFetching}
+            bordered={true}
+            size="middle"
+            expandable={DRS_TABLE_EXPANDABLE}
+            locale={tableLocale}
+            rowSelection={rowSelection}
+          />
+        </Layout.Content>
+      </Layout>
+    </PermissionsGate>
   );
 };
 

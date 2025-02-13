@@ -14,11 +14,11 @@ const DataExplorerContent = () => {
     document.title = `${SITE_NAME} - Explore Your Data`;
   }, []);
 
-  const { hasPermission: canQueryData, hasAttempted: hasAttemptedQueryPermissions } =
-    useCanQueryAtLeastOneProjectOrDataset();
+  const perms = useCanQueryAtLeastOneProjectOrDataset();
+  const { hasPermission: canQueryData, hasAttempted: hasAttemptedQueryPermissions } = perms;
 
   if (hasAttemptedQueryPermissions && !canQueryData) {
-    return <ForbiddenContent message="You do not have permission to query any data." />;
+    return <ForbiddenContent message="You do not have permission to query any data." debugState={perms} />;
   }
 
   return (
