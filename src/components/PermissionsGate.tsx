@@ -15,7 +15,7 @@ type BasePermissionsGateProps = {
 
 type ResourcePermissionsGateProps = BasePermissionsGateProps & ResourcePermissionsCheck;
 type PermissionsGateProps = BasePermissionsGateProps & {
-  check: ResourcePermissionsCheck | { hasPermissions: boolean, debugState?: object };
+  check: ResourcePermissionsCheck | { hasPermissions: boolean; debugState?: object };
 };
 
 const ResourcePermissionsGate = ({
