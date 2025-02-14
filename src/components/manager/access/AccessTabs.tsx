@@ -1,11 +1,11 @@
-import { useCallback } from "react";
+import { useCallback, useMemo } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 
 import { Tabs, type TabsProps } from "antd";
 
 import { useAuthzManagementPermissions } from "@/modules/authz/hooks";
 
-import ForbiddenContent from "@/components/ForbiddenContent";
+import PermissionsGate from "@/components/PermissionsGate";
 import GrantsTabContent from "./GrantsTabContent";
 import GroupsTabContent from "./GroupsTabContent";
 
@@ -27,7 +27,10 @@ const AccessTabs = () => {
   const { tab } = useParams();
 
   const authzPerms = useAuthzManagementPermissions();
-  const { hasAtLeastOneViewPermissionsGrant, hasAttempted: hasAttemptedPermissions } = authzPerms;
+  const permsCheck = useMemo(() => {
+    const { hasAtLeastOneViewPermissionsGrant, hasAttempted: hasAttemptedPermissions } = authzPerms;
+    return { hasPermissions: !hasAttemptedPermissions || hasAtLeastOneViewPermissionsGrant, debugState: authzPerms };
+  }, [authzPerms]);
 
   const onTabClick = useCallback(
     (key: string) => {
@@ -36,10 +39,11 @@ const AccessTabs = () => {
     [navigate],
   );
 
-  if (hasAttemptedPermissions && !hasAtLeastOneViewPermissionsGrant) {
-    return <ForbiddenContent message="You do not have permission to view grants and groups." debugState={authzPerms} />;
-  }
-  return <Tabs type="card" activeKey={tab} onTabClick={onTabClick} items={TAB_ITEMS} />;
+  return (
+    <PermissionsGate check={permsCheck} forbiddenMessage="You do not have permission to view grants and groups.">
+      <Tabs type="card" activeKey={tab} onTabClick={onTabClick} items={TAB_ITEMS} />
+    </PermissionsGate>
+  );
 };
 
 export default AccessTabs;

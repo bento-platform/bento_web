@@ -9,6 +9,8 @@ import PermissionsGate from "@/components/PermissionsGate";
 import RunSetupWizard from "./RunSetupWizard";
 import RunSetupConfirmDisplay from "./RunSetupConfirmDisplay";
 
+const CHECK_ANALYZE_DATA = { resource: RESOURCE_EVERYTHING, requiredPermissions: [analyzeData] };
+
 const ManagerAnalysisContent = () => {
   const dispatch = useAppDispatch();
   const navigate = useNavigate();
@@ -18,8 +20,7 @@ const ManagerAnalysisContent = () => {
 
   return (
     <PermissionsGate
-      requiredPermissions={[analyzeData]}
-      resource={RESOURCE_EVERYTHING}
+      check={CHECK_ANALYZE_DATA}
       forbiddenMessage="You do not have permission to view the analysis wizard."
     >
       <RunSetupWizard
