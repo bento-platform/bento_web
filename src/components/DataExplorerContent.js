@@ -17,7 +17,7 @@ const DataExplorerContent = () => {
   const perms = useCanQueryAtLeastOneProjectOrDataset();
   const permsCheck = useMemo(() => {
     const { hasPermission: canQueryData, hasAttempted: hasAttemptedQueryPermissions } = perms;
-    return { hasPermissions: !hasAttemptedQueryPermissions || !canQueryData, debugState: perms };
+    return { hasPermissions: !hasAttemptedQueryPermissions || canQueryData, debugState: perms };
   }, [perms]);
 
   return (
