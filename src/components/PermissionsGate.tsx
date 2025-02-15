@@ -37,7 +37,11 @@ const ResourcePermissionsGate = ({
 const PermissionsGate = ({ check, children, forbiddenMessage }: PermissionsGateProps) => {
   if ("resource" in check) {
     return (
-      <ResourcePermissionsGate resource={check.resource} requiredPermissions={check.requiredPermissions}>
+      <ResourcePermissionsGate
+        resource={check.resource}
+        requiredPermissions={check.requiredPermissions}
+        forbiddenMessage={forbiddenMessage}
+      >
         {children}
       </ResourcePermissionsGate>
     );
