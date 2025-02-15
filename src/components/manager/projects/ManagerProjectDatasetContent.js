@@ -39,11 +39,12 @@ const styles = {
 const ManagerProjectDatasetContent = () => {
   const dispatch = useAppDispatch();
 
+  const managePerms = useCanManageAtLeastOneProjectOrDataset();
   const {
     hasPermission: canManageProjectsDatasets,
     isFetching: fetchingManagePermissions,
     hasAttempted: attemptedManagePermissions,
-  } = useCanManageAtLeastOneProjectOrDataset();
+  } = managePerms;
 
   const { hasPermission: canCreateProject, fetchingPermission: fetchingCanCreateProject } =
     useHasResourcePermissionWrapper(RESOURCE_EVERYTHING, createProject);
@@ -69,7 +70,12 @@ const ManagerProjectDatasetContent = () => {
   }, [dispatch]);
 
   if (attemptedManagePermissions && !fetchingManagePermissions && !canManageProjectsDatasets) {
-    return <ForbiddenContent message="You do not have permission to view the project/dataset manager." />;
+    return (
+      <ForbiddenContent
+        message="You do not have permission to view the project/dataset manager."
+        debugState={managePerms}
+      />
+    );
   }
 
   if (!isFetchingDependentData && projectMenuItems.length === 0) {
