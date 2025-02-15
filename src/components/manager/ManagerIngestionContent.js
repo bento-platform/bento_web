@@ -9,6 +9,8 @@ import PermissionsGate from "@/components/PermissionsGate";
 import RunSetupWizard from "./RunSetupWizard";
 import RunSetupConfirmDisplay from "./RunSetupConfirmDisplay";
 
+const INGEST_CHECK = { resource: RESOURCE_EVERYTHING, requiredPermissions: [ingestData, ingestReferenceMaterial] };
+
 const ManagerIngestionContent = () => {
   const dispatch = useAppDispatch();
   const navigate = useNavigate();
@@ -17,11 +19,7 @@ const ManagerIngestionContent = () => {
   //  least one workflow.
 
   return (
-    <PermissionsGate
-      resource={RESOURCE_EVERYTHING}
-      requiredPermissions={[ingestData, ingestReferenceMaterial]}
-      forbiddenMessage="You do not have permission to view the ingestion wizard."
-    >
+    <PermissionsGate check={INGEST_CHECK} forbiddenMessage="You do not have permission to view the ingestion wizard.">
       <RunSetupWizard
         workflowType="ingestion"
         workflowSelectionDescription="Choose an ingestion workflow."

@@ -9,7 +9,7 @@ import PermissionsGate from "@/components/PermissionsGate";
 import RunSetupWizard from "./RunSetupWizard";
 import RunSetupConfirmDisplay from "./RunSetupConfirmDisplay";
 
-const CHECK_ANALYZE_DATA = { resource: RESOURCE_EVERYTHING, requiredPermissions: [analyzeData] };
+const ANALYZE_CHECK = { resource: RESOURCE_EVERYTHING, requiredPermissions: [analyzeData] };
 
 const ManagerAnalysisContent = () => {
   const dispatch = useAppDispatch();
@@ -19,10 +19,7 @@ const ManagerAnalysisContent = () => {
   //  least one workflow.
 
   return (
-    <PermissionsGate
-      check={CHECK_ANALYZE_DATA}
-      forbiddenMessage="You do not have permission to view the analysis wizard."
-    >
+    <PermissionsGate check={ANALYZE_CHECK} forbiddenMessage="You do not have permission to view the analysis wizard.">
       <RunSetupWizard
         workflowType="analysis"
         confirmDisplay={(props) => <RunSetupConfirmDisplay runButtonText="Run Analysis" {...props} />}

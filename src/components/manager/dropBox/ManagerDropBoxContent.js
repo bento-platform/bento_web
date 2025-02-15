@@ -70,6 +70,8 @@ const TREE_DROP_ZONE_OVERLAY_STYLE = {
 };
 const TREE_DROP_ZONE_OVERLAY_ICON_STYLE = { fontSize: 48, color: "#1890ff" };
 
+const VIEW_DROP_BOX_CHECK = { resource: RESOURCE_EVERYTHING, requiredPermissions: [viewDropBox] };
+
 const generateFileTree = (directory) =>
   [...directory].sort(sortByName).map(({ name: title, contents, relativePath: key }) => ({
     title,
@@ -344,11 +346,7 @@ const ManagerDropBoxContent = () => {
   const deleteDisabled = !dropBoxService || selectedFolder || selectedEntries.length !== 1 || !hasDeletePermission;
 
   return (
-    <PermissionsGate
-      resource={RESOURCE_EVERYTHING}
-      requiredPermissions={[viewDropBox]}
-      forbiddenMessage="You do not have permission to view the drop box."
-    >
+    <PermissionsGate check={VIEW_DROP_BOX_CHECK} forbiddenMessage="You do not have permission to view the drop box.">
       <Layout>
         <Layout.Content style={LAYOUT_CONTENT_STYLE} onDragLeave={handleContainerDragLeave}>
           {/* ----------------------------- Start of modals section ----------------------------- */}

@@ -9,6 +9,8 @@ import PermissionsGate from "@/components/PermissionsGate";
 import RunSetupWizard from "./RunSetupWizard";
 import RunSetupConfirmDisplay from "./RunSetupConfirmDisplay";
 
+const EXPORT_CHECK = { resource: RESOURCE_EVERYTHING, requiredPermissions: [exportData] };
+
 const ManagerExportContent = () => {
   const dispatch = useAppDispatch();
   const navigate = useNavigate();
@@ -17,11 +19,7 @@ const ManagerExportContent = () => {
   //  least one workflow.
 
   return (
-    <PermissionsGate
-      resource={RESOURCE_EVERYTHING}
-      requiredPermissions={[exportData]}
-      forbiddenMessage="You do not have permission to view the export wizard."
-    >
+    <PermissionsGate check={EXPORT_CHECK} forbiddenMessage="You do not have permission to view the export wizard.">
       <RunSetupWizard
         workflowType="export"
         confirmDisplay={(props) => <RunSetupConfirmDisplay runButtonText="Run Export" {...props} />}

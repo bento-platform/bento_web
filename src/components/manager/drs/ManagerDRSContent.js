@@ -25,6 +25,8 @@ import { LAYOUT_CONTENT_STYLE } from "@/styles/layoutContent";
 import DatasetTitleDisplay from "../DatasetTitleDisplay";
 import ProjectTitleDisplay from "../ProjectTitleDisplay";
 
+const QUERY_DATA_CHECK = { resource: RESOURCE_EVERYTHING, requiredPermissions: [queryData] };
+
 const TABLE_NESTED_DESCRIPTIONS_STYLE = {
   backgroundColor: "white",
   borderRadius: 3,
@@ -335,11 +337,7 @@ const ManagerDRSContent = () => {
   // TODO: per-object permissions
   //  For now, use whole-node permissions for DRS object viewer
   return (
-    <PermissionsGate
-      resource={RESOURCE_EVERYTHING}
-      requiredPermissions={[queryData]}
-      forbiddenMessage="You do not have permission to view DRS objects."
-    >
+    <PermissionsGate check={QUERY_DATA_CHECK} forbiddenMessage="You do not have permission to view DRS objects.">
       <Layout>
         <Layout.Content style={LAYOUT_CONTENT_STYLE}>
           <div style={{ marginBottom: "1rem", display: "flex", gap: 16 }}>
