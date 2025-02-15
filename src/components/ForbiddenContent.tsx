@@ -8,16 +8,18 @@ export type ForbiddenContentProps = { message?: ReactNode; debugState?: object }
 const DEFAULT_MESSAGE = "You do not have permission to view this content.";
 
 const ForbiddenContent = ({ message, debugState }: ForbiddenContentProps) => {
+  message = message ?? DEFAULT_MESSAGE;
+
   useEffect(() => {
     if (debugState) {
-      console.debug("ForbiddenContent debug state:", debugState);
+      console.debug(`ForbiddenContent debug state (message: ${message}):`, debugState);
     }
-  }, [debugState]);
+  }, [debugState, message]);
 
   return (
     <Layout>
       <Layout.Content style={LAYOUT_CONTENT_STYLE}>
-        <Result status="error" title="Forbidden" subTitle={message ?? DEFAULT_MESSAGE} />
+        <Result status="error" title="Forbidden" subTitle={message} />
       </Layout.Content>
     </Layout>
   );
