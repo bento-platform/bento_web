@@ -113,21 +113,11 @@ const getInputComponentAndOptions = ({ id, type, pattern, values, repeatable }) 
     case "file":
     case "file[]":
       // TODO: What about non-unique files?
-      return [
-        <DropBoxTreeSelect
-          key={key}
-          multiple={isArray}
-          nodeEnabled={dropBoxTreeNodeEnabled}
-        />,
-        {},
-      ];
+      return [<DropBoxTreeSelect key={key} multiple={isArray} nodeEnabled={dropBoxTreeNodeEnabled} />, {}];
 
     case "directory":
     case "directory[]":
-      return [
-        <DropBoxTreeSelect key={key} multiple={isArray} folderMode={true} />,
-        {},
-      ];
+      return [<DropBoxTreeSelect key={key} multiple={isArray} folderMode={true} />, {}];
 
     case "project:dataset":
       return [<DatasetTreeSelect key={key} idFormat={ID_FORMAT_PROJECT_DATASET} />, {}];
