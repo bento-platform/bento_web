@@ -8,7 +8,7 @@ const NULL_LOCUS = { chrom: null, start: null, end: null };
 // Position notation pattern
 //  - strip chr prefix, but allow any other types of chromosome - eventually this should instead autocomplete from the
 //    reference service.
-const POS_NOTATION_PATTERN = /(?:CHR|chr)?([\w.-]+):(\d+)-(\d+)$/;
+const POS_NOTATION_PATTERN = /^(?:CHR|chr)?([\w.-]+):(\d+)-(\d+)$/;
 
 const parsePosition = (value) => {
   const result = POS_NOTATION_PATTERN.exec(value);
