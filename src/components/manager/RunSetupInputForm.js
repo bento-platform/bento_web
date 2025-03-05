@@ -8,7 +8,6 @@ import { LeftOutlined, RightOutlined } from "@ant-design/icons";
 
 import { FORM_LABEL_COL, FORM_WRAPPER_COL, FORM_BUTTON_COL } from "./workflowCommon";
 
-import { BENTO_DROP_BOX_FS_BASE_PATH } from "@/config";
 import { useBentoServices } from "@/modules/services/hooks";
 import { workflowPropTypesShape } from "@/propTypes";
 import { testFileAgainstPattern } from "@/utils/files";
@@ -114,11 +113,9 @@ const getInputComponentAndOptions = ({ id, type, pattern, values, repeatable }) 
     case "file":
     case "file[]":
       // TODO: What about non-unique files?
-      // TODO: Don't hard-code configured filesystem path for input files
       return [
         <DropBoxTreeSelect
           key={key}
-          basePrefix={BENTO_DROP_BOX_FS_BASE_PATH}
           multiple={isArray}
           nodeEnabled={dropBoxTreeNodeEnabled}
         />,
@@ -128,7 +125,7 @@ const getInputComponentAndOptions = ({ id, type, pattern, values, repeatable }) 
     case "directory":
     case "directory[]":
       return [
-        <DropBoxTreeSelect key={key} basePrefix={BENTO_DROP_BOX_FS_BASE_PATH} multiple={isArray} folderMode={true} />,
+        <DropBoxTreeSelect key={key} multiple={isArray} folderMode={true} />,
         {},
       ];
 

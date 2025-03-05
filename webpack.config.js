@@ -68,7 +68,6 @@ module.exports = {
             BENTO_CBIOPORTAL_ENABLED: false,
             BENTO_MONITORING_ENABLED: false,
             BENTO_CBIOPORTAL_PUBLIC_URL: null,
-            BENTO_DROP_BOX_FS_BASE_PATH: null,
             CUSTOM_HEADER: null,
 
             CLIENT_ID: null,
