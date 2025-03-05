@@ -7,7 +7,6 @@ import { useAppDispatch, useAppSelector } from "@/store";
 import type { JSONType } from "@/types/json";
 
 import { fetchDropBoxTree } from "./actions";
-import type { DropBoxEntry } from "./types";
 
 export const useDropBox = () => {
   const dispatch = useAppDispatch();
@@ -25,41 +24,11 @@ export const useDropBox = () => {
   return useAppSelector((state) => state.dropBox);
 };
 
-const findDropBoxEntryRecursive = (treeNode: DropBoxEntry, filePath: string): DropBoxEntry | null => {
-  if (treeNode.filePath === filePath) {
-    return treeNode;
-  } else if (treeNode.contents) {
-    for (const childNode of treeNode.contents) {
-      const result = findDropBoxEntryRecursive(childNode, filePath);
-      if (result) {
-        return result;
-      }
-    }
-  }
-  return null;
-};
-
-const useFindDropBoxEntry = (filePath?: string): DropBoxEntry | null => {
-  const { tree } = useDropBox();
-  return useMemo(() => {
-    if (!filePath) {
-      return null;
-    }
-    const dropBoxRoot: DropBoxEntry = {
-      name: "root",
-      filePath: "",
-      relativePath: "",
-      contents: tree,
-    };
-    return findDropBoxEntryRecursive(dropBoxRoot, filePath);
-  }, [tree, filePath]);
-};
-
 /**
  * Given the path of a dropbox file, will attempt to retrieve the blob using the file's URI.
  */
 const useDropBoxFileBlob = (filePath?: string): Blob | null => {
-  const file = useFindDropBoxEntry(filePath);
+  const dropbox = useService("drop-box");
   const authHeader = useAuthorizationHeader();
 
   const [fileBlob, setFileBlob] = useState<Blob | null>(null);
@@ -69,18 +38,15 @@ const useDropBoxFileBlob = (filePath?: string): Blob | null => {
   useEffect(() => {
     setFileBlob(null);
     (async () => {
-      if (!file || !fileExt) return;
-      if (!file?.uri) {
-        console.error(`Files: something went wrong while trying to load ${file?.name}`);
-        return;
-      }
+      if (!filePath || !fileExt || !dropbox) return;
       if (fileExt === "pdf") {
         console.error("Cannot retrieve PDF with useDropBoxFileContent");
         return;
       }
 
+      const blobUri = `${dropbox?.url}/objects${filePath}`;
       try {
-        const r = await fetch(file.uri, { headers: authHeader });
+        const r = await fetch(blobUri, { headers: authHeader });
         if (r.ok) {
           const blob = await r.blob();
           setFileBlob(blob);
@@ -91,7 +57,7 @@ const useDropBoxFileBlob = (filePath?: string): Blob | null => {
         console.error(e);
       }
     })();
-  }, [file, fileExt, authHeader]);
+  }, [filePath, dropbox, fileExt, authHeader]);
 
   return fileBlob;
 };
@@ -123,7 +89,9 @@ const useDropBoxFileText = (filePath?: string): string | null => {
  * @returns the dropbox file data in JSON if it can be parsed, null if no text in the file, otherwise defaultValue.
  */
 export const useDropBoxJsonContent = (filePath?: string, defaultValue: JSONType = null): JSONType => {
+  console.log(filePath);
   const rawText = useDropBoxFileText(filePath);
+  console.log(rawText);
   return useMemo(() => {
     if (!filePath) {
       // no file selected
