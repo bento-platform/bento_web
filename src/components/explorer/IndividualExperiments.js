@@ -209,10 +209,9 @@ export const ExperimentDetail = ({ experiment }) => {
         <Descriptions.Item span={2} label="Instrument">
           <div style={{ display: "flex", gap: 16 }}>
             <div>
-              <strong>Platform:</strong>&nbsp;{instrument.platform}
-            </div>
-            <div>
-              <strong>ID:</strong>&nbsp;<MonospaceText>{instrument.identifier}</MonospaceText>
+              {instrument.device_ontology?.length ? (
+              <OntologyTerm term={instrument.device_ontology[0]} />
+                ) : (<span>{instrument.device}</span>)}
             </div>
           </div>
         </Descriptions.Item>
