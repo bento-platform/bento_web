@@ -130,6 +130,14 @@ export const useDropBoxJsonContent = (filePath?: string, defaultValue: JSONType 
       return defaultValue;
     }
     // parsed file content, or null if empty
-    return rawText ? JSON.parse(rawText) : null;
+    try {
+      return rawText ? JSON.parse(rawText) : null;
+    }
+    // if the file is not a valid JSON
+    catch (e) {
+      return {
+        error: `${e}`
+      }
+    }
   }, [filePath, rawText, defaultValue]);
 };
