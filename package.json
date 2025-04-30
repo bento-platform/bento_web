@@ -9,9 +9,9 @@
     "@reduxjs/toolkit": "^1.9.7",
     "ajv": "^8.17.1",
     "ansi_up": "^6.0.2",
-    "antd": "~5.22.4",
+    "antd": "~5.24.9",
     "bento-auth-js": "^7.0.1",
-    "bento-charts": "~2.12.0",
+    "bento-charts": "~2.13.1",
     "cross-fetch": "^4.0.0",
     "dayjs": "^1.11.13",
     "file-saver": "^2.0.5",
@@ -38,7 +38,7 @@
     "redux-thunk": "^2.4.2",
     "remark-gfm": "^4.0.0",
     "socket.io-client": "^4.7.2",
-    "xlsx": "https://cdn.sheetjs.com/xlsx-0.20.2/xlsx-0.20.2.tgz"
+    "xlsx": "https://cdn.sheetjs.com/xlsx-0.20.3/xlsx-0.20.3.tgz"
   },
   "devDependencies": {
     "@babel/core": "^7.25.2",
