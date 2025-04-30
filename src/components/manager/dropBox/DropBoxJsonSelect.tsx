@@ -1,7 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import { Radio } from "antd";
 
-import { BENTO_DROP_BOX_FS_BASE_PATH } from "@/config";
 import { useDropBoxJsonContent } from "@/modules/dropBox/hooks";
 import { dropBoxTreeNodeEnabledJson } from "@/utils/files";
 
@@ -18,7 +17,6 @@ const InnerDropBoxJsonSelect = ({
 }) => {
   return (
     <DropBoxTreeSelect
-      basePrefix={BENTO_DROP_BOX_FS_BASE_PATH}
       multiple={false}
       nodeEnabled={dropBoxTreeNodeEnabledJson}
       allowClear={true}
