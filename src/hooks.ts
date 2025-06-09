@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useMemo } from "react";
 import Ajv, { type SchemaObject } from "ajv";
+import addFormats from "ajv-formats";
 
 import {
   RESOURCE_EVERYTHING,
@@ -9,6 +10,7 @@ import {
   useOpenIdConfig,
 } from "bento-auth-js";
 
+import { AJV_OPTIONS } from "@/constants";
 import { useService } from "@/modules/services/hooks";
 
 // AUTHORIZATION:
@@ -90,7 +92,7 @@ export const useJsonSchemaValidator = (schema: SchemaObject, schemaName: string,
   const ajv = useMemo(() => {
     if (schema) {
       // for schemas obtained by API: only instantiate Ajv when the schema is resolved
-      return new Ajv().addSchema(schema, schemaName);
+      return addFormats(new Ajv(AJV_OPTIONS)).addSchema(schema, schemaName);
     }
   }, [schema, schemaName]);
   return useCallback(
@@ -107,6 +109,7 @@ export const useJsonSchemaValidator = (schema: SchemaObject, schemaName: string,
       if (validator(value)) {
         return Promise.resolve();
       } else {
+        console.error(`schema validation errors (schema=${schemaName})`, validator.errors);
         return Promise.reject(new Error(ajv.errorsText(validator.errors)));
       }
     },
