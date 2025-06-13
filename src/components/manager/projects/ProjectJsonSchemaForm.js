@@ -3,14 +3,15 @@ import PropTypes from "prop-types";
 import { Button, Checkbox, Form, Select, Tooltip, message } from "antd";
 import { useDropzone } from "react-dropzone";
 import Ajv from "ajv";
+import addFormats from "ajv-formats";
+
+import { AJV_OPTIONS } from "@/constants";
 
 import JsonView from "@/components/common/JsonView";
 import { ExtraPropertiesCode } from "./ProjectJsonSchema";
 
-const ajv = new Ajv({
-  allErrors: true,
-  strict: true,
-});
+const ajv = new Ajv(AJV_OPTIONS);
+addFormats(ajv);
 
 // Does not actually query over http, the URI is the key to the draft-07 meta-schema
 const validateSchema = ajv.getSchema("http://json-schema.org/draft-07/schema");
