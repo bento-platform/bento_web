@@ -89,9 +89,7 @@ const useDropBoxFileText = (filePath?: string): string | null => {
  * @returns the dropbox file data in JSON if it can be parsed, null if no text in the file, otherwise defaultValue.
  */
 export const useDropBoxJsonContent = (filePath?: string, defaultValue: JSONType = null): JSONType => {
-  console.log(filePath);
   const rawText = useDropBoxFileText(filePath);
-  console.log(rawText);
   return useMemo(() => {
     if (!filePath) {
       // no file selected
