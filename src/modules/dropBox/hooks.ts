@@ -44,7 +44,7 @@ const useDropBoxFileBlob = (filePath?: string): Blob | null => {
         return;
       }
 
-      const blobUri = `${dropbox?.url}/objects${filePath}`;
+      const blobUri = `${dropbox.url}/objects${filePath}`;
       try {
         const r = await fetch(blobUri, { headers: authHeader });
         if (r.ok) {
