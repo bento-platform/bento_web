@@ -28,7 +28,7 @@ export const useDropBox = () => {
  * Given the path of a dropbox file, will attempt to retrieve the blob using the file's URI.
  */
 const useDropBoxFileBlob = (filePath?: string): Blob | null => {
-  const dropbox = useService("drop-box");
+  const dropBox = useService("drop-box");
   const authHeader = useAuthorizationHeader();
 
   const [fileBlob, setFileBlob] = useState<Blob | null>(null);
@@ -38,13 +38,13 @@ const useDropBoxFileBlob = (filePath?: string): Blob | null => {
   useEffect(() => {
     setFileBlob(null);
     (async () => {
-      if (!filePath || !fileExt || !dropbox) return;
+      if (!filePath || !fileExt || !dropBox) return;
       if (fileExt === "pdf") {
         console.error("Cannot retrieve PDF with useDropBoxFileContent");
         return;
       }
 
-      const blobUri = `${dropbox.url}/objects${filePath}`;
+      const blobUri = `${dropBox.url}/objects${filePath}`;
       try {
         const r = await fetch(blobUri, { headers: authHeader });
         if (r.ok) {
@@ -57,7 +57,7 @@ const useDropBoxFileBlob = (filePath?: string): Blob | null => {
         console.error(e);
       }
     })();
-  }, [filePath, dropbox, fileExt, authHeader]);
+  }, [filePath, dropBox, fileExt, authHeader]);
 
   return fileBlob;
 };
