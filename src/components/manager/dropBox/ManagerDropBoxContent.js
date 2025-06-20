@@ -29,10 +29,10 @@ import {
 import { LAYOUT_CONTENT_STYLE } from "@/styles/layoutContent";
 
 import DownloadButton from "@/components/common/DownloadButton";
+import PermissionsGate from "@/components/PermissionsGate";
 import DropBoxInformation from "./DropBoxInformation";
 import FileContentsModal from "./FileContentsModal";
 import FileUploadModal from "./FileUploadModal";
-import ForbiddenContent from "@/components/ForbiddenContent";
 import ActionContainer from "../ActionContainer";
 
 import { VIEWABLE_FILE_EXTENSIONS } from "@/components/display/FileDisplay";
@@ -68,6 +68,8 @@ const TREE_DROP_ZONE_OVERLAY_STYLE = {
   justifyContent: "center",
 };
 const TREE_DROP_ZONE_OVERLAY_ICON_STYLE = { fontSize: 48, color: "#1890ff" };
+
+const VIEW_DROP_BOX_CHECK = { resource: RESOURCE_EVERYTHING, requiredPermissions: [viewDropBox] };
 
 const generateFileTree = (directory) =>
   [...directory].sort(sortByName).map(({ name: title, contents, relativePath: key }) => ({
@@ -116,8 +118,7 @@ const filterTree = (nodes, searchTerm) => {
 const ManagerDropBoxContent = () => {
   const dispatch = useAppDispatch();
 
-  const { permissions, isFetchingPermissions, hasAttemptedPermissions } =
-    useResourcePermissionsWrapper(RESOURCE_EVERYTHING);
+  const { permissions, isFetchingPermissions } = useResourcePermissionsWrapper(RESOURCE_EVERYTHING);
 
   const dropBoxService = useService("drop-box");
   const { tree, isFetching: treeLoading, isDeleting } = useDropBox();
@@ -250,7 +251,6 @@ const ManagerDropBoxContent = () => {
     startIngestionFlow(ingestionWorkflowsByID[wfID], wfSupportedTuple[1]);
   }, [ingestionWorkflowsByID, workflowsSupported, startIngestionFlow]);
 
-  const hasViewPermission = permissions.includes(viewDropBox);
   const hasUploadPermission = permissions.includes(ingestDropBox);
   const hasDeletePermission = permissions.includes(deleteDropBox);
 
@@ -342,162 +342,160 @@ const ManagerDropBoxContent = () => {
 
   const deleteDisabled = !dropBoxService || selectedFolder || selectedEntries.length !== 1 || !hasDeletePermission;
 
-  if (hasAttemptedPermissions && !hasViewPermission) {
-    return <ForbiddenContent message="You do not have permission to view the drop box." />;
-  }
-
   return (
-    <Layout>
-      <Layout.Content style={LAYOUT_CONTENT_STYLE} onDragLeave={handleContainerDragLeave}>
-        {/* ----------------------------- Start of modals section ----------------------------- */}
+    <PermissionsGate check={VIEW_DROP_BOX_CHECK} forbiddenMessage="You do not have permission to view the drop box.">
+      <Layout>
+        <Layout.Content style={LAYOUT_CONTENT_STYLE} onDragLeave={handleContainerDragLeave}>
+          {/* ----------------------------- Start of modals section ----------------------------- */}
 
-        <FileUploadModal
-          initialUploadFolder={initialUploadFolder}
-          initialUploadFiles={initialUploadFiles}
-          open={uploadModal}
-          onCancel={hideUploadModal}
-        />
+          <FileUploadModal
+            initialUploadFolder={initialUploadFolder}
+            initialUploadFiles={initialUploadFiles}
+            open={uploadModal}
+            onCancel={hideUploadModal}
+          />
 
-        <FileContentsModal
-          selectedFilePath={selectedEntries.length === 1 ? firstSelectedEntry : undefined}
-          open={fileContentsModal}
-          onCancel={hideFileContentsModal}
-        />
+          <FileContentsModal
+            selectedFilePath={selectedEntries.length === 1 ? firstSelectedEntry : undefined}
+            open={fileContentsModal}
+            onCancel={hideFileContentsModal}
+          />
 
-        <Modal
-          open={fileInfoModal}
-          title={`${fileForInfo.split("/").at(-1)} - information`}
-          width={960}
-          footer={[<DownloadButton key="download" uri={filesByPath[fileForInfo]?.uri} />]}
-          onCancel={hideFileInfoModal}
-        >
-          <Descriptions bordered={true}>
-            <Descriptions.Item label="Name" span={3}>
-              {fileForInfo.split("/").at(-1)}
-            </Descriptions.Item>
-            <Descriptions.Item label="Path" span={3}>
-              {fileForInfo}
-            </Descriptions.Item>
-            <Descriptions.Item label="Size" span={3}>
-              {filesize(filesByPath[fileForInfo]?.size ?? 0)}
-            </Descriptions.Item>
-            <Descriptions.Item label="Last Modified" span={3}>
-              {formatTimestamp(filesByPath[fileForInfo]?.lastModified ?? 0)}
-            </Descriptions.Item>
-            <Descriptions.Item label="Last Metadata Change" span={3}>
-              {formatTimestamp(filesByPath[fileForInfo]?.lastMetadataChange ?? 0)}
-            </Descriptions.Item>
-          </Descriptions>
-        </Modal>
+          <Modal
+            open={fileInfoModal}
+            title={`${fileForInfo.split("/").at(-1)} - information`}
+            width={960}
+            footer={[<DownloadButton key="download" uri={filesByPath[fileForInfo]?.uri} />]}
+            onCancel={hideFileInfoModal}
+          >
+            <Descriptions bordered={true}>
+              <Descriptions.Item label="Name" span={3}>
+                {fileForInfo.split("/").at(-1)}
+              </Descriptions.Item>
+              <Descriptions.Item label="Path" span={3}>
+                {fileForInfo}
+              </Descriptions.Item>
+              <Descriptions.Item label="Size" span={3}>
+                {filesize(filesByPath[fileForInfo]?.size ?? 0)}
+              </Descriptions.Item>
+              <Descriptions.Item label="Last Modified" span={3}>
+                {formatTimestamp(filesByPath[fileForInfo]?.lastModified ?? 0)}
+              </Descriptions.Item>
+              <Descriptions.Item label="Last Metadata Change" span={3}>
+                {formatTimestamp(filesByPath[fileForInfo]?.lastMetadataChange ?? 0)}
+              </Descriptions.Item>
+            </Descriptions>
+          </Modal>
 
-        <Modal
-          open={fileDeleteModal}
-          title={fileDeleteModalTitle}
-          okType="danger"
-          okText="Delete"
-          okButtonProps={{ loading: isDeleting }}
-          onOk={handleDelete}
-          onCancel={hideFileDeleteModal}
-        >
-          Doing so will permanently and irrevocably remove this file from the drop box. It will then be unavailable for
-          any ingestion or analysis.
-        </Modal>
+          <Modal
+            open={fileDeleteModal}
+            title={fileDeleteModalTitle}
+            okType="danger"
+            okText="Delete"
+            okButtonProps={{ loading: isDeleting }}
+            onOk={handleDelete}
+            onCancel={hideFileDeleteModal}
+          >
+            Doing so will permanently and irrevocably remove this file from the drop box. It will then be unavailable
+            for any ingestion or analysis.
+          </Modal>
 
-        {/* ------------------------------ End of modals section ------------------------------ */}
+          {/* ------------------------------ End of modals section ------------------------------ */}
 
-        <div style={DROP_BOX_CONTENT_CONTAINER_STYLE}>
-          <ActionContainer>
-            <Button icon={<UploadOutlined />} onClick={handleUpload} disabled={uploadDisabled}>
-              Upload
-            </Button>
-
-            <Input
-              placeholder="Search files..."
-              value={searchTerm}
-              onChange={handleSearchChange}
-              allowClear={true}
-              style={{ marginBottom: 8, maxWidth: 300 }}
-            />
-
-            <Dropdown.Button
-              menu={workflowMenu}
-              disabled={ingestIntoDatasetDisabled}
-              onClick={handleIngest}
-              style={{ width: "auto" }}
-            >
-              <ImportOutlined /> Ingest
-            </Dropdown.Button>
-
-            <Button.Group>
-              <Button icon={<InfoCircleOutlined />} onClick={showFileInfoModal} disabled={!selectedFileInfoAvailable}>
-                File Info
+          <div style={DROP_BOX_CONTENT_CONTAINER_STYLE}>
+            <ActionContainer>
+              <Button icon={<UploadOutlined />} onClick={handleUpload} disabled={uploadDisabled}>
+                Upload
               </Button>
-              <Button icon={<FileTextOutlined />} onClick={handleViewFile} disabled={!selectedFileViewable}>
-                View
-              </Button>
-              <DownloadButton
-                disabled={!selectedFileInfoAvailable}
-                uri={filesByPath[fileForInfo]?.uri}
-                fileName={fileForInfo}
+
+              <Input
+                placeholder="Search files..."
+                value={searchTerm}
+                onChange={handleSearchChange}
+                allowClear={true}
+                style={{ marginBottom: 8, maxWidth: 300 }}
               />
-            </Button.Group>
 
-            <Button
-              danger={true}
-              icon={<DeleteOutlined />}
-              disabled={deleteDisabled}
-              loading={isDeleting}
-              onClick={showFileDeleteModal}
-            >
-              Delete
-            </Button>
-
-            <Typography.Text type="secondary" style={{ whiteSpace: "nowrap" }}>
-              {selectedEntries.length} item{selectedEntries.length === 1 ? "" : "s"} selected
-            </Typography.Text>
-          </ActionContainer>
-
-          <Spin spinning={isFetchingPermissions || treeLoading}>
-            {isFetchingPermissions || treeLoading || dropBoxService ? (
-              <div
-                onDragEnter={handleDragEnter}
-                onDragLeave={handleDragLeave}
-                onDragOver={stopEvent}
-                onDrop={handleDrop}
-                style={TREE_CONTAINER_STYLE}
+              <Dropdown.Button
+                menu={workflowMenu}
+                disabled={ingestIntoDatasetDisabled}
+                onClick={handleIngest}
+                style={{ width: "auto" }}
               >
-                {draggingOver && (
-                  <div style={TREE_DROP_ZONE_OVERLAY_STYLE}>
-                    <PlusCircleOutlined style={TREE_DROP_ZONE_OVERLAY_ICON_STYLE} />
-                  </div>
-                )}
-                <Tree.DirectoryTree
-                  defaultExpandAll={true}
-                  multiple={true}
-                  expandAction="doubleClick"
-                  onSelect={setSelectedEntries}
-                  selectedKeys={selectedEntries}
-                  treeData={treeData}
-                />
-              </div>
-            ) : (
-              <Empty
-                image={Empty.PRESENTED_IMAGE_SIMPLE}
-                description="Encountered an error while trying to access the drop box service"
-              />
-            )}
-          </Spin>
+                <ImportOutlined /> Ingest
+              </Dropdown.Button>
 
-          <div style={DROP_BOX_INFO_CONTAINER_STYLE}>
-            <Statistic
-              title="Total Space Used"
-              value={treeLoading ? "—" : filesize(Object.values(filesByPath).reduce((acc, f) => acc + f.size, 0))}
-            />
-            <DropBoxInformation style={{ flex: 1 }} />
+              <Button.Group>
+                <Button icon={<InfoCircleOutlined />} onClick={showFileInfoModal} disabled={!selectedFileInfoAvailable}>
+                  File Info
+                </Button>
+                <Button icon={<FileTextOutlined />} onClick={handleViewFile} disabled={!selectedFileViewable}>
+                  View
+                </Button>
+                <DownloadButton
+                  disabled={!selectedFileInfoAvailable}
+                  uri={filesByPath[fileForInfo]?.uri}
+                  fileName={fileForInfo}
+                />
+              </Button.Group>
+
+              <Button
+                danger={true}
+                icon={<DeleteOutlined />}
+                disabled={deleteDisabled}
+                loading={isDeleting}
+                onClick={showFileDeleteModal}
+              >
+                Delete
+              </Button>
+
+              <Typography.Text type="secondary" style={{ whiteSpace: "nowrap" }}>
+                {selectedEntries.length} item{selectedEntries.length === 1 ? "" : "s"} selected
+              </Typography.Text>
+            </ActionContainer>
+
+            <Spin spinning={isFetchingPermissions || treeLoading}>
+              {isFetchingPermissions || treeLoading || dropBoxService ? (
+                <div
+                  onDragEnter={handleDragEnter}
+                  onDragLeave={handleDragLeave}
+                  onDragOver={stopEvent}
+                  onDrop={handleDrop}
+                  style={TREE_CONTAINER_STYLE}
+                >
+                  {draggingOver && (
+                    <div style={TREE_DROP_ZONE_OVERLAY_STYLE}>
+                      <PlusCircleOutlined style={TREE_DROP_ZONE_OVERLAY_ICON_STYLE} />
+                    </div>
+                  )}
+                  <Tree.DirectoryTree
+                    defaultExpandAll={true}
+                    multiple={true}
+                    expandAction="doubleClick"
+                    onSelect={setSelectedEntries}
+                    selectedKeys={selectedEntries}
+                    treeData={treeData}
+                  />
+                </div>
+              ) : (
+                <Empty
+                  image={Empty.PRESENTED_IMAGE_SIMPLE}
+                  description="Encountered an error while trying to access the drop box service"
+                />
+              )}
+            </Spin>
+
+            <div style={DROP_BOX_INFO_CONTAINER_STYLE}>
+              <Statistic
+                title="Total Space Used"
+                value={treeLoading ? "—" : filesize(Object.values(filesByPath).reduce((acc, f) => acc + f.size, 0))}
+              />
+              <DropBoxInformation style={{ flex: 1 }} />
+            </div>
           </div>
-        </div>
-      </Layout.Content>
-    </Layout>
+        </Layout.Content>
+      </Layout>
+    </PermissionsGate>
   );
 };
 

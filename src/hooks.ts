@@ -1,5 +1,6 @@
-import { useCallback, useMemo } from "react";
+import { useCallback, useEffect, useMemo } from "react";
 import Ajv, { type SchemaObject } from "ajv";
+import addFormats from "ajv-formats";
 
 import {
   RESOURCE_EVERYTHING,
@@ -9,6 +10,7 @@ import {
   useOpenIdConfig,
 } from "bento-auth-js";
 
+import { AJV_OPTIONS } from "@/constants";
 import { useService } from "@/modules/services/hooks";
 
 // AUTHORIZATION:
@@ -39,6 +41,7 @@ export type ResourcePermissions = {
   permissions: string[]; // The list of permissions the user has on the resource
   isFetchingPermissions: boolean; // Indicates if the permissions are being fetched.
   hasAttemptedPermissions: boolean; // Indicates if a permissions fetch was attempted.
+  error: string; // String, which is non-blank if an error occurred during permissions fetch.
 };
 
 /**
@@ -51,12 +54,20 @@ export const useResourcePermissionsWrapper = (resource: Resource): ResourcePermi
     permissions,
     isFetching: isFetchingPermissions,
     hasAttempted: hasAttemptedPermissions,
+    error,
   } = useResourcePermissions(resource, authzUrl);
+
+  useEffect(() => {
+    if (error) {
+      console.error("useResourcePermissionsWrapper encountered error", error, "| resource:", resource);
+    }
+  }, [error, resource]);
 
   return {
     permissions,
     isFetchingPermissions,
     hasAttemptedPermissions,
+    error,
   };
 };
 
@@ -81,7 +92,7 @@ export const useJsonSchemaValidator = (schema: SchemaObject, schemaName: string,
   const ajv = useMemo(() => {
     if (schema) {
       // for schemas obtained by API: only instantiate Ajv when the schema is resolved
-      return new Ajv().addSchema(schema, schemaName);
+      return addFormats(new Ajv(AJV_OPTIONS)).addSchema(schema, schemaName);
     }
   }, [schema, schemaName]);
   return useCallback(
@@ -98,6 +109,7 @@ export const useJsonSchemaValidator = (schema: SchemaObject, schemaName: string,
       if (validator(value)) {
         return Promise.resolve();
       } else {
+        console.error(`schema validation errors (schema=${schemaName})`, validator.errors);
         return Promise.reject(new Error(ajv.errorsText(validator.errors)));
       }
     },
