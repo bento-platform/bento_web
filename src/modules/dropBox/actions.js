@@ -24,7 +24,7 @@ export const invalidateDropBoxTree = basicAction(INVALIDATE_DROP_BOX_TREE);
 const dropBoxObjectPath = (getState, path) =>
   `${getState().services.dropBoxService.url}/objects/${path.replace(/^\//, "")}`;
 
-export const putDropBoxObject = networkAction((path, file) => async (_dispatch, getState) => ({
+export const putDropBoxObject = networkAction((path, file) => async (dispatch, getState) => ({
   types: PUT_DROP_BOX_OBJECT,
   url: dropBoxObjectPath(getState, path),
   req: {
@@ -33,6 +33,8 @@ export const putDropBoxObject = networkAction((path, file) => async (_dispatch, 
   },
   onSuccess: () => {
     message.success(`Successfully uploaded file to drop box path: ${path}`);
+    dispatch(invalidateDropBoxTree());
+    return dispatch(fetchDropBoxTree());
   },
   err: `Error uploading file to drop box path: ${path}`,
 }));

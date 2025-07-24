@@ -14,7 +14,6 @@ export const generateFileTree = (
   directory: DropBoxEntry[],
   valid: DropBoxEntryValidFunction,
   folderMode: boolean,
-  basePrefix: string | undefined,
 ): TreeSelectProps["treeData"] =>
   [...directory]
     .sort(sortByName)
@@ -30,16 +29,14 @@ export const generateFileTree = (
         renderAsLeaf = contents.findIndex((c) => c.contents !== undefined) === -1;
       }
 
-      const k = (basePrefix ?? "") + relativePath;
-
       return {
-        value: k,
+        value: relativePath,
         title: name,
         disabled: !isValid,
         isLeaf: renderAsLeaf,
         selectable: folderMode ? isFolder : !isFolder,
         ...(isFolder && {
-          children: generateFileTree(contents, valid, folderMode, basePrefix),
+          children: generateFileTree(contents, valid, folderMode),
         }),
       };
     });
@@ -47,15 +44,14 @@ export const generateFileTree = (
 export type DropBoxTreeSelectProps = Omit<TreeSelectProps, "showSearch" | "treeDefaultExpandAll" | "treeData"> & {
   folderMode?: boolean;
   nodeEnabled?: DropBoxEntryValidFunction;
-  basePrefix?: string;
 };
 
-const DropBoxTreeSelect = ({ folderMode = false, nodeEnabled, basePrefix, ...props }: DropBoxTreeSelectProps) => {
+const DropBoxTreeSelect = ({ folderMode = false, nodeEnabled, ...props }: DropBoxTreeSelectProps) => {
   const { tree } = useDropBox();
 
   const fileTree = useMemo(
-    () => generateFileTree(tree, nodeEnabled ?? getTrue, folderMode, basePrefix),
-    [tree, nodeEnabled, folderMode, basePrefix],
+    () => generateFileTree(tree, nodeEnabled ?? getTrue, folderMode),
+    [tree, nodeEnabled, folderMode],
   );
 
   return (
@@ -64,7 +60,7 @@ const DropBoxTreeSelect = ({ folderMode = false, nodeEnabled, basePrefix, ...pro
       treeDefaultExpandAll={true}
       treeData={[
         {
-          value: basePrefix ?? "/",
+          value: "/",
           title: "Drop Box",
           selectable: folderMode,
           children: fileTree,
