@@ -1,6 +1,6 @@
 {
   "name": "bento_web",
-  "version": "7.0.0",
+  "version": "7.1.0",
   "description": "Bento platform front-end",
   "main": "src/index.tsx",
   "dependencies": {
@@ -40,6 +40,11 @@
     "remark-gfm": "^4.0.0",
     "socket.io-client": "^4.7.2",
     "xlsx": "https://cdn.sheetjs.com/xlsx-0.20.3/xlsx-0.20.3.tgz"
+  },
+  "overrides": {
+    "react-syntax-highlighter": {
+      "prismjs": "1.30.0"
+    }
   },
   "devDependencies": {
     "@babel/core": "^7.25.2",
