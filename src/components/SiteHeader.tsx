@@ -37,6 +37,7 @@ import {
 import { showNotificationDrawer } from "@/modules/notifications/actions";
 import { useNotifications } from "@/modules/notifications/hooks";
 import { useAppDispatch } from "@/store";
+import type { BentoMenuItem } from "@/types/menu";
 import { matchingMenuKeys, transformMenuItem } from "@/utils/menu";
 
 import OverviewSettingsControl from "./overview/OverviewSettingsControl";
@@ -89,7 +90,7 @@ const SiteHeader = () => {
   const performSignOut = usePerformSignOut();
   const hasValidGrafanaRole = useHasValidGrafanaRole();
 
-  const menuItems = useMemo(
+  const menuItems = useMemo<BentoMenuItem[]>(
     () => [
       {
         url: "/home",
@@ -179,7 +180,7 @@ const SiteHeader = () => {
       {
         style: { marginLeft: "auto" },
         icon: <SettingOutlined />,
-        text: <span className="nav-text">Settings</span>,
+        text: "Settings",
         onClick: toggleModalVisibility,
         key: "settings",
       },
@@ -190,12 +191,8 @@ const SiteHeader = () => {
             <BellOutlined style={{ marginRight: 0, color: "rgba(255, 255, 255, 0.65)" }} />
           </Badge>
         ),
-        text: (
-          <span className="nav-text" style={{ marginLeft: "10px" }}>
-            Notifications
-            {unreadNotifications.length > 0 ? <span> ({unreadNotifications.length})</span> : null}
-          </span>
-        ),
+        text: "Notifications" + (unreadNotifications.length > 0 ? ` (${unreadNotifications.length})` : ""),
+        textStyle: { marginLeft: 10 },
         onClick: () => dispatch(showNotificationDrawer()),
         key: "notifications",
       },
@@ -204,7 +201,7 @@ const SiteHeader = () => {
             {
               key: "user-menu",
               icon: <UserOutlined />,
-              text: idTokenContents?.preferred_username,
+              text: (idTokenContents?.preferred_username) as (string | undefined),
               children: [
                 {
                   key: "user-profile",
@@ -216,7 +213,7 @@ const SiteHeader = () => {
                   key: "sign-out-link",
                   onClick: performSignOut,
                   icon: <LogoutOutlined />,
-                  text: <span className="nav-text">Sign Out</span>,
+                  text: "Sign Out",
                 },
               ],
             },
@@ -225,11 +222,7 @@ const SiteHeader = () => {
             {
               key: "sign-in",
               icon: <LoginOutlined />,
-              text: (
-                <span className="nav-text">
-                  {openIdConfigFetching || isHandingOffCodeForToken ? "Loading..." : "Sign In"}
-                </span>
-              ),
+              text: (openIdConfigFetching || isHandingOffCodeForToken) ? "Loading..." : "Sign In",
               onClick: () => performAuth(),
             },
           ]),
