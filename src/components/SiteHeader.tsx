@@ -201,7 +201,7 @@ const SiteHeader = () => {
             {
               key: "user-menu",
               icon: <UserOutlined />,
-              text: (idTokenContents?.preferred_username) as (string | undefined),
+              text: idTokenContents?.preferred_username as string | undefined,
               children: [
                 {
                   key: "user-profile",
@@ -222,7 +222,7 @@ const SiteHeader = () => {
             {
               key: "sign-in",
               icon: <LoginOutlined />,
-              text: (openIdConfigFetching || isHandingOffCodeForToken) ? "Loading..." : "Sign In",
+              text: openIdConfigFetching || isHandingOffCodeForToken ? "Loading..." : "Sign In",
               onClick: () => performAuth(),
             },
           ]),

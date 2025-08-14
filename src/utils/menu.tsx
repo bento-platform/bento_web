@@ -10,9 +10,14 @@ export const transformMenuItem = (i: BentoMenuItem): ItemType => {
     disabled: i.disabled ?? false,
   };
 
-  let text = typeof i.text === "string" ? (
-    <span className="nav-text" style={i.textStyle}>{i.text}</span>
-  ) : (i.text ?? null);
+  const text =
+    typeof i.text === "string" ? (
+      <span className="nav-text" style={i.textStyle}>
+        {i.text}
+      </span>
+    ) : (
+      (i.text ?? null)
+    );
 
   if (i.hasOwnProperty("children")) {
     return {
