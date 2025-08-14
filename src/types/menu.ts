@@ -1,7 +1,8 @@
-import type { CSSProperties, ReactNode } from "react";
+import type { CSSProperties, ReactElement, ReactNode } from "react";
 
 interface BentoBaseMenuItem {
-  text?: string;
+  text?: ReactElement | string;
+  textStyle?: CSSProperties;
   disabled?: boolean;
   icon?: ReactNode;
   iconAfter?: ReactNode;
