@@ -1,4 +1,4 @@
-import { type CSSProperties, ReactElement, useMemo, useState } from "react";
+import { type CSSProperties, type ReactElement, useMemo, useState } from "react";
 import { useIsAuthenticated } from "bento-auth-js";
 
 import { Link } from "react-router-dom";
@@ -9,7 +9,7 @@ import { BranchesOutlined, GithubOutlined } from "@ant-design/icons";
 
 import ServiceRequestModal from "./services/ServiceRequestModal";
 import { useBentoServices, useServices } from "@/modules/services/hooks";
-import { BentoServiceWithComposeID, GA4GHServiceInfo } from "@/modules/services/types";
+import type { BentoServiceWithComposeID, GA4GHServiceInfo } from "@/modules/services/types";
 
 const SERVICE_KIND_STYLING: CSSProperties = { fontFamily: "monospace" };
 
