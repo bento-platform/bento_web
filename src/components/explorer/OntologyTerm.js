@@ -27,6 +27,8 @@ const OntologyTerm = memo(({ term, renderLabel = id, br = false }) => {
 
   useEffect(() => {
     if (!term) return;
+    // Skip logging for the explicit missing case {id: null, label: null}
+    if (term.id === null && term.label === null) return;
     if (!term.id || !term.label) {
       console.error("Invalid term provided to OntologyTerm component:", term);
     }
