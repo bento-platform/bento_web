@@ -86,23 +86,25 @@ const useDropBoxFileText = (filePath?: string): string | null => {
  * When filePath is undefined, the defaultValue is returned instead, allowing to pass the field's initial value.
  * @param filePath path to a dropbox file, undefined when used in a form with no selected file.
  * @param defaultValue default value to return when there is no selected file.
- * @returns the dropbox file data in JSON if it can be parsed, null if no text in the file, otherwise defaultValue.
+ * @returns the dropbox file data in JSON if it can be parsed (or null/default), error message or null
  */
-export const useDropBoxJsonContent = (filePath?: string, defaultValue: JSONType = null): JSONType => {
+export const useDropBoxJsonContent = (filePath?: string, defaultValue: JSONType = null): [JSONType, string | null] => {
   const rawText = useDropBoxFileText(filePath);
   return useMemo(() => {
     if (!filePath) {
       // no file selected
-      return defaultValue;
+      return [defaultValue, null];
     }
     // parsed file content, or null if empty
+    if (!rawText) {
+      return [null, null];
+    }
     try {
-      return rawText ? JSON.parse(rawText) : null;
+      return [JSON.parse(rawText), null];
     } catch (e) {
       // if the file is not a valid JSON
-      return {
-        error: `${e}`,
-      };
+      console.error(e);
+      return [null, `${e}`];
     }
   }, [filePath, rawText, defaultValue]);
 };
