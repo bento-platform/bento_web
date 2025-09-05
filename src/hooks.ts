@@ -98,7 +98,7 @@ export const useJsonSchemaValidator = (schema: SchemaObject, schemaName: string,
   }, [schema, schemaName]);
   return useCallback(
     (rule: unknown, value: unknown) => {
-      var validator
+      let validator;
       try {
         // TODO: why is this throwing?
         validator = ajv?.getSchema(schemaName);
