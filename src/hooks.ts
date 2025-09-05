@@ -12,7 +12,6 @@ import {
 
 import { AJV_OPTIONS } from "@/constants";
 import { useService } from "@/modules/services/hooks";
-import { Exception } from "handlebars";
 
 // AUTHORIZATION:
 // Wrapper hooks for bento-auth-js permissions hooks, which expect a 'authzUrl' argument.
