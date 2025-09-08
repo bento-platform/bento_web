@@ -206,15 +206,11 @@ export const ExperimentDetail = ({ experiment }) => {
         <Descriptions.Item span={1} label="Library Strategy">
           {libraryStrategy}
         </Descriptions.Item>
-        <Descriptions.Item span={2} label="Instrument">
-          <div style={{ display: "flex", gap: 16 }}>
-            <div>
-              <strong>Platform:</strong>&nbsp;{instrument.platform}
-            </div>
-            <div>
-              <strong>ID:</strong>&nbsp;<MonospaceText>{instrument.identifier}</MonospaceText>
-            </div>
-          </div>
+        <Descriptions.Item span={1} label="Device">
+          {instrument.identifier}
+        </Descriptions.Item>
+        <Descriptions.Item span={1} label="Device Ontology">
+          <OntologyTerm term={instrument.device_ontology?.[0] ?? instrument.device_ontology} />
         </Descriptions.Item>
         <Descriptions.Item span={2} label="Extra Properties">
           <ExtraProperties extraProperties={extraProperties} />
