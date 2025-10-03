@@ -312,7 +312,7 @@ export const experimentPropTypesShape = PropTypes.shape({
     description: PropTypes.string,
     model: PropTypes.string,
     device: PropTypes.string,
-    device_ontology: PropTypes.arrayOf(ontologyShape),
+    device_ontology: ontologyShape,
   }),
 
   experiment_results: PropTypes.arrayOf(experimentResultPropTypesShape),

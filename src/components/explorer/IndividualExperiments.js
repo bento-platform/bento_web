@@ -210,7 +210,7 @@ export const ExperimentDetail = ({ experiment }) => {
           {instrument.identifier}
         </Descriptions.Item>
         <Descriptions.Item span={1} label="Device Ontology">
-          <OntologyTerm term={instrument.device_ontology?.[0] ?? instrument.device_ontology} />
+          <OntologyTerm term={instrument.device_ontology} />
         </Descriptions.Item>
         <Descriptions.Item span={2} label="Extra Properties">
           <ExtraProperties extraProperties={extraProperties} />
