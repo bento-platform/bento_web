@@ -97,7 +97,14 @@ export const useJsonSchemaValidator = (schema: SchemaObject, schemaName: string,
   }, [schema, schemaName]);
   return useCallback(
     (rule: unknown, value: unknown) => {
-      const validator = ajv?.getSchema(schemaName);
+      let validator;
+      try {
+        // TODO: why is this throwing?
+        validator = ajv?.getSchema(schemaName);
+      } catch (e) {
+        console.error(`Could not get validator for schema "${schemaName}":`, e);
+      }
+
       if (!ajv || !validator) {
         return Promise.reject(new Error(`No JSON schema provided for ${schemaName}, cannot validate.`));
       }
@@ -109,8 +116,12 @@ export const useJsonSchemaValidator = (schema: SchemaObject, schemaName: string,
       if (validator(value)) {
         return Promise.resolve();
       } else {
-        console.error(`schema validation errors (schema=${schemaName})`, validator.errors);
-        return Promise.reject(new Error(ajv.errorsText(validator.errors)));
+        console.error(`schema validation errors (schema=${schemaName})`, validator?.errors);
+        const err = `JSON failed ${schemaName} schema validation`;
+        if (validator.errors?.length === 1) {
+          return Promise.reject(new Error(`${err}: ${ajv.errorsText(validator.errors)}`));
+        }
+        return Promise.reject(new Error(`${err} (see console for details)`));
       }
     },
     [acceptFalsyValue, ajv, schemaName],

@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
-import { Radio } from "antd";
+import { Radio, Alert } from "antd";
 
 import { useDropBoxJsonContent } from "@/modules/dropBox/hooks";
 import { dropBoxTreeNodeEnabledJson } from "@/utils/files";
@@ -48,7 +48,7 @@ const DropBoxJsonSelect = ({ initialValue, onChange, nullable = false }: DropBox
   );
   const [selectedFile, setSelectedFile] = useState<string | undefined>(undefined);
 
-  const currentFieldData = useDropBoxJsonContent(selectedFile, null);
+  const [currentFieldData, error] = useDropBoxJsonContent(selectedFile, null);
 
   const selection = useMemo(() => {
     switch (radioValue) {
@@ -82,8 +82,12 @@ const DropBoxJsonSelect = ({ initialValue, onChange, nullable = false }: DropBox
         <InnerDropBoxJsonSelect selectedFile={selectedFile} setSelectedFile={setSelectedFile} />
       )}
 
-      {(radioValue !== DropBoxSelectType.New || selectedFile) && (
-        <JsonDisplay showObjectWithReactJson={true} jsonSrc={selection} showArrayTitle={false} />
+      {radioValue === DropBoxSelectType.New && error ? (
+        <Alert message="JSON parse error" description={error} type="error" showIcon={true} />
+      ) : (
+        (radioValue !== DropBoxSelectType.New || selectedFile) && (
+          <JsonDisplay showObjectWithReactJson={true} jsonSrc={selection} showArrayTitle={false} />
+        )
       )}
     </div>
   );
