@@ -83,7 +83,7 @@ const DropBoxJsonSelect = ({ initialValue, onChange, nullable = false }: DropBox
       )}
 
       {radioValue === DropBoxSelectType.New && error ? (
-        <Alert message="Config error" description={error} type="error" showIcon={true} />
+        <Alert message="JSON parse error" description={error} type="error" showIcon={true} />
       ) : (
         (radioValue !== DropBoxSelectType.New || selectedFile) && (
           <JsonDisplay showObjectWithReactJson={true} jsonSrc={selection} showArrayTitle={false} />

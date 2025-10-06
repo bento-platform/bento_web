@@ -102,8 +102,9 @@ export const useJsonSchemaValidator = (schema: SchemaObject, schemaName: string,
         // TODO: why is this throwing?
         validator = ajv?.getSchema(schemaName);
       } catch (e) {
-        console.error(e);
+        console.error(`Could not get validator for schema "${schemaName}":`, e);
       }
+
       if (!ajv || !validator) {
         return Promise.reject(new Error(`No JSON schema provided for ${schemaName}, cannot validate.`));
       }
