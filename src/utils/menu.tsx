@@ -10,13 +10,22 @@ export const transformMenuItem = (i: BentoMenuItem): ItemType => {
     disabled: i.disabled ?? false,
   };
 
+  const text =
+    typeof i.text === "string" ? (
+      <span className="nav-text" style={i.textStyle}>
+        {i.text}
+      </span>
+    ) : (
+      (i.text ?? null)
+    );
+
   if (i.hasOwnProperty("children")) {
     return {
       ...baseItem,
       label: (
         <span className="submenu-title-wrapper">
           {i.icon}
-          {i.text ? <span className="nav-text">{i.text}</span> : null}
+          {text}
           {i.iconAfter ? <span className="nav-icon-after">{i.iconAfter}</span> : null}
         </span>
       ),
@@ -31,13 +40,13 @@ export const transformMenuItem = (i: BentoMenuItem): ItemType => {
       "url" in i ? (
         <Link to={i.url}>
           {i.icon}
-          {i.text ? <span className="nav-text">{i.text}</span> : null}
+          {text}
           {i.iconAfter ? <span className="nav-icon-after">{i.iconAfter}</span> : null}
         </Link>
       ) : (
         <span>
           {i.icon}
-          {i.text ? <span className="nav-text">{i.text}</span> : null}
+          {text}
           {i.iconAfter ? <span className="nav-icon-after">{i.iconAfter}</span> : null}
         </span>
       ),

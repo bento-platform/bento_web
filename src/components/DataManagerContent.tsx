@@ -1,10 +1,11 @@
-import { Suspense, lazy, useEffect } from "react";
+import { Suspense, lazy, useEffect, type CSSProperties } from "react";
 import { Navigate, Route, Routes } from "react-router-dom";
 
 import { Menu, Skeleton } from "antd";
 
 import { SITE_NAME } from "@/constants";
 import { useManagerPermissions } from "@/modules/authz/hooks";
+import type { BentoMenuItem } from "@/types/menu";
 import { matchingMenuKeys, transformMenuItem } from "@/utils/menu";
 
 import SitePageHeader from "./SitePageHeader";
@@ -23,8 +24,8 @@ const styles = {
     marginLeft: "-24px",
     marginRight: "-24px",
     marginTop: "-12px",
-  },
-  suspenseFallback: { padding: "24px", backgroundColor: "white" },
+  } as CSSProperties,
+  suspenseFallback: { padding: "24px", backgroundColor: "white" } as CSSProperties,
 };
 
 const DataManagerContent = () => {
@@ -45,7 +46,7 @@ const DataManagerContent = () => {
     canViewPermissions,
   } = managerPermissions.permissions;
 
-  const menuItems = [
+  const menuItems: BentoMenuItem[] = [
     {
       url: "/data/manager/projects",
       style: { marginLeft: "4px" },

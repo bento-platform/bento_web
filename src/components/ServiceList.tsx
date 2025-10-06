@@ -1,18 +1,26 @@
-import { useMemo, useState } from "react";
+import { type CSSProperties, type ReactElement, useMemo, useState } from "react";
 import { useIsAuthenticated } from "bento-auth-js";
 
 import { Link } from "react-router-dom";
 
-import { Table, Typography, Tag, Button } from "antd";
+import { Table, Typography, Tag, Button, type TableColumnsType, type TagProps } from "antd";
+
 import { BranchesOutlined, GithubOutlined } from "@ant-design/icons";
 
 import ServiceRequestModal from "./services/ServiceRequestModal";
 import { useBentoServices, useServices } from "@/modules/services/hooks";
+import type { BentoServiceWithComposeID, GA4GHServiceInfo } from "@/modules/services/types";
 
-const SERVICE_KIND_STYLING = { fontFamily: "monospace" };
+const SERVICE_KIND_STYLING: CSSProperties = { fontFamily: "monospace" };
+
+type ServiceTag = {
+  color?: TagProps["color"];
+  logo: ReactElement | null;
+  value?: string;
+};
 
 // noinspection JSUnresolvedFunction
-const getServiceTags = (serviceInfo) =>
+const getServiceTags = (serviceInfo: GA4GHServiceInfo): ServiceTag[] =>
   [
     {
       color: (serviceInfo.environment ?? "") === "prod" ? "green" : "blue",
@@ -26,18 +34,15 @@ const getServiceTags = (serviceInfo) =>
     },
     // {color: null, logo: <Icon type="tag"/>, value: ({repository}) => `${repository.split("@")[1]}`},
     {
-      color: null,
       logo: <GithubOutlined />,
-      value: serviceInfo.bento?.gitTag ?? serviceInfo.git_tag,
+      value: serviceInfo.bento?.gitTag,
     },
     {
-      color: null,
       logo: <BranchesOutlined />,
       value: (() => {
         const { bento } = serviceInfo;
 
-        const branch = bento?.gitBranch ?? serviceInfo.git_branch;
-        /** @type {string|undefined} */
+        const branch = bento?.gitBranch;
         const commit = bento?.gitCommit;
 
         if (!branch || !commit) return undefined;
@@ -47,14 +52,26 @@ const getServiceTags = (serviceInfo) =>
     },
   ].filter((t) => t.value);
 
-const renderGitInfo = (tag, record, key) => (
+const GitInfo = ({ tag, key }: { tag: ServiceTag; key: number }) => (
   <Tag key={key} color={tag.color}>
     {tag.logo} {tag.value}
   </Tag>
 );
 
-/* eslint-disable react/prop-types */
-const serviceColumns = (isAuthenticated, setRequestModalService) => [
+type ServiceColumn = BentoServiceWithComposeID & {
+  key: string;
+  serviceInfo: GA4GHServiceInfo | null;
+  status: {
+    status: boolean;
+    dataService: boolean;
+  };
+  loading: boolean;
+};
+
+const serviceColumns = (
+  isAuthenticated: boolean,
+  setRequestModalService: (kind: string | undefined) => void,
+): TableColumnsType<ServiceColumn> => [
   {
     title: "Kind",
     dataIndex: "service_kind",
@@ -81,7 +98,9 @@ const serviceColumns = (isAuthenticated, setRequestModalService) => [
       return serviceInfo ? (
         <>
           <Typography.Text style={{ marginRight: "1em" }}>{version || "-"}</Typography.Text>
-          {getServiceTags(serviceInfo).map((tag, i) => renderGitInfo(tag, record, i))}
+          {getServiceTags(serviceInfo).map((tag, i) => (
+            <GitInfo tag={tag} key={i} />
+          ))}
         </>
       ) : null;
     },
@@ -108,7 +127,7 @@ const serviceColumns = (isAuthenticated, setRequestModalService) => [
   {
     title: "Actions",
     render: (service) => {
-      const onClick = () => setRequestModalService(service.serviceInfo?.bento?.serviceKind ?? service.key ?? null);
+      const onClick = () => setRequestModalService(service.serviceInfo?.bento?.serviceKind ?? service.key ?? undefined);
       return (
         <Button size="small" onClick={onClick}>
           Make Request
@@ -117,15 +136,14 @@ const serviceColumns = (isAuthenticated, setRequestModalService) => [
     },
   },
 ];
-/* eslint-enable react/prop-types */
 
 const ServiceList = () => {
-  const [requestModalService, setRequestModalService] = useState(undefined);
+  const [requestModalService, setRequestModalService] = useState<string | undefined>(undefined);
 
   const { isFetching: servicesFetching, itemsByKind: servicesByKind } = useServices();
   const { isFetching: bentoServicesFetching, itemsByKind: bentoServicesByKind } = useBentoServices();
 
-  const dataSource = useMemo(
+  const dataSource = useMemo<ServiceColumn[]>(
     () =>
       Object.entries(bentoServicesByKind).map(([kind, service]) => {
         const serviceInfo = servicesByKind[kind] ?? null;
@@ -135,7 +153,7 @@ const ServiceList = () => {
           serviceInfo,
           status: {
             status: kind in servicesByKind,
-            dataService: serviceInfo?.bento?.dataService,
+            dataService: serviceInfo?.bento?.dataService ?? false,
           },
           loading: servicesFetching,
         };
@@ -143,17 +161,16 @@ const ServiceList = () => {
     [servicesByKind, bentoServicesByKind, servicesFetching],
   );
 
-  const isAuthenticated = useIsAuthenticated();
+  const isAuthenticated: boolean = useIsAuthenticated();
 
   const columns = useMemo(() => serviceColumns(isAuthenticated, setRequestModalService), [isAuthenticated]);
 
-  /** @type boolean */
   const isLoading = servicesFetching || bentoServicesFetching;
 
   return (
     <>
       <ServiceRequestModal service={requestModalService} onCancel={() => setRequestModalService(undefined)} />
-      <Table
+      <Table<ServiceColumn>
         bordered
         style={{ marginBottom: 24 }}
         size="middle"
