@@ -6,7 +6,12 @@ import { Button, Descriptions, Popover, Table, Tooltip, Typography } from "antd"
 import { BarsOutlined, EyeOutlined, FileTextOutlined, ProfileOutlined } from "@ant-design/icons";
 
 import { EM_DASH } from "@/constants";
-import { experimentPropTypesShape, experimentResultPropTypesShape, individualPropTypesShape } from "@/propTypes";
+import {
+  experimentPropTypesShape,
+  experimentResultPropTypesShape,
+  individualPropTypesShape,
+  ontologyShape,
+} from "@/propTypes";
 import { getFileDownloadUrlsFromDrs } from "@/modules/drs/actions";
 import { useAppDispatch, useAppSelector } from "@/store";
 import { guessFileType } from "@/utils/files";
@@ -136,6 +141,35 @@ const EXPERIMENT_RESULTS_COLUMNS = [
   },
 ];
 
+const Device = ({ device, deviceOntology }) => {
+  if (device && deviceOntology) {
+    return (
+      <div>
+        <strong>Device:</strong>&nbsp;{device} (<OntologyTerm term={deviceOntology} />)
+      </div>
+    );
+  } else if (!device && deviceOntology) {
+    return (
+      <div>
+        <strong>Device:</strong>&nbsp;
+        <OntologyTerm term={deviceOntology} />
+      </div>
+    );
+  } else if (device && !deviceOntology) {
+    return (
+      <div>
+        <strong>Device:</strong>&nbsp;{device}
+      </div>
+    );
+  } else {
+    return null;
+  }
+};
+Device.propTypes = {
+  device: PropTypes.string,
+  deviceOntology: ontologyShape,
+};
+
 export const ExperimentDetail = ({ experiment }) => {
   const {
     id,
@@ -208,12 +242,15 @@ export const ExperimentDetail = ({ experiment }) => {
         </Descriptions.Item>
         <Descriptions.Item span={2} label="Instrument">
           <div style={{ display: "flex", gap: 16 }}>
-            <div>
-              <strong>Platform:</strong>&nbsp;{instrument.platform}
-            </div>
-            <div>
-              <strong>ID:</strong>&nbsp;<MonospaceText>{instrument.identifier}</MonospaceText>
-            </div>
+            <Device device={instrument.device} deviceOntology={instrument.device_ontology} />
+            {instrument.description && (
+              <div>
+                <strong>Description:</strong>&nbsp;{instrument.description}
+              </div>
+            )}
+            {Object.keys(instrument.extra_properties ?? {}).length ? (
+              <ExtraProperties extraProperties={extraProperties} />
+            ) : null}
           </div>
         </Descriptions.Item>
         <Descriptions.Item span={2} label="Extra Properties">
