@@ -12,7 +12,7 @@ import {
   individualPropTypesShape,
   ontologyShape,
 } from "@/propTypes";
-import { getFileDownloadUrlsFromDrs } from "@/modules/drs/actions";
+import { getDRSObject, getFileDownloadUrlsFromDrs } from "@/modules/drs/actions";
 import { useAppDispatch, useAppSelector } from "@/store";
 import { guessFileType } from "@/utils/files";
 
@@ -35,10 +35,24 @@ BiosampleLink.propTypes = {
 const VIEWABLE_FILE_FORMATS = ["PDF", "CSV", "TSV"];
 
 const ExperimentResultActions = ({ result }) => {
-  const { filename } = result;
+  const { filename, url } = result;
 
-  const downloadUrls = useAppSelector((state) => state.drs.downloadUrlsByFilename);
-  const url = downloadUrls[filename]?.url;
+  const dispatch = useAppDispatch();
+
+  const { uriCache: drsUriCache, downloadUrlsByFilename: downloadUrls } = useAppSelector((state) => state.drs);
+
+  const uriRec = drsUriCache[url];
+  const downloadUrl = useMemo(() => {
+    if (!url) {
+      return downloadUrls[filename]?.url;
+    }
+
+    if (!uriRec?.isFetching && !uriRec?.data) {
+      dispatch(getDRSObject(url));
+    } else if (uriRec?.data) {
+      return uriRec.data.access_methods.find((r) => r.type === "https")?.access_url?.url;
+    }
+  }, [dispatch, filename, url, downloadUrls, uriRec]);
 
   const [viewModalVisible, setViewModalVisible] = useState(false);
 
@@ -65,7 +79,7 @@ const ExperimentResultActions = ({ result }) => {
       {url ? (
         <>
           <Tooltip title="Download">
-            <DownloadButton size="small" uri={url} fileName={filename}>
+            <DownloadButton size="small" uri={downloadUrl} fileName={filename}>
               {""}
             </DownloadButton>
           </Tooltip>{" "}
@@ -95,6 +109,7 @@ const ExperimentResultActions = ({ result }) => {
               <Descriptions.Item label="Identifier">{result.identifier}</Descriptions.Item>
               <Descriptions.Item label="Description">{result.description}</Descriptions.Item>
               <Descriptions.Item label="Filename">{result.filename}</Descriptions.Item>
+              <Descriptions.Item label="URI">{result.uri}</Descriptions.Item>
               <Descriptions.Item label="Format">{result.file_format}</Descriptions.Item>
               <Descriptions.Item label="Assembly ID">{result.genome_assembly_id ?? EM_DASH}</Descriptions.Item>
               <Descriptions.Item label="Data output type">{result.data_output_type ?? EM_DASH}</Descriptions.Item>
