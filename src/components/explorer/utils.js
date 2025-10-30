@@ -3,13 +3,7 @@ import { fetchDatasetResourcesIfNecessary } from "@/modules/datasets/actions";
 import { useAppDispatch, useAppSelector } from "@/store";
 import { guessFileType } from "@/utils/files";
 
-const VIEWABLE_FORMATS_LOWER = [
-  "bam", "cram",
-  "bigbed",
-  "maf",
-  "bigwig",
-  "vcf", "gvcf",
-];
+const VIEWABLE_FORMATS_LOWER = ["bam", "cram", "bigbed", "maf", "bigwig", "vcf", "gvcf"];
 
 export const useDeduplicatedIndividualBiosamples = (individual) =>
   useMemo(
@@ -154,11 +148,10 @@ export const useIndividualViewableExperimentResults = (individual) => {
       Object.fromEntries(
         experiments
           .flatMap((e) => e?.experiment_results ?? [])
-          .filter((expRes) =>
-            !!expRes.genome_assembly_id &&
-            VIEWABLE_FORMATS_LOWER.includes(
-              expRes.file_format?.toLowerCase() ?? guessFileType(expRes.filename)
-            )
+          .filter(
+            (expRes) =>
+              !!expRes.genome_assembly_id &&
+              VIEWABLE_FORMATS_LOWER.includes(expRes.file_format?.toLowerCase() ?? guessFileType(expRes.filename)),
           )
           .map((expRes) => {
             const fileFormatLower = expRes.file_format?.toLowerCase() ?? guessFileType(expRes.filename);

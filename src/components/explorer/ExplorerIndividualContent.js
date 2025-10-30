@@ -72,11 +72,8 @@ const ExplorerIndividualContent = () => {
   const biosamplesData = useDeduplicatedIndividualBiosamples(individual);
 
   const allExperimentResults = useMemo(
-    () =>
-      biosamplesData.flatMap((b) =>
-        (b?.experiments ?? []).flatMap((e) => e?.experiment_results ?? [])
-      ),
-    [biosamplesData]
+    () => biosamplesData.flatMap((b) => (b?.experiments ?? []).flatMap((e) => e?.experiment_results ?? [])),
+    [biosamplesData],
   );
 
   const viewableExperimentResultsForIgv = useIndividualViewableExperimentResults(individual);

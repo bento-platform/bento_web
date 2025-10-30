@@ -324,7 +324,6 @@ const Experiments = ({ individual, handleExperimentClick }) => {
   const biosamplesData = useDeduplicatedIndividualBiosamples(individual);
   const experimentsData = useMemo(() => biosamplesData.flatMap((b) => b?.experiments ?? []), [biosamplesData]);
 
-
   return (
     <RoutedIndividualContentTable
       data={experimentsData}
