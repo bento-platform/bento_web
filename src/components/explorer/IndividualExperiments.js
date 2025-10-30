@@ -12,7 +12,6 @@ import {
   individualPropTypesShape,
   ontologyShape,
 } from "@/propTypes";
-import { getFileDownloadUrlsFromDrs } from "@/modules/drs/actions";
 import { useAppDispatch, useAppSelector } from "@/store";
 
 import { useDeduplicatedIndividualBiosamples } from "./utils";
@@ -304,7 +303,6 @@ const EXPERIMENT_COLUMNS = [
 ];
 
 const Experiments = ({ individual, handleExperimentClick }) => {
-  const dispatch = useAppDispatch();
 
   const { selectedExperiment } = useParams();
 
