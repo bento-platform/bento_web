@@ -12,6 +12,7 @@ import {
   useIsDataEmpty,
   useDeduplicatedIndividualBiosamples,
   useIndividualResources,
+  useIndividualViewableExperimentResults,
   explorerIndividualUrl,
 } from "./utils";
 
@@ -27,6 +28,10 @@ import IndividualPhenopackets from "./IndividualPhenopackets";
 import IndividualInterpretations from "./IndividualInterpretations";
 import IndividualMedicalActions from "./IndividualMedicalActions";
 import IndividualMeasurements from "./IndividualMeasurements";
+
+import { useAppDispatch } from "@/store";
+import { getFileDownloadUrlsFromDrs, getIgvUrlsFromDrs } from "@/modules/drs/actions";
+import { guessFileType } from "@/utils/files";
 
 const MENU_STYLE = {
   marginLeft: "-24px",
@@ -61,6 +66,36 @@ const ExplorerIndividualContent = () => {
 
   const resourcesTuple = useIndividualResources(individual);
   const individualContext = useMemo(() => ({ individualID, resourcesTuple }), [individualID, resourcesTuple]);
+
+  const dispatch = useAppDispatch();
+
+  const biosamplesData = useDeduplicatedIndividualBiosamples(individual);
+
+  const allExperimentResults = useMemo(
+    () =>
+      biosamplesData.flatMap((b) =>
+        (b?.experiments ?? []).flatMap((e) => e?.experiment_results ?? [])
+      ),
+    [biosamplesData]
+  );
+
+  const viewableExperimentResultsForIgv = useIndividualViewableExperimentResults(individual);
+
+  useEffect(() => {
+    if (allExperimentResults.length > 0) {
+      const downloadableFiles = allExperimentResults.map((r) => ({
+        ...r,
+        file_format: r.file_format ?? guessFileType(r.filename),
+      }));
+      dispatch(getFileDownloadUrlsFromDrs(downloadableFiles)).catch(console.error);
+    }
+  }, [dispatch, allExperimentResults]);
+
+  useEffect(() => {
+    if (viewableExperimentResultsForIgv.length > 0) {
+      dispatch(getIgvUrlsFromDrs(viewableExperimentResultsForIgv)).catch(console.error);
+    }
+  }, [dispatch, viewableExperimentResultsForIgv]);
 
   const individualUrl = explorerIndividualUrl(individualID);
 
