@@ -169,4 +169,3 @@ export const useIndividualViewableExperimentResults = (individual) => {
     return vr;
   }, [biosamplesData]);
 };
-
