@@ -14,7 +14,6 @@ import {
 } from "@/propTypes";
 import { getFileDownloadUrlsFromDrs } from "@/modules/drs/actions";
 import { useAppDispatch, useAppSelector } from "@/store";
-import { guessFileType } from "@/utils/files";
 
 import { useDeduplicatedIndividualBiosamples } from "./utils";
 import { VIEWABLE_FILE_EXTENSIONS } from "@/components/display/FileDisplay";
@@ -325,19 +324,6 @@ const Experiments = ({ individual, handleExperimentClick }) => {
   const biosamplesData = useDeduplicatedIndividualBiosamples(individual);
   const experimentsData = useMemo(() => biosamplesData.flatMap((b) => b?.experiments ?? []), [biosamplesData]);
 
-  useEffect(() => {
-    // retrieve any download urls if experiments data changes
-
-    const downloadableFiles = experimentsData
-      .flatMap((e) => e?.experiment_results ?? [])
-      .map((r) => ({
-        // enforce file_format property
-        ...r,
-        file_format: r.file_format ?? guessFileType(r.filename),
-      }));
-
-    dispatch(getFileDownloadUrlsFromDrs(downloadableFiles)).catch(console.error);
-  }, [dispatch, experimentsData]);
 
   return (
     <RoutedIndividualContentTable
