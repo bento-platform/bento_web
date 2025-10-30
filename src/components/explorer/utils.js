@@ -1,6 +1,15 @@
 import { useEffect, useMemo } from "react";
 import { fetchDatasetResourcesIfNecessary } from "@/modules/datasets/actions";
 import { useAppDispatch, useAppSelector } from "@/store";
+import { guessFileType } from "@/utils/files";
+
+const VIEWABLE_FORMATS_LOWER = [
+  "bam", "cram",
+  "bigbed",
+  "maf",
+  "bigwig",
+  "vcf", "gvcf",
+];
 
 export const useDeduplicatedIndividualBiosamples = (individual) =>
   useMemo(
@@ -136,3 +145,28 @@ export const ontologyTermSorter = (k) => (a, b) => {
 };
 
 export const explorerIndividualUrl = (individualID) => `/data/explorer/individuals/${individualID}`;
+
+export const useIndividualViewableExperimentResults = (individual) => {
+  const biosamplesData = useDeduplicatedIndividualBiosamples(individual);
+  return useMemo(() => {
+    const experiments = biosamplesData.flatMap((b) => b?.experiments ?? []);
+    const vr = Object.values(
+      Object.fromEntries(
+        experiments
+          .flatMap((e) => e?.experiment_results ?? [])
+          .filter((expRes) =>
+            !!expRes.genome_assembly_id &&
+            VIEWABLE_FORMATS_LOWER.includes(
+              expRes.file_format?.toLowerCase() ?? guessFileType(expRes.filename)
+            )
+          )
+          .map((expRes) => {
+            const fileFormatLower = expRes.file_format?.toLowerCase() ?? guessFileType(expRes.filename);
+            return [expRes.filename, { ...expRes, fileFormatLower }];
+          }),
+      ),
+    ).sort((r1, r2) => (r1.fileFormatLower ?? "").localeCompare(r2.fileFormatLower ?? ""));
+    return vr;
+  }, [biosamplesData]);
+};
+
