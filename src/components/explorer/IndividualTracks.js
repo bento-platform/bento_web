@@ -293,17 +293,6 @@ const IndividualTracks = ({ individual }) => {
     [dispatch],
   );
 
-  // retrieve urls on mount
-  useEffect(() => {
-    if (allTracks.length) {
-      // don't search if all urls already known
-      if (hasFreshUrls(allTracks, igvUrls)) {
-        return;
-      }
-      dispatch(getIgvUrlsFromDrs(allTracks)).catch(console.error);
-    }
-  }, [dispatch, allTracks, igvUrls]);
-
   // update access token whenever necessary
   useEffect(() => {
     if (BENTO_URL) {
