@@ -150,6 +150,7 @@ const IGV_JS_ANNOTATION_ALIASES = {
 const IndividualTracks = ({ individual }) => {
   const accessToken = useAccessToken();
 
+  const dispatch = useAppDispatch();
   const igvDivRef = useRef();
   const igvBrowserRef = useRef(null);
   const [creatingIgvBrowser, setCreatingIgvBrowser] = useState(false);

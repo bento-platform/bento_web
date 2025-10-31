@@ -12,7 +12,7 @@ import {
   individualPropTypesShape,
   ontologyShape,
 } from "@/propTypes";
-import { useAppDispatch, useAppSelector } from "@/store";
+import { useAppSelector } from "@/store";
 
 import { useDeduplicatedIndividualBiosamples } from "./utils";
 import { VIEWABLE_FILE_EXTENSIONS } from "@/components/display/FileDisplay";
@@ -303,7 +303,6 @@ const EXPERIMENT_COLUMNS = [
 ];
 
 const Experiments = ({ individual, handleExperimentClick }) => {
-
   const { selectedExperiment } = useParams();
 
   useEffect(() => {
