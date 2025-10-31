@@ -11,7 +11,6 @@ import { SettingOutlined } from "@ant-design/icons";
 
 import { BENTO_PUBLIC_URL, BENTO_URL } from "@/config";
 import { individualPropTypesShape } from "@/propTypes";
-import { getIgvUrlsFromDrs } from "@/modules/drs/actions";
 import { setIgvPosition } from "@/modules/explorer/actions";
 import { useIgvGenomes } from "@/modules/explorer/hooks";
 import { useReferenceGenomes } from "@/modules/reference/hooks";
@@ -151,6 +150,7 @@ const IGV_JS_ANNOTATION_ALIASES = {
 const IndividualTracks = ({ individual }) => {
   const accessToken = useAccessToken();
 
+  const dispatch = useAppDispatch();
   const igvDivRef = useRef();
   const igvBrowserRef = useRef(null);
   const [creatingIgvBrowser, setCreatingIgvBrowser] = useState(false);
@@ -162,8 +162,6 @@ const IndividualTracks = ({ individual }) => {
     (state) => state.explorer,
     () => true, // We don't want to re-render anything when the position changes
   );
-
-  const dispatch = useAppDispatch();
 
   const referenceService = useService("reference");
   // Built-in igv.js genomes (with annotations):
@@ -292,17 +290,6 @@ const IndividualTracks = ({ individual }) => {
     },
     [dispatch],
   );
-
-  // retrieve urls on mount
-  useEffect(() => {
-    if (allTracks.length) {
-      // don't search if all urls already known
-      if (hasFreshUrls(allTracks, igvUrls)) {
-        return;
-      }
-      dispatch(getIgvUrlsFromDrs(allTracks)).catch(console.error);
-    }
-  }, [dispatch, allTracks, igvUrls]);
 
   // update access token whenever necessary
   useEffect(() => {
