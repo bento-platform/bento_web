@@ -136,6 +136,21 @@ const ageRangePropTypesShape = PropTypes.shape({
   end: agePropTypesShape,
 });
 
+export const geoLocationPropTypesShape = PropTypes.shape({
+  type: PropTypes.string,
+  geometry: PropTypes.shape({
+    type: PropTypes.string,
+    coordinates: PropTypes.arrayOf(PropTypes.number),
+  }),
+  properties: PropTypes.shape({
+    label: PropTypes.string,
+    city: PropTypes.string,
+    country: PropTypes.string,
+    precision: PropTypes.string,
+    ISO3166alpha3: PropTypes.string,
+  }),
+});
+
 // Prop types object shape for a single biosample object from the metadata service.
 export const biosamplePropTypesShape = PropTypes.shape({
   id: PropTypes.string.isRequired,
@@ -149,7 +164,8 @@ export const biosamplePropTypesShape = PropTypes.shape({
   description: PropTypes.string,
   sampled_tissue: ontologyShape,
   sample_type: ontologyShape,
-  individual_age_at_collection: PropTypes.oneOfType([agePropTypesShape, ageRangePropTypesShape]),
+  time_of_collection: PropTypes.oneOfType([agePropTypesShape, ageRangePropTypesShape]),
+  location_collected: geoLocationPropTypesShape,
 
   histological_diagnosis: ontologyShape,
   tumor_progression: ontologyShape,
