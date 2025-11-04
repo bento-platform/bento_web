@@ -34,7 +34,7 @@ const BiosampleLocationCollected = ({ biosampleId, locationCollected }) => {
   if (!locationCollected) return EM_DASH;
 
   return (
-    <div style={{ width: "100%", position: "relative", minWidth: 400 }}>
+    <div style={{ width: "100%", position: "relative", minWidth: 540, overflowX: "auto" }}>
       <Radio.Group
         value={locationView}
         onChange={(e) => {
@@ -45,10 +45,9 @@ const BiosampleLocationCollected = ({ biosampleId, locationCollected }) => {
           { label: "JSON", value: "json" },
         ]}
         optionType="button"
-        className="position-absolute"
-        style={{ top: 8, right: 0, zIndex: 999 }}
+        style={{ position: "absolute", top: 8, right: "max(100% - 532px, 8px)", zIndex: 999 }}
       />
-      <div style={{ display: locationView === "map" ? "block" : "none", width: 400 }}>
+      <div style={{ display: locationView === "map" ? "block" : "none", width: 540 }}>
         <PointMap
           data={[{ ...locationCollected.geometry, title: biosampleId }]}
           center={[locationCollected.geometry.coordinates[1], locationCollected.geometry.coordinates[0]]}
@@ -87,7 +86,7 @@ const BiosampleLocationCollected = ({ biosampleId, locationCollected }) => {
         />
       </div>
       <div style={{ display: locationView === "json" ? "block" : "none" }}>
-        <JsonView src={locationCollected} />
+        <JsonView src={locationCollected} collapsed={3} />
       </div>
     </div>
   );
