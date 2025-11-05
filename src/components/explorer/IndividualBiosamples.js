@@ -1,18 +1,21 @@
-import { Fragment, useCallback, useEffect, useMemo } from "react";
+import { Fragment, useCallback, useEffect, useMemo, useState } from "react";
 import PropTypes from "prop-types";
 import { useNavigate, useParams } from "react-router-dom";
 
-import { Button, Descriptions } from "antd";
+import { Button, Descriptions, Radio } from "antd";
+import { PointMap } from "bento-charts/dist/maps";
 
 import { EM_DASH } from "@/constants";
 import {
   biosamplePropTypesShape,
   experimentPropTypesShape,
+  geoLocationPropTypesShape,
   individualPropTypesShape,
   ontologyShape,
 } from "@/propTypes";
 import { useDeduplicatedIndividualBiosamples } from "./utils";
 
+import JsonView from "@/components/common/JsonView";
 import OntologyTerm from "./OntologyTerm";
 import TimeElement from "./TimeElement";
 
@@ -24,6 +27,74 @@ import ExtraProperties from "./ExtraProperties";
 
 // TODO: Only show biosamples from the relevant dataset, if specified;
 //  highlight those found in search results, if specified
+
+const BiosampleLocationCollected = ({ biosampleId, locationCollected }) => {
+  const [locationView, setLocationView] = useState("map"); // map | json
+
+  if (!locationCollected) return EM_DASH;
+
+  return (
+    <div style={{ width: "100%", position: "relative", minWidth: 540, overflowX: "auto" }}>
+      <Radio.Group
+        value={locationView}
+        onChange={(e) => {
+          setLocationView(e.target.value);
+        }}
+        options={[
+          { label: "Map", value: "map" },
+          { label: "JSON", value: "json" },
+        ]}
+        optionType="button"
+        style={{ position: "absolute", top: 8, right: "max(100% - 532px, 8px)", zIndex: 999 }}
+      />
+      <div style={{ display: locationView === "map" ? "block" : "none", width: 540 }}>
+        <PointMap
+          data={[{ ...locationCollected.geometry, title: biosampleId }]}
+          center={[locationCollected.geometry.coordinates[1], locationCollected.geometry.coordinates[0]]}
+          zoom={13}
+          height={350}
+          renderPopupBody={(p) => {
+            const lcProps = locationCollected.properties ?? {};
+            console.debug("showing popup body for point:", p, lcProps);
+
+            const countryCode = lcProps.ISO3166alpha3 ?? lcProps.iso3166alpha3;
+
+            return (
+              <div>
+                <Descriptions
+                  column={1}
+                  items={[
+                    {
+                      key: "label",
+                      label: "Label",
+                      children: lcProps.label,
+                      isVisible: !!lcProps.label && lcProps.label !== lcProps.city,
+                    },
+                    { key: "city", label: "City", children: lcProps.city },
+                    { key: "country", label: "Country", children: lcProps.country },
+                    { key: "precision", label: "Precision", children: lcProps.precision },
+                    {
+                      key: "ISO3166alpha3",
+                      label: "Country Code",
+                      children: countryCode,
+                    },
+                  ]}
+                />
+              </div>
+            );
+          }}
+        />
+      </div>
+      <div style={{ display: locationView === "json" ? "block" : "none" }}>
+        <JsonView src={locationCollected} collapsed={3} />
+      </div>
+    </div>
+  );
+};
+BiosampleLocationCollected.propTypes = {
+  biosampleId: PropTypes.string,
+  locationCollected: geoLocationPropTypesShape,
+};
 
 const BiosampleProcedure = ({ procedure }) => {
   if (!procedure) {
@@ -98,6 +169,9 @@ export const BiosampleDetail = ({ biosample, handleExperimentClick }) => {
       <Descriptions.Item label="Time of Collection">
         <TimeElement timeElement={biosample.time_of_collection} />
       </Descriptions.Item>
+      <Descriptions.Item label="Location Collected">
+        <BiosampleLocationCollected biosampleId={biosample.id} locationCollected={biosample.location_collected} />
+      </Descriptions.Item>
       <Descriptions.Item label="Measurements">
         {biosample.hasOwnProperty("measurements") && Object.keys(biosample.measurements).length ? (
           <MeasurementsTable measurements={biosample.measurements} />
@@ -106,7 +180,7 @@ export const BiosampleDetail = ({ biosample, handleExperimentClick }) => {
         )}
       </Descriptions.Item>
       <Descriptions.Item label="Extra Properties">
-        <ExtraProperties extraProperties={biosample?.extra_properties} />
+        <ExtraProperties extraProperties={biosample.extra_properties} />
       </Descriptions.Item>
       {handleExperimentClick && (
         <Descriptions.Item label="Available Experiments">
