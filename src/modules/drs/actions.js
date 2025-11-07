@@ -28,6 +28,7 @@ const getDrsUrls =
   (fileObj, skipIndex = false) =>
   async (dispatch, getState) => {
     const filename = fileObj.filename;
+
     const drsUrl = getState().services.drsService.url;
 
     const isIndexed = isIndexedFileType(fileObj);
@@ -35,11 +36,16 @@ const getDrsUrls =
 
     console.debug(`Initiating getDrsUrls (isIndexed=${isIndexed}, skipIndex=${skipIndex})`);
 
+    const result = { url: null, ...(shouldFetchIndex ? { indexUrl: null } : {}) };
+
+    // Skipping fuzzy search for local path
+    if (filename.startsWith('/')) {
+      return { [filename]: result };
+    }
+
     const fuzzySearchUrl = `${drsUrl}/search?fuzzy_name=${filename}`;
     await dispatch(performFuzzyNameSearch(fuzzySearchUrl));
     console.debug(`Completed fuzzy search for ${filename}`);
-
-    const result = { url: null, ...(shouldFetchIndex ? { indexUrl: null } : {}) };
 
     const fuzzySearchObj = getState()?.drs?.fuzzySearchResponse;
     if (fuzzySearchObj === undefined) {
