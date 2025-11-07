@@ -39,7 +39,7 @@ const getDrsUrls =
     const result = { url: null, ...(shouldFetchIndex ? { indexUrl: null } : {}) };
 
     // Skipping fuzzy search for local path
-    if (filename.startsWith('/')) {
+    if (filename.startsWith("/")) {
       return { [filename]: result };
     }
 
