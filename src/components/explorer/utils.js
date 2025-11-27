@@ -3,7 +3,21 @@ import { fetchDatasetResourcesIfNecessary } from "@/modules/datasets/actions";
 import { useAppDispatch, useAppSelector } from "@/store";
 import { guessFileType } from "@/utils/files";
 
-const VIEWABLE_FORMATS_LOWER = ["bam", "cram", "bigbed", "maf", "bigwig", "vcf", "gvcf"];
+// --- CONSTANTS START ---
+export const ALIGNMENT_FORMATS_LOWER = ["bam", "cram"];
+export const ANNOTATION_FORMATS_LOWER = ["bigbed"];
+export const MUTATION_FORMATS_LOWER = ["maf"];
+export const WIG_FORMATS_LOWER = ["bigwig"];
+export const VARIANT_FORMATS_LOWER = ["vcf", "gvcf"];
+
+export const IGV_VIEWABLE_FORMATS_LOWER = [
+  ...ALIGNMENT_FORMATS_LOWER,
+  ...ANNOTATION_FORMATS_LOWER,
+  ...MUTATION_FORMATS_LOWER,
+  ...WIG_FORMATS_LOWER,
+  ...VARIANT_FORMATS_LOWER,
+];
+// --- CONSTANTS END ---
 
 export const useDeduplicatedIndividualBiosamples = (individual) =>
   useMemo(
