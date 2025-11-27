@@ -160,11 +160,7 @@ export const useIndividualIgvViewableExperimentResults = (individual) => {
     const experiments = biosamplesData.flatMap((b) => b?.experiments ?? []);
 
     const uniqueResults = Object.values(
-      Object.fromEntries(
-        experiments
-          .flatMap((e) => e?.experiment_results ?? [])
-          .map((r) => [r.id, r])
-      )
+      Object.fromEntries(experiments.flatMap((e) => e?.experiment_results ?? []).map((r) => [r.id, r])),
     );
 
     const vr = uniqueResults

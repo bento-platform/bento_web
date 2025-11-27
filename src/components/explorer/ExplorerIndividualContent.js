@@ -71,13 +71,12 @@ const ExplorerIndividualContent = () => {
 
   const biosamplesData = useDeduplicatedIndividualBiosamples(individual);
 
-  const allExperimentResults = useMemo(
-    () => {
-      const rawResults = biosamplesData.flatMap((b) => (b?.experiments ?? []).flatMap((e) => e?.experiment_results ?? []));
-      return Object.values(Object.fromEntries(rawResults.map(r => [r.id, r])));
-    },
-    [biosamplesData],
-  );
+  const allExperimentResults = useMemo(() => {
+    const rawResults = biosamplesData.flatMap((b) =>
+      (b?.experiments ?? []).flatMap((e) => e?.experiment_results ?? []),
+    );
+    return Object.values(Object.fromEntries(rawResults.map((r) => [r.id, r])));
+  }, [biosamplesData]);
 
   useEffect(() => {
     if (allExperimentResults.length > 0) {
