@@ -19,7 +19,15 @@ import { useAppDispatch, useAppSelector } from "@/store";
 import { guessFileType } from "@/utils/files";
 import { simpleDeepCopy } from "@/utils/misc";
 
-import { useDeduplicatedIndividualBiosamples } from "./utils";
+import {
+  useDeduplicatedIndividualBiosamples,
+  ALIGNMENT_FORMATS_LOWER,
+  ANNOTATION_FORMATS_LOWER,
+  MUTATION_FORMATS_LOWER,
+  WIG_FORMATS_LOWER,
+  VARIANT_FORMATS_LOWER,
+  IGV_VIEWABLE_FORMATS_LOWER,
+} from "./utils";
 
 const SQUISHED_CALL_HEIGHT = 10;
 const EXPANDED_CALL_HEIGHT = 50;
@@ -50,32 +58,19 @@ const DEBOUNCE_WAIT = 500;
 // verify url set is for this individual (may have stale urls from previous request)
 const hasFreshUrls = (files, urls) => files.every((f) => urls.hasOwnProperty(f.filename));
 
-const ALIGNMENT_FORMATS_LOWER = ["bam", "cram"];
-const ANNOTATION_FORMATS_LOWER = ["bigbed"]; // TODO: experiment result: support more
-const MUTATION_FORMATS_LOWER = ["maf"];
-const WIG_FORMATS_LOWER = ["bigwig"]; // TODO: experiment result: support wig/bedGraph?
-const VARIANT_FORMATS_LOWER = ["vcf", "gvcf"];
-const VIEWABLE_FORMATS_LOWER = [
-  ...ALIGNMENT_FORMATS_LOWER,
-  ...ANNOTATION_FORMATS_LOWER,
-  ...MUTATION_FORMATS_LOWER,
-  ...WIG_FORMATS_LOWER,
-  ...VARIANT_FORMATS_LOWER,
-];
-
 const expResFileFormatLower = (expRes) => expRes.file_format?.toLowerCase() ?? guessFileType(expRes.filename);
 
 // For an experiment result to be viewable in IGV.js, it must have:
 //  - an assembly ID, so we can contextualize it correctly
 //  - a file format in the list of file formats we know how to handle
 const isViewableInIgv = (expRes) =>
-  !!expRes.genome_assembly_id && VIEWABLE_FORMATS_LOWER.includes(expResFileFormatLower(expRes));
+  !!expRes.genome_assembly_id && IGV_VIEWABLE_FORMATS_LOWER.includes(expResFileFormatLower(expRes));
 
 const expResFileFormatToIgvTypeAndFormat = (fileFormat) => {
   const ff = fileFormat.toLowerCase();
 
   if (ALIGNMENT_FORMATS_LOWER.includes(ff)) return ["alignment", ff];
-  if (ANNOTATION_FORMATS_LOWER.includes(ff)) return ["annotation", "bigBed"]; // TODO: expand if we support more
+  if (ANNOTATION_FORMATS_LOWER.includes(ff)) return ["annotation", "bigBed"]; // TODO: experiment result: support more
   if (MUTATION_FORMATS_LOWER.includes(ff)) return ["mut", ff];
   if (WIG_FORMATS_LOWER.includes(ff)) return ["wig", "bigWig"]; // TODO: expand if we support wig/bedGraph
   if (VARIANT_FORMATS_LOWER.includes(ff)) return ["variant", "vcf"];
