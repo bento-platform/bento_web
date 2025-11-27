@@ -12,7 +12,7 @@ import {
   useIsDataEmpty,
   useDeduplicatedIndividualBiosamples,
   useIndividualResources,
-  useIndividualViewableExperimentResults,
+  useIndividualIgvViewableExperimentResults,
   explorerIndividualUrl,
 } from "./utils";
 
@@ -72,11 +72,12 @@ const ExplorerIndividualContent = () => {
   const biosamplesData = useDeduplicatedIndividualBiosamples(individual);
 
   const allExperimentResults = useMemo(
-    () => biosamplesData.flatMap((b) => (b?.experiments ?? []).flatMap((e) => e?.experiment_results ?? [])),
+    () => {
+      const rawResults = biosamplesData.flatMap((b) => (b?.experiments ?? []).flatMap((e) => e?.experiment_results ?? []));
+      return Object.values(Object.fromEntries(rawResults.map(r => [r.id, r])));
+    },
     [biosamplesData],
   );
-
-  const viewableExperimentResultsForIgv = useIndividualViewableExperimentResults(individual);
 
   useEffect(() => {
     if (allExperimentResults.length > 0) {
@@ -87,6 +88,8 @@ const ExplorerIndividualContent = () => {
       dispatch(getFileDownloadUrlsFromDrs(downloadableFiles)).catch(console.error);
     }
   }, [dispatch, allExperimentResults]);
+
+  const viewableExperimentResultsForIgv = useIndividualIgvViewableExperimentResults(individual);
 
   useEffect(() => {
     if (viewableExperimentResultsForIgv.length > 0) {
