@@ -154,25 +154,30 @@ export const ontologyTermSorter = (k) => (a, b) => {
 
 export const explorerIndividualUrl = (individualID) => `/data/explorer/individuals/${individualID}`;
 
-export const useIndividualViewableExperimentResults = (individual) => {
+export const useIndividualIgvViewableExperimentResults = (individual) => {
   const biosamplesData = useDeduplicatedIndividualBiosamples(individual);
   return useMemo(() => {
     const experiments = biosamplesData.flatMap((b) => b?.experiments ?? []);
-    const vr = Object.values(
+
+    const uniqueResults = Object.values(
       Object.fromEntries(
         experiments
           .flatMap((e) => e?.experiment_results ?? [])
-          .filter(
-            (expRes) =>
-              !!expRes.genome_assembly_id &&
-              VIEWABLE_FORMATS_LOWER.includes(expRes.file_format?.toLowerCase() ?? guessFileType(expRes.filename)),
-          )
-          .map((expRes) => {
-            const fileFormatLower = expRes.file_format?.toLowerCase() ?? guessFileType(expRes.filename);
-            return [expRes.filename, { ...expRes, fileFormatLower }];
-          }),
-      ),
-    ).sort((r1, r2) => (r1.fileFormatLower ?? "").localeCompare(r2.fileFormatLower ?? ""));
+          .map((r) => [r.id, r])
+      )
+    );
+
+    const vr = uniqueResults
+      .filter(
+        (expRes) =>
+          !!expRes.genome_assembly_id &&
+          IGV_VIEWABLE_FORMATS_LOWER.includes(expRes.file_format?.toLowerCase() ?? guessFileType(expRes.filename)),
+      )
+      .map((expRes) => {
+        const fileFormatLower = expRes.file_format?.toLowerCase() ?? guessFileType(expRes.filename);
+        return { ...expRes, fileFormatLower };
+      });
+
     return vr;
   }, [biosamplesData]);
 };
