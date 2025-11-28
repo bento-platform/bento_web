@@ -16,17 +16,14 @@ import { useIgvGenomes } from "@/modules/explorer/hooks";
 import { useReferenceGenomes } from "@/modules/reference/hooks";
 import { useService } from "@/modules/services/hooks";
 import { useAppDispatch, useAppSelector } from "@/store";
-import { guessFileType } from "@/utils/files";
 import { simpleDeepCopy } from "@/utils/misc";
 
 import {
   useDeduplicatedIndividualBiosamples,
   ALIGNMENT_FORMATS_LOWER,
-  ANNOTATION_FORMATS_LOWER,
-  MUTATION_FORMATS_LOWER,
-  WIG_FORMATS_LOWER,
-  VARIANT_FORMATS_LOWER,
-  IGV_VIEWABLE_FORMATS_LOWER,
+  expResFileFormatLower,
+  isViewableInIgv,
+  expResFileFormatToIgvTypeAndFormat,
 } from "./utils";
 
 const SQUISHED_CALL_HEIGHT = 10;
@@ -57,26 +54,6 @@ const DEBOUNCE_WAIT = 500;
 
 // verify url set is for this individual (may have stale urls from previous request)
 const hasFreshUrls = (files, urls) => files.every((f) => urls.hasOwnProperty(f.filename));
-
-const expResFileFormatLower = (expRes) => expRes.file_format?.toLowerCase() ?? guessFileType(expRes.filename);
-
-// For an experiment result to be viewable in IGV.js, it must have:
-//  - an assembly ID, so we can contextualize it correctly
-//  - a file format in the list of file formats we know how to handle
-const isViewableInIgv = (expRes) =>
-  !!expRes.genome_assembly_id && IGV_VIEWABLE_FORMATS_LOWER.includes(expResFileFormatLower(expRes));
-
-const expResFileFormatToIgvTypeAndFormat = (fileFormat) => {
-  const ff = fileFormat.toLowerCase();
-
-  if (ALIGNMENT_FORMATS_LOWER.includes(ff)) return ["alignment", ff];
-  if (ANNOTATION_FORMATS_LOWER.includes(ff)) return ["annotation", "bigBed"]; // TODO: experiment result: support more
-  if (MUTATION_FORMATS_LOWER.includes(ff)) return ["mut", ff];
-  if (WIG_FORMATS_LOWER.includes(ff)) return ["wig", "bigWig"]; // TODO: expand if we support wig/bedGraph
-  if (VARIANT_FORMATS_LOWER.includes(ff)) return ["variant", "vcf"];
-
-  return [undefined, undefined];
-};
 
 const TrackControlTable = memo(({ toggleView, allFoundFiles }) => {
   const trackTableColumns = [
