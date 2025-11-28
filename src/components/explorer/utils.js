@@ -183,19 +183,13 @@ export const useIndividualIgvViewableExperimentResults = (individual) => {
     const experiments = biosamplesData.flatMap((b) => b?.experiments ?? []);
 
     const uniqueResults = Object.values(
-      Object.fromEntries(
-        experiments
-          .flatMap((e) => e?.experiment_results ?? [])
-          .map((r) => [r.id, r])
-      )
+      Object.fromEntries(experiments.flatMap((e) => e?.experiment_results ?? []).map((r) => [r.id, r])),
     );
 
-    const vr = uniqueResults
-      .filter(isViewableInIgv)
-      .map((expRes) => {
-        const fileFormatLower = expResFileFormatLower(expRes);
-        return { ...expRes, fileFormatLower };
-      });
+    const vr = uniqueResults.filter(isViewableInIgv).map((expRes) => {
+      const fileFormatLower = expResFileFormatLower(expRes);
+      return { ...expRes, fileFormatLower };
+    });
 
     return vr;
   }, [biosamplesData]);
