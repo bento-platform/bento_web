@@ -50,6 +50,7 @@ const RunOutputValue = ({ runID, item: { name, type, value } }: RunOutputValuePr
             uri={`${wesUrl}/runs/${runID}/download-artifact`}
             fileName={path.split("/").at(-1)}
             extraFormData={{ path }}
+            useBearerToken={true}
             size="small"
           />
         </Space>
