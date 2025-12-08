@@ -1,22 +1,17 @@
 import { useEffect } from "react";
-
-import { Divider, Skeleton } from "antd";
+import { Divider, Skeleton, Button } from "antd";
+import { DownloadOutlined } from "@ant-design/icons";
+import { saveAs } from "file-saver";
 
 import { fetchIndividualPhenopacketsIfNecessary } from "@/modules/metadata/actions";
 import { individualPropTypesShape } from "@/propTypes";
 
-import DownloadButton from "@/components/common/DownloadButton";
 import JsonView from "@/components/common/JsonView";
-import { useService } from "@/modules/services/hooks";
 import { useAppDispatch, useAppSelector } from "@/store";
 
 const IndividualPhenopackets = ({ individual }) => {
   const dispatch = useAppDispatch();
-
   const { id: individualId } = individual;
-
-  const katsuUrl = useService("metadata")?.url ?? "";
-  const downloadUrl = `${katsuUrl}/api/individuals/${individualId}/phenopackets?attachment=1&format=json`;
 
   const { phenopacketsByIndividualID } = useAppSelector((state) => state.individuals);
 
@@ -26,12 +21,24 @@ const IndividualPhenopackets = ({ individual }) => {
     dispatch(fetchIndividualPhenopacketsIfNecessary(individualId));
   }, [dispatch, individualId]);
 
+const handleDownloadFromState = () => {
+    if (!data) return;
+    const jsonString = JSON.stringify(data, null, 2);
+    const blob = new Blob([jsonString], { type: "application/json" });
+    saveAs(blob, `phenopackets_${individualId}.json`);
+};
+
   return (
     <>
-      <DownloadButton uri={downloadUrl} disabled={!katsuUrl}>
+      <Button 
+        icon={<DownloadOutlined />} 
+        onClick={handleDownloadFromState}
+        disabled={!data || isFetching}
+      >
         Download JSON
-      </DownloadButton>
-      <Divider />
+      </Button>
+
+      <Divider />      
       {data === undefined || isFetching ? (
         <Skeleton title={false} loading={true} />
       ) : (
