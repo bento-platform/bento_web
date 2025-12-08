@@ -21,24 +21,20 @@ const IndividualPhenopackets = ({ individual }) => {
     dispatch(fetchIndividualPhenopacketsIfNecessary(individualId));
   }, [dispatch, individualId]);
 
-const handleDownloadFromState = () => {
+  const handleDownloadFromState = () => {
     if (!data) return;
     const jsonString = JSON.stringify(data, null, 2);
     const blob = new Blob([jsonString], { type: "application/json" });
     saveAs(blob, `phenopackets_${individualId}.json`);
-};
+  };
 
   return (
     <>
-      <Button 
-        icon={<DownloadOutlined />} 
-        onClick={handleDownloadFromState}
-        disabled={!data || isFetching}
-      >
+      <Button icon={<DownloadOutlined />} onClick={handleDownloadFromState} disabled={!data || isFetching}>
         Download JSON
       </Button>
 
-      <Divider />      
+      <Divider />
       {data === undefined || isFetching ? (
         <Skeleton title={false} loading={true} />
       ) : (
