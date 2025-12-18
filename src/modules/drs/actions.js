@@ -5,6 +5,7 @@ import { guessFileType } from "@/utils/files";
 
 export const PERFORM_DRS_OBJECT_SEARCH = createNetworkActionTypes("PERFORM_DRS_OBJECT_SEARCH");
 export const CLEAR_DRS_OBJECT_SEARCH = "CLEAR_DRS_OBJECT_SEARCH";
+export const GET_DRS_OBJECT = createNetworkActionTypes("GET_DRS_OBJECT");
 export const DELETE_DRS_OBJECT = createNetworkActionTypes("DELETE_DRS_OBJECT");
 
 export const PERFORM_SEARCH_BY_FUZZY_NAME = createNetworkActionTypes("PERFORM_SEARCH_BY_FUZZY_NAME");
@@ -132,7 +133,7 @@ export const getFileDownloadUrlsFromDrs = (fileObjects) => async (dispatch, getS
   }
 };
 
-export const performDRSObjectSearch = networkAction((q) => (dispatch, getState) => ({
+export const performDRSObjectSearch = networkAction((q) => (_dispatch, getState) => ({
   types: PERFORM_DRS_OBJECT_SEARCH,
   params: { q },
   url: `${getState().services.drsService.url}/search?${new URLSearchParams({ q, with_bento_properties: "true" })}`,
@@ -141,7 +142,22 @@ export const performDRSObjectSearch = networkAction((q) => (dispatch, getState) 
 
 export const clearDRSObjectSearch = () => ({ type: CLEAR_DRS_OBJECT_SEARCH });
 
-export const deleteDRSObject = networkAction((drsObject) => (dispatch, getState) => ({
+// Get DRS object record:
+export const getDRSObject = networkAction((uri) => () => {
+  const parsedDrsUri = URL.parse(uri);
+  const url =
+    parsedDrsUri.protocol === "drs:"
+      ? `https://${parsedDrsUri.host}/ga4gh/drs/v1/objects${parsedDrsUri.pathname}`
+      : uri;
+  return {
+    types: GET_DRS_OBJECT,
+    params: { uri },
+    url, // Token will be included only if this matches the local Bento host (checked by networkAction)
+    err: "Error fetching DRS object record",
+  };
+});
+
+export const deleteDRSObject = networkAction((drsObject) => (_dispatch, getState) => ({
   types: DELETE_DRS_OBJECT,
   params: { drsObject },
   url: `${getState().services.drsService.url}/objects/${drsObject.id}`,
