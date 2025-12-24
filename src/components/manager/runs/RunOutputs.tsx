@@ -79,7 +79,11 @@ const RunOutputs = memo(({ run }: RunPageProps) => {
     {
       title: "Value",
       dataIndex: "value",
-      render: (_, item) => <RunOutputValue runID={run.run_id} item={item} />,
+      render: (_, item) => (
+        <div style={{ overflowX: "auto", maxWidth: 'max(600px, 60vw)' }}>
+          <RunOutputValue runID={run.run_id} item={item} />
+        </div>
+      ),
     },
     // {
     //     key: "actions",
@@ -89,7 +93,16 @@ const RunOutputs = memo(({ run }: RunPageProps) => {
   ] as TableColumnsType<OutputItem>;
 
   return (
-    <Table columns={columns} dataSource={outputItems} rowKey="name" bordered={true} size="middle" pagination={false} />
+    <div style={{ overflowX: "auto" }}>
+      <Table
+        columns={columns}
+        dataSource={outputItems}
+        rowKey="name"
+        bordered={true}
+        size="middle"
+        pagination={false}
+      />
+    </div>
   );
 });
 
