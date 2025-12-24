@@ -80,7 +80,7 @@ const RunOutputs = memo(({ run }: RunPageProps) => {
       title: "Value",
       dataIndex: "value",
       render: (_, item) => (
-        <div style={{ overflowX: "auto", maxWidth: 'max(600px, 60vw)' }}>
+        <div style={{ overflowX: "auto", maxWidth: "max(600px, 60vw)" }}>
           <RunOutputValue runID={run.run_id} item={item} />
         </div>
       ),
