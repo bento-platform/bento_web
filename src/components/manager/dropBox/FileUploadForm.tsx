@@ -49,9 +49,13 @@ const FileUploadForm = ({ initialUploadFolder, initialUploadFiles, form }: FileU
         name="parent"
         rules={[{ required: true, message: "Please select a folder to upload into." }]}
       >
-        <DropBoxTreeSelect folderMode={true} allowFolderCreation={true} setValue={(value) => {
-          form.setFieldValue("parent", value);
-        }} />
+        <DropBoxTreeSelect
+          folderMode={true}
+          allowFolderCreation={true}
+          setValue={(value) => {
+            form.setFieldValue("parent", value);
+          }}
+        />
       </Form.Item>
       <Form.Item
         label="File"
@@ -59,7 +63,12 @@ const FileUploadForm = ({ initialUploadFolder, initialUploadFiles, form }: FileU
         valuePropName="fileList"
         getValueFromEvent={getFileListFromEvent}
         rules={[{ required: true, message: "Please specify at least one file to upload." }]}
-        extra={<span>Uploading to {selectedParent}{selectedParent === '/' ? '' : '/'}</span>}
+        extra={
+          <span>
+            Uploading to {selectedParent}
+            {selectedParent === "/" ? "" : "/"}
+          </span>
+        }
       >
         <Upload beforeUpload={getFalse}>
           <Button icon={<UploadOutlined />}>Upload</Button>
