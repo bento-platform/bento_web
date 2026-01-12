@@ -77,7 +77,14 @@ const FileUploadModal = ({ initialUploadFolder, initialUploadFiles, onCancel, op
   }, [dispatch, form, onCancel]);
 
   return (
-    <Modal title="Upload" okButtonProps={{ loading: isPutting }} onCancel={onCancel} open={open} onOk={onOk}>
+    <Modal
+      title="Upload"
+      width={640}
+      okButtonProps={{ loading: isPutting }}
+      onCancel={onCancel}
+      open={open}
+      onOk={onOk}
+    >
       <FileUploadForm form={form} initialUploadFolder={initialUploadFolder} initialUploadFiles={initialUploadFiles} />
     </Modal>
   );
