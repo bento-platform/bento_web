@@ -44,6 +44,9 @@ const FileUploadForm = ({ initialUploadFolder, initialUploadFiles, form }: FileU
 
   return (
     <Form initialValues={initialValues} form={form} layout="vertical">
+      {/* Hidden input for form "busy" status; in this case whether we're in the middle of adding a subfolder inside
+          the DropBoxTreeSelect input component. */}
+      <Form.Item<boolean> name="busy" hidden={true} initialValue={false} />
       <Form.Item
         label="Parent Folder"
         name="parent"
@@ -55,6 +58,7 @@ const FileUploadForm = ({ initialUploadFolder, initialUploadFiles, form }: FileU
           setValue={(value) => {
             form.setFieldValue("parent", value);
           }}
+          onSubfolderAddingChange={(value) => form.setFieldValue("busy", value)}
         />
       </Form.Item>
       <Form.Item

@@ -141,6 +141,7 @@ export type DropBoxTreeSelectProps = Omit<TreeSelectProps, "showSearch" | "treeD
   allowFolderCreation?: boolean;
   nodeEnabled?: DropBoxEntryValidFunction;
   setValue?: (value: string) => void;
+  onSubfolderAddingChange?: (value: boolean) => void;
 };
 
 const DropBoxTreeSelect = ({
@@ -150,6 +151,7 @@ const DropBoxTreeSelect = ({
   value,
   setValue,
   onChange,
+  onSubfolderAddingChange,
   ...props
 }: DropBoxTreeSelectProps) => {
   const { tree } = useDropBox();
@@ -200,11 +202,15 @@ const DropBoxTreeSelect = ({
     [onChange],
   );
 
-  const showAddSubfolderForm = useCallback(() => setIsAddingSubfolder(true), []);
+  const showAddSubfolderForm = useCallback(() => {
+    setIsAddingSubfolder(true);
+    if (onSubfolderAddingChange) onSubfolderAddingChange(true);
+  }, [onSubfolderAddingChange]);
   const hideAddSubfolderForm = useCallback(() => {
     setIsAddingSubfolder(false);
     setNewSubfolderError("");
-  }, []);
+    if (onSubfolderAddingChange) onSubfolderAddingChange(false);
+  }, [onSubfolderAddingChange]);
 
   const onAddSubfolder = useCallback(
     (newSubfolderName: string): boolean => {
@@ -285,8 +291,7 @@ const DropBoxTreeSelect = ({
       // quickly check if, when adding a new one, it has already been added.
       setNewTreeFolderPaths((paths) => new Set(paths).add(newPath));
       // Close/reset the subfolder creation form
-      setIsAddingSubfolder(false);
-      setNewSubfolderError("");
+      hideAddSubfolderForm();
       // Janky update to value that skips onChange since Ant Design wants more data for the onChange event function.
       // If we have an onChange but no setValue param, the new subfolder will just not be auto-selected.
       if (setValue) {
@@ -296,7 +301,7 @@ const DropBoxTreeSelect = ({
       }
       return true;
     },
-    [localValue, newTreeFolderPaths, setValue, onChange, valueSet],
+    [localValue, newTreeFolderPaths, setValue, onChange, valueSet, hideAddSubfolderForm],
   );
 
   return (

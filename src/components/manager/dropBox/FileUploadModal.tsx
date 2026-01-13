@@ -25,6 +25,7 @@ const FileUploadModal = ({ initialUploadFolder, initialUploadFiles, onCancel, op
   const [form] = Form.useForm();
 
   const isPutting = useDropBox().isPuttingFlow;
+  const isBusy = Form.useWatch("busy", form);
 
   useEffect(() => {
     if (open) {
@@ -81,7 +82,7 @@ const FileUploadModal = ({ initialUploadFolder, initialUploadFiles, onCancel, op
       title="Upload"
       width={640}
       okText="Upload"
-      okButtonProps={{ loading: isPutting }}
+      okButtonProps={{ loading: isPutting, disabled: isBusy }}
       onCancel={onCancel}
       open={open}
       onOk={onOk}
