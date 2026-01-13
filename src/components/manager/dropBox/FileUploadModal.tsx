@@ -34,6 +34,12 @@ const FileUploadModal = ({ initialUploadFolder, initialUploadFiles, onCancel, op
     }
   }, [open, form]);
 
+  useEffect(() => {
+    // If our initial upload folder changes, then sync the form value to match it - the selection in the main file tree
+    // has changed, presumably.
+    if (initialUploadFolder) form.setFieldValue("parent", initialUploadFolder);
+  }, [form, initialUploadFolder]);
+
   const onOk = useCallback(() => {
     if (!form) {
       console.error("missing form");
