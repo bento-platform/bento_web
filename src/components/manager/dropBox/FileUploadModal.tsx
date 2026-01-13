@@ -80,6 +80,7 @@ const FileUploadModal = ({ initialUploadFolder, initialUploadFiles, onCancel, op
     <Modal
       title="Upload"
       width={640}
+      okText="Upload"
       okButtonProps={{ loading: isPutting }}
       onCancel={onCancel}
       open={open}

@@ -71,7 +71,7 @@ const FileUploadForm = ({ initialUploadFolder, initialUploadFiles, form }: FileU
         }
       >
         <Upload beforeUpload={getFalse}>
-          <Button icon={<UploadOutlined />}>Upload</Button>
+          <Button icon={<UploadOutlined />}>Select File</Button>
         </Upload>
       </Form.Item>
     </Form>
