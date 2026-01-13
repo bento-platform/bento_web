@@ -123,7 +123,7 @@ const AddSubfolderForm = ({ currentPath, onAdd, onCancel }: AddSubfolderFormProp
       <Input
         value={newSubfolderName}
         onChange={(e) => {
-          setNewSubfolderName(e.target.value.replaceAll(/[\s\/*]/g, "_"));
+          setNewSubfolderName(e.target.value.replaceAll(/[\s/*]/g, "_"));
         }}
       />
       <Button icon={<CheckOutlined />} type="primary" disabled={!newSubfolderName} onClick={onCreateSubfolderAdd}>
