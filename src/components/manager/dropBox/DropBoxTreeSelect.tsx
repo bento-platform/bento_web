@@ -121,8 +121,9 @@ const AddSubfolderForm = ({ currentPath, onAdd, onCancel }: AddSubfolderFormProp
         <Space.Addon style={{ whiteSpace: "nowrap" }}>{currentPath + (currentPath === "/" ? "" : "/")}</Space.Addon>
       ) : null}
       <Input
+        value={newSubfolderName}
         onChange={(e) => {
-          setNewSubfolderName(e.target.value);
+          setNewSubfolderName(e.target.value.replaceAll(/[\s\/*]/g, "_"));
         }}
       />
       <Button icon={<CheckOutlined />} type="primary" disabled={!newSubfolderName} onClick={onCreateSubfolderAdd}>
@@ -200,10 +201,20 @@ const DropBoxTreeSelect = ({
   );
 
   const showAddSubfolderForm = useCallback(() => setIsAddingSubfolder(true), []);
-  const hideAddSubfolderForm = useCallback(() => setIsAddingSubfolder(false), []);
+  const hideAddSubfolderForm = useCallback(() => {
+    setIsAddingSubfolder(false);
+    setNewSubfolderError("");
+  }, []);
 
   const onAddSubfolder = useCallback(
     (newSubfolderName: string): boolean => {
+      newSubfolderName = newSubfolderName.trim();
+
+      if (["", ".", ".."].includes(newSubfolderName)) {
+        setNewSubfolderError("Illegal new subfolder name");
+        return false;
+      }
+
       const newPath = localValue + (localValue === "/" ? "" : "/") + newSubfolderName;
       // If we either already have an identical drop box path, or an identical new subfolder, set an error and
       // exit early.
