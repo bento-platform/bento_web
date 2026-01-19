@@ -230,7 +230,7 @@ const ManagerDropBoxContent = () => {
 
       return [workflowSupported, inputs] as const;
     },
-    [selectedEntries],
+    [selectedEntries, filesByPath],
   );
 
   const startIngestionFlow = useStartIngestionFlow();
