@@ -1,4 +1,11 @@
-import { useCallback, useMemo, useState } from "react";
+import {
+  type ChangeEventHandler,
+  type CSSProperties,
+  type DragEventHandler,
+  useCallback,
+  useMemo,
+  useState,
+} from "react";
 import { RESOURCE_EVERYTHING, deleteDropBox, ingestDropBox, viewDropBox } from "bento-auth-js";
 
 import { filesize } from "filesize";
@@ -48,12 +55,16 @@ import { useStartIngestionFlow } from "../workflowCommon";
 
 import { sortByName } from "./common";
 
-const DROP_BOX_CONTENT_CONTAINER_STYLE = { display: "flex", flexDirection: "column", gap: 8 };
-const DROP_BOX_INFO_CONTAINER_STYLE = { display: "flex", gap: "2em", paddingTop: 8 };
+import type { DataNode } from "antd/lib/tree";
+import type { DropBoxEntry } from "@/modules/dropBox/types";
+import { Workflow, WorkflowRunInputs } from "@/modules/wes/types";
 
-const TREE_CONTAINER_STYLE = { minHeight: 72, overflowY: "auto" };
+const DROP_BOX_CONTENT_CONTAINER_STYLE: CSSProperties = { display: "flex", flexDirection: "column", gap: 8 };
+const DROP_BOX_INFO_CONTAINER_STYLE: CSSProperties = { display: "flex", gap: "2em", paddingTop: 8 };
 
-const TREE_DROP_ZONE_OVERLAY_STYLE = {
+const TREE_CONTAINER_STYLE: CSSProperties = { minHeight: 72, overflowY: "auto" };
+
+const TREE_DROP_ZONE_OVERLAY_STYLE: CSSProperties = {
   position: "absolute",
   left: 0,
   top: 0,
@@ -68,18 +79,20 @@ const TREE_DROP_ZONE_OVERLAY_STYLE = {
   alignItems: "center",
   justifyContent: "center",
 };
-const TREE_DROP_ZONE_OVERLAY_ICON_STYLE = { fontSize: 48, color: "#1890ff" };
+const TREE_DROP_ZONE_OVERLAY_ICON_STYLE: CSSProperties = { fontSize: 48, color: "#1890ff" };
 
 const VIEW_DROP_BOX_CHECK = { resource: RESOURCE_EVERYTHING, requiredPermissions: [viewDropBox] };
 
-const generateFileTree = (directory) =>
+type DropBoxDataNode = DataNode & { key: string, children?: DropBoxDataNode[] };
+
+const generateFileTree = (directory: DropBoxEntry[]): DropBoxDataNode[] =>
   [...directory].sort(sortByName).map(({ name: title, contents, relativePath: key }) => ({
     title,
     key,
     ...(contents !== undefined ? { children: generateFileTree(contents) } : { isLeaf: true }),
   }));
 
-const recursivelyFlattenFileTree = (acc, contents) => {
+const recursivelyFlattenFileTree = (acc: DropBoxEntry[], contents: DropBoxEntry[]) => {
   contents.forEach((c) => {
     if (c.contents !== undefined) {
       recursivelyFlattenFileTree(acc, c.contents);
@@ -90,18 +103,18 @@ const recursivelyFlattenFileTree = (acc, contents) => {
   return acc;
 };
 
-const formatTimestamp = (timestamp) => new Date(timestamp * 1000).toLocaleString();
+const formatTimestamp = (timestamp: number) => new Date(timestamp * 1000).toLocaleString();
 
-const stopEvent = (event) => {
+const stopEvent: DragEventHandler<HTMLDivElement> = (event) => {
   event.preventDefault();
   event.stopPropagation();
 };
 
 const DROP_BOX_ROOT_KEY = "/";
 
-const filterTree = (nodes, searchTerm) => {
-  return nodes.reduce((acc, node) => {
-    const matchesSearch = node.title.toLowerCase().includes(searchTerm);
+const filterTree = (nodes: DropBoxDataNode[], searchTerm: string) => {
+  return nodes.reduce((acc: DropBoxDataNode[], node) => {
+    const matchesSearch = node.title?.toString().toLowerCase().includes(searchTerm) ?? false;
     const filteredChildren = node.children ? filterTree(node.children, searchTerm) : [];
     const hasMatchingChildren = filteredChildren.length > 0;
 
@@ -129,7 +142,7 @@ const ManagerDropBoxContent = () => {
 
   const [searchTerm, setSearchTerm] = useState("");
 
-  const handleSearchChange = useCallback((event) => {
+  const handleSearchChange = useCallback<ChangeEventHandler<HTMLInputElement>>((event) => {
     const newSearchTerm = event.target.value.toLowerCase();
     setSearchTerm(newSearchTerm);
     setSelectedEntries(newSearchTerm === "" ? [DROP_BOX_ROOT_KEY] : []);
@@ -158,8 +171,8 @@ const ManagerDropBoxContent = () => {
 
   const [draggingOver, setDraggingOver] = useState(false);
 
-  const [initialUploadFolder, setInitialUploadFolder] = useState(undefined);
-  const [initialUploadFiles, setInitialUploadFiles] = useState([]);
+  const [initialUploadFolder, setInitialUploadFolder] = useState<string | undefined>(undefined);
+  const [initialUploadFiles, setInitialUploadFiles] = useState<File[]>([]);
   const [uploadModal, setUploadModal] = useState(false);
 
   const [fileInfoModal, setFileInfoModal] = useState(false);
@@ -176,11 +189,11 @@ const ManagerDropBoxContent = () => {
   const hideFileContentsModal = useCallback(() => setFileContentsModal(false), []);
 
   const getWorkflowFit = useCallback(
-    (w) => {
+    (w: Workflow) => {
       let workflowSupported = true;
       let entriesLeft = [...selectedEntries];
 
-      const inputs = {};
+      const inputs: WorkflowRunInputs = {};
 
       for (const i of w.inputs) {
         const isArray = i.type.endsWith("[]");
@@ -193,7 +206,12 @@ const ManagerDropBoxContent = () => {
 
         // Find compatible entries which match the specified pattern if one is given.
         const compatEntries = entriesLeft.filter(
-          (e) => (isFileType ? !e.contents : e.contents !== undefined) && testFileAgainstPattern(e, i.pattern),
+          (e) => {
+            if (e === "/") return !isFileType;
+            const f = filesByPath[e];
+            if (!f) return false;
+            return (isFileType ? !f.contents : f.contents !== undefined) && testFileAgainstPattern(e, i.pattern);
+          },
         );
         if (compatEntries.length === 0) {
           workflowSupported = false;
@@ -212,7 +230,7 @@ const ManagerDropBoxContent = () => {
         workflowSupported = false;
       }
 
-      return [workflowSupported, inputs];
+      return [workflowSupported, inputs] as const;
     },
     [selectedEntries],
   );
@@ -229,7 +247,7 @@ const ManagerDropBoxContent = () => {
   );
 
   const workflowMenuItemClick = useCallback(
-    (i) => startIngestionFlow(ingestionWorkflowsByID[i.key], workflowsSupported[i.key][1]),
+    (i: { key: string }) => startIngestionFlow(ingestionWorkflowsByID[i.key], workflowsSupported[i.key][1]),
     [ingestionWorkflowsByID, startIngestionFlow, workflowsSupported],
   );
 
@@ -257,20 +275,20 @@ const ManagerDropBoxContent = () => {
 
   const handleContainerDragLeave = useCallback(() => setDraggingOver(false), []);
   const handleDragEnter = useCallback(() => setDraggingOver(true), []);
-  const handleDragLeave = useCallback((e) => {
+  const handleDragLeave = useCallback<DragEventHandler<HTMLDivElement>>((e) => {
     // Drag end is a bit weird - it's fired when the drag leaves any CHILD element (or the element itself).
     // So we set a parent event on the layout, and stop propagation here - that way the parent's dragLeave
     // only fires if we leave the drop zone.
     stopEvent(e);
   }, []);
-  const handleDrop = useCallback(
+  const handleDrop = useCallback<DragEventHandler<HTMLDivElement>>(
     (event) => {
       stopEvent(event);
       if (!hasUploadPermission) return;
 
       setDraggingOver(false);
 
-      const items = event.dataTransfer?.items ?? [];
+      const items = Array.from(event.dataTransfer?.items ?? []);
 
       for (const dti of items) {
         // If we have the webkitGetAsEntry() or getAsEntry() function, we can validate
@@ -285,8 +303,10 @@ const ManagerDropBoxContent = () => {
             message.error("Uploading a directory is not supported!");
             return;
           }
+          // @ts-expect-error getAsEntry may or may not exist
         } else if (typeof dti?.getAsEntry === "function") {
           // noinspection JSUnresolvedReference
+          // @ts-expect-error getAsEntry may or may not exist
           if (dti?.getAsEntry().isDirectory) {
             message.error("Uploading a directory is not supported!");
             return;
@@ -469,11 +489,11 @@ const ManagerDropBoxContent = () => {
                       <PlusCircleOutlined style={TREE_DROP_ZONE_OVERLAY_ICON_STYLE} />
                     </div>
                   )}
-                  <Tree.DirectoryTree
+                  <Tree.DirectoryTree<DropBoxDataNode>
                     defaultExpandAll={true}
                     multiple={true}
                     expandAction="doubleClick"
-                    onSelect={setSelectedEntries}
+                    onSelect={(keys) => setSelectedEntries(keys as string[])}
                     selectedKeys={selectedEntries}
                     treeData={treeData}
                   />
@@ -489,7 +509,7 @@ const ManagerDropBoxContent = () => {
             <div style={DROP_BOX_INFO_CONTAINER_STYLE}>
               <Statistic
                 title="Total Space Used"
-                value={treeLoading ? "—" : filesize(Object.values(filesByPath).reduce((acc, f) => acc + f.size, 0))}
+                value={treeLoading ? "—" : filesize(Object.values(filesByPath).reduce((acc, f) => acc + (f.size ?? 0), 0))}
               />
               <DropBoxInformation style={{ flex: 1 }} />
             </div>
