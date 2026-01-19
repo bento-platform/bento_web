@@ -25,6 +25,7 @@ const FileUploadModal = ({ initialUploadFolder, initialUploadFiles, onCancel, op
   const [form] = Form.useForm();
 
   const isPutting = useDropBox().isPuttingFlow;
+  const isBusy = Form.useWatch("busy", form);
 
   useEffect(() => {
     if (open) {
@@ -32,6 +33,12 @@ const FileUploadModal = ({ initialUploadFolder, initialUploadFiles, onCancel, op
       form.resetFields();
     }
   }, [open, form]);
+
+  useEffect(() => {
+    // If our initial upload folder changes, then sync the form value to match it - the selection in the main file tree
+    // has changed, presumably.
+    if (initialUploadFolder) form.setFieldValue("parent", initialUploadFolder);
+  }, [form, initialUploadFolder]);
 
   const onOk = useCallback(() => {
     if (!form) {
@@ -77,7 +84,15 @@ const FileUploadModal = ({ initialUploadFolder, initialUploadFiles, onCancel, op
   }, [dispatch, form, onCancel]);
 
   return (
-    <Modal title="Upload" okButtonProps={{ loading: isPutting }} onCancel={onCancel} open={open} onOk={onOk}>
+    <Modal
+      title="Upload"
+      width={640}
+      okText="Upload"
+      okButtonProps={{ loading: isPutting, disabled: isBusy }}
+      onCancel={onCancel}
+      open={open}
+      onOk={onOk}
+    >
       <FileUploadForm form={form} initialUploadFolder={initialUploadFolder} initialUploadFiles={initialUploadFiles} />
     </Modal>
   );

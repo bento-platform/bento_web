@@ -20,7 +20,7 @@ const FORM_ALLOWED_EXTRA_KEYS = new Set([
 ]);
 
 interface DownloadButtonProps extends ButtonProps {
-  uri: string;
+  uri?: string;
   fileName?: string;
   extraFormData?: Record<string, string | number>;
 }
@@ -31,6 +31,7 @@ const DownloadButton = ({
   extraFormData,
   children,
   onClick: propsOnClick,
+  disabled,
   ...props
 }: DownloadButtonProps) => {
   const accessToken = useAccessToken();
@@ -81,7 +82,7 @@ const DownloadButton = ({
   );
 
   return (
-    <Button key="download" icon={<DownloadOutlined />} onClick={onClick} {...props}>
+    <Button key="download" icon={<DownloadOutlined />} onClick={onClick} disabled={disabled || !uri} {...props}>
       {children === undefined ? "Download" : children}
     </Button>
   );
