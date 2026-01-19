@@ -57,7 +57,7 @@ import { sortByName } from "./common";
 
 import type { DataNode } from "antd/lib/tree";
 import type { DropBoxEntry } from "@/modules/dropBox/types";
-import { Workflow, WorkflowRunInputs } from "@/modules/wes/types";
+import type { Workflow, WorkflowRunInputs } from "@/modules/wes/types";
 
 const DROP_BOX_CONTENT_CONTAINER_STYLE: CSSProperties = { display: "flex", flexDirection: "column", gap: 8 };
 const DROP_BOX_INFO_CONTAINER_STYLE: CSSProperties = { display: "flex", gap: "2em", paddingTop: 8 };
@@ -83,7 +83,7 @@ const TREE_DROP_ZONE_OVERLAY_ICON_STYLE: CSSProperties = { fontSize: 48, color: 
 
 const VIEW_DROP_BOX_CHECK = { resource: RESOURCE_EVERYTHING, requiredPermissions: [viewDropBox] };
 
-type DropBoxDataNode = DataNode & { key: string, children?: DropBoxDataNode[] };
+type DropBoxDataNode = DataNode & { key: string; children?: DropBoxDataNode[] };
 
 const generateFileTree = (directory: DropBoxEntry[]): DropBoxDataNode[] =>
   [...directory].sort(sortByName).map(({ name: title, contents, relativePath: key }) => ({
@@ -205,14 +205,12 @@ const ManagerDropBoxContent = () => {
         }
 
         // Find compatible entries which match the specified pattern if one is given.
-        const compatEntries = entriesLeft.filter(
-          (e) => {
-            if (e === "/") return !isFileType;
-            const f = filesByPath[e];
-            if (!f) return false;
-            return (isFileType ? !f.contents : f.contents !== undefined) && testFileAgainstPattern(e, i.pattern);
-          },
-        );
+        const compatEntries = entriesLeft.filter((e) => {
+          if (e === "/") return !isFileType;
+          const f = filesByPath[e];
+          if (!f) return false;
+          return (isFileType ? !f.contents : f.contents !== undefined) && testFileAgainstPattern(e, i.pattern);
+        });
         if (compatEntries.length === 0) {
           workflowSupported = false;
           break;
@@ -509,7 +507,9 @@ const ManagerDropBoxContent = () => {
             <div style={DROP_BOX_INFO_CONTAINER_STYLE}>
               <Statistic
                 title="Total Space Used"
-                value={treeLoading ? "—" : filesize(Object.values(filesByPath).reduce((acc, f) => acc + (f.size ?? 0), 0))}
+                value={
+                  treeLoading ? "—" : filesize(Object.values(filesByPath).reduce((acc, f) => acc + (f.size ?? 0), 0))
+                }
               />
               <DropBoxInformation style={{ flex: 1 }} />
             </div>
