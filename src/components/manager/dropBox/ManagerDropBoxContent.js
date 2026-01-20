@@ -11,6 +11,7 @@ import {
   Input,
   Layout,
   Modal,
+  Space,
   Spin,
   Statistic,
   Tree,
@@ -425,7 +426,7 @@ const ManagerDropBoxContent = () => {
                 <ImportOutlined /> Ingest
               </Dropdown.Button>
 
-              <Button.Group>
+              <Space.Compact>
                 <Button icon={<InfoCircleOutlined />} onClick={showFileInfoModal} disabled={!selectedFileInfoAvailable}>
                   File Info
                 </Button>
@@ -437,7 +438,7 @@ const ManagerDropBoxContent = () => {
                   uri={filesByPath[fileForInfo]?.uri}
                   fileName={fileForInfo}
                 />
-              </Button.Group>
+              </Space.Compact>
 
               <Button
                 danger={true}
