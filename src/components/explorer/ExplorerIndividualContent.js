@@ -12,7 +12,6 @@ import {
   useIsDataEmpty,
   useDeduplicatedIndividualBiosamples,
   useIndividualResources,
-  useIndividualIgvViewableExperimentResults,
   explorerIndividualUrl,
 } from "./utils";
 
@@ -30,7 +29,7 @@ import IndividualMedicalActions from "./IndividualMedicalActions";
 import IndividualMeasurements from "./IndividualMeasurements";
 
 import { useAppDispatch } from "@/store";
-import { getFileDownloadUrlsFromDrs, getIgvUrlsFromDrs } from "@/modules/drs/actions";
+import { retrieveDrsUrls } from "@/modules/drs/actions";
 import { guessFileType } from "@/utils/files";
 
 const MENU_STYLE = {
@@ -84,17 +83,9 @@ const ExplorerIndividualContent = () => {
         ...r,
         file_format: r.file_format ?? guessFileType(r.filename),
       }));
-      dispatch(getFileDownloadUrlsFromDrs(downloadableFiles)).catch(console.error);
+      dispatch(retrieveDrsUrls(downloadableFiles)).catch(console.error);
     }
   }, [dispatch, allExperimentResults]);
-
-  const viewableExperimentResultsForIgv = useIndividualIgvViewableExperimentResults(individual);
-
-  useEffect(() => {
-    if (viewableExperimentResultsForIgv.length > 0) {
-      dispatch(getIgvUrlsFromDrs(viewableExperimentResultsForIgv)).catch(console.error);
-    }
-  }, [dispatch, viewableExperimentResultsForIgv]);
 
   const individualUrl = explorerIndividualUrl(individualID);
 
