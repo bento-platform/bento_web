@@ -176,21 +176,3 @@ export const ontologyTermSorter = (k) => (a, b) => {
 };
 
 export const explorerIndividualUrl = (individualID) => `/data/explorer/individuals/${individualID}`;
-
-export const useIndividualIgvViewableExperimentResults = (individual) => {
-  const biosamplesData = useDeduplicatedIndividualBiosamples(individual);
-  return useMemo(() => {
-    const experiments = biosamplesData.flatMap((b) => b?.experiments ?? []);
-
-    const uniqueResults = Object.values(
-      Object.fromEntries(experiments.flatMap((e) => e?.experiment_results ?? []).map((r) => [r.id, r])),
-    );
-
-    const vr = uniqueResults.filter(isViewableInIgv).map((expRes) => {
-      const fileFormatLower = expResFileFormatLower(expRes);
-      return { ...expRes, fileFormatLower };
-    });
-
-    return vr;
-  }, [biosamplesData]);
-};
