@@ -35,8 +35,8 @@ const VIEWABLE_FILE_FORMATS = ["PDF", "CSV", "TSV"];
 const ExperimentResultActions = ({ result }) => {
   const { filename } = result;
 
-  const downloadUrls = useAppSelector((state) => state.drs.downloadUrlsByFilename);
-  const url = downloadUrls[filename]?.url;
+  const drsUrls = useAppSelector((state) => state.drs.urlsByFilename);
+  const url = drsUrls[filename]?.url;
 
   const [viewModalVisible, setViewModalVisible] = useState(false);
 
