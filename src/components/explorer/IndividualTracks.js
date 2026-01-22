@@ -11,16 +11,20 @@ import { SettingOutlined } from "@ant-design/icons";
 
 import { BENTO_PUBLIC_URL, BENTO_URL } from "@/config";
 import { individualPropTypesShape } from "@/propTypes";
-import { getIgvUrlsFromDrs } from "@/modules/drs/actions";
 import { setIgvPosition } from "@/modules/explorer/actions";
 import { useIgvGenomes } from "@/modules/explorer/hooks";
 import { useReferenceGenomes } from "@/modules/reference/hooks";
 import { useService } from "@/modules/services/hooks";
 import { useAppDispatch, useAppSelector } from "@/store";
-import { guessFileType } from "@/utils/files";
 import { simpleDeepCopy } from "@/utils/misc";
 
-import { useDeduplicatedIndividualBiosamples } from "./utils";
+import {
+  useDeduplicatedIndividualBiosamples,
+  ALIGNMENT_FORMATS_LOWER,
+  expResFileFormatLower,
+  isViewableInIgv,
+  expResFileFormatToIgvTypeAndFormat,
+} from "./utils";
 
 const SQUISHED_CALL_HEIGHT = 10;
 const EXPANDED_CALL_HEIGHT = 50;
@@ -50,39 +54,6 @@ const DEBOUNCE_WAIT = 500;
 
 // verify url set is for this individual (may have stale urls from previous request)
 const hasFreshUrls = (files, urls) => files.every((f) => urls.hasOwnProperty(f.filename));
-
-const ALIGNMENT_FORMATS_LOWER = ["bam", "cram"];
-const ANNOTATION_FORMATS_LOWER = ["bigbed"]; // TODO: experiment result: support more
-const MUTATION_FORMATS_LOWER = ["maf"];
-const WIG_FORMATS_LOWER = ["bigwig"]; // TODO: experiment result: support wig/bedGraph?
-const VARIANT_FORMATS_LOWER = ["vcf", "gvcf"];
-const VIEWABLE_FORMATS_LOWER = [
-  ...ALIGNMENT_FORMATS_LOWER,
-  ...ANNOTATION_FORMATS_LOWER,
-  ...MUTATION_FORMATS_LOWER,
-  ...WIG_FORMATS_LOWER,
-  ...VARIANT_FORMATS_LOWER,
-];
-
-const expResFileFormatLower = (expRes) => expRes.file_format?.toLowerCase() ?? guessFileType(expRes.filename);
-
-// For an experiment result to be viewable in IGV.js, it must have:
-//  - an assembly ID, so we can contextualize it correctly
-//  - a file format in the list of file formats we know how to handle
-const isViewableInIgv = (expRes) =>
-  !!expRes.genome_assembly_id && VIEWABLE_FORMATS_LOWER.includes(expResFileFormatLower(expRes));
-
-const expResFileFormatToIgvTypeAndFormat = (fileFormat) => {
-  const ff = fileFormat.toLowerCase();
-
-  if (ALIGNMENT_FORMATS_LOWER.includes(ff)) return ["alignment", ff];
-  if (ANNOTATION_FORMATS_LOWER.includes(ff)) return ["annotation", "bigBed"]; // TODO: expand if we support more
-  if (MUTATION_FORMATS_LOWER.includes(ff)) return ["mut", ff];
-  if (WIG_FORMATS_LOWER.includes(ff)) return ["wig", "bigWig"]; // TODO: expand if we support wig/bedGraph
-  if (VARIANT_FORMATS_LOWER.includes(ff)) return ["variant", "vcf"];
-
-  return [undefined, undefined];
-};
 
 const TrackControlTable = memo(({ toggleView, allFoundFiles }) => {
   const trackTableColumns = [
@@ -151,19 +122,18 @@ const IGV_JS_ANNOTATION_ALIASES = {
 const IndividualTracks = ({ individual }) => {
   const accessToken = useAccessToken();
 
+  const dispatch = useAppDispatch();
   const igvDivRef = useRef();
   const igvBrowserRef = useRef(null);
   const [creatingIgvBrowser, setCreatingIgvBrowser] = useState(false);
 
-  const { igvUrlsByFilename: igvUrls, isFetchingIgvUrls } = useAppSelector((state) => state.drs);
+  const { urlsByFilename: igvUrls, isFetchingUrls: isFetchingIgvUrls } = useAppSelector((state) => state.drs);
 
   // read stored position only on first render
   const { igvPosition } = useAppSelector(
     (state) => state.explorer,
     () => true, // We don't want to re-render anything when the position changes
   );
-
-  const dispatch = useAppDispatch();
 
   const referenceService = useService("reference");
   // Built-in igv.js genomes (with annotations):
@@ -292,17 +262,6 @@ const IndividualTracks = ({ individual }) => {
     },
     [dispatch],
   );
-
-  // retrieve urls on mount
-  useEffect(() => {
-    if (allTracks.length) {
-      // don't search if all urls already known
-      if (hasFreshUrls(allTracks, igvUrls)) {
-        return;
-      }
-      dispatch(getIgvUrlsFromDrs(allTracks)).catch(console.error);
-    }
-  }, [dispatch, allTracks, igvUrls]);
 
   // update access token whenever necessary
   useEffect(() => {
