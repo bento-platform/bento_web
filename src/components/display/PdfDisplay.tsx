@@ -2,7 +2,7 @@ import { type CSSProperties, useCallback, useMemo, useState } from "react";
 
 import { Document, Page, pdfjs } from "react-pdf";
 import type { PDFDocumentProxy } from "pdfjs-dist";
-import { Button } from "antd";
+import { Button, Space } from "antd";
 import { MinusOutlined, PlusOutlined } from "@ant-design/icons";
 
 import { useAuthorizationHeader } from "bento-auth-js";
@@ -90,14 +90,14 @@ const PdfDisplay = ({ uri, onLoad, onFail }: PdfDisplayProps) => {
   return (
     <div style={styles.container}>
       <div style={styles.header}>
-        <Button.Group>
+        <Space.Compact>
           <Button disabled={scale === 0} onClick={decreaseScale}>
             <MinusOutlined />
           </Button>
           <Button disabled={scale === MAX_SCALE} onClick={increaseScale}>
             <PlusOutlined />
           </Button>
-        </Button.Group>
+        </Space.Compact>
       </div>
       <Document file={uri} onLoadSuccess={onLoadSuccess} onLoadError={onLoadError} options={pdfOptions}>
         {pageArray}

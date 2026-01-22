@@ -26,11 +26,16 @@ const getDrsUrls = (fileObj) => async (dispatch, getState) => {
 
   console.debug(`Initiating getDrsUrls (isIndexed=${isIndexed})`);
 
+  const result = { url: null, ...(isIndexed ? { indexUrl: null } : {}) };
+
+  // Skipping fuzzy search for local path
+  if (filename.startsWith("/")) {
+    return { [filename]: result };
+  }
+
   const fuzzySearchUrl = `${drsUrl}/search?fuzzy_name=${filename}`;
   await dispatch(performFuzzyNameSearch(fuzzySearchUrl));
   console.debug(`Completed fuzzy search for ${filename}`);
-
-  const result = { url: null, ...(isIndexed ? { indexUrl: null } : {}) };
 
   const fuzzySearchObj = getState()?.drs?.fuzzySearchResponse;
   if (fuzzySearchObj === undefined) {
