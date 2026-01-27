@@ -5,6 +5,7 @@ import {
   PERFORM_DRS_OBJECT_SEARCH,
   DELETE_DRS_OBJECT,
   CLEAR_DRS_OBJECT_SEARCH,
+  GET_DRS_OBJECT,
 } from "./actions";
 
 export const drs = (
@@ -19,6 +20,8 @@ export const drs = (
     objectSearchResults: [],
     objectSearchIsFetching: false,
     objectSearchAttempted: false,
+
+    uriCache: {},
 
     isDeleting: false,
   },
@@ -61,12 +64,41 @@ export const drs = (
     case CLEAR_DRS_OBJECT_SEARCH:
       return { ...state, objectSearchResults: [], objectSearchAttempted: false };
 
+    // GET_DRS_OBJECT
+    case GET_DRS_OBJECT.REQUEST:
+      return { ...state, uriCache: { ...state.uriCache, [action.uri]: { isFetching: true } } };
+    case GET_DRS_OBJECT.RECEIVE:
+      return {
+        ...state,
+        uriCache: {
+          ...state.uriCache,
+          [action.uri]: {
+            ...(state.uriCache[action.uri] ?? {}),
+            data: action.data,
+          },
+        },
+      };
+    case GET_DRS_OBJECT.FINISH:
+      return {
+        ...state,
+        uriCache: {
+          ...state.uriCache,
+          [action.uri]: {
+            ...(state.uriCache[action.uri] ?? {}),
+            isFetching: false,
+          },
+        },
+      };
+
     // DELETE_DRS_OBJECT
     case DELETE_DRS_OBJECT.REQUEST:
       return { ...state, isDeleting: true };
     case DELETE_DRS_OBJECT.RECEIVE:
       return {
         ...state,
+        uriCache: Object.fromEntries(
+          Object.entries(state.uriCache).filter(([_k, o]) => o.data?.id !== action.drsObject.id),
+        ),
         objectSearchResults: state.objectSearchResults.filter((o) => o.id !== action.drsObject.id),
       };
     case DELETE_DRS_OBJECT.FINISH:
