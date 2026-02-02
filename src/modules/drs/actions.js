@@ -37,7 +37,7 @@ const getDrsUrls = (fileObj) => async (dispatch, getState) => {
   await dispatch(performFuzzyNameSearch(fuzzySearchUrl));
   console.debug(`Completed fuzzy search for ${filename}`);
 
-  const fuzzySearchObj = getState()?.drs?.fuzzySearchResponse;
+  const fuzzySearchObj = getState().drs.fuzzySearchResponse;
   if (fuzzySearchObj === undefined) {
     const msg = `Something went wrong when pinging ${fuzzySearchUrl} ; fuzzySearchResponse is undefined`;
     console.error(msg);
@@ -84,16 +84,16 @@ export const retrieveDrsUrls = (fileObjects) => async (dispatch, getState) => {
 
   const dispatchedSearches = fileObjects.map((f) => dispatch(getDrsUrls(f)));
 
-  dispatch({ type: RETRIEVE_DRS_URLS.BEGIN });
+  dispatch(beginDrsUrlsSearch());
 
   try {
     // reduce array to object that's addressable by filename
     const urlsObj = groupDrsUrls(await Promise.all(dispatchedSearches));
     console.debug("received drs urls:", urlsObj);
-    dispatch({ type: RETRIEVE_DRS_URLS.END, urls: urlsObj });
+    dispatch(setDrsUrls(urlsObj));
   } catch (err) {
     console.error(err);
-    dispatch({ type: RETRIEVE_DRS_URLS.ERROR });
+    dispatch(errorDrsUrlsSearch());
   }
 };
 
@@ -121,6 +121,19 @@ const performFuzzyNameSearch = networkAction((fuzzySearchUrl) => () => ({
   types: PERFORM_SEARCH_BY_FUZZY_NAME,
   url: fuzzySearchUrl,
 }));
+
+const beginDrsUrlsSearch = () => ({
+  type: RETRIEVE_DRS_URLS.BEGIN,
+});
+
+const setDrsUrls = (urls) => ({
+  type: RETRIEVE_DRS_URLS.END,
+  urls: urls,
+});
+
+const errorDrsUrlsSearch = () => ({
+  type: RETRIEVE_DRS_URLS.ERROR,
+});
 
 const isIndexedFileType = (fileObj) => hasIndex(fileObj.file_format ?? guessFileType(fileObj.filename));
 
