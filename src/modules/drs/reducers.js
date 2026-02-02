@@ -9,7 +9,7 @@ import {
 export const drs = (
   state = {
     isFuzzySearching: false,
-    fuzzySearchResponse: {},
+    fuzzySearchResponse: [],
 
     urlsByFilename: {},
     isFetchingUrls: false,
