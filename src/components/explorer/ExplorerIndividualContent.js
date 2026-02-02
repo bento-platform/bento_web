@@ -78,13 +78,15 @@ const ExplorerIndividualContent = () => {
   }, [biosamplesData]);
 
   useEffect(() => {
-    if (allExperimentResults.length > 0) {
-      const downloadableFiles = allExperimentResults.map((r) => ({
-        ...r,
-        file_format: r.file_format ?? guessFileType(r.filename),
-      }));
-      dispatch(retrieveDrsUrls(downloadableFiles)).catch(console.error);
+    if (!allExperimentResults.length) {
+      return;
     }
+
+    const downloadableFiles = allExperimentResults.map((r) => ({
+      ...r,
+      file_format: r.file_format ?? guessFileType(r.filename),
+    }));
+    dispatch(retrieveDrsUrls(downloadableFiles)).catch(console.error);
   }, [dispatch, allExperimentResults]);
 
   const individualUrl = explorerIndividualUrl(individualID);
