@@ -78,7 +78,7 @@ const ExplorerIndividualContent = () => {
   }, [biosamplesData]);
 
   useEffect(() => {
-    if (!allExperimentResults.length) {
+    if (!allExperimentResults || !allExperimentResults.length) {
       return;
     }
 
