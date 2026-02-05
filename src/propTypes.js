@@ -305,19 +305,26 @@ export const experimentResultPropTypesShape = PropTypes.shape({
 
 export const experimentPropTypesShape = PropTypes.shape({
   id: PropTypes.string.isRequired,
+  description: PropTypes.string,
   study_type: PropTypes.string,
 
   experiment_type: PropTypes.string.isRequired,
-  experiment_ontology: PropTypes.arrayOf(ontologyShape), // TODO: Array of ontology terms
+  experiment_ontology: ontologyShape,
 
   molecule: PropTypes.string,
-  molecule_ontology: PropTypes.arrayOf(ontologyShape), // TODO: Array of ontology terms
+  molecule_ontology: ontologyShape,
 
+  library_id: PropTypes.string,
+  library_description: PropTypes.string,
   library_strategy: PropTypes.string,
   library_source: PropTypes.string,
   library_selection: PropTypes.string,
   library_layout: PropTypes.string,
+  library_extract_id: PropTypes.string,
 
+  insert_size: PropTypes.number,
+
+  protocol_url: PropTypes.string,
   extraction_protocol: PropTypes.string,
   reference_registry_id: PropTypes.string,
 
