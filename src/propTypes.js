@@ -259,6 +259,7 @@ export const experimentResultPropTypesShape = PropTypes.shape({
   identifier: PropTypes.string,
   description: PropTypes.string,
   filename: PropTypes.string,
+  url: PropTypes.string,
   genome_assembly_id: PropTypes.string,
   file_format: PropTypes.oneOf([
     "SAM",
@@ -331,9 +332,7 @@ export const experimentPropTypesShape = PropTypes.shape({
   biosample: PropTypes.string, // Biosample foreign key
   instrument: PropTypes.shape({
     identifier: PropTypes.string,
-    platform: PropTypes.string,
     description: PropTypes.string,
-    model: PropTypes.string,
     device: PropTypes.string,
     device_ontology: ontologyShape,
   }),
