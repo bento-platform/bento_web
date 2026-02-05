@@ -172,6 +172,7 @@ export const ExperimentDetail = ({ experiment }) => {
   const {
     id,
     biosample,
+    description,
     experiment_type: experimentType,
     experiment_ontology: experimentOntology,
     molecule,
@@ -179,10 +180,15 @@ export const ExperimentDetail = ({ experiment }) => {
     instrument,
     study_type: studyType,
     extraction_protocol: extractionProtocol,
+    protocol_url: protocolUrl,
+    library_id: libraryId,
+    library_description: libraryDescription,
     library_layout: libraryLayout,
     library_selection: librarySelection,
     library_source: librarySource,
     library_strategy: libraryStrategy,
+    library_extract_id: libraryExtractId,
+    insert_size: insertSize,
     experiment_results: experimentResults,
     extra_properties: extraProperties,
   } = experiment;
@@ -204,28 +210,30 @@ export const ExperimentDetail = ({ experiment }) => {
         <Descriptions.Item span={1} label="Biosample">
           <BiosampleLink biosample={biosample} />
         </Descriptions.Item>
+        <Descriptions.Item span={3} label="Description">
+          {description}
+        </Descriptions.Item>
         <Descriptions.Item span={1} label="Experiment Type">
           {experimentType}
         </Descriptions.Item>
         <Descriptions.Item span={1} label="Experiment Ontology">
-          {/*
-                    experiment_ontology is accidentally an array in Katsu, so this takes the first item
-                    and falls back to just the field (if we fix this in the future)
-                    */}
-          <OntologyTerm term={experimentOntology?.[0] ?? experimentOntology} />
+          <OntologyTerm term={experimentOntology} />
         </Descriptions.Item>
         <Descriptions.Item span={1} label="Molecule">
           {molecule}
         </Descriptions.Item>
         <Descriptions.Item span={1} label="Molecule Ontology">
-          {/*
-                    molecule_ontology is accidentally an array in Katsu, so this takes the first item
-                    and falls back to just the field (if we fix this in the future)
-                    */}
-          <OntologyTerm term={moleculeOntology?.[0] ?? moleculeOntology} />
+          <OntologyTerm term={moleculeOntology} />
         </Descriptions.Item>
         <Descriptions.Item label="Study Type">{studyType}</Descriptions.Item>
+        <Descriptions.Item label="Protocol URL">{protocolUrl}</Descriptions.Item>
         <Descriptions.Item label="Extraction Protocol">{extractionProtocol}</Descriptions.Item>
+        <Descriptions.Item span={1} label="Library ID">
+          {libraryId}
+        </Descriptions.Item>
+        <Descriptions.Item span={1} label="Library Description">
+          {libraryDescription}
+        </Descriptions.Item>
         <Descriptions.Item span={1} label="Library Layout">
           {libraryLayout}
         </Descriptions.Item>
@@ -237,6 +245,12 @@ export const ExperimentDetail = ({ experiment }) => {
         </Descriptions.Item>
         <Descriptions.Item span={1} label="Library Strategy">
           {libraryStrategy}
+        </Descriptions.Item>
+        <Descriptions.Item span={1} label="Library Extract ID">
+          {libraryExtractId}
+        </Descriptions.Item>
+        <Descriptions.Item span={1} label="Insert Size">
+          {insertSize}
         </Descriptions.Item>
         <Descriptions.Item span={2} label="Instrument">
           <div style={{ display: "flex", gap: 16 }}>
@@ -292,7 +306,7 @@ const EXPERIMENT_COLUMNS = [
   {
     title: "Molecule",
     dataIndex: "molecule_ontology",
-    render: (mo) => <OntologyTerm term={mo?.[0] ?? mo} />,
+    render: (mo) => <OntologyTerm term={mo} />,
   },
   {
     title: "Experiment Results",
