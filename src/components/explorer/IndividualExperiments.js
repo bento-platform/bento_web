@@ -12,9 +12,7 @@ import {
   individualPropTypesShape,
   ontologyShape,
 } from "@/propTypes";
-import { getFileDownloadUrlsFromDrs } from "@/modules/drs/actions";
-import { useAppDispatch, useAppSelector } from "@/store";
-import { guessFileType } from "@/utils/files";
+import { useAppSelector } from "@/store";
 
 import { useDeduplicatedIndividualBiosamples } from "./utils";
 import { VIEWABLE_FILE_EXTENSIONS } from "@/components/display/FileDisplay";
@@ -37,8 +35,8 @@ const VIEWABLE_FILE_FORMATS = ["PDF", "CSV", "TSV"];
 const ExperimentResultActions = ({ result }) => {
   const { filename } = result;
 
-  const downloadUrls = useAppSelector((state) => state.drs.downloadUrlsByFilename);
-  const url = downloadUrls[filename]?.url;
+  const drsUrls = useAppSelector((state) => state.drs.urlsByFilename);
+  const url = drsUrls[filename]?.url;
 
   const [viewModalVisible, setViewModalVisible] = useState(false);
 
@@ -319,8 +317,6 @@ const EXPERIMENT_COLUMNS = [
 ];
 
 const Experiments = ({ individual, handleExperimentClick }) => {
-  const dispatch = useAppDispatch();
-
   const { selectedExperiment } = useParams();
 
   useEffect(() => {
@@ -338,20 +334,6 @@ const Experiments = ({ individual, handleExperimentClick }) => {
 
   const biosamplesData = useDeduplicatedIndividualBiosamples(individual);
   const experimentsData = useMemo(() => biosamplesData.flatMap((b) => b?.experiments ?? []), [biosamplesData]);
-
-  useEffect(() => {
-    // retrieve any download urls if experiments data changes
-
-    const downloadableFiles = experimentsData
-      .flatMap((e) => e?.experiment_results ?? [])
-      .map((r) => ({
-        // enforce file_format property
-        ...r,
-        file_format: r.file_format ?? guessFileType(r.filename),
-      }));
-
-    dispatch(getFileDownloadUrlsFromDrs(downloadableFiles)).catch(console.error);
-  }, [dispatch, experimentsData]);
 
   return (
     <RoutedIndividualContentTable
