@@ -33,6 +33,8 @@ const getDrsUrls = (fileObj) => async (dispatch, getState) => {
     return { [filename]: result };
   }
 
+  // Fuzzy search here is a hacky way of finding indices as well as filenames, since they conventionally are named with
+  // the same root, e.g., @@@.vcf.gz --> @@@.vcf.gz.tbi
   const fuzzySearchUrl = `${drsUrl}/search?fuzzy_name=${filename}`;
   await dispatch(performFuzzyNameSearch(fuzzySearchUrl));
   console.debug(`Completed fuzzy search for ${filename}`);
@@ -45,11 +47,15 @@ const getDrsUrls = (fileObj) => async (dispatch, getState) => {
     return { [filename]: result };
   }
 
-  const dataFileId = fuzzySearchObj.find((obj) => obj.name === filename)?.id;
-  if (dataFileId === undefined) {
+  // We can have multiple DRS entries with the same name; to "tie-break", find the one with the most recent
+  // `created_time`:
+  const candidateDataFiles = fuzzySearchObj.filter((obj) => obj.name === filename);
+  if (candidateDataFiles.length === 0) {
     console.error(`Something went wrong when obtaining data file ID for ${filename}`);
     return { [filename]: result };
   }
+  candidateDataFiles.sort((a, b) => a.created_time.localeCompare(b.created_time));
+  const dataFileId = candidateDataFiles[candidateDataFiles.length - 1].id;
 
   result.url = drsObjectDownloadUrl(drsUrl, dataFileId);
 
