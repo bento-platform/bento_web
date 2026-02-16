@@ -18,11 +18,8 @@ export const simpleDeepCopy = (o: object) => JSON.parse(JSON.stringify(o));
 export const objectWithoutProps = (o: object, ps: RecordKey[]) =>
   Object.fromEntries(Object.entries(o).filter(([p2]) => !ps.includes(p2)));
 export const objectWithoutProp = (o: object, p: RecordKey) => objectWithoutProps(o, [p]);
-export const arrayToObjectByProperty = <T extends Record<RecordKey, unknown>>(
-  l: T[],
-  p: RecordKey,
-  keyMapper: (key: RecordKey) => RecordKey = id,
-) => Object.fromEntries(l.map((item) => [keyMapper(item[p] as RecordKey), item]));
+export const arrayToObjectByProperty = <T extends Record<RecordKey, unknown>>(l: T[], p: RecordKey) =>
+  Object.fromEntries(l.map((item) => [item[p], item]));
 
 // REGEX
 export const notAlleleCharactersRegex = new RegExp("[^ACGTN]", "g");
