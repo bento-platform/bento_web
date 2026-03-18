@@ -16,10 +16,10 @@ const nonEmptyString = z.string().min(1);
 const dateString = z.string().regex(/^\d{4}-\d{2}-\d{2}$/, "Expected ISO date (YYYY-MM-DD)");
 
 /** UUID string — equivalent to Python `UUID` */
-const uuidString = z.string().uuid();
+const uuidString = z.uuid();
 
 /** URL string — equivalent to HttpUrl / AnyUrl */
-const urlString = z.string().url();
+const urlString = z.url();
 
 // ---------------------------------------------------------------------------
 // Translated Literal enums
@@ -202,7 +202,7 @@ export type Phone = z.infer<typeof Phone>;
 export const Contact = z
   .object({
     website: urlString.nullable().optional(),
-    email: z.array(z.string().email()).min(1).nullable().optional(),
+    email: z.array(z.email()).min(1).nullable().optional(),
     address: nonEmptyString.nullable().optional(),
     phone: Phone.nullable().optional(),
   })
@@ -346,7 +346,7 @@ export type SpatialCoverageProperties = z.infer<typeof SpatialCoverageProperties
  */
 export const SpatialCoverageFeature = z.object({
   type: z.literal("Feature"),
-  geometry: z.record(z.unknown()).nullable(), // GeoJSON Geometry object or null
+  geometry: z.record(z.string(), z.unknown()).nullable(), // GeoJSON Geometry object or null
   properties: SpatialCoverageProperties,
   id: z.union([z.string(), z.number()]).optional(),
   bbox: z.array(z.number()).optional(),
@@ -435,7 +435,7 @@ export const DatasetModelBase = z
 
     /** Additional custom metadata properties not covered by the standard schema */
     extra_properties: z
-      .record(z.union([z.string(), z.number(), z.boolean()]).nullable())
+      .record(z.string(), z.union([z.string(), z.number(), z.boolean()]).nullable())
       .nullable()
       .optional(),
   })
