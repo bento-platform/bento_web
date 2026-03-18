@@ -435,10 +435,19 @@ export interface DatasetFormProps {
   onSubmit?: (data: DatasetModelType) => void;
   /** Optional initial values for editing an existing dataset */
   initialValues?: Partial<DatasetModelType>;
+  /**
+   * External form instance. When provided the component renders without its
+   * own title, description, or submit/reset buttons — the parent (e.g. a
+   * Modal) owns those concerns and can call form.submit() to trigger
+   * validation and the onSubmit callback.
+   */
+  form?: FormInstance;
 }
 
-const DatasetForm: React.FC<DatasetFormProps> = ({ onSubmit, initialValues }) => {
-  const [form] = Form.useForm();
+const DatasetForm: React.FC<DatasetFormProps> = ({ onSubmit, initialValues, form: externalForm }) => {
+  const [internalForm] = Form.useForm();
+  const form = externalForm ?? internalForm;
+  const isEmbedded = !!externalForm;
   const [zodErrors, setZodErrors] = useState<Array<{ path: string; message: string }>>([]);
 
   /**
@@ -520,11 +529,15 @@ const DatasetForm: React.FC<DatasetFormProps> = ({ onSubmit, initialValues }) =>
   );
 
   return (
-    <div style={{ maxWidth: 900, margin: "0 auto", padding: 24 }}>
-      <Title level={3}>Dataset Metadata Form</Title>
-      <Text type="secondary" style={{ display: "block", marginBottom: 24 }}>
-        Fill in the dataset metadata below. Required fields are marked with *.
-      </Text>
+    <div style={isEmbedded ? {} : { maxWidth: 900, margin: "0 auto", padding: 24 }}>
+      {!isEmbedded && (
+        <>
+          <Title level={3}>Dataset Metadata Form</Title>
+          <Text type="secondary" style={{ display: "block", marginBottom: 24 }}>
+            Fill in the dataset metadata below. Required fields are marked with *.
+          </Text>
+        </>
+      )}
 
       <Form
         form={form}
@@ -1204,25 +1217,29 @@ const DatasetForm: React.FC<DatasetFormProps> = ({ onSubmit, initialValues }) =>
         )}
 
         {/* ============================================================= */}
-        {/* Submit */}
+        {/* Submit — hidden when embedded inside a modal */}
         {/* ============================================================= */}
-        <Divider />
-        <Form.Item>
-          <Space>
-            <Button type="primary" htmlType="submit" size="large">
-              Validate &amp; Submit
-            </Button>
-            <Button
-              htmlType="button"
-              onClick={() => {
-                form.resetFields();
-                setZodErrors([]);
-              }}
-            >
-              Reset
-            </Button>
-          </Space>
-        </Form.Item>
+        {!isEmbedded && (
+          <>
+            <Divider />
+            <Form.Item>
+              <Space>
+                <Button type="primary" htmlType="submit" size="large">
+                  Validate &amp; Submit
+                </Button>
+                <Button
+                  htmlType="button"
+                  onClick={() => {
+                    form.resetFields();
+                    setZodErrors([]);
+                  }}
+                >
+                  Reset
+                </Button>
+              </Space>
+            </Form.Item>
+          </>
+        )}
       </Form>
     </div>
   );

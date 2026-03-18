@@ -38,35 +38,31 @@ const DatasetFormModal = ({ project, mode, initialValue, onCancel, onOk, open })
     form.resetFields();
   }, [form, onCancel]);
 
+  // Triggered by the modal's Save button; delegates validation + transformation
+  // to DatasetForm's onFinish via form.submit().
   const handleSubmit = useCallback(() => {
-    form
-      .validateFields()
-      .then((values) => {
-        const onSuccess = () => handleSuccess(values);
+    form.submit();
+  }, [form]);
 
-        if (typeof values?.discovery === "string") {
-          values["discovery"] = JSON.parse(values["discovery"]);
-        }
-
-        return mode === FORM_MODE_ADD
-          ? dispatch(addProjectDataset(project, values, onSuccess))
-          : dispatch(
-              saveProjectDataset(
-                {
-                  ...(initialValue || {}),
-                  project: project.identifier,
-                  ...values,
-                  description: (values.description || "").trim(),
-                  contact_info: (values.contact_info || "").trim(),
-                },
-                onSuccess,
-              ),
-            );
-      })
-      .catch((err) => {
-        console.error(err);
-      });
-  }, [dispatch, form, handleSuccess, mode, project, initialValue]);
+  // Receives the Zod-validated, transformed data from DatasetForm's onFinish.
+  const handleDatasetSubmit = useCallback(
+    (values) => {
+      const onSuccess = () => handleSuccess(values);
+      return mode === FORM_MODE_ADD
+        ? dispatch(addProjectDataset(project, values, onSuccess))
+        : dispatch(
+            saveProjectDataset(
+              {
+                ...(initialValue || {}),
+                project: project.identifier,
+                ...values,
+              },
+              onSuccess,
+            ),
+          );
+    },
+    [dispatch, handleSuccess, mode, project, initialValue],
+  );
 
   if (!project) return null;
   return (
@@ -92,8 +88,11 @@ const DatasetFormModal = ({ project, mode, initialValue, onCancel, onOk, open })
       ]}
       onCancel={handleCancel}
     >
-      {/* <DatasetForm form={form} initialValue={mode === FORM_MODE_ADD ? undefined : initialValue} /> */}
-      <DatasetForm onSubmit={handleSubmit}/>
+      <DatasetForm
+        form={form}
+        onSubmit={handleDatasetSubmit}
+        initialValues={mode === FORM_MODE_ADD ? undefined : initialValue}
+      />
     </Modal>
   );
 };
