@@ -100,7 +100,7 @@
  *   <DatasetForm onSubmit={(values) => console.log(values)} />
  */
 
-import React, { useCallback, useState } from "react";
+import React, { useCallback, useMemo, useState } from "react";
 import {
   Form,
   Input,
@@ -149,7 +149,7 @@ const { Panel } = Collapse;
 const { Title, Text } = Typography;
 const { Option } = Select;
 
-const RequiredMark = () => <RequiredMark />;
+const RequiredMark = () => <span style={{ color: "red" }}>*</span>;
 
 // ---------------------------------------------------------------------------
 // Helpers
@@ -338,7 +338,11 @@ const PersonOrOrganizationFields: React.FC<{
   namePrefix: (string | number)[];
   form: FormInstance;
 }> = ({ namePrefix, form }) => {
-  const typeValue = Form.useWatch([...namePrefix, "type"], form) ?? "person";
+  // Memoize the path so Form.useWatch doesn't re-subscribe on every render
+  // (a new array reference each render causes a useEffect loop in AntD internals).
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  const typePath = useMemo(() => [...namePrefix, "type"], [JSON.stringify(namePrefix)]);
+  const typeValue = Form.useWatch(typePath, form) ?? "person";
 
   return (
     <Card size="small" style={{ marginBottom: 8 }}>
