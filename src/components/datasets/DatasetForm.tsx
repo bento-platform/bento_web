@@ -584,20 +584,6 @@ const DatasetForm: React.FC<DatasetFormProps> = ({ onSubmit, initialValues, form
                       <Input placeholder="e.g. public, restricted" />
                     </Form.Item>
 
-                    <Form.Item label="Study status" name="study_status">
-                      <Select placeholder="Select status" allowClear>
-                        <Option value="ONGOING">Ongoing</Option>
-                        <Option value="COMPLETED">Completed</Option>
-                      </Select>
-                    </Form.Item>
-
-                    <Form.Item label="Study context" name="study_context">
-                      <Select placeholder="Select context" allowClear>
-                        <Option value="CLINICAL">Clinical</Option>
-                        <Option value="RESEARCH">Research</Option>
-                      </Select>
-                    </Form.Item>
-
                     <Form.Item label="Release date" name="release_date">
                       <DatePicker style={{ width: "100%" }} />
                     </Form.Item>
@@ -616,6 +602,29 @@ const DatasetForm: React.FC<DatasetFormProps> = ({ onSubmit, initialValues, form
                         <Option value="text/plain">Plain text</Option>
                         <Option value="text/markdown">Markdown</Option>
                         <Option value="text/html">HTML</Option>
+                      </Select>
+                    </Form.Item>
+                  </Card>
+
+                </>
+              ),
+            },
+            {
+              key: "pcgl",
+              label: "PCGL Info",
+              children: (
+                <>
+                  <Card title="Study" style={{ marginBottom: 16 }}>
+                    <Form.Item label="Study status" name="study_status">
+                      <Select placeholder="Select status" allowClear>
+                        <Option value="ONGOING">Ongoing</Option>
+                        <Option value="COMPLETED">Completed</Option>
+                      </Select>
+                    </Form.Item>
+                    <Form.Item label="Study context" name="study_context">
+                      <Select placeholder="Select context" allowClear>
+                        <Option value="CLINICAL">Clinical</Option>
+                        <Option value="RESEARCH">Research</Option>
                       </Select>
                     </Form.Item>
                   </Card>
