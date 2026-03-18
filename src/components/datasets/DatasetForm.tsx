@@ -149,6 +149,8 @@ const { Panel } = Collapse;
 const { Title, Text } = Typography;
 const { Option } = Select;
 
+const RequiredMark = () => <RequiredMark />;
+
 // ---------------------------------------------------------------------------
 // Helpers
 // ---------------------------------------------------------------------------
@@ -554,7 +556,7 @@ const DatasetForm: React.FC<DatasetFormProps> = ({ onSubmit, initialValues, form
           items={[
             {
               key: "core",
-              label: <span>Core Info <span style={{ color: "red" }}>*</span></span>,
+              label: <span>Core Info <RequiredMark /></span>,
               children: (
                 <>
                   <Card title="Core Information" style={{ marginBottom: 16 }}>
@@ -650,14 +652,14 @@ const DatasetForm: React.FC<DatasetFormProps> = ({ onSubmit, initialValues, form
             },
             {
               key: "contacts",
-              label: <span>Contacts <span style={{ color: "red" }}>*</span></span>,
+              label: <span>Contacts <RequiredMark /></span>,
               children: (
                 <>
-                  <Card title={<span>Primary Contact <span style={{ color: "red" }}>*</span></span>} style={{ marginBottom: 16 }}>
+                  <Card title={<span>Primary Contact <RequiredMark /></span>} style={{ marginBottom: 16 }}>
                     <PersonOrOrganizationFields namePrefix={["primary_contact"]} form={form} />
                   </Card>
 
-                  <Card title={<span>Stakeholders <span style={{ color: "red" }}>*</span></span>}>
+                  <Card title={<span>Stakeholders <RequiredMark /></span>}>
                     <Form.List name="stakeholders" initialValue={[{ type: "person" }]}>
                       {(fields, { add, remove }) => (
                         <>
