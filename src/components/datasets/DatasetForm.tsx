@@ -559,15 +559,6 @@ const DatasetForm: React.FC<DatasetFormProps> = ({ onSubmit, initialValues, form
                 <>
                   <Card title="Core Information" style={{ marginBottom: 16 }}>
                     <Form.Item
-                      label="Identifier"
-                      name="identifier"
-                      rules={[{ required: true, min: 1, max: 128, message: "1–128 characters required" }]}
-                      tooltip="Unique identifier for this dataset (1–128 chars)"
-                    >
-                      <Input placeholder="e.g. my-dataset-001" maxLength={128} showCount />
-                    </Form.Item>
-
-                    <Form.Item
                       label="Title"
                       name="title"
                       rules={[{ required: true, min: 1, message: "Title is required" }]}
