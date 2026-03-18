@@ -554,7 +554,7 @@ const DatasetForm: React.FC<DatasetFormProps> = ({ onSubmit, initialValues, form
           items={[
             {
               key: "core",
-              label: "Core Info",
+              label: <span>Core Info <span style={{ color: "red" }}>*</span></span>,
               children: (
                 <>
                   <Card title="Core Information" style={{ marginBottom: 16 }}>
@@ -650,7 +650,7 @@ const DatasetForm: React.FC<DatasetFormProps> = ({ onSubmit, initialValues, form
             },
             {
               key: "contacts",
-              label: "Contacts",
+              label: <span>Contacts <span style={{ color: "red" }}>*</span></span>,
               children: (
                 <>
                   <Card title="Primary Contact *" style={{ marginBottom: 16 }}>
@@ -688,7 +688,7 @@ const DatasetForm: React.FC<DatasetFormProps> = ({ onSubmit, initialValues, form
             },
             {
               key: "links",
-              label: "Links & Media",
+              label: <span>Links & Media <span style={{ color: "red" }}>*</span></span>,
               children: (
                 <>
                   <Card title="Links *" style={{ marginBottom: 16 }}>
