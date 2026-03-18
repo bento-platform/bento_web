@@ -1,0 +1,56 @@
+import dayjs from "dayjs";
+import { DatasetModel } from "@/types/dataset";
+import type { DatasetModel as DatasetModelType } from "@/types/dataset";
+
+/** Convert antd form values → schema-compatible shape, then validate with Zod */
+export function validateWithZod(values: unknown): { success: true; data: DatasetModelType } | { success: false; errors: Array<{ path: string; message: string }> } {
+  const result = DatasetModel.safeParse(values);
+  if (result.success) {
+    return { success: true, data: result.data };
+  }
+  return {
+    success: false,
+    errors: result.error.issues.map((issue) => ({
+      path: issue.path.join("."),
+      message: issue.message,
+    })),
+  };
+}
+
+/** Strip undefined / null leaves so Zod doesn't complain about missing optionals */
+export function cleanFormValues(obj: any): any {
+  if (obj === null || obj === undefined || obj === "") return undefined;
+  if (Array.isArray(obj)) {
+    const cleaned = obj.map(cleanFormValues).filter((v) => v !== undefined);
+    return cleaned.length > 0 ? cleaned : undefined;
+  }
+  if (typeof obj === "object" && !(obj instanceof Date)) {
+    const cleaned: Record<string, any> = {};
+    let hasKeys = false;
+    for (const [k, v] of Object.entries(obj)) {
+      const cv = cleanFormValues(v);
+      if (cv !== undefined) {
+        cleaned[k] = cv;
+        hasKeys = true;
+      }
+    }
+    return hasKeys ? cleaned : undefined;
+  }
+  return obj;
+}
+
+/** Convert a dayjs date-picker value to YYYY-MM-DD string */
+export function dayjsToDateString(d: any): string | undefined {
+  if (!d) return undefined;
+  return dayjs(d).format("YYYY-MM-DD");
+}
+
+/** Helper to access a nested value from a plain object by path array */
+export function getNestedValue(obj: any, path: (string | number)[]): any {
+  let current = obj;
+  for (const key of path) {
+    if (current == null) return undefined;
+    current = current[key];
+  }
+  return current;
+}
