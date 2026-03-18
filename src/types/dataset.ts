@@ -418,7 +418,7 @@ export const DatasetModelBase = z
     license: License.nullable().optional(),
     counts: z.array(Count).min(1).nullable().optional(),
     primary_contact: PersonOrOrganization,
-    links: z.array(Link).min(1),
+    links: z.array(Link).nullable().optional(),
     publications: z.array(Publication).min(1).nullable().optional(),
     logos: z.array(Logo).min(1).nullable().optional(),
     release_date: dateString.nullable().optional(),

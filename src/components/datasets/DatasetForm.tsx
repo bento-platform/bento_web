@@ -688,11 +688,11 @@ const DatasetForm: React.FC<DatasetFormProps> = ({ onSubmit, initialValues, form
             },
             {
               key: "links",
-              label: <span>Links & Media <span style={{ color: "red" }}>*</span></span>,
+              label: "Links & Media",
               children: (
                 <>
-                  <Card title="Links *" style={{ marginBottom: 16 }}>
-                    <Form.List name="links" initialValue={[{}]}>
+                  <Card title="Links" style={{ marginBottom: 16 }}>
+                    <Form.List name="links">
                       {(fields, { add, remove }) => (
                         <>
                           {fields.map(({ key, name }) => (
@@ -700,22 +700,19 @@ const DatasetForm: React.FC<DatasetFormProps> = ({ onSubmit, initialValues, form
                               <Form.Item
                                 label="Label"
                                 name={[name, "label"]}
-                                rules={[{ required: true, min: 1 }]}
                               >
                                 <Input placeholder="Link label" />
                               </Form.Item>
                               <Form.Item
                                 label="URL"
                                 name={[name, "url"]}
-                                rules={[{ required: true, type: "url" }]}
+                                rules={[{ type: "url" }]}
                               >
                                 <Input placeholder="https://..." />
                               </Form.Item>
-                              {fields.length > 1 && (
-                                <Button danger size="small" onClick={() => remove(name)}>
-                                  Remove
-                                </Button>
-                              )}
+                              <Button danger size="small" onClick={() => remove(name)}>
+                                Remove
+                              </Button>
                             </Card>
                           ))}
                           <Button type="dashed" onClick={() => add()} icon={<PlusOutlined />}>
