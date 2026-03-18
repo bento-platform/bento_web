@@ -245,7 +245,7 @@ const ContactFields: React.FC<{ namePrefix: (string | number)[] }> = ({ namePref
               <MinusCircleOutlined onClick={() => remove(name)} />
             </Space>
           ))}
-          <Button type="dashed" onClick={() => add()} icon={<PlusOutlined />} size="small">
+          <Button type="dashed" onClick={() => add()} icon={<PlusOutlined />} size="small" style={{ marginLeft: 8 }}>
             Add email
           </Button>
         </>
@@ -288,7 +288,7 @@ const PersonFields: React.FC<{ namePrefix: (string | number)[] }> = ({ namePrefi
               <MinusCircleOutlined onClick={() => remove(name)} />
             </Space>
           ))}
-          <Button type="dashed" onClick={() => add()} icon={<PlusOutlined />} size="small">
+          <Button type="dashed" onClick={() => add()} icon={<PlusOutlined />} size="small" style={{ marginLeft: 8 }}>
             Add name
           </Button>
         </div>
@@ -638,7 +638,7 @@ const DatasetForm: React.FC<DatasetFormProps> = ({ onSubmit, initialValues, form
                               <MinusCircleOutlined onClick={() => remove(name)} />
                             </Space>
                           ))}
-                          <Button type="dashed" onClick={() => add()} icon={<PlusOutlined />} size="small">
+                          <Button type="dashed" onClick={() => add()} icon={<PlusOutlined />} size="small" style={{ marginLeft: 8 }}>
                             Add domain
                           </Button>
                         </>
@@ -653,11 +653,11 @@ const DatasetForm: React.FC<DatasetFormProps> = ({ onSubmit, initialValues, form
               label: <span>Contacts <span style={{ color: "red" }}>*</span></span>,
               children: (
                 <>
-                  <Card title="Primary Contact *" style={{ marginBottom: 16 }}>
+                  <Card title={<span>Primary Contact <span style={{ color: "red" }}>*</span></span>} style={{ marginBottom: 16 }}>
                     <PersonOrOrganizationFields namePrefix={["primary_contact"]} form={form} />
                   </Card>
 
-                  <Card title="Stakeholders *">
+                  <Card title={<span>Stakeholders <span style={{ color: "red" }}>*</span></span>}>
                     <Form.List name="stakeholders" initialValue={[{ type: "person" }]}>
                       {(fields, { add, remove }) => (
                         <>
@@ -676,7 +676,7 @@ const DatasetForm: React.FC<DatasetFormProps> = ({ onSubmit, initialValues, form
                               )}
                             </div>
                           ))}
-                          <Button type="dashed" onClick={() => add({ type: "person" })} icon={<PlusOutlined />}>
+                          <Button type="dashed" onClick={() => add({ type: "person" })} icon={<PlusOutlined />} style={{ marginLeft: 8 }}>
                             Add stakeholder
                           </Button>
                         </>
@@ -715,7 +715,7 @@ const DatasetForm: React.FC<DatasetFormProps> = ({ onSubmit, initialValues, form
                               </Button>
                             </Card>
                           ))}
-                          <Button type="dashed" onClick={() => add()} icon={<PlusOutlined />}>
+                          <Button type="dashed" onClick={() => add()} icon={<PlusOutlined />} style={{ marginLeft: 8 }}>
                             Add link
                           </Button>
                         </>
@@ -759,7 +759,7 @@ const DatasetForm: React.FC<DatasetFormProps> = ({ onSubmit, initialValues, form
                               </Button>
                             </Card>
                           ))}
-                          <Button type="dashed" onClick={() => add()} icon={<PlusOutlined />}>
+                          <Button type="dashed" onClick={() => add()} icon={<PlusOutlined />} style={{ marginLeft: 8 }}>
                             Add logo
                           </Button>
                         </>
@@ -787,7 +787,7 @@ const DatasetForm: React.FC<DatasetFormProps> = ({ onSubmit, initialValues, form
                                 <Input placeholder="Plain keyword text" />
                               </Form.Item>
                               <Text type="secondary">— or as OntologyClass —</Text>
-                              <Form.Item label="Ontology ID" name={[name, "id"]} style={{ marginTop: 8 }}>
+                              <Form.Item label="Ontology ID" name={[name, "id"]} style={{ marginLeft: 8 }}>
                                 <Input placeholder="e.g. HP:0001234" />
                               </Form.Item>
                               <Form.Item label="Label" name={[name, "label"]}>
@@ -798,7 +798,7 @@ const DatasetForm: React.FC<DatasetFormProps> = ({ onSubmit, initialValues, form
                               </Button>
                             </Card>
                           ))}
-                          <Button type="dashed" onClick={() => add()} icon={<PlusOutlined />}>
+                          <Button type="dashed" onClick={() => add()} icon={<PlusOutlined />} style={{ marginLeft: 8 }}>
                             Add keyword
                           </Button>
                         </>
@@ -816,7 +816,7 @@ const DatasetForm: React.FC<DatasetFormProps> = ({ onSubmit, initialValues, form
                                 <Input placeholder="Plain text taxonomy entry" />
                               </Form.Item>
                               <Text type="secondary">— or as OntologyClass —</Text>
-                              <Form.Item label="Ontology ID" name={[name, "id"]} style={{ marginTop: 8 }}>
+                              <Form.Item label="Ontology ID" name={[name, "id"]} style={{ marginLeft: 8 }}>
                                 <Input placeholder="e.g. NCIT:C12345" />
                               </Form.Item>
                               <Form.Item label="Label" name={[name, "label"]}>
@@ -827,7 +827,7 @@ const DatasetForm: React.FC<DatasetFormProps> = ({ onSubmit, initialValues, form
                               </Button>
                             </Card>
                           ))}
-                          <Button type="dashed" onClick={() => add()} icon={<PlusOutlined />}>
+                          <Button type="dashed" onClick={() => add()} icon={<PlusOutlined />} style={{ marginLeft: 8 }}>
                             Add taxonomy entry
                           </Button>
                         </>
@@ -865,7 +865,7 @@ const DatasetForm: React.FC<DatasetFormProps> = ({ onSubmit, initialValues, form
                               </Button>
                             </Card>
                           ))}
-                          <Button type="dashed" onClick={() => add()} icon={<PlusOutlined />}>
+                          <Button type="dashed" onClick={() => add()} icon={<PlusOutlined />} style={{ marginLeft: 8 }}>
                             Add ontology resource
                           </Button>
                         </>
@@ -933,7 +933,7 @@ const DatasetForm: React.FC<DatasetFormProps> = ({ onSubmit, initialValues, form
                               </Button>
                             </Card>
                           ))}
-                          <Button type="dashed" onClick={() => add()} icon={<PlusOutlined />}>
+                          <Button type="dashed" onClick={() => add()} icon={<PlusOutlined />} style={{ marginLeft: 8 }}>
                             Add count
                           </Button>
                         </>
@@ -969,7 +969,7 @@ const DatasetForm: React.FC<DatasetFormProps> = ({ onSubmit, initialValues, form
                               </Button>
                             </Card>
                           ))}
-                          <Button type="dashed" onClick={() => add()} icon={<PlusOutlined />}>
+                          <Button type="dashed" onClick={() => add()} icon={<PlusOutlined />} style={{ marginLeft: 8 }}>
                             Add criterion
                           </Button>
                         </>
@@ -995,7 +995,7 @@ const DatasetForm: React.FC<DatasetFormProps> = ({ onSubmit, initialValues, form
                               <MinusCircleOutlined onClick={() => remove(name)} />
                             </Space>
                           ))}
-                          <Button type="dashed" onClick={() => add()} icon={<PlusOutlined />} size="small">
+                          <Button type="dashed" onClick={() => add()} icon={<PlusOutlined />} size="small" style={{ marginLeft: 8 }}>
                             Add property
                           </Button>
                         </>
@@ -1102,6 +1102,7 @@ const DatasetForm: React.FC<DatasetFormProps> = ({ onSubmit, initialValues, form
                                           onClick={() => addAuthor({ type: "person" })}
                                           icon={<PlusOutlined />}
                                           size="small"
+                                          style={{ marginLeft: 8 }}
                                         >
                                           Add author
                                         </Button>
@@ -1111,14 +1112,14 @@ const DatasetForm: React.FC<DatasetFormProps> = ({ onSubmit, initialValues, form
                                 </Panel>
                               </Collapse>
 
-                              <div style={{ marginTop: 8 }}>
+                              <div style={{ marginLeft: 8 }}>
                                 <Button danger size="small" onClick={() => remove(name)}>
                                   Remove publication
                                 </Button>
                               </div>
                             </Card>
                           ))}
-                          <Button type="dashed" onClick={() => add()} icon={<PlusOutlined />}>
+                          <Button type="dashed" onClick={() => add()} icon={<PlusOutlined />} style={{ marginLeft: 8 }}>
                             Add publication
                           </Button>
                         </>
@@ -1156,20 +1157,21 @@ const DatasetForm: React.FC<DatasetFormProps> = ({ onSubmit, initialValues, form
                                       onClick={() => addGrant()}
                                       icon={<PlusOutlined />}
                                       size="small"
+                                      style={{ marginLeft: 8 }}
                                     >
                                       Add grant number
                                     </Button>
                                   </>
                                 )}
                               </Form.List>
-                              <div style={{ marginTop: 8 }}>
+                              <div style={{ marginLeft: 8 }}>
                                 <Button danger size="small" onClick={() => remove(name)}>
                                   Remove source
                                 </Button>
                               </div>
                             </Card>
                           ))}
-                          <Button type="dashed" onClick={() => add()} icon={<PlusOutlined />}>
+                          <Button type="dashed" onClick={() => add()} icon={<PlusOutlined />} style={{ marginLeft: 8 }}>
                             Add funding source
                           </Button>
                         </>
