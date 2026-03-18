@@ -92,7 +92,8 @@ const DatasetFormModal = ({ project, mode, initialValue, onCancel, onOk, open })
       ]}
       onCancel={handleCancel}
     >
-      <DatasetForm form={form} initialValue={mode === FORM_MODE_ADD ? undefined : initialValue} />
+      {/* <DatasetForm form={form} initialValue={mode === FORM_MODE_ADD ? undefined : initialValue} /> */}
+      <DatasetForm onSubmit={handleSubmit}/>
     </Modal>
   );
 };
