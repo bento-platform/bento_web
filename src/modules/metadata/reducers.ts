@@ -81,7 +81,7 @@ export const projects: Reducer<ProjectsState> = (
     case FETCH_PROJECTS.RECEIVE: {
       const projects = [...(action.data as Project[])].sort(projectSort);
       const datasets: ProjectScopedDatasetModel[] = projects.flatMap((p: Project) =>
-        (p.datasets ?? []).map((d: DatasetModel) => ({ ...d, project: p.identifier })),
+        (p.datasets_v2 ?? []).map((d: DatasetModel) => ({ ...d, project: p.identifier })),
       );
       return {
         ...state,
