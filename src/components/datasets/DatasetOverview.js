@@ -58,7 +58,7 @@ const DatasetOverview = ({ isPrivate, project, dataset }) => {
           </Col>
         )}
         <Col span={isPrivate ? 12 : 8}>
-          <Statistic title="Created" value={new Date(Date.parse(dataset.created)).toLocaleString()} />
+          <Statistic title="Created" value={new Date(Date.parse(dataset.created_at)).toLocaleString()} />
         </Col>
         <Col span={isPrivate ? 12 : 8}>
           <Spin spinning={isFetchingDataTypes}>
