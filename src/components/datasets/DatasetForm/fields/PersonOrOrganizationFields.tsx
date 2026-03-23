@@ -10,7 +10,7 @@ const { Text } = Typography;
 
 const PersonFields: React.FC<{ namePrefix: (string | number)[] }> = ({ namePrefix }) => (
   <>
-    <Form.Item name={[...namePrefix, "type"]} initialValue="person" hidden>
+    <Form.Item name={[...namePrefix, "type"]} hidden>
       <Input />
     </Form.Item>
     <Form.Item label="Name" name={[...namePrefix, "name"]} rules={[{ required: true, min: 1 }]}>
@@ -53,7 +53,7 @@ const PersonFields: React.FC<{ namePrefix: (string | number)[] }> = ({ namePrefi
 
 const OrganizationFields: React.FC<{ namePrefix: (string | number)[] }> = ({ namePrefix }) => (
   <>
-    <Form.Item name={[...namePrefix, "type"]} initialValue="organization" hidden>
+    <Form.Item name={[...namePrefix, "type"]} hidden>
       <Input />
     </Form.Item>
     <Form.Item label="Name" name={[...namePrefix, "name"]} rules={[{ required: true, min: 1 }]}>
@@ -78,11 +78,14 @@ const OrganizationFields: React.FC<{ namePrefix: (string | number)[] }> = ({ nam
 
 const PersonOrOrganizationFields: React.FC<{
   namePrefix: (string | number)[];
+  /** Absolute path from the form root — needed when namePrefix is relative (inside a Form.List). Defaults to namePrefix. */
+  absoluteNamePrefix?: (string | number)[];
   form: FormInstance;
-}> = ({ namePrefix, form }) => {
+}> = ({ namePrefix, absoluteNamePrefix, form }) => {
+  const watchPrefix = absoluteNamePrefix ?? namePrefix;
   // Memoize the path so Form.useWatch doesn't re-subscribe on every render
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  const typePath = useMemo(() => [...namePrefix, "type"], [JSON.stringify(namePrefix)]);
+  const typePath = useMemo(() => [...watchPrefix, "type"], [JSON.stringify(watchPrefix)]);
   const typeValue = Form.useWatch(typePath, form) ?? "person";
 
   return (

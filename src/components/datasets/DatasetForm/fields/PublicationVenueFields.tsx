@@ -5,7 +5,13 @@ import { getNestedValue } from "../helpers";
 
 const { Option } = Select;
 
-const PublicationVenueFields: React.FC<{ namePrefix: (string | number)[] }> = ({ namePrefix }) => (
+const PublicationVenueFields: React.FC<{
+  namePrefix: (string | number)[];
+  /** Absolute path from form root — needed when namePrefix is relative (inside a Form.List). Defaults to namePrefix. */
+  absoluteNamePrefix?: (string | number)[];
+}> = ({ namePrefix, absoluteNamePrefix }) => {
+  const absPrefix = absoluteNamePrefix ?? namePrefix;
+  return (
   <Card size="small" title="Venue" style={{ marginBottom: 8 }}>
     <Form.Item label="Venue name" name={[...namePrefix, "name"]} rules={[{ required: true, min: 1 }]}>
       <Input />
@@ -23,13 +29,13 @@ const PublicationVenueFields: React.FC<{ namePrefix: (string | number)[] }> = ({
     <Form.Item
       noStyle
       shouldUpdate={(prev, cur) => {
-        const prevVal = getNestedValue(prev, [...namePrefix, "venue_type"]);
-        const curVal = getNestedValue(cur, [...namePrefix, "venue_type"]);
+        const prevVal = getNestedValue(prev, [...absPrefix, "venue_type"]);
+        const curVal = getNestedValue(cur, [...absPrefix, "venue_type"]);
         return prevVal !== curVal;
       }}
     >
       {({ getFieldValue }) => {
-        const val = getFieldValue([...namePrefix, "venue_type"]);
+        const val = getFieldValue([...absPrefix, "venue_type"]);
         return val === "__other" ? (
           <Form.Item label="Other venue type" name={[...namePrefix, "venue_type_other"]}>
             <Input placeholder="Specify venue type" />
@@ -47,6 +53,7 @@ const PublicationVenueFields: React.FC<{ namePrefix: (string | number)[] }> = ({
       <Input />
     </Form.Item>
   </Card>
-);
+  );
+};
 
 export default PublicationVenueFields;

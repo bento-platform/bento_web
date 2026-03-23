@@ -5,8 +5,6 @@ import type { FormInstance } from "antd";
 import PersonOrOrganizationFields from "../fields/PersonOrOrganizationFields";
 import RequiredMark from "../RequiredMark";
 
-const INITIAL_STAKEHOLDER = [{ type: "person" }];
-
 const ContactsTab: React.FC<{ form: FormInstance }> = ({ form }) => (
   <>
     <Card title={<span>Primary Contact <RequiredMark /></span>} style={{ marginBottom: 16 }}>
@@ -14,12 +12,16 @@ const ContactsTab: React.FC<{ form: FormInstance }> = ({ form }) => (
     </Card>
 
     <Card title={<span>Stakeholders <RequiredMark /></span>}>
-      <Form.List name="stakeholders" initialValue={INITIAL_STAKEHOLDER}>
+      <Form.List name="stakeholders">
         {(fields, { add, remove }) => (
           <>
             {fields.map(({ key, name }) => (
               <div key={key} style={{ position: "relative" }}>
-                <PersonOrOrganizationFields namePrefix={["stakeholders", name]} form={form} />
+                <PersonOrOrganizationFields
+                  namePrefix={[name]}
+                  absoluteNamePrefix={["stakeholders", name]}
+                  form={form}
+                />
                 {fields.length > 1 && (
                   <Button
                     danger

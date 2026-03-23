@@ -63,7 +63,7 @@ const PublicationsFundingTab: React.FC<{ form: FormInstance }> = ({ form }) => (
 
                 <Collapse ghost>
                   <Panel header="Venue" key="venue">
-                    <PublicationVenueFields namePrefix={["publications", name, "publication_venue"]} />
+                    <PublicationVenueFields namePrefix={[name, "publication_venue"]} absoluteNamePrefix={["publications", name, "publication_venue"]} />
                   </Panel>
                   <Panel header="Authors" key="authors">
                     <Form.List name={[name, "authors"]}>
@@ -72,7 +72,8 @@ const PublicationsFundingTab: React.FC<{ form: FormInstance }> = ({ form }) => (
                           {authorFields.map(({ key: aKey, name: aName }) => (
                             <div key={aKey} style={{ position: "relative" }}>
                               <PersonOrOrganizationFields
-                                namePrefix={["publications", name, "authors", aName]}
+                                namePrefix={[aName]}
+                                absoluteNamePrefix={["publications", name, "authors", aName]}
                                 form={form}
                               />
                               <Button
