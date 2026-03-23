@@ -54,3 +54,18 @@ export function getNestedValue(obj: any, path: (string | number)[]): any {
   }
   return current;
 }
+
+/** Convert date string fields to dayjs objects so antd DatePicker receives the correct type */
+export function prepareInitialValues(values: Partial<DatasetModelType> | undefined): Record<string, any> | undefined {
+  if (!values) return undefined;
+  const result: any = { ...values };
+  if (result.release_date) result.release_date = dayjs(result.release_date);
+  if (result.last_modified) result.last_modified = dayjs(result.last_modified);
+  if (Array.isArray(result.publications)) {
+    result.publications = result.publications.map((pub: any) => ({
+      ...pub,
+      publication_date: pub.publication_date ? dayjs(pub.publication_date) : undefined,
+    }));
+  }
+  return result;
+}
