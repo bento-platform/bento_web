@@ -127,11 +127,7 @@ export const PublicationVenueTypeValues = [
 export const PublicationVenueType = z.enum(PublicationVenueTypeValues);
 export type PublicationVenueType = z.infer<typeof PublicationVenueType>;
 
-export const ParticipantCriterionTypeValues = [
-  "Inclusion",
-  "Exclusion",
-  "Other",
-] as const;
+export const ParticipantCriterionTypeValues = ["Inclusion", "Exclusion", "Other"] as const;
 
 export const ParticipantCriterionType = z.enum(ParticipantCriterionTypeValues);
 export type ParticipantCriterionType = z.infer<typeof ParticipantCriterionType>;
@@ -208,10 +204,13 @@ export const Contact = z
   })
   .refine(
     (c) =>
-      c.website != null || c.email != null || c.address != null || c.phone != null,
+      (c.website !== null && c.website !== undefined) ||
+      (c.email !== null && c.email !== undefined) ||
+      (c.address !== null && c.address !== undefined) ||
+      (c.phone !== null && c.phone !== undefined),
     {
       message: "Contact must have at least one field (website, email, address, or phone)",
-    }
+    },
   );
 export type Contact = z.infer<typeof Contact>;
 
@@ -239,7 +238,11 @@ export const Person = z.object({
   honorific: nonEmptyString.nullable().optional(),
   /** Alternative names such as maiden names, nicknames, or transliterations */
   other_names: z.array(nonEmptyString).min(1).nullable().optional(),
-  affiliations: z.array(z.union([Organization, nonEmptyString])).min(1).nullable().optional(),
+  affiliations: z
+    .array(z.union([Organization, nonEmptyString]))
+    .min(1)
+    .nullable()
+    .optional(),
   contact: Contact.nullable().optional(),
   location: nonEmptyString.nullable().optional(),
   roles: z.array(Role).min(1),
@@ -335,9 +338,7 @@ export type Logo = z.infer<typeof Logo>;
 // SpatialCoverage (GeoJSON Feature)
 // ---------------------------------------------------------------------------
 
-export const SpatialCoverageProperties = z
-  .object({ name: nonEmptyString })
-  .passthrough(); // ConfigDict(extra="allow")
+export const SpatialCoverageProperties = z.object({ name: nonEmptyString }).passthrough(); // ConfigDict(extra="allow")
 export type SpatialCoverageProperties = z.infer<typeof SpatialCoverageProperties>;
 
 /**
@@ -401,9 +402,16 @@ export const DatasetModelBase = z
     title: nonEmptyString,
     description: nonEmptyString,
     long_description: LongDescription.nullable().optional(),
-    taxonomy: z.array(z.union([OntologyClass, nonEmptyString])).nullable().optional(),
+    taxonomy: z
+      .array(z.union([OntologyClass, nonEmptyString]))
+      .nullable()
+      .optional(),
 
-    keywords: z.array(z.union([nonEmptyString, OntologyClass])).min(1).nullable().optional(),
+    keywords: z
+      .array(z.union([nonEmptyString, OntologyClass]))
+      .min(1)
+      .nullable()
+      .optional(),
     /** Ontology resources needed to resolve CURIEs in keywords and clinical/phenotypic data */
     resources: z.array(VersionedOntologyResource).min(1).nullable().optional(),
     stakeholders: z.array(PersonOrOrganization).min(1),
@@ -441,9 +449,7 @@ export const DatasetModelBase = z
   })
   .superRefine((data, ctx) => {
     // Equivalent to check_keyword_resources model_validator
-    const resourcePrefixes = new Set(
-      data.resources?.map((r) => r.namespace_prefix) ?? []
-    );
+    const resourcePrefixes = new Set(data.resources?.map((r) => r.namespace_prefix) ?? []);
 
     const ontologyPrefix = (id: string) => id.split(":")[0];
 
@@ -453,7 +459,7 @@ export const DatasetModelBase = z
           data.keywords
             .filter((kw): kw is OntologyClass => typeof kw === "object" && "id" in kw)
             .map((kw) => ontologyPrefix(kw.id))
-            .filter((prefix) => !resourcePrefixes.has(prefix))
+            .filter((prefix) => !resourcePrefixes.has(prefix)),
         ),
       ].sort();
       if (missing.length > 0) {
@@ -470,7 +476,7 @@ export const DatasetModelBase = z
           data.taxonomy
             .filter((t): t is OntologyClass => typeof t === "object" && "id" in t)
             .map((t) => ontologyPrefix(t.id))
-            .filter((prefix) => !resourcePrefixes.has(prefix))
+            .filter((prefix) => !resourcePrefixes.has(prefix)),
         ),
       ].sort();
       if (missing.length > 0) {
@@ -492,7 +498,7 @@ export const DatasetModel = DatasetModelBase.and(
   z.object({
     /** If from PCGL, directly inherited; otherwise created in katsu */
     identifier: z.string().min(1).max(128),
-  })
+  }),
 );
 export type DatasetModel = z.infer<typeof DatasetModel>;
 
@@ -503,6 +509,6 @@ export type DatasetModel = z.infer<typeof DatasetModel>;
 export const ProjectScopedDatasetModel = DatasetModel.and(
   z.object({
     project: uuidString,
-  })
+  }),
 );
 export type ProjectScopedDatasetModel = z.infer<typeof ProjectScopedDatasetModel>;

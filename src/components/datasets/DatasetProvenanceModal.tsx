@@ -1,4 +1,4 @@
-import React from "react";
+import type { FC } from "react";
 import { Form, Modal } from "antd";
 
 import type { DatasetModel } from "@/types/dataset";
@@ -10,25 +10,12 @@ interface DatasetProvenanceModalProps {
   onClose: () => void;
 }
 
-const DatasetProvenanceModal: React.FC<DatasetProvenanceModalProps> = ({ dataset, open, onClose }) => {
+const DatasetProvenanceModal: FC<DatasetProvenanceModalProps> = ({ dataset, open, onClose }) => {
   const [form] = Form.useForm();
 
   return (
-    <Modal
-      title="Dataset Provenance"
-      open={open}
-      onCancel={onClose}
-      footer={null}
-      width={960}
-      destroyOnClose
-    >
-      {dataset && (
-        <DatasetForm
-          form={form}
-          initialValues={dataset}
-          readOnly
-        />
-      )}
+    <Modal title="Dataset Provenance" open={open} onCancel={onClose} footer={null} width={960} destroyOnClose>
+      {dataset && <DatasetForm form={form} initialValues={dataset} readOnly />}
     </Modal>
   );
 };

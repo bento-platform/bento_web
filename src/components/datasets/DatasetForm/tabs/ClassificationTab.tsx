@@ -1,4 +1,3 @@
-import React from "react";
 import { Button, Card, Form, Input, Typography } from "antd";
 import { PlusOutlined } from "@ant-design/icons";
 
@@ -76,7 +75,11 @@ const ClassificationTab = () => (
           <>
             {fields.map(({ key, name }) => (
               <Card key={key} size="small" style={{ marginBottom: 8 }}>
-                <Form.Item label="Namespace prefix" name={[name, "namespace_prefix"]} rules={[{ required: true, min: 1 }]}>
+                <Form.Item
+                  label="Namespace prefix"
+                  name={[name, "namespace_prefix"]}
+                  rules={[{ required: true, min: 1 }]}
+                >
                   <Input placeholder="e.g. HP" />
                 </Form.Item>
                 <Form.Item label="Name" name={[name, "name"]}>

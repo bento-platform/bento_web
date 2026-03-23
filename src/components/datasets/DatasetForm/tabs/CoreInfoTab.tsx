@@ -1,4 +1,3 @@
-import React from "react";
 import { Card, DatePicker, Form, Input, Select } from "antd";
 
 const { TextArea } = Input;
@@ -7,11 +6,7 @@ const { Option } = Select;
 const CoreInfoTab = () => (
   <>
     <Card title="Core Information" style={{ marginBottom: 16 }}>
-      <Form.Item
-        label="Title"
-        name="title"
-        rules={[{ required: true, min: 1, message: "Title is required" }]}
-      >
+      <Form.Item label="Title" name="title" rules={[{ required: true, min: 1, message: "Title is required" }]}>
         <Input placeholder="Dataset title" />
       </Form.Item>
 

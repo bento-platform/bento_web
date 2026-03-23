@@ -1,4 +1,4 @@
-import React, { useCallback, useMemo, useState } from "react";
+import { type FC, useCallback, useMemo, useState } from "react";
 import { Alert, Button, Divider, Form, Space, Tabs, Typography, message } from "antd";
 import type { FormInstance } from "antd";
 
@@ -31,7 +31,7 @@ export interface DatasetFormProps {
   readOnly?: boolean;
 }
 
-const DatasetForm: React.FC<DatasetFormProps> = ({ onSubmit, initialValues, form: externalForm, readOnly }) => {
+const DatasetForm: FC<DatasetFormProps> = ({ onSubmit, initialValues, form: externalForm, readOnly }) => {
   const [internalForm] = Form.useForm();
   const form = externalForm ?? internalForm;
   const isEmbedded = !!externalForm;
@@ -43,15 +43,15 @@ const DatasetForm: React.FC<DatasetFormProps> = ({ onSubmit, initialValues, form
   );
 
   const handleFinish = useCallback(
-    (rawValues: any) => {
-      const values = { ...rawValues };
+    (rawValues: Record<string, unknown>) => {
+      const values: Record<string, unknown> = { ...rawValues };
       values.schema_version = "1.0";
 
       if (values.release_date) values.release_date = dayjsToDateString(values.release_date);
       if (values.last_modified) values.last_modified = dayjsToDateString(values.last_modified);
 
       if (values.publications) {
-        values.publications = values.publications.map((pub: any) => ({
+        values.publications = (values.publications as Record<string, unknown>[]).map((pub) => ({
           ...pub,
           publication_date: pub.publication_date ? dayjsToDateString(pub.publication_date) : undefined,
           publication_type:
@@ -60,11 +60,13 @@ const DatasetForm: React.FC<DatasetFormProps> = ({ onSubmit, initialValues, form
               : pub.publication_type,
           publication_venue: pub.publication_venue
             ? {
-                ...pub.publication_venue,
-                venue_type:
-                  pub.publication_venue.venue_type === "__other" && pub.publication_venue.venue_type_other
-                    ? { other: pub.publication_venue.venue_type_other }
-                    : pub.publication_venue.venue_type,
+                ...(pub.publication_venue as Record<string, unknown>),
+                venue_type: (() => {
+                  const v = pub.publication_venue as Record<string, unknown>;
+                  return v.venue_type === "__other" && v.venue_type_other
+                    ? { other: v.venue_type_other }
+                    : v.venue_type;
+                })(),
               }
             : undefined,
         }));
@@ -72,8 +74,8 @@ const DatasetForm: React.FC<DatasetFormProps> = ({ onSubmit, initialValues, form
 
       if (values.typed_links) {
         values.links = [
-          ...(values.links ?? []),
-          ...values.typed_links.map((tl: any) => ({
+          ...((values.links as unknown[]) ?? []),
+          ...(values.typed_links as Record<string, unknown>[]).map((tl) => ({
             ...tl,
             type: tl.type === "__other" && tl.type_other ? { other: tl.type_other } : tl.type,
           })),
@@ -82,8 +84,12 @@ const DatasetForm: React.FC<DatasetFormProps> = ({ onSubmit, initialValues, form
       }
 
       if (values.keywords) {
-        values.keywords = values.keywords.map((kw: any) =>
-          typeof kw === "string" ? kw : kw.id ? { id: kw.id, label: kw.label || undefined } : kw.value ?? kw
+        values.keywords = (values.keywords as unknown[]).map((kw) =>
+          typeof kw === "string"
+            ? kw
+            : (kw as Record<string, unknown>).id
+              ? { id: (kw as Record<string, unknown>).id, label: (kw as Record<string, unknown>).label || undefined }
+              : ((kw as Record<string, unknown>).value ?? kw),
         );
       }
 
@@ -126,12 +132,20 @@ const DatasetForm: React.FC<DatasetFormProps> = ({ onSubmit, initialValues, form
           items={[
             {
               key: "core",
-              label: <span>Core Info <RequiredMark /></span>,
+              label: (
+                <span>
+                  Core Info <RequiredMark />
+                </span>
+              ),
               children: <CoreInfoTab />,
             },
             {
               key: "contacts",
-              label: <span>Contacts <RequiredMark /></span>,
+              label: (
+                <span>
+                  Contacts <RequiredMark />
+                </span>
+              ),
               children: <ContactsTab form={form} />,
             },
             {

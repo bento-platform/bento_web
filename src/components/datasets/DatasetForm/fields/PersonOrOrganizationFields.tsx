@@ -1,4 +1,4 @@
-import React, { useMemo } from "react";
+import { type FC, useMemo } from "react";
 import { Button, Card, Collapse, Form, Input, Radio, Select, Space, Typography } from "antd";
 import { BankOutlined, MinusCircleOutlined, PlusOutlined, UserOutlined } from "@ant-design/icons";
 import type { FormInstance } from "antd";
@@ -8,7 +8,7 @@ import ContactFields from "./ContactFields";
 const { Panel } = Collapse;
 const { Text } = Typography;
 
-const PersonFields: React.FC<{ namePrefix: (string | number)[] }> = ({ namePrefix }) => (
+const PersonFields: FC<{ namePrefix: (string | number)[] }> = ({ namePrefix }) => (
   <>
     <Form.Item name={[...namePrefix, "type"]} hidden>
       <Input />
@@ -51,7 +51,7 @@ const PersonFields: React.FC<{ namePrefix: (string | number)[] }> = ({ namePrefi
   </>
 );
 
-const OrganizationFields: React.FC<{ namePrefix: (string | number)[] }> = ({ namePrefix }) => (
+const OrganizationFields: FC<{ namePrefix: (string | number)[] }> = ({ namePrefix }) => (
   <>
     <Form.Item name={[...namePrefix, "type"]} hidden>
       <Input />
@@ -76,7 +76,7 @@ const OrganizationFields: React.FC<{ namePrefix: (string | number)[] }> = ({ nam
   </>
 );
 
-const PersonOrOrganizationFields: React.FC<{
+const PersonOrOrganizationFields: FC<{
   namePrefix: (string | number)[];
   /** Absolute path from form root — needed when namePrefix is relative (inside a Form.List). Defaults to namePrefix. */
   absoluteNamePrefix?: (string | number)[];
