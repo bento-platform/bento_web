@@ -164,13 +164,13 @@ export const projects: Reducer<ProjectsState> = (
         ...state,
         isAddingDataset: false,
         items: state.items.map((p) =>
-          p.identifier === projectID ? { ...p, datasets: [...(p.datasets ?? []), newDataset] } : p,
+          p.identifier === projectID ? { ...p, datasets_v2: [...(p.datasets_v2 ?? []), newDataset] } : p,
         ),
         itemsByID: {
           ...state.itemsByID,
           [projectID]: {
             ...(state.itemsByID[projectID] || {}),
-            datasets: [...(state.itemsByID[projectID]?.datasets ?? []), newDataset],
+            datasets_v2: [...(state.itemsByID[projectID]?.datasets_v2 ?? []), newDataset],
           },
         },
         datasets: [...state.datasets, newDataset],
@@ -195,13 +195,13 @@ export const projects: Reducer<ProjectsState> = (
       return {
         ...state,
         items: state.items.map((p) =>
-          p.identifier === deletedProject.identifier ? { ...p, datasets: (p.datasets ?? []).filter(deleteDataset) } : p,
+          p.identifier === deletedProject.identifier ? { ...p, datasets_v2: (p.datasets_v2 ?? []).filter(deleteDataset) } : p,
         ),
         itemsByID: {
           ...state.itemsByID,
           [deletedProject.identifier]: {
             ...(state.itemsByID[deletedProject.identifier] || {}),
-            datasets: ((state.itemsByID[deletedProject.identifier] || {}).datasets ?? []).filter(deleteDataset),
+            datasets_v2: ((state.itemsByID[deletedProject.identifier] || {}).datasets_v2 ?? []).filter(deleteDataset),
           },
         },
         datasets: state.datasets.filter((d) => d.identifier !== deletedDataset.identifier),
@@ -229,13 +229,13 @@ export const projects: Reducer<ProjectsState> = (
       return {
         ...state,
         items: state.items.map((p) =>
-          p.identifier === updatedDataset.project ? { ...p, datasets: (p.datasets ?? []).map(replaceDataset) } : p,
+          p.identifier === updatedDataset.project ? { ...p, datasets_v2: (p.datasets_v2 ?? []).map(replaceDataset) } : p,
         ),
         itemsByID: {
           ...state.itemsByID,
           [updatedDataset.project]: {
             ...(state.itemsByID[updatedDataset.project] || {}),
-            datasets: ((state.itemsByID[updatedDataset.project] || {}).datasets ?? []).map(replaceDataset),
+            datasets_v2: ((state.itemsByID[updatedDataset.project] || {}).datasets_v2 ?? []).map(replaceDataset),
           },
         },
       };
