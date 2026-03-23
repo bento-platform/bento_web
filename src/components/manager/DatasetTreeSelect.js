@@ -35,7 +35,7 @@ const DatasetTreeSelect = forwardRef(({ value, onChange, style, idFormat }, ref)
         selectable: false,
         key: p.identifier,
         value: p.identifier,
-        children: p.datasets.map((d) => {
+        children: p.datasets_v2.map((d) => {
           const key = idFormat === ID_FORMAT_PROJECT_DATASET ? `${p.identifier}:${d.identifier}` : d.identifier;
           return {
             title: d.title,

@@ -21,7 +21,7 @@ const ExplorerSearchContent = () => {
         // url: `/data/explorer/projects/${project.identifier}`,
         key: project.identifier,
         text: project.title,
-        children: project.datasets.map((dataset) => ({
+        children: project.datasets_v2.map((dataset) => ({
           url: `/data/explorer/search/${dataset.identifier}`,
           text: dataset.title,
         })),
