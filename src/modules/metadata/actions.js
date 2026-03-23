@@ -146,7 +146,7 @@ export const deleteProjectIfPossible = (project) => async (dispatch, getState) =
 
   // Remove data without destroying project/datasets first
   try {
-    await Promise.all(project.datasets.map((ds) => dispatch(clearDatasetDataTypes(ds.identifier))));
+    await Promise.all(project.datasets_v2.map((ds) => dispatch(clearDatasetDataTypes(ds.identifier))));
     await dispatch(deleteProject(project));
   } catch (err) {
     console.error(err);
