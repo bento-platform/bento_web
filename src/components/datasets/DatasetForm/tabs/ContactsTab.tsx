@@ -1,17 +1,30 @@
-import React from "react";
+import type { FC } from "react";
 import { Button, Card, Form } from "antd";
 import { PlusOutlined } from "@ant-design/icons";
 import type { FormInstance } from "antd";
 import PersonOrOrganizationFields from "../fields/PersonOrOrganizationFields";
 import RequiredMark from "../RequiredMark";
 
-const ContactsTab: React.FC<{ form: FormInstance }> = ({ form }) => (
+const ContactsTab: FC<{ form: FormInstance }> = ({ form }) => (
   <>
-    <Card title={<span>Primary Contact <RequiredMark /></span>} style={{ marginBottom: 16 }}>
+    <Card
+      title={
+        <span>
+          Primary Contact <RequiredMark />
+        </span>
+      }
+      style={{ marginBottom: 16 }}
+    >
       <PersonOrOrganizationFields namePrefix={["primary_contact"]} form={form} />
     </Card>
 
-    <Card title={<span>Stakeholders <RequiredMark /></span>}>
+    <Card
+      title={
+        <span>
+          Stakeholders <RequiredMark />
+        </span>
+      }
+    >
       <Form.List name="stakeholders">
         {(fields, { add, remove }) => (
           <>
@@ -34,7 +47,12 @@ const ContactsTab: React.FC<{ form: FormInstance }> = ({ form }) => (
                 )}
               </div>
             ))}
-            <Button type="dashed" onClick={() => add({ type: "person" })} icon={<PlusOutlined />} style={{ marginLeft: 8 }}>
+            <Button
+              type="dashed"
+              onClick={() => add({ type: "person" })}
+              icon={<PlusOutlined />}
+              style={{ marginLeft: 8 }}
+            >
               Add stakeholder
             </Button>
           </>

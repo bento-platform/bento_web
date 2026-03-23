@@ -3,7 +3,9 @@ import { DatasetModel } from "@/types/dataset";
 import type { DatasetModel as DatasetModelType } from "@/types/dataset";
 
 /** Convert antd form values → schema-compatible shape, then validate with Zod */
-export function validateWithZod(values: unknown): { success: true; data: DatasetModelType } | { success: false; errors: Array<{ path: string; message: string }> } {
+export function validateWithZod(
+  values: unknown,
+): { success: true; data: DatasetModelType } | { success: false; errors: Array<{ path: string; message: string }> } {
   const result = DatasetModel.safeParse(values);
   if (result.success) {
     return { success: true, data: result.data };
@@ -18,14 +20,14 @@ export function validateWithZod(values: unknown): { success: true; data: Dataset
 }
 
 /** Strip undefined / null leaves so Zod doesn't complain about missing optionals */
-export function cleanFormValues(obj: any): any {
+export function cleanFormValues(obj: unknown): unknown {
   if (obj === null || obj === undefined || obj === "") return undefined;
   if (Array.isArray(obj)) {
     const cleaned = obj.map(cleanFormValues).filter((v) => v !== undefined);
     return cleaned.length > 0 ? cleaned : undefined;
   }
   if (typeof obj === "object" && !(obj instanceof Date)) {
-    const cleaned: Record<string, any> = {};
+    const cleaned: Record<string, unknown> = {};
     let hasKeys = false;
     for (const [k, v] of Object.entries(obj)) {
       const cv = cleanFormValues(v);
@@ -40,31 +42,33 @@ export function cleanFormValues(obj: any): any {
 }
 
 /** Convert a dayjs date-picker value to YYYY-MM-DD string */
-export function dayjsToDateString(d: any): string | undefined {
+export function dayjsToDateString(d: unknown): string | undefined {
   if (!d) return undefined;
-  return dayjs(d).format("YYYY-MM-DD");
+  return dayjs(d as Parameters<typeof dayjs>[0]).format("YYYY-MM-DD");
 }
 
 /** Helper to access a nested value from a plain object by path array */
-export function getNestedValue(obj: any, path: (string | number)[]): any {
+export function getNestedValue(obj: unknown, path: (string | number)[]): unknown {
   let current = obj;
   for (const key of path) {
-    if (current == null) return undefined;
-    current = current[key];
+    if (current === null || current === undefined) return undefined;
+    current = (current as Record<string | number, unknown>)[key];
   }
   return current;
 }
 
 /** Convert date string fields to dayjs objects so antd DatePicker receives the correct type */
-export function prepareInitialValues(values: Partial<DatasetModelType> | undefined): Record<string, any> | undefined {
+export function prepareInitialValues(
+  values: Partial<DatasetModelType> | undefined,
+): Record<string, unknown> | undefined {
   if (!values) return undefined;
-  const result: any = { ...values };
-  if (result.release_date) result.release_date = dayjs(result.release_date);
-  if (result.last_modified) result.last_modified = dayjs(result.last_modified);
+  const result: Record<string, unknown> = { ...values };
+  if (result.release_date) result.release_date = dayjs(result.release_date as string);
+  if (result.last_modified) result.last_modified = dayjs(result.last_modified as string);
   if (Array.isArray(result.publications)) {
-    result.publications = result.publications.map((pub: any) => ({
+    result.publications = result.publications.map((pub: Record<string, unknown>) => ({
       ...pub,
-      publication_date: pub.publication_date ? dayjs(pub.publication_date) : undefined,
+      publication_date: pub.publication_date ? dayjs(pub.publication_date as string) : undefined,
     }));
   }
   return result;

@@ -1,4 +1,3 @@
-import React from "react";
 import { Button, Card, Form, Input, Select, Space, Typography } from "antd";
 import { MinusCircleOutlined, PlusOutlined } from "@ant-design/icons";
 
@@ -23,7 +22,11 @@ const PcglInfoTab = () => (
     </Card>
 
     <Card title="PCGL Fields">
-      <Form.Item label="PCGL Program Name" name="pcgl_program_name" tooltip="The overarching program the study belongs to">
+      <Form.Item
+        label="PCGL Program Name"
+        name="pcgl_program_name"
+        tooltip="The overarching program the study belongs to"
+      >
         <Input />
       </Form.Item>
       <Form.List name="pcgl_domain">

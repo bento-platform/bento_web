@@ -1,4 +1,4 @@
-import React from "react";
+import type { FC } from "react";
 import { Button, Card, Collapse, DatePicker, Form, Input, Select, Space, Typography } from "antd";
 import { MinusCircleOutlined, PlusOutlined } from "@ant-design/icons";
 import type { FormInstance } from "antd";
@@ -11,7 +11,7 @@ const { TextArea } = Input;
 const { Option } = Select;
 const { Text } = Typography;
 
-const PublicationsFundingTab: React.FC<{ form: FormInstance }> = ({ form }) => (
+const PublicationsFundingTab: FC<{ form: FormInstance }> = ({ form }) => (
   <>
     <Card title="Publications" style={{ marginBottom: 16 }}>
       <Form.List name="publications">
@@ -63,7 +63,10 @@ const PublicationsFundingTab: React.FC<{ form: FormInstance }> = ({ form }) => (
 
                 <Collapse ghost>
                   <Panel header="Venue" key="venue">
-                    <PublicationVenueFields namePrefix={[name, "publication_venue"]} absoluteNamePrefix={["publications", name, "publication_venue"]} />
+                    <PublicationVenueFields
+                      namePrefix={[name, "publication_venue"]}
+                      absoluteNamePrefix={["publications", name, "publication_venue"]}
+                    />
                   </Panel>
                   <Panel header="Authors" key="authors">
                     <Form.List name={[name, "authors"]}>

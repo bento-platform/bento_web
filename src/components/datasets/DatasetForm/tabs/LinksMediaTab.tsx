@@ -1,4 +1,3 @@
-import React from "react";
 import { Button, Card, Form, Input, Select, Switch } from "antd";
 import { PlusOutlined } from "@ant-design/icons";
 
@@ -50,7 +49,12 @@ const LinksMediaTab = () => (
                 <Form.Item label="Description" name={[name, "description"]}>
                   <Input />
                 </Form.Item>
-                <Form.Item label="Contains text" name={[name, "contains_text"]} valuePropName="checked" initialValue={false}>
+                <Form.Item
+                  label="Contains text"
+                  name={[name, "contains_text"]}
+                  valuePropName="checked"
+                  initialValue={false}
+                >
                   <Switch />
                 </Form.Item>
                 <Button danger size="small" onClick={() => remove(name)}>
