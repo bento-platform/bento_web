@@ -2,7 +2,6 @@ import { useCallback, useEffect, useState } from "react";
 
 import { Button, Card, Col, Divider, Empty, Modal, Row, Typography } from "antd";
 
-import DataUseDisplay from "../DataUseDisplay";
 import { DeleteOutlined, EditOutlined, PlusOutlined } from "@ant-design/icons";
 
 import {
@@ -13,7 +12,6 @@ import {
 
 import { fetchDatasetDataTypesIfPossible, fetchDatasetSummariesIfNeeded } from "@/modules/datasets/actions";
 
-import { INITIAL_DATA_USE_VALUE } from "@/duo";
 import { nop } from "@/utils/misc";
 import LinkedFieldSetTable from "./linked_field_set/LinkedFieldSetTable";
 import LinkedFieldSetModal from "./linked_field_set/LinkedFieldSetModal";
@@ -27,7 +25,6 @@ const DATASET_CARD_TABS = [
   { key: "overview", tab: "Overview" },
   { key: "data_types", tab: "Data Types" },
   { key: "linked_field_sets", tab: "Linked Field Sets" },
-  { key: "data_use", tab: "Consent Codes and Data Use" },
 ];
 
 const DEFAULT_BIOSAMPLE_LFS = {
@@ -45,9 +42,7 @@ export default ({ mode, project, value, onEdit }) => {
   const identifier = value?.identifier ?? null;
   const title = value?.title ?? "";
   const linkedFieldSets = value?.linked_field_sets ?? [];
-  const dataUse = value?.data_use ?? INITIAL_DATA_USE_VALUE;
-
-  const [fieldSetAdditionModalVisible, setFieldSetAdditionModalVisible] = useState(false);
+const [fieldSetAdditionModalVisible, setFieldSetAdditionModalVisible] = useState(false);
   const [fieldSetEditModalVisible, setFieldSetEditModalVisible] = useState(false);
   const [selectedLinkedFieldSet, setSelectedLinkedFieldSet] = useState({ data: null, index: null });
   const [selectedTab, setSelectedTab] = useState("overview");
@@ -201,7 +196,6 @@ export default ({ mode, project, value, onEdit }) => {
         )}
       </>
     ),
-    data_use: <DataUseDisplay dataUse={dataUse} />,
   };
 
   return (
