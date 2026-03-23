@@ -2,7 +2,7 @@ import { useCallback, useEffect, useState } from "react";
 
 import { Button, Card, Col, Divider, Empty, Modal, Row, Typography } from "antd";
 
-import { DeleteOutlined, EditOutlined, PlusOutlined } from "@ant-design/icons";
+import { DeleteOutlined, EditOutlined, FileSearchOutlined, PlusOutlined } from "@ant-design/icons";
 
 import {
   addDatasetLinkedFieldSetIfPossible,
@@ -19,6 +19,7 @@ import { FORM_MODE_ADD, FORM_MODE_EDIT } from "@/constants";
 
 import DatasetOverview from "./DatasetOverview";
 import DatasetDataTypes from "./DatasetDataTypes";
+import DatasetProvenanceModal from "./DatasetProvenanceModal";
 import { useAppDispatch } from "@/store";
 
 const DATASET_CARD_TABS = [
@@ -42,6 +43,7 @@ export default ({ mode, project, value, onEdit }) => {
   const identifier = value?.identifier ?? null;
   const title = value?.title ?? "";
   const linkedFieldSets = value?.linked_field_sets ?? [];
+  const [provenanceModalVisible, setProvenanceModalVisible] = useState(false);
   const [fieldSetAdditionModalVisible, setFieldSetAdditionModalVisible] = useState(false);
   const [fieldSetEditModalVisible, setFieldSetEditModalVisible] = useState(false);
   const [selectedLinkedFieldSet, setSelectedLinkedFieldSet] = useState({ data: null, index: null });
@@ -224,23 +226,37 @@ export default ({ mode, project, value, onEdit }) => {
       onTabChange={setSelectedTab}
       style={{ boxShadow: "0 2px 10px rgba(0,0,0,0.05)" }}
       extra={
-        isPrivate ? (
-          <>
-            <Button
-              icon={<EditOutlined />}
-              style={{ marginRight: "8px" }}
-              onClick={() => (onEdit || nop)()}
-            >
-              Edit
-            </Button>
-            <Button danger={true} icon={<DeleteOutlined />} onClick={handleDelete}>
-              Delete
-            </Button>
-            {/* TODO: Share button (vFuture) */}
-          </>
-        ) : null
+        <>
+          <Button
+            icon={<FileSearchOutlined />}
+            style={{ marginRight: "8px" }}
+            onClick={() => setProvenanceModalVisible(true)}
+          >
+            View Provenance
+          </Button>
+          {isPrivate && (
+            <>
+              <Button
+                icon={<EditOutlined />}
+                style={{ marginRight: "8px" }}
+                onClick={() => (onEdit || nop)()}
+              >
+                Edit
+              </Button>
+              <Button danger={true} icon={<DeleteOutlined />} onClick={handleDelete}>
+                Delete
+              </Button>
+              {/* TODO: Share button (vFuture) */}
+            </>
+          )}
+        </>
       }
     >
+      <DatasetProvenanceModal
+        dataset={value}
+        open={provenanceModalVisible}
+        onClose={() => setProvenanceModalVisible(false)}
+      />
       {isPrivate ? (
         <>
           <LinkedFieldSetModal
