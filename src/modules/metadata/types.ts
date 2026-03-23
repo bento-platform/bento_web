@@ -18,8 +18,7 @@ export type Project = {
   description: string;
 
   project_schemas?: ProjectJSONSchema[];
-  datasets?: DatasetModel[];
-  datasets_v2: DatasetModel[]
+  datasets_v2: DatasetModel[];
 
   created: string; // ISO timestamp string
   updated: string; // ISO timestamp string
