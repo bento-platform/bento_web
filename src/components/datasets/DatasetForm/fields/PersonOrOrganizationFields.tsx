@@ -78,14 +78,13 @@ const OrganizationFields: React.FC<{ namePrefix: (string | number)[] }> = ({ nam
 
 const PersonOrOrganizationFields: React.FC<{
   namePrefix: (string | number)[];
-  /** Absolute path from the form root — needed when namePrefix is relative (inside a Form.List). Defaults to namePrefix. */
+  /** Absolute path from form root — needed when namePrefix is relative (inside a Form.List). Defaults to namePrefix. */
   absoluteNamePrefix?: (string | number)[];
   form: FormInstance;
 }> = ({ namePrefix, absoluteNamePrefix, form }) => {
-  const watchPrefix = absoluteNamePrefix ?? namePrefix;
-  // Memoize the path so Form.useWatch doesn't re-subscribe on every render
+  const absPrefix = absoluteNamePrefix ?? namePrefix;
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  const typePath = useMemo(() => [...watchPrefix, "type"], [JSON.stringify(watchPrefix)]);
+  const typePath = useMemo(() => [...absPrefix, "type"], [JSON.stringify(absPrefix)]);
   const typeValue = Form.useWatch(typePath, form) ?? "person";
 
   return (
