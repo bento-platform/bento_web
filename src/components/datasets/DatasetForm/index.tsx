@@ -27,9 +27,11 @@ export interface DatasetFormProps {
    * validation and the onSubmit callback.
    */
   form?: FormInstance;
+  /** When true, all form controls are disabled (read-only view). */
+  readOnly?: boolean;
 }
 
-const DatasetForm: React.FC<DatasetFormProps> = ({ onSubmit, initialValues, form: externalForm }) => {
+const DatasetForm: React.FC<DatasetFormProps> = ({ onSubmit, initialValues, form: externalForm, readOnly }) => {
   const [internalForm] = Form.useForm();
   const form = externalForm ?? internalForm;
   const isEmbedded = !!externalForm;
@@ -117,6 +119,7 @@ const DatasetForm: React.FC<DatasetFormProps> = ({ onSubmit, initialValues, form
         onFinish={handleFinish}
         initialValues={preparedInitialValues}
         scrollToFirstError
+        disabled={readOnly}
       >
         <Tabs
           style={{ marginBottom: 16 }}
