@@ -3,7 +3,7 @@ import { Alert, Button, Divider, Form, Space, Tabs, Typography, message } from "
 import type { FormInstance } from "antd";
 
 import type { DatasetModel as DatasetModelType } from "@/types/dataset";
-import { cleanFormValues, dayjsToDateString, validateWithZod } from "./helpers";
+import { cleanFormValues, dayjsToDateString, prepareInitialValues, validateWithZod } from "./helpers";
 import RequiredMark from "./RequiredMark";
 import CoreInfoTab from "./tabs/CoreInfoTab";
 import ContactsTab from "./tabs/ContactsTab";
@@ -110,7 +110,7 @@ const DatasetForm: React.FC<DatasetFormProps> = ({ onSubmit, initialValues, form
         form={form}
         layout="vertical"
         onFinish={handleFinish}
-        initialValues={{ schema_version: "1.0", ...initialValues }}
+        initialValues={{ schema_version: "1.0", ...prepareInitialValues(initialValues) }}
         scrollToFirstError
       >
         <Tabs
