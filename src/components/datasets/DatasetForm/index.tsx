@@ -1,4 +1,4 @@
-import React, { useCallback, useState } from "react";
+import React, { useCallback, useMemo, useState } from "react";
 import { Alert, Button, Divider, Form, Space, Tabs, Typography, message } from "antd";
 import type { FormInstance } from "antd";
 
@@ -34,6 +34,11 @@ const DatasetForm: React.FC<DatasetFormProps> = ({ onSubmit, initialValues, form
   const form = externalForm ?? internalForm;
   const isEmbedded = !!externalForm;
   const [zodErrors, setZodErrors] = useState<Array<{ path: string; message: string }>>([]);
+  const preparedInitialValues = useMemo(
+    () => ({ schema_version: "1.0", ...prepareInitialValues(initialValues) }),
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [initialValues?.identifier],
+  );
 
   const handleFinish = useCallback(
     (rawValues: any) => {
@@ -110,7 +115,7 @@ const DatasetForm: React.FC<DatasetFormProps> = ({ onSubmit, initialValues, form
         form={form}
         layout="vertical"
         onFinish={handleFinish}
-        initialValues={{ schema_version: "1.0", ...prepareInitialValues(initialValues) }}
+        initialValues={preparedInitialValues}
         scrollToFirstError
       >
         <Tabs
