@@ -195,7 +195,9 @@ export const projects: Reducer<ProjectsState> = (
       return {
         ...state,
         items: state.items.map((p) =>
-          p.identifier === deletedProject.identifier ? { ...p, datasets_v2: (p.datasets_v2 ?? []).filter(deleteDataset) } : p,
+          p.identifier === deletedProject.identifier
+            ? { ...p, datasets_v2: (p.datasets_v2 ?? []).filter(deleteDataset) }
+            : p,
         ),
         itemsByID: {
           ...state.itemsByID,
@@ -223,13 +225,16 @@ export const projects: Reducer<ProjectsState> = (
     case SAVE_DATASET_LINKED_FIELD_SET.RECEIVE:
     case DELETE_DATASET_LINKED_FIELD_SET.RECEIVE: {
       const updatedDataset = action.data as ProjectScopedDatasetModel;
-      const replaceDataset = (d: DatasetModel): ProjectScopedDatasetModel => (
-        d.identifier === updatedDataset.identifier ? { ...d, ...updatedDataset } : { ...d, project: updatedDataset.project }
-      );
+      const replaceDataset = (d: DatasetModel): ProjectScopedDatasetModel =>
+        d.identifier === updatedDataset.identifier
+          ? { ...d, ...updatedDataset }
+          : { ...d, project: updatedDataset.project };
       return {
         ...state,
         items: state.items.map((p) =>
-          p.identifier === updatedDataset.project ? { ...p, datasets_v2: (p.datasets_v2 ?? []).map(replaceDataset) } : p,
+          p.identifier === updatedDataset.project
+            ? { ...p, datasets_v2: (p.datasets_v2 ?? []).map(replaceDataset) }
+            : p,
         ),
         itemsByID: {
           ...state.itemsByID,
