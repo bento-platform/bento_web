@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useState } from "react";
+import PropTypes from "prop-types";
 
 import { Button, Card, Col, Divider, Empty, Modal, Row, Typography } from "antd";
 
@@ -37,7 +38,7 @@ const DEFAULT_BIOSAMPLE_LFS = {
   },
 };
 
-export default ({ mode, project, value, onEdit }) => {
+const Dataset = ({ mode, project, value, onEdit }) => {
   const dispatch = useAppDispatch();
 
   const identifier = value?.identifier ?? null;
@@ -274,3 +275,16 @@ export default ({ mode, project, value, onEdit }) => {
     </Card>
   );
 };
+
+Dataset.propTypes = {
+  mode: PropTypes.string,
+  project: PropTypes.object,
+  value: PropTypes.shape({
+    identifier: PropTypes.string,
+    title: PropTypes.string,
+    linked_field_sets: PropTypes.array,
+  }),
+  onEdit: PropTypes.func,
+};
+
+export default Dataset;
