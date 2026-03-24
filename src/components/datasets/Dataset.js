@@ -142,9 +142,9 @@ export default ({ mode, project, value, onEdit }) => {
         </Typography.Title>
         <Typography.Paragraph style={{ maxWidth: "600px" }}>
           Linked Field Sets group common fields (i.e. fields that share the same &ldquo;value space&rdquo;) between
-          multiple data types. For example, these sets can be used to tell the data exploration system that
-          Phenopacket biosample identifiers are the same as variant call sample identifiers, and so variant calls with
-          an identifier of &ldquo;sample1&rdquo; come from a biosample with identifier &ldquo;sample1&rdquo;.
+          multiple data types. For example, these sets can be used to tell the data exploration system that Phenopacket
+          biosample identifiers are the same as variant call sample identifiers, and so variant calls with an identifier
+          of &ldquo;sample1&rdquo; come from a biosample with identifier &ldquo;sample1&rdquo;.
         </Typography.Paragraph>
         <Typography.Paragraph style={{ maxWidth: "600px" }}>
           A word of caution: the more fields added to a Linked Field Set, the longer it takes to search the dataset in
@@ -155,11 +155,7 @@ export default ({ mode, project, value, onEdit }) => {
             <Divider />
             <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} description="No Field Link Sets">
               {isPrivate ? (
-                <Button
-                  icon={<PlusOutlined />}
-                  type="primary"
-                  onClick={() => setFieldSetAdditionModalVisible(true)}
-                >
+                <Button icon={<PlusOutlined />} type="primary" onClick={() => setFieldSetAdditionModalVisible(true)}>
                   Add Field Link Set
                 </Button>
               ) : null}
@@ -236,11 +232,7 @@ export default ({ mode, project, value, onEdit }) => {
           </Button>
           {isPrivate && (
             <>
-              <Button
-                icon={<EditOutlined />}
-                style={{ marginRight: "8px" }}
-                onClick={() => (onEdit || nop)()}
-              >
+              <Button icon={<EditOutlined />} style={{ marginRight: "8px" }} onClick={() => (onEdit || nop)()}>
                 Edit
               </Button>
               <Button danger={true} icon={<DeleteOutlined />} onClick={handleDelete}>
