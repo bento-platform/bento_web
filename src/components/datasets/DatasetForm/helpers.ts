@@ -1,12 +1,14 @@
 import dayjs from "dayjs";
-import { DatasetModel } from "@/types/dataset";
-import type { DatasetModel as DatasetModelType } from "@/types/dataset";
+import { DatasetModelBase } from "@/types/dataset";
+import type { DatasetModelBase as DatasetModelBaseType } from "@/types/dataset";
 
 /** Convert antd form values → schema-compatible shape, then validate with Zod */
 export function validateWithZod(
   values: unknown,
-): { success: true; data: DatasetModelType } | { success: false; errors: Array<{ path: string; message: string }> } {
-  const result = DatasetModel.safeParse(values);
+):
+  | { success: true; data: DatasetModelBaseType }
+  | { success: false; errors: Array<{ path: string; message: string }> } {
+  const result = DatasetModelBase.safeParse(values);
   if (result.success) {
     return { success: true, data: result.data };
   }
@@ -59,7 +61,7 @@ export function getNestedValue(obj: unknown, path: (string | number)[]): unknown
 
 /** Convert date string fields to dayjs objects so antd DatePicker receives the correct type */
 export function prepareInitialValues(
-  values: Partial<DatasetModelType> | undefined,
+  values: Partial<DatasetModelBaseType> | undefined,
 ): Record<string, unknown> | undefined {
   if (!values) return undefined;
   const result: Record<string, unknown> = { ...values };
@@ -70,6 +72,12 @@ export function prepareInitialValues(
       ...pub,
       publication_date: pub.publication_date ? dayjs(pub.publication_date as string) : undefined,
     }));
+  }
+  if (Array.isArray(result.keywords)) {
+    result.keywords = result.keywords.map((kw: unknown) => (typeof kw === "string" ? { value: kw } : kw));
+  }
+  if (Array.isArray(result.taxonomy)) {
+    result.taxonomy = result.taxonomy.map((t: unknown) => (typeof t === "string" ? { value: t } : t));
   }
   return result;
 }
