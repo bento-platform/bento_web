@@ -36,7 +36,7 @@ export const fetchDatasetsDataTypes = () => async (dispatch, getState) => {
 const fetchServiceDatasetSummary = networkAction((serviceInfo, datasetID) => ({
   types: FETCH_SERVICE_DATASET_SUMMARY,
   params: { serviceInfo, datasetID },
-  url: `${serviceInfo.url}/datasets/${datasetID}/summary`,
+  url: `${serviceInfo.url}/datasets_v2/${datasetID}/summary`,
 }));
 
 export const fetchDatasetSummariesIfNeeded = (datasetID) => async (dispatch, getState) => {
