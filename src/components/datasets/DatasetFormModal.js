@@ -1,8 +1,10 @@
 import { useCallback } from "react";
 import PropTypes from "prop-types";
 
-import { Button, Form, Modal } from "antd";
-import { PlusOutlined, SaveOutlined } from "@ant-design/icons";
+import { Button, Form, Modal, Upload, message } from "antd";
+import { PlusOutlined, SaveOutlined, UploadOutlined } from "@ant-design/icons";
+
+import { prepareInitialValues } from "./DatasetForm/helpers";
 
 import DatasetForm from "./DatasetForm";
 
@@ -44,6 +46,24 @@ const DatasetFormModal = ({ project, mode, initialValue, onCancel, onOk, open })
     form.submit();
   }, [form]);
 
+  const handleJsonUpload = useCallback(
+    (file) => {
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        try {
+          const parsed = JSON.parse(e.target.result);
+          form.setFieldsValue(prepareInitialValues(parsed));
+          message.success("JSON imported — review the fields before saving.");
+        } catch {
+          message.error("Invalid JSON file.");
+        }
+      };
+      reader.readAsText(file);
+      return false; // prevent antd auto-upload
+    },
+    [form],
+  );
+
   // Receives the Zod-validated, transformed data from DatasetForm's onFinish.
   const handleDatasetSubmit = useCallback(
     (values) => {
@@ -73,6 +93,9 @@ const DatasetFormModal = ({ project, mode, initialValue, onCancel, onOk, open })
         mode === FORM_MODE_ADD ? `Add Dataset to "${project.title}"` : `Edit Dataset "${initialValue?.title || ""}"`
       }
       footer={[
+        <Upload key="import" accept=".json" showUploadList={false} beforeUpload={handleJsonUpload}>
+          <Button icon={<UploadOutlined />}>Import JSON</Button>
+        </Upload>,
         <Button key="cancel" onClick={handleCancel}>
           Cancel
         </Button>,

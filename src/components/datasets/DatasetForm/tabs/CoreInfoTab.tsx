@@ -6,6 +6,14 @@ const { Option } = Select;
 const CoreInfoTab = () => (
   <>
     <Card title="Core Information" style={{ marginBottom: 16 }}>
+      <Form.Item
+        label="Language"
+        name="language"
+        rules={[{ required: true, pattern: /^[a-z]{2}$/, message: "Expected ISO 639-1 two-letter code (e.g. en)" }]}
+      >
+        <Input placeholder="e.g. en" maxLength={2} style={{ width: 80 }} />
+      </Form.Item>
+
       <Form.Item label="Title" name="title" rules={[{ required: true, min: 1, message: "Title is required" }]}>
         <Input placeholder="Dataset title" />
       </Form.Item>

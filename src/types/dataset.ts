@@ -163,10 +163,13 @@ export type OntologyClass = z.infer<typeof OntologyClass>;
  * Minimal shape — extend if the real schema differs.
  */
 export const VersionedOntologyResource = z.object({
-  namespace_prefix: nonEmptyString, // e.g. "HP"
-  url: urlString.optional(),
-  version: nonEmptyString.optional(),
-  name: nonEmptyString.optional(),
+  id: nonEmptyString,
+  name: nonEmptyString,
+  url: urlString,
+  namespace_prefix: nonEmptyString,
+  iri_prefix: urlString,
+  version: nonEmptyString,
+  repository_url: urlString.nullable().optional(),
 });
 export type VersionedOntologyResource = z.infer<typeof VersionedOntologyResource>;
 
@@ -395,9 +398,13 @@ export type LongDescription = z.infer<typeof LongDescription>;
 // DatasetModelBase
 // ---------------------------------------------------------------------------
 
+/** ISO 639-1 two-letter language code */
+const languageAlpha2 = z.string().regex(/^[a-z]{2}$/, "Expected ISO 639-1 two-letter language code (e.g. en)");
+
 export const DatasetModelBase = z
   .object({
     schema_version: z.literal("1.0"),
+    language: languageAlpha2,
 
     title: nonEmptyString,
     description: nonEmptyString,

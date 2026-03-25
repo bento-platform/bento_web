@@ -75,6 +75,15 @@ const ClassificationTab = () => (
           <>
             {fields.map(({ key, name }) => (
               <Card key={key} size="small" style={{ marginBottom: 8 }}>
+                <Form.Item label="ID" name={[name, "id"]} rules={[{ required: true, min: 1 }]}>
+                  <Input placeholder="e.g. hp" />
+                </Form.Item>
+                <Form.Item label="Name" name={[name, "name"]} rules={[{ required: true, min: 1 }]}>
+                  <Input placeholder="e.g. Human Phenotype Ontology" />
+                </Form.Item>
+                <Form.Item label="URL" name={[name, "url"]} rules={[{ required: true, type: "url" }]}>
+                  <Input placeholder="https://purl.obolibrary.org/obo/hp.owl" />
+                </Form.Item>
                 <Form.Item
                   label="Namespace prefix"
                   name={[name, "namespace_prefix"]}
@@ -82,14 +91,14 @@ const ClassificationTab = () => (
                 >
                   <Input placeholder="e.g. HP" />
                 </Form.Item>
-                <Form.Item label="Name" name={[name, "name"]}>
-                  <Input placeholder="Human Phenotype Ontology" />
+                <Form.Item label="IRI prefix" name={[name, "iri_prefix"]} rules={[{ required: true, type: "url" }]}>
+                  <Input placeholder="e.g. http://purl.obolibrary.org/obo/HP_" />
                 </Form.Item>
-                <Form.Item label="Version" name={[name, "version"]}>
-                  <Input placeholder="e.g. 2024-01-01" />
+                <Form.Item label="Version" name={[name, "version"]} rules={[{ required: true, min: 1 }]}>
+                  <Input placeholder="e.g. 2024-04-26" />
                 </Form.Item>
-                <Form.Item label="URL" name={[name, "url"]}>
-                  <Input placeholder="https://..." />
+                <Form.Item label="Repository URL" name={[name, "repository_url"]} rules={[{ type: "url" }]}>
+                  <Input placeholder="https://github.com/..." />
                 </Form.Item>
                 <Button danger size="small" onClick={() => remove(name)}>
                   Remove

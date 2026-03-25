@@ -2,7 +2,7 @@ import { type FC, useCallback, useMemo, useState } from "react";
 import { Alert, Button, Divider, Form, Space, Tabs, Typography, message } from "antd";
 import type { FormInstance } from "antd";
 
-import type { DatasetModel as DatasetModelType } from "@/types/dataset";
+import type { DatasetModel as DatasetModelType, DatasetModelBase as DatasetModelBaseType } from "@/types/dataset";
 import { cleanFormValues, dayjsToDateString, prepareInitialValues, validateWithZod } from "./helpers";
 import RequiredMark from "./RequiredMark";
 import CoreInfoTab from "./tabs/CoreInfoTab";
@@ -16,8 +16,8 @@ import PcglInfoTab from "./tabs/PcglInfoTab";
 const { Title, Text } = Typography;
 
 export interface DatasetFormProps {
-  /** Called with the Zod-validated DatasetModelType on successful submit */
-  onSubmit?: (data: DatasetModelType) => void;
+  /** Called with the Zod-validated DatasetModelBaseType on successful submit */
+  onSubmit?: (data: DatasetModelBaseType) => void;
   /** Optional initial values for editing an existing dataset */
   initialValues?: Partial<DatasetModelType>;
   /**
@@ -37,7 +37,7 @@ const DatasetForm: FC<DatasetFormProps> = ({ onSubmit, initialValues, form: exte
   const isEmbedded = !!externalForm;
   const [zodErrors, setZodErrors] = useState<Array<{ path: string; message: string }>>([]);
   const preparedInitialValues = useMemo(
-    () => ({ schema_version: "1.0", ...prepareInitialValues(initialValues) }),
+    () => ({ schema_version: "1.0", language: "en", ...prepareInitialValues(initialValues) }),
     // eslint-disable-next-line react-hooks/exhaustive-deps
     [initialValues?.identifier],
   );
@@ -132,6 +132,7 @@ const DatasetForm: FC<DatasetFormProps> = ({ onSubmit, initialValues, form: exte
           items={[
             {
               key: "core",
+              forceRender: true,
               label: (
                 <span>
                   Core Info <RequiredMark />
@@ -141,6 +142,7 @@ const DatasetForm: FC<DatasetFormProps> = ({ onSubmit, initialValues, form: exte
             },
             {
               key: "contacts",
+              forceRender: true,
               label: (
                 <span>
                   Contacts <RequiredMark />
@@ -150,26 +152,31 @@ const DatasetForm: FC<DatasetFormProps> = ({ onSubmit, initialValues, form: exte
             },
             {
               key: "links",
+              forceRender: true,
               label: "Links & Media",
               children: <LinksMediaTab />,
             },
             {
               key: "classification",
+              forceRender: true,
               label: "Classification",
               children: <ClassificationTab />,
             },
             {
               key: "study",
+              forceRender: true,
               label: "Study Details",
               children: <StudyDetailsTab />,
             },
             {
               key: "publications",
+              forceRender: true,
               label: "Publications & Funding",
               children: <PublicationsFundingTab form={form} />,
             },
             {
               key: "pcgl",
+              forceRender: true,
               label: "PCGL Info",
               children: <PcglInfoTab />,
             },
