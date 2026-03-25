@@ -1,7 +1,7 @@
 import { useCallback } from "react";
 import PropTypes from "prop-types";
 
-import { Button, Form, Modal, Upload, message } from "antd";
+import { Button, Form, Modal, Space, Upload, message } from "antd";
 import { PlusOutlined, SaveOutlined, UploadOutlined } from "@ant-design/icons";
 
 import { prepareInitialValues } from "./DatasetForm/helpers";
@@ -92,23 +92,25 @@ const DatasetFormModal = ({ project, mode, initialValue, onCancel, onOk, open })
       title={
         mode === FORM_MODE_ADD ? `Add Dataset to "${project.title}"` : `Edit Dataset "${initialValue?.title || ""}"`
       }
-      footer={[
-        <Upload key="import" accept=".json" showUploadList={false} beforeUpload={handleJsonUpload}>
-          <Button icon={<UploadOutlined />}>Import JSON</Button>
-        </Upload>,
-        <Button key="cancel" onClick={handleCancel}>
-          Cancel
-        </Button>,
-        <Button
-          key="save"
-          icon={mode === FORM_MODE_ADD ? <PlusOutlined /> : <SaveOutlined />}
-          type="primary"
-          onClick={handleSubmit}
-          loading={projectsFetching || projectDatasetsAdding || projectDatasetsSaving}
-        >
-          {mode === FORM_MODE_ADD ? "Add" : "Save"}
-        </Button>,
-      ]}
+      footer={
+        <Space>
+          <Upload key="import" accept=".json" showUploadList={false} beforeUpload={handleJsonUpload}>
+            <Button icon={<UploadOutlined />}>Import JSON</Button>
+          </Upload>
+          <Button key="cancel" onClick={handleCancel}>
+            Cancel
+          </Button>
+          <Button
+            key="save"
+            icon={mode === FORM_MODE_ADD ? <PlusOutlined /> : <SaveOutlined />}
+            type="primary"
+            onClick={handleSubmit}
+            loading={projectsFetching || projectDatasetsAdding || projectDatasetsSaving}
+          >
+            {mode === FORM_MODE_ADD ? "Add" : "Save"}
+          </Button>
+        </Space>
+      }
       onCancel={handleCancel}
     >
       <DatasetForm
