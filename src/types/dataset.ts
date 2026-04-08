@@ -21,6 +21,9 @@ const uuidString = z.uuid();
 /** URL string — equivalent to HttpUrl / AnyUrl */
 const urlString = z.url();
 
+/** ORCID identifier string */
+const orcidString = z.string().regex(/^\d{4}-\d{4}-\d{4}-\d{3}[\dX]$/, "Expected ORCID format");
+
 // ---------------------------------------------------------------------------
 // Translated Literal enums
 // ---------------------------------------------------------------------------
@@ -32,6 +35,7 @@ export const RoleValues = [
   "Sub-Investigator",
   "Study Director",
   "Project Lead",
+  "Project Manager",
   // Research team
   "Researcher",
   "Research Assistant",
@@ -61,6 +65,8 @@ export const RoleValues = [
   "Funder",
   "Grant Agency",
   // Contributors (non-research)
+  "Author",
+  "Corresponding Author",
   "Consultant",
   "Advisor",
   "Reviewer",
@@ -69,6 +75,8 @@ export const RoleValues = [
   "Data Controller",
   "Data Processor",
   "Data Contributor",
+  "Data Custodian",
+  "Data Producer",
   // External stakeholders
   "Partner",
   "Stakeholder",
@@ -232,15 +240,17 @@ export const Organization = z.object({
 export type Organization = z.infer<typeof Organization>;
 
 // ---------------------------------------------------------------------------
-// Person
+// PersonGeneric / Person
 // ---------------------------------------------------------------------------
 
-export const Person = z.object({
+/** Person with optional roles — used where roles are not required (e.g. publication authors) */
+export const PersonGeneric = z.object({
   type: z.literal("person"),
   name: nonEmptyString,
   honorific: nonEmptyString.nullable().optional(),
   /** Alternative names such as maiden names, nicknames, or transliterations */
   other_names: z.array(nonEmptyString).min(1).nullable().optional(),
+  orcid: orcidString.nullable().optional(),
   affiliations: z
     .array(z.union([Organization, nonEmptyString]))
     .min(1)
@@ -248,16 +258,25 @@ export const Person = z.object({
     .optional(),
   contact: Contact.nullable().optional(),
   location: nonEmptyString.nullable().optional(),
+  roles: z.array(Role).default([]),
+});
+export type PersonGeneric = z.infer<typeof PersonGeneric>;
+
+/** Person with at least one required role — used for contacts and stakeholders */
+export const Person = PersonGeneric.extend({
   roles: z.array(Role).min(1),
 });
 export type Person = z.infer<typeof Person>;
 
 // ---------------------------------------------------------------------------
-// PersonOrOrganization  (discriminated union on `type`)
+// PersonOrOrganization / PersonGenericOrOrganization  (discriminated unions on `type`)
 // ---------------------------------------------------------------------------
 
 export const PersonOrOrganization = z.discriminatedUnion("type", [Person, Organization]);
 export type PersonOrOrganization = z.infer<typeof PersonOrOrganization>;
+
+export const PersonGenericOrOrganization = z.discriminatedUnion("type", [PersonGeneric, Organization]);
+export type PersonGenericOrOrganization = z.infer<typeof PersonGenericOrOrganization>;
 
 // ---------------------------------------------------------------------------
 // ParticipantCriteria
@@ -317,7 +336,7 @@ export const Publication = z.object({
   doi: nonEmptyString.nullable().optional(),
   /** Known publication type or a free-text fallback */
   publication_type: z.union([PublicationType, Other]),
-  authors: z.array(PersonOrOrganization).min(1).nullable().optional(),
+  authors: z.array(PersonGenericOrOrganization).min(1).nullable().optional(),
   publication_date: dateString.nullable().optional(),
   publication_venue: PublicationVenue.nullable().optional(),
   description: nonEmptyString.nullable().optional(),
@@ -409,7 +428,7 @@ export const DatasetModelBase = z
     title: nonEmptyString,
     description: nonEmptyString,
     long_description: LongDescription.nullable().optional(),
-    taxonomy: z
+    taxa: z
       .array(z.union([OntologyClass, nonEmptyString]))
       .nullable()
       .optional(),
@@ -444,9 +463,9 @@ export const DatasetModelBase = z
     study_context: z.enum(["CLINICAL", "RESEARCH"]).nullable().optional(),
 
     /** List of specific scientific or clinical domains addressed by the study */
-    pcgl_domain: z.array(nonEmptyString).min(1).nullable().optional(),
+    domain: z.array(nonEmptyString).min(1).nullable().optional(),
     /** The overarching program the study belongs to (if applicable) */
-    pcgl_program_name: nonEmptyString.nullable().optional(),
+    program_name: nonEmptyString.nullable().optional(),
 
     /** Additional custom metadata properties not covered by the standard schema */
     extra_properties: z
@@ -477,10 +496,10 @@ export const DatasetModelBase = z
       }
     }
 
-    if (data.taxonomy) {
+    if (data.taxa) {
       const missing = [
         ...new Set(
-          data.taxonomy
+          data.taxa
             .filter((t): t is OntologyClass => typeof t === "object" && "id" in t)
             .map((t) => ontologyPrefix(t.id))
             .filter((prefix) => !resourcePrefixes.has(prefix)),
@@ -489,7 +508,7 @@ export const DatasetModelBase = z
       if (missing.length > 0) {
         ctx.addIssue({
           code: z.ZodIssueCode.custom,
-          message: `taxonomy contains OntologyClass CURIEs with no matching resource: ${JSON.stringify(missing)}`,
+          message: `taxa contain OntologyClass CURIEs with no matching resource: ${JSON.stringify(missing)}`,
         });
       }
     }
