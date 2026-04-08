@@ -8,6 +8,7 @@ import {
   FETCH_GROUPS,
   INVALIDATE_GRANTS,
   INVALIDATE_GROUPS,
+  SAVE_GRANT,
   SAVE_GROUP,
 } from "./actions";
 import { arrayToObjectByProperty, objectWithoutProp } from "@/utils/misc";
@@ -37,6 +38,7 @@ export const grants = (
     itemsByID: {},
     isFetching: false,
     isCreating: false,
+    isSaving: false,
     isDeleting: false,
     isInvalid: false,
   },
@@ -68,6 +70,22 @@ export const grants = (
       };
     case CREATE_GRANT.FINISH:
       return { ...state, isCreating: false };
+
+    case SAVE_GRANT.REQUEST: {
+      const grantID = action.grant.id;
+      return {
+        ...state,
+        isSaving: true,
+        // Optimistically update while we wait for the PUT response
+        data: state.data.map((g) => (g.id === grantID ? action.grant : g)),
+        itemsByID: { ...state.itemsByID, [grantID]: action.grant },
+      };
+    }
+    case SAVE_GRANT.ERROR:
+      // Revert by invalidating so a re-fetch picks up the true server state
+      return { ...state, isInvalid: true };
+    case SAVE_GRANT.FINISH:
+      return { ...state, isSaving: false };
 
     case DELETE_GRANT.REQUEST:
       return { ...state, isDeleting: true };

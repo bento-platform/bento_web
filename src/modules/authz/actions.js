@@ -46,6 +46,18 @@ export const createGrant = networkAction((grant) => (_dispatch, getState) => ({
   },
 }));
 
+export const SAVE_GRANT = createNetworkActionTypes("SAVE_GRANT");
+export const saveGrant = networkAction((grant) => (_dispatch, getState) => ({
+  types: SAVE_GRANT,
+  check: grantMutateCheck,
+  params: { grant },
+  req: jsonRequest(grant, "PUT"),
+  url: `${authzURL(getState())}/grants/${grant.id}`,
+  onSuccess: () => {
+    message.success(`Grant ${grant.id} saved successfully!`);
+  },
+}));
+
 export const DELETE_GRANT = createNetworkActionTypes("DELETE_GRANT");
 export const deleteGrant = networkAction(({ id: grantID }) => (_dispatch, getState) => ({
   types: DELETE_GRANT,

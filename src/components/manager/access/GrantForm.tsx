@@ -462,8 +462,11 @@ const PermissionsInput = ({ id, value, onChange, currentResource, ...rest }: Per
   );
 
   useEffect(() => {
-    const filteredChecked = [...checked, ...checked.flatMap((s) => permissionsByID[s].gives)].filter((c) =>
-      permissionCompatibleWithResource(permissionsByID[c], currentResource),
+    // Don't filter while permissions haven't loaded: permissionsByID would be empty, causing all checked
+    // permissions to be filtered out and wiping the form field.
+    if (!permissions.length) return;
+    const filteredChecked = [...checked, ...checked.flatMap((s) => permissionsByID[s]?.gives ?? [])].filter(
+      (c) => permissionsByID[c] && permissionCompatibleWithResource(permissionsByID[c], currentResource),
     );
     if (newPermissionsDifferent(checked, filteredChecked)) {
       handleChange(filteredChecked);
@@ -596,32 +599,43 @@ const PermissionsInput = ({ id, value, onChange, currentResource, ...rest }: Per
   );
 };
 
-const GrantForm = ({ form }: { form: FormInstance<Grant> }) => {
+const GrantForm = ({ form, initialValues }: { form: FormInstance<Grant>; initialValues?: Partial<Grant> }) => {
   const homeIssuer = useOpenIdConfig().data?.issuer ?? "";
   const defaultSubject = useMemo<GrantSubject>(() => ({ iss: homeIssuer, sub: "" }), [homeIssuer]);
 
   const currentResource = Form.useWatch("resource", form);
 
+  const formInitialValues = useMemo(
+    () => ({
+      subject: defaultSubject,
+      resource: RESOURCE_EVERYTHING,
+      permissions: [],
+      expiry: null,
+      notes: "",
+      ...initialValues,
+    }),
+    [defaultSubject, initialValues],
+  );
+
   return (
-    <Form form={form} layout="vertical">
-      <Form.Item name="subject" label="Subject" initialValue={defaultSubject}>
+    <Form form={form} layout="vertical" initialValues={formInitialValues}>
+      <Form.Item name="subject" label="Subject">
         <SubjectInput />
       </Form.Item>
-      <Form.Item name="resource" label="Resource" initialValue={RESOURCE_EVERYTHING}>
+      <Form.Item name="resource" label="Resource">
         <ResourceInput />
       </Form.Item>
       <Form.Item
         name="permissions"
         label="Permissions"
-        initialValue={[]}
         rules={[{ type: "array", min: 1, message: "At least one permission must be specified" }]}
       >
         <PermissionsInput currentResource={currentResource ?? RESOURCE_EVERYTHING} />
       </Form.Item>
-      <Form.Item name="expiry" label="Expiry" initialValue={null}>
+      <Form.Item name="expiry" label="Expiry">
         <ExpiryInput />
       </Form.Item>
-      <Form.Item name="notes" label="Notes" initialValue="">
+      <Form.Item name="notes" label="Notes">
         <Input.TextArea />
       </Form.Item>
     </Form>
