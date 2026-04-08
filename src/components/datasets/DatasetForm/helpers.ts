@@ -76,8 +76,8 @@ export function prepareInitialValues(
   if (Array.isArray(result.keywords)) {
     result.keywords = result.keywords.map((kw: unknown) => (typeof kw === "string" ? { value: kw } : kw));
   }
-  if (Array.isArray(result.taxonomy)) {
-    result.taxonomy = result.taxonomy.map((t: unknown) => (typeof t === "string" ? { value: t } : t));
+  if (Array.isArray(result.taxa)) {
+    result.taxa = result.taxa.map((t: unknown) => (typeof t === "string" ? { value: t } : t));
   }
   return result;
 }

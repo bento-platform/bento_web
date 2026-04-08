@@ -38,7 +38,7 @@ const ClassificationTab = () => (
     </Card>
 
     <Card title="Taxonomy" size="small" style={{ marginBottom: 8 }}>
-      <Form.List name="taxonomy">
+      <Form.List name="taxa">
         {(fields, { add, remove }) => (
           <>
             {fields.map(({ key, name }) => (

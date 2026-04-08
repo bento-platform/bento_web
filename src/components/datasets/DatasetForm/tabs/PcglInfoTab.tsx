@@ -24,12 +24,12 @@ const PcglInfoTab = () => (
     <Card title="PCGL Fields" size="small">
       <Form.Item
         label="PCGL Program Name"
-        name="pcgl_program_name"
+        name="program_name"
         tooltip="The overarching program the study belongs to"
       >
         <Input />
       </Form.Item>
-      <Form.List name="pcgl_domain">
+      <Form.List name="domain">
         {(fields, { add, remove }) => (
           <>
             <Text strong>PCGL Domains</Text>
