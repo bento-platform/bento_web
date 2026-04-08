@@ -13,7 +13,7 @@ const { Text } = Typography;
 
 const PublicationsFundingTab: FC<{ form: FormInstance }> = ({ form }) => (
   <>
-    <Card title="Publications" style={{ marginBottom: 16 }}>
+    <Card title="Publications" size="small" style={{ marginBottom: 8 }}>
       <Form.List name="publications">
         {(fields, { add, remove }) => (
           <>
@@ -119,7 +119,7 @@ const PublicationsFundingTab: FC<{ form: FormInstance }> = ({ form }) => (
       </Form.List>
     </Card>
 
-    <Card title="Funding Sources">
+    <Card title="Funding Sources" size="small">
       <Form.List name="funding_sources">
         {(fields, { add, remove }) => (
           <>

@@ -6,7 +6,7 @@ const { Text } = Typography;
 
 const PcglInfoTab = () => (
   <>
-    <Card title="Study" style={{ marginBottom: 16 }}>
+    <Card title="Study" size="small" style={{ marginBottom: 8 }}>
       <Form.Item label="Study status" name="study_status">
         <Select placeholder="Select status" allowClear>
           <Option value="ONGOING">Ongoing</Option>
@@ -21,7 +21,7 @@ const PcglInfoTab = () => (
       </Form.Item>
     </Card>
 
-    <Card title="PCGL Fields">
+    <Card title="PCGL Fields" size="small">
       <Form.Item
         label="PCGL Program Name"
         name="pcgl_program_name"

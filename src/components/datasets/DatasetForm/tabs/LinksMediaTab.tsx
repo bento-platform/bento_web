@@ -5,7 +5,7 @@ const { Option } = Select;
 
 const LinksMediaTab = () => (
   <>
-    <Card title="Links" style={{ marginBottom: 16 }}>
+    <Card title="Links" size="small" style={{ marginBottom: 8 }}>
       <Form.List name="links">
         {(fields, { add, remove }) => (
           <>
@@ -30,7 +30,7 @@ const LinksMediaTab = () => (
       </Form.List>
     </Card>
 
-    <Card title="Logos">
+    <Card title="Logos" size="small">
       <Form.List name="logos">
         {(fields, { add, remove }) => (
           <>

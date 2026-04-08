@@ -5,7 +5,7 @@ const { Text } = Typography;
 
 const ClassificationTab = () => (
   <>
-    <Card title="Keywords" style={{ marginBottom: 16 }}>
+    <Card title="Keywords" size="small" style={{ marginBottom: 8 }}>
       <Form.List name="keywords">
         {(fields, { add, remove }) => (
           <>
@@ -37,7 +37,7 @@ const ClassificationTab = () => (
       </Form.List>
     </Card>
 
-    <Card title="Taxonomy" style={{ marginBottom: 16 }}>
+    <Card title="Taxonomy" size="small" style={{ marginBottom: 8 }}>
       <Form.List name="taxonomy">
         {(fields, { add, remove }) => (
           <>
@@ -66,7 +66,7 @@ const ClassificationTab = () => (
       </Form.List>
     </Card>
 
-    <Card title="Ontology Resources" style={{ marginBottom: 16 }}>
+    <Card title="Ontology Resources" size="small" style={{ marginBottom: 8 }}>
       <Text type="secondary" style={{ display: "block", marginBottom: 8 }}>
         Ontology resources needed to resolve CURIEs in keywords and taxonomy.
       </Text>
@@ -113,7 +113,7 @@ const ClassificationTab = () => (
       </Form.List>
     </Card>
 
-    <Card title="License" style={{ marginBottom: 16 }}>
+    <Card title="License" size="small" style={{ marginBottom: 8 }}>
       <Form.Item label="Label" name={["license", "label"]}>
         <Input placeholder="e.g. Creative Commons BY 4.0" />
       </Form.Item>
@@ -125,7 +125,7 @@ const ClassificationTab = () => (
       </Form.Item>
     </Card>
 
-    <Card title="Spatial Coverage">
+    <Card title="Spatial Coverage" size="small">
       <Text type="secondary" style={{ display: "block", marginBottom: 8 }}>
         Provide a place name string or a GeoJSON Feature (as JSON).
       </Text>

@@ -7,7 +7,7 @@ const { Text } = Typography;
 
 const StudyDetailsTab = () => (
   <>
-    <Card title="Counts" style={{ marginBottom: 16 }}>
+    <Card title="Counts" size="small" style={{ marginBottom: 8 }}>
       <Form.List name="counts">
         {(fields, { add, remove }) => (
           <>
@@ -35,7 +35,7 @@ const StudyDetailsTab = () => (
       </Form.List>
     </Card>
 
-    <Card title="Participant Criteria" style={{ marginBottom: 16 }}>
+    <Card title="Participant Criteria" size="small" style={{ marginBottom: 8 }}>
       <Form.List name="participant_criteria">
         {(fields, { add, remove }) => (
           <>
@@ -63,7 +63,7 @@ const StudyDetailsTab = () => (
       </Form.List>
     </Card>
 
-    <Card title="Extra Properties">
+    <Card title="Extra Properties" size="small">
       <Form.List name="extra_properties_list">
         {(fields, { add, remove }) => (
           <>
