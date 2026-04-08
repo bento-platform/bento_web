@@ -120,112 +120,112 @@ const DatasetForm: FC<DatasetFormProps> = ({ onSubmit, initialValues, form: exte
       )}
 
       <ConfigProvider theme={{ components: { Form: { itemMarginBottom: 8 } } }}>
-      <Form
-        form={form}
-        layout="vertical"
-        size="small"
-        onFinish={handleFinish}
-        initialValues={preparedInitialValues}
-        scrollToFirstError
-        disabled={readOnly}
-      >
-        <Tabs
-          style={{ marginBottom: 16 }}
-          items={[
-            {
-              key: "core",
-              forceRender: true,
-              label: (
-                <span>
-                  Core Info <RequiredMark />
-                </span>
-              ),
-              children: <CoreInfoTab />,
-            },
-            {
-              key: "contacts",
-              forceRender: true,
-              label: (
-                <span>
-                  Contacts <RequiredMark />
-                </span>
-              ),
-              children: <ContactsTab form={form} />,
-            },
-            {
-              key: "links",
-              forceRender: true,
-              label: "Links & Media",
-              children: <LinksMediaTab />,
-            },
-            {
-              key: "classification",
-              forceRender: true,
-              label: "Classification",
-              children: <ClassificationTab />,
-            },
-            {
-              key: "study",
-              forceRender: true,
-              label: "Study Details",
-              children: <StudyDetailsTab />,
-            },
-            {
-              key: "publications",
-              forceRender: true,
-              label: "Publications & Funding",
-              children: <PublicationsFundingTab form={form} />,
-            },
-            {
-              key: "pcgl",
-              forceRender: true,
-              label: "PCGL Info",
-              children: <PcglInfoTab />,
-            },
-          ]}
-        />
-
-        {zodErrors.length > 0 && (
-          <Alert
-            type="error"
-            showIcon
-            closable
+        <Form
+          form={form}
+          layout="vertical"
+          size="small"
+          onFinish={handleFinish}
+          initialValues={preparedInitialValues}
+          scrollToFirstError
+          disabled={readOnly}
+        >
+          <Tabs
             style={{ marginBottom: 16 }}
-            message="Zod Validation Errors"
-            description={
-              <ul style={{ margin: 0, paddingLeft: 20 }}>
-                {zodErrors.map((err, i) => (
-                  <li key={i}>
-                    <strong>{err.path || "(root)"}</strong>: {err.message}
-                  </li>
-                ))}
-              </ul>
-            }
+            items={[
+              {
+                key: "core",
+                forceRender: true,
+                label: (
+                  <span>
+                    Core Info <RequiredMark />
+                  </span>
+                ),
+                children: <CoreInfoTab />,
+              },
+              {
+                key: "contacts",
+                forceRender: true,
+                label: (
+                  <span>
+                    Contacts <RequiredMark />
+                  </span>
+                ),
+                children: <ContactsTab form={form} />,
+              },
+              {
+                key: "links",
+                forceRender: true,
+                label: "Links & Media",
+                children: <LinksMediaTab />,
+              },
+              {
+                key: "classification",
+                forceRender: true,
+                label: "Classification",
+                children: <ClassificationTab />,
+              },
+              {
+                key: "study",
+                forceRender: true,
+                label: "Study Details",
+                children: <StudyDetailsTab />,
+              },
+              {
+                key: "publications",
+                forceRender: true,
+                label: "Publications & Funding",
+                children: <PublicationsFundingTab form={form} />,
+              },
+              {
+                key: "pcgl",
+                forceRender: true,
+                label: "PCGL Info",
+                children: <PcglInfoTab />,
+              },
+            ]}
           />
-        )}
 
-        {!isEmbedded && (
-          <>
-            <Divider />
-            <Form.Item>
-              <Space>
-                <Button type="primary" htmlType="submit" size="large">
-                  Validate &amp; Submit
-                </Button>
-                <Button
-                  htmlType="button"
-                  onClick={() => {
-                    form.resetFields();
-                    setZodErrors([]);
-                  }}
-                >
-                  Reset
-                </Button>
-              </Space>
-            </Form.Item>
-          </>
-        )}
-      </Form>
+          {zodErrors.length > 0 && (
+            <Alert
+              type="error"
+              showIcon
+              closable
+              style={{ marginBottom: 16 }}
+              message="Zod Validation Errors"
+              description={
+                <ul style={{ margin: 0, paddingLeft: 20 }}>
+                  {zodErrors.map((err, i) => (
+                    <li key={i}>
+                      <strong>{err.path || "(root)"}</strong>: {err.message}
+                    </li>
+                  ))}
+                </ul>
+              }
+            />
+          )}
+
+          {!isEmbedded && (
+            <>
+              <Divider />
+              <Form.Item>
+                <Space>
+                  <Button type="primary" htmlType="submit" size="large">
+                    Validate &amp; Submit
+                  </Button>
+                  <Button
+                    htmlType="button"
+                    onClick={() => {
+                      form.resetFields();
+                      setZodErrors([]);
+                    }}
+                  >
+                    Reset
+                  </Button>
+                </Space>
+              </Form.Item>
+            </>
+          )}
+        </Form>
       </ConfigProvider>
     </div>
   );
