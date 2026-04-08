@@ -13,7 +13,8 @@ const ContactsTab: FC<{ form: FormInstance }> = ({ form }) => (
           Primary Contact <RequiredMark />
         </span>
       }
-      style={{ marginBottom: 16 }}
+      size="small"
+      style={{ marginBottom: 8 }}
     >
       <PersonOrOrganizationFields namePrefix={["primary_contact"]} form={form} />
     </Card>
@@ -24,6 +25,7 @@ const ContactsTab: FC<{ form: FormInstance }> = ({ form }) => (
           Stakeholders <RequiredMark />
         </span>
       }
+      size="small"
     >
       <Form.List name="stakeholders">
         {(fields, { add, remove }) => (

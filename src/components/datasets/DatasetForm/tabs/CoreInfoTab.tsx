@@ -5,7 +5,7 @@ const { Option } = Select;
 
 const CoreInfoTab = () => (
   <>
-    <Card title="Core Information" style={{ marginBottom: 16 }}>
+    <Card title="Core Information" size="small" style={{ marginBottom: 8 }}>
       <Form.Item
         label="Language"
         name="language"
@@ -43,7 +43,7 @@ const CoreInfoTab = () => (
       </Form.Item>
     </Card>
 
-    <Card title="Long Description">
+    <Card title="Long Description" size="small">
       <Form.Item label="Content" name={["long_description", "content"]}>
         <TextArea rows={6} placeholder="Extended description..." />
       </Form.Item>

@@ -1,5 +1,5 @@
 import { type FC, useCallback, useMemo, useState } from "react";
-import { Alert, Button, Divider, Form, Space, Tabs, Typography, message } from "antd";
+import { Alert, Button, ConfigProvider, Divider, Form, Space, Tabs, Typography, message } from "antd";
 import type { FormInstance } from "antd";
 
 import type { DatasetModel as DatasetModelType, DatasetModelBase as DatasetModelBaseType } from "@/types/dataset";
@@ -119,9 +119,11 @@ const DatasetForm: FC<DatasetFormProps> = ({ onSubmit, initialValues, form: exte
         </>
       )}
 
+      <ConfigProvider theme={{ components: { Form: { itemMarginBottom: 8 } } }}>
       <Form
         form={form}
         layout="vertical"
+        size="small"
         onFinish={handleFinish}
         initialValues={preparedInitialValues}
         scrollToFirstError
@@ -224,6 +226,7 @@ const DatasetForm: FC<DatasetFormProps> = ({ onSubmit, initialValues, form: exte
           </>
         )}
       </Form>
+      </ConfigProvider>
     </div>
   );
 };
