@@ -191,7 +191,7 @@ const DatasetForm: FC<DatasetFormProps> = ({ onSubmit, initialValues, form: exte
               showIcon
               closable
               style={{ marginBottom: 16 }}
-              message="Zod Validation Errors"
+              message="Validation Errors"
               description={
                 <ul style={{ margin: 0, paddingLeft: 20 }}>
                   {zodErrors.map((err, i) => (
