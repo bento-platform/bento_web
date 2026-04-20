@@ -126,12 +126,12 @@ const GrantsTabContent = () => {
   const closeCreateModal = useCallback(() => setCreateModalOpen(false), []);
 
   const [editingGrantId, setEditingGrantId] = useState(null);
-  const editingGrant = editingGrantId != null ? (grantsById[editingGrantId] ?? null) : null;
+  const editingGrant = editingGrantId !== null ? (grantsById[editingGrantId] ?? null) : null;
   const openEditModal = useCallback((grantId) => setEditingGrantId(grantId), []);
   const closeEditModal = useCallback(() => setEditingGrantId(null), []);
 
   useEffect(() => {
-    if (editingGrantId != null && !grantsById[editingGrantId]) {
+    if (editingGrantId !== null && !grantsById[editingGrantId]) {
       setEditingGrantId(null);
     }
   }, [editingGrantId, grantsById]);
