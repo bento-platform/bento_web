@@ -346,19 +346,6 @@ export const experimentPropTypesShape = PropTypes.shape({
   updated: PropTypes.string, // ISO datetime string
 });
 
-export const overviewSummaryPropTypesShape = PropTypes.shape({
-  data: PropTypes.shape({
-    // TODO: more precision
-    phenopackets: PropTypes.number,
-    data_type_specific: PropTypes.shape({
-      biosamples: PropTypes.object,
-      diseases: PropTypes.object,
-      individuals: PropTypes.object,
-      phenotypic_features: PropTypes.object,
-    }),
-  }),
-});
-
 // Explorer search results format
 export const explorerSearchResultsPropTypesShape = PropTypes.shape({
   results: PropTypes.shape({
