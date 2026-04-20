@@ -113,7 +113,7 @@ const GrantsTabContent = () => {
 
   const isFetchingAllServices = useServices().isFetchingAll;
 
-  const { data: grants, isFetching: isFetchingGrants } = useGrants();
+  const { data: grants, itemsByID: grantsById, isFetching: isFetchingGrants } = useGrants();
 
   const {
     isFetching: isFetchingPermissions,
@@ -125,9 +125,16 @@ const GrantsTabContent = () => {
   const openCreateModal = useCallback(() => setCreateModalOpen(true), []);
   const closeCreateModal = useCallback(() => setCreateModalOpen(false), []);
 
-  const [editingGrant, setEditingGrant] = useState(null);
-  const openEditModal = useCallback((grant) => setEditingGrant(grant), []);
-  const closeEditModal = useCallback(() => setEditingGrant(null), []);
+  const [editingGrantId, setEditingGrantId] = useState(null);
+  const editingGrant = editingGrantId != null ? (grantsById[editingGrantId] ?? null) : null;
+  const openEditModal = useCallback((grantId) => setEditingGrantId(grantId), []);
+  const closeEditModal = useCallback(() => setEditingGrantId(null), []);
+
+  useEffect(() => {
+    if (editingGrantId != null && !grantsById[editingGrantId]) {
+      setEditingGrantId(null);
+    }
+  }, [editingGrantId, grantsById]);
 
   const [deleteModal, deleteModalContextHolder] = Modal.useModal();
 
@@ -149,7 +156,7 @@ const GrantsTabContent = () => {
                       icon={<EditOutlined />}
                       loading={pLoading}
                       disabled={!canEdit}
-                      onClick={() => openEditModal(grant)}
+                      onClick={() => openEditModal(grant.id)}
                     >
                       Edit
                     </Button>{" "}
@@ -201,7 +208,7 @@ const GrantsTabContent = () => {
         </ActionContainer>
       )}
       <GrantCreationModal open={createModalOpen} closeModal={closeCreateModal} />
-      <GrantEditModal grant={editingGrant} open={!!editingGrant} closeModal={closeEditModal} />
+      <GrantEditModal key={editingGrantId} grant={editingGrant} open={!!editingGrant} closeModal={closeEditModal} />
       <GrantsTable
         grants={grants}
         loading={isFetchingAllServices || isFetchingPermissions || isFetchingGrants}

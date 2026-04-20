@@ -36,6 +36,7 @@ export const grants = (
   state = {
     data: [],
     itemsByID: {},
+    oldItemsByID: {},
     isFetching: false,
     isCreating: false,
     isSaving: false,
@@ -78,14 +79,22 @@ export const grants = (
         isSaving: true,
         // Optimistically update while we wait for the PUT response
         data: state.data.map((g) => (g.id === grantID ? action.grant : g)),
+        oldItemsByID: { ...state.oldItemsByID, [grantID]: state.itemsByID[grantID] },
         itemsByID: { ...state.itemsByID, [grantID]: action.grant },
       };
     }
-    case SAVE_GRANT.ERROR:
-      // Revert by invalidating so a re-fetch picks up the true server state
-      return { ...state, isInvalid: true };
+    case SAVE_GRANT.ERROR: {
+      const grantID = action.grant.id;
+      const oldItem = state.oldItemsByID[grantID];
+      return {
+        ...state,
+        data: state.data.map((g) => (g.id === grantID ? oldItem : g)),
+        oldItemsByID: objectWithoutProp(state.oldItemsByID, grantID),
+        itemsByID: { ...state.itemsByID, [grantID]: oldItem },
+      };
+    }
     case SAVE_GRANT.FINISH:
-      return { ...state, isSaving: false };
+      return { ...state, isSaving: false, oldItemsByID: {} };
 
     case DELETE_GRANT.REQUEST:
       return { ...state, isDeleting: true };
