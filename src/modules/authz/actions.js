@@ -41,8 +41,22 @@ export const createGrant = networkAction((grant) => (_dispatch, getState) => ({
   check: grantMutateCheck,
   req: jsonRequest(grant, "POST"),
   url: `${authzURL(getState())}/grants/`,
+  err: "Could not create grant",
   onSuccess: () => {
     message.success("Grant created successfully!");
+  },
+}));
+
+export const SAVE_GRANT = createNetworkActionTypes("SAVE_GRANT");
+export const saveGrant = networkAction((grant) => (_dispatch, getState) => ({
+  types: SAVE_GRANT,
+  check: grantMutateCheck,
+  params: { grant },
+  req: jsonRequest(grant, "PUT"),
+  url: `${authzURL(getState())}/grants/${grant.id}`,
+  err: `Could not save grant ${grant.id}`,
+  onSuccess: () => {
+    message.success(`Grant ${grant.id} saved successfully!`);
   },
 }));
 
@@ -53,6 +67,7 @@ export const deleteGrant = networkAction(({ id: grantID }) => (_dispatch, getSta
   req: { method: "DELETE" },
   url: `${authzURL(getState())}/grants/${grantID}`,
   params: { grantID },
+  err: `Could not delete grant ${grantID}`,
   onSuccess: () => {
     message.success(`Grant ${grantID} deleted successfully!`);
   },
