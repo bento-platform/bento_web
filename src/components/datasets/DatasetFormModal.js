@@ -1,19 +1,20 @@
-import { useCallback } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import PropTypes from "prop-types";
 
-import { Button, Form, Modal, Space, Upload, message } from "antd";
+import { Alert, Button, Form, Modal, Space, Upload, message } from "antd";
 import { PlusOutlined, SaveOutlined, UploadOutlined } from "@ant-design/icons";
 
 import { prepareInitialValues } from "./DatasetForm/helpers";
 
 import DatasetForm from "./DatasetForm";
 
-import { FORM_MODE_ADD } from "@/constants";
+import { FORM_MODE_ADD, FORM_MODE_EDIT } from "@/constants";
 import { addProjectDataset, saveProjectDataset, fetchProjectsWithDatasets } from "@/modules/metadata/actions";
 import { useProjects } from "@/modules/metadata/hooks";
 import { datasetPropTypesShape, projectPropTypesShape, propTypesFormMode } from "@/propTypes";
 import { nop } from "@/utils/misc";
 import { useAppDispatch } from "@/store";
+import { saveDraft, loadDraft, clearDraft, deserializeFormValues } from "@/utils/datasetDraftUtils";
 
 const DatasetFormModal = ({ project, mode, initialValue, onCancel, onOk, open }) => {
   const dispatch = useAppDispatch();
@@ -25,20 +26,62 @@ const DatasetFormModal = ({ project, mode, initialValue, onCancel, onOk, open })
   } = useProjects();
 
   const [form] = Form.useForm();
+  const [draftBanner, setDraftBanner] = useState(null);
+  const debounceTimer = useRef(null);
+
+  const draftKey =
+    mode === FORM_MODE_ADD
+      ? `dataset-draft:add:${project?.identifier}`
+      : `dataset-draft:edit:${initialValue?.identifier}`;
+
+  useEffect(() => {
+    if (!open) return;
+    const draft = loadDraft(draftKey);
+    if (draft) setDraftBanner({ savedAt: draft.savedAt });
+    else setDraftBanner(null);
+  }, [open, draftKey]);
+
+  const handleValuesChange = useCallback(
+    (_changedValues, allValues) => {
+      if (debounceTimer.current) clearTimeout(debounceTimer.current);
+      debounceTimer.current = setTimeout(() => saveDraft(draftKey, allValues), 1000);
+    },
+    [draftKey],
+  );
+
+  const handleRestore = useCallback(() => {
+    const draft = loadDraft(draftKey);
+    if (!draft) return;
+    form.setFieldsValue(deserializeFormValues(draft.values));
+    setDraftBanner(null);
+  }, [draftKey, form]);
+
+  const handleDiscard = useCallback(() => {
+    clearDraft(draftKey);
+    setDraftBanner(null);
+  }, [draftKey]);
 
   const handleSuccess = useCallback(
     async (values) => {
       await dispatch(fetchProjectsWithDatasets()); // TODO: If needed / only this project...
       await (onOk || nop)({ ...(initialValue || {}), values });
+      clearDraft(draftKey);
       form.resetFields();
     },
-    [dispatch, form, initialValue, onOk],
+    [dispatch, draftKey, form, initialValue, onOk],
   );
 
   const handleCancel = useCallback(() => {
+    if (debounceTimer.current) {
+      clearTimeout(debounceTimer.current);
+      debounceTimer.current = null;
+      // Flush: user closed before the debounce fired, save immediately so draft survives
+      saveDraft(draftKey, form.getFieldsValue(true));
+    }
+    setDraftBanner(null);
     (onCancel || nop)();
     form.resetFields();
-  }, [form, onCancel]);
+  }, [draftKey, form, onCancel]);
 
   // Triggered by the modal's Save button; delegates validation + transformation
   // to DatasetForm's onFinish via form.submit().
@@ -113,10 +156,30 @@ const DatasetFormModal = ({ project, mode, initialValue, onCancel, onOk, open })
       }
       onCancel={handleCancel}
     >
+      {draftBanner && (
+        <Alert
+          type="warning"
+          showIcon
+          style={{ marginBottom: 16 }}
+          message="You have unsaved progress from this form"
+          description={`Last saved: ${new Date(draftBanner.savedAt).toLocaleString()}`}
+          action={
+            <Space>
+              <Button size="small" type="primary" onClick={handleRestore}>
+                Restore
+              </Button>
+              <Button size="small" onClick={handleDiscard}>
+                Discard
+              </Button>
+            </Space>
+          }
+        />
+      )}
       <DatasetForm
         form={form}
         onSubmit={handleDatasetSubmit}
         initialValues={mode === FORM_MODE_ADD ? undefined : initialValue}
+        onValuesChange={handleValuesChange}
       />
     </Modal>
   );
