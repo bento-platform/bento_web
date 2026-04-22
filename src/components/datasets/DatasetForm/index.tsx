@@ -32,7 +32,13 @@ export interface DatasetFormProps {
   onValuesChange?: (changedValues: unknown, allValues: unknown) => void;
 }
 
-const DatasetForm: FC<DatasetFormProps> = ({ onSubmit, initialValues, form: externalForm, readOnly, onValuesChange }) => {
+const DatasetForm: FC<DatasetFormProps> = ({
+  onSubmit,
+  initialValues,
+  form: externalForm,
+  readOnly,
+  onValuesChange,
+}) => {
   const [internalForm] = Form.useForm();
   const form = externalForm ?? internalForm;
   const isEmbedded = !!externalForm;

@@ -8,7 +8,7 @@ import { prepareInitialValues } from "./DatasetForm/helpers";
 
 import DatasetForm from "./DatasetForm";
 
-import { FORM_MODE_ADD, FORM_MODE_EDIT } from "@/constants";
+import { FORM_MODE_ADD } from "@/constants";
 import { addProjectDataset, saveProjectDataset, fetchProjectsWithDatasets } from "@/modules/metadata/actions";
 import { useProjects } from "@/modules/metadata/hooks";
 import { datasetPropTypesShape, projectPropTypesShape, propTypesFormMode } from "@/propTypes";
