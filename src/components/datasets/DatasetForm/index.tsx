@@ -29,9 +29,10 @@ export interface DatasetFormProps {
   form?: FormInstance;
   /** When true, all form controls are disabled (read-only view). */
   readOnly?: boolean;
+  onValuesChange?: (changedValues: unknown, allValues: unknown) => void;
 }
 
-const DatasetForm: FC<DatasetFormProps> = ({ onSubmit, initialValues, form: externalForm, readOnly }) => {
+const DatasetForm: FC<DatasetFormProps> = ({ onSubmit, initialValues, form: externalForm, readOnly, onValuesChange }) => {
   const [internalForm] = Form.useForm();
   const form = externalForm ?? internalForm;
   const isEmbedded = !!externalForm;
@@ -130,6 +131,7 @@ const DatasetForm: FC<DatasetFormProps> = ({ onSubmit, initialValues, form: exte
           layout="vertical"
           size="small"
           onFinish={handleFinish}
+          onValuesChange={onValuesChange}
           initialValues={preparedInitialValues}
           scrollToFirstError
           disabled={readOnly}
