@@ -10,9 +10,6 @@ const { Text } = Typography;
 
 const PersonFields: FC<{ namePrefix: (string | number)[] }> = ({ namePrefix }) => (
   <>
-    <Form.Item name={[...namePrefix, "type"]} hidden>
-      <Input />
-    </Form.Item>
     <Form.Item label="Name" name={[...namePrefix, "name"]} rules={[{ required: true, min: 1 }]}>
       <Input placeholder="Full name" />
     </Form.Item>
@@ -53,9 +50,6 @@ const PersonFields: FC<{ namePrefix: (string | number)[] }> = ({ namePrefix }) =
 
 const OrganizationFields: FC<{ namePrefix: (string | number)[] }> = ({ namePrefix }) => (
   <>
-    <Form.Item name={[...namePrefix, "type"]} hidden>
-      <Input />
-    </Form.Item>
     <Form.Item label="Name" name={[...namePrefix, "name"]} rules={[{ required: true, min: 1 }]}>
       <Input placeholder="Organization name" />
     </Form.Item>
@@ -89,7 +83,7 @@ const PersonOrOrganizationFields: FC<{
 
   return (
     <Card size="small" style={{ marginBottom: 8 }}>
-      <Form.Item label="Type" name={[...namePrefix, "type"]} initialValue="person">
+      <Form.Item label="Type" name={[...namePrefix, "type"]}>
         <Radio.Group
           onChange={(e) => {
             const current = form.getFieldValue(namePrefix as string[]);

@@ -37,7 +37,12 @@ const DatasetForm: FC<DatasetFormProps> = ({ onSubmit, initialValues, form: exte
   const isEmbedded = !!externalForm;
   const [zodErrors, setZodErrors] = useState<Array<{ path: string; message: string }>>([]);
   const preparedInitialValues = useMemo(
-    () => ({ schema_version: "1.0", language: "en", ...prepareInitialValues(initialValues) }),
+    () => ({
+      schema_version: "1.0",
+      language: "en",
+      primary_contact: { type: "person" },
+      ...prepareInitialValues(initialValues),
+    }),
     // eslint-disable-next-line react-hooks/exhaustive-deps
     [initialValues?.identifier],
   );

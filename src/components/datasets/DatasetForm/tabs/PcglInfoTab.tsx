@@ -22,11 +22,7 @@ const PcglInfoTab = () => (
     </Card>
 
     <Card title="PCGL Fields" size="small">
-      <Form.Item
-        label="PCGL Program Name"
-        name="program_name"
-        tooltip="The overarching program the study belongs to"
-      >
+      <Form.Item label="PCGL Program Name" name="program_name" tooltip="The overarching program the study belongs to">
         <Input />
       </Form.Item>
       <Form.List name="domain">
