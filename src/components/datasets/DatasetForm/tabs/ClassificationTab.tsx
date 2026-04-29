@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { Button, Card, Form, Input, Radio, Typography } from "antd";
+import type { RadioChangeEvent } from "antd";
 import { PlusOutlined } from "@ant-design/icons";
 
 const { Text } = Typography;
@@ -48,7 +49,7 @@ const OntologyFields = ({ listName, name }: { listName: string; name: number }) 
   const form = Form.useFormInstance();
   const type = Form.useWatch([listName, name, "type"], form) ?? "string";
 
-  const handleTypeChange = (e: { target: { value: string } }) => {
+  const handleTypeChange = (e: RadioChangeEvent) => {
     if (e.target.value === "ontology") {
       form.setFieldValue([listName, name, "value"], undefined);
     } else {
