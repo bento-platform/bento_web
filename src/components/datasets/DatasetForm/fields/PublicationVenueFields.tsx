@@ -1,15 +1,16 @@
-import type { FC } from "react";
 import { Card, Form, Input, Select } from "antd";
 import { venueTypeOptions } from "../constants";
 import { getNestedValue } from "../helpers";
 
 const { Option } = Select;
 
-const PublicationVenueFields: FC<{
+const PublicationVenueFields = ({
+  namePrefix,
+  absoluteNamePrefix,
+}: {
   namePrefix: (string | number)[];
-  /** Absolute path from form root — needed when namePrefix is relative (inside a Form.List). Defaults to namePrefix. */
   absoluteNamePrefix?: (string | number)[];
-}> = ({ namePrefix, absoluteNamePrefix }) => {
+}) => {
   const absPrefix = absoluteNamePrefix ?? namePrefix;
   return (
     <Card size="small" title="Venue" style={{ marginBottom: 8 }}>

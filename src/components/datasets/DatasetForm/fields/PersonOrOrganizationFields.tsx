@@ -1,4 +1,4 @@
-import { type FC, useMemo } from "react";
+import { useMemo } from "react";
 import { Button, Card, Collapse, Form, Input, Radio, Select, Space, Typography } from "antd";
 import { BankOutlined, MinusCircleOutlined, PlusOutlined, UserOutlined } from "@ant-design/icons";
 import type { FormInstance } from "antd";
@@ -8,7 +8,7 @@ import ContactFields from "./ContactFields";
 const { Panel } = Collapse;
 const { Text } = Typography;
 
-const PersonFields: FC<{ namePrefix: (string | number)[] }> = ({ namePrefix }) => (
+const PersonFields = ({ namePrefix }: { namePrefix: (string | number)[] }) => (
   <>
     <Form.Item label="Name" name={[...namePrefix, "name"]} rules={[{ required: true, min: 1 }]}>
       <Input placeholder="Full name" />
@@ -48,7 +48,7 @@ const PersonFields: FC<{ namePrefix: (string | number)[] }> = ({ namePrefix }) =
   </>
 );
 
-const OrganizationFields: FC<{ namePrefix: (string | number)[] }> = ({ namePrefix }) => (
+const OrganizationFields = ({ namePrefix }: { namePrefix: (string | number)[] }) => (
   <>
     <Form.Item label="Name" name={[...namePrefix, "name"]} rules={[{ required: true, min: 1 }]}>
       <Input placeholder="Organization name" />
@@ -70,12 +70,15 @@ const OrganizationFields: FC<{ namePrefix: (string | number)[] }> = ({ namePrefi
   </>
 );
 
-const PersonOrOrganizationFields: FC<{
+const PersonOrOrganizationFields = ({
+  namePrefix,
+  absoluteNamePrefix,
+  form,
+}: {
   namePrefix: (string | number)[];
-  /** Absolute path from form root — needed when namePrefix is relative (inside a Form.List). Defaults to namePrefix. */
   absoluteNamePrefix?: (string | number)[];
   form: FormInstance;
-}> = ({ namePrefix, absoluteNamePrefix, form }) => {
+}) => {
   const absPrefix = absoluteNamePrefix ?? namePrefix;
   // eslint-disable-next-line react-hooks/exhaustive-deps
   const typePath = useMemo(() => [...absPrefix, "type"], [JSON.stringify(absPrefix)]);

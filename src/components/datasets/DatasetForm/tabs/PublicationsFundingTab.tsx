@@ -1,4 +1,3 @@
-import type { FC } from "react";
 import { Button, Card, Collapse, DatePicker, Form, Input, Select, Space, Typography } from "antd";
 import { MinusCircleOutlined, PlusOutlined } from "@ant-design/icons";
 import type { FormInstance } from "antd";
@@ -11,7 +10,7 @@ const { TextArea } = Input;
 const { Option } = Select;
 const { Text } = Typography;
 
-const PublicationsFundingTab: FC<{ form: FormInstance }> = ({ form }) => (
+const PublicationsFundingTab = ({ form }: { form: FormInstance }) => (
   <>
     <Card title="Publications" size="small" style={{ marginBottom: 8 }}>
       <Form.List name="publications">
