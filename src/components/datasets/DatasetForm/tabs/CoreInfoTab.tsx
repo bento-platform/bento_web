@@ -1,7 +1,53 @@
-import { Card, DatePicker, Form, Input, Select } from "antd";
+import { useState } from "react";
+import { Button, Card, DatePicker, Form, Input, Select } from "antd";
+import { PlusOutlined } from "@ant-design/icons";
 
 const { TextArea } = Input;
 const { Option } = Select;
+
+const LongDescriptionSection = () => {
+  const form = Form.useFormInstance();
+  const [isAdded, setIsAdded] = useState(() => {
+    const v = form.getFieldValue("long_description");
+    return !!(v?.content || v?.content_type);
+  });
+
+  const handleRemove = () => {
+    form.setFieldValue(["long_description", "content"], undefined);
+    form.setFieldValue(["long_description", "content_type"], undefined);
+    setIsAdded(false);
+  };
+
+  return (
+    <Card title="Long Description" size="small">
+      {isAdded ? (
+        <>
+          <Form.Item label="Content" name={["long_description", "content"]} rules={[{ required: true, min: 1 }]}>
+            <TextArea rows={6} placeholder="Extended description..." />
+          </Form.Item>
+          <Form.Item
+            label="Content type"
+            name={["long_description", "content_type"]}
+            rules={[{ required: true, message: "Content type is required" }]}
+          >
+            <Select placeholder="Select content type">
+              <Option value="text/plain">Plain text</Option>
+              <Option value="text/markdown">Markdown</Option>
+              <Option value="text/html">HTML</Option>
+            </Select>
+          </Form.Item>
+          <Button danger size="small" onClick={handleRemove}>
+            Remove
+          </Button>
+        </>
+      ) : (
+        <Button type="dashed" onClick={() => setIsAdded(true)} icon={<PlusOutlined />}>
+          Add long description
+        </Button>
+      )}
+    </Card>
+  );
+};
 
 const CoreInfoTab = () => (
   <>
@@ -43,18 +89,7 @@ const CoreInfoTab = () => (
       </Form.Item>
     </Card>
 
-    <Card title="Long Description" size="small">
-      <Form.Item label="Content" name={["long_description", "content"]}>
-        <TextArea rows={6} placeholder="Extended description..." />
-      </Form.Item>
-      <Form.Item label="Content type" name={["long_description", "content_type"]}>
-        <Select placeholder="Select content type">
-          <Option value="text/plain">Plain text</Option>
-          <Option value="text/markdown">Markdown</Option>
-          <Option value="text/html">HTML</Option>
-        </Select>
-      </Form.Item>
-    </Card>
+    <LongDescriptionSection />
   </>
 );
 
