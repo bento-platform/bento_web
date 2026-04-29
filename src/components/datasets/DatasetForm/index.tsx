@@ -51,6 +51,7 @@ const DatasetForm: FC<DatasetFormProps> = ({
       schema_version: "1.0",
       language: "en",
       primary_contact: { type: "person" },
+      stakeholders: [{ type: "person" }],
       ...prepareInitialValues(initialValues),
     }),
     // eslint-disable-next-line react-hooks/exhaustive-deps
