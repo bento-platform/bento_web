@@ -3,7 +3,7 @@ import { Alert, Button, ConfigProvider, Divider, Form, Space, Tabs, Typography, 
 import type { FormInstance } from "antd";
 
 import type { DatasetModel as DatasetModelType, DatasetModelBase as DatasetModelBaseType } from "@/types/dataset";
-import { cleanFormValues, dayjsToDateString, prepareInitialValues, validateWithZod } from "./helpers";
+import { cleanFormValues, dayjsToDateString, formatErrorPath, prepareInitialValues, validateWithZod } from "./helpers";
 import RequiredMark from "./RequiredMark";
 import CoreInfoTab from "./tabs/CoreInfoTab";
 import ContactsTab from "./tabs/ContactsTab";
@@ -14,6 +14,40 @@ import PublicationsFundingTab from "./tabs/PublicationsFundingTab";
 import PcglInfoTab from "./tabs/PcglInfoTab";
 
 const { Title, Text } = Typography;
+
+// Maps the top-level field name to the tab key it lives on, so we can
+// auto-switch when Ant Design's field-level validation blocks submission.
+const FIELD_TO_TAB: Record<string, string> = {
+  title: "core",
+  description: "core",
+  language: "core",
+  version: "core",
+  privacy: "core",
+  release_date: "core",
+  last_modified: "core",
+  long_description: "core",
+  schema_version: "core",
+  primary_contact: "contacts",
+  stakeholders: "contacts",
+  links: "links",
+  typed_links: "links",
+  logos: "links",
+  keywords: "classification",
+  taxa: "classification",
+  resources: "classification",
+  license: "classification",
+  spatial_coverage: "classification",
+  counts: "study",
+  participant_criteria: "study",
+  extra_properties: "study",
+  extra_properties_list: "study",
+  publications: "publications",
+  funding_sources: "publications",
+  study_status: "pcgl",
+  study_context: "pcgl",
+  program_name: "pcgl",
+  domain: "pcgl",
+};
 
 export interface DatasetFormProps {
   /** Called with the Zod-validated DatasetModelBaseType on successful submit */
@@ -43,6 +77,8 @@ const DatasetForm: FC<DatasetFormProps> = ({
   const form = externalForm ?? internalForm;
   const isEmbedded = !!externalForm;
   const [zodErrors, setZodErrors] = useState<Array<{ path: string; message: string }>>([]);
+  const [activeTab, setActiveTab] = useState("core");
+
   const preparedInitialValues = useMemo(
     () => ({
       schema_version: "1.0",
@@ -120,6 +156,14 @@ const DatasetForm: FC<DatasetFormProps> = ({
     [onSubmit],
   );
 
+  const handleFinishFailed = useCallback(({ errorFields }: { errorFields: { name: (string | number)[] }[] }) => {
+    const firstField = errorFields[0]?.name?.[0];
+    if (typeof firstField === "string") {
+      const tab = FIELD_TO_TAB[firstField];
+      if (tab) setActiveTab(tab);
+    }
+  }, []);
+
   return (
     <div style={isEmbedded ? {} : { maxWidth: 900, margin: "0 auto", padding: 24 }}>
       {!isEmbedded && (
@@ -137,12 +181,15 @@ const DatasetForm: FC<DatasetFormProps> = ({
           layout="vertical"
           size="small"
           onFinish={handleFinish}
+          onFinishFailed={handleFinishFailed}
           onValuesChange={onValuesChange}
           initialValues={preparedInitialValues}
           scrollToFirstError
           disabled={readOnly}
         >
           <Tabs
+            activeKey={activeTab}
+            onChange={setActiveTab}
             style={{ marginBottom: 16 }}
             items={[
               {
@@ -203,13 +250,14 @@ const DatasetForm: FC<DatasetFormProps> = ({
               type="error"
               showIcon
               closable
+              onClose={() => setZodErrors([])}
               style={{ marginBottom: 16 }}
               message="Validation Errors"
               description={
                 <ul style={{ margin: 0, paddingLeft: 20 }}>
                   {zodErrors.map((err, i) => (
                     <li key={i}>
-                      <strong>{err.path || "(root)"}</strong>: {err.message}
+                      <strong>{formatErrorPath(err.path)}</strong>: {err.message}
                     </li>
                   ))}
                 </ul>
