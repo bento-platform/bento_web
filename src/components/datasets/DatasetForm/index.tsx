@@ -1,5 +1,5 @@
-import { type FC, useCallback, useMemo, useState } from "react";
-import { Alert, Button, ConfigProvider, Divider, Form, Space, Tabs, Typography, message } from "antd";
+import { useCallback, useMemo, useState } from "react";
+import { Alert, ConfigProvider, Form, Tabs, message } from "antd";
 import type { FormInstance } from "antd";
 
 import type { DatasetModel as DatasetModelType, DatasetModelBase as DatasetModelBaseType } from "@/types/dataset";
@@ -13,35 +13,15 @@ import StudyDetailsTab from "./tabs/StudyDetailsTab";
 import PublicationsFundingTab from "./tabs/PublicationsFundingTab";
 import PcglInfoTab from "./tabs/PcglInfoTab";
 
-const { Title, Text } = Typography;
-
 export interface DatasetFormProps {
-  /** Called with the Zod-validated DatasetModelBaseType on successful submit */
   onSubmit?: (data: DatasetModelBaseType) => void;
-  /** Optional initial values for editing an existing dataset */
   initialValues?: Partial<DatasetModelType>;
-  /**
-   * External form instance. When provided the component renders without its
-   * own title, description, or submit/reset buttons — the parent (e.g. a
-   * Modal) owns those concerns and can call form.submit() to trigger
-   * validation and the onSubmit callback.
-   */
-  form?: FormInstance;
-  /** When true, all form controls are disabled (read-only view). */
+  form: FormInstance;
   readOnly?: boolean;
   onValuesChange?: (changedValues: unknown, allValues: unknown) => void;
 }
 
-const DatasetForm: FC<DatasetFormProps> = ({
-  onSubmit,
-  initialValues,
-  form: externalForm,
-  readOnly,
-  onValuesChange,
-}) => {
-  const [internalForm] = Form.useForm();
-  const form = externalForm ?? internalForm;
-  const isEmbedded = !!externalForm;
+const DatasetForm = ({ onSubmit, initialValues, form, readOnly, onValuesChange }: DatasetFormProps) => {
   const [zodErrors, setZodErrors] = useState<Array<{ path: string; message: string }>>([]);
   const [fieldErrors, setFieldErrors] = useState<Array<{ path: string; message: string }>>([]);
   const [activeTab, setActiveTab] = useState("core");
@@ -136,16 +116,7 @@ const DatasetForm: FC<DatasetFormProps> = ({
   );
 
   return (
-    <div style={isEmbedded ? {} : { maxWidth: 900, margin: "0 auto", padding: 24 }}>
-      {!isEmbedded && (
-        <>
-          <Title level={3}>Dataset Metadata Form</Title>
-          <Text type="secondary" style={{ display: "block", marginBottom: 24 }}>
-            Fill in the dataset metadata below. Required fields are marked with *.
-          </Text>
-        </>
-      )}
-
+    <div>
       <ConfigProvider theme={{ components: { Form: { itemMarginBottom: 8 } } }}>
         <Form
           form={form}
@@ -256,27 +227,6 @@ const DatasetForm: FC<DatasetFormProps> = ({
             />
           )}
 
-          {!isEmbedded && (
-            <>
-              <Divider />
-              <Form.Item>
-                <Space>
-                  <Button type="primary" htmlType="submit" size="large">
-                    Validate &amp; Submit
-                  </Button>
-                  <Button
-                    htmlType="button"
-                    onClick={() => {
-                      form.resetFields();
-                      setZodErrors([]);
-                    }}
-                  >
-                    Reset
-                  </Button>
-                </Space>
-              </Form.Item>
-            </>
-          )}
         </Form>
       </ConfigProvider>
     </div>
