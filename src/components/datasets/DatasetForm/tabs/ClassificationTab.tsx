@@ -1,7 +1,48 @@
+import { useState } from "react";
 import { Button, Card, Form, Input, Radio, Typography } from "antd";
 import { PlusOutlined } from "@ant-design/icons";
 
 const { Text } = Typography;
+
+const LicenseSection = () => {
+  const form = Form.useFormInstance();
+  const [isAdded, setIsAdded] = useState(() => {
+    const v = form.getFieldValue("license");
+    return !!(v?.label || v?.type || v?.url);
+  });
+
+  const handleRemove = () => {
+    form.setFieldValue(["license", "label"], undefined);
+    form.setFieldValue(["license", "type"], undefined);
+    form.setFieldValue(["license", "url"], undefined);
+    setIsAdded(false);
+  };
+
+  return (
+    <Card title="License" size="small" style={{ marginBottom: 8 }}>
+      {isAdded ? (
+        <>
+          <Form.Item label="Label" name={["license", "label"]} rules={[{ required: true, min: 1 }]}>
+            <Input placeholder="e.g. Creative Commons BY 4.0" />
+          </Form.Item>
+          <Form.Item label="Type" name={["license", "type"]} rules={[{ required: true, min: 1 }]}>
+            <Input placeholder="e.g. CC-BY-4.0" />
+          </Form.Item>
+          <Form.Item label="URL" name={["license", "url"]} rules={[{ required: true, type: "url" }]}>
+            <Input placeholder="https://creativecommons.org/licenses/by/4.0/" />
+          </Form.Item>
+          <Button danger size="small" onClick={handleRemove}>
+            Remove
+          </Button>
+        </>
+      ) : (
+        <Button type="dashed" onClick={() => setIsAdded(true)} icon={<PlusOutlined />}>
+          Add license
+        </Button>
+      )}
+    </Card>
+  );
+};
 
 const OntologyFields = ({ listName, name }: { listName: string; name: number }) => {
   const form = Form.useFormInstance();
@@ -131,17 +172,7 @@ const ClassificationTab = () => (
       </Form.List>
     </Card>
 
-    <Card title="License" size="small" style={{ marginBottom: 8 }}>
-      <Form.Item label="Label" name={["license", "label"]}>
-        <Input placeholder="e.g. Creative Commons BY 4.0" />
-      </Form.Item>
-      <Form.Item label="Type" name={["license", "type"]}>
-        <Input placeholder="e.g. CC-BY-4.0" />
-      </Form.Item>
-      <Form.Item label="URL" name={["license", "url"]}>
-        <Input placeholder="https://creativecommons.org/licenses/by/4.0/" />
-      </Form.Item>
-    </Card>
+    <LicenseSection />
 
     <Card title="Spatial Coverage" size="small">
       <Text type="secondary" style={{ display: "block", marginBottom: 8 }}>

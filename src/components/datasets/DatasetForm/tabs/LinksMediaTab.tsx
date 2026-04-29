@@ -11,10 +11,10 @@ const LinksMediaTab = () => (
           <>
             {fields.map(({ key, name }) => (
               <Card key={key} size="small" style={{ marginBottom: 8 }}>
-                <Form.Item label="Label" name={[name, "label"]}>
+                <Form.Item label="Label" name={[name, "label"]} rules={[{ required: true, min: 1 }]}>
                   <Input placeholder="Link label" />
                 </Form.Item>
-                <Form.Item label="URL" name={[name, "url"]} rules={[{ type: "url" }]}>
+                <Form.Item label="URL" name={[name, "url"]} rules={[{ required: true, type: "url" }]}>
                   <Input placeholder="https://..." />
                 </Form.Item>
                 <Button danger size="small" onClick={() => remove(name)}>
