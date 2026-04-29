@@ -49,6 +49,60 @@ export function dayjsToDateString(d: unknown): string | undefined {
   return dayjs(d as Parameters<typeof dayjs>[0]).format("YYYY-MM-DD");
 }
 
+type PathMeta = { tab: string; section: string; item?: string };
+
+const PATH_META: Record<string, PathMeta> = {
+  // Core Info
+  title: { tab: "Core Info", section: "Title" },
+  description: { tab: "Core Info", section: "Description" },
+  language: { tab: "Core Info", section: "Language" },
+  version: { tab: "Core Info", section: "Version" },
+  privacy: { tab: "Core Info", section: "Privacy" },
+  release_date: { tab: "Core Info", section: "Release date" },
+  last_modified: { tab: "Core Info", section: "Last modified" },
+  long_description: { tab: "Core Info", section: "Long description" },
+  schema_version: { tab: "Core Info", section: "Schema version" },
+  // Contacts
+  primary_contact: { tab: "Contacts", section: "Primary contact" },
+  stakeholders: { tab: "Contacts", section: "Stakeholders", item: "Stakeholder" },
+  // Links & Media
+  links: { tab: "Links & Media", section: "Links", item: "Link" },
+  typed_links: { tab: "Links & Media", section: "Typed links", item: "Typed link" },
+  logos: { tab: "Links & Media", section: "Logos", item: "Logo" },
+  // Classification
+  keywords: { tab: "Classification", section: "Keywords", item: "Keyword" },
+  taxa: { tab: "Classification", section: "Taxonomy", item: "Taxonomy entry" },
+  resources: { tab: "Classification", section: "Ontology resources", item: "Resource" },
+  license: { tab: "Classification", section: "License" },
+  spatial_coverage: { tab: "Classification", section: "Spatial coverage" },
+  // Study Details
+  counts: { tab: "Study Details", section: "Counts", item: "Count" },
+  participant_criteria: { tab: "Study Details", section: "Participant criteria", item: "Criterion" },
+  extra_properties: { tab: "Study Details", section: "Extra properties" },
+  extra_properties_list: { tab: "Study Details", section: "Extra properties" },
+  // Publications & Funding
+  publications: { tab: "Publications & Funding", section: "Publications", item: "Publication" },
+  funding_sources: { tab: "Publications & Funding", section: "Funding sources", item: "Funding source" },
+  // PCGL Info
+  study_status: { tab: "PCGL Info", section: "Study status" },
+  study_context: { tab: "PCGL Info", section: "Study context" },
+  program_name: { tab: "PCGL Info", section: "Program name" },
+  domain: { tab: "PCGL Info", section: "Domains", item: "Domain" },
+};
+
+/** Convert a raw Zod dot-path (e.g. "taxa.0.id") to a human-readable breadcrumb. */
+export function formatErrorPath(path: string): string {
+  if (!path) return "Cross-field validation";
+  const [root, indexStr, ...rest] = path.split(".");
+  const meta = PATH_META[root];
+  if (!meta) return path;
+
+  const hasIndex = indexStr !== undefined && /^\d+$/.test(indexStr);
+  const sectionLabel = hasIndex && meta.item ? `${meta.item} #${parseInt(indexStr) + 1}` : meta.section;
+  const fieldPart = !hasIndex && rest.length === 0 && indexStr ? ` › ${indexStr}` : "";
+  return `${meta.tab} › ${sectionLabel}${fieldPart}`;
+}
+
 /** Helper to access a nested value from a plain object by path array */
 export function getNestedValue(obj: unknown, path: (string | number)[]): unknown {
   let current = obj;
