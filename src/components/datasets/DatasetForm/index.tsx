@@ -15,40 +15,6 @@ import PcglInfoTab from "./tabs/PcglInfoTab";
 
 const { Title, Text } = Typography;
 
-// Maps the top-level field name to the tab key it lives on, so we can
-// auto-switch when Ant Design's field-level validation blocks submission.
-const FIELD_TO_TAB: Record<string, string> = {
-  title: "core",
-  description: "core",
-  language: "core",
-  version: "core",
-  privacy: "core",
-  release_date: "core",
-  last_modified: "core",
-  long_description: "core",
-  schema_version: "core",
-  primary_contact: "contacts",
-  stakeholders: "contacts",
-  links: "links",
-  typed_links: "links",
-  logos: "links",
-  keywords: "classification",
-  taxa: "classification",
-  resources: "classification",
-  license: "classification",
-  spatial_coverage: "classification",
-  counts: "study",
-  participant_criteria: "study",
-  extra_properties: "study",
-  extra_properties_list: "study",
-  publications: "publications",
-  funding_sources: "publications",
-  study_status: "pcgl",
-  study_context: "pcgl",
-  program_name: "pcgl",
-  domain: "pcgl",
-};
-
 export interface DatasetFormProps {
   /** Called with the Zod-validated DatasetModelBaseType on successful submit */
   onSubmit?: (data: DatasetModelBaseType) => void;
@@ -77,6 +43,7 @@ const DatasetForm: FC<DatasetFormProps> = ({
   const form = externalForm ?? internalForm;
   const isEmbedded = !!externalForm;
   const [zodErrors, setZodErrors] = useState<Array<{ path: string; message: string }>>([]);
+  const [fieldErrors, setFieldErrors] = useState<Array<{ path: string; message: string }>>([]);
   const [activeTab, setActiveTab] = useState("core");
 
   const preparedInitialValues = useMemo(
@@ -146,6 +113,7 @@ const DatasetForm: FC<DatasetFormProps> = ({
 
       if (result.success) {
         setZodErrors([]);
+        setFieldErrors([]);
         message.success("Validation passed!");
         onSubmit?.(result.data);
       } else {
@@ -156,13 +124,15 @@ const DatasetForm: FC<DatasetFormProps> = ({
     [onSubmit],
   );
 
-  const handleFinishFailed = useCallback(({ errorFields }: { errorFields: { name: (string | number)[] }[] }) => {
-    const firstField = errorFields[0]?.name?.[0];
-    if (typeof firstField === "string") {
-      const tab = FIELD_TO_TAB[firstField];
-      if (tab) setActiveTab(tab);
-    }
-  }, []);
+  const handleFinishFailed = useCallback(
+    ({ errorFields }: { errorFields: { name: (string | number)[]; errors: string[] }[] }) => {
+      const errors = errorFields.flatMap(({ name, errors }) =>
+        errors.map((message) => ({ path: name.join("."), message })),
+      );
+      setFieldErrors(errors);
+    },
+    [],
+  );
 
   return (
     <div style={isEmbedded ? {} : { maxWidth: 900, margin: "0 auto", padding: 24 }}>
@@ -244,6 +214,26 @@ const DatasetForm: FC<DatasetFormProps> = ({
               },
             ]}
           />
+
+          {fieldErrors.length > 0 && (
+            <Alert
+              type="error"
+              showIcon
+              closable
+              onClose={() => setFieldErrors([])}
+              style={{ marginBottom: 16 }}
+              message="Required Fields Missing"
+              description={
+                <ul style={{ margin: 0, paddingLeft: 20 }}>
+                  {fieldErrors.map((err, i) => (
+                    <li key={i}>
+                      <strong>{formatErrorPath(err.path)}</strong>: {err.message}
+                    </li>
+                  ))}
+                </ul>
+              }
+            />
+          )}
 
           {zodErrors.length > 0 && (
             <Alert
