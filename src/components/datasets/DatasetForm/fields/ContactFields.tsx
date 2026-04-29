@@ -1,4 +1,3 @@
-import type { FC } from "react";
 import { Button, Card, Form, Input, Space, Typography } from "antd";
 import { MinusCircleOutlined, PlusOutlined } from "@ant-design/icons";
 import PhoneFields from "./PhoneFields";
@@ -6,7 +5,7 @@ import PhoneFields from "./PhoneFields";
 const { TextArea } = Input;
 const { Text } = Typography;
 
-const ContactFields: FC<{ namePrefix: (string | number)[] }> = ({ namePrefix }) => (
+const ContactFields = ({ namePrefix }: { namePrefix: (string | number)[] }) => (
   <Card size="small" title="Contact" style={{ marginBottom: 8 }}>
     <Form.Item label="Website" name={[...namePrefix, "website"]}>
       <Input placeholder="https://..." />

@@ -1,4 +1,3 @@
-import type { FC } from "react";
 import { Form, Modal } from "antd";
 
 import type { DatasetModel } from "@/types/dataset";
@@ -10,7 +9,7 @@ interface DatasetProvenanceModalProps {
   onClose: () => void;
 }
 
-const DatasetProvenanceModal: FC<DatasetProvenanceModalProps> = ({ dataset, open, onClose }) => {
+const DatasetProvenanceModal = ({ dataset, open, onClose }: DatasetProvenanceModalProps) => {
   const [form] = Form.useForm();
 
   return (

@@ -1,11 +1,10 @@
-import type { FC } from "react";
 import { Button, Card, Form } from "antd";
 import { PlusOutlined } from "@ant-design/icons";
 import type { FormInstance } from "antd";
 import PersonOrOrganizationFields from "../fields/PersonOrOrganizationFields";
 import RequiredMark from "../RequiredMark";
 
-const ContactsTab: FC<{ form: FormInstance }> = ({ form }) => (
+const ContactsTab = ({ form }: { form: FormInstance }) => (
   <>
     <Card
       title={
