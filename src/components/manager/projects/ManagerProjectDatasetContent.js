@@ -78,7 +78,7 @@ const ManagerProjectDatasetContent = () => {
     );
   }
 
-  if (!isFetchingDependentData && projectMenuItems.length === 0) {
+  if (!isFetchingDependentData && !isFetchingProjects && projectMenuItems.length === 0) {
     if (!isFetchingAllServices && metadataService === null) {
       return (
         <Layout>
@@ -150,7 +150,7 @@ const ManagerProjectDatasetContent = () => {
               <Route path=":project" element={<RoutedProject />} />
               <Route path="/" element={<Navigate to={`${items[0].identifier}`} replace={true} />} />
             </Routes>
-          ) : isFetchingDependentData ? (
+          ) : isFetchingDependentData || isFetchingProjects ? (
             <ProjectSkeleton />
           ) : (
             <Empty

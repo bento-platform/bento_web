@@ -1,4 +1,8 @@
+import type { Reducer } from "redux";
+
 import { arrayToObjectByProperty, objectWithoutProp } from "@/utils/misc";
+import type { DatasetModel, ProjectScopedDatasetModel } from "@/types/dataset";
+import type { Project, ProjectJSONSchema } from "./types";
 
 import {
   FETCH_PROJECTS,
@@ -20,9 +24,32 @@ import {
   FETCH_DISCOVERY_SCHEMA,
 } from "./actions";
 
-const projectSort = (a, b) => a.title.localeCompare(b.title);
+const projectSort = (a: Project, b: Project) => a.title.localeCompare(b.title);
 
-export const projects = (
+type ProjectsState = {
+  isFetching: boolean;
+  isCreating: boolean;
+  isDeleting: boolean;
+  isSaving: boolean;
+  isInvalid: boolean;
+
+  isAddingDataset: boolean;
+  isSavingDataset: boolean;
+  isDeletingDataset: boolean;
+
+  extraPropertiesSchemaTypes: Record<string, unknown>;
+  isFetchingExtraPropertiesSchemaTypes: boolean;
+  isCreatingJsonSchema: boolean;
+  isDeletingJsonSchema: boolean;
+
+  items: Project[];
+  itemsByID: Record<string, Project>;
+
+  datasets: ProjectScopedDatasetModel[];
+  datasetsByID: Record<string, ProjectScopedDatasetModel>;
+};
+
+export const projects: Reducer<ProjectsState> = (
   state = {
     isFetching: false,
     isCreating: false,
@@ -52,8 +79,10 @@ export const projects = (
       return { ...state, isFetching: true };
 
     case FETCH_PROJECTS.RECEIVE: {
-      const projects = action.data.toSorted(projectSort);
-      const datasets = projects.flatMap((p) => p.datasets.map((d) => ({ ...d, project: p.identifier })));
+      const projects = [...(action.data as Project[])].sort(projectSort);
+      const datasets: ProjectScopedDatasetModel[] = projects.flatMap((p: Project) =>
+        (p.datasets_v2 ?? []).map((d: DatasetModel) => ({ ...d, project: p.identifier })),
+      );
       return {
         ...state,
         items: projects,
@@ -72,15 +101,17 @@ export const projects = (
     case CREATE_PROJECT.REQUEST:
       return { ...state, isCreating: true };
 
-    case CREATE_PROJECT.RECEIVE:
+    case CREATE_PROJECT.RECEIVE: {
+      const newProject = action.data as Project;
       return {
         ...state,
-        items: [...state.items, action.data].sort(projectSort),
+        items: [...state.items, newProject].sort(projectSort),
         itemsByID: {
           ...state.itemsByID,
-          [action.data.identifier]: action.data,
+          [newProject.identifier]: newProject,
         },
       };
+    }
 
     case CREATE_PROJECT.FINISH:
       return { ...state, isCreating: false };
@@ -88,16 +119,18 @@ export const projects = (
     case DELETE_PROJECT.REQUEST:
       return { ...state, isDeleting: true };
 
-    case DELETE_PROJECT.RECEIVE:
+    case DELETE_PROJECT.RECEIVE: {
+      const deletedProject = action.project as Project;
       return {
         ...state,
-        items: state.items.filter((p) => p.identifier !== action.project.identifier),
+        items: state.items.filter((p) => p.identifier !== deletedProject.identifier),
         itemsByID: Object.fromEntries(
-          Object.entries(objectWithoutProp(state.itemsByID, action.project.identifier)).filter(
-            ([projectID, _]) => projectID !== action.project.identifier,
+          Object.entries(objectWithoutProp(state.itemsByID, deletedProject.identifier)).filter(
+            ([projectID]) => projectID !== deletedProject.identifier,
           ),
         ),
       };
+    }
 
     case DELETE_PROJECT.FINISH:
       return { ...state, isDeleting: false };
@@ -105,15 +138,17 @@ export const projects = (
     case SAVE_PROJECT.REQUEST:
       return { ...state, isSaving: true };
 
-    case SAVE_PROJECT.RECEIVE:
+    case SAVE_PROJECT.RECEIVE: {
+      const savedProject = action.data as Project;
       return {
         ...state,
-        items: [...state.items.filter((p) => p.identifier !== action.data.identifier), action.data].sort(projectSort),
+        items: [...state.items.filter((p) => p.identifier !== savedProject.identifier), savedProject].sort(projectSort),
         itemsByID: {
           ...state.itemsByID,
-          [action.data.identifier]: action.data,
+          [savedProject.identifier]: savedProject,
         },
       };
+    }
 
     case SAVE_PROJECT.FINISH:
       return { ...state, isSaving: false };
@@ -123,25 +158,25 @@ export const projects = (
       return { ...state, isAddingDataset: true };
 
     case ADD_PROJECT_DATASET.RECEIVE: {
-      const newDataset = action.data; // dataset with project
+      const newDataset = action.data as ProjectScopedDatasetModel;
       const projectID = newDataset.project;
       return {
         ...state,
         isAddingDataset: false,
         items: state.items.map((p) =>
-          p.identifier === newDataset.project ? { ...p, datasets: [...p.datasets, newDataset] } : p,
+          p.identifier === projectID ? { ...p, datasets_v2: [...(p.datasets_v2 ?? []), newDataset] } : p,
         ),
         itemsByID: {
           ...state.itemsByID,
           [projectID]: {
             ...(state.itemsByID[projectID] || {}),
-            datasets: [...(state.itemsByID[projectID]?.datasets || []), newDataset],
+            datasets_v2: [...(state.itemsByID[projectID]?.datasets_v2 ?? []), newDataset],
           },
         },
-        datasets: [...state.datasets, action.data],
+        datasets: [...state.datasets, newDataset],
         datasetsByID: {
           ...state.datasetsByID,
-          [newDataset.identifier]: action.data,
+          [newDataset.identifier]: newDataset,
         },
       };
     }
@@ -154,21 +189,25 @@ export const projects = (
       return { ...state, isDeletingDataset: true };
 
     case DELETE_PROJECT_DATASET.RECEIVE: {
-      const deleteDataset = (d) => d.identifier !== action.dataset.identifier;
+      const deletedDataset = action.dataset as ProjectScopedDatasetModel;
+      const deletedProject = action.project as Project;
+      const deleteDataset = (d: DatasetModel) => d.identifier !== deletedDataset.identifier;
       return {
         ...state,
         items: state.items.map((p) =>
-          p.identifier === action.project.identifier ? { ...p, datasets: p.datasets.filter(deleteDataset) } : p,
+          p.identifier === deletedProject.identifier
+            ? { ...p, datasets_v2: (p.datasets_v2 ?? []).filter(deleteDataset) }
+            : p,
         ),
         itemsByID: {
           ...state.itemsByID,
-          [action.project.identifier]: {
-            ...(state.itemsByID[action.project.identifier] || {}),
-            datasets: ((state.itemsByID[action.project.identifier] || {}).datasets || []).filter(deleteDataset),
+          [deletedProject.identifier]: {
+            ...(state.itemsByID[deletedProject.identifier] || {}),
+            datasets_v2: ((state.itemsByID[deletedProject.identifier] || {}).datasets_v2 ?? []).filter(deleteDataset),
           },
         },
-        datasets: state.datasets.filter(deleteDataset),
-        datasetsByID: objectWithoutProp(state.datasetsByID, action.dataset.identifier),
+        datasets: state.datasets.filter((d) => d.identifier !== deletedDataset.identifier),
+        datasetsByID: objectWithoutProp(state.datasetsByID, deletedDataset.identifier),
       };
     }
 
@@ -185,17 +224,23 @@ export const projects = (
     case ADD_DATASET_LINKED_FIELD_SET.RECEIVE:
     case SAVE_DATASET_LINKED_FIELD_SET.RECEIVE:
     case DELETE_DATASET_LINKED_FIELD_SET.RECEIVE: {
-      const replaceDataset = (d) => (d.identifier === action.data.identifier ? { ...d, ...action.data } : d);
+      const updatedDataset = action.data as ProjectScopedDatasetModel;
+      const replaceDataset = (d: DatasetModel): ProjectScopedDatasetModel =>
+        d.identifier === updatedDataset.identifier
+          ? { ...d, ...updatedDataset }
+          : { ...d, project: updatedDataset.project };
       return {
         ...state,
         items: state.items.map((p) =>
-          p.identifier === action.data.project ? { ...p, datasets: p.datasets.map(replaceDataset) } : p,
+          p.identifier === updatedDataset.project
+            ? { ...p, datasets_v2: (p.datasets_v2 ?? []).map(replaceDataset) }
+            : p,
         ),
         itemsByID: {
           ...state.itemsByID,
-          [action.data.project]: {
-            ...(state.itemsByID[action.data.project] || {}),
-            datasets: ((state.itemsByID[action.data.project] || {}).datasets || []).map(replaceDataset),
+          [updatedDataset.project]: {
+            ...(state.itemsByID[updatedDataset.project] || {}),
+            datasets_v2: ((state.itemsByID[updatedDataset.project] || {}).datasets_v2 ?? []).map(replaceDataset),
           },
         },
       };
@@ -211,27 +256,29 @@ export const projects = (
     case FETCH_EXTRA_PROPERTIES_SCHEMA_TYPES.REQUEST:
       return { ...state, isFetchingExtraPropertiesSchemaTypes: true };
     case FETCH_EXTRA_PROPERTIES_SCHEMA_TYPES.RECEIVE:
-      return { ...state, extraPropertiesSchemaTypes: action.data };
+      return { ...state, extraPropertiesSchemaTypes: action.data as Record<string, unknown> };
     case FETCH_EXTRA_PROPERTIES_SCHEMA_TYPES.FINISH:
       return { ...state, isFetchingExtraPropertiesSchemaTypes: false };
 
     // CREATE_PROJECT_JSON_SCHEMA
     case CREATE_PROJECT_JSON_SCHEMA.REQUEST:
       return { ...state, isCreatingJsonSchema: true };
-    case CREATE_PROJECT_JSON_SCHEMA.RECEIVE:
+    case CREATE_PROJECT_JSON_SCHEMA.RECEIVE: {
+      const newSchema = action.data as ProjectJSONSchema;
       return {
         ...state,
         items: state.items.map((p) =>
-          p.identifier === action.data.project ? { ...p, project_schemas: [...p.project_schemas, action.data] } : p,
+          p.identifier === newSchema.project ? { ...p, project_schemas: [...(p.project_schemas ?? []), newSchema] } : p,
         ),
         itemsByID: {
           ...state.itemsByID,
-          [action.data.project]: {
-            ...(state.itemsByID[action.data.project] || {}),
-            project_schemas: [...(state.itemsByID[action.data.project]?.project_schemas ?? []), action.data],
+          [newSchema.project!]: {
+            ...(state.itemsByID[newSchema.project!] || {}),
+            project_schemas: [...(state.itemsByID[newSchema.project!]?.project_schemas ?? []), newSchema],
           },
         },
       };
+    }
     case CREATE_PROJECT_JSON_SCHEMA.FINISH:
       return { ...state, isCreatingJsonSchema: false };
 
@@ -239,21 +286,20 @@ export const projects = (
     case DELETE_PROJECT_JSON_SCHEMA.REQUEST:
       return { ...state, isDeletingJsonSchema: true };
     case DELETE_PROJECT_JSON_SCHEMA.RECEIVE: {
-      const deleteSchema = (pjs) => pjs.id !== action.projectJsonSchema.id;
+      const deletedSchema = action.projectJsonSchema as ProjectJSONSchema;
+      const deleteSchema = (pjs: ProjectJSONSchema) => pjs.id !== deletedSchema.id;
       return {
         ...state,
         items: state.items.map((p) =>
-          p.identifier === action.projectJsonSchema.project
-            ? { ...p, project_schemas: p.project_schemas.filter(deleteSchema) }
+          p.identifier === deletedSchema.project
+            ? { ...p, project_schemas: (p.project_schemas ?? []).filter(deleteSchema) }
             : p,
         ),
         itemsByID: {
           ...state.itemsByID,
-          [action.projectJsonSchema.project]: {
-            ...(state.itemsByID[action.projectJsonSchema.project] || {}),
-            project_schemas: (state.itemsByID[action.projectJsonSchema.project]?.project_schemas ?? []).filter(
-              deleteSchema,
-            ),
+          [deletedSchema.project!]: {
+            ...(state.itemsByID[deletedSchema.project!] || {}),
+            project_schemas: (state.itemsByID[deletedSchema.project!]?.project_schemas ?? []).filter(deleteSchema),
           },
         },
       };
@@ -266,19 +312,27 @@ export const projects = (
   }
 };
 
-export const biosamples = (
+type BiosamplesState = {
+  itemsByID: Record<string, unknown>;
+};
+
+export const biosamples: Reducer<BiosamplesState> = (
   state = {
     itemsByID: {},
   },
-  action,
-) => {
-  switch (action.type) {
-    default:
-      return state;
-  }
+) => state;
+
+type IndividualRecord = {
+  isFetching?: boolean;
+  data?: unknown;
 };
 
-export const individuals = (
+type IndividualsState = {
+  itemsByID: Record<string, IndividualRecord>;
+  phenopacketsByIndividualID: Record<string, IndividualRecord>;
+};
+
+export const individuals: Reducer<IndividualsState> = (
   state = {
     itemsByID: {},
     phenopacketsByIndividualID: {},
@@ -293,8 +347,8 @@ export const individuals = (
         ...state,
         itemsByID: {
           ...state.itemsByID,
-          [action.individualID]: {
-            ...(state.itemsByID[action.individualID] || {}),
+          [action.individualID as string]: {
+            ...(state.itemsByID[action.individualID as string] || {}),
             isFetching: true,
           },
         },
@@ -304,8 +358,8 @@ export const individuals = (
         ...state,
         itemsByID: {
           ...state.itemsByID,
-          [action.individualID]: {
-            ...(state.itemsByID[action.individualID] || {}),
+          [action.individualID as string]: {
+            ...(state.itemsByID[action.individualID as string] || {}),
             data: action.data,
           },
         },
@@ -315,8 +369,8 @@ export const individuals = (
         ...state,
         itemsByID: {
           ...state.itemsByID,
-          [action.individualID]: {
-            ...(state.itemsByID[action.individualID] || {}),
+          [action.individualID as string]: {
+            ...(state.itemsByID[action.individualID as string] || {}),
             isFetching: false,
           },
         },
@@ -325,7 +379,7 @@ export const individuals = (
     // FETCH_INDIVIDUAL_PHENOPACKETS
 
     case FETCH_INDIVIDUAL_PHENOPACKETS.REQUEST: {
-      const { individualID } = action;
+      const { individualID } = action as unknown as { individualID: string };
       return {
         ...state,
         phenopacketsByIndividualID: {
@@ -338,7 +392,7 @@ export const individuals = (
       };
     }
     case FETCH_INDIVIDUAL_PHENOPACKETS.RECEIVE: {
-      const { individualID, data } = action;
+      const { individualID, data } = action as unknown as { individualID: string; data: unknown };
       return {
         ...state,
         phenopacketsByIndividualID: {
@@ -351,7 +405,7 @@ export const individuals = (
       };
     }
     case FETCH_INDIVIDUAL_PHENOPACKETS.FINISH: {
-      const { individualID } = action;
+      const { individualID } = action as unknown as { individualID: string };
       return {
         ...state,
         phenopacketsByIndividualID: {
@@ -369,7 +423,11 @@ export const individuals = (
   }
 };
 
-export const discovery = (
+type DiscoveryState = {
+  discoverySchema: Record<string, unknown>;
+};
+
+export const discovery: Reducer<DiscoveryState> = (
   state = {
     discoverySchema: {},
   },
@@ -379,7 +437,7 @@ export const discovery = (
     case FETCH_DISCOVERY_SCHEMA.RECEIVE:
       return {
         ...state,
-        discoverySchema: action.data,
+        discoverySchema: action.data as Record<string, unknown>,
       };
     default:
       return state;

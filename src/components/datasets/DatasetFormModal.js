@@ -1,8 +1,10 @@
-import { useCallback } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import PropTypes from "prop-types";
 
-import { Button, Form, Modal } from "antd";
-import { PlusOutlined, SaveOutlined } from "@ant-design/icons";
+import { Alert, Button, Form, Modal, Space, Upload, message } from "antd";
+import { PlusOutlined, SaveOutlined, UploadOutlined } from "@ant-design/icons";
+
+import { prepareInitialValues } from "./DatasetForm/helpers";
 
 import DatasetForm from "./DatasetForm";
 
@@ -12,6 +14,7 @@ import { useProjects } from "@/modules/metadata/hooks";
 import { datasetPropTypesShape, projectPropTypesShape, propTypesFormMode } from "@/propTypes";
 import { nop } from "@/utils/misc";
 import { useAppDispatch } from "@/store";
+import { saveDraft, loadDraft, clearDraft, deserializeFormValues } from "@/utils/datasetDraftUtils";
 
 const DatasetFormModal = ({ project, mode, initialValue, onCancel, onOk, open }) => {
   const dispatch = useAppDispatch();
@@ -23,50 +26,106 @@ const DatasetFormModal = ({ project, mode, initialValue, onCancel, onOk, open })
   } = useProjects();
 
   const [form] = Form.useForm();
+  const [draftBanner, setDraftBanner] = useState(null);
+  const debounceTimer = useRef(null);
+
+  const draftKey =
+    mode === FORM_MODE_ADD
+      ? `dataset-draft:add:${project?.identifier}`
+      : `dataset-draft:edit:${initialValue?.identifier}`;
+
+  useEffect(() => {
+    if (!open) return;
+    const draft = loadDraft(draftKey);
+    if (draft) setDraftBanner({ savedAt: draft.savedAt });
+    else setDraftBanner(null);
+  }, [open, draftKey]);
+
+  const handleValuesChange = useCallback(
+    (_changedValues, allValues) => {
+      if (debounceTimer.current) clearTimeout(debounceTimer.current);
+      debounceTimer.current = setTimeout(() => saveDraft(draftKey, allValues), 1000);
+    },
+    [draftKey],
+  );
+
+  const handleRestore = useCallback(() => {
+    const draft = loadDraft(draftKey);
+    if (!draft) return;
+    form.setFieldsValue(deserializeFormValues(draft.values));
+    setDraftBanner(null);
+  }, [draftKey, form]);
+
+  const handleDiscard = useCallback(() => {
+    clearDraft(draftKey);
+    setDraftBanner(null);
+  }, [draftKey]);
 
   const handleSuccess = useCallback(
     async (values) => {
       await dispatch(fetchProjectsWithDatasets()); // TODO: If needed / only this project...
       await (onOk || nop)({ ...(initialValue || {}), values });
+      clearDraft(draftKey);
       form.resetFields();
     },
-    [dispatch, form, initialValue, onOk],
+    [dispatch, draftKey, form, initialValue, onOk],
   );
 
   const handleCancel = useCallback(() => {
+    if (debounceTimer.current) {
+      clearTimeout(debounceTimer.current);
+      debounceTimer.current = null;
+      // Flush: user closed before the debounce fired, save immediately so draft survives
+      saveDraft(draftKey, form.getFieldsValue(true));
+    }
+    setDraftBanner(null);
     (onCancel || nop)();
     form.resetFields();
-  }, [form, onCancel]);
+  }, [draftKey, form, onCancel]);
 
+  // Triggered by the modal's Save button; delegates validation + transformation
+  // to DatasetForm's onFinish via form.submit().
   const handleSubmit = useCallback(() => {
-    form
-      .validateFields()
-      .then((values) => {
-        const onSuccess = () => handleSuccess(values);
+    form.submit();
+  }, [form]);
 
-        if (typeof values?.discovery === "string") {
-          values["discovery"] = JSON.parse(values["discovery"]);
+  const handleJsonUpload = useCallback(
+    (file) => {
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        try {
+          const parsed = JSON.parse(e.target.result);
+          form.setFieldsValue(prepareInitialValues(parsed));
+          message.success("JSON imported — review the fields before saving.");
+        } catch {
+          message.error("Invalid JSON file.");
         }
+      };
+      reader.readAsText(file);
+      return false; // prevent antd auto-upload
+    },
+    [form],
+  );
 
-        return mode === FORM_MODE_ADD
-          ? dispatch(addProjectDataset(project, values, onSuccess))
-          : dispatch(
-              saveProjectDataset(
-                {
-                  ...(initialValue || {}),
-                  project: project.identifier,
-                  ...values,
-                  description: (values.description || "").trim(),
-                  contact_info: (values.contact_info || "").trim(),
-                },
-                onSuccess,
-              ),
-            );
-      })
-      .catch((err) => {
-        console.error(err);
-      });
-  }, [dispatch, form, handleSuccess, mode, project, initialValue]);
+  // Receives the Zod-validated, transformed data from DatasetForm's onFinish.
+  const handleDatasetSubmit = useCallback(
+    (values) => {
+      const onSuccess = () => handleSuccess(values);
+      return mode === FORM_MODE_ADD
+        ? dispatch(addProjectDataset(project, values, onSuccess))
+        : dispatch(
+            saveProjectDataset(
+              {
+                ...(initialValue || {}),
+                project: project.identifier,
+                ...values,
+              },
+              onSuccess,
+            ),
+          );
+    },
+    [dispatch, handleSuccess, mode, project, initialValue],
+  );
 
   if (!project) return null;
   return (
@@ -76,23 +135,52 @@ const DatasetFormModal = ({ project, mode, initialValue, onCancel, onOk, open })
       title={
         mode === FORM_MODE_ADD ? `Add Dataset to "${project.title}"` : `Edit Dataset "${initialValue?.title || ""}"`
       }
-      footer={[
-        <Button key="cancel" onClick={handleCancel}>
-          Cancel
-        </Button>,
-        <Button
-          key="save"
-          icon={mode === FORM_MODE_ADD ? <PlusOutlined /> : <SaveOutlined />}
-          type="primary"
-          onClick={handleSubmit}
-          loading={projectsFetching || projectDatasetsAdding || projectDatasetsSaving}
-        >
-          {mode === FORM_MODE_ADD ? "Add" : "Save"}
-        </Button>,
-      ]}
+      footer={
+        <Space>
+          <Upload key="import" accept=".json" showUploadList={false} beforeUpload={handleJsonUpload}>
+            <Button icon={<UploadOutlined />}>Import JSON</Button>
+          </Upload>
+          <Button key="cancel" onClick={handleCancel}>
+            Cancel
+          </Button>
+          <Button
+            key="save"
+            icon={mode === FORM_MODE_ADD ? <PlusOutlined /> : <SaveOutlined />}
+            type="primary"
+            onClick={handleSubmit}
+            loading={projectsFetching || projectDatasetsAdding || projectDatasetsSaving}
+          >
+            {mode === FORM_MODE_ADD ? "Add" : "Save"}
+          </Button>
+        </Space>
+      }
       onCancel={handleCancel}
     >
-      <DatasetForm form={form} initialValue={mode === FORM_MODE_ADD ? undefined : initialValue} />
+      {draftBanner && (
+        <Alert
+          type="warning"
+          showIcon
+          style={{ marginBottom: 16 }}
+          message="You have unsaved progress from this form"
+          description={`Last saved: ${new Date(draftBanner.savedAt).toLocaleString()}`}
+          action={
+            <Space>
+              <Button size="small" type="primary" onClick={handleRestore}>
+                Restore
+              </Button>
+              <Button size="small" onClick={handleDiscard}>
+                Discard
+              </Button>
+            </Space>
+          }
+        />
+      )}
+      <DatasetForm
+        form={form}
+        onSubmit={handleDatasetSubmit}
+        initialValues={mode === FORM_MODE_ADD ? undefined : initialValue}
+        onValuesChange={handleValuesChange}
+      />
     </Modal>
   );
 };
