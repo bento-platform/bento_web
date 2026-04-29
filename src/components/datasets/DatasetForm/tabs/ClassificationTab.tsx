@@ -1,7 +1,46 @@
-import { Button, Card, Form, Input, Typography } from "antd";
+import { Button, Card, Form, Input, Radio, Typography } from "antd";
 import { PlusOutlined } from "@ant-design/icons";
 
 const { Text } = Typography;
+
+const OntologyFields = ({ listName, name }: { listName: string; name: number }) => {
+  const form = Form.useFormInstance();
+  const type = Form.useWatch([listName, name, "type"], form) ?? "string";
+
+  const handleTypeChange = (e: { target: { value: string } }) => {
+    if (e.target.value === "ontology") {
+      form.setFieldValue([listName, name, "value"], undefined);
+    } else {
+      form.setFieldValue([listName, name, "id"], undefined);
+      form.setFieldValue([listName, name, "label"], undefined);
+    }
+  };
+
+  return (
+    <>
+      <Form.Item name={[name, "type"]} initialValue="string" style={{ marginBottom: 8 }}>
+        <Radio.Group onChange={handleTypeChange}>
+          <Radio value="string">Plain text</Radio>
+          <Radio value="ontology">OntologyClass</Radio>
+        </Radio.Group>
+      </Form.Item>
+      {type === "ontology" ? (
+        <>
+          <Form.Item label="Ontology ID" name={[name, "id"]}>
+            <Input placeholder="e.g. HP:0001234" />
+          </Form.Item>
+          <Form.Item label="Label" name={[name, "label"]}>
+            <Input placeholder="Human-readable label" />
+          </Form.Item>
+        </>
+      ) : (
+        <Form.Item label="Value" name={[name, "value"]}>
+          <Input />
+        </Form.Item>
+      )}
+    </>
+  );
+};
 
 const ClassificationTab = () => (
   <>
@@ -9,27 +48,15 @@ const ClassificationTab = () => (
       <Form.List name="keywords">
         {(fields, { add, remove }) => (
           <>
-            <Text type="secondary" style={{ display: "block", marginBottom: 8 }}>
-              Each keyword can be a plain string or an OntologyClass (id + optional label).
-            </Text>
             {fields.map(({ key, name }) => (
               <Card key={key} size="small" style={{ marginBottom: 8 }}>
-                <Form.Item label="Keyword (string)" name={[name, "value"]}>
-                  <Input placeholder="Plain keyword text" />
-                </Form.Item>
-                <Text type="secondary">— or as OntologyClass —</Text>
-                <Form.Item label="Ontology ID" name={[name, "id"]} style={{ marginTop: 8 }}>
-                  <Input placeholder="e.g. HP:0001234" />
-                </Form.Item>
-                <Form.Item label="Label" name={[name, "label"]}>
-                  <Input placeholder="Human-readable label" />
-                </Form.Item>
-                <Button danger size="small" onClick={() => remove(name)}>
+                <OntologyFields listName="keywords" name={name} />
+                <Button danger size="small" onClick={() => remove(name)} style={{ marginTop: 4 }}>
                   Remove
                 </Button>
               </Card>
             ))}
-            <Button type="dashed" onClick={() => add()} icon={<PlusOutlined />} style={{ marginLeft: 8 }}>
+            <Button type="dashed" onClick={() => add({ type: "string" })} icon={<PlusOutlined />}>
               Add keyword
             </Button>
           </>
@@ -43,22 +70,13 @@ const ClassificationTab = () => (
           <>
             {fields.map(({ key, name }) => (
               <Card key={key} size="small" style={{ marginBottom: 8 }}>
-                <Form.Item label="String value" name={[name, "value"]}>
-                  <Input placeholder="Plain text taxonomy entry" />
-                </Form.Item>
-                <Text type="secondary">— or as OntologyClass —</Text>
-                <Form.Item label="Ontology ID" name={[name, "id"]} style={{ marginTop: 8 }}>
-                  <Input placeholder="e.g. NCIT:C12345" />
-                </Form.Item>
-                <Form.Item label="Label" name={[name, "label"]}>
-                  <Input placeholder="Human-readable label" />
-                </Form.Item>
-                <Button danger size="small" onClick={() => remove(name)}>
+                <OntologyFields listName="taxa" name={name} />
+                <Button danger size="small" onClick={() => remove(name)} style={{ marginTop: 4 }}>
                   Remove
                 </Button>
               </Card>
             ))}
-            <Button type="dashed" onClick={() => add()} icon={<PlusOutlined />} style={{ marginLeft: 8 }}>
+            <Button type="dashed" onClick={() => add({ type: "string" })} icon={<PlusOutlined />}>
               Add taxonomy entry
             </Button>
           </>

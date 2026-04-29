@@ -74,10 +74,18 @@ export function prepareInitialValues(
     }));
   }
   if (Array.isArray(result.keywords)) {
-    result.keywords = result.keywords.map((kw: unknown) => (typeof kw === "string" ? { value: kw } : kw));
+    result.keywords = result.keywords.map((kw: unknown) =>
+      typeof kw === "string"
+        ? { type: "string", value: kw }
+        : { type: "id" in (kw as object) ? "ontology" : "string", ...(kw as object) },
+    );
   }
   if (Array.isArray(result.taxa)) {
-    result.taxa = result.taxa.map((t: unknown) => (typeof t === "string" ? { value: t } : t));
+    result.taxa = result.taxa.map((t: unknown) =>
+      typeof t === "string"
+        ? { type: "string", value: t }
+        : { type: "id" in (t as object) ? "ontology" : "string", ...(t as object) },
+    );
   }
   return result;
 }
