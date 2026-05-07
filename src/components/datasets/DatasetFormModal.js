@@ -63,6 +63,10 @@ const DatasetFormModal = ({ project, mode, initialValue, onCancel, onOk, open })
 
   const handleSuccess = useCallback(
     async (values) => {
+      if (debounceTimer.current) {
+        clearTimeout(debounceTimer.current);
+        debounceTimer.current = null;
+      }
       await dispatch(fetchProjectsWithDatasets()); // TODO: If needed / only this project...
       await (onOk || nop)({ ...(initialValue || {}), values });
       clearDraft(draftKey);
