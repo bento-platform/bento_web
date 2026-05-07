@@ -229,7 +229,7 @@ export const deleteProjectDatasetIfPossible = (project, dataset) => async (dispa
 const addDatasetLinkedFieldSet = networkAction((dataset, linkedFieldSet, onSuccess) => (_dispatch, getState) => ({
   types: ADD_DATASET_LINKED_FIELD_SET,
   url: `${getState().services.metadataService.url}/api/datasets_v2/${dataset.identifier}`,
-  req: jsonRequest({ linked_field_sets: [...dataset.linked_field_sets, linkedFieldSet] }, "PATCH"),
+  req: jsonRequest({ linked_field_sets: [...(dataset.linked_field_sets ?? []), linkedFieldSet] }, "PATCH"),
   err: `Error adding linked field set '${linkedFieldSet.name}' to dataset '${dataset.title}'`,
   onSuccess: async () => {
     await onSuccess();
