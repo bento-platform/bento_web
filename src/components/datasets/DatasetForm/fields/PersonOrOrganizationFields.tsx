@@ -39,7 +39,12 @@ const PersonFields = ({ namePrefix }: { namePrefix: (string | number)[] }) => (
         </div>
       )}
     </Form.List>
-    <Collapse ghost items={[{ key: "contact", label: "Contact info", children: <ContactFields namePrefix={[...namePrefix, "contact"]} /> }]} />
+    <Collapse
+      ghost
+      items={[
+        { key: "contact", label: "Contact info", children: <ContactFields namePrefix={[...namePrefix, "contact"]} /> },
+      ]}
+    />
   </>
 );
 
@@ -57,7 +62,12 @@ const OrganizationFields = ({ namePrefix }: { namePrefix: (string | number)[] })
     <Form.Item label="Roles" name={[...namePrefix, "roles"]} rules={[{ required: true }]}>
       <Select mode="multiple" placeholder="Select roles" options={roleOptions} />
     </Form.Item>
-    <Collapse ghost items={[{ key: "contact", label: "Contact info", children: <ContactFields namePrefix={[...namePrefix, "contact"]} /> }]} />
+    <Collapse
+      ghost
+      items={[
+        { key: "contact", label: "Contact info", children: <ContactFields namePrefix={[...namePrefix, "contact"]} /> },
+      ]}
+    />
   </>
 );
 

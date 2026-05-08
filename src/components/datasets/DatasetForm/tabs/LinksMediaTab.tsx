@@ -49,11 +49,7 @@ const LinksMediaTab = () => (
                 <Form.Item label="Description" name={[name, "description"]}>
                   <Input />
                 </Form.Item>
-                <Form.Item
-                  label="Contains text"
-                  name={[name, "contains_text"]}
-                  valuePropName="checked"
-                >
+                <Form.Item label="Contains text" name={[name, "contains_text"]} valuePropName="checked">
                   <Switch />
                 </Form.Item>
                 <Button danger size="small" onClick={() => remove(name)}>
@@ -61,7 +57,12 @@ const LinksMediaTab = () => (
                 </Button>
               </Card>
             ))}
-            <Button type="dashed" onClick={() => add({ theme: "default", contains_text: false })} icon={<PlusOutlined />} style={{ marginLeft: 8 }}>
+            <Button
+              type="dashed"
+              onClick={() => add({ theme: "default", contains_text: false })}
+              icon={<PlusOutlined />}
+              style={{ marginLeft: 8 }}
+            >
               Add logo
             </Button>
           </>
