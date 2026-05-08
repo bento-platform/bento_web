@@ -39,7 +39,7 @@ const LinksMediaTab = () => (
                 <Form.Item label="URL" name={[name, "url"]} rules={[{ required: true, type: "url" }]}>
                   <Input placeholder="https://..." />
                 </Form.Item>
-                <Form.Item label="Theme" name={[name, "theme"]} initialValue="default">
+                <Form.Item label="Theme" name={[name, "theme"]}>
                   <Select>
                     <Option value="default">Default</Option>
                     <Option value="light">Light</Option>
@@ -53,7 +53,6 @@ const LinksMediaTab = () => (
                   label="Contains text"
                   name={[name, "contains_text"]}
                   valuePropName="checked"
-                  initialValue={false}
                 >
                   <Switch />
                 </Form.Item>
@@ -62,7 +61,7 @@ const LinksMediaTab = () => (
                 </Button>
               </Card>
             ))}
-            <Button type="dashed" onClick={() => add()} icon={<PlusOutlined />} style={{ marginLeft: 8 }}>
+            <Button type="dashed" onClick={() => add({ theme: "default", contains_text: false })} icon={<PlusOutlined />} style={{ marginLeft: 8 }}>
               Add logo
             </Button>
           </>

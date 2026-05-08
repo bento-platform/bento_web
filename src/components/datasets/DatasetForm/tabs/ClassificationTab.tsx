@@ -60,7 +60,7 @@ const OntologyFields = ({ listName, name }: { listName: string; name: number }) 
 
   return (
     <>
-      <Form.Item name={[name, "type"]} initialValue="string" style={{ marginBottom: 8 }}>
+      <Form.Item name={[name, "type"]} style={{ marginBottom: 8 }}>
         <Radio.Group onChange={handleTypeChange}>
           <Radio value="string">Plain text</Radio>
           <Radio value="ontology">OntologyClass</Radio>
