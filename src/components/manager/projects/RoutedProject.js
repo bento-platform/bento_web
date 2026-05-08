@@ -37,6 +37,11 @@ const RoutedProject = () => {
 
   const project = projectsByID[selectedProjectID];
 
+  // Derive from live Redux state so the form reflects post-save data
+  const datasetForEdit = selectedDataset
+    ? (project?.datasets_v2?.find((d) => d.identifier === selectedDataset.identifier) ?? selectedDataset)
+    : selectedDataset;
+
   useEffect(() => {
     if (!projectsByID[selectedProjectID] && !loadingProjects) {
       navigate("/data/manager/projects/");
@@ -114,10 +119,11 @@ const RoutedProject = () => {
       />
 
       <DatasetFormModal
+        key={`${selectedDataset?.identifier ?? "edit"}-${datasetEditModal}`}
         mode={FORM_MODE_EDIT}
         project={project}
         open={datasetEditModal}
-        initialValue={selectedDataset}
+        initialValue={datasetForEdit}
         onCancel={hideDatasetEditModal}
         onOk={hideDatasetEditModal}
       />
