@@ -1,4 +1,4 @@
-import { message } from "antd";
+import messageApi from "@/utils/messageApi";
 
 import { createNetworkActionTypes, networkAction } from "@/utils/actions";
 import { createFormData } from "@/utils/requests";
@@ -140,7 +140,9 @@ const _workflowSubmitAction = (type) => (workflow, inputs, redirect, navigate) =
       inputs,
       (run) => {
         // onSuccess
-        message.success(`${type.charAt(0).toUpperCase()}${type.substring(1)} with run ID "${run.run_id}" submitted!`);
+        messageApi.success(
+          `${type.charAt(0).toUpperCase()}${type.substring(1)} with run ID "${run.run_id}" submitted!`,
+        );
         if (redirect) navigate(redirect);
       },
       `Error submitting ${type} workflow`, // errorMessage

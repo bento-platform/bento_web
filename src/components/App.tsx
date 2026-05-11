@@ -21,6 +21,7 @@ import { App as AntdApp, Layout, Modal } from "antd";
 
 import { BENTO_URL_NO_TRAILING_SLASH, OPENID_CONFIG_URL } from "@/config";
 import eventHandler from "@/events";
+import { setMessageApi } from "@/utils/messageApi";
 import { useService } from "@/modules/services/hooks";
 import { fetchUserDependentData } from "@/modules/user/actions";
 import { useAppDispatch, useAppSelector } from "@/store";
@@ -52,6 +53,7 @@ const createSessionWorker = () => new Worker(new URL("../session.worker.js", imp
 
 const App = () => {
   const { message } = AntdApp.useApp();
+  setMessageApi(message);
   const uiErrorCallback = useCallback((msg: string) => message.error(msg), [message]);
   const dispatch = useAppDispatch();
   const navigate = useNavigate();

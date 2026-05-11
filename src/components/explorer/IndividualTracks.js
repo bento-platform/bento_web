@@ -6,7 +6,7 @@ import igv from "igv/dist/igv.esm";
 
 import { useAccessToken } from "bento-auth-js";
 
-import { Button, Divider, Empty, Modal, Table, Select, Skeleton, Switch, message } from "antd";
+import { App, Button, Divider, Empty, Modal, Table, Select, Skeleton, Switch } from "antd";
 import { SettingOutlined } from "@ant-design/icons";
 
 import { BENTO_PUBLIC_URL, BENTO_URL } from "@/config";
@@ -120,6 +120,7 @@ const IGV_JS_ANNOTATION_ALIASES = {
 };
 
 const IndividualTracks = ({ individual }) => {
+  const { message } = App.useApp();
   const accessToken = useAccessToken();
 
   const dispatch = useAppDispatch();

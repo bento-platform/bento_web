@@ -1,4 +1,4 @@
-import { message } from "antd";
+import messageApi from "@/utils/messageApi";
 import { basicAction, createNetworkActionTypes, networkAction } from "@/utils/actions";
 import { jsonRequest } from "@/utils/requests";
 
@@ -43,7 +43,7 @@ export const createGrant = networkAction((grant) => (_dispatch, getState) => ({
   url: `${authzURL(getState())}/grants/`,
   err: "Could not create grant",
   onSuccess: () => {
-    message.success("Grant created successfully!");
+    messageApi.success("Grant created successfully!");
   },
 }));
 
@@ -69,7 +69,7 @@ export const deleteGrant = networkAction(({ id: grantID }) => (_dispatch, getSta
   params: { grantID },
   err: `Could not delete grant ${grantID}`,
   onSuccess: () => {
-    message.success(`Grant ${grantID} deleted successfully!`);
+    messageApi.success(`Grant ${grantID} deleted successfully!`);
   },
 }));
 
@@ -93,7 +93,7 @@ export const createGroup = networkAction((group) => (_dispatch, getState) => ({
   req: jsonRequest(group, "POST"),
   url: `${authzURL(getState())}/groups/`,
   onSuccess: () => {
-    message.success(`Group "${group.name}" created successfully!`);
+    messageApi.success(`Group "${group.name}" created successfully!`);
   },
 }));
 
@@ -107,7 +107,7 @@ export const saveGroup = networkAction(
       req: jsonRequest(group, "PUT"),
       url: `${authzURL(getState())}/groups/${group.id}`,
       onSuccess: () => {
-        message.success(`Group "${group.name}" saved successfully!`);
+        messageApi.success(`Group "${group.name}" saved successfully!`);
       },
     },
 );
@@ -120,7 +120,7 @@ export const deleteGroup = networkAction((group) => (dispatch, getState) => ({
   url: `${authzURL(getState())}/groups/${group.id}`,
   params: { groupID: group.id },
   onSuccess: () => {
-    message.success(`Group "${group.name}" (ID: ${group.id}) and associated grants deleted successfully!`);
+    messageApi.success(`Group "${group.name}" (ID: ${group.id}) and associated grants deleted successfully!`);
     // Group deletion can cascade to grants, so invalidate them to trigger re-fetch:
     return dispatch(invalidateGrants());
   },

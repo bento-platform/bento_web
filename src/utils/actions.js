@@ -1,6 +1,6 @@
 import fetch from "cross-fetch";
 
-import { message } from "antd";
+import messageApi from "@/utils/messageApi";
 
 import { BENTO_PUBLIC_URL, BENTO_URL, IDP_BASE_URL } from "@/config";
 
@@ -127,10 +127,10 @@ const handleNetworkErrorMessaging = (state, e, reduxErrDetail) => {
   if (e.cause && e.cause.length) {
     const errorDetails = e.cause.map((c) => c.message ?? "");
     errorDetails.forEach((ed) => {
-      message.error(formatErrorMessage(reduxErrDetail, ed));
+      messageApi.error(formatErrorMessage(reduxErrDetail, ed));
     });
   } else {
-    message.error(formatErrorMessage(reduxErrDetail, e.message));
+    messageApi.error(formatErrorMessage(reduxErrDetail, e.message));
   }
 };
 

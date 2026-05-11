@@ -1,4 +1,4 @@
-import { message } from "antd";
+import messageApi from "@/utils/messageApi";
 
 import { createNetworkActionTypes, networkAction } from "@/utils/actions";
 import { guessFileType } from "@/utils/files";
@@ -43,7 +43,7 @@ const getDrsUrls = (fileObj) => async (dispatch, getState) => {
   if (fuzzySearchObj === undefined) {
     const msg = `Something went wrong when pinging ${fuzzySearchUrl} ; fuzzySearchResponse is undefined`;
     console.error(msg);
-    message.error(msg);
+    messageApi.error(msg);
     return { [filename]: result };
   }
 
@@ -119,7 +119,7 @@ export const deleteDRSObject = networkAction((drsObject) => (dispatch, getState)
   req: { method: "DELETE" },
   err: "Error while deleting DRS object",
   onSuccess: () => {
-    message.success(`DRS object "${drsObject.name}" deleted successfully!`);
+    messageApi.success(`DRS object "${drsObject.name}" deleted successfully!`);
   },
 }));
 
