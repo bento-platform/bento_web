@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useState } from "react";
 import PropTypes from "prop-types";
 
-import { Button, Card, Col, Divider, Empty, Modal, Row, Typography } from "antd";
+import { App, Button, Card, Col, Divider, Empty, Row, Typography } from "antd";
 
 import { DeleteOutlined, EditOutlined, FileSearchOutlined, PlusOutlined } from "@ant-design/icons";
 
@@ -39,6 +39,7 @@ const DEFAULT_BIOSAMPLE_LFS = {
 };
 
 const Dataset = ({ mode, project, value, onEdit }) => {
+  const { modal } = App.useApp();
   const dispatch = useAppDispatch();
 
   const identifier = value?.identifier ?? null;
@@ -59,7 +60,7 @@ const Dataset = ({ mode, project, value, onEdit }) => {
 
   const handleFieldSetDeletion = useCallback(
     (fieldSet, index) => {
-      const deleteModal = Modal.confirm({
+      const deleteModal = modal.confirm({
         title: `Are you sure you want to delete the "${fieldSet.name}" linked field set?`,
         content: (
           <>
@@ -82,11 +83,11 @@ const Dataset = ({ mode, project, value, onEdit }) => {
         },
       });
     },
-    [dispatch, value],
+    [dispatch, modal, value],
   );
 
   const handleDelete = useCallback(() => {
-    const deleteModal = Modal.confirm({
+    const deleteModal = modal.confirm({
       title: `Are you sure you want to delete the "${title}" dataset?`,
       content: (
         <>
@@ -107,7 +108,7 @@ const Dataset = ({ mode, project, value, onEdit }) => {
         deleteModal.update({ okButtonProps: { loading: false } });
       },
     });
-  }, [dispatch, project, title, value]);
+  }, [dispatch, modal, project, title, value]);
 
   const isPrivate = mode === "private";
   const defaultBiosampleLFSDisabled = linkedFieldSets.length !== 0;
