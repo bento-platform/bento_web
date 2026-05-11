@@ -109,7 +109,7 @@ const DatasetFormModal = ({ project, mode, initialValue, onCancel, onOk, open })
       reader.readAsText(file);
       return false; // prevent antd auto-upload
     },
-    [form],
+    [form, message],
   );
 
   // Receives the Zod-validated, transformed data from DatasetForm's onFinish.

@@ -103,7 +103,7 @@ const DatasetForm = ({ onSubmit, initialValues, form, readOnly, onValuesChange }
         message.error("Validation failed — see errors below the form.");
       }
     },
-    [onSubmit],
+    [message, onSubmit],
   );
 
   const handleFinishFailed = useCallback(
