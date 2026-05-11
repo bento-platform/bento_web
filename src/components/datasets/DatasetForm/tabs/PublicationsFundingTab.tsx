@@ -5,7 +5,6 @@ import { publicationTypeOptions } from "../constants";
 import PersonOrOrganizationFields from "../fields/PersonOrOrganizationFields";
 import PublicationVenueFields from "../fields/PublicationVenueFields";
 
-const { Panel } = Collapse;
 const { TextArea } = Input;
 const { Option } = Select;
 const { Text } = Typography;
@@ -60,48 +59,59 @@ const PublicationsFundingTab = ({ form }: { form: FormInstance }) => (
                   <TextArea rows={2} />
                 </Form.Item>
 
-                <Collapse ghost>
-                  <Panel header="Venue" key="venue">
-                    <PublicationVenueFields
-                      namePrefix={[name, "publication_venue"]}
-                      absoluteNamePrefix={["publications", name, "publication_venue"]}
-                    />
-                  </Panel>
-                  <Panel header="Authors" key="authors">
-                    <Form.List name={[name, "authors"]}>
-                      {(authorFields, { add: addAuthor, remove: removeAuthor }) => (
-                        <>
-                          {authorFields.map(({ key: aKey, name: aName }) => (
-                            <div key={aKey} style={{ position: "relative" }}>
-                              <PersonOrOrganizationFields
-                                namePrefix={[aName]}
-                                absoluteNamePrefix={["publications", name, "authors", aName]}
-                                form={form}
-                              />
+                <Collapse
+                  ghost
+                  items={[
+                    {
+                      key: "venue",
+                      label: "Venue",
+                      children: (
+                        <PublicationVenueFields
+                          namePrefix={[name, "publication_venue"]}
+                          absoluteNamePrefix={["publications", name, "publication_venue"]}
+                        />
+                      ),
+                    },
+                    {
+                      key: "authors",
+                      label: "Authors",
+                      children: (
+                        <Form.List name={[name, "authors"]}>
+                          {(authorFields, { add: addAuthor, remove: removeAuthor }) => (
+                            <>
+                              {authorFields.map(({ key: aKey, name: aName }) => (
+                                <div key={aKey} style={{ position: "relative" }}>
+                                  <PersonOrOrganizationFields
+                                    namePrefix={[aName]}
+                                    absoluteNamePrefix={["publications", name, "authors", aName]}
+                                    form={form}
+                                  />
+                                  <Button
+                                    danger
+                                    size="small"
+                                    onClick={() => removeAuthor(aName)}
+                                    style={{ position: "absolute", top: 8, right: 8 }}
+                                  >
+                                    Remove
+                                  </Button>
+                                </div>
+                              ))}
                               <Button
-                                danger
+                                type="dashed"
+                                onClick={() => addAuthor({ type: "person" })}
+                                icon={<PlusOutlined />}
                                 size="small"
-                                onClick={() => removeAuthor(aName)}
-                                style={{ position: "absolute", top: 8, right: 8 }}
+                                style={{ marginLeft: 8 }}
                               >
-                                Remove
+                                Add author
                               </Button>
-                            </div>
-                          ))}
-                          <Button
-                            type="dashed"
-                            onClick={() => addAuthor({ type: "person" })}
-                            icon={<PlusOutlined />}
-                            size="small"
-                            style={{ marginLeft: 8 }}
-                          >
-                            Add author
-                          </Button>
-                        </>
-                      )}
-                    </Form.List>
-                  </Panel>
-                </Collapse>
+                            </>
+                          )}
+                        </Form.List>
+                      ),
+                    },
+                  ]}
+                />
 
                 <div style={{ marginTop: 8 }}>
                   <Button danger size="small" onClick={() => remove(name)}>
