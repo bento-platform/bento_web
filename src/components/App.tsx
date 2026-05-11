@@ -17,7 +17,7 @@ import {
 import * as io from "socket.io-client";
 import type { Socket } from "socket.io-client";
 
-import { Layout, message, Modal } from "antd";
+import { App as AntdApp, Layout, Modal } from "antd";
 
 import { BENTO_URL_NO_TRAILING_SLASH, OPENID_CONFIG_URL } from "@/config";
 import eventHandler from "@/events";
@@ -50,9 +50,9 @@ const CALLBACK_PATH = "/callback";
 
 const createSessionWorker = () => new Worker(new URL("../session.worker.js", import.meta.url));
 
-const uiErrorCallback = (msg: string) => message.error(msg);
-
 const App = () => {
+  const { message } = AntdApp.useApp();
+  const uiErrorCallback = useCallback((msg: string) => message.error(msg), [message]);
   const dispatch = useAppDispatch();
   const navigate = useNavigate();
 

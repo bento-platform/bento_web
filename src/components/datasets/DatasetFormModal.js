@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import PropTypes from "prop-types";
 
-import { Alert, Button, Form, Modal, Space, Upload, message } from "antd";
+import { Alert, App, Button, Form, Modal, Space, Upload } from "antd";
 import { PlusOutlined, SaveOutlined, UploadOutlined } from "@ant-design/icons";
 
 import { prepareInitialValues } from "./DatasetForm/helpers";
@@ -17,6 +17,7 @@ import { useAppDispatch } from "@/store";
 import { saveDraft, loadDraft, clearDraft, deserializeFormValues } from "@/utils/datasetDraftUtils";
 
 const DatasetFormModal = ({ project, mode, initialValue, onCancel, onOk, open }) => {
+  const { message } = App.useApp();
   const dispatch = useAppDispatch();
 
   const {
