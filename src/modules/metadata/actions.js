@@ -159,8 +159,9 @@ export const deleteProjectIfPossible = (project) => async (dispatch, getState) =
 
 export const clearDatasetDataTypes = (datasetId) => async (dispatch, getState) => {
   // only clear data types which can yield counts - `queryable` is a proxy for this
-  const dataTypes = Object.values(getState().datasetDataTypes.itemsByID[datasetId].itemsByID).filter(
-    (dt) => dt.queryable,
+  const serviceDataTypeIDs = new Set(Object.keys(getState().serviceDataTypes.itemsByID));
+  const dataTypes = Object.values(getState().datasetDataTypes.itemsByID[datasetId]?.itemsByID ?? {}).filter(
+    (dt) => dt.queryable && serviceDataTypeIDs.has(dt.id),
   );
   return await Promise.all(dataTypes.map((dt) => dispatch(clearDatasetDataType(datasetId, dt.id))));
 };
