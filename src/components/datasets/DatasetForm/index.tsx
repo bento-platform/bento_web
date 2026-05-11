@@ -1,5 +1,5 @@
 import { useCallback, useMemo, useState } from "react";
-import { Alert, ConfigProvider, Form, Tabs, message } from "antd";
+import { Alert, App, ConfigProvider, Form, Tabs } from "antd";
 import type { FormInstance } from "antd";
 
 import type { DatasetModel as DatasetModelType, DatasetModelBase as DatasetModelBaseType } from "@/types/dataset";
@@ -22,6 +22,7 @@ export interface DatasetFormProps {
 }
 
 const DatasetForm = ({ onSubmit, initialValues, form, readOnly, onValuesChange }: DatasetFormProps) => {
+  const { message } = App.useApp();
   const [zodErrors, setZodErrors] = useState<Array<{ path: string; message: string }>>([]);
   const [fieldErrors, setFieldErrors] = useState<Array<{ path: string; message: string }>>([]);
   const [activeTab, setActiveTab] = useState("core");
