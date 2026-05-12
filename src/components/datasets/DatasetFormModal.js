@@ -185,6 +185,7 @@ const DatasetFormModal = ({ project, mode, initialValue, onCancel, onOk, open })
         onSubmit={handleDatasetSubmit}
         initialValues={mode === FORM_MODE_ADD ? undefined : initialValue}
         onValuesChange={handleValuesChange}
+        open={open}
       />
     </Modal>
   );

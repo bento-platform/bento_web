@@ -1,4 +1,4 @@
-import { useCallback, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { Alert, App, ConfigProvider, Form, Tabs } from "antd";
 import type { FormInstance } from "antd";
 
@@ -19,13 +19,18 @@ export interface DatasetFormProps {
   form: FormInstance;
   readOnly?: boolean;
   onValuesChange?: (changedValues: unknown, allValues: unknown) => void;
+  open?: boolean;
 }
 
-const DatasetForm = ({ onSubmit, initialValues, form, readOnly, onValuesChange }: DatasetFormProps) => {
+const DatasetForm = ({ onSubmit, initialValues, form, readOnly, onValuesChange, open }: DatasetFormProps) => {
   const { message } = App.useApp();
   const [zodErrors, setZodErrors] = useState<Array<{ path: string; message: string }>>([]);
   const [fieldErrors, setFieldErrors] = useState<Array<{ path: string; message: string }>>([]);
   const [activeTab, setActiveTab] = useState("core");
+
+  useEffect(() => {
+    if (open) setActiveTab("core");
+  }, [open]);
 
   const preparedInitialValues = useMemo(
     () => ({
