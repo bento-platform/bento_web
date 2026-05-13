@@ -1,28 +1,30 @@
 {
   "compilerOptions": {
-    "module": "esnext",
+    "outDir": "./dist",
+    "rootDir": "./src",
+
+    "target": "ES2022",
+    "module": "ESNext",
     "moduleResolution": "bundler",
-    "target": "ES2015",
     "lib": ["ES2022", "DOM"],
-    "outDir": "./dist/",
-    "sourceMap": true,
+
+    "strict": true,
     "strictNullChecks": true,
-    "downlevelIteration": true,
+
+    "sourceMap": true,
+    "jsx": "react-jsx",
+
     "allowJs": true,
     "skipLibCheck": true,
-    "esModuleInterop": true,
-    "allowSyntheticDefaultImports": true,
-    "strict": true,
     "forceConsistentCasingInFileNames": true,
     "resolveJsonModule": true,
     "isolatedModules": true,
     "noEmit": false,
-    "jsx": "react-jsx",
-    "baseUrl": "./",
+
     "paths": {
       "@/*": ["./src/*"],
       "mammoth/mammoth.browser": ["./node_modules/mammoth/lib/index.d.ts"]
     }
   },
-  "include": ["./src/", "./src/custom.d.ts"]
+  "include": ["src", "src/custom.d.ts"]
 }
