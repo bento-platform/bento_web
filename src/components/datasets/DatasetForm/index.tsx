@@ -95,6 +95,14 @@ const DatasetForm = ({ onSubmit, initialValues, form, readOnly, onValuesChange, 
         );
       }
 
+      if (typeof values.spatial_coverage === "string") {
+        try {
+          values.spatial_coverage = JSON.parse(values.spatial_coverage);
+        } catch {
+          // not JSON — keep as string
+        }
+      }
+
       const cleaned = cleanFormValues(values);
       const result = validateWithZod(cleaned);
 
