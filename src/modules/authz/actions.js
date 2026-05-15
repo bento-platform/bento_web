@@ -56,7 +56,7 @@ export const saveGrant = networkAction((grant) => (_dispatch, getState) => ({
   url: `${authzURL(getState())}/grants/${grant.id}`,
   err: `Could not save grant ${grant.id}`,
   onSuccess: () => {
-    message.success(`Grant ${grant.id} saved successfully!`);
+    messageApi.success(`Grant ${grant.id} saved successfully!`);
   },
 }));
 
