@@ -37,6 +37,7 @@ const ExplorerSearchContent = () => {
       <Layout>
         <Layout.Sider style={{ background: "white" }} width={256} breakpoint="lg" collapsedWidth={0}>
           <div style={{ display: "flex", height: "100%", flexDirection: "column" }}>
+            {menuItems.length > 0 && (
             <Menu
               mode="inline"
               style={{ flex: 1, paddingTop: "8px" }}
@@ -44,6 +45,7 @@ const ExplorerSearchContent = () => {
               selectedKeys={matchingMenuKeys(menuItems)}
               items={menuItems.map(transformMenuItem)}
             />
+          )}
           </div>
         </Layout.Sider>
         <Layout.Content style={LAYOUT_CONTENT_STYLE}>
@@ -52,7 +54,7 @@ const ExplorerSearchContent = () => {
               <Route path=":dataset" element={<ExplorerDatasetSearch />} />
               <Route path="/" element={<Navigate to={`${datasets[0].identifier}`} replace={true} />} />
             </Routes>
-          ) : isFetchingDependentData ? (
+          ) : isFetchingDependentData || menuItems.length === 0 ? (
             <Skeleton />
           ) : (
             "No datasets available"
