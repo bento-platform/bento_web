@@ -52,7 +52,7 @@ const DatasetForm = ({ onSubmit, initialValues, form, readOnly, onValuesChange, 
       if (values.release_date) values.release_date = dayjsToDateString(values.release_date);
       if (values.last_modified) values.last_modified = dayjsToDateString(values.last_modified);
 
-      if (values.publications) {
+      if (Array.isArray(values.publications)) {
         values.publications = (values.publications as Record<string, unknown>[]).map((pub) => ({
           ...pub,
           publication_date: pub.publication_date ? dayjsToDateString(pub.publication_date) : undefined,
@@ -74,9 +74,9 @@ const DatasetForm = ({ onSubmit, initialValues, form, readOnly, onValuesChange, 
         }));
       }
 
-      if (values.typed_links) {
+      if (Array.isArray(values.typed_links)) {
         values.links = [
-          ...((values.links as unknown[]) ?? []),
+          ...(Array.isArray(values.links) ? (values.links as unknown[]) : []),
           ...(values.typed_links as Record<string, unknown>[]).map((tl) => ({
             ...tl,
             type: tl.type === "__other" && tl.type_other ? { other: tl.type_other } : tl.type,
@@ -85,7 +85,7 @@ const DatasetForm = ({ onSubmit, initialValues, form, readOnly, onValuesChange, 
         delete values.typed_links;
       }
 
-      if (values.keywords) {
+      if (Array.isArray(values.keywords)) {
         values.keywords = (values.keywords as unknown[]).map((kw) =>
           typeof kw === "string"
             ? kw

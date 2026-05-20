@@ -115,11 +115,23 @@ export function getNestedValue(obj: unknown, path: (string | number)[]): unknown
 }
 
 /** Convert date string fields to dayjs objects so antd DatePicker receives the correct type */
+const ARRAY_FIELDS = [
+  "publications", "funding_sources", "stakeholders", "links", "typed_links",
+  "logos", "keywords", "taxa", "resources", "counts", "participant_criteria", "domain",
+] as const;
+
 export function prepareInitialValues(
   values: Partial<DatasetModelBaseType> | undefined,
 ): Record<string, unknown> | undefined {
   if (!values) return undefined;
   const result: Record<string, unknown> = { ...values };
+
+  for (const field of ARRAY_FIELDS) {
+    if (field in result && !Array.isArray(result[field])) {
+      delete result[field];
+    }
+  }
+
   if (result.release_date) result.release_date = dayjs(result.release_date as string);
   if (result.last_modified) result.last_modified = dayjs(result.last_modified as string);
   if (Array.isArray(result.publications)) {
