@@ -102,14 +102,22 @@ const DatasetFormModal = ({ project, mode, initialValue, onCancel, onOk, open })
       reader.onload = (e) => {
         try {
           const parsed = JSON.parse(e.target.result);
-          form.setFieldsValue(prepareInitialValues(parsed));
           const result = validateWithZod(parsed);
-          if (result.success) {
+
+          const skippedFields = new Set(
+            result.success ? [] : result.errors.map((err) => err.path.split(".")[0]).filter(Boolean),
+          );
+
+          const cleaned = Object.fromEntries(Object.entries(parsed).filter(([k]) => !skippedFields.has(k)));
+          form.setFieldsValue(prepareInitialValues(cleaned));
+
+          if (skippedFields.size === 0) {
             setImportErrors([]);
             message.success("JSON imported — review the fields before saving.");
           } else {
-            setImportErrors(result.errors);
-            message.warning("JSON imported with validation errors — review before saving.");
+            const skippedErrors = result.errors.filter((err) => skippedFields.has(err.path.split(".")[0]));
+            setImportErrors(skippedErrors);
+            message.warning(`JSON imported — ${skippedFields.size} field(s) skipped due to invalid values.`);
           }
         } catch {
           message.error("Invalid JSON file.");
@@ -203,7 +211,7 @@ const DatasetFormModal = ({ project, mode, initialValue, onCancel, onOk, open })
           closable
           onClose={() => setImportErrors([])}
           style={{ marginTop: 16 }}
-          message="Imported JSON has validation errors"
+          message="The following fields had invalid values and were not imported"
           description={
             <ul style={{ margin: 0, paddingLeft: 20 }}>
               {importErrors.map((err, i) => (
