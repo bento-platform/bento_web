@@ -13,7 +13,7 @@ export const FETCH_DATASET_RESOURCES = createNetworkActionTypes("FETCH_DATASET_R
 const fetchDatasetDataTypesSummary = networkAction((serviceInfo, datasetID) => ({
   types: FETCH_DATASET_DATA_TYPES,
   params: { serviceInfo, datasetID },
-  url: `${serviceInfo.url}/datasets/${datasetID}/data-types`,
+  url: `${serviceInfo.url}/${(serviceInfo.bento?.serviceKind ?? serviceInfo.type?.artifact) === "metadata" ? "datasets_v2" : "datasets"}/${datasetID}/data-types`,
 }));
 
 export const fetchDatasetDataTypesIfPossible = (datasetID) => async (dispatch, getState) => {
@@ -36,7 +36,7 @@ export const fetchDatasetsDataTypes = () => async (dispatch, getState) => {
 const fetchServiceDatasetSummary = networkAction((serviceInfo, datasetID) => ({
   types: FETCH_SERVICE_DATASET_SUMMARY,
   params: { serviceInfo, datasetID },
-  url: `${serviceInfo.url}/datasets/${datasetID}/summary`,
+  url: `${serviceInfo.url}/${(serviceInfo.bento?.serviceKind ?? serviceInfo.type?.artifact) === "metadata" ? "datasets_v2" : "datasets"}/${datasetID}/summary`,
 }));
 
 export const fetchDatasetSummariesIfNeeded = (datasetID) => async (dispatch, getState) => {
@@ -54,7 +54,7 @@ export const invalidateDatasetSummaries = (datasetID) => ({ type: INVALIDATE_DAT
 const fetchDatasetResources = networkAction((datasetID) => (_dispatch, getState) => ({
   types: FETCH_DATASET_RESOURCES,
   params: { datasetID },
-  url: `${getState().services.metadataService.url}/api/datasets/${datasetID}/resources`,
+  url: `${getState().services.metadataService.url}/datasets_v2/${datasetID}/resources`,
   err: "Error fetching dataset resources",
 }));
 export const fetchDatasetResourcesIfNecessary = (datasetID) => (dispatch, getState) => {

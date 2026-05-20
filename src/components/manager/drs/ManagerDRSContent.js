@@ -5,7 +5,7 @@ import PropTypes from "prop-types";
 import { filesize } from "filesize";
 import { throttle } from "lodash";
 
-import { Layout, Input, Table, Descriptions, Space, Button, Modal, Typography } from "antd";
+import { App, Layout, Input, Table, Descriptions, Space, Button, Typography } from "antd";
 import { DeleteOutlined } from "@ant-design/icons";
 
 import { RESOURCE_EVERYTHING, deleteData, downloadData, queryData } from "bento-auth-js";
@@ -127,10 +127,11 @@ const DRSObjectDeleteWarningParagraph = memo(({ plural }) => (
 DRSObjectDeleteWarningParagraph.propTypes = { plural: PropTypes.bool };
 
 const DRSObjectDeleteButton = ({ drsObject, disabled }) => {
+  const { modal } = App.useApp();
   const dispatch = useAppDispatch();
 
   const onClick = useCallback(() => {
-    Modal.confirm({
+    modal.confirm({
       title: <>Are you sure you wish to delete DRS object &ldquo;{drsObject.name}&rdquo;?</>,
       content: <DRSObjectDeleteWarningParagraph plural={false} />,
       okButtonProps: { danger: true },
@@ -139,7 +140,7 @@ const DRSObjectDeleteButton = ({ drsObject, disabled }) => {
       },
       maskClosable: true,
     });
-  }, [dispatch, drsObject]);
+  }, [dispatch, modal, drsObject]);
 
   return (
     <Button size="small" danger={true} icon={<DeleteOutlined />} onClick={onClick} disabled={disabled}>
@@ -163,6 +164,7 @@ const DRS_TABLE_EXPANDABLE = {
 };
 
 const ManagerDRSContent = () => {
+  const { modal } = App.useApp();
   const dispatch = useAppDispatch();
 
   const { itemsByID: projectsByID, datasetsByID } = useProjects();
@@ -245,7 +247,7 @@ const ManagerDRSContent = () => {
   }, [objectsByID]);
 
   const onDeleteSelected = useCallback(() => {
-    Modal.confirm({
+    modal.confirm({
       title: (
         <>
           Are you sure you want to delete {selectedRowKeys.length} DRS object
@@ -268,7 +270,7 @@ const ManagerDRSContent = () => {
       },
       maskClosable: true,
     });
-  }, [dispatch, selectedRowKeys, objectsByID]);
+  }, [dispatch, modal, selectedRowKeys, objectsByID]);
 
   const tableLocale = useMemo(
     () => ({

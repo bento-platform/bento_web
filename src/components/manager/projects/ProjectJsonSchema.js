@@ -1,7 +1,7 @@
 import { useCallback } from "react";
 import PropTypes from "prop-types";
 
-import { Button, Card, Descriptions, Modal, Typography } from "antd";
+import { App, Button, Card, Descriptions, Typography } from "antd";
 import { DeleteOutlined } from "@ant-design/icons";
 
 import JsonView from "@/components/common/JsonView";
@@ -34,10 +34,11 @@ ExtraPropertiesCode.propTypes = {
 };
 
 const ProjectJsonSchema = ({ projectSchema }) => {
+  const { modal } = App.useApp();
   const dispatch = useAppDispatch();
 
   const handleDelete = useCallback(() => {
-    const deleteModal = Modal.confirm({
+    const deleteModal = modal.confirm({
       title: `Are you sure you want to delete the "${projectSchema.schema_type}" project JSON schema?`,
       content: (
         <Typography.Paragraph>
@@ -56,7 +57,7 @@ const ProjectJsonSchema = ({ projectSchema }) => {
         deleteModal.update({ okButtonProps: { loading: false } });
       },
     });
-  }, [dispatch, projectSchema]);
+  }, [dispatch, modal, projectSchema]);
 
   return (
     <Card
