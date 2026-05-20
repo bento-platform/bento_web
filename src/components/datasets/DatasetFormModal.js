@@ -4,7 +4,7 @@ import PropTypes from "prop-types";
 import { Alert, App, Button, Form, Modal, Space, Upload } from "antd";
 import { PlusOutlined, SaveOutlined, UploadOutlined } from "@ant-design/icons";
 
-import { prepareInitialValues } from "./DatasetForm/helpers";
+import { prepareInitialValues, validateWithZod } from "./DatasetForm/helpers";
 
 import DatasetForm from "./DatasetForm";
 
@@ -28,6 +28,7 @@ const DatasetFormModal = ({ project, mode, initialValue, onCancel, onOk, open })
 
   const [form] = Form.useForm();
   const [draftBanner, setDraftBanner] = useState(null);
+  const [importErrors, setImportErrors] = useState([]);
   const debounceTimer = useRef(null);
 
   const draftKey =
@@ -84,6 +85,7 @@ const DatasetFormModal = ({ project, mode, initialValue, onCancel, onOk, open })
       saveDraft(draftKey, form.getFieldsValue(true));
     }
     setDraftBanner(null);
+    setImportErrors([]);
     (onCancel || nop)();
     form.resetFields();
   }, [draftKey, form, onCancel]);
@@ -101,7 +103,14 @@ const DatasetFormModal = ({ project, mode, initialValue, onCancel, onOk, open })
         try {
           const parsed = JSON.parse(e.target.result);
           form.setFieldsValue(prepareInitialValues(parsed));
-          message.success("JSON imported — review the fields before saving.");
+          const result = validateWithZod(parsed);
+          if (result.success) {
+            setImportErrors([]);
+            message.success("JSON imported — review the fields before saving.");
+          } else {
+            setImportErrors(result.errors);
+            message.warning("JSON imported with validation errors — review before saving.");
+          }
         } catch {
           message.error("Invalid JSON file.");
         }
@@ -187,6 +196,25 @@ const DatasetFormModal = ({ project, mode, initialValue, onCancel, onOk, open })
         onValuesChange={handleValuesChange}
         open={open}
       />
+      {importErrors.length > 0 && (
+        <Alert
+          type="warning"
+          showIcon
+          closable
+          onClose={() => setImportErrors([])}
+          style={{ marginTop: 16 }}
+          message="Imported JSON has validation errors"
+          description={
+            <ul style={{ margin: 0, paddingLeft: 20 }}>
+              {importErrors.map((err, i) => (
+                <li key={i}>
+                  <strong>{err.path || "root"}</strong>: {err.message}
+                </li>
+              ))}
+            </ul>
+          }
+        />
+      )}
     </Modal>
   );
 };
