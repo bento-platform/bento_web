@@ -38,14 +38,14 @@ const ExplorerSearchContent = () => {
         <Layout.Sider style={{ background: "white" }} width={256} breakpoint="lg" collapsedWidth={0}>
           <div style={{ display: "flex", height: "100%", flexDirection: "column" }}>
             {menuItems.length > 0 && (
-            <Menu
-              mode="inline"
-              style={{ flex: 1, paddingTop: "8px" }}
-              defaultOpenKeys={menuItems.map((p) => p.key)}
-              selectedKeys={matchingMenuKeys(menuItems)}
-              items={menuItems.map(transformMenuItem)}
-            />
-          )}
+              <Menu
+                mode="inline"
+                style={{ flex: 1, paddingTop: "8px" }}
+                defaultOpenKeys={menuItems.map((p) => p.key)}
+                selectedKeys={matchingMenuKeys(menuItems)}
+                items={menuItems.map(transformMenuItem)}
+              />
+            )}
           </div>
         </Layout.Sider>
         <Layout.Content style={LAYOUT_CONTENT_STYLE}>

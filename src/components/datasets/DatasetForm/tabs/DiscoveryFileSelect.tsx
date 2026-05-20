@@ -56,7 +56,9 @@ const DiscoveryFileSelect = ({ value, onChange }: DiscoveryFileSelectProps) => {
           setSelectedPath(v as string | undefined);
         }}
         style={{ width: "100%" }}
-        placeholder={value && !selectedPath ? "Existing value — select file to replace" : "Select a discovery config JSON file"}
+        placeholder={
+          value && !selectedPath ? "Existing value — select file to replace" : "Select a discovery config JSON file"
+        }
       />
       {validationError && (
         <Alert type="error" showIcon message="Discovery config invalid" description={validationError} />

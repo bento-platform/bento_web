@@ -109,7 +109,7 @@ const DatasetForm = ({ onSubmit, initialValues, form, readOnly, onValuesChange, 
       delete values.discovery;
 
       const cleaned = cleanFormValues(values) as Record<string, unknown>;
-      if (discovery != null) cleaned.discovery = discovery;
+      if (discovery !== null && discovery !== undefined) cleaned.discovery = discovery;
       const result = validateWithZod(cleaned);
 
       if (result.success) {
