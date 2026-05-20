@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { Button, Card, DatePicker, Form, Input, Select } from "antd";
 import { PlusOutlined } from "@ant-design/icons";
+import DiscoveryFileSelect from "./DiscoveryFileSelect";
 
 const { TextArea } = Input;
 const { Option } = Select;
@@ -86,6 +87,10 @@ const CoreInfoTab = () => (
 
       <Form.Item label="Last modified" name="last_modified">
         <DatePicker style={{ width: "100%" }} />
+      </Form.Item>
+
+      <Form.Item label="Discovery config" name="discovery">
+        <DiscoveryFileSelect />
       </Form.Item>
     </Card>
 

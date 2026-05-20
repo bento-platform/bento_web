@@ -103,7 +103,13 @@ const DatasetForm = ({ onSubmit, initialValues, form, readOnly, onValuesChange, 
         }
       }
 
-      const cleaned = cleanFormValues(values);
+      // Extract opaque JSON blobs before cleanFormValues so their internal
+      // null/empty values are not stripped, then re-attach after cleaning.
+      const discovery = values.discovery;
+      delete values.discovery;
+
+      const cleaned = cleanFormValues(values) as Record<string, unknown>;
+      if (discovery != null) cleaned.discovery = discovery;
       const result = validateWithZod(cleaned);
 
       if (result.success) {

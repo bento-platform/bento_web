@@ -467,6 +467,9 @@ export const DatasetModelBase = z
     /** The overarching program the study belongs to (if applicable) */
     program_name: nonEmptyString.nullable().optional(),
 
+    /** Discovery configuration object (content of a Drop Box JSON file) */
+    discovery: z.record(z.string(), z.unknown()).nullable().optional(),
+
     /** Additional custom metadata properties not covered by the standard schema */
     extra_properties: z
       .record(z.string(), z.union([z.string(), z.number(), z.boolean()]).nullable())

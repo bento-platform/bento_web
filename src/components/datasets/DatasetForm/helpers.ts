@@ -88,6 +88,7 @@ const PATH_META: Record<string, PathMeta> = {
   study_context: { tab: "PCGL Info", section: "Study context" },
   program_name: { tab: "PCGL Info", section: "Program name" },
   domain: { tab: "PCGL Info", section: "Domains", item: "Domain" },
+  discovery: { tab: "Core Info", section: "Discovery config" },
 };
 
 /** Convert a raw Zod dot-path (e.g. "taxa.0.id") to a human-readable breadcrumb. */
