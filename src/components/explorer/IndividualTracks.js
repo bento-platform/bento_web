@@ -113,10 +113,10 @@ const buildIgvTrack = (igvUrls, track) => {
 };
 
 const IGV_JS_ANNOTATION_ALIASES = {
-  GRCh37: "hg19",
-  GRCh38: "hg38",
-  NCBI37: "mm9",
-  GRCm38: "mm10",
+  grch37: "hg19",
+  grch38: "hg38",
+  ncbi37: "mm9",
+  grcm38: "mm10",
 };
 
 const IndividualTracks = ({ individual }) => {
@@ -140,21 +140,25 @@ const IndividualTracks = ({ individual }) => {
   const { hasAttempted: igvGenomesAttempted, itemsByID: igvGenomesByID } = useIgvGenomes();
   const referenceGenomes = useReferenceGenomes(); // Reference service genomes
 
-  const availableBrowserGenomes = useMemo(() => {
+  const availableBrowserGenomesByIDLower = useMemo(() => {
     if (!igvGenomesAttempted || !referenceGenomes.hasAttempted) {
       return {};
     }
 
+    // Record of {lowercase assembly ID: IGV.js reference object}
     const availableGenomes = {};
 
     // For now, we prefer igv.js built-in genomes with the same ID over local copies for the browser, since it comes
     // with gene annotation tracks. TODO: in the future, this should switch to preferring local copies.
     referenceGenomes.items.forEach((g) => {
-      availableGenomes[g.id] = {
+      const idLower = g.id.toLowerCase();
+      availableGenomes[idLower] = {
         id: g.id,
         fastaURL: g.fasta,
         indexURL: g.fai,
-        cytobandURL: (igvGenomesByID[g.id] ?? igvGenomesByID[IGV_JS_ANNOTATION_ALIASES[g.id]])?.cytobandURL,
+        // igvGenomesByID stores the IGV.js genome ID in lowercase form. We don't store cytobands in the reference
+        // service, so patch them in from the IGV.js JSON.
+        cytobandURL: (igvGenomesByID[idLower] ?? igvGenomesByID[IGV_JS_ANNOTATION_ALIASES[idLower]])?.cytobandURL,
         tracks: g.gff3_gz
           ? [
               {
@@ -216,7 +220,7 @@ const IndividualTracks = ({ individual }) => {
 
   const allFoundFiles = useMemo(() => allTracks.filter((t) => !!igvUrls[t.filename]?.url), [allTracks, igvUrls]);
 
-  const [selectedAssemblyID, setSelectedAssemblyID] = useState(undefined);
+  const [selectedAssemblyIDLower, setSelectedAssemblyIDLower] = useState(undefined);
 
   const trackAssemblyIDs = useMemo(
     () => Array.from(new Set(allFoundFiles.map((t) => t.genome_assembly_id))).sort(),
@@ -224,14 +228,14 @@ const IndividualTracks = ({ individual }) => {
   );
 
   useEffect(() => {
-    if (Object.keys(availableBrowserGenomes).length) {
+    if (Object.keys(availableBrowserGenomesByIDLower).length) {
       if (trackAssemblyIDs.length && trackAssemblyIDs[0]) {
-        const asmID = trackAssemblyIDs[0]; // TODO: first available
+        const asmID = trackAssemblyIDs[0].toLowerCase(); // TODO: first available
         console.debug("auto-selected assembly ID:", asmID);
-        setSelectedAssemblyID(asmID);
+        setSelectedAssemblyIDLower(asmID);
       }
     }
-  }, [availableBrowserGenomes, trackAssemblyIDs]);
+  }, [availableBrowserGenomesByIDLower, trackAssemblyIDs]);
 
   const [modalVisible, setModalVisible] = useState(false);
 
@@ -294,7 +298,7 @@ const IndividualTracks = ({ individual }) => {
       return cleanup;
     }
 
-    if (!Object.keys(availableBrowserGenomes).length || !selectedAssemblyID) {
+    if (!Object.keys(availableBrowserGenomesByIDLower).length || !selectedAssemblyIDLower) {
       console.debug("no available browser genomes / selected assembly ID yet");
       return cleanup;
     }
@@ -302,8 +306,8 @@ const IndividualTracks = ({ individual }) => {
     console.debug("igv.createBrowser effect dependencies:", [
       igvUrls,
       viewableResults,
-      availableBrowserGenomes,
-      selectedAssemblyID,
+      availableBrowserGenomesByIDLower,
+      selectedAssemblyIDLower,
     ]);
 
     if (creatingIgvBrowser || igvBrowserRef.current) {
@@ -319,13 +323,15 @@ const IndividualTracks = ({ individual }) => {
     setCreatingIgvBrowser(true);
 
     const initialIgvTracks = allFoundFiles
-      .filter((t) => t.viewInIgv && t.genome_assembly_id === selectedAssemblyID && igvUrls[t.filename].url)
+      .filter(
+        (t) => t.viewInIgv && t.genome_assembly_id.toLowerCase() === selectedAssemblyIDLower && igvUrls[t.filename].url,
+      )
       .map((t) => buildIgvTrack(igvUrls, t));
 
-    const selectedBentoReference = referenceGenomes.itemsByID[selectedAssemblyID];
+    const selectedBentoReference = referenceGenomes.itemsByIDLower[selectedAssemblyIDLower];
 
     const igvOptions = {
-      reference: availableBrowserGenomes[selectedAssemblyID],
+      reference: availableBrowserGenomesByIDLower[selectedAssemblyIDLower],
       locus: igvPosition,
       tracks: initialIgvTracks,
       ...(referenceService && selectedBentoReference?.gff3_gz
@@ -365,7 +371,7 @@ const IndividualTracks = ({ individual }) => {
     // browser will be re-rendered if a track's visibility changes. By using viewableResults as a dependency
     // instead, the browser is only re-rendered if the overall track set (i.e., individual) changes.
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [igvUrls, viewableResults, availableBrowserGenomes, selectedAssemblyID]);
+  }, [igvUrls, viewableResults, availableBrowserGenomesByIDLower, selectedAssemblyIDLower]);
 
   return (
     <>
@@ -390,9 +396,9 @@ const IndividualTracks = ({ individual }) => {
         <div style={{ marginBottom: 12 }}>
           Assembly:{" "}
           <Select
-            value={selectedAssemblyID}
-            onChange={(v) => setSelectedAssemblyID(v)}
-            options={trackAssemblyIDs.map((a) => ({ value: a, label: a }))}
+            value={selectedAssemblyIDLower}
+            onChange={(v) => setSelectedAssemblyIDLower(v)}
+            options={trackAssemblyIDs.map((a) => ({ value: a.toLowerCase(), label: a }))}
           />
         </div>
         <TrackControlTable toggleView={toggleView} allFoundFiles={allFoundFiles} />
