@@ -40,8 +40,9 @@ export type DropBoxJsonSelectProps = {
 };
 
 /** A form input component for DropBox JSON file selection. */
-const DropBoxJsonSelect = ({ initialValue, onChange, nullable = false }: DropBoxJsonSelectProps) => {
-  const editing = initialValue !== undefined;
+const DropBoxJsonSelect = ({ initialValue, value, onChange, nullable = false }: DropBoxJsonSelectProps) => {
+  const effectiveInitialValue = initialValue ?? value;
+  const editing = effectiveInitialValue !== undefined;
 
   const [radioValue, setRadioValue] = useState<DropBoxSelectType>(
     editing ? DropBoxSelectType.Existing : DropBoxSelectType.New,
@@ -55,7 +56,7 @@ const DropBoxJsonSelect = ({ initialValue, onChange, nullable = false }: DropBox
       case DropBoxSelectType.New:
         return currentFieldData;
       case DropBoxSelectType.Existing:
-        return initialValue ?? null;
+        return effectiveInitialValue ?? null;
       case DropBoxSelectType.None:
       default:
         return null;

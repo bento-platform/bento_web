@@ -1,7 +1,8 @@
 import { useState } from "react";
 import { Button, Card, DatePicker, Form, Input, Select } from "antd";
 import { PlusOutlined } from "@ant-design/icons";
-import DiscoveryFileSelect from "./DiscoveryFileSelect";
+import { useDiscoveryValidator } from "@/modules/metadata/hooks";
+import DropBoxJsonSelect from "@/components/manager/dropBox/DropBoxJsonSelect";
 
 const { TextArea } = Input;
 const { Option } = Select;
@@ -50,52 +51,56 @@ const LongDescriptionSection = () => {
   );
 };
 
-const CoreInfoTab = () => (
-  <>
-    <Card title="Core Information" size="small" style={{ marginBottom: 8 }}>
-      <Form.Item
-        label="Language"
-        name="language"
-        rules={[{ required: true, pattern: /^[a-z]{2}$/, message: "Expected ISO 639-1 two-letter code (e.g. en)" }]}
-      >
-        <Input placeholder="e.g. en" maxLength={2} style={{ width: 80 }} />
-      </Form.Item>
+const CoreInfoTab = () => {
+  const validateDiscovery = useDiscoveryValidator();
 
-      <Form.Item label="Title" name="title" rules={[{ required: true, min: 1, message: "Title is required" }]}>
-        <Input placeholder="Dataset title" />
-      </Form.Item>
+  return (
+    <>
+      <Card title="Core Information" size="small" style={{ marginBottom: 8 }}>
+        <Form.Item
+          label="Language"
+          name="language"
+          rules={[{ required: true, pattern: /^[a-z]{2}$/, message: "Expected ISO 639-1 two-letter code (e.g. en)" }]}
+        >
+          <Input placeholder="e.g. en" maxLength={2} style={{ width: 80 }} />
+        </Form.Item>
 
-      <Form.Item
-        label="Description"
-        name="description"
-        rules={[{ required: true, min: 1, message: "Description is required" }]}
-      >
-        <TextArea rows={3} placeholder="Brief description of the dataset" />
-      </Form.Item>
+        <Form.Item label="Title" name="title" rules={[{ required: true, min: 1, message: "Title is required" }]}>
+          <Input placeholder="Dataset title" />
+        </Form.Item>
 
-      <Form.Item label="Version" name="version">
-        <Input placeholder="e.g. 1.0.0" />
-      </Form.Item>
+        <Form.Item
+          label="Description"
+          name="description"
+          rules={[{ required: true, min: 1, message: "Description is required" }]}
+        >
+          <TextArea rows={3} placeholder="Brief description of the dataset" />
+        </Form.Item>
 
-      <Form.Item label="Privacy" name="privacy">
-        <Input placeholder="e.g. public, restricted" />
-      </Form.Item>
+        <Form.Item label="Version" name="version">
+          <Input placeholder="e.g. 1.0.0" />
+        </Form.Item>
 
-      <Form.Item label="Release date" name="release_date">
-        <DatePicker style={{ width: "100%" }} />
-      </Form.Item>
+        <Form.Item label="Privacy" name="privacy">
+          <Input placeholder="e.g. public, restricted" />
+        </Form.Item>
 
-      <Form.Item label="Last modified" name="last_modified">
-        <DatePicker style={{ width: "100%" }} />
-      </Form.Item>
+        <Form.Item label="Release date" name="release_date">
+          <DatePicker style={{ width: "100%" }} />
+        </Form.Item>
 
-      <Form.Item label="Discovery config" name="discovery">
-        <DiscoveryFileSelect />
-      </Form.Item>
-    </Card>
+        <Form.Item label="Last modified" name="last_modified">
+          <DatePicker style={{ width: "100%" }} />
+        </Form.Item>
 
-    <LongDescriptionSection />
-  </>
-);
+        <Form.Item label="Discovery config" name="discovery" rules={[{ validator: validateDiscovery }]}>
+          <DropBoxJsonSelect nullable={true} />
+        </Form.Item>
+      </Card>
+
+      <LongDescriptionSection />
+    </>
+  );
+};
 
 export default CoreInfoTab;
