@@ -19,11 +19,7 @@ const ContactsTab = ({ form }: { form: FormInstance }) => (
     </Card>
 
     <Card
-      title={
-        <span>
-          Stakeholders <RequiredMark />
-        </span>
-      }
+      title="Stakeholders"
       size="small"
     >
       <Form.List name="stakeholders">
@@ -36,16 +32,14 @@ const ContactsTab = ({ form }: { form: FormInstance }) => (
                   absoluteNamePrefix={["stakeholders", name]}
                   form={form}
                 />
-                {fields.length > 1 && (
-                  <Button
-                    danger
-                    size="small"
-                    onClick={() => remove(name)}
-                    style={{ position: "absolute", top: 8, right: 8 }}
-                  >
-                    Remove
-                  </Button>
-                )}
+                <Button
+                  danger
+                  size="small"
+                  onClick={() => remove(name)}
+                  style={{ position: "absolute", top: 8, right: 8 }}
+                >
+                  Remove
+                </Button>
               </div>
             ))}
             <Button

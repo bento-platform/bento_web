@@ -37,7 +37,7 @@ const DatasetForm = ({ onSubmit, initialValues, form, readOnly, onValuesChange, 
       schema_version: "1.0",
       language: "en",
       primary_contact: { type: "person" },
-      stakeholders: [{ type: "person" }],
+      stakeholders: [],
       ...prepareInitialValues(initialValues),
     }),
     // eslint-disable-next-line react-hooks/exhaustive-deps
