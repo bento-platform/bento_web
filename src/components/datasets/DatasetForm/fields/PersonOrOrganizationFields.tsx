@@ -89,20 +89,32 @@ const PersonOrOrganizationFields = ({
     <Card size="small" style={{ marginBottom: 8 }}>
       <Form.Item label="Type" name={[...namePrefix, "type"]}>
         <Radio.Group
+          optionType="button"
+          options={[
+            {
+              label: (
+                <>
+                  <UserOutlined /> Person
+                </>
+              ),
+              value: "person",
+            },
+            {
+              label: (
+                <>
+                  <BankOutlined /> Organization
+                </>
+              ),
+              value: "organization",
+            },
+          ]}
           onChange={(e) => {
             const current = form.getFieldValue(namePrefix as string[]);
             const roles = current?.roles;
             const name = current?.name;
             form.setFieldValue(namePrefix as string[], { type: e.target.value, name, roles });
           }}
-        >
-          <Radio.Button value="person">
-            <UserOutlined /> Person
-          </Radio.Button>
-          <Radio.Button value="organization">
-            <BankOutlined /> Organization
-          </Radio.Button>
-        </Radio.Group>
+        />
       </Form.Item>
       {typeValue === "person" ? (
         <PersonFields namePrefix={namePrefix} />
