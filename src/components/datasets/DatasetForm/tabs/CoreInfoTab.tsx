@@ -5,7 +5,12 @@ import { useDiscoveryValidator } from "@/modules/metadata/hooks";
 import DropBoxJsonSelect from "@/components/manager/dropBox/DropBoxJsonSelect";
 
 const { TextArea } = Input;
-const { Option } = Select;
+
+const CONTENT_TYPE_OPTIONS = [
+  { value: "text/plain", label: "Plain text" },
+  { value: "text/markdown", label: "Markdown" },
+  { value: "text/html", label: "HTML" },
+];
 
 const LongDescriptionSection = () => {
   const form = Form.useFormInstance();
@@ -32,11 +37,7 @@ const LongDescriptionSection = () => {
             name={["long_description", "content_type"]}
             rules={[{ required: true, message: "Content type is required" }]}
           >
-            <Select placeholder="Select content type">
-              <Option value="text/plain">Plain text</Option>
-              <Option value="text/markdown">Markdown</Option>
-              <Option value="text/html">HTML</Option>
-            </Select>
+            <Select placeholder="Select content type" options={CONTENT_TYPE_OPTIONS} />
           </Form.Item>
           <Button danger size="small" onClick={handleRemove}>
             Remove

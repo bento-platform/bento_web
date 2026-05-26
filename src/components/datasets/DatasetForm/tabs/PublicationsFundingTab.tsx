@@ -1,12 +1,11 @@
 import { Button, Card, Collapse, DatePicker, Form, Input, Select, Space, Typography } from "antd";
 import { MinusCircleOutlined, PlusOutlined } from "@ant-design/icons";
 import type { FormInstance } from "antd";
-import { publicationTypeOptions } from "../constants";
+import { publicationTypeSelectOptions } from "../constants";
 import PersonOrOrganizationFields from "../fields/PersonOrOrganizationFields";
 import PublicationVenueFields from "../fields/PublicationVenueFields";
 
 const { TextArea } = Input;
-const { Option } = Select;
 const { Text } = Typography;
 
 const PublicationsFundingTab = ({ form }: { form: FormInstance }) => (
@@ -27,14 +26,7 @@ const PublicationsFundingTab = ({ form }: { form: FormInstance }) => (
                   <Input placeholder="10.xxxx/xxxxx" />
                 </Form.Item>
                 <Form.Item label="Publication type" name={[name, "publication_type"]} rules={[{ required: true }]}>
-                  <Select placeholder="Select type" allowClear>
-                    {publicationTypeOptions.map((o) => (
-                      <Option key={o.value} value={o.value}>
-                        {o.label}
-                      </Option>
-                    ))}
-                    <Option value="__other">Other (specify)</Option>
-                  </Select>
+                  <Select placeholder="Select type" allowClear options={publicationTypeSelectOptions} />
                 </Form.Item>
                 <Form.Item
                   noStyle

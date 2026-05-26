@@ -1,23 +1,26 @@
 import { Button, Card, Form, Input, Select, Space, Typography } from "antd";
 import { MinusCircleOutlined, PlusOutlined } from "@ant-design/icons";
 
-const { Option } = Select;
 const { Text } = Typography;
+
+const STUDY_STATUS_OPTIONS = [
+  { value: "ONGOING", label: "Ongoing" },
+  { value: "COMPLETED", label: "Completed" },
+];
+
+const STUDY_CONTEXT_OPTIONS = [
+  { value: "CLINICAL", label: "Clinical" },
+  { value: "RESEARCH", label: "Research" },
+];
 
 const PcglInfoTab = () => (
   <>
     <Card title="Study" size="small" style={{ marginBottom: 8 }}>
       <Form.Item label="Study status" name="study_status">
-        <Select placeholder="Select status" allowClear>
-          <Option value="ONGOING">Ongoing</Option>
-          <Option value="COMPLETED">Completed</Option>
-        </Select>
+        <Select placeholder="Select status" allowClear options={STUDY_STATUS_OPTIONS} />
       </Form.Item>
       <Form.Item label="Study context" name="study_context">
-        <Select placeholder="Select context" allowClear>
-          <Option value="CLINICAL">Clinical</Option>
-          <Option value="RESEARCH">Research</Option>
-        </Select>
+        <Select placeholder="Select context" allowClear options={STUDY_CONTEXT_OPTIONS} />
       </Form.Item>
     </Card>
 

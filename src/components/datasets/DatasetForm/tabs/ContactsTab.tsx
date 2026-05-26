@@ -18,10 +18,7 @@ const ContactsTab = ({ form }: { form: FormInstance }) => (
       <PersonOrOrganizationFields namePrefix={["primary_contact"]} form={form} />
     </Card>
 
-    <Card
-      title="Stakeholders"
-      size="small"
-    >
+    <Card title="Stakeholders" size="small">
       <Form.List name="stakeholders">
         {(fields, { add, remove }) => (
           <>

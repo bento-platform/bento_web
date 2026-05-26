@@ -1,7 +1,11 @@
 import { Button, Card, Form, Input, Select, Switch } from "antd";
 import { PlusOutlined } from "@ant-design/icons";
 
-const { Option } = Select;
+const THEME_OPTIONS = [
+  { value: "default", label: "Default" },
+  { value: "light", label: "Light" },
+  { value: "dark", label: "Dark" },
+];
 
 const LinksMediaTab = () => (
   <>
@@ -40,11 +44,7 @@ const LinksMediaTab = () => (
                   <Input placeholder="https://..." />
                 </Form.Item>
                 <Form.Item label="Theme" name={[name, "theme"]}>
-                  <Select>
-                    <Option value="default">Default</Option>
-                    <Option value="light">Light</Option>
-                    <Option value="dark">Dark</Option>
-                  </Select>
+                  <Select options={THEME_OPTIONS} />
                 </Form.Item>
                 <Form.Item label="Description" name={[name, "description"]}>
                   <Input />

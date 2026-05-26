@@ -61,7 +61,7 @@ const DropBoxJsonSelect = ({ initialValue, value, onChange, nullable = false }: 
       default:
         return null;
     }
-  }, [radioValue, currentFieldData, initialValue]);
+  }, [radioValue, currentFieldData, effectiveInitialValue]);
 
   useEffect(() => {
     if (onChange) {

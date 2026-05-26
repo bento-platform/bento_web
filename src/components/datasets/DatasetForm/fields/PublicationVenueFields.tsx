@@ -1,8 +1,6 @@
 import { Card, Form, Input, Select } from "antd";
-import { venueTypeOptions } from "../constants";
+import { venueTypeSelectOptions } from "../constants";
 import { getNestedValue } from "../helpers";
-
-const { Option } = Select;
 
 const PublicationVenueFields = ({
   namePrefix,
@@ -18,14 +16,7 @@ const PublicationVenueFields = ({
         <Input />
       </Form.Item>
       <Form.Item label="Venue type" name={[...namePrefix, "venue_type"]} rules={[{ required: true }]}>
-        <Select placeholder="Select venue type" allowClear>
-          {venueTypeOptions.map((o) => (
-            <Option key={o.value} value={o.value}>
-              {o.label}
-            </Option>
-          ))}
-          <Option value="__other">Other (specify below)</Option>
-        </Select>
+        <Select placeholder="Select venue type" allowClear options={venueTypeSelectOptions} />
       </Form.Item>
       <Form.Item
         noStyle
