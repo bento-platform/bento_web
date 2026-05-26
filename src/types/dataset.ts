@@ -440,7 +440,7 @@ export const DatasetModelBase = z
       .optional(),
     /** Ontology resources needed to resolve CURIEs in keywords and clinical/phenotypic data */
     resources: z.array(VersionedOntologyResource).min(1).nullable().optional(),
-    stakeholders: z.array(PersonOrOrganization).min(1),
+    stakeholders: z.array(PersonOrOrganization).min(1).nullable().optional(),
     funding_sources: z
       .union([z.array(z.union([FundingSource, Link])), nonEmptyString])
       .nullable()
