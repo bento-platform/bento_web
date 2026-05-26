@@ -13,8 +13,8 @@ import { addProjectDataset, saveProjectDataset, fetchProjectsWithDatasets } from
 import { useProjects } from "@/modules/metadata/hooks";
 import { datasetPropTypesShape, projectPropTypesShape, propTypesFormMode } from "@/propTypes";
 import { nop } from "@/utils/misc";
-import { useAppDispatch } from "@/store";
 import { saveDraft, loadDraft, clearDraft, deserializeFormValues } from "@/utils/datasetDraftUtils";
+import { useAppDispatch } from "@/store";
 
 const DatasetFormModal = ({ project, mode, initialValue, onCancel, onOk, open }) => {
   const { message } = App.useApp();
