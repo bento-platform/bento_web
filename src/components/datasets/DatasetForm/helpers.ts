@@ -142,7 +142,11 @@ export function prepareInitialValues(
         : { type: "id" in (t as object) ? "ontology" : "string", ...(t as object) },
     );
   }
-  if (result.spatial_coverage !== null && result.spatial_coverage !== undefined && typeof result.spatial_coverage !== "string") {
+  if (
+    result.spatial_coverage !== null &&
+    result.spatial_coverage !== undefined &&
+    typeof result.spatial_coverage !== "string"
+  ) {
     result.spatial_coverage = JSON.stringify(result.spatial_coverage, null, 2);
   }
   return result;
