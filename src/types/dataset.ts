@@ -19,7 +19,7 @@ const dateString = z.string().regex(/^\d{4}-\d{2}-\d{2}$/, "Expected ISO date (Y
 const uuidString = z.uuid();
 
 /** URL string — equivalent to HttpUrl / AnyUrl */
-const urlString = z.url();
+const urlString = z.url().refine((val) => /^https?:\/\//i.test(val), "Must start with http:// or https://");
 
 /** ORCID identifier string */
 const orcidString = z.string().regex(/^\d{4}-\d{4}-\d{4}-\d{3}[\dX]$/, "Expected ORCID format");
