@@ -25,6 +25,13 @@ const PcglInfoTab = () => (
     </Card>
 
     <Card title="PCGL Fields" size="small">
+      <Form.Item
+        label="PCGL DAC ID"
+        name="pcgl_dac_id"
+        tooltip="Unique identifier of the Data Access Committee (DAC) in PCGL to which the study is assigned"
+      >
+        <Input />
+      </Form.Item>
       <Form.Item label="PCGL Program Name" name="program_name" tooltip="The overarching program the study belongs to">
         <Input />
       </Form.Item>

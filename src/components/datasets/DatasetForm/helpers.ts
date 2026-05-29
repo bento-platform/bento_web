@@ -86,6 +86,7 @@ const PATH_META: Record<string, PathMeta> = {
   // PCGL Info
   study_status: { tab: "PCGL Info", section: "Study status" },
   study_context: { tab: "PCGL Info", section: "Study context" },
+  pcgl_dac_id: { tab: "PCGL Info", section: "PCGL DAC ID" },
   program_name: { tab: "PCGL Info", section: "Program name" },
   domain: { tab: "PCGL Info", section: "Domains", item: "Domain" },
   discovery: { tab: "Core Info", section: "Discovery config" },

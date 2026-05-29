@@ -467,6 +467,9 @@ export const DatasetModelBase = z
     /** The overarching program the study belongs to (if applicable) */
     program_name: nonEmptyString.nullable().optional(),
 
+    /** Unique identifier of the Data Access Committee (DAC) in PCGL to which the study is assigned */
+    pcgl_dac_id: nonEmptyString.nullable().optional(),
+
     /** Discovery configuration object (content of a Drop Box JSON file) */
     discovery: z.record(z.string(), z.unknown()).nullable().optional(),
 
