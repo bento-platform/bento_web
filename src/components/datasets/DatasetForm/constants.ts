@@ -15,7 +15,8 @@ export type OntologyResourcePreset = {
   repository_url?: string;
 };
 
-export const COMMON_ONTOLOGIES: Record<string, OntologyResourcePreset> = {
+// TODO: fetch COMMON_ONTOLOGY_RESOURCE_PRESETS from an endpoint instead of hardcoding
+export const COMMON_ONTOLOGY_RESOURCE_PRESETS: Record<string, OntologyResourcePreset> = {
   EFO: {
     id: "efo",
     name: "Experimental Factor Ontology",
@@ -89,13 +90,13 @@ export const COMMON_ONTOLOGIES: Record<string, OntologyResourcePreset> = {
   },
 };
 
-export type KeywordOntologyPreset = {
+export type OntologyPreset = {
   id: string;
   label: string;
   category: string;
 };
 
-export const COMMON_KEYWORD_PRESETS: KeywordOntologyPreset[] = [
+export const COMMON_ONTOLOGY_PRESETS: OntologyPreset[] = [
   // NCBITaxon — species
   { id: "NCBITaxon:9606", label: "Homo sapiens", category: "Species" },
   { id: "NCBITaxon:10090", label: "Mus musculus", category: "Species" },

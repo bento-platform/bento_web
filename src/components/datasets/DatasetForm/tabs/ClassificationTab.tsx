@@ -2,7 +2,7 @@ import { useState } from "react";
 import { Button, Card, Dropdown, Form, Input, Radio, Typography } from "antd";
 import type { MenuProps, RadioChangeEvent } from "antd";
 import { PlusOutlined } from "@ant-design/icons";
-import { COMMON_ONTOLOGIES, COMMON_KEYWORD_PRESETS } from "../constants";
+import { COMMON_ONTOLOGY_RESOURCE_PRESETS, COMMON_ONTOLOGY_PRESETS } from "../constants";
 
 const { Text } = Typography;
 
@@ -63,7 +63,7 @@ const OntologyFields = ({ listName, name }: { listName: string; name: number }) 
     if (listName !== "keywords" && listName !== "taxa") return;
     const prefix = e.target.value.trim().split(":")[0];
     if (!prefix) return;
-    const ontology = COMMON_ONTOLOGIES[prefix] ?? COMMON_ONTOLOGIES[prefix.toUpperCase()];
+    const ontology = COMMON_ONTOLOGY_RESOURCE_PRESETS[prefix] ?? COMMON_ONTOLOGY_RESOURCE_PRESETS[prefix.toUpperCase()];
     if (!ontology) return;
     const current: Record<string, unknown>[] = form.getFieldValue("resources") ?? [];
     if (current.some((r) => r.namespace_prefix === ontology.namespace_prefix)) return;
@@ -104,12 +104,12 @@ const ClassificationTab = () => {
   const currentTaxa: Record<string, unknown>[] = Form.useWatch("taxa", form) ?? [];
   const existingTaxaIds = new Set(currentTaxa.map((t) => String(t?.id ?? "")));
 
-  const grouped = COMMON_KEYWORD_PRESETS.filter((p) => p.category === "Species").reduce(
+  const grouped = COMMON_ONTOLOGY_PRESETS.filter((p) => p.category === "Species").reduce(
     (acc, preset) => {
       (acc[preset.category] ??= []).push(preset);
       return acc;
     },
-    {} as Record<string, typeof COMMON_KEYWORD_PRESETS>,
+    {} as Record<string, typeof COMMON_ONTOLOGY_PRESETS>,
   );
 
   const quickAddTaxaItems: MenuProps["items"] = Object.entries(grouped).map(([category, presets]) => ({
@@ -123,7 +123,7 @@ const ClassificationTab = () => {
       onClick: () => {
         if (existingTaxaIds.has(preset.id)) return;
         const prefix = preset.id.split(":")[0];
-        const ontology = COMMON_ONTOLOGIES[prefix] ?? COMMON_ONTOLOGIES[prefix.toUpperCase()];
+        const ontology = COMMON_ONTOLOGY_RESOURCE_PRESETS[prefix] ?? COMMON_ONTOLOGY_RESOURCE_PRESETS[prefix.toUpperCase()];
         const updatedResources = [...currentResources];
         if (ontology && !existingPrefixes.has(ontology.namespace_prefix)) {
           updatedResources.push({ ...ontology, version: "" });
@@ -134,7 +134,7 @@ const ClassificationTab = () => {
     })),
   }));
 
-  const quickAddItems: MenuProps["items"] = Object.entries(COMMON_ONTOLOGIES).map(([prefix, ontology]) => ({
+  const quickAddItems: MenuProps["items"] = Object.entries(COMMON_ONTOLOGY_RESOURCE_PRESETS).map(([prefix, ontology]) => ({
     key: prefix,
     label: `${ontology.namespace_prefix} — ${ontology.name}`,
     disabled: existingPrefixes.has(ontology.namespace_prefix),
