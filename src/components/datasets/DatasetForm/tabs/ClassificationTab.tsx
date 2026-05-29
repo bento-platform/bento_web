@@ -104,7 +104,7 @@ const ClassificationTab = () => {
   const currentTaxa: Record<string, unknown>[] = Form.useWatch("taxa", form) ?? [];
   const existingTaxaIds = new Set(currentTaxa.map((t) => String(t?.id ?? "")));
 
-  const grouped = COMMON_KEYWORD_PRESETS.reduce(
+  const grouped = COMMON_KEYWORD_PRESETS.filter((p) => p.category === "Species").reduce(
     (acc, preset) => {
       (acc[preset.category] ??= []).push(preset);
       return acc;

@@ -50,11 +50,16 @@ export const RoleValues = [
   // Organizational / institutional roles
   "Sponsoring Organization",
   "Collaborating Organization",
+  "Collaborating Laboratory",
+  "Principal Laboratory",
   "Consortium",
   "Institution",
+  "Research Group",
   "Site",
   "Research Center",
   "Publisher",
+  "Hosting Institution",
+  "Distributor",
   // Ethics & compliance
   "IRB",
   "Ethics Board",
@@ -67,6 +72,8 @@ export const RoleValues = [
   // Contributors (non-research)
   "Author",
   "Corresponding Author",
+  "Editor",
+  "Translator",
   "Consultant",
   "Advisor",
   "Reviewer",
@@ -77,6 +84,9 @@ export const RoleValues = [
   "Data Contributor",
   "Data Custodian",
   "Data Producer",
+  "Data Collector",
+  "Data Manager",
+  "Contact Person",
   // External stakeholders
   "Partner",
   "Stakeholder",
