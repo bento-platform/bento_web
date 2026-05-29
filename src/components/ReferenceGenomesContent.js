@@ -108,8 +108,8 @@ const ReferenceGenomesContent = () => {
               <>
                 <br />
                 <strong>GFF3.gz TBI:</strong>&nbsp;
-                <a target="_blank" rel="noopener noreferrer" href={genome.gff3_gz}>
-                  {genome.gff3_gz}
+                <a target="_blank" rel="noopener noreferrer" href={genome.gff3_gz_tbi}>
+                  {genome.gff3_gz_tbi}
                 </a>
               </>
             )}
