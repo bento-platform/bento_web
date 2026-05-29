@@ -123,7 +123,8 @@ const ClassificationTab = () => {
       onClick: () => {
         if (existingTaxaIds.has(preset.id)) return;
         const prefix = preset.id.split(":")[0];
-        const ontology = COMMON_ONTOLOGY_RESOURCE_PRESETS[prefix] ?? COMMON_ONTOLOGY_RESOURCE_PRESETS[prefix.toUpperCase()];
+        const ontology =
+          COMMON_ONTOLOGY_RESOURCE_PRESETS[prefix] ?? COMMON_ONTOLOGY_RESOURCE_PRESETS[prefix.toUpperCase()];
         const updatedResources = [...currentResources];
         if (ontology && !existingPrefixes.has(ontology.namespace_prefix)) {
           updatedResources.push({ ...ontology, version: "" });
@@ -134,15 +135,17 @@ const ClassificationTab = () => {
     })),
   }));
 
-  const quickAddItems: MenuProps["items"] = Object.entries(COMMON_ONTOLOGY_RESOURCE_PRESETS).map(([prefix, ontology]) => ({
-    key: prefix,
-    label: `${ontology.namespace_prefix} — ${ontology.name}`,
-    disabled: existingPrefixes.has(ontology.namespace_prefix),
-    onClick: () => {
-      if (existingPrefixes.has(ontology.namespace_prefix)) return;
-      form.setFieldValue("resources", [...currentResources, { ...ontology, version: "" }]);
-    },
-  }));
+  const quickAddItems: MenuProps["items"] = Object.entries(COMMON_ONTOLOGY_RESOURCE_PRESETS).map(
+    ([prefix, ontology]) => ({
+      key: prefix,
+      label: `${ontology.namespace_prefix} — ${ontology.name}`,
+      disabled: existingPrefixes.has(ontology.namespace_prefix),
+      onClick: () => {
+        if (existingPrefixes.has(ontology.namespace_prefix)) return;
+        form.setFieldValue("resources", [...currentResources, { ...ontology, version: "" }]);
+      },
+    }),
+  );
 
   return (
     <>
