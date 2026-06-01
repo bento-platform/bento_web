@@ -2,12 +2,12 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 import PropTypes from "prop-types";
 
 import { Button, Form, Modal, Typography } from "antd";
-import { DeleteOutlined, PlusOutlined } from "@ant-design/icons";
+import { DeleteOutlined, EditOutlined, PlusOutlined } from "@ant-design/icons";
 
 import { editPermissions, makeResourceKey } from "bento-auth-js";
 
 import ActionContainer from "@/components/manager/ActionContainer";
-import { createGrant, deleteGrant } from "@/modules/authz/actions";
+import { createGrant, deleteGrant, saveGrant } from "@/modules/authz/actions";
 import { useAuthzManagementPermissions, useGrants } from "@/modules/authz/hooks";
 import { useServices } from "@/modules/services/hooks";
 import { useAppDispatch } from "@/store";
@@ -15,6 +15,48 @@ import { useAppDispatch } from "@/store";
 import GrantForm from "./GrantForm";
 import GrantSummary from "./GrantSummary";
 import GrantsTable from "./GrantsTable";
+
+const GrantEditModal = ({ grant, open, closeModal }) => {
+  const dispatch = useAppDispatch();
+  const [form] = Form.useForm();
+  const [loading, setLoading] = useState(false);
+
+  const onOk = useCallback(() => {
+    setLoading(true);
+    form
+      .validateFields()
+      .then(async (values) => {
+        await dispatch(saveGrant({ ...values, id: grant.id }));
+        closeModal();
+      })
+      .catch((err) => {
+        console.error(err);
+      })
+      .finally(() => {
+        setLoading(false);
+      });
+  }, [dispatch, form, closeModal, grant]);
+
+  return (
+    <Modal
+      open={open}
+      width={720}
+      title={`Edit Grant ${grant?.id}`}
+      onCancel={closeModal}
+      onOk={onOk}
+      okText="Save"
+      okButtonProps={{ loading }}
+      destroyOnHidden={true}
+    >
+      <GrantForm form={form} initialValues={grant} />
+    </Modal>
+  );
+};
+GrantEditModal.propTypes = {
+  grant: PropTypes.object,
+  open: PropTypes.bool,
+  closeModal: PropTypes.func,
+};
 
 const GrantCreationModal = ({ open, closeModal }) => {
   const dispatch = useAppDispatch();
@@ -71,7 +113,7 @@ const GrantsTabContent = () => {
 
   const isFetchingAllServices = useServices().isFetchingAll;
 
-  const { data: grants, isFetching: isFetchingGrants } = useGrants();
+  const { data: grants, itemsByID: grantsById, isFetching: isFetchingGrants } = useGrants();
 
   const {
     isFetching: isFetchingPermissions,
@@ -82,6 +124,18 @@ const GrantsTabContent = () => {
   const [createModalOpen, setCreateModalOpen] = useState(false);
   const openCreateModal = useCallback(() => setCreateModalOpen(true), []);
   const closeCreateModal = useCallback(() => setCreateModalOpen(false), []);
+
+  const [editingGrantId, setEditingGrantId] = useState(null);
+  const editingGrant = editingGrantId !== null ? (grantsById[editingGrantId] ?? null) : null;
+  const openEditModal = useCallback((grantId) => setEditingGrantId(grantId), []);
+  const closeEditModal = useCallback(() => setEditingGrantId(null), []);
+
+  useEffect(() => {
+    if (editingGrantId !== null && !grantsById[editingGrantId]) {
+      setEditingGrantId(null);
+    }
+  }, [editingGrantId, grantsById]);
+
   const [deleteModal, deleteModalContextHolder] = Modal.useModal();
 
   const extraColumns = useMemo(
@@ -91,16 +145,21 @@ const GrantsTabContent = () => {
             {
               title: "Actions",
               key: "actions",
-              // TODO: hook up edit
               render: (grant) => {
                 const pObj = grantResourcePermissionsObjects[makeResourceKey(grant.resource)];
                 const pLoading = pObj.isFetching;
                 const canEdit = pObj.permissions.includes(editPermissions);
                 return (
                   <>
-                    {/*TODO: no edit grant right now; originally designed to be immutable but this should change*/}
-                    {/*<Button size="small" icon={<EditOutlined />} loading={pLoading} disabled={!canEdit}>*/}
-                    {/*    Edit</Button>{" "}*/}
+                    <Button
+                      size="small"
+                      icon={<EditOutlined />}
+                      loading={pLoading}
+                      disabled={!canEdit}
+                      onClick={() => openEditModal(grant.id)}
+                    >
+                      Edit
+                    </Button>{" "}
                     <Button
                       size="small"
                       danger={true}
@@ -135,7 +194,7 @@ const GrantsTabContent = () => {
             },
           ]
         : [],
-    [dispatch, grantResourcePermissionsObjects, hasAtLeastOneEditPermissionsGrant, deleteModal],
+    [dispatch, grantResourcePermissionsObjects, hasAtLeastOneEditPermissionsGrant, deleteModal, openEditModal],
   );
 
   return (
@@ -149,6 +208,7 @@ const GrantsTabContent = () => {
         </ActionContainer>
       )}
       <GrantCreationModal open={createModalOpen} closeModal={closeCreateModal} />
+      <GrantEditModal key={editingGrantId} grant={editingGrant} open={!!editingGrant} closeModal={closeEditModal} />
       <GrantsTable
         grants={grants}
         loading={isFetchingAllServices || isFetchingPermissions || isFetchingGrants}

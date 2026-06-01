@@ -1,7 +1,6 @@
 import {
   PERFORM_SEARCH_BY_FUZZY_NAME,
-  RETRIEVE_URLS_FOR_IGV,
-  RETRIEVE_URLS_FOR_DOWNLOAD,
+  RETRIEVE_DRS_URLS,
   PERFORM_DRS_OBJECT_SEARCH,
   DELETE_DRS_OBJECT,
   CLEAR_DRS_OBJECT_SEARCH,
@@ -10,11 +9,10 @@ import {
 export const drs = (
   state = {
     isFuzzySearching: false,
-    fuzzySearchResponse: {},
-    igvUrlsByFilename: {},
-    isFetchingIgvUrls: false,
-    downloadUrlsByFilename: {},
-    isFetchingDownloadUrls: false,
+    fuzzySearchResponse: [],
+
+    urlsByFilename: {},
+    isFetchingUrls: false,
 
     objectSearchResults: [],
     objectSearchIsFetching: false,
@@ -33,21 +31,17 @@ export const drs = (
     case PERFORM_SEARCH_BY_FUZZY_NAME.FINISH:
       return { ...state, isFuzzySearching: false };
 
-    // RETRIEVE_URLS_FOR_IGV
-    case RETRIEVE_URLS_FOR_IGV.BEGIN:
-      return { ...state, isFetchingIgvUrls: true };
-    case RETRIEVE_URLS_FOR_IGV.END:
-      return { ...state, isFetchingIgvUrls: false, igvUrlsByFilename: action.urls };
-    case RETRIEVE_URLS_FOR_IGV.ERROR:
-      return { ...state, isFetchingIgvUrls: false };
-
-    // RETRIEVE_URLS_FOR_DOWNLOAD
-    case RETRIEVE_URLS_FOR_DOWNLOAD.BEGIN:
-      return { ...state, isFetchingDownloadUrls: true };
-    case RETRIEVE_URLS_FOR_DOWNLOAD.END:
-      return { ...state, isFetchingDownloadUrls: false, downloadUrlsByFilename: action.urls };
-    case RETRIEVE_URLS_FOR_DOWNLOAD.ERROR:
-      return { ...state, isFetchingDownloadUrls: false };
+    // RETRIEVE_DRS_URLS
+    case RETRIEVE_DRS_URLS.BEGIN:
+      return { ...state, isFetchingUrls: true };
+    case RETRIEVE_DRS_URLS.END:
+      return {
+        ...state,
+        isFetchingUrls: false,
+        urlsByFilename: { ...state.urlsByFilename, ...action.urls },
+      };
+    case RETRIEVE_DRS_URLS.ERROR:
+      return { ...state, isFetchingUrls: false };
 
     // PERFORM_DRS_OBJECT_SEARCH
     case PERFORM_DRS_OBJECT_SEARCH.REQUEST:

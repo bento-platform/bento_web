@@ -1,6 +1,46 @@
 import { useEffect, useMemo } from "react";
 import { fetchDatasetResourcesIfNecessary } from "@/modules/datasets/actions";
 import { useAppDispatch, useAppSelector } from "@/store";
+import { guessFileType } from "@/utils/files";
+
+// --- CONSTANTS ---
+export const ALIGNMENT_FORMATS_LOWER = ["bam", "cram"];
+export const ANNOTATION_FORMATS_LOWER = ["bigbed"];
+export const MUTATION_FORMATS_LOWER = ["maf"];
+export const WIG_FORMATS_LOWER = ["bigwig"];
+export const VARIANT_FORMATS_LOWER = ["vcf", "gvcf"];
+
+export const IGV_VIEWABLE_FORMATS_LOWER = [
+  ...ALIGNMENT_FORMATS_LOWER,
+  ...ANNOTATION_FORMATS_LOWER,
+  ...MUTATION_FORMATS_LOWER,
+  ...WIG_FORMATS_LOWER,
+  ...VARIANT_FORMATS_LOWER,
+];
+
+// --- HELPER FUNCTIONS ---
+
+export const expResFileFormatLower = (expRes) => expRes.file_format?.toLowerCase() ?? guessFileType(expRes.filename);
+
+// For an experiment result to be viewable in IGV.js, it must have:
+//  - an assembly ID, so we can contextualize it correctly
+//  - a file format in the list of file formats we know how to handle
+export const isViewableInIgv = (expRes) =>
+  !!expRes.genome_assembly_id && IGV_VIEWABLE_FORMATS_LOWER.includes(expResFileFormatLower(expRes));
+
+export const expResFileFormatToIgvTypeAndFormat = (fileFormat) => {
+  const ff = fileFormat.toLowerCase();
+
+  if (ALIGNMENT_FORMATS_LOWER.includes(ff)) return ["alignment", ff];
+  if (ANNOTATION_FORMATS_LOWER.includes(ff)) return ["annotation", "bigBed"]; // TODO: experiment result: support more
+  if (MUTATION_FORMATS_LOWER.includes(ff)) return ["mut", ff];
+  if (WIG_FORMATS_LOWER.includes(ff)) return ["wig", "bigWig"]; // TODO: expand if we support wig/bedGraph
+  if (VARIANT_FORMATS_LOWER.includes(ff)) return ["variant", "vcf"];
+
+  return [undefined, undefined];
+};
+
+// --- HOOKS ---
 
 export const useDeduplicatedIndividualBiosamples = (individual) =>
   useMemo(

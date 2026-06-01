@@ -8,6 +8,7 @@ import {
   FETCH_GROUPS,
   INVALIDATE_GRANTS,
   INVALIDATE_GROUPS,
+  SAVE_GRANT,
   SAVE_GROUP,
 } from "./actions";
 import { arrayToObjectByProperty, objectWithoutProp } from "@/utils/misc";
@@ -35,8 +36,10 @@ export const grants = (
   state = {
     data: [],
     itemsByID: {},
+    oldItemsByID: {},
     isFetching: false,
     isCreating: false,
+    isSaving: false,
     isDeleting: false,
     isInvalid: false,
   },
@@ -68,6 +71,30 @@ export const grants = (
       };
     case CREATE_GRANT.FINISH:
       return { ...state, isCreating: false };
+
+    case SAVE_GRANT.REQUEST: {
+      const grantID = action.grant.id;
+      return {
+        ...state,
+        isSaving: true,
+        // Optimistically update while we wait for the PUT response
+        data: state.data.map((g) => (g.id === grantID ? action.grant : g)),
+        oldItemsByID: { ...state.oldItemsByID, [grantID]: state.itemsByID[grantID] },
+        itemsByID: { ...state.itemsByID, [grantID]: action.grant },
+      };
+    }
+    case SAVE_GRANT.ERROR: {
+      const grantID = action.grant.id;
+      const oldItem = state.oldItemsByID[grantID];
+      return {
+        ...state,
+        data: state.data.map((g) => (g.id === grantID ? oldItem : g)),
+        oldItemsByID: objectWithoutProp(state.oldItemsByID, grantID),
+        itemsByID: { ...state.itemsByID, [grantID]: oldItem },
+      };
+    }
+    case SAVE_GRANT.FINISH:
+      return { ...state, isSaving: false, oldItemsByID: {} };
 
     case DELETE_GRANT.REQUEST:
       return { ...state, isDeleting: true };

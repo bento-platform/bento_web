@@ -1,6 +1,6 @@
 import { useCallback, useEffect } from "react";
 
-import { Form, message, Modal } from "antd";
+import { App, Form, Modal } from "antd";
 
 import {
   beginDropBoxPuttingObjects,
@@ -21,6 +21,7 @@ type FileUploadModalProps = {
 };
 
 const FileUploadModal = ({ initialUploadFolder, initialUploadFiles, onCancel, open }: FileUploadModalProps) => {
+  const { message } = App.useApp();
   const dispatch = useAppDispatch();
   const [form] = Form.useForm();
 
@@ -81,7 +82,7 @@ const FileUploadModal = ({ initialUploadFolder, initialUploadFiles, onCancel, op
       .catch((err) => {
         console.error(err);
       });
-  }, [dispatch, form, onCancel]);
+  }, [dispatch, form, message, onCancel]);
 
   return (
     <Modal

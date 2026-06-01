@@ -119,7 +119,7 @@ const DatasetDataTypes = memo(({ isPrivate, project, dataset }) => {
               },
             },
           ]
-        : null),
+        : []),
     ],
     [isPrivate, project, dataset, handleClearDataType, ingestionWorkflows, startIngestionFlow, showDataTypeSummary],
   );
