@@ -1,4 +1,4 @@
-import { message } from "antd";
+import messageApi from "@/utils/messageApi";
 
 import { endProjectEditing } from "../manager/actions";
 import { basicAction, createNetworkActionTypes, networkAction } from "@/utils/actions";
@@ -45,10 +45,13 @@ export const fetchDiscoverySchema = () => (dispatch, getState) => {
 
 export const clearDatasetDataType = networkAction((datasetId, dataTypeID) => (_dispatch, getState) => {
   const { service_base_url: serviceBaseUrl } = getState().serviceDataTypes.itemsByID[dataTypeID];
+  const metadataServiceUrl = getState().services.metadataService?.url ?? "";
+  const datasetsSegment =
+    metadataServiceUrl && serviceBaseUrl.startsWith(metadataServiceUrl) ? "datasets_v2" : "datasets";
   // noinspection JSUnusedGlobalSymbols
   return {
     types: DELETE_DATASET_DATA_TYPE,
-    url: `${serviceBaseUrl}datasets/${datasetId}/data-types/${dataTypeID}`,
+    url: `${serviceBaseUrl}${datasetsSegment}/${datasetId}/data-types/${dataTypeID}`,
     req: {
       method: "DELETE",
     },
@@ -95,7 +98,7 @@ export const createProjectIfPossible = networkAction((project, navigate) => (_di
   check: (state) => !state.projects.isCreating,
   onSuccess: (data) => {
     if (navigate) navigate(`/data/manager/projects/${data.identifier}`);
-    message.success(`Project '${data.title}' created!`);
+    messageApi.success(`Project '${data.title}' created!`);
   },
 }));
 
@@ -117,7 +120,7 @@ export const createProjectJsonSchema = networkAction((projectJsonSchema) => (_di
   req: jsonRequest(projectJsonSchema, "POST"),
   err: "Error creating project JSON schema",
   onSuccess: () => {
-    message.success(`Project JSON schema for ${projectJsonSchema.schema_type} created!`);
+    messageApi.success(`Project JSON schema for ${projectJsonSchema.schema_type} created!`);
   },
 }));
 
@@ -128,7 +131,7 @@ export const deleteProjectJsonSchema = networkAction((projectJsonSchema) => (_di
   req: jsonRequest(projectJsonSchema, "DELETE"),
   err: "Error while deleting project JSON schema",
   onSuccess: () => {
-    message.success(`Project JSON schema for ${projectJsonSchema.schema_type} was deleted!`);
+    messageApi.success(`Project JSON schema for ${projectJsonSchema.schema_type} was deleted!`);
   },
 }));
 
@@ -138,7 +141,7 @@ export const deleteProject = networkAction((project) => (_dispatch, getState) =>
   url: `${getState().services.metadataService.url}/api/projects/${project.identifier}`,
   req: { method: "DELETE" },
   err: `Error deleting project '${project.title}'`, // TODO: More user-friendly, detailed error
-  onSuccess: () => message.success(`Project '${project.title}' deleted!`),
+  onSuccess: () => messageApi.success(`Project '${project.title}' deleted!`),
 }));
 
 export const deleteProjectIfPossible = (project) => async (dispatch, getState) => {
@@ -146,18 +149,19 @@ export const deleteProjectIfPossible = (project) => async (dispatch, getState) =
 
   // Remove data without destroying project/datasets first
   try {
-    await Promise.all(project.datasets.map((ds) => dispatch(clearDatasetDataTypes(ds.identifier))));
+    await Promise.all(project.datasets_v2.map((ds) => dispatch(clearDatasetDataTypes(ds.identifier))));
     await dispatch(deleteProject(project));
   } catch (err) {
     console.error(err);
-    message.error(`Error deleting project '${project.title}'`);
+    messageApi.error(`Error deleting project '${project.title}'`);
   }
 };
 
 export const clearDatasetDataTypes = (datasetId) => async (dispatch, getState) => {
   // only clear data types which can yield counts - `queryable` is a proxy for this
-  const dataTypes = Object.values(getState().datasetDataTypes.itemsByID[datasetId].itemsByID).filter(
-    (dt) => dt.queryable,
+  const serviceDataTypeIDs = new Set(Object.keys(getState().serviceDataTypes.itemsByID));
+  const dataTypes = Object.values(getState().datasetDataTypes.itemsByID[datasetId]?.itemsByID ?? {}).filter(
+    (dt) => dt.queryable && serviceDataTypeIDs.has(dt.id),
   );
   return await Promise.all(dataTypes.map((dt) => dispatch(clearDatasetDataType(datasetId, dt.id))));
 };
@@ -170,39 +174,39 @@ export const saveProjectIfPossible = networkAction((project) => (dispatch, getSt
   check: (state) => !state.projects.isDeleting || !state.projects.isSaving,
   onSuccess: () => {
     dispatch(endProjectEditing());
-    message.success(`Project '${project.title}' saved!`);
+    messageApi.success(`Project '${project.title}' saved!`);
   },
 }));
 
 export const addProjectDataset = networkAction((project, dataset, onSuccess = nop) => (_dispatch, getState) => ({
   types: ADD_PROJECT_DATASET,
-  url: `${getState().services.metadataService.url}/api/datasets`,
+  url: `${getState().services.metadataService.url}/api/datasets_v2`,
   req: jsonRequest({ ...dataset, project: project.identifier }, "POST"),
   err: `Error adding dataset to project '${project.title}'`, // TODO: More user-friendly error
   // TODO: END ACTION?
   onSuccess: async () => {
     await onSuccess();
-    message.success(`Added dataset '${dataset.title}' to project ${project.title}!`);
+    messageApi.success(`Added dataset '${dataset.title}' to project ${project.title}!`);
   },
 }));
 
 export const saveProjectDataset = networkAction((dataset, onSuccess = nop) => (_dispatch, getState) => ({
   types: SAVE_PROJECT_DATASET,
-  url: `${getState().services.metadataService.url}/api/datasets/${dataset.identifier}`,
+  url: `${getState().services.metadataService.url}/api/datasets_v2/${dataset.identifier}`,
   // Filter out read-only props
   // TODO: PATCH
   req: jsonRequest(objectWithoutProps(dataset, ["identifier", "created", "updated"]), "PUT"),
   err: `Error saving dataset '${dataset.title}'`,
   onSuccess: async () => {
     await onSuccess();
-    message.success(`Saved dataset '${dataset.title}'`);
+    messageApi.success(`Saved dataset '${dataset.title}'`);
   },
 }));
 
 export const deleteProjectDataset = networkAction((project, dataset) => (_dispatch, getState) => ({
   types: DELETE_PROJECT_DATASET,
   params: { project, dataset },
-  url: `${getState().services.metadataService.url}/api/datasets/${dataset.identifier}`,
+  url: `${getState().services.metadataService.url}/api/datasets_v2/${dataset.identifier}`,
   req: { method: "DELETE" },
   err: `Error deleting dataset '${dataset.title}'`,
 }));
@@ -219,18 +223,18 @@ export const deleteProjectDatasetIfPossible = (project, dataset) => async (dispa
     await dispatch(deleteProjectDataset(project, dataset));
   } catch (err) {
     console.error(err);
-    message.error(`Error deleting dataset '${dataset.title}'`);
+    messageApi.error(`Error deleting dataset '${dataset.title}'`);
   }
 };
 
 const addDatasetLinkedFieldSet = networkAction((dataset, linkedFieldSet, onSuccess) => (_dispatch, getState) => ({
   types: ADD_DATASET_LINKED_FIELD_SET,
-  url: `${getState().services.metadataService.url}/api/datasets/${dataset.identifier}`,
-  req: jsonRequest({ linked_field_sets: [...dataset.linked_field_sets, linkedFieldSet] }, "PATCH"),
+  url: `${getState().services.metadataService.url}/api/datasets_v2/${dataset.identifier}`,
+  req: jsonRequest({ linked_field_sets: [...(dataset.linked_field_sets ?? []), linkedFieldSet] }, "PATCH"),
   err: `Error adding linked field set '${linkedFieldSet.name}' to dataset '${dataset.title}'`,
   onSuccess: async () => {
     await onSuccess();
-    message.success(`Added linked field set '${linkedFieldSet.name}' to dataset '${dataset.title}'`);
+    messageApi.success(`Added linked field set '${linkedFieldSet.name}' to dataset '${dataset.title}'`);
   },
 }));
 
@@ -249,7 +253,7 @@ export const addDatasetLinkedFieldSetIfPossible =
 const saveDatasetLinkedFieldSet = networkAction(
   (dataset, index, linkedFieldSet, onSuccess) => (_dispatch, getState) => ({
     types: SAVE_DATASET_LINKED_FIELD_SET,
-    url: `${getState().services.metadataService.url}/api/datasets/${dataset.identifier}`,
+    url: `${getState().services.metadataService.url}/api/datasets_v2/${dataset.identifier}`,
     req: jsonRequest(
       {
         linked_field_sets: dataset.linked_field_sets.map((l, i) => (i === index ? linkedFieldSet : l)),
@@ -259,7 +263,7 @@ const saveDatasetLinkedFieldSet = networkAction(
     err: `Error saving linked field set '${linkedFieldSet.name}' in dataset '${dataset.title}'`,
     onSuccess: async () => {
       await onSuccess();
-      message.success(`Saved linked field set '${linkedFieldSet.name}' in dataset '${dataset.title}'`);
+      messageApi.success(`Saved linked field set '${linkedFieldSet.name}' in dataset '${dataset.title}'`);
     },
   }),
 );
@@ -280,7 +284,7 @@ export const saveDatasetLinkedFieldSetIfPossible =
 const deleteDatasetLinkedFieldSet = networkAction(
   (dataset, linkedFieldSet, linkedFieldSetIndex) => (_dispatch, getState) => ({
     types: DELETE_DATASET_LINKED_FIELD_SET,
-    url: `${getState().services.metadataService.url}/api/datasets/${dataset.identifier}`,
+    url: `${getState().services.metadataService.url}/api/datasets_v2/${dataset.identifier}`,
     req: jsonRequest(
       {
         linked_field_sets: dataset.linked_field_sets.filter((_, i) => i !== linkedFieldSetIndex),
@@ -289,7 +293,7 @@ const deleteDatasetLinkedFieldSet = networkAction(
     ),
     err: `Error deleting linked field set '${linkedFieldSet.name}' from dataset '${dataset.title}'`,
     onSuccess: () =>
-      message.success(`Deleted linked field set '${linkedFieldSet.name}' from dataset '${dataset.title}'`),
+      messageApi.success(`Deleted linked field set '${linkedFieldSet.name}' from dataset '${dataset.title}'`),
   }),
 );
 

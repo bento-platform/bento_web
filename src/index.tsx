@@ -4,6 +4,7 @@ import { Provider } from "react-redux";
 import { BrowserRouter } from "react-router-dom";
 
 import { BentoAuthContextProvider } from "bento-auth-js";
+import { App as AntdApp } from "antd";
 
 import "leaflet/dist/leaflet.css";
 import "react18-json-view/src/style.css";
@@ -30,7 +31,9 @@ document.addEventListener("DOMContentLoaded", () => {
             authCallbackUrl: AUTH_CALLBACK_URL,
           }}
         >
-          <App />
+          <AntdApp>
+            <App />
+          </AntdApp>
         </BentoAuthContextProvider>
       </BrowserRouter>
     </Provider>,

@@ -1,4 +1,4 @@
-import { message } from "antd";
+import messageApi from "@/utils/messageApi";
 import { basicAction, createFlowActionTypes, createNetworkActionTypes, networkAction } from "@/utils/actions";
 
 export const FETCH_DROP_BOX_TREE = createNetworkActionTypes("FETCH_DROP_BOX_TREE");
@@ -32,7 +32,7 @@ export const putDropBoxObject = networkAction((path, file) => async (dispatch, g
     body: await file.arrayBuffer(),
   },
   onSuccess: () => {
-    message.success(`Successfully uploaded file to drop box path: ${path}`);
+    messageApi.success(`Successfully uploaded file to drop box path: ${path}`);
     dispatch(invalidateDropBoxTree());
     return dispatch(fetchDropBoxTree());
   },
@@ -47,7 +47,7 @@ export const deleteDropBoxObject = networkAction((path) => async (dispatch, getS
   url: dropBoxObjectPath(getState, path),
   req: { method: "DELETE" },
   onSuccess: () => {
-    message.success(`Successfully deleted file at drop box path: ${path}`);
+    messageApi.success(`Successfully deleted file at drop box path: ${path}`);
     dispatch(invalidateDropBoxTree());
     return dispatch(fetchDropBoxTree());
   },

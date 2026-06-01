@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 
-import { Modal } from "antd";
+import { App } from "antd";
 
 import DatasetFormModal from "../../datasets/DatasetFormModal";
 
@@ -16,6 +16,7 @@ import { useProjects } from "@/modules/metadata/hooks";
 import { useAppDispatch, useAppSelector } from "@/store";
 
 const RoutedProject = () => {
+  const { modal } = App.useApp();
   const dispatch = useAppDispatch();
   const navigate = useNavigate();
 
@@ -36,6 +37,11 @@ const RoutedProject = () => {
   const [selectedDataset, setSelectedDataset] = useState(null);
 
   const project = projectsByID[selectedProjectID];
+
+  // Derive from live Redux state so the form reflects post-save data
+  const datasetForEdit = selectedDataset
+    ? (project?.datasets_v2?.find((d) => d.identifier === selectedDataset.identifier) ?? selectedDataset)
+    : selectedDataset;
 
   useEffect(() => {
     if (!projectsByID[selectedProjectID] && !loadingProjects) {
@@ -72,7 +78,7 @@ const RoutedProject = () => {
 
   const handleProjectDelete = useCallback(() => {
     if (!project) return;
-    const deleteModal = Modal.confirm({
+    const deleteModal = modal.confirm({
       title: `Are you sure you want to delete the "${project.title}" project?`,
       content: (
         <>
@@ -91,7 +97,7 @@ const RoutedProject = () => {
         deleteModal.update({ okButtonProps: { loading: false } });
       },
     });
-  }, [dispatch, project]);
+  }, [dispatch, modal, project]);
 
   const handleDatasetEdit = useCallback((dataset) => {
     setSelectedDataset(dataset);
@@ -114,10 +120,11 @@ const RoutedProject = () => {
       />
 
       <DatasetFormModal
+        key={`${selectedDataset?.identifier ?? "edit"}-${datasetEditModal}`}
         mode={FORM_MODE_EDIT}
         project={project}
         open={datasetEditModal}
-        initialValue={selectedDataset}
+        initialValue={datasetForEdit}
         onCancel={hideDatasetEditModal}
         onOk={hideDatasetEditModal}
       />

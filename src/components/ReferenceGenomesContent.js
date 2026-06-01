@@ -1,6 +1,6 @@
 import { useCallback, useMemo } from "react";
 
-import { Button, Descriptions, Dropdown, Layout, Modal, Popover, Space, Table } from "antd";
+import { App, Button, Descriptions, Dropdown, Layout, Popover, Space, Table } from "antd";
 import { BarsOutlined, DeleteOutlined, ImportOutlined } from "@ant-design/icons";
 
 import { deleteReferenceMaterial, ingestReferenceMaterial, RESOURCE_EVERYTHING } from "bento-auth-js";
@@ -21,6 +21,7 @@ import { useStartIngestionFlow } from "./manager/workflowCommon";
 const DEFAULT_REF_INGEST_WORKFLOW_ID = "fasta_ref";
 
 const ReferenceGenomesContent = () => {
+  const { modal } = App.useApp();
   const dispatch = useAppDispatch();
 
   const { hasAttempted: hasAttemptedServiceFetch } = useServices();
@@ -145,7 +146,7 @@ const ReferenceGenomesContent = () => {
                       loading={isDeletingIDs[genome.id]}
                       disabled={isFetchingGenomes || isDeletingIDs[genome.id]}
                       onClick={() => {
-                        Modal.confirm({
+                        modal.confirm({
                           title: `Are you sure you want to delete genome "${genome.id}"?`,
                           maskClosable: true,
                           okText: "Delete",
@@ -164,7 +165,7 @@ const ReferenceGenomesContent = () => {
           ]
         : []),
     ],
-    [dispatch, isFetchingGenomes, isDeletingIDs, canDeleteReference],
+    [dispatch, modal, isFetchingGenomes, isDeletingIDs, canDeleteReference],
   );
 
   return (

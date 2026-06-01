@@ -1,6 +1,6 @@
 import { useCallback } from "react";
 import PropTypes from "prop-types";
-import { Button, Checkbox, Form, Select, Tooltip, message } from "antd";
+import { App, Button, Checkbox, Form, Select, Tooltip } from "antd";
 import { useDropzone } from "react-dropzone";
 import Ajv from "ajv";
 import addFormats from "ajv-formats";
@@ -29,6 +29,7 @@ const getSchemaTypeOptions = (schemaTypes) => {
 };
 
 const JsonSchemaInput = ({ value, onChange }) => {
+  const { message } = App.useApp();
   const onDrop = useCallback(
     (files) => {
       files.forEach((file) => {
@@ -47,7 +48,7 @@ const JsonSchemaInput = ({ value, onChange }) => {
         reader.readAsText(file);
       });
     },
-    [onChange],
+    [message, onChange],
   );
 
   const { getRootProps, getInputProps } = useDropzone({

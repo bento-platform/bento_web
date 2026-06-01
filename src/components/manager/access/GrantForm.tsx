@@ -315,7 +315,7 @@ const ResourceInput = ({ value, onChange }: ResourceInputProps) => {
 
     if (selectedProject) {
       options.push(
-        ...(selectedProject.datasets ?? []).map((d) => ({
+        ...(selectedProject.datasets_v2 ?? []).map((d) => ({
           value: d.identifier,
           label: d.title,
         })),
