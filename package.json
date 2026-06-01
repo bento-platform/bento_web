@@ -1,6 +1,6 @@
 {
   "name": "bento_web",
-  "version": "7.4.0",
+  "version": "8.0.0",
   "private": true,
   "description": "Bento platform front-end",
   "main": "src/index.tsx",
