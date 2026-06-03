@@ -195,9 +195,7 @@ export const projects: Reducer<ProjectsState> = (
       return {
         ...state,
         items: state.items.map((p) =>
-          p.identifier === deletedProject.identifier
-            ? { ...p, datasets: (p.datasets ?? []).filter(deleteDataset) }
-            : p,
+          p.identifier === deletedProject.identifier ? { ...p, datasets: (p.datasets ?? []).filter(deleteDataset) } : p,
         ),
         itemsByID: {
           ...state.itemsByID,
@@ -232,9 +230,7 @@ export const projects: Reducer<ProjectsState> = (
       return {
         ...state,
         items: state.items.map((p) =>
-          p.identifier === updatedDataset.project
-            ? { ...p, datasets: (p.datasets ?? []).map(replaceDataset) }
-            : p,
+          p.identifier === updatedDataset.project ? { ...p, datasets: (p.datasets ?? []).map(replaceDataset) } : p,
         ),
         itemsByID: {
           ...state.itemsByID,
