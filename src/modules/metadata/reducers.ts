@@ -81,7 +81,7 @@ export const projects: Reducer<ProjectsState> = (
     case FETCH_PROJECTS.RECEIVE: {
       const projects = [...(action.data as Project[])].sort(projectSort);
       const datasets: ProjectScopedDatasetModel[] = projects.flatMap((p: Project) =>
-        (p.datasets_v2 ?? []).map((d: DatasetModel) => ({ ...d, project: p.identifier })),
+        (p.datasets ?? []).map((d: DatasetModel) => ({ ...d, project: p.identifier })),
       );
       return {
         ...state,
@@ -164,13 +164,13 @@ export const projects: Reducer<ProjectsState> = (
         ...state,
         isAddingDataset: false,
         items: state.items.map((p) =>
-          p.identifier === projectID ? { ...p, datasets_v2: [...(p.datasets_v2 ?? []), newDataset] } : p,
+          p.identifier === projectID ? { ...p, datasets: [...(p.datasets ?? []), newDataset] } : p,
         ),
         itemsByID: {
           ...state.itemsByID,
           [projectID]: {
             ...(state.itemsByID[projectID] || {}),
-            datasets_v2: [...(state.itemsByID[projectID]?.datasets_v2 ?? []), newDataset],
+            datasets: [...(state.itemsByID[projectID]?.datasets ?? []), newDataset],
           },
         },
         datasets: [...state.datasets, newDataset],
@@ -196,14 +196,14 @@ export const projects: Reducer<ProjectsState> = (
         ...state,
         items: state.items.map((p) =>
           p.identifier === deletedProject.identifier
-            ? { ...p, datasets_v2: (p.datasets_v2 ?? []).filter(deleteDataset) }
+            ? { ...p, datasets: (p.datasets ?? []).filter(deleteDataset) }
             : p,
         ),
         itemsByID: {
           ...state.itemsByID,
           [deletedProject.identifier]: {
             ...(state.itemsByID[deletedProject.identifier] || {}),
-            datasets_v2: ((state.itemsByID[deletedProject.identifier] || {}).datasets_v2 ?? []).filter(deleteDataset),
+            datasets: ((state.itemsByID[deletedProject.identifier] || {}).datasets ?? []).filter(deleteDataset),
           },
         },
         datasets: state.datasets.filter((d) => d.identifier !== deletedDataset.identifier),
@@ -233,14 +233,14 @@ export const projects: Reducer<ProjectsState> = (
         ...state,
         items: state.items.map((p) =>
           p.identifier === updatedDataset.project
-            ? { ...p, datasets_v2: (p.datasets_v2 ?? []).map(replaceDataset) }
+            ? { ...p, datasets: (p.datasets ?? []).map(replaceDataset) }
             : p,
         ),
         itemsByID: {
           ...state.itemsByID,
           [updatedDataset.project]: {
             ...(state.itemsByID[updatedDataset.project] || {}),
-            datasets_v2: ((state.itemsByID[updatedDataset.project] || {}).datasets_v2 ?? []).map(replaceDataset),
+            datasets: ((state.itemsByID[updatedDataset.project] || {}).datasets ?? []).map(replaceDataset),
           },
         },
       };

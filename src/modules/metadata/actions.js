@@ -45,13 +45,10 @@ export const fetchDiscoverySchema = () => (dispatch, getState) => {
 
 export const clearDatasetDataType = networkAction((datasetId, dataTypeID) => (_dispatch, getState) => {
   const { service_base_url: serviceBaseUrl } = getState().serviceDataTypes.itemsByID[dataTypeID];
-  const metadataServiceUrl = getState().services.metadataService?.url ?? "";
-  const datasetsSegment =
-    metadataServiceUrl && serviceBaseUrl.startsWith(metadataServiceUrl) ? "datasets_v2" : "datasets";
   // noinspection JSUnusedGlobalSymbols
   return {
     types: DELETE_DATASET_DATA_TYPE,
-    url: `${serviceBaseUrl}${datasetsSegment}/${datasetId}/data-types/${dataTypeID}`,
+    url: `${serviceBaseUrl}datasets/${datasetId}/data-types/${dataTypeID}`,
     req: {
       method: "DELETE",
     },
@@ -149,7 +146,7 @@ export const deleteProjectIfPossible = (project) => async (dispatch, getState) =
 
   // Remove data without destroying project/datasets first
   try {
-    await Promise.all(project.datasets_v2.map((ds) => dispatch(clearDatasetDataTypes(ds.identifier))));
+    await Promise.all(project.datasets.map((ds) => dispatch(clearDatasetDataTypes(ds.identifier))));
     await dispatch(deleteProject(project));
   } catch (err) {
     console.error(err);

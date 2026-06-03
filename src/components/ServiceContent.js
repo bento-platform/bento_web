@@ -37,7 +37,7 @@ const ServiceContent = () => {
               <Spin spinning={isFetching}>
                 <Statistic
                   title="Datasets"
-                  value={isFetching ? EM_DASH : projects.flatMap((p) => p.datasets_v2).length}
+                  value={isFetching ? EM_DASH : projects.flatMap((p) => p.datasets).length}
                 />
               </Spin>
             </Col>

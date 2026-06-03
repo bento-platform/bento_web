@@ -69,7 +69,7 @@ const Project = ({
     (onCancelEdit || nop)();
   }, [editingForm, onCancelEdit]);
 
-  const datasets = value.datasets_v2 ?? [];
+  const datasets = value.datasets ?? [];
 
   return (
     <>

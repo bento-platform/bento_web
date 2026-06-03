@@ -40,7 +40,7 @@ const RoutedProject = () => {
 
   // Derive from live Redux state so the form reflects post-save data
   const datasetForEdit = selectedDataset
-    ? (project?.datasets_v2?.find((d) => d.identifier === selectedDataset.identifier) ?? selectedDataset)
+    ? (project?.datasets?.find((d) => d.identifier === selectedDataset.identifier) ?? selectedDataset)
     : selectedDataset;
 
   useEffect(() => {
