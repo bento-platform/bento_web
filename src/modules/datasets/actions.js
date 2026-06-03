@@ -54,7 +54,7 @@ export const invalidateDatasetSummaries = (datasetID) => ({ type: INVALIDATE_DAT
 const fetchDatasetResources = networkAction((datasetID) => (_dispatch, getState) => ({
   types: FETCH_DATASET_RESOURCES,
   params: { datasetID },
-  url: `${getState().services.metadataService.url}/datasets_v2/${datasetID}/resources`,
+  url: `${getState().services.metadataService.url}/datasets/${datasetID}/resources`,
   err: "Error fetching dataset resources",
 }));
 export const fetchDatasetResourcesIfNecessary = (datasetID) => (dispatch, getState) => {
