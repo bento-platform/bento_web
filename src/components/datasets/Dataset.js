@@ -170,7 +170,7 @@ const Dataset = ({ mode, project, value, onEdit }) => {
 
   const exportMenuItems = [
     { key: "en", label: "English (canonical)" },
-    { key: "fr", label: "French translation" },
+    ...(frTranslationStatus === "exists" ? [{ key: "fr", label: "French translation" }] : []),
   ];
 
   const isPrivate = mode === "private";
