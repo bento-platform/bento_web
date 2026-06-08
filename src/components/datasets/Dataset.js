@@ -58,6 +58,7 @@ const Dataset = ({ mode, project, value, onEdit }) => {
   const linkedFieldSets = value?.linked_field_sets ?? [];
   const [provenanceModalVisible, setProvenanceModalVisible] = useState(false);
   const [translationModalVisible, setTranslationModalVisible] = useState(false);
+  const [frTranslationStatus, setFrTranslationStatus] = useState("loading"); // "loading" | "exists" | "missing" | "error"
   const [exportingFr, setExportingFr] = useState(false);
   const [fieldSetAdditionModalVisible, setFieldSetAdditionModalVisible] = useState(false);
   const [fieldSetEditModalVisible, setFieldSetEditModalVisible] = useState(false);
@@ -70,6 +71,20 @@ const Dataset = ({ mode, project, value, onEdit }) => {
       dispatch(fetchDatasetDataTypesIfPossible(identifier));
     }
   }, [dispatch, identifier]);
+
+  const checkFrTranslation = useCallback(() => {
+    if (!identifier || !metadataUrl) return;
+    setFrTranslationStatus("loading");
+    fetchTranslation(metadataUrl, identifier, "fr").then((result) => {
+      if (result.exists === true) setFrTranslationStatus("exists");
+      else if (result.exists === false) setFrTranslationStatus("missing");
+      else setFrTranslationStatus("error");
+    });
+  }, [identifier, metadataUrl]);
+
+  useEffect(() => {
+    checkFrTranslation();
+  }, [checkFrTranslation]);
 
   const handleFieldSetDeletion = useCallback(
     (fieldSet, index) => {
@@ -290,9 +305,10 @@ const Dataset = ({ mode, project, value, onEdit }) => {
               <Button
                 icon={<GlobalOutlined />}
                 style={{ marginRight: "8px" }}
+                loading={frTranslationStatus === "loading"}
                 onClick={() => setTranslationModalVisible(true)}
               >
-                French Translation
+                {frTranslationStatus === "exists" ? "Edit French Translation" : "Add French Translation"}
               </Button>
               <Button icon={<EditOutlined />} style={{ marginRight: "8px" }} onClick={() => (onEdit || nop)()}>
                 Edit
@@ -315,7 +331,10 @@ const Dataset = ({ mode, project, value, onEdit }) => {
         <DatasetTranslationModal
           dataset={value}
           open={translationModalVisible}
-          onClose={() => setTranslationModalVisible(false)}
+          onClose={() => {
+            setTranslationModalVisible(false);
+            checkFrTranslation();
+          }}
         />
       )}
       {isPrivate ? (
