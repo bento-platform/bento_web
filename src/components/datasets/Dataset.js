@@ -1,9 +1,17 @@
 import { useCallback, useEffect, useState } from "react";
 import PropTypes from "prop-types";
 
-import { App, Button, Card, Col, Divider, Empty, Row, Typography } from "antd";
+import { App, Button, Card, Col, Divider, Dropdown, Empty, Row, Typography } from "antd";
 
-import { DeleteOutlined, EditOutlined, FileSearchOutlined, GlobalOutlined, PlusOutlined } from "@ant-design/icons";
+import {
+  DeleteOutlined,
+  DownloadOutlined,
+  DownOutlined,
+  EditOutlined,
+  FileSearchOutlined,
+  GlobalOutlined,
+  PlusOutlined,
+} from "@ant-design/icons";
 
 import {
   addDatasetLinkedFieldSetIfPossible,
@@ -22,7 +30,8 @@ import DatasetOverview from "./DatasetOverview";
 import DatasetDataTypes from "./DatasetDataTypes";
 import DatasetProvenanceModal from "./DatasetProvenanceModal";
 import DatasetTranslationModal from "./DatasetTranslationModal";
-import { useAppDispatch } from "@/store";
+import { fetchTranslation } from "@/api/datasetTranslations";
+import { useAppDispatch, useAppSelector } from "@/store";
 
 const DATASET_CARD_TABS = [
   { key: "overview", tab: "Overview" },
@@ -40,14 +49,16 @@ const DEFAULT_BIOSAMPLE_LFS = {
 };
 
 const Dataset = ({ mode, project, value, onEdit }) => {
-  const { modal } = App.useApp();
+  const { modal, message } = App.useApp();
   const dispatch = useAppDispatch();
+  const metadataUrl = useAppSelector((state) => state.services.metadataService?.url ?? "");
 
   const identifier = value?.identifier ?? null;
   const title = value?.title ?? "";
   const linkedFieldSets = value?.linked_field_sets ?? [];
   const [provenanceModalVisible, setProvenanceModalVisible] = useState(false);
   const [translationModalVisible, setTranslationModalVisible] = useState(false);
+  const [exportingFr, setExportingFr] = useState(false);
   const [fieldSetAdditionModalVisible, setFieldSetAdditionModalVisible] = useState(false);
   const [fieldSetEditModalVisible, setFieldSetEditModalVisible] = useState(false);
   const [selectedLinkedFieldSet, setSelectedLinkedFieldSet] = useState({ data: null, index: null });
@@ -111,6 +122,41 @@ const Dataset = ({ mode, project, value, onEdit }) => {
       },
     });
   }, [dispatch, modal, project, title, value]);
+
+  const downloadJson = useCallback((data, filename) => {
+    const blob = new Blob([JSON.stringify(data, null, 2)], { type: "application/json" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = filename;
+    a.click();
+    URL.revokeObjectURL(url);
+  }, []);
+
+  const handleExport = useCallback(
+    async ({ key }) => {
+      if (key === "en") {
+        downloadJson(value, `${identifier}-en.json`);
+      } else if (key === "fr") {
+        setExportingFr(true);
+        const result = await fetchTranslation(metadataUrl, identifier, "fr");
+        setExportingFr(false);
+        if (result.exists === true) {
+          downloadJson(result.data, `${identifier}-fr.json`);
+        } else if (result.exists === false) {
+          message.warning("No French translation exists for this dataset.");
+        } else {
+          message.error(`Failed to fetch French translation: ${result.error}`);
+        }
+      }
+    },
+    [downloadJson, identifier, message, metadataUrl, value],
+  );
+
+  const exportMenuItems = [
+    { key: "en", label: "English (canonical)" },
+    { key: "fr", label: "French translation" },
+  ];
 
   const isPrivate = mode === "private";
   const defaultBiosampleLFSDisabled = linkedFieldSets.length !== 0;
@@ -234,6 +280,11 @@ const Dataset = ({ mode, project, value, onEdit }) => {
           >
             View Provenance
           </Button>
+          <Dropdown menu={{ items: exportMenuItems, onClick: handleExport }} trigger={["click"]} disabled={exportingFr}>
+            <Button icon={<DownloadOutlined />} loading={exportingFr} style={{ marginRight: "8px" }}>
+              Export <DownOutlined />
+            </Button>
+          </Dropdown>
           {isPrivate && (
             <>
               <Button
