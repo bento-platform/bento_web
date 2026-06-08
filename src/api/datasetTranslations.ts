@@ -13,10 +13,11 @@ export async function fetchTranslation(
   baseUrl: string,
   datasetId: string,
   lang: string,
+  authHeader: Record<string, string>,
 ): Promise<{ exists: true; data: DatasetModelBase } | { exists: false } | { exists: null; error: string }> {
   try {
     const res = await fetch(translationsUrl(baseUrl, datasetId, lang), {
-      headers: { Accept: "application/json" },
+      headers: { Accept: "application/json", ...authHeader },
     });
     if (res.ok) return { exists: true, data: (await res.json()) as DatasetModelBase };
     if (res.status === 404) return { exists: false };
@@ -32,11 +33,12 @@ export async function upsertTranslation(
   lang: string,
   payload: DatasetModelBase,
   isEdit: boolean,
+  authHeader: Record<string, string>,
 ): Promise<TranslationApiResult> {
   try {
     const res = await fetch(translationsUrl(baseUrl, datasetId, isEdit ? lang : undefined), {
       method: isEdit ? "PUT" : "POST",
-      headers: { "Content-Type": "application/json", Accept: "application/json" },
+      headers: { "Content-Type": "application/json", Accept: "application/json", ...authHeader },
       body: JSON.stringify({ ...payload, language: lang }),
     });
     if (res.ok) return { ok: true, data: (await res.json()) as DatasetModelBase };

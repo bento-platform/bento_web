@@ -30,6 +30,8 @@ import DatasetOverview from "./DatasetOverview";
 import DatasetDataTypes from "./DatasetDataTypes";
 import DatasetProvenanceModal from "./DatasetProvenanceModal";
 import DatasetTranslationModal from "./DatasetTranslationModal";
+import { useAuthorizationHeader } from "bento-auth-js";
+
 import { fetchTranslation } from "@/api/datasetTranslations";
 import { useAppDispatch, useAppSelector } from "@/store";
 
@@ -52,6 +54,7 @@ const Dataset = ({ mode, project, value, onEdit }) => {
   const { modal, message } = App.useApp();
   const dispatch = useAppDispatch();
   const metadataUrl = useAppSelector((state) => state.services.metadataService?.url ?? "");
+  const authHeader = useAuthorizationHeader();
 
   const identifier = value?.identifier ?? null;
   const title = value?.title ?? "";
@@ -75,12 +78,12 @@ const Dataset = ({ mode, project, value, onEdit }) => {
   const checkFrTranslation = useCallback(() => {
     if (!identifier || !metadataUrl) return;
     setFrTranslationStatus("loading");
-    fetchTranslation(metadataUrl, identifier, "fr").then((result) => {
+    fetchTranslation(metadataUrl, identifier, "fr", authHeader).then((result) => {
       if (result.exists === true) setFrTranslationStatus("exists");
       else if (result.exists === false) setFrTranslationStatus("missing");
       else setFrTranslationStatus("error");
     });
-  }, [identifier, metadataUrl]);
+  }, [identifier, metadataUrl, authHeader]);
 
   useEffect(() => {
     checkFrTranslation();
@@ -154,7 +157,7 @@ const Dataset = ({ mode, project, value, onEdit }) => {
         downloadJson(value, `${identifier}-en.json`);
       } else if (key === "fr") {
         setExportingFr(true);
-        const result = await fetchTranslation(metadataUrl, identifier, "fr");
+        const result = await fetchTranslation(metadataUrl, identifier, "fr", authHeader);
         setExportingFr(false);
         if (result.exists === true) {
           downloadJson(result.data, `${identifier}-fr.json`);
@@ -165,7 +168,7 @@ const Dataset = ({ mode, project, value, onEdit }) => {
         }
       }
     },
-    [downloadJson, identifier, message, metadataUrl, value],
+    [authHeader, downloadJson, identifier, message, metadataUrl, value],
   );
 
   const exportMenuItems = [
