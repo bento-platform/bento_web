@@ -3,7 +3,7 @@ import PropTypes from "prop-types";
 
 import { App, Button, Card, Col, Divider, Empty, Row, Typography } from "antd";
 
-import { DeleteOutlined, EditOutlined, FileSearchOutlined, PlusOutlined } from "@ant-design/icons";
+import { DeleteOutlined, EditOutlined, FileSearchOutlined, GlobalOutlined, PlusOutlined } from "@ant-design/icons";
 
 import {
   addDatasetLinkedFieldSetIfPossible,
@@ -21,6 +21,7 @@ import { FORM_MODE_ADD, FORM_MODE_EDIT } from "@/constants";
 import DatasetOverview from "./DatasetOverview";
 import DatasetDataTypes from "./DatasetDataTypes";
 import DatasetProvenanceModal from "./DatasetProvenanceModal";
+import DatasetTranslationModal from "./DatasetTranslationModal";
 import { useAppDispatch } from "@/store";
 
 const DATASET_CARD_TABS = [
@@ -46,6 +47,7 @@ const Dataset = ({ mode, project, value, onEdit }) => {
   const title = value?.title ?? "";
   const linkedFieldSets = value?.linked_field_sets ?? [];
   const [provenanceModalVisible, setProvenanceModalVisible] = useState(false);
+  const [translationModalVisible, setTranslationModalVisible] = useState(false);
   const [fieldSetAdditionModalVisible, setFieldSetAdditionModalVisible] = useState(false);
   const [fieldSetEditModalVisible, setFieldSetEditModalVisible] = useState(false);
   const [selectedLinkedFieldSet, setSelectedLinkedFieldSet] = useState({ data: null, index: null });
@@ -234,6 +236,13 @@ const Dataset = ({ mode, project, value, onEdit }) => {
           </Button>
           {isPrivate && (
             <>
+              <Button
+                icon={<GlobalOutlined />}
+                style={{ marginRight: "8px" }}
+                onClick={() => setTranslationModalVisible(true)}
+              >
+                French Translation
+              </Button>
               <Button icon={<EditOutlined />} style={{ marginRight: "8px" }} onClick={() => (onEdit || nop)()}>
                 Edit
               </Button>
@@ -251,6 +260,13 @@ const Dataset = ({ mode, project, value, onEdit }) => {
         open={provenanceModalVisible}
         onClose={() => setProvenanceModalVisible(false)}
       />
+      {isPrivate && value && (
+        <DatasetTranslationModal
+          dataset={value}
+          open={translationModalVisible}
+          onClose={() => setTranslationModalVisible(false)}
+        />
+      )}
       {isPrivate ? (
         <>
           <LinkedFieldSetModal
