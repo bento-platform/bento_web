@@ -14,7 +14,7 @@ import type { DatasetModel, DatasetModelBase as DatasetModelBaseType } from "@/t
 import { prepareInitialValues, validateWithZod } from "./DatasetForm/helpers";
 import { saveDraft, loadDraft, clearDraft, deserializeFormValues } from "@/utils/datasetDraftUtils";
 import { fetchTranslation } from "@/api/datasetTranslations";
-import { saveProjectDataset, fetchProjectsWithDatasets } from "@/modules/metadata/actions";
+import { saveProjectDataset, refreshDataset } from "@/modules/metadata/actions";
 import { useProjects } from "@/modules/metadata/hooks";
 import DatasetForm from "./DatasetForm";
 import DatasetTranslationModal from "./DatasetTranslationModal";
@@ -42,13 +42,7 @@ const DatasetProvenanceModal = ({ dataset, open, onClose }: DatasetProvenanceMod
   const debounceTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const draftKey = `dataset-draft:edit:${dataset?.identifier}`;
-  const [hasFrOverride, setHasFrOverride] = useState<boolean | null>(null);
-  const hasFrTranslation = hasFrOverride ?? (dataset?.translations ?? []).includes("fr");
-
-  // Clear the optimistic override once the store delivers updated translations
-  useEffect(() => {
-    setHasFrOverride(null);
-  }, [dataset?.translations]);
+  const hasFrTranslation = (dataset?.translations ?? []).includes("fr");
 
   useEffect(() => {
     if (!open) {
@@ -107,7 +101,7 @@ const DatasetProvenanceModal = ({ dataset, open, onClose }: DatasetProvenanceMod
         }
         clearDraft(draftKey);
         form.resetFields();
-        await dispatch(fetchProjectsWithDatasets());
+        await dispatch(refreshDataset(dataset.identifier));
         setEditing(false);
       };
       dispatch(saveProjectDataset({ ...dataset, ...values }, onSuccess));
@@ -294,10 +288,7 @@ const DatasetProvenanceModal = ({ dataset, open, onClose }: DatasetProvenanceMod
         <DatasetTranslationModal
           dataset={dataset}
           open={translationModalOpen}
-          onSave={(hasFrNow) => {
-            setHasFrOverride(hasFrNow);
-            dispatch(fetchProjectsWithDatasets());
-          }}
+          onSave={() => dispatch(refreshDataset(dataset!.identifier))}
           onClose={() => setTranslationModalOpen(false)}
         />
       )}

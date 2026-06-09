@@ -18,6 +18,7 @@ export const DELETE_PROJECT_JSON_SCHEMA = createNetworkActionTypes("DELETE_PROJE
 
 export const ADD_PROJECT_DATASET = createNetworkActionTypes("ADD_PROJECT_DATASET");
 export const SAVE_PROJECT_DATASET = createNetworkActionTypes("SAVE_PROJECT_DATASET");
+export const REFRESH_DATASET = createNetworkActionTypes("REFRESH_DATASET");
 export const DELETE_PROJECT_DATASET = createNetworkActionTypes("DELETE_PROJECT_DATASET");
 export const ADD_DATASET_LINKED_FIELD_SET = createNetworkActionTypes("ADD_DATASET_LINKED_FIELD_SET");
 export const SAVE_DATASET_LINKED_FIELD_SET = createNetworkActionTypes("SAVE_DATASET_LINKED_FIELD_SET");
@@ -201,6 +202,12 @@ export const saveProjectDataset = networkAction((dataset, onSuccess = nop) => (_
     await onSuccess();
     messageApi.success(`Saved dataset '${dataset.title}'`);
   },
+}));
+
+export const refreshDataset = networkAction((datasetId) => (_dispatch, getState) => ({
+  types: REFRESH_DATASET,
+  url: `${getState().services.metadataService.url}/api/datasets/${datasetId}`,
+  err: `Error refreshing dataset '${datasetId}'`,
 }));
 
 export const deleteProjectDataset = networkAction((project, dataset) => (_dispatch, getState) => ({
