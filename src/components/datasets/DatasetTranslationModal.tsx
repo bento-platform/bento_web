@@ -84,7 +84,7 @@ const DatasetTranslationModal = ({ dataset, open, onSave, onClose }: DatasetTran
       reader.readAsText(file);
       return false;
     },
-    [authHeader, dataset.identifier, dataset.translations, message, metadataUrl, onSave, onClose],
+    [authHeader, dataset.identifier, isEdit, message, metadataUrl, onSave, onClose],
   );
 
   const handleDelete = useCallback(async () => {
@@ -142,9 +142,7 @@ const DatasetTranslationModal = ({ dataset, open, onSave, onClose }: DatasetTran
         <Alert
           type={isEdit ? "info" : "warning"}
           showIcon
-          message={
-            isEdit ? `Existing ${LANG_LABEL} translation will be replaced` : `No ${LANG_LABEL} translation yet`
-          }
+          message={isEdit ? `Existing ${LANG_LABEL} translation will be replaced` : `No ${LANG_LABEL} translation yet`}
           description={`Upload a JSON file with the ${LANG_LABEL} dataset payload. The "language" field must be "${LANG}".`}
         />
 
