@@ -1,6 +1,4 @@
 import { Fragment, useMemo } from "react";
-import PropTypes from "prop-types";
-
 import { Col, Divider, Row, Spin, Statistic, Typography } from "antd";
 
 import { EM_DASH } from "@/constants";

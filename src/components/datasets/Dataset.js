@@ -3,12 +3,7 @@ import PropTypes from "prop-types";
 
 import { App, Button, Card, Col, Divider, Empty, Row, Typography } from "antd";
 
-import {
-  DeleteOutlined,
-  EditOutlined,
-  FileSearchOutlined,
-  PlusOutlined,
-} from "@ant-design/icons";
+import { DeleteOutlined, EditOutlined, FileSearchOutlined, PlusOutlined } from "@ant-design/icons";
 
 import {
   addDatasetLinkedFieldSetIfPossible,
@@ -18,7 +13,6 @@ import {
 
 import { fetchDatasetDataTypesIfPossible, fetchDatasetSummariesIfNeeded } from "@/modules/datasets/actions";
 
-import { nop } from "@/utils/misc";
 import LinkedFieldSetTable from "./linked_field_set/LinkedFieldSetTable";
 import LinkedFieldSetModal from "./linked_field_set/LinkedFieldSetModal";
 import { FORM_MODE_ADD, FORM_MODE_EDIT } from "@/constants";

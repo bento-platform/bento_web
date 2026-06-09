@@ -1,6 +1,4 @@
 import { memo, useCallback, useMemo, useState } from "react";
-import PropTypes from "prop-types";
-
 import { Button, Col, Dropdown, Row, Table, Typography } from "antd";
 import { DeleteOutlined, DownOutlined, ImportOutlined } from "@ant-design/icons";
 
