@@ -23,11 +23,10 @@ import { useAppDispatch, useAppSelector } from "@/store";
 interface DatasetProvenanceModalProps {
   dataset: (DatasetModel & { translations?: string[] }) | undefined;
   open: boolean;
-  isPrivate?: boolean;
   onClose: () => void;
 }
 
-const DatasetProvenanceModal = ({ dataset, open, isPrivate, onClose }: DatasetProvenanceModalProps) => {
+const DatasetProvenanceModal = ({ dataset, open, onClose }: DatasetProvenanceModalProps) => {
   const { message } = App.useApp();
   const dispatch = useAppDispatch();
   const metadataUrl = useAppSelector((state) => state.services.metadataService?.url ?? "");
@@ -201,18 +200,14 @@ const DatasetProvenanceModal = ({ dataset, open, isPrivate, onClose }: DatasetPr
             Export <DownOutlined />
           </Button>
         </Dropdown>
-        {isPrivate && (
-          <Button icon={<GlobalOutlined />} onClick={() => setTranslationModalOpen(true)}>
-            {hasFrTranslation ? "Edit French Translation" : "Add French Translation"}
-          </Button>
-        )}
+        <Button icon={<GlobalOutlined />} onClick={() => setTranslationModalOpen(true)}>
+          {hasFrTranslation ? "Edit French Translation" : "Add French Translation"}
+        </Button>
       </Space>
       <Space>
-        {isPrivate && (
-          <Button icon={<EditOutlined />} type="primary" onClick={enterEdit}>
-            Edit
-          </Button>
-        )}
+        <Button icon={<EditOutlined />} type="primary" onClick={enterEdit}>
+          Edit
+        </Button>
         <Button onClick={handleClose}>Close</Button>
       </Space>
     </Space>

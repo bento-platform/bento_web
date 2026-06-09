@@ -43,7 +43,7 @@ const DEFAULT_BIOSAMPLE_LFS = {
   },
 };
 
-const Dataset = ({ mode, project, value }) => {
+const Dataset = ({ project, value }) => {
   const { modal } = App.useApp();
   const dispatch = useAppDispatch();
 
@@ -116,37 +116,34 @@ const Dataset = ({ mode, project, value }) => {
     });
   }, [dispatch, modal, project, title, value]);
 
-  const isPrivate = mode === "private";
   const defaultBiosampleLFSDisabled = linkedFieldSets.length !== 0;
 
   const tabContents = {
-    overview: <DatasetOverview dataset={value} project={project} isPrivate={isPrivate} />,
-    data_types: <DatasetDataTypes dataset={value} project={project} isPrivate={isPrivate} />,
+    overview: <DatasetOverview dataset={value} />,
+    data_types: <DatasetDataTypes dataset={value} project={project} />,
     linked_field_sets: (
       <>
         <Typography.Title level={4} style={{ marginTop: 0 }}>
           Linked Field Sets
-          {isPrivate ? (
-            <div style={{ float: "right", display: "flex", flexDirection: "column", gap: "10px" }}>
-              <Button
-                icon={<PlusOutlined />}
-                style={{ verticalAlign: "top" }}
-                type="primary"
-                onClick={() => setFieldSetAdditionModalVisible(true)}
-              >
-                Add Linked Field Set
-              </Button>
-              <Button
-                icon={<PlusOutlined />}
-                style={{ verticalAlign: "top" }}
-                type="default"
-                disabled={defaultBiosampleLFSDisabled}
-                onClick={() => dispatch(addDatasetLinkedFieldSetIfPossible(value, DEFAULT_BIOSAMPLE_LFS))}
-              >
-                Default Biosample Field Set
-              </Button>
-            </div>
-          ) : null}
+          <div style={{ float: "right", display: "flex", flexDirection: "column", gap: "10px" }}>
+            <Button
+              icon={<PlusOutlined />}
+              style={{ verticalAlign: "top" }}
+              type="primary"
+              onClick={() => setFieldSetAdditionModalVisible(true)}
+            >
+              Add Linked Field Set
+            </Button>
+            <Button
+              icon={<PlusOutlined />}
+              style={{ verticalAlign: "top" }}
+              type="default"
+              disabled={defaultBiosampleLFSDisabled}
+              onClick={() => dispatch(addDatasetLinkedFieldSetIfPossible(value, DEFAULT_BIOSAMPLE_LFS))}
+            >
+              Default Biosample Field Set
+            </Button>
+          </div>
         </Typography.Title>
         <Typography.Paragraph style={{ maxWidth: "600px" }}>
           Linked Field Sets group common fields (i.e. fields that share the same &ldquo;value space&rdquo;) between
@@ -162,11 +159,9 @@ const Dataset = ({ mode, project, value }) => {
           <>
             <Divider />
             <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} description="No Field Link Sets">
-              {isPrivate ? (
-                <Button icon={<PlusOutlined />} type="primary" onClick={() => setFieldSetAdditionModalVisible(true)}>
-                  Add Field Link Set
-                </Button>
-              ) : null}
+              <Button icon={<PlusOutlined />} type="primary" onClick={() => setFieldSetAdditionModalVisible(true)}>
+                Add Field Link Set
+              </Button>
             </Empty>
           </>
         ) : (
@@ -175,24 +170,20 @@ const Dataset = ({ mode, project, value }) => {
               <Col key={i} lg={24} xl={12}>
                 <Card
                   title={`${i + 1}. ${fieldSet.name}`}
-                  actions={
-                    isPrivate
-                      ? [
-                          <span
-                            key="edit"
-                            onClick={() => {
-                              setSelectedLinkedFieldSet({ data: fieldSet, index: i });
-                              setFieldSetEditModalVisible(true);
-                            }}
-                          >
-                            <EditOutlined style={{ width: "auto", display: "inline" }} /> Manage Fields
-                          </span>,
-                          <span key="delete" onClick={() => handleFieldSetDeletion(fieldSet, i)}>
-                            <DeleteOutlined style={{ width: "auto", display: "inline" }} /> Delete Set
-                          </span>,
-                        ]
-                      : []
-                  }
+                  actions={[
+                    <span
+                      key="edit"
+                      onClick={() => {
+                        setSelectedLinkedFieldSet({ data: fieldSet, index: i });
+                        setFieldSetEditModalVisible(true);
+                      }}
+                    >
+                      <EditOutlined style={{ width: "auto", display: "inline" }} /> Manage Fields
+                    </span>,
+                    <span key="delete" onClick={() => handleFieldSetDeletion(fieldSet, i)}>
+                      <DeleteOutlined style={{ width: "auto", display: "inline" }} /> Delete Set
+                    </span>,
+                  ]}
                 >
                   <LinkedFieldSetTable linkedFieldSet={fieldSet} />
                 </Card>
@@ -238,48 +229,39 @@ const Dataset = ({ mode, project, value }) => {
           >
             Provenance
           </Button>
-          {isPrivate && (
-            <Button danger={true} icon={<DeleteOutlined />} onClick={handleDelete}>
-              Delete
-            </Button>
-          )}
+          <Button danger={true} icon={<DeleteOutlined />} onClick={handleDelete}>
+            Delete
+          </Button>
         </>
       }
     >
       <DatasetProvenanceModal
         dataset={value}
         open={provenanceModalVisible}
-        isPrivate={isPrivate}
         onClose={() => setProvenanceModalVisible(false)}
       />
-      {isPrivate ? (
-        <>
-          <LinkedFieldSetModal
-            mode={FORM_MODE_ADD}
-            dataset={value}
-            open={fieldSetAdditionModalVisible}
-            onSubmit={() => setFieldSetAdditionModalVisible(false)}
-            onCancel={() => setFieldSetAdditionModalVisible(false)}
-          />
-
-          <LinkedFieldSetModal
-            mode={FORM_MODE_EDIT}
-            dataset={value}
-            open={fieldSetEditModalVisible}
-            linkedFieldSet={selectedLinkedFieldSet.data}
-            linkedFieldSetIndex={selectedLinkedFieldSet.index}
-            onSubmit={() => setFieldSetEditModalVisible(false)}
-            onCancel={() => setFieldSetEditModalVisible(false)}
-          />
-        </>
-      ) : null}
+      <LinkedFieldSetModal
+        mode={FORM_MODE_ADD}
+        dataset={value}
+        open={fieldSetAdditionModalVisible}
+        onSubmit={() => setFieldSetAdditionModalVisible(false)}
+        onCancel={() => setFieldSetAdditionModalVisible(false)}
+      />
+      <LinkedFieldSetModal
+        mode={FORM_MODE_EDIT}
+        dataset={value}
+        open={fieldSetEditModalVisible}
+        linkedFieldSet={selectedLinkedFieldSet.data}
+        linkedFieldSetIndex={selectedLinkedFieldSet.index}
+        onSubmit={() => setFieldSetEditModalVisible(false)}
+        onCancel={() => setFieldSetEditModalVisible(false)}
+      />
       {tabContents[selectedTab]}
     </Card>
   );
 };
 
 Dataset.propTypes = {
-  mode: PropTypes.string,
   project: PropTypes.object,
   value: PropTypes.shape({
     identifier: PropTypes.string,

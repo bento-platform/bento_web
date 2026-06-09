@@ -156,7 +156,6 @@ const Project = ({
               <Col span={24} key={d.identifier}>
                 <Dataset
                   key={d.identifier}
-                  mode="private"
                   project={value}
                   value={d}
                 />
