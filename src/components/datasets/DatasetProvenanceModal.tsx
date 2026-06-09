@@ -42,7 +42,13 @@ const DatasetProvenanceModal = ({ dataset, open, onClose }: DatasetProvenanceMod
   const debounceTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const draftKey = `dataset-draft:edit:${dataset?.identifier}`;
-  const hasFrTranslation = (dataset?.translations ?? []).includes("fr");
+  const [hasFrOverride, setHasFrOverride] = useState<boolean | null>(null);
+  const hasFrTranslation = hasFrOverride ?? (dataset?.translations ?? []).includes("fr");
+
+  // Clear the optimistic override once the store delivers updated translations
+  useEffect(() => {
+    setHasFrOverride(null);
+  }, [dataset?.translations]);
 
   useEffect(() => {
     if (!open) {
@@ -288,7 +294,10 @@ const DatasetProvenanceModal = ({ dataset, open, onClose }: DatasetProvenanceMod
         <DatasetTranslationModal
           dataset={dataset}
           open={translationModalOpen}
-          onSave={() => dispatch(fetchProjectsWithDatasets())}
+          onSave={(hasFrNow) => {
+            setHasFrOverride(hasFrNow);
+            dispatch(fetchProjectsWithDatasets());
+          }}
           onClose={() => setTranslationModalOpen(false)}
         />
       )}

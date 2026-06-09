@@ -15,7 +15,7 @@ const LANG_LABEL = "French";
 interface DatasetTranslationModalProps {
   dataset: Record<string, unknown> & { identifier: string; title?: string; translations?: string[] };
   open: boolean;
-  onSave?: () => void;
+  onSave?: (hasFrNow: boolean) => void;
   onClose: () => void;
 }
 
@@ -71,7 +71,7 @@ const DatasetTranslationModal = ({ dataset, open, onSave, onClose }: DatasetTran
 
         if (result.ok) {
           message.success(`${LANG_LABEL} translation ${isEdit ? "updated" : "added"} successfully.`);
-          onSave?.();
+          onSave?.(true);
           onClose();
         } else if (result.drfErrors) {
           setDrfErrors(result.drfErrors);
@@ -93,7 +93,7 @@ const DatasetTranslationModal = ({ dataset, open, onSave, onClose }: DatasetTran
     setDeleting(false);
     if (result.ok) {
       message.success(`${LANG_LABEL} translation deleted.`);
-      onSave?.();
+      onSave?.(false);
       onClose();
     } else {
       message.error(`Failed to delete translation (HTTP ${result.status}).`);
