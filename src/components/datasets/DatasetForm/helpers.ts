@@ -146,7 +146,7 @@ export function prepareInitialValues(
   if (Array.isArray(result.funding_sources)) {
     result.funding_sources = (result.funding_sources as Record<string, unknown>[]).map((fs) => ({
       ...fs,
-      funder: fs.funder && typeof fs.funder === "object" ? (fs.funder as { name?: string }).name ?? "" : fs.funder,
+      funder: fs.funder && typeof fs.funder === "object" ? ((fs.funder as { name?: string }).name ?? "") : fs.funder,
     }));
   }
   if (
