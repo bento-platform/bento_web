@@ -33,6 +33,7 @@ import DatasetTranslationModal from "./DatasetTranslationModal";
 import { useAuthorizationHeader } from "bento-auth-js";
 
 import { fetchTranslation } from "@/api/datasetTranslations";
+import { fetchProjectsWithDatasets } from "@/modules/metadata/actions";
 import { useAppDispatch, useAppSelector } from "@/store";
 
 const DATASET_CARD_TABS = [
@@ -59,9 +60,10 @@ const Dataset = ({ mode, project, value, onEdit }) => {
   const identifier = value?.identifier ?? null;
   const title = value?.title ?? "";
   const linkedFieldSets = value?.linked_field_sets ?? [];
+  const hasFrTranslation = (value?.translations ?? []).includes("fr");
+
   const [provenanceModalVisible, setProvenanceModalVisible] = useState(false);
   const [translationModalVisible, setTranslationModalVisible] = useState(false);
-  const [frTranslationStatus, setFrTranslationStatus] = useState("loading"); // "loading" | "exists" | "missing" | "error"
   const [exportingFr, setExportingFr] = useState(false);
   const [fieldSetAdditionModalVisible, setFieldSetAdditionModalVisible] = useState(false);
   const [fieldSetEditModalVisible, setFieldSetEditModalVisible] = useState(false);
@@ -74,20 +76,6 @@ const Dataset = ({ mode, project, value, onEdit }) => {
       dispatch(fetchDatasetDataTypesIfPossible(identifier));
     }
   }, [dispatch, identifier]);
-
-  const checkFrTranslation = useCallback(() => {
-    if (!identifier || !metadataUrl) return;
-    setFrTranslationStatus("loading");
-    fetchTranslation(metadataUrl, identifier, "fr", authHeader).then((result) => {
-      if (result.exists === true) setFrTranslationStatus("exists");
-      else if (result.exists === false) setFrTranslationStatus("missing");
-      else setFrTranslationStatus("error");
-    });
-  }, [identifier, metadataUrl, authHeader]);
-
-  useEffect(() => {
-    checkFrTranslation();
-  }, [checkFrTranslation]);
 
   const handleFieldSetDeletion = useCallback(
     (fieldSet, index) => {
@@ -173,7 +161,7 @@ const Dataset = ({ mode, project, value, onEdit }) => {
 
   const exportMenuItems = [
     { key: "en", label: "English (canonical)" },
-    ...(frTranslationStatus === "exists" ? [{ key: "fr", label: "French translation" }] : []),
+    ...(hasFrTranslation ? [{ key: "fr", label: "French translation" }] : []),
   ];
 
   const isPrivate = mode === "private";
@@ -308,10 +296,9 @@ const Dataset = ({ mode, project, value, onEdit }) => {
               <Button
                 icon={<GlobalOutlined />}
                 style={{ marginRight: "8px" }}
-                loading={frTranslationStatus === "loading"}
                 onClick={() => setTranslationModalVisible(true)}
               >
-                {frTranslationStatus === "exists" ? "Edit French Translation" : "Add French Translation"}
+                {hasFrTranslation ? "Edit French Translation" : "Add French Translation"}
               </Button>
               <Button icon={<EditOutlined />} style={{ marginRight: "8px" }} onClick={() => (onEdit || nop)()}>
                 Edit
@@ -334,10 +321,8 @@ const Dataset = ({ mode, project, value, onEdit }) => {
         <DatasetTranslationModal
           dataset={value}
           open={translationModalVisible}
-          onClose={() => {
-            setTranslationModalVisible(false);
-            checkFrTranslation();
-          }}
+          onSave={() => dispatch(fetchProjectsWithDatasets())}
+          onClose={() => setTranslationModalVisible(false)}
         />
       )}
       {isPrivate ? (
