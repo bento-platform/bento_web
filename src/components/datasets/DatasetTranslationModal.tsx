@@ -37,6 +37,7 @@ const DatasetTranslationModal = ({ dataset, open, onSave, onClose }: DatasetTran
   const isEdit = (dataset.translations ?? []).includes(LANG);
   const [saving, setSaving] = useState(false);
   const [deleting, setDeleting] = useState(false);
+  const [uploadError, setUploadError] = useState<{ message: string; details?: string[] } | null>(null);
   const [drfErrors, setDrfErrors] = useState<DRFErrors | null>(null);
 
   const handleUpload = useCallback(
@@ -47,22 +48,28 @@ const DatasetTranslationModal = ({ dataset, open, onSave, onClose }: DatasetTran
         try {
           parsed = JSON.parse(e.target?.result as string);
         } catch {
-          message.error("Invalid JSON file.");
+          setUploadError({ message: "Invalid JSON file — could not parse." });
           return;
         }
 
         const validation = validateWithZod(parsed);
         if (!validation.success) {
-          message.error(`JSON validation failed: ${validation.errors[0]?.message ?? "unknown error"}`);
+          setUploadError({
+            message: "JSON validation failed — file has the following errors:",
+            details: validation.errors.map((e) => (e.path ? `${e.path}: ${e.message}` : e.message)),
+          });
           return;
         }
 
         if (validation.data.language !== LANG) {
-          message.error(`File language is "${validation.data.language}" — expected "${LANG}". Upload a ${LANG_LABEL} JSON file.`);
+          setUploadError({
+            message: `Wrong language — file has "${validation.data.language}", expected "${LANG}". Upload a ${LANG_LABEL} JSON file.`,
+          });
           return;
         }
 
         setSaving(true);
+        setUploadError(null);
         setDrfErrors(null);
 
         const result = await upsertTranslation(
@@ -164,6 +171,24 @@ const DatasetTranslationModal = ({ dataset, open, onSave, onClose }: DatasetTran
           <p className="ant-upload-text">{saving ? "Uploading…" : "Click or drag a JSON file here"}</p>
         </Upload.Dragger>
 
+        {uploadError && (
+          <Alert
+            type="error"
+            showIcon
+            closable
+            onClose={() => setUploadError(null)}
+            message={uploadError.message}
+            description={
+              uploadError.details?.length ? (
+                <ul style={{ margin: 0, paddingLeft: 20 }}>
+                  {uploadError.details.map((d, i) => (
+                    <li key={i}>{d}</li>
+                  ))}
+                </ul>
+              ) : undefined
+            }
+          />
+        )}
         {drfErrors && (
           <Alert
             type="error"
