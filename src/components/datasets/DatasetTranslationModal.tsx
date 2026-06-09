@@ -1,10 +1,10 @@
 import { useCallback, useState } from "react";
-import { Alert, App, Button, Modal, Space, Upload } from "antd";
-import { GlobalOutlined, InboxOutlined } from "@ant-design/icons";
+import { Alert, App, Button, Modal, Popconfirm, Space, Upload } from "antd";
+import { DeleteOutlined, GlobalOutlined, InboxOutlined } from "@ant-design/icons";
 import { useAuthorizationHeader } from "bento-auth-js";
 
 import type { DRFErrors } from "@/api/datasetTranslations";
-import { upsertTranslation } from "@/api/datasetTranslations";
+import { deleteTranslation, upsertTranslation } from "@/api/datasetTranslations";
 import { validateWithZod } from "./DatasetForm/helpers";
 import type { DatasetModelBase } from "@/types/dataset";
 import { useAppSelector } from "@/store";
@@ -36,6 +36,7 @@ const DatasetTranslationModal = ({ dataset, open, onSave, onClose }: DatasetTran
 
   const isEdit = (dataset.translations ?? []).includes(LANG);
   const [saving, setSaving] = useState(false);
+  const [deleting, setDeleting] = useState(false);
   const [drfErrors, setDrfErrors] = useState<DRFErrors | null>(null);
 
   const handleUpload = useCallback(
@@ -86,6 +87,19 @@ const DatasetTranslationModal = ({ dataset, open, onSave, onClose }: DatasetTran
     [authHeader, dataset.identifier, dataset.translations, message, metadataUrl, onSave, onClose],
   );
 
+  const handleDelete = useCallback(async () => {
+    setDeleting(true);
+    const result = await deleteTranslation(metadataUrl, dataset.identifier, LANG, authHeader);
+    setDeleting(false);
+    if (result.ok) {
+      message.success(`${LANG_LABEL} translation deleted.`);
+      onSave?.();
+      onClose();
+    } else {
+      message.error(`Failed to delete translation (HTTP ${result.status}).`);
+    }
+  }, [authHeader, dataset.identifier, message, metadataUrl, onSave, onClose]);
+
   const handleCancel = useCallback(() => {
     setDrfErrors(null);
     onClose();
@@ -104,7 +118,24 @@ const DatasetTranslationModal = ({ dataset, open, onSave, onClose }: DatasetTran
           </span>
         </Space>
       }
-      footer={<Button onClick={handleCancel}>Close</Button>}
+      footer={
+        <Space style={{ width: "100%", justifyContent: isEdit ? "space-between" : "flex-end" }}>
+          {isEdit && (
+            <Popconfirm
+              title="Delete French translation?"
+              description="This cannot be undone."
+              okText="Delete"
+              okButtonProps={{ danger: true }}
+              onConfirm={handleDelete}
+            >
+              <Button danger icon={<DeleteOutlined />} loading={deleting} disabled={saving}>
+                Delete Translation
+              </Button>
+            </Popconfirm>
+          )}
+          <Button onClick={handleCancel}>Close</Button>
+        </Space>
+      }
       onCancel={handleCancel}
     >
       <Space direction="vertical" style={{ width: "100%" }}>
@@ -121,7 +152,7 @@ const DatasetTranslationModal = ({ dataset, open, onSave, onClose }: DatasetTran
           accept=".json"
           showUploadList={false}
           beforeUpload={handleUpload}
-          disabled={saving}
+          disabled={saving || deleting}
           style={{ padding: "8px 0" }}
         >
           <p className="ant-upload-drag-icon">

@@ -27,6 +27,24 @@ export async function fetchTranslation(
   }
 }
 
+export async function deleteTranslation(
+  baseUrl: string,
+  datasetId: string,
+  lang: string,
+  authHeader: Record<string, string>,
+): Promise<{ ok: true } | { ok: false; status: number }> {
+  try {
+    const res = await fetch(translationsUrl(baseUrl, datasetId, lang), {
+      method: "DELETE",
+      headers: { Accept: "application/json", ...authHeader },
+    });
+    if (res.ok) return { ok: true };
+    return { ok: false, status: res.status };
+  } catch {
+    return { ok: false, status: 0 };
+  }
+}
+
 export async function upsertTranslation(
   baseUrl: string,
   datasetId: string,
