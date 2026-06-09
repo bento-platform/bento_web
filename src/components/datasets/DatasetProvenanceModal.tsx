@@ -1,17 +1,27 @@
 import { useCallback, useEffect, useRef, useState } from "react";
-import { Alert, App, Button, Form, Modal, Space, Upload } from "antd";
-import { EditOutlined, PlusOutlined, SaveOutlined, UploadOutlined } from "@ant-design/icons";
+import { Alert, App, Button, Dropdown, Form, Modal, Space, Upload } from "antd";
+import {
+  DownloadOutlined,
+  DownOutlined,
+  EditOutlined,
+  GlobalOutlined,
+  SaveOutlined,
+  UploadOutlined,
+} from "@ant-design/icons";
+import { useAuthorizationHeader } from "bento-auth-js";
 
 import type { DatasetModel, DatasetModelBase as DatasetModelBaseType } from "@/types/dataset";
 import { prepareInitialValues, validateWithZod } from "./DatasetForm/helpers";
 import { saveDraft, loadDraft, clearDraft, deserializeFormValues } from "@/utils/datasetDraftUtils";
+import { fetchTranslation } from "@/api/datasetTranslations";
 import { saveProjectDataset, fetchProjectsWithDatasets } from "@/modules/metadata/actions";
 import { useProjects } from "@/modules/metadata/hooks";
 import DatasetForm from "./DatasetForm";
-import { useAppDispatch } from "@/store";
+import DatasetTranslationModal from "./DatasetTranslationModal";
+import { useAppDispatch, useAppSelector } from "@/store";
 
 interface DatasetProvenanceModalProps {
-  dataset: DatasetModel | undefined;
+  dataset: (DatasetModel & { translations?: string[] }) | undefined;
   open: boolean;
   isPrivate?: boolean;
   onClose: () => void;
@@ -20,15 +30,20 @@ interface DatasetProvenanceModalProps {
 const DatasetProvenanceModal = ({ dataset, open, isPrivate, onClose }: DatasetProvenanceModalProps) => {
   const { message } = App.useApp();
   const dispatch = useAppDispatch();
+  const metadataUrl = useAppSelector((state) => state.services.metadataService?.url ?? "");
+  const authHeader = useAuthorizationHeader();
   const { isSavingDataset } = useProjects();
 
   const [form] = Form.useForm();
   const [editing, setEditing] = useState(false);
   const [draftBanner, setDraftBanner] = useState<{ savedAt: string } | null>(null);
   const [importErrors, setImportErrors] = useState<Array<{ path: string; message: string }>>([]);
+  const [exportingFr, setExportingFr] = useState(false);
+  const [translationModalOpen, setTranslationModalOpen] = useState(false);
   const debounceTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const draftKey = `dataset-draft:edit:${dataset?.identifier}`;
+  const hasFrTranslation = (dataset?.translations ?? []).includes("fr");
 
   useEffect(() => {
     if (!open) {
@@ -142,14 +157,64 @@ const DatasetProvenanceModal = ({ dataset, open, isPrivate, onClose }: DatasetPr
     [form, message],
   );
 
+  const downloadJson = useCallback((data: unknown, filename: string) => {
+    const blob = new Blob([JSON.stringify(data, null, 2)], { type: "application/json" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = filename;
+    a.click();
+    URL.revokeObjectURL(url);
+  }, []);
+
+  const handleExport = useCallback(
+    async ({ key }: { key: string }) => {
+      if (!dataset) return;
+      if (key === "en") {
+        downloadJson(dataset, `${dataset.identifier}-en.json`);
+      } else if (key === "fr") {
+        setExportingFr(true);
+        const result = await fetchTranslation(metadataUrl, dataset.identifier, "fr", authHeader);
+        setExportingFr(false);
+        if (result.exists === true) {
+          downloadJson(result.data, `${dataset.identifier}-fr.json`);
+        } else if (result.exists === false) {
+          message.warning("No French translation exists for this dataset.");
+        } else {
+          message.error(`Failed to fetch French translation: ${result.error}`);
+        }
+      }
+    },
+    [authHeader, dataset, downloadJson, message, metadataUrl],
+  );
+
+  const exportMenuItems = [
+    { key: "en", label: "English (canonical)" },
+    ...(hasFrTranslation ? [{ key: "fr", label: "French translation" }] : []),
+  ];
+
   const viewFooter = (
-    <Space>
-      {isPrivate && (
-        <Button icon={<EditOutlined />} type="primary" onClick={enterEdit}>
-          Edit
-        </Button>
-      )}
-      <Button onClick={handleClose}>Close</Button>
+    <Space style={{ width: "100%", justifyContent: "space-between" }}>
+      <Space>
+        <Dropdown menu={{ items: exportMenuItems, onClick: handleExport }} trigger={["click"]} disabled={exportingFr}>
+          <Button icon={<DownloadOutlined />} loading={exportingFr}>
+            Export <DownOutlined />
+          </Button>
+        </Dropdown>
+        {isPrivate && (
+          <Button icon={<GlobalOutlined />} onClick={() => setTranslationModalOpen(true)}>
+            {hasFrTranslation ? "Edit French Translation" : "Add French Translation"}
+          </Button>
+        )}
+      </Space>
+      <Space>
+        {isPrivate && (
+          <Button icon={<EditOutlined />} type="primary" onClick={enterEdit}>
+            Edit
+          </Button>
+        )}
+        <Button onClick={handleClose}>Close</Button>
+      </Space>
     </Space>
   );
 
@@ -166,63 +231,73 @@ const DatasetProvenanceModal = ({ dataset, open, isPrivate, onClose }: DatasetPr
   );
 
   return (
-    <Modal
-      open={open}
-      width={editing ? 848 : 960}
-      title={editing ? `Edit Dataset "${dataset?.title ?? ""}"` : "Dataset Provenance"}
-      footer={editing ? editFooter : viewFooter}
-      onCancel={editing ? exitEdit : handleClose}
-      destroyOnClose
-    >
-      {editing && draftBanner && (
-        <Alert
-          type="warning"
-          showIcon
-          style={{ marginBottom: 16 }}
-          message="You have unsaved progress from this form"
-          description={`Last saved: ${new Date(draftBanner.savedAt).toLocaleString()}`}
-          action={
-            <Space>
-              <Button size="small" type="primary" onClick={handleRestore}>
-                Restore
-              </Button>
-              <Button size="small" onClick={handleDiscard}>
-                Discard
-              </Button>
-            </Space>
-          }
-        />
-      )}
+    <>
+      <Modal
+        open={open}
+        width={editing ? 848 : 960}
+        title={editing ? `Edit Dataset "${dataset?.title ?? ""}"` : "Dataset Provenance"}
+        footer={editing ? editFooter : viewFooter}
+        onCancel={editing ? exitEdit : handleClose}
+        destroyOnClose
+      >
+        {editing && draftBanner && (
+          <Alert
+            type="warning"
+            showIcon
+            style={{ marginBottom: 16 }}
+            message="You have unsaved progress from this form"
+            description={`Last saved: ${new Date(draftBanner.savedAt).toLocaleString()}`}
+            action={
+              <Space>
+                <Button size="small" type="primary" onClick={handleRestore}>
+                  Restore
+                </Button>
+                <Button size="small" onClick={handleDiscard}>
+                  Discard
+                </Button>
+              </Space>
+            }
+          />
+        )}
+        {dataset && (
+          <DatasetForm
+            form={form}
+            initialValues={dataset}
+            readOnly={!editing}
+            onSubmit={handleDatasetSubmit}
+            onValuesChange={editing ? handleValuesChange : undefined}
+            open={open}
+          />
+        )}
+        {importErrors.length > 0 && (
+          <Alert
+            type="warning"
+            showIcon
+            closable
+            onClose={() => setImportErrors([])}
+            style={{ marginTop: 16 }}
+            message="The following fields had invalid values and were not imported"
+            description={
+              <ul style={{ margin: 0, paddingLeft: 20 }}>
+                {importErrors.map((err, i) => (
+                  <li key={i}>
+                    <strong>{err.path || "root"}</strong>: {err.message}
+                  </li>
+                ))}
+              </ul>
+            }
+          />
+        )}
+      </Modal>
       {dataset && (
-        <DatasetForm
-          form={form}
-          initialValues={dataset}
-          readOnly={!editing}
-          onSubmit={handleDatasetSubmit}
-          onValuesChange={editing ? handleValuesChange : undefined}
-          open={open}
+        <DatasetTranslationModal
+          dataset={dataset}
+          open={translationModalOpen}
+          onSave={() => dispatch(fetchProjectsWithDatasets())}
+          onClose={() => setTranslationModalOpen(false)}
         />
       )}
-      {importErrors.length > 0 && (
-        <Alert
-          type="warning"
-          showIcon
-          closable
-          onClose={() => setImportErrors([])}
-          style={{ marginTop: 16 }}
-          message="The following fields had invalid values and were not imported"
-          description={
-            <ul style={{ margin: 0, paddingLeft: 20 }}>
-              {importErrors.map((err, i) => (
-                <li key={i}>
-                  <strong>{err.path || "root"}</strong>: {err.message}
-                </li>
-              ))}
-            </ul>
-          }
-        />
-      )}
-    </Modal>
+    </>
   );
 };
 

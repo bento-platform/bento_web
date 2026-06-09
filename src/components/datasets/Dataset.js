@@ -1,15 +1,12 @@
 import { useCallback, useEffect, useState } from "react";
 import PropTypes from "prop-types";
 
-import { App, Button, Card, Col, Divider, Dropdown, Empty, Row, Typography } from "antd";
+import { App, Button, Card, Col, Divider, Empty, Row, Typography } from "antd";
 
 import {
   DeleteOutlined,
-  DownloadOutlined,
-  DownOutlined,
   EditOutlined,
   FileSearchOutlined,
-  GlobalOutlined,
   PlusOutlined,
 } from "@ant-design/icons";
 
@@ -29,12 +26,7 @@ import { FORM_MODE_ADD, FORM_MODE_EDIT } from "@/constants";
 import DatasetOverview from "./DatasetOverview";
 import DatasetDataTypes from "./DatasetDataTypes";
 import DatasetProvenanceModal from "./DatasetProvenanceModal";
-import DatasetTranslationModal from "./DatasetTranslationModal";
-import { useAuthorizationHeader } from "bento-auth-js";
-
-import { fetchTranslation } from "@/api/datasetTranslations";
-import { fetchProjectsWithDatasets } from "@/modules/metadata/actions";
-import { useAppDispatch, useAppSelector } from "@/store";
+import { useAppDispatch } from "@/store";
 
 const DATASET_CARD_TABS = [
   { key: "overview", tab: "Overview" },
@@ -52,19 +44,14 @@ const DEFAULT_BIOSAMPLE_LFS = {
 };
 
 const Dataset = ({ mode, project, value }) => {
-  const { modal, message } = App.useApp();
+  const { modal } = App.useApp();
   const dispatch = useAppDispatch();
-  const metadataUrl = useAppSelector((state) => state.services.metadataService?.url ?? "");
-  const authHeader = useAuthorizationHeader();
 
   const identifier = value?.identifier ?? null;
   const title = value?.title ?? "";
   const linkedFieldSets = value?.linked_field_sets ?? [];
-  const hasFrTranslation = (value?.translations ?? []).includes("fr");
 
   const [provenanceModalVisible, setProvenanceModalVisible] = useState(false);
-  const [translationModalVisible, setTranslationModalVisible] = useState(false);
-  const [exportingFr, setExportingFr] = useState(false);
   const [fieldSetAdditionModalVisible, setFieldSetAdditionModalVisible] = useState(false);
   const [fieldSetEditModalVisible, setFieldSetEditModalVisible] = useState(false);
   const [selectedLinkedFieldSet, setSelectedLinkedFieldSet] = useState({ data: null, index: null });
@@ -128,41 +115,6 @@ const Dataset = ({ mode, project, value }) => {
       },
     });
   }, [dispatch, modal, project, title, value]);
-
-  const downloadJson = useCallback((data, filename) => {
-    const blob = new Blob([JSON.stringify(data, null, 2)], { type: "application/json" });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement("a");
-    a.href = url;
-    a.download = filename;
-    a.click();
-    URL.revokeObjectURL(url);
-  }, []);
-
-  const handleExport = useCallback(
-    async ({ key }) => {
-      if (key === "en") {
-        downloadJson(value, `${identifier}-en.json`);
-      } else if (key === "fr") {
-        setExportingFr(true);
-        const result = await fetchTranslation(metadataUrl, identifier, "fr", authHeader);
-        setExportingFr(false);
-        if (result.exists === true) {
-          downloadJson(result.data, `${identifier}-fr.json`);
-        } else if (result.exists === false) {
-          message.warning("No French translation exists for this dataset.");
-        } else {
-          message.error(`Failed to fetch French translation: ${result.error}`);
-        }
-      }
-    },
-    [authHeader, downloadJson, identifier, message, metadataUrl, value],
-  );
-
-  const exportMenuItems = [
-    { key: "en", label: "English (canonical)" },
-    ...(hasFrTranslation ? [{ key: "fr", label: "French translation" }] : []),
-  ];
 
   const isPrivate = mode === "private";
   const defaultBiosampleLFSDisabled = linkedFieldSets.length !== 0;
@@ -286,25 +238,10 @@ const Dataset = ({ mode, project, value }) => {
           >
             Provenance
           </Button>
-          <Dropdown menu={{ items: exportMenuItems, onClick: handleExport }} trigger={["click"]} disabled={exportingFr}>
-            <Button icon={<DownloadOutlined />} loading={exportingFr} style={{ marginRight: "8px" }}>
-              Export <DownOutlined />
-            </Button>
-          </Dropdown>
           {isPrivate && (
-            <>
-              <Button
-                icon={<GlobalOutlined />}
-                style={{ marginRight: "8px" }}
-                onClick={() => setTranslationModalVisible(true)}
-              >
-                {hasFrTranslation ? "Edit French Translation" : "Add French Translation"}
-              </Button>
-              <Button danger={true} icon={<DeleteOutlined />} onClick={handleDelete}>
-                Delete
-              </Button>
-              {/* TODO: Share button (vFuture) */}
-            </>
+            <Button danger={true} icon={<DeleteOutlined />} onClick={handleDelete}>
+              Delete
+            </Button>
           )}
         </>
       }
@@ -315,14 +252,6 @@ const Dataset = ({ mode, project, value }) => {
         isPrivate={isPrivate}
         onClose={() => setProvenanceModalVisible(false)}
       />
-      {isPrivate && value && (
-        <DatasetTranslationModal
-          dataset={value}
-          open={translationModalVisible}
-          onSave={() => dispatch(fetchProjectsWithDatasets())}
-          onClose={() => setTranslationModalVisible(false)}
-        />
-      )}
       {isPrivate ? (
         <>
           <LinkedFieldSetModal
