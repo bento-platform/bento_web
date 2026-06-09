@@ -46,12 +46,12 @@ export const fetchDiscoverySchema = () => (dispatch, getState) => {
 export const clearDatasetDataType = networkAction((datasetId, dataTypeID) => (_dispatch, getState) => {
   const { service_base_url: serviceBaseUrl } = getState().serviceDataTypes.itemsByID[dataTypeID];
   const metadataServiceUrl = getState().services.metadataService?.url ?? "";
-  const datasetsSegment =
-    metadataServiceUrl && serviceBaseUrl.startsWith(metadataServiceUrl) ? "datasets_v2" : "datasets";
+  const datasetsPath =
+    metadataServiceUrl && serviceBaseUrl.startsWith(metadataServiceUrl) ? "api/datasets" : "datasets";
   // noinspection JSUnusedGlobalSymbols
   return {
     types: DELETE_DATASET_DATA_TYPE,
-    url: `${serviceBaseUrl}${datasetsSegment}/${datasetId}/data-types/${dataTypeID}`,
+    url: `${serviceBaseUrl}${datasetsPath}/${datasetId}/data-types/${dataTypeID}`,
     req: {
       method: "DELETE",
     },
@@ -149,7 +149,7 @@ export const deleteProjectIfPossible = (project) => async (dispatch, getState) =
 
   // Remove data without destroying project/datasets first
   try {
-    await Promise.all(project.datasets_v2.map((ds) => dispatch(clearDatasetDataTypes(ds.identifier))));
+    await Promise.all(project.datasets.map((ds) => dispatch(clearDatasetDataTypes(ds.identifier))));
     await dispatch(deleteProject(project));
   } catch (err) {
     console.error(err);
@@ -180,7 +180,7 @@ export const saveProjectIfPossible = networkAction((project) => (dispatch, getSt
 
 export const addProjectDataset = networkAction((project, dataset, onSuccess = nop) => (_dispatch, getState) => ({
   types: ADD_PROJECT_DATASET,
-  url: `${getState().services.metadataService.url}/api/datasets_v2`,
+  url: `${getState().services.metadataService.url}/api/datasets`,
   req: jsonRequest({ ...dataset, project: project.identifier }, "POST"),
   err: `Error adding dataset to project '${project.title}'`, // TODO: More user-friendly error
   // TODO: END ACTION?
@@ -192,7 +192,7 @@ export const addProjectDataset = networkAction((project, dataset, onSuccess = no
 
 export const saveProjectDataset = networkAction((dataset, onSuccess = nop) => (_dispatch, getState) => ({
   types: SAVE_PROJECT_DATASET,
-  url: `${getState().services.metadataService.url}/api/datasets_v2/${dataset.identifier}`,
+  url: `${getState().services.metadataService.url}/api/datasets/${dataset.identifier}`,
   // Filter out read-only props
   // TODO: PATCH
   req: jsonRequest(objectWithoutProps(dataset, ["identifier", "created", "updated"]), "PUT"),
@@ -206,7 +206,7 @@ export const saveProjectDataset = networkAction((dataset, onSuccess = nop) => (_
 export const deleteProjectDataset = networkAction((project, dataset) => (_dispatch, getState) => ({
   types: DELETE_PROJECT_DATASET,
   params: { project, dataset },
-  url: `${getState().services.metadataService.url}/api/datasets_v2/${dataset.identifier}`,
+  url: `${getState().services.metadataService.url}/api/datasets/${dataset.identifier}`,
   req: { method: "DELETE" },
   err: `Error deleting dataset '${dataset.title}'`,
 }));
@@ -229,7 +229,7 @@ export const deleteProjectDatasetIfPossible = (project, dataset) => async (dispa
 
 const addDatasetLinkedFieldSet = networkAction((dataset, linkedFieldSet, onSuccess) => (_dispatch, getState) => ({
   types: ADD_DATASET_LINKED_FIELD_SET,
-  url: `${getState().services.metadataService.url}/api/datasets_v2/${dataset.identifier}`,
+  url: `${getState().services.metadataService.url}/api/datasets/${dataset.identifier}`,
   req: jsonRequest({ linked_field_sets: [...(dataset.linked_field_sets ?? []), linkedFieldSet] }, "PATCH"),
   err: `Error adding linked field set '${linkedFieldSet.name}' to dataset '${dataset.title}'`,
   onSuccess: async () => {
@@ -253,7 +253,7 @@ export const addDatasetLinkedFieldSetIfPossible =
 const saveDatasetLinkedFieldSet = networkAction(
   (dataset, index, linkedFieldSet, onSuccess) => (_dispatch, getState) => ({
     types: SAVE_DATASET_LINKED_FIELD_SET,
-    url: `${getState().services.metadataService.url}/api/datasets_v2/${dataset.identifier}`,
+    url: `${getState().services.metadataService.url}/api/datasets/${dataset.identifier}`,
     req: jsonRequest(
       {
         linked_field_sets: dataset.linked_field_sets.map((l, i) => (i === index ? linkedFieldSet : l)),
@@ -284,7 +284,7 @@ export const saveDatasetLinkedFieldSetIfPossible =
 const deleteDatasetLinkedFieldSet = networkAction(
   (dataset, linkedFieldSet, linkedFieldSetIndex) => (_dispatch, getState) => ({
     types: DELETE_DATASET_LINKED_FIELD_SET,
-    url: `${getState().services.metadataService.url}/api/datasets_v2/${dataset.identifier}`,
+    url: `${getState().services.metadataService.url}/api/datasets/${dataset.identifier}`,
     req: jsonRequest(
       {
         linked_field_sets: dataset.linked_field_sets.filter((_, i) => i !== linkedFieldSetIndex),
