@@ -57,7 +57,7 @@ export async function upsertTranslation(
     const res = await fetch(translationsUrl(baseUrl, datasetId, isEdit ? lang : undefined), {
       method: isEdit ? "PUT" : "POST",
       headers: { "Content-Type": "application/json", Accept: "application/json", ...authHeader },
-      body: JSON.stringify({ ...payload, language: lang }),
+      body: JSON.stringify(payload),
     });
     if (res.ok) return { ok: true, data: (await res.json()) as DatasetModelBase };
     if (res.status === 400) {

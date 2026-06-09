@@ -57,6 +57,11 @@ const DatasetTranslationModal = ({ dataset, open, onSave, onClose }: DatasetTran
           return;
         }
 
+        if (validation.data.language !== LANG) {
+          message.error(`File language is "${validation.data.language}" — expected "${LANG}". Upload a ${LANG_LABEL} JSON file.`);
+          return;
+        }
+
         setSaving(true);
         setDrfErrors(null);
 
