@@ -25,7 +25,6 @@ const Project = ({
   saving,
   editing,
   onAddDataset,
-  onEditDataset,
   onAddJsonSchema,
   onEdit,
   onCancelEdit,
@@ -160,7 +159,6 @@ const Project = ({
                   mode="private"
                   project={value}
                   value={d}
-                  onEdit={() => (onEditDataset || nop)(d)}
                 />
               </Col>
             ))}
@@ -201,7 +199,6 @@ Project.propTypes = {
   onCancelEdit: PropTypes.func,
   onSave: PropTypes.func,
   onAddDataset: PropTypes.func,
-  onEditDataset: PropTypes.func,
   onAddJsonSchema: PropTypes.func,
 };
 

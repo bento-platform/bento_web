@@ -9,7 +9,7 @@ import Project from "./Project";
 import ProjectJsonSchemaModal from "./ProjectJsonSchemaModal";
 import ProjectSkeleton from "./ProjectSkeleton";
 
-import { FORM_MODE_ADD, FORM_MODE_EDIT } from "@/constants";
+import { FORM_MODE_ADD } from "@/constants";
 import { beginProjectEditing, endProjectEditing } from "@/modules/manager/actions";
 import { deleteProjectIfPossible, saveProjectIfPossible } from "@/modules/metadata/actions";
 import { useProjects } from "@/modules/metadata/hooks";
@@ -32,16 +32,9 @@ const RoutedProject = () => {
   const editingProject = useAppSelector((state) => state.manager.editingProject);
 
   const [datasetAdditionModal, setDatasetAdditionModal] = useState(false);
-  const [datasetEditModal, setDatasetEditModal] = useState(false);
   const [jsonSchemaModal, setJsonSchemaModal] = useState(false);
-  const [selectedDataset, setSelectedDataset] = useState(null);
 
   const project = projectsByID[selectedProjectID];
-
-  // Derive from live Redux state so the form reflects post-save data
-  const datasetForEdit = selectedDataset
-    ? (project?.datasets?.find((d) => d.identifier === selectedDataset.identifier) ?? selectedDataset)
-    : selectedDataset;
 
   useEffect(() => {
     if (!projectsByID[selectedProjectID] && !loadingProjects) {
@@ -64,10 +57,6 @@ const RoutedProject = () => {
 
   const hideDatasetAdditionModal = useCallback(() => {
     setDatasetAdditionModal(false);
-  }, []);
-
-  const hideDatasetEditModal = useCallback(() => {
-    setDatasetEditModal(false);
   }, []);
 
   const setJsonSchemaModalVisible = useCallback((visible) => {
@@ -99,11 +88,6 @@ const RoutedProject = () => {
     });
   }, [dispatch, modal, project]);
 
-  const handleDatasetEdit = useCallback((dataset) => {
-    setSelectedDataset(dataset);
-    setDatasetEditModal(true);
-  }, []);
-
   if (!selectedProjectID) {
     return null;
   }
@@ -117,16 +101,6 @@ const RoutedProject = () => {
         open={datasetAdditionModal}
         onCancel={hideDatasetAdditionModal}
         onOk={hideDatasetAdditionModal}
-      />
-
-      <DatasetFormModal
-        key={`${selectedDataset?.identifier ?? "edit"}-${datasetEditModal}`}
-        mode={FORM_MODE_EDIT}
-        project={project}
-        open={datasetEditModal}
-        initialValue={datasetForEdit}
-        onCancel={hideDatasetEditModal}
-        onOk={hideDatasetEditModal}
       />
 
       <ProjectJsonSchemaModal
@@ -145,7 +119,6 @@ const RoutedProject = () => {
         onCancelEdit={() => dispatch(endProjectEditing())}
         onSave={handleProjectSave}
         onAddDataset={showDatasetAdditionModal}
-        onEditDataset={handleDatasetEdit}
         onAddJsonSchema={() => setJsonSchemaModalVisible(true)}
       />
     </>

@@ -51,7 +51,7 @@ const DEFAULT_BIOSAMPLE_LFS = {
   },
 };
 
-const Dataset = ({ mode, project, value, onEdit }) => {
+const Dataset = ({ mode, project, value }) => {
   const { modal, message } = App.useApp();
   const dispatch = useAppDispatch();
   const metadataUrl = useAppSelector((state) => state.services.metadataService?.url ?? "");
@@ -284,7 +284,7 @@ const Dataset = ({ mode, project, value, onEdit }) => {
             style={{ marginRight: "8px" }}
             onClick={() => setProvenanceModalVisible(true)}
           >
-            View Provenance
+            Provenance
           </Button>
           <Dropdown menu={{ items: exportMenuItems, onClick: handleExport }} trigger={["click"]} disabled={exportingFr}>
             <Button icon={<DownloadOutlined />} loading={exportingFr} style={{ marginRight: "8px" }}>
@@ -300,9 +300,6 @@ const Dataset = ({ mode, project, value, onEdit }) => {
               >
                 {hasFrTranslation ? "Edit French Translation" : "Add French Translation"}
               </Button>
-              <Button icon={<EditOutlined />} style={{ marginRight: "8px" }} onClick={() => (onEdit || nop)()}>
-                Edit
-              </Button>
               <Button danger={true} icon={<DeleteOutlined />} onClick={handleDelete}>
                 Delete
               </Button>
@@ -315,6 +312,7 @@ const Dataset = ({ mode, project, value, onEdit }) => {
       <DatasetProvenanceModal
         dataset={value}
         open={provenanceModalVisible}
+        isPrivate={isPrivate}
         onClose={() => setProvenanceModalVisible(false)}
       />
       {isPrivate && value && (
@@ -359,7 +357,6 @@ Dataset.propTypes = {
     title: PropTypes.string,
     linked_field_sets: PropTypes.array,
   }),
-  onEdit: PropTypes.func,
 };
 
 export default Dataset;
