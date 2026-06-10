@@ -113,6 +113,7 @@ const DatasetTranslationModal = ({ dataset, open, onSave, onClose }: DatasetTran
   }, [authHeader, dataset.identifier, message, metadataUrl, onSave, onClose]);
 
   const handleCancel = useCallback(() => {
+    setUploadError(null);
     setDrfErrors(null);
     onClose();
   }, [onClose]);
