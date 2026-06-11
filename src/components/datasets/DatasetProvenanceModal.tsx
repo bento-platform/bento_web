@@ -52,6 +52,12 @@ const DatasetProvenanceModal = ({ dataset, open, onClose }: DatasetProvenanceMod
     }
   }, [open]);
 
+  useEffect(() => {
+    if (!editing && dataset) {
+      form.setFieldsValue(prepareInitialValues(dataset));
+    }
+  }, [dataset, editing, form]);
+
   const enterEdit = useCallback(() => {
     const draft = loadDraft(draftKey);
     setDraftBanner(draft ? { savedAt: draft.savedAt } : null);
@@ -100,13 +106,12 @@ const DatasetProvenanceModal = ({ dataset, open, onClose }: DatasetProvenanceMod
           debounceTimer.current = null;
         }
         clearDraft(draftKey);
-        form.resetFields();
         await dispatch(refreshDataset(dataset.identifier));
         setEditing(false);
       };
       dispatch(saveProjectDataset({ ...dataset, ...values }, onSuccess));
     },
-    [dataset, dispatch, draftKey, form],
+    [dataset, dispatch, draftKey],
   );
 
   const handleSubmit = useCallback(() => {
