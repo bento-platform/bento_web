@@ -123,6 +123,40 @@ export const COMMON_ONTOLOGY_PRESETS: OntologyPreset[] = [
   { id: "UBERON:0007311", label: "sputum", category: "Anatomy" },
 ];
 
+export type DuoCode = { id: string; shorthand: string; label: string; description: string };
+
+export const DUO_CODES: DuoCode[] = [
+  { id: "DUO:0000004", shorthand: "NRES", label: "no restriction", description: "No restriction on use." },
+  { id: "DUO:0000042", shorthand: "GRU", label: "general research use", description: "Use allowed for general research use for any research purpose." },
+  { id: "DUO:0000006", shorthand: "HMB", label: "health or medical or biomedical research", description: "Use allowed for health/medical/biomedical purposes; does not include the study of population origins or ancestry." },
+  { id: "DUO:0000007", shorthand: "DS", label: "disease specific research", description: "Use allowed provided it is related to the specified disease." },
+  { id: "DUO:0000011", shorthand: "POA", label: "population origins or ancestry research only", description: "Use limited to the study of population origins or ancestry." },
+  { id: "DUO:0000012", shorthand: "RS", label: "research specific restrictions", description: "Use limited to studies of a certain research type." },
+  { id: "DUO:0000015", shorthand: "NMDS", label: "no general methods research", description: "Does not allow methods development research (e.g., development of software or algorithms)." },
+  { id: "DUO:0000016", shorthand: "GSO", label: "genetic studies only", description: "Use limited to genetic studies only." },
+  { id: "DUO:0000018", shorthand: "NPUNCU", label: "not for profit, non commercial use only", description: "Use limited to not-for-profit organizations and not-for-profit, non-commercial use." },
+  { id: "DUO:0000019", shorthand: "PUB", label: "publication required", description: "Requestor agrees to make results available to the larger scientific community." },
+  { id: "DUO:0000020", shorthand: "COL", label: "collaboration required", description: "Requestor must agree to collaboration with the primary study investigator(s)." },
+  { id: "DUO:0000021", shorthand: "IRB", label: "ethics approval required", description: "Requestor must provide documentation of local IRB/ERB approval." },
+  { id: "DUO:0000022", shorthand: "GS", label: "geographical restriction", description: "Use limited to within a specific geographic region." },
+  { id: "DUO:0000024", shorthand: "MOR", label: "publication moratorium", description: "Requestor agrees not to publish results until a specific date." },
+  { id: "DUO:0000025", shorthand: "TS", label: "time limit on use", description: "Use approved for a specific number of months." },
+  { id: "DUO:0000026", shorthand: "US", label: "user specific restriction", description: "Use limited to approved users." },
+  { id: "DUO:0000027", shorthand: "PS", label: "project specific restriction", description: "Use limited to use within an approved project." },
+  { id: "DUO:0000028", shorthand: "IS", label: "institution specific restriction", description: "Use limited to use within an approved institution." },
+  { id: "DUO:0000029", shorthand: "RTN", label: "return to database or resource", description: "Requestor must return derived/enriched data to the database/resource." },
+  { id: "DUO:0000043", shorthand: "CC", label: "clinical care use", description: "Use allowed for clinical use and care." },
+  { id: "DUO:0000044", shorthand: "NPOA", label: "population origins or ancestry research prohibited", description: "Use for purposes of population, origin, or ancestry research is prohibited." },
+  { id: "DUO:0000045", shorthand: "NPU", label: "not for profit organisation use only", description: "Use limited to not-for-profit organisations." },
+  { id: "DUO:0000046", shorthand: "NCU", label: "non-commercial use only", description: "Use limited to not-for-profit use." },
+];
+
+export const duoCodeOptions = DUO_CODES.map((c) => ({
+  label: `${c.shorthand} — ${c.label}`,
+  value: c.id,
+  title: c.description,
+}));
+
 export const roleOptions = RoleValues.map((r) => ({ label: r, value: r }));
 export const publicationTypeOptions = PublicationTypeValues.map((t) => ({ label: t, value: t }));
 export const publicationTypeSelectOptions = [...publicationTypeOptions, { value: "__other", label: "Other (specify)" }];

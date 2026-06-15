@@ -3,7 +3,7 @@ import { Alert, App, ConfigProvider, Form, Tabs } from "antd";
 import type { FormInstance } from "antd";
 
 import type { DatasetModel as DatasetModelType, DatasetModelBase as DatasetModelBaseType } from "@/types/dataset";
-import { cleanFormValues, dayjsToDateString, formatErrorPath, prepareInitialValues, validateWithZod } from "./helpers";
+import { cleanFormValues, dayjsToDateString, expandDuoCodes, formatErrorPath, prepareInitialValues, validateWithZod } from "./helpers";
 import RequiredMark from "./RequiredMark";
 import CoreInfoTab from "./tabs/CoreInfoTab";
 import ContactsTab from "./tabs/ContactsTab";
@@ -93,6 +93,10 @@ const DatasetForm = ({ onSubmit, initialValues, form, readOnly, onValuesChange, 
               ? { id: (kw as Record<string, unknown>).id, label: (kw as Record<string, unknown>).label || undefined }
               : ((kw as Record<string, unknown>).value ?? kw),
         );
+      }
+
+      if (Array.isArray(values.duo_codes)) {
+        values.duo_codes = expandDuoCodes(values.duo_codes as string[]);
       }
 
       if (typeof values.spatial_coverage === "string") {

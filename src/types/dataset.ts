@@ -483,6 +483,9 @@ export const DatasetModelBase = z
     /** Discovery configuration object (content of a Drop Box JSON file) */
     discovery: z.record(z.string(), z.unknown()).nullable().optional(),
 
+    /** Data Use Ontology (DUO) codes describing conditions under which this dataset can be accessed */
+    duo_codes: z.array(OntologyClass).min(1).nullable().optional(),
+
     /** Additional custom metadata properties not covered by the standard schema */
     extra_properties: z
       .record(z.string(), z.union([z.string(), z.number(), z.boolean()]).nullable())

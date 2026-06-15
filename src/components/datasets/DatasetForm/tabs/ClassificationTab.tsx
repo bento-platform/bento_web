@@ -1,8 +1,8 @@
 import { useState } from "react";
-import { Button, Card, Dropdown, Form, Input, Radio, Typography } from "antd";
+import { Button, Card, Dropdown, Form, Input, Radio, Select, Typography } from "antd";
 import type { MenuProps, RadioChangeEvent } from "antd";
 import { PlusOutlined } from "@ant-design/icons";
-import { COMMON_ONTOLOGY_RESOURCE_PRESETS, COMMON_ONTOLOGY_PRESETS } from "../constants";
+import { COMMON_ONTOLOGY_RESOURCE_PRESETS, COMMON_ONTOLOGY_PRESETS, duoCodeOptions } from "../constants";
 
 const { Text } = Typography;
 
@@ -265,6 +265,21 @@ const ClassificationTab = () => {
       </Card>
 
       <LicenseSection />
+
+      <Card title="Data Use Ontology (DUO) Codes" size="small" style={{ marginBottom: 8 }}>
+        <Text type="secondary" style={{ display: "block", marginBottom: 8 }}>
+          Conditions under which this dataset can be accessed.
+        </Text>
+        <Form.Item name="duo_codes">
+          <Select
+            mode="multiple"
+            allowClear
+            placeholder="Select DUO codes"
+            options={duoCodeOptions}
+            optionFilterProp="label"
+          />
+        </Form.Item>
+      </Card>
 
       <Card title="Spatial Coverage" size="small">
         <Text type="secondary" style={{ display: "block", marginBottom: 8 }}>

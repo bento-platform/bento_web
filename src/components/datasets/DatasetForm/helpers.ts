@@ -1,6 +1,7 @@
 import dayjs from "dayjs";
 import { DatasetModelBase } from "@/types/dataset";
-import type { DatasetModelBase as DatasetModelBaseType } from "@/types/dataset";
+import type { DatasetModelBase as DatasetModelBaseType, OntologyClass as OntologyClassType } from "@/types/dataset";
+import { DUO_CODES } from "./constants";
 
 /** Convert antd form values → schema-compatible shape, then validate with Zod */
 export function validateWithZod(
@@ -74,6 +75,7 @@ const PATH_META: Record<string, PathMeta> = {
   taxa: { tab: "Classification", section: "Taxonomy", item: "Taxonomy entry" },
   resources: { tab: "Classification", section: "Ontology resources", item: "Resource" },
   license: { tab: "Classification", section: "License" },
+  duo_codes: { tab: "Classification", section: "DUO codes" },
   spatial_coverage: { tab: "Classification", section: "Spatial coverage" },
   // Study Details
   counts: { tab: "Study Details", section: "Counts", item: "Count" },
@@ -149,6 +151,9 @@ export function prepareInitialValues(
       funder: fs.funder && typeof fs.funder === "object" ? ((fs.funder as { name?: string }).name ?? "") : fs.funder,
     }));
   }
+  if (Array.isArray(result.duo_codes)) {
+    result.duo_codes = (result.duo_codes as OntologyClassType[]).map((c) => c.id);
+  }
   if (
     result.spatial_coverage !== null &&
     result.spatial_coverage !== undefined &&
@@ -157,4 +162,14 @@ export function prepareInitialValues(
     result.spatial_coverage = JSON.stringify(result.spatial_coverage, null, 2);
   }
   return result;
+}
+
+const duoCodeMap = new Map(DUO_CODES.map((c) => [c.id, c]));
+
+/** Convert duo_codes string[] (form) → OntologyClass[] (schema) */
+export function expandDuoCodes(ids: string[]): OntologyClassType[] {
+  return ids.map((id) => {
+    const entry = duoCodeMap.get(id);
+    return { id, label: entry?.label };
+  });
 }
