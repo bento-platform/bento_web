@@ -40,14 +40,26 @@ const FileUploadForm = ({ initialUploadFolder, initialUploadFiles, form }: FileU
     [initialUploadFolder, initialUploadFiles],
   );
 
+  const selectedParent = Form.useWatch("parent", form);
+
   return (
     <Form initialValues={initialValues} form={form} layout="vertical">
+      {/* Hidden input for form "busy" status; in this case whether we're in the middle of adding a subfolder inside
+          the DropBoxTreeSelect input component. */}
+      <Form.Item<boolean> name="busy" hidden={true} initialValue={false} />
       <Form.Item
         label="Parent Folder"
         name="parent"
         rules={[{ required: true, message: "Please select a folder to upload into." }]}
       >
-        <DropBoxTreeSelect folderMode={true} />
+        <DropBoxTreeSelect
+          folderMode={true}
+          allowFolderCreation={true}
+          setValue={(value) => {
+            form.setFieldValue("parent", value);
+          }}
+          onSubfolderAddingChange={(value) => form.setFieldValue("busy", value)}
+        />
       </Form.Item>
       <Form.Item
         label="File"
@@ -55,9 +67,15 @@ const FileUploadForm = ({ initialUploadFolder, initialUploadFiles, form }: FileU
         valuePropName="fileList"
         getValueFromEvent={getFileListFromEvent}
         rules={[{ required: true, message: "Please specify at least one file to upload." }]}
+        extra={
+          <span>
+            Uploading to {selectedParent}
+            {selectedParent === "/" ? "" : "/"}
+          </span>
+        }
       >
         <Upload beforeUpload={getFalse}>
-          <Button icon={<UploadOutlined />}>Upload</Button>
+          <Button icon={<UploadOutlined />}>Select File</Button>
         </Upload>
       </Form.Item>
     </Form>
