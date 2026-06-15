@@ -221,7 +221,7 @@ const Dataset = ({ project, value }) => {
             style={{ marginRight: "8px" }}
             onClick={() => setProvenanceModalVisible(true)}
           >
-            Provenance
+            Edit/View Properties
           </Button>
           <Button danger={true} icon={<DeleteOutlined />} onClick={handleDelete}>
             Delete
