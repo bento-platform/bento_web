@@ -452,7 +452,7 @@ export const DatasetModelBase = z
     resources: z.array(VersionedOntologyResource).min(1).nullable().optional(),
     stakeholders: z.array(PersonOrOrganization).min(1).nullable().optional(),
     funding_sources: z
-      .union([z.array(z.union([FundingSource, Link])), nonEmptyString])
+      .union([z.array(z.union([Link, FundingSource])), nonEmptyString])
       .nullable()
       .optional(),
 

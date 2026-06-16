@@ -144,10 +144,16 @@ export function prepareInitialValues(
     );
   }
   if (Array.isArray(result.funding_sources)) {
-    result.funding_sources = (result.funding_sources as Record<string, unknown>[]).map((fs) => ({
-      ...fs,
-      funder: fs.funder && typeof fs.funder === "object" ? ((fs.funder as { name?: string }).name ?? "") : fs.funder,
-    }));
+    result.funding_sources = (result.funding_sources as Record<string, unknown>[]).map((fs) => {
+      if ("url" in fs && "label" in fs) {
+        return { ...fs, _type: "link" };
+      }
+      return {
+        ...fs,
+        _type: "funding_source",
+        funder: fs.funder && typeof fs.funder === "object" ? ((fs.funder as { name?: string }).name ?? "") : fs.funder,
+      };
+    });
   }
   if (
     result.spatial_coverage !== null &&
