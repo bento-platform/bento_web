@@ -10,19 +10,17 @@ export const INVALIDATE_DATASET_SUMMARIES = "INVALIDATE_DATASET_SUMMARIES";
 
 export const FETCH_DATASET_RESOURCES = createNetworkActionTypes("FETCH_DATASET_RESOURCES");
 
-const fetchDatasetDataTypesSummary = networkAction((serviceInfo, datasetID, datasetsPath) => ({
+const fetchDatasetDataTypesSummary = networkAction((serviceInfo, datasetID) => ({
   types: FETCH_DATASET_DATA_TYPES,
   params: { serviceInfo, datasetID },
-  url: `${serviceInfo.url}/${datasetsPath}/${datasetID}/data-types`,
+  url: `${serviceInfo.url}/datasets/${datasetID}/data-types`,
 }));
 
 export const fetchDatasetDataTypesIfPossible = (datasetID) => async (dispatch, getState) => {
   if (getState().datasetDataTypes.itemsByID?.[datasetID]?.isFetching) return;
-  const metadataUrl = getState().services.metadataService?.url;
   await Promise.all(
     getDataServices(getState()).map((serviceInfo) => {
-      const datasetsPath = serviceInfo.url === metadataUrl ? "api/datasets" : "datasets";
-      return dispatch(fetchDatasetDataTypesSummary(serviceInfo, datasetID, datasetsPath));
+      return dispatch(fetchDatasetDataTypesSummary(serviceInfo, datasetID));
     }),
   );
 };
@@ -37,21 +35,19 @@ export const fetchDatasetsDataTypes = () => async (dispatch, getState) => {
   dispatch(endFlow(FETCHING_DATASETS_DATA_TYPES));
 };
 
-const fetchServiceDatasetSummary = networkAction((serviceInfo, datasetID, datasetsPath) => ({
+const fetchServiceDatasetSummary = networkAction((serviceInfo, datasetID) => ({
   types: FETCH_SERVICE_DATASET_SUMMARY,
   params: { serviceInfo, datasetID },
-  url: `${serviceInfo.url}/${datasetsPath}/${datasetID}/summary`,
+  url: `${serviceInfo.url}/datasets/${datasetID}/summary`,
 }));
 
 export const fetchDatasetSummariesIfNeeded = (datasetID) => async (dispatch, getState) => {
   const existingSummaryState = getState().datasetSummaries.itemsByID[datasetID] ?? {};
   if (existingSummaryState.isFetching || (!existingSummaryState.isInvalid && existingSummaryState.hasAttempted)) return;
-  const metadataUrl = getState().services.metadataService?.url;
   dispatch(beginFlow(FETCHING_DATASET_SUMMARIES, { datasetID }));
   await Promise.all(
     getDataServices(getState()).map((serviceInfo) => {
-      const datasetsPath = serviceInfo.url === metadataUrl ? "api/datasets" : "datasets";
-      return dispatch(fetchServiceDatasetSummary(serviceInfo, datasetID, datasetsPath));
+      return dispatch(fetchServiceDatasetSummary(serviceInfo, datasetID));
     }),
   );
   dispatch(endFlow(FETCHING_DATASET_SUMMARIES, { datasetID }));

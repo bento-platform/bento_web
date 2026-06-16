@@ -46,13 +46,10 @@ export const fetchDiscoverySchema = () => (dispatch, getState) => {
 
 export const clearDatasetDataType = networkAction((datasetId, dataTypeID) => (_dispatch, getState) => {
   const { service_base_url: serviceBaseUrl } = getState().serviceDataTypes.itemsByID[dataTypeID];
-  const metadataServiceUrl = getState().services.metadataService?.url ?? "";
-  const datasetsPath =
-    metadataServiceUrl && serviceBaseUrl.startsWith(metadataServiceUrl) ? "api/datasets" : "datasets";
   // noinspection JSUnusedGlobalSymbols
   return {
     types: DELETE_DATASET_DATA_TYPE,
-    url: `${serviceBaseUrl}${datasetsPath}/${datasetId}/data-types/${dataTypeID}`,
+    url: `${serviceBaseUrl}datasets/${datasetId}/data-types/${dataTypeID}`,
     req: {
       method: "DELETE",
     },
