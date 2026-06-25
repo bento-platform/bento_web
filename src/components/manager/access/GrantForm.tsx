@@ -30,6 +30,7 @@ const SUBJECT_EVERYONE: GrantSubject = { everyone: true };
 type SubjectInputProps = {
   value?: GrantSubject;
   onChange?: (v: GrantSubject) => void;
+  disabled?: boolean;
 };
 
 type SubjectType = "everyone" | "iss-sub" | "iss-client" | "group";
@@ -70,7 +71,7 @@ const handleSubjectChange = (
   }
 };
 
-const SubjectInput = ({ value, onChange }: SubjectInputProps) => {
+const SubjectInput = ({ value, onChange, disabled }: SubjectInputProps) => {
   const groups: StoredGroup[] = useGroups().data;
 
   const homeIssuer = useOpenIdConfig().data?.issuer ?? "";
@@ -178,14 +179,19 @@ const SubjectInput = ({ value, onChange }: SubjectInputProps) => {
 
   return (
     <Space direction="vertical" style={{ width: "100%", minHeight: 32 }}>
-      <Radio.Group value={subjectType} onChange={onChangeSubjectType} options={subjectTypeOptions} />
+      <Radio.Group
+        value={subjectType}
+        onChange={onChangeSubjectType}
+        options={subjectTypeOptions}
+        disabled={disabled}
+      />
       {(subjectType === SUBJECT_TYPE_ISS_SUB || subjectType === SUBJECT_TYPE_ISS_CLIENT) && (
         <Space style={{ width: "100%" }} styles={{ item: { flex: 1 } }}>
-          <Input placeholder="Issuer URI" value={iss} onChange={onChangeIssuer} />
+          <Input placeholder="Issuer URI" value={iss} onChange={onChangeIssuer} disabled={disabled} />
           {subjectType === SUBJECT_TYPE_ISS_SUB ? (
-            <Input placeholder="Subject ID" value={sub} onChange={onChangeSubject} />
+            <Input placeholder="Subject ID" value={sub} onChange={onChangeSubject} disabled={disabled} />
           ) : (
-            <Input placeholder="Client ID" value={client} onChange={onChangeClient} />
+            <Input placeholder="Client ID" value={client} onChange={onChangeClient} disabled={disabled} />
           )}
         </Space>
       )}
@@ -234,9 +240,10 @@ const buildResource = (rt: ResourceSupertype, p: Project | null, d: Dataset | nu
 type ResourceInputProps = {
   value?: GrantResource;
   onChange?: (value: GrantResource) => void;
+  disabled: boolean;
 };
 
-const ResourceInput = ({ value, onChange }: ResourceInputProps) => {
+const ResourceInput = ({ value, onChange, disabled }: ResourceInputProps) => {
   // TODO: consolidate when useProjects() is typed
   const projects: Project[] = useProjects().items;
   const projectsByID: Record<string, Project> = useProjects().itemsByID;
@@ -255,10 +262,8 @@ const ResourceInput = ({ value, onChange }: ResourceInputProps) => {
     } else {
       setResourceSupertype(RESOURCE_SUPERTYPE_PROJECT_PLUS);
       // TODO: how to handle missing projects? i.e., what if the project is deleted?
-      //  - right now, it doesn't matter since we cannot edit grants, but in the future we'll need to check.
       setSelectedProject(projectsByID[value.project]);
       // TODO: how to handle missing datasets? i.e., what if the dataset is deleted?
-      //  - right now, it doesn't matter since we cannot edit grants, but in the future we'll need to check.
       if ("dataset" in value && value.dataset) setSelectedDataset(datasetsByID[value.dataset]);
       if ("data_type" in value && value.data_type) setSelectedDataType(value.data_type);
     }
@@ -352,7 +357,12 @@ const ResourceInput = ({ value, onChange }: ResourceInputProps) => {
 
   return (
     <Space direction="vertical" style={{ width: "100%", minHeight: 32 }}>
-      <Radio.Group value={resourceSupertype} onChange={onChangeResourceSupertype} options={resourceSupertypeOptions} />
+      <Radio.Group
+        value={resourceSupertype}
+        onChange={onChangeResourceSupertype}
+        options={resourceSupertypeOptions}
+        disabled={disabled}
+      />
       {resourceSupertype === RESOURCE_SUPERTYPE_PROJECT_PLUS && (
         <Space style={{ width: "100%" }} styles={{ item: { flex: 1 } }}>
           <div>
@@ -363,6 +373,7 @@ const ResourceInput = ({ value, onChange }: ResourceInputProps) => {
               value={selectedProject?.identifier ?? null}
               options={projectOptions}
               onChange={onChangeProject}
+              disabled={disabled}
             />
           </div>
           <div>
@@ -373,6 +384,7 @@ const ResourceInput = ({ value, onChange }: ResourceInputProps) => {
               value={selectedDataset?.identifier ?? ""}
               options={datasetOptions}
               onChange={onChangeDataset}
+              disabled={disabled}
             />
           </div>
           <div>
@@ -383,6 +395,7 @@ const ResourceInput = ({ value, onChange }: ResourceInputProps) => {
               value={selectedDataType}
               options={dataTypeOptions}
               onChange={onChangeDataType}
+              disabled={disabled}
             />
           </div>
         </Space>
@@ -599,7 +612,15 @@ const PermissionsInput = ({ id, value, onChange, currentResource, ...rest }: Per
   );
 };
 
-const GrantForm = ({ form, initialValues }: { form: FormInstance<Grant>; initialValues?: Partial<Grant> }) => {
+const GrantForm = ({
+  form,
+  initialValues,
+  isEditing,
+}: {
+  form: FormInstance<Grant>;
+  initialValues?: Partial<Grant>;
+  isEditing?: boolean;
+}) => {
   const homeIssuer = useOpenIdConfig().data?.issuer ?? "";
   const defaultSubject = useMemo<GrantSubject>(() => ({ iss: homeIssuer, sub: "" }), [homeIssuer]);
 
@@ -620,10 +641,10 @@ const GrantForm = ({ form, initialValues }: { form: FormInstance<Grant>; initial
   return (
     <Form form={form} layout="vertical" initialValues={formInitialValues}>
       <Form.Item name="subject" label="Subject">
-        <SubjectInput />
+        <SubjectInput disabled={!!isEditing} />
       </Form.Item>
       <Form.Item name="resource" label="Resource">
-        <ResourceInput />
+        <ResourceInput disabled={!!isEditing} />
       </Form.Item>
       <Form.Item
         name="permissions"

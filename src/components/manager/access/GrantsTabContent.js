@@ -48,7 +48,7 @@ const GrantEditModal = ({ grant, open, closeModal }) => {
       okButtonProps={{ loading }}
       destroyOnHidden={true}
     >
-      <GrantForm form={form} initialValues={grant} />
+      <GrantForm form={form} initialValues={grant} isEditing={true} />
     </Modal>
   );
 };
