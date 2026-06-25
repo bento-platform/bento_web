@@ -20,18 +20,7 @@ import Dataset from "@/components/datasets/Dataset";
 import ProjectForm from "./ProjectForm";
 import ProjectExtraPropertiesModal from "@/components/manager/projects/ProjectExtraPropertiesModal";
 
-const Project = ({
-  value,
-  saving,
-  editing,
-  onAddDataset,
-  onEditDataset,
-  onAddJsonSchema,
-  onEdit,
-  onCancelEdit,
-  onSave,
-  onDelete,
-}) => {
+const Project = ({ value, saving, editing, onAddDataset, onAddJsonSchema, onEdit, onCancelEdit, onSave, onDelete }) => {
   const resource = makeProjectResource(value.identifier);
 
   // Project deletion is a permission on the node, so we need these permissions for that purpose.
@@ -155,13 +144,7 @@ const Project = ({
             .sort((d1, d2) => d1.title.localeCompare(d2.title))
             .map((d) => (
               <Col span={24} key={d.identifier}>
-                <Dataset
-                  key={d.identifier}
-                  mode="private"
-                  project={value}
-                  value={d}
-                  onEdit={() => (onEditDataset || nop)(d)}
-                />
+                <Dataset key={d.identifier} project={value} value={d} />
               </Col>
             ))}
         </Space>
@@ -201,7 +184,6 @@ Project.propTypes = {
   onCancelEdit: PropTypes.func,
   onSave: PropTypes.func,
   onAddDataset: PropTypes.func,
-  onEditDataset: PropTypes.func,
   onAddJsonSchema: PropTypes.func,
 };
 

@@ -8,6 +8,69 @@ import PublicationVenueFields from "../fields/PublicationVenueFields";
 const { TextArea } = Input;
 const { Text } = Typography;
 
+/** Matches the urlString check in dataset.ts — must start with http:// or https:// */
+const urlRules = [
+  { required: true, type: "url" as const },
+  { pattern: /^https?:\/\//i, message: "URL must start with http:// or https://" },
+];
+
+const FundingSourceCard = ({ name, remove, form }: { name: number; remove: () => void; form: FormInstance }) => {
+  const fsType = Form.useWatch(["funding_sources", name, "_type"], form);
+
+  return (
+    <Card size="small" style={{ marginBottom: 8 }}>
+      <Form.Item name={[name, "_type"]} hidden noStyle>
+        <Input />
+      </Form.Item>
+      {fsType === "link" ? (
+        <>
+          <Form.Item label="Label" name={[name, "label"]} rules={[{ required: true, min: 1 }]}>
+            <Input placeholder="Link label" />
+          </Form.Item>
+          <Form.Item label="URL" name={[name, "url"]} rules={urlRules}>
+            <Input placeholder="https://..." />
+          </Form.Item>
+        </>
+      ) : (
+        <>
+          <Form.Item label="Funder name" name={[name, "funder"]}>
+            <Input placeholder="Funding organization or person name" />
+          </Form.Item>
+          <Form.List name={[name, "grant_numbers"]}>
+            {(grantFields, { add: addGrant, remove: removeGrant }) => (
+              <>
+                <Text strong>Grant numbers</Text>
+                {grantFields.map(({ key: gKey, name: gName, ...gRest }) => (
+                  <Space key={gKey} align="baseline" style={{ display: "flex", marginBottom: 4 }}>
+                    <Form.Item {...gRest} name={gName}>
+                      <Input placeholder="Grant number" style={{ width: 300 }} />
+                    </Form.Item>
+                    <MinusCircleOutlined onClick={() => removeGrant(gName)} />
+                  </Space>
+                ))}
+                <Button
+                  type="dashed"
+                  onClick={() => addGrant()}
+                  icon={<PlusOutlined />}
+                  size="small"
+                  style={{ marginLeft: 8 }}
+                >
+                  Add grant number
+                </Button>
+              </>
+            )}
+          </Form.List>
+        </>
+      )}
+      <div style={{ marginTop: 8 }}>
+        <Button danger size="small" onClick={remove}>
+          Remove
+        </Button>
+      </div>
+    </Card>
+  );
+};
+
 const PublicationsFundingTab = ({ form }: { form: FormInstance }) => (
   <>
     <Card title="Publications" size="small" style={{ marginBottom: 8 }}>
@@ -19,7 +82,7 @@ const PublicationsFundingTab = ({ form }: { form: FormInstance }) => (
                 <Form.Item label="Title" name={[name, "title"]} rules={[{ required: true, min: 1 }]}>
                   <Input />
                 </Form.Item>
-                <Form.Item label="URL" name={[name, "url"]} rules={[{ required: true, type: "url" }]}>
+                <Form.Item label="URL" name={[name, "url"]} rules={urlRules}>
                   <Input placeholder="https://..." />
                 </Form.Item>
                 <Form.Item label="DOI" name={[name, "doi"]}>
@@ -125,44 +188,16 @@ const PublicationsFundingTab = ({ form }: { form: FormInstance }) => (
         {(fields, { add, remove }) => (
           <>
             {fields.map(({ key, name }) => (
-              <Card key={key} size="small" style={{ marginBottom: 8 }}>
-                <Form.Item label="Funder name" name={[name, "funder"]}>
-                  <Input placeholder="Funding organization or person name" />
-                </Form.Item>
-                <Form.List name={[name, "grant_numbers"]}>
-                  {(grantFields, { add: addGrant, remove: removeGrant }) => (
-                    <>
-                      <Text strong>Grant numbers</Text>
-                      {grantFields.map(({ key: gKey, name: gName, ...gRest }) => (
-                        <Space key={gKey} align="baseline" style={{ display: "flex", marginBottom: 4 }}>
-                          <Form.Item {...gRest} name={gName}>
-                            <Input placeholder="Grant number" style={{ width: 300 }} />
-                          </Form.Item>
-                          <MinusCircleOutlined onClick={() => removeGrant(gName)} />
-                        </Space>
-                      ))}
-                      <Button
-                        type="dashed"
-                        onClick={() => addGrant()}
-                        icon={<PlusOutlined />}
-                        size="small"
-                        style={{ marginLeft: 8 }}
-                      >
-                        Add grant number
-                      </Button>
-                    </>
-                  )}
-                </Form.List>
-                <div style={{ marginTop: 8 }}>
-                  <Button danger size="small" onClick={() => remove(name)}>
-                    Remove source
-                  </Button>
-                </div>
-              </Card>
+              <FundingSourceCard key={key} name={name} remove={() => remove(name)} form={form} />
             ))}
-            <Button type="dashed" onClick={() => add()} icon={<PlusOutlined />} style={{ marginLeft: 8 }}>
-              Add funding source
-            </Button>
+            <Space style={{ marginLeft: 8 }}>
+              <Button type="dashed" onClick={() => add({ _type: "funding_source" })} icon={<PlusOutlined />}>
+                Add funding source
+              </Button>
+              <Button type="dashed" onClick={() => add({ _type: "link" })} icon={<PlusOutlined />}>
+                Add link
+              </Button>
+            </Space>
           </>
         )}
       </Form.List>

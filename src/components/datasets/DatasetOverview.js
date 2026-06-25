@@ -1,13 +1,11 @@
 import { Fragment, useMemo } from "react";
-import PropTypes from "prop-types";
-
 import { Col, Divider, Row, Spin, Statistic, Typography } from "antd";
 
 import { EM_DASH } from "@/constants";
 import { useDatasetDataTypesByID } from "@/modules/datasets/hooks";
-import { datasetPropTypesShape, projectPropTypesShape } from "@/propTypes";
+import { datasetPropTypesShape } from "@/propTypes";
 
-const DatasetOverview = ({ isPrivate, project, dataset }) => {
+const DatasetOverview = ({ dataset }) => {
   const { dataTypesByID, isFetchingDataTypes, hasAttemptedDataTypes } = useDatasetDataTypesByID(dataset.identifier);
 
   // Count data types which actually have data in them for showing in the overview
@@ -51,16 +49,11 @@ const DatasetOverview = ({ isPrivate, project, dataset }) => {
         </>
       ) : null}
       {(dataset.description ?? "").length > 0 || (dataset.contact_info ?? "").length > 0 ? <Divider /> : null}
-      <Row gutter={16} style={{ maxWidth: isPrivate ? "720px" : "1080px" }}>
-        {isPrivate ? null : (
-          <Col span={8}>
-            <Statistic title="Project" value={project.title ?? EM_DASH} />
-          </Col>
-        )}
-        <Col span={isPrivate ? 12 : 8}>
+      <Row gutter={16} style={{ maxWidth: "720px" }}>
+        <Col span={12}>
           <Statistic title="Created" value={new Date(Date.parse(dataset.created_at)).toLocaleString()} />
         </Col>
-        <Col span={isPrivate ? 12 : 8}>
+        <Col span={12}>
           <Spin spinning={isFetchingDataTypes}>
             <Statistic title="Data types" value={dataTypeDisplay} />
           </Spin>
@@ -71,8 +64,6 @@ const DatasetOverview = ({ isPrivate, project, dataset }) => {
 };
 
 DatasetOverview.propTypes = {
-  isPrivate: PropTypes.bool,
-  project: projectPropTypesShape,
   dataset: datasetPropTypesShape,
 };
 

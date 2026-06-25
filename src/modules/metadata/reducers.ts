@@ -12,6 +12,7 @@ import {
   SAVE_PROJECT,
   ADD_PROJECT_DATASET,
   SAVE_PROJECT_DATASET,
+  REFRESH_DATASET,
   DELETE_PROJECT_DATASET,
   ADD_DATASET_LINKED_FIELD_SET,
   SAVE_DATASET_LINKED_FIELD_SET,
@@ -221,7 +222,8 @@ export const projects: Reducer<ProjectsState> = (
     case SAVE_PROJECT_DATASET.RECEIVE:
     case ADD_DATASET_LINKED_FIELD_SET.RECEIVE:
     case SAVE_DATASET_LINKED_FIELD_SET.RECEIVE:
-    case DELETE_DATASET_LINKED_FIELD_SET.RECEIVE: {
+    case DELETE_DATASET_LINKED_FIELD_SET.RECEIVE:
+    case REFRESH_DATASET.RECEIVE: {
       const updatedDataset = action.data as ProjectScopedDatasetModel;
       const replaceDataset = (d: DatasetModel): ProjectScopedDatasetModel =>
         d.identifier === updatedDataset.identifier
@@ -238,6 +240,13 @@ export const projects: Reducer<ProjectsState> = (
             ...(state.itemsByID[updatedDataset.project] || {}),
             datasets: ((state.itemsByID[updatedDataset.project] || {}).datasets ?? []).map(replaceDataset),
           },
+        },
+        datasets: state.datasets.map((d) =>
+          d.identifier === updatedDataset.identifier ? { ...d, ...updatedDataset } : d,
+        ),
+        datasetsByID: {
+          ...state.datasetsByID,
+          [updatedDataset.identifier]: { ...state.datasetsByID[updatedDataset.identifier], ...updatedDataset },
         },
       };
     }

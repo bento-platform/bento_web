@@ -143,6 +143,18 @@ export function prepareInitialValues(
         : { type: "id" in (t as object) ? "ontology" : "string", ...(t as object) },
     );
   }
+  if (Array.isArray(result.funding_sources)) {
+    result.funding_sources = (result.funding_sources as Record<string, unknown>[]).map((fs) => {
+      if ("url" in fs && "label" in fs) {
+        return { ...fs, _type: "link" };
+      }
+      return {
+        ...fs,
+        _type: "funding_source",
+        funder: fs.funder && typeof fs.funder === "object" ? ((fs.funder as { name?: string }).name ?? "") : fs.funder,
+      };
+    });
+  }
   if (
     result.spatial_coverage !== null &&
     result.spatial_coverage !== undefined &&

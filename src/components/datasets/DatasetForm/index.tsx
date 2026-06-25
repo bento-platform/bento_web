@@ -108,8 +108,11 @@ const DatasetForm = ({ onSubmit, initialValues, form, readOnly, onValuesChange, 
       const discovery = values.discovery;
       delete values.discovery;
 
-      const cleaned = cleanFormValues(values) as Record<string, unknown>;
-      if (discovery !== null && discovery !== undefined) cleaned.discovery = discovery;
+      const cleaned = (cleanFormValues(values) ?? {}) as Record<string, unknown>;
+      for (const key of Object.keys(values)) {
+        if (!(key in cleaned)) cleaned[key] = null;
+      }
+      cleaned.discovery = discovery ?? null;
       const result = validateWithZod(cleaned);
 
       if (result.success) {
