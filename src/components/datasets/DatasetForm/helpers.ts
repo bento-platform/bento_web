@@ -6,8 +6,7 @@ import type { DatasetModelBase as DatasetModelBaseType } from "@/types/dataset";
 export function validateWithZod(
   values: unknown,
 ):
-  | { success: true; data: DatasetModelBaseType }
-  | { success: false; errors: Array<{ path: string; message: string }> } {
+  { success: true; data: DatasetModelBaseType } | { success: false; errors: Array<{ path: string; message: string }> } {
   const result = DatasetModelBase.safeParse(values);
   if (result.success) {
     return { success: true, data: result.data };
