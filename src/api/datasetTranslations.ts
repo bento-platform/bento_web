@@ -3,8 +3,7 @@ import type { DatasetModelBase } from "@/types/dataset";
 export type DRFErrors = Record<string, string[]>;
 
 export type TranslationApiResult =
-  | { ok: true; data: DatasetModelBase }
-  | { ok: false; status: number; drfErrors?: DRFErrors };
+  { ok: true; data: DatasetModelBase } | { ok: false; status: number; drfErrors?: DRFErrors };
 
 const translationsUrl = (baseUrl: string, datasetId: string, lang?: string) =>
   `${baseUrl}/api/datasets/${datasetId}/translations${lang ? `/${lang}` : ""}`;
