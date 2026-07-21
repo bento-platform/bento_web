@@ -202,6 +202,7 @@ const SubjectInput = ({ value, onChange, disabled }: SubjectInputProps) => {
           value={group}
           options={groupOptions}
           onChange={onChangeGroup}
+          disabled={disabled}
         />
       )}
       {subjectType === SUBJECT_TYPE_EVERYONE && (
