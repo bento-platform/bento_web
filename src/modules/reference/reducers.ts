@@ -11,6 +11,7 @@ type ReferenceGenomesState = {
   isDeletingIDs: Record<string, boolean>; // TODO: refactor into set
   items: Genome[];
   itemsByID: Record<string, Genome>;
+  itemsByIDLower: Record<string, Genome>;
 };
 
 export const referenceGenomes: Reducer<ReferenceGenomesState> = (
@@ -20,6 +21,7 @@ export const referenceGenomes: Reducer<ReferenceGenomesState> = (
     isDeletingIDs: {},
     items: [],
     itemsByID: {},
+    itemsByIDLower: {},
   },
   action,
 ) => {
@@ -27,12 +29,15 @@ export const referenceGenomes: Reducer<ReferenceGenomesState> = (
     // FETCH_REFERENCE_GENOMES
     case FETCH_REFERENCE_GENOMES.REQUEST:
       return { ...state, isFetching: true };
-    case FETCH_REFERENCE_GENOMES.RECEIVE:
+    case FETCH_REFERENCE_GENOMES.RECEIVE: {
+      const genomesByID = arrayToObjectByProperty(action.data, "id") as Record<string, Genome>;
       return {
         ...state,
         items: action.data,
-        itemsByID: arrayToObjectByProperty(action.data, "id"),
+        itemsByID: genomesByID,
+        itemsByIDLower: Object.fromEntries(Object.entries(genomesByID).map(([k, v]) => [k.toLowerCase(), v])),
       };
+    }
     case FETCH_REFERENCE_GENOMES.FINISH:
       return { ...state, isFetching: false, hasAttempted: true };
 
@@ -45,6 +50,7 @@ export const referenceGenomes: Reducer<ReferenceGenomesState> = (
         ...state,
         items: state.items.filter((g) => g.id !== genomeID),
         itemsByID: objectWithoutProp(state.itemsByID, genomeID),
+        itemsByIDLower: objectWithoutProp(state.itemsByIDLower, genomeID.toLowerCase()),
       };
     }
     case DELETE_REFERENCE_GENOME.FINISH: {
