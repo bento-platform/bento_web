@@ -5,7 +5,11 @@ import { Layout, Typography } from "antd";
 
 import { CUSTOM_HEADER } from "@/config";
 import { SITE_NAME } from "@/constants";
-import { useCanQueryAtLeastOneProjectOrDataset, useManagerPermissions } from "@/modules/authz/hooks";
+import {
+  useAuthzManagementPermissions,
+  useCanQueryAtLeastOneProjectOrDataset,
+  useManagerPermissions,
+} from "@/modules/authz/hooks";
 
 import SitePageHeader from "./SitePageHeader";
 
@@ -29,6 +33,7 @@ const HomeContent = () => {
   const {
     permissions: { canManageAnything },
   } = useManagerPermissions();
+  const { hasAtLeastOneViewPermissionsGrant, hasAtLeastOneEditPermissionsGrant } = useAuthzManagementPermissions();
 
   return (
     <>
@@ -38,7 +43,7 @@ const HomeContent = () => {
       <Layout>
         <Layout.Content style={styles.overviewContent}>
           <Typography.Title level={3} style={{ marginTop: 0 }}>
-            Welcome to the {CUSTOM_HEADER || "Bento"} data portal!
+            Welcome to the {CUSTOM_HEADER || "Bento"} administration portal!
           </Typography.Title>
           <Typography.Paragraph>
             {canQueryData && (
@@ -49,6 +54,12 @@ const HomeContent = () => {
             {canManageAnything && (
               <>
                 To manage data, go to the <Link to="/data/manager">Data Manager</Link>.
+              </>
+            )}
+            {(hasAtLeastOneViewPermissionsGrant || hasAtLeastOneEditPermissionsGrant) && (
+              <>
+                To {hasAtLeastOneEditPermissionsGrant ? "view and edit" : "view"} permissions, go to the{" "}
+                <Link to="data/manager/access">Access Manager</Link>.
               </>
             )}
           </Typography.Paragraph>
