@@ -34,7 +34,7 @@ const _getFileRegExp = (pattern: string): RegExp => {
   return r;
 };
 
-export const testFileAgainstPattern = (fileName: string, pattern: string): boolean => {
+export const testFileAgainstPattern = (fileName: string, pattern?: string): boolean => {
   if (!pattern) {
     // No pattern => everything matches
     return true;
