@@ -51,9 +51,13 @@ export type WorkflowRunRequest = {
   };
 };
 
+export type WDLValue = string | number | boolean | string[] | number[] | boolean[] | null;
+
+export type WorkflowRunInputs = Record<string, WDLValue>;
+
 export type WorkflowRunOutput = {
   type: string; // WDL / (workflow descriptor language) type
-  value: string | number | boolean | string[] | number[] | boolean[] | null;
+  value: WDLValue;
 };
 
 export type WorkflowRunLog = {
