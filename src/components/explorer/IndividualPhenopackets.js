@@ -1,12 +1,12 @@
 import { useEffect } from "react";
 import { Divider, Skeleton, Button } from "antd";
 import { DownloadOutlined } from "@ant-design/icons";
+import { JsonView } from "bento-file-display";
 import { saveAs } from "file-saver";
 
 import { fetchIndividualPhenopacketsIfNecessary } from "@/modules/metadata/actions";
 import { individualPropTypesShape } from "@/propTypes";
 
-import JsonView from "@/components/common/JsonView";
 import { useAppDispatch, useAppSelector } from "@/store";
 
 const IndividualPhenopackets = ({ individual }) => {

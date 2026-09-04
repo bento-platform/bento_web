@@ -1,8 +1,8 @@
 import type { CSSProperties } from "react";
 
 import { Col, Row, Typography } from "antd";
+import { JsonView } from "bento-file-display";
 
-import JsonView from "@/components/common/JsonView";
 import type { BentoService, GA4GHServiceInfo } from "@/modules/services/types";
 
 const TITLE_STYLE: CSSProperties = { marginTop: 0 };

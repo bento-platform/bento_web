@@ -15,7 +15,7 @@ import {
 import { useAppSelector } from "@/store";
 
 import { useDeduplicatedIndividualBiosamples } from "./utils";
-import { VIEWABLE_FILE_EXTENSIONS } from "@/components/display/FileDisplay";
+import { VIEWABLE_FILE_EXTENSIONS } from "bento-file-display";
 
 import DownloadButton from "@/components/common/DownloadButton";
 import MonospaceText from "@/components/common/MonospaceText";

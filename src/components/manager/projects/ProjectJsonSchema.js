@@ -4,7 +4,8 @@ import PropTypes from "prop-types";
 import { App, Button, Card, Descriptions, Typography } from "antd";
 import { DeleteOutlined } from "@ant-design/icons";
 
-import JsonView from "@/components/common/JsonView";
+import { JsonView } from "bento-file-display";
+
 import { deleteProjectJsonSchema } from "@/modules/metadata/actions";
 import { projectJsonSchemaTypesShape } from "@/propTypes";
 import { useAppDispatch } from "@/store";

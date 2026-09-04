@@ -1,5 +1,6 @@
 import { useCallback, useMemo, useState } from "react";
 import { RESOURCE_EVERYTHING, deleteDropBox, ingestDropBox, viewDropBox } from "bento-auth-js";
+import { VIEWABLE_FILE_EXTENSIONS } from "bento-file-display";
 
 import { filesize } from "filesize";
 
@@ -36,7 +37,6 @@ import FileContentsModal from "./FileContentsModal";
 import FileUploadModal from "./FileUploadModal";
 import ActionContainer from "../ActionContainer";
 
-import { VIEWABLE_FILE_EXTENSIONS } from "@/components/display/FileDisplay";
 import { useResourcePermissionsWrapper } from "@/hooks";
 import { deleteDropBoxObject } from "@/modules/dropBox/actions";
 import { useDropBox } from "@/modules/dropBox/hooks";

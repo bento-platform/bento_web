@@ -5,9 +5,10 @@ import { useDropzone } from "react-dropzone";
 import Ajv from "ajv";
 import addFormats from "ajv-formats";
 
+import { JsonView } from "bento-file-display";
+
 import { AJV_OPTIONS } from "@/constants";
 
-import JsonView from "@/components/common/JsonView";
 import { ExtraPropertiesCode } from "./ProjectJsonSchema";
 
 const ajv = new Ajv(AJV_OPTIONS);

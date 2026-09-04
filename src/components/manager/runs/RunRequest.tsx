@@ -1,7 +1,6 @@
 import { Descriptions, List, Tag } from "antd";
 
-import JsonView from "@/components/common/JsonView";
-import type { JSONType } from "@/types/json";
+import { JsonView, type JSONType } from "bento-file-display";
 
 import type { RunPageProps } from "./types";
 import WorkflowListItem from "../WorkflowListItem";

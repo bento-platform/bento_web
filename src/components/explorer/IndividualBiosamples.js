@@ -4,6 +4,7 @@ import { useNavigate, useParams } from "react-router-dom";
 
 import { Button, Descriptions, Radio } from "antd";
 import { PointMap } from "bento-charts/dist/maps";
+import { JsonView } from "bento-file-display";
 
 import { EM_DASH } from "@/constants";
 import {
@@ -15,7 +16,6 @@ import {
 } from "@/propTypes";
 import { useDeduplicatedIndividualBiosamples } from "./utils";
 
-import JsonView from "@/components/common/JsonView";
 import OntologyTerm from "./OntologyTerm";
 import TimeElement from "./TimeElement";
 
