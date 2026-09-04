@@ -49,6 +49,6 @@ const FileModal = ({ title, open, onCancel, hasTriggered, url, fileName, loading
       )}
     </Modal>
   );
-}
+};
 
 export default FileModal;
