@@ -1,10 +1,10 @@
 import PropTypes from "prop-types";
 
 import { Descriptions } from "antd";
+import { JsonView } from "bento-file-display";
 
 import "./explorer.css";
 
-import JsonView from "@/components/common/JsonView";
 import OntologyTerm from "./OntologyTerm";
 import { GeneDescriptor } from "./IndividualGenes";
 

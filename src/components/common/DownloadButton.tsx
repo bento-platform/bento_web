@@ -5,7 +5,7 @@ import { DownloadOutlined } from "@ant-design/icons";
 
 import { useAccessToken } from "bento-auth-js";
 
-import { AUDIO_FILE_EXTENSIONS, IMAGE_FILE_EXTENSIONS, VIDEO_FILE_EXTENSIONS } from "../display/FileDisplay";
+import { AUDIO_FILE_EXTENSIONS, IMAGE_FILE_EXTENSIONS, VIDEO_FILE_EXTENSIONS } from "bento-file-display";
 
 const BROWSER_RENDERED_EXTENSIONS = [
   ".pdf",

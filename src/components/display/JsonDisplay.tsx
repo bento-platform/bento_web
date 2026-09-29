@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useState } from "react";
 import { Collapse, Select, Typography } from "antd";
 
-import JsonView from "@/components/common/JsonView";
+import { JsonView } from "bento-file-display";
 import MonospaceText from "@/components/common/MonospaceText";
 import type { JSONType } from "@/types/json";
 

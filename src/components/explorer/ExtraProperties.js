@@ -1,7 +1,7 @@
 import PropTypes from "prop-types";
 
 import { EM_DASH } from "@/constants";
-import JsonView from "@/components/common/JsonView";
+import { JsonView } from "bento-file-display";
 
 const ExtraProperties = ({ extraProperties }) => {
   if (!extraProperties || !Object.keys(extraProperties).length) {
