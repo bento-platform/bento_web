@@ -115,6 +115,17 @@ export function getNestedValue(obj: unknown, path: (string | number)[]): unknown
 }
 
 /** Convert date string fields to dayjs objects so antd DatePicker receives the correct type */
+/**
+ * Convert a keywords/taxa form entry ({ type: "string", value } or { type: "ontology", id, label })
+ * back to the plain string or OntologyClass the schema expects.
+ */
+export function stringOrOntologyFromFormValue(entry: unknown): unknown {
+  if (typeof entry !== "object" || entry === null) return entry;
+  const e = entry as Record<string, unknown>;
+  if (e.id) return { id: e.id, label: e.label || undefined };
+  return e.value ?? entry;
+}
+
 export function prepareInitialValues(
   values: Partial<DatasetModelBaseType> | undefined,
 ): Record<string, unknown> | undefined {
