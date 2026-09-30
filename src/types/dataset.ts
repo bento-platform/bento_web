@@ -21,21 +21,35 @@ const uuidString = z.uuid();
 /** URL string — equivalent to HttpUrl / AnyUrl */
 const urlString = z.url().refine((val) => /^https?:\/\//i.test(val), "Must start with http:// or https://");
 
+/** Any URL string — equivalent to AnyUrl (no scheme restriction) */
+const anyUrlString = z.url();
+
 /** ORCID identifier string */
 const orcidString = z.string().regex(/^\d{4}-\d{4}-\d{4}-\d{3}[\dX]$/, "Expected ORCID format");
+
+/**
+ * Enum matched case-insensitively and normalized to its canonical casing —
+ * equivalent to TranslatedLiteral(..., case_insensitive=True) (English values only)
+ */
+const caseInsensitiveEnum = <T extends readonly [string, ...string[]]>(values: T) =>
+  z.preprocess(
+    (v) => (typeof v === "string" ? (values.find((c) => c.toLowerCase() === v.toLowerCase()) ?? v) : v),
+    z.enum(values),
+  );
 
 // ---------------------------------------------------------------------------
 // Translated Literal enums
 // ---------------------------------------------------------------------------
 
-// Leadership / oversight
 export const RoleValues = [
+  // Leadership / oversight
   "Principal Investigator",
   "Co-Investigator",
   "Sub-Investigator",
   "Study Director",
   "Project Lead",
   "Project Manager",
+  "Contact Person",
   // Research team
   "Researcher",
   "Research Assistant",
@@ -47,19 +61,22 @@ export const RoleValues = [
   "Participant",
   "Subject",
   "Volunteer",
+  // Other individual roles
+  "Editor",
+  "Translator",
   // Organizational / institutional roles
-  "Sponsoring Organization",
-  "Collaborating Organization",
-  "Collaborating Laboratory",
   "Principal Laboratory",
+  "Sponsoring Organization",
+  "Collaborating Laboratory",
+  "Collaborating Organization",
   "Consortium",
+  "Distributor",
   "Institution",
-  "Research Group",
+  "Hosting Institution",
   "Site",
   "Research Center",
+  "Research Group",
   "Publisher",
-  "Hosting Institution",
-  "Distributor",
   // Ethics & compliance
   "IRB",
   "Ethics Board",
@@ -69,24 +86,22 @@ export const RoleValues = [
   "Sponsor",
   "Funder",
   "Grant Agency",
-  // Contributors (non-research)
+  // Publications
   "Author",
   "Corresponding Author",
-  "Editor",
-  "Translator",
+  // Contributors (non-research)
   "Consultant",
   "Advisor",
   "Reviewer",
   // Data & technical roles
+  "Data Collector",
   "Data Provider",
   "Data Controller",
   "Data Processor",
   "Data Contributor",
   "Data Custodian",
-  "Data Producer",
-  "Data Collector",
   "Data Manager",
-  "Contact Person",
+  "Data Producer",
   // External stakeholders
   "Partner",
   "Stakeholder",
@@ -121,6 +136,11 @@ export const PublicationTypeValues = [
   "Dataset",
   "Software",
   "Software Paper",
+  // Multimedia
+  "Audio",
+  "Documentary",
+  "Podcast",
+  "Video",
   // Reviews and other
   "Survey",
   "Review Article",
@@ -140,6 +160,7 @@ export const PublicationVenueTypeValues = [
   "Publisher",
   "University",
   "Data Repository",
+  "Preprint Repository",
 ] as const;
 
 export const PublicationVenueType = z.enum(PublicationVenueTypeValues);
@@ -161,6 +182,16 @@ export const LinkTypeValues = [
 
 export const LinkType = z.enum(LinkTypeValues);
 export type LinkType = z.infer<typeof LinkType>;
+
+export const StudyStatusValues = ["Ongoing", "Completed"] as const;
+
+export const StudyStatus = caseInsensitiveEnum(StudyStatusValues);
+export type StudyStatus = z.infer<typeof StudyStatus>;
+
+export const StudyContextValues = ["Clinical", "Research"] as const;
+
+export const StudyContext = caseInsensitiveEnum(StudyContextValues);
+export type StudyContext = z.infer<typeof StudyContext>;
 
 // ---------------------------------------------------------------------------
 // Shared sub-models from bento_lib (OntologyClass, VersionedOntologyResource)
@@ -250,17 +281,15 @@ export const Organization = z.object({
 export type Organization = z.infer<typeof Organization>;
 
 // ---------------------------------------------------------------------------
-// PersonGeneric / Person
+// Person
 // ---------------------------------------------------------------------------
 
-/** Person with optional roles — used where roles are not required (e.g. publication authors) */
-export const PersonGeneric = z.object({
+export const Person = z.object({
   type: z.literal("person"),
   name: nonEmptyString,
   honorific: nonEmptyString.nullable().optional(),
   /** Alternative names such as maiden names, nicknames, or transliterations */
   other_names: z.array(nonEmptyString).min(1).nullable().optional(),
-  orcid: orcidString.nullable().optional(),
   affiliations: z
     .array(z.union([Organization, nonEmptyString]))
     .min(1)
@@ -268,25 +297,18 @@ export const PersonGeneric = z.object({
     .optional(),
   contact: Contact.nullable().optional(),
   location: nonEmptyString.nullable().optional(),
+  orcid: orcidString.nullable().optional(),
+  /** Role(s) this individual holds in relation to the work (required for stakeholders) */
   roles: z.array(Role).default([]),
-});
-export type PersonGeneric = z.infer<typeof PersonGeneric>;
-
-/** Person with at least one required role — used for contacts and stakeholders */
-export const Person = PersonGeneric.extend({
-  roles: z.array(Role).min(1),
 });
 export type Person = z.infer<typeof Person>;
 
 // ---------------------------------------------------------------------------
-// PersonOrOrganization / PersonGenericOrOrganization  (discriminated unions on `type`)
+// PersonOrOrganization  (discriminated union on `type`)
 // ---------------------------------------------------------------------------
 
 export const PersonOrOrganization = z.discriminatedUnion("type", [Person, Organization]);
 export type PersonOrOrganization = z.infer<typeof PersonOrOrganization>;
-
-export const PersonGenericOrOrganization = z.discriminatedUnion("type", [PersonGeneric, Organization]);
-export type PersonGenericOrOrganization = z.infer<typeof PersonGenericOrOrganization>;
 
 // ---------------------------------------------------------------------------
 // ParticipantCriteria
@@ -346,7 +368,7 @@ export const Publication = z.object({
   doi: nonEmptyString.nullable().optional(),
   /** Known publication type or a free-text fallback */
   publication_type: z.union([PublicationType, Other]),
-  authors: z.array(PersonGenericOrOrganization).min(1).nullable().optional(),
+  authors: z.array(PersonOrOrganization).min(1).nullable().optional(),
   publication_date: dateString.nullable().optional(),
   publication_venue: PublicationVenue.nullable().optional(),
   description: nonEmptyString.nullable().optional(),
@@ -358,7 +380,7 @@ export type Publication = z.infer<typeof Publication>;
 // ---------------------------------------------------------------------------
 
 export const Logo = z.object({
-  url: urlString,
+  url: anyUrlString,
   theme: z.enum(["light", "dark", "default"]).default("default"),
   description: nonEmptyString.nullable().optional(),
   /** Whether the logo contains branding text to the left or right of the logo image */
@@ -393,7 +415,7 @@ export type SpatialCoverageFeature = z.infer<typeof SpatialCoverageFeature>;
 /** A labeled URL link */
 export const Link = z.object({
   label: nonEmptyString,
-  url: urlString,
+  url: anyUrlString,
 });
 export type Link = z.infer<typeof Link>;
 
@@ -407,10 +429,16 @@ export type TypedLink = z.infer<typeof TypedLink>;
 // FundingSource
 // ---------------------------------------------------------------------------
 
-export const FundingSource = z.object({
-  funder: z.union([nonEmptyString, PersonOrOrganization]).nullable().optional(),
-  grant_numbers: z.array(nonEmptyString).min(1).nullable().optional(),
-});
+export const FundingSource = z
+  .object({
+    funder: z.union([nonEmptyString, PersonOrOrganization]).nullable().optional(),
+    grant_numbers: z.array(z.string()).min(1).nullable().optional(),
+  })
+  .refine(
+    (fs) =>
+      (fs.funder !== null && fs.funder !== undefined) || (fs.grant_numbers !== null && fs.grant_numbers !== undefined),
+    { message: "FundingSource must have at least one of funder / grant number(s)" },
+  );
 export type FundingSource = z.infer<typeof FundingSource>;
 
 // ---------------------------------------------------------------------------
@@ -433,18 +461,19 @@ const languageAlpha2 = z.string().regex(/^[a-z]{2}$/, "Expected ISO 639-1 two-le
 export const DatasetModelBase = z
   .object({
     schema_version: z.literal("1.0"),
-    language: languageAlpha2,
+    language: languageAlpha2.default("en"),
 
     title: nonEmptyString,
     description: nonEmptyString,
     long_description: LongDescription.nullable().optional(),
     taxa: z
-      .array(z.union([OntologyClass, nonEmptyString]))
+      .array(z.union([OntologyClass, z.string()]))
+      .min(1)
       .nullable()
       .optional(),
 
     keywords: z
-      .array(z.union([nonEmptyString, OntologyClass]))
+      .array(z.union([z.string(), OntologyClass]))
       .min(1)
       .nullable()
       .optional(),
@@ -452,7 +481,7 @@ export const DatasetModelBase = z
     resources: z.array(VersionedOntologyResource).min(1).nullable().optional(),
     stakeholders: z.array(PersonOrOrganization).min(1).nullable().optional(),
     funding_sources: z
-      .union([z.array(z.union([Link, FundingSource])), nonEmptyString])
+      .union([z.array(z.union([FundingSource, Link])), nonEmptyString])
       .nullable()
       .optional(),
 
@@ -462,15 +491,15 @@ export const DatasetModelBase = z
     license: License.nullable().optional(),
     counts: z.array(Count).min(1).nullable().optional(),
     primary_contact: PersonOrOrganization,
-    links: z.array(Link).nullable().optional(),
+    links: z.array(Link).min(1).nullable().optional(),
     publications: z.array(Publication).min(1).nullable().optional(),
     logos: z.array(Logo).min(1).nullable().optional(),
     release_date: dateString.nullable().optional(),
     last_modified: dateString.nullable().optional(),
     participant_criteria: z.array(ParticipantCriteria).min(1).nullable().optional(),
 
-    study_status: z.enum(["ONGOING", "COMPLETED"]).nullable().optional(),
-    study_context: z.enum(["CLINICAL", "RESEARCH"]).nullable().optional(),
+    study_status: StudyStatus.nullable().optional(),
+    study_context: StudyContext.nullable().optional(),
 
     /** List of specific scientific or clinical domains addressed by the study */
     domain: z.array(nonEmptyString).min(1).nullable().optional(),
@@ -480,7 +509,7 @@ export const DatasetModelBase = z
     /** Unique identifier of the Data Access Committee (DAC) in PCGL to which the study is assigned */
     pcgl_dac_id: nonEmptyString.nullable().optional(),
 
-    /** Discovery configuration object (content of a Drop Box JSON file) */
+    /** Dataset-level discovery configuration; falls back to project/instance config if not set */
     discovery: z.record(z.string(), z.unknown()).nullable().optional(),
 
     /** Additional custom metadata properties not covered by the standard schema */
@@ -524,7 +553,19 @@ export const DatasetModelBase = z
       if (missing.length > 0) {
         ctx.addIssue({
           code: z.ZodIssueCode.custom,
-          message: `taxa contain OntologyClass CURIEs with no matching resource: ${JSON.stringify(missing)}`,
+          message: `taxa contains OntologyClass CURIEs with no matching resource: ${JSON.stringify(missing)}`,
+        });
+      }
+    }
+
+    if (data.stakeholders) {
+      const missingRoles = data.stakeholders
+        .filter((s): s is Person => s.type === "person" && s.roles.length === 0)
+        .map((s) => s.name);
+      if (missingRoles.length > 0) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          message: `stakeholder persons must have at least one role: ${JSON.stringify(missingRoles)}`,
         });
       }
     }

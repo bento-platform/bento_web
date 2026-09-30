@@ -4,13 +4,13 @@ import { MinusCircleOutlined, PlusOutlined } from "@ant-design/icons";
 const { Text } = Typography;
 
 const STUDY_STATUS_OPTIONS = [
-  { value: "ONGOING", label: "Ongoing" },
-  { value: "COMPLETED", label: "Completed" },
+  { value: "Ongoing", label: "Ongoing" },
+  { value: "Completed", label: "Completed" },
 ];
 
 const STUDY_CONTEXT_OPTIONS = [
-  { value: "CLINICAL", label: "Clinical" },
-  { value: "RESEARCH", label: "Research" },
+  { value: "Clinical", label: "Clinical" },
+  { value: "Research", label: "Research" },
 ];
 
 const PcglInfoTab = () => (
