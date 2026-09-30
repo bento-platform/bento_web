@@ -8,10 +8,11 @@ const { Text } = Typography;
 
 const LicenseSection = () => {
   const form = Form.useFormInstance();
-  const [isAdded, setIsAdded] = useState(() => {
-    const v = form.getFieldValue("license");
-    return !!(v?.label || v?.type || v?.url);
-  });
+  // Watch (rather than read once on mount) so values set later — e.g. JSON import or draft restore — show the fields
+  const v = Form.useWatch("license", { form, preserve: true });
+  const hasValue = !!(v?.label || v?.type || v?.url);
+  const [added, setIsAdded] = useState(false);
+  const isAdded = added || hasValue;
 
   const handleRemove = () => {
     form.setFieldValue(["license", "label"], undefined);

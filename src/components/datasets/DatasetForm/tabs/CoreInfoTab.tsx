@@ -14,10 +14,11 @@ const CONTENT_TYPE_OPTIONS = [
 
 const LongDescriptionSection = () => {
   const form = Form.useFormInstance();
-  const [isAdded, setIsAdded] = useState(() => {
-    const v = form.getFieldValue("long_description");
-    return !!(v?.content || v?.content_type);
-  });
+  // Watch (rather than read once on mount) so values set later — e.g. JSON import or draft restore — show the fields
+  const v = Form.useWatch("long_description", { form, preserve: true });
+  const hasValue = !!(v?.content || v?.content_type);
+  const [added, setIsAdded] = useState(false);
+  const isAdded = added || hasValue;
 
   const handleRemove = () => {
     form.setFieldValue(["long_description", "content"], undefined);
