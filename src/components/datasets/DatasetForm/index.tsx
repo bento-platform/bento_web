@@ -7,6 +7,7 @@ import {
   cleanFormValues,
   dayjsToDateString,
   formatErrorPath,
+  type OntologyFormEntry,
   prepareInitialValues,
   stringOrOntologyFromFormValue,
   validateWithZod,
@@ -92,8 +93,10 @@ const DatasetForm = ({ onSubmit, initialValues, form, readOnly, onValuesChange, 
         delete values.typed_links;
       }
 
-      if (Array.isArray(values.keywords)) values.keywords = values.keywords.map(stringOrOntologyFromFormValue);
-      if (Array.isArray(values.taxa)) values.taxa = values.taxa.map(stringOrOntologyFromFormValue);
+      if (Array.isArray(values.keywords))
+        values.keywords = (values.keywords as OntologyFormEntry[]).map(stringOrOntologyFromFormValue);
+      if (Array.isArray(values.taxa))
+        values.taxa = (values.taxa as OntologyFormEntry[]).map(stringOrOntologyFromFormValue);
 
       if (typeof values.spatial_coverage === "string") {
         try {
