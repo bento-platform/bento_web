@@ -120,7 +120,7 @@ export type OntologyFormEntry = { type: "string"; value?: string } | { type: "on
 /** Convert a keywords/taxa form entry back to the plain string or OntologyClass the schema expects. */
 export function stringOrOntologyFromFormValue(entry: string | OntologyFormEntry): string | OntologyClass {
   if (typeof entry === "string") return entry;
-  if (entry.type === "ontology") return { id: entry.id ?? "", label: entry.label || undefined };
+  if (entry.type === "ontology") return { id: entry.id ?? "", label: entry.label ?? "" };
   return entry.value ?? "";
 }
 

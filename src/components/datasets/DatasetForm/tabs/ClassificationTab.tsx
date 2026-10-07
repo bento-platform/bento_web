@@ -2,6 +2,7 @@ import { useState } from "react";
 import { Button, Card, Dropdown, Form, Input, Radio, Typography } from "antd";
 import type { MenuProps, RadioChangeEvent } from "antd";
 import { PlusOutlined } from "@ant-design/icons";
+import { CURIE_PATTERN } from "@/types/dataset";
 import { COMMON_ONTOLOGY_RESOURCE_PRESETS, COMMON_ONTOLOGY_PRESETS } from "../constants";
 
 const { Text } = Typography;
@@ -81,10 +82,17 @@ const OntologyFields = ({ listName, name }: { listName: string; name: number }) 
       </Form.Item>
       {type === "ontology" ? (
         <>
-          <Form.Item label="Ontology ID" name={[name, "id"]}>
+          <Form.Item
+            label="Ontology ID"
+            name={[name, "id"]}
+            rules={[
+              { required: true, message: "Ontology ID is required" },
+              { pattern: CURIE_PATTERN, message: "Expected a CURIE, e.g. NCBITaxon:9606" },
+            ]}
+          >
             <Input placeholder="e.g. HP:0001234" onBlur={handleIdBlur} />
           </Form.Item>
-          <Form.Item label="Label" name={[name, "label"]}>
+          <Form.Item label="Label" name={[name, "label"]} rules={[{ required: true, message: "Label is required" }]}>
             <Input placeholder="Human-readable label" />
           </Form.Item>
         </>

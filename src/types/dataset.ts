@@ -197,25 +197,25 @@ export type StudyContext = z.infer<typeof StudyContext>;
 // Shared sub-models from bento_lib (OntologyClass, VersionedOntologyResource)
 // ---------------------------------------------------------------------------
 
-/**
- * Equivalent to bento_lib.ontologies.models.OntologyClass
- * Minimal shape — extend if the real schema differs.
- */
+/** Equivalent to bento_lib.ontologies.models.NC_NAME_PATTERN — valid CURIE prefix */
+export const NC_NAME_PATTERN = /^[a-zA-Z_][a-zA-Z0-9.\-_]*$/;
+
+/** Equivalent to bento_lib.ontologies.models.CURIE_PATTERN */
+export const CURIE_PATTERN = /^[a-zA-Z_][a-zA-Z0-9.\-_]*:[a-zA-Z0-9.\-_]+$/;
+
+/** Equivalent to bento_lib.ontologies.models.OntologyClass */
 export const OntologyClass = z.object({
-  id: nonEmptyString, // e.g. "HP:0001234"
-  label: nonEmptyString.optional(),
+  id: z.string().regex(CURIE_PATTERN, "Expected a CURIE, e.g. NCBITaxon:9606"),
+  label: z.string(),
 });
 export type OntologyClass = z.infer<typeof OntologyClass>;
 
-/**
- * Equivalent to bento_lib.ontologies.models.VersionedOntologyResource
- * Minimal shape — extend if the real schema differs.
- */
+/** Equivalent to bento_lib.ontologies.models.VersionedOntologyResource */
 export const VersionedOntologyResource = z.object({
   id: nonEmptyString,
   name: nonEmptyString,
   url: urlString,
-  namespace_prefix: nonEmptyString,
+  namespace_prefix: z.string().regex(NC_NAME_PATTERN, "Expected a valid CURIE prefix, e.g. NCBITaxon"),
   iri_prefix: urlString,
   version: nonEmptyString,
   repository_url: urlString.nullable().optional(),
