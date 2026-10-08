@@ -3,7 +3,15 @@ import { Alert, App, ConfigProvider, Form, Tabs } from "antd";
 import type { FormInstance } from "antd";
 
 import type { DatasetModel as DatasetModelType, DatasetModelBase as DatasetModelBaseType } from "@/types/dataset";
-import { cleanFormValues, dayjsToDateString, formatErrorPath, prepareInitialValues, validateWithZod } from "./helpers";
+import {
+  cleanFormValues,
+  dayjsToDateString,
+  formatErrorPath,
+  type OntologyFormEntry,
+  prepareInitialValues,
+  stringOrOntologyFromFormValue,
+  validateWithZod,
+} from "./helpers";
 import RequiredMark from "./RequiredMark";
 import CoreInfoTab from "./tabs/CoreInfoTab";
 import ContactsTab from "./tabs/ContactsTab";
@@ -85,15 +93,10 @@ const DatasetForm = ({ onSubmit, initialValues, form, readOnly, onValuesChange, 
         delete values.typed_links;
       }
 
-      if (Array.isArray(values.keywords)) {
-        values.keywords = (values.keywords as unknown[]).map((kw) =>
-          typeof kw === "string"
-            ? kw
-            : (kw as Record<string, unknown>).id
-              ? { id: (kw as Record<string, unknown>).id, label: (kw as Record<string, unknown>).label || undefined }
-              : ((kw as Record<string, unknown>).value ?? kw),
-        );
-      }
+      if (Array.isArray(values.keywords))
+        values.keywords = (values.keywords as OntologyFormEntry[]).map(stringOrOntologyFromFormValue);
+      if (Array.isArray(values.taxa))
+        values.taxa = (values.taxa as OntologyFormEntry[]).map(stringOrOntologyFromFormValue);
 
       if (typeof values.spatial_coverage === "string") {
         try {

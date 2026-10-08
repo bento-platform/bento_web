@@ -1,6 +1,6 @@
 import dayjs from "dayjs";
 import { DatasetModelBase } from "@/types/dataset";
-import type { DatasetModelBase as DatasetModelBaseType } from "@/types/dataset";
+import type { DatasetModelBase as DatasetModelBaseType, OntologyClass } from "@/types/dataset";
 
 /** Convert antd form values → schema-compatible shape, then validate with Zod */
 export function validateWithZod(
@@ -112,6 +112,16 @@ export function getNestedValue(obj: unknown, path: (string | number)[]): unknown
     current = (current as Record<string | number, unknown>)[key];
   }
   return current;
+}
+
+/** Shape of a keywords/taxa entry in the form (see OntologyFields) */
+export type OntologyFormEntry = { type: "string"; value?: string } | { type: "ontology"; id?: string; label?: string };
+
+/** Convert a keywords/taxa form entry back to the plain string or OntologyClass the schema expects. */
+export function stringOrOntologyFromFormValue(entry: string | OntologyFormEntry): string | OntologyClass {
+  if (typeof entry === "string") return entry;
+  if (entry.type === "ontology") return { id: entry.id ?? "", label: entry.label ?? "" };
+  return entry.value ?? "";
 }
 
 /** Convert date string fields to dayjs objects so antd DatePicker receives the correct type */
