@@ -1,6 +1,6 @@
 {
   "name": "bento_web",
-  "version": "8.2.0",
+  "version": "8.3.0",
   "private": true,
   "description": "Bento platform front-end",
   "main": "src/index.tsx",
@@ -14,7 +14,7 @@
     "antd": "~5.29.3",
     "bento-auth-js": "^7.2.2",
     "bento-charts": "~2.13.1",
-    "bento-file-display": "https://github.com/bento-platform/bento-file-display/releases/download/v0.5.2/bento-file-display-v0.5.2.tgz",
+    "bento-file-display": "https://github.com/bento-platform/bento-file-display/releases/download/v0.5.3/bento-file-display-v0.5.3.tgz",
     "cross-fetch": "^4.0.0",
     "dayjs": "^1.11.13",
     "file-saver": "^2.0.5",
