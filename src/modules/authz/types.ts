@@ -35,6 +35,7 @@ export interface Grant {
 export interface StoredGrant extends Grant {
   id: number;
   created: string;
+  mutable: boolean;
 }
 
 export type GroupMembership = { expr: Array<string | number> } | { members: SpecificSubject[] };
@@ -49,4 +50,5 @@ export interface Group {
 export interface StoredGroup extends Group {
   id: number;
   created: string;
+  mutable: boolean;
 }
