@@ -146,6 +146,7 @@ const GrantsTabContent = () => {
               title: "Actions",
               key: "actions",
               render: (grant) => {
+                if (!grant.mutable) return <span style={{ fontStyle: "italic", color: "#8c8c8c" }}>Immutable</span>;
                 const pObj = grantResourcePermissionsObjects[makeResourceKey(grant.resource)];
                 const pLoading = pObj.isFetching;
                 const canEdit = pObj.permissions.includes(editPermissions);

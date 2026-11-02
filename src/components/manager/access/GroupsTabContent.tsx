@@ -284,52 +284,55 @@ const GroupsTabContent = () => {
               title: "Actions",
               key: "actions",
               // TODO: hook up delete
-              render: (group) => (
-                <>
-                  <Button
-                    size="small"
-                    icon={<EditOutlined />}
-                    disabled={editModalOpen}
-                    onClick={() => {
-                      setSelectedGroup(group);
-                      setEditModalOpen(true);
-                    }}
-                  >
-                    Edit
-                  </Button>{" "}
-                  <Button
-                    size="small"
-                    danger={true}
-                    icon={<DeleteOutlined />}
-                    onClick={() => {
-                      const nGrants = groupGrants[group.id]?.length ?? 0;
-                      const grantNoun = `grant${nGrants === 1 ? "" : "s"}`;
+              render: (group) =>
+                group.mutable ? (
+                  <>
+                    <Button
+                      size="small"
+                      icon={<EditOutlined />}
+                      disabled={editModalOpen}
+                      onClick={() => {
+                        setSelectedGroup(group);
+                        setEditModalOpen(true);
+                      }}
+                    >
+                      Edit
+                    </Button>{" "}
+                    <Button
+                      size="small"
+                      danger={true}
+                      icon={<DeleteOutlined />}
+                      onClick={() => {
+                        const nGrants = groupGrants[group.id]?.length ?? 0;
+                        const grantNoun = `grant${nGrants === 1 ? "" : "s"}`;
 
-                      modal.confirm({
-                        title: (
-                          <>
-                            Are you sure you wish to delete group &ldquo;{group.name}&rdquo; (ID: {group.id}), as well
-                            as {nGrants} dependent {grantNoun}?
-                          </>
-                        ),
-                        content: (
-                          <Typography.Paragraph>
-                            Doing so will alter who can view or manipulate data inside this Bento instance, and may even
-                            affect <strong>your own</strong> access!
-                          </Typography.Paragraph>
-                        ),
-                        okButtonProps: { danger: true, icon: <DeleteOutlined /> },
-                        okText: `Delete group and ${nGrants} ${grantNoun}`,
-                        onOk: () => dispatch(deleteGroup(group)),
-                        width: 600,
-                        maskClosable: true,
-                      });
-                    }}
-                  >
-                    Delete
-                  </Button>
-                </>
-              ),
+                        modal.confirm({
+                          title: (
+                            <>
+                              Are you sure you wish to delete group &ldquo;{group.name}&rdquo; (ID: {group.id}), as well
+                              as {nGrants} dependent {grantNoun}?
+                            </>
+                          ),
+                          content: (
+                            <Typography.Paragraph>
+                              Doing so will alter who can view or manipulate data inside this Bento instance, and may
+                              even affect <strong>your own</strong> access!
+                            </Typography.Paragraph>
+                          ),
+                          okButtonProps: { danger: true, icon: <DeleteOutlined /> },
+                          okText: `Delete group and ${nGrants} ${grantNoun}`,
+                          onOk: () => dispatch(deleteGroup(group)),
+                          width: 600,
+                          maskClosable: true,
+                        });
+                      }}
+                    >
+                      Delete
+                    </Button>
+                  </>
+                ) : (
+                  <span style={{ fontStyle: "italic", color: "#8c8c8c" }}>Immutable</span>
+                ),
             },
           ] as TableColumnsType<StoredGroup>)
         : []),
