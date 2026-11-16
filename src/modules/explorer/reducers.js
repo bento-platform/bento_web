@@ -293,7 +293,8 @@ export const igvGenomes = (state = { items: [], itemsByID: {}, isFetching: false
       return {
         ...state,
         items: action.data ?? [],
-        itemsByID: Object.fromEntries((action.data ?? []).map((g) => [g.id, g])),
+        // lowercase IDs to handle inconsistent casing between the different services
+        itemsByID: Object.fromEntries((action.data ?? []).map((g) => [g.id.toLowerCase(), g])),
       };
     case FETCH_IGV_GENOMES.FINISH:
       return { ...state, isFetching: false, hasAttempted: true };
